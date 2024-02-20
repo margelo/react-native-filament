@@ -1,6 +1,6 @@
 {
   "name": "react-native-filament",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "A real-time physically based 3D rendering engine for React Native",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -26,7 +26,6 @@
     "!**/.*"
   ],
   "scripts": {
-    "example": "yarn workspace react-native-filament-example",
     "test": "jest",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
@@ -44,6 +43,13 @@
     "url": "git+https://github.com/margelo/react-native-filament.git"
   },
   "author": "Marc Rousavy <me@mrousavy.com> (https://github.com/mrousavy)",
+  "contributors": [
+    {
+      "name": "Hanno Gödecke",
+      "url": "https://github.com/hannojg",
+      "email": "hanno@margelo.io"
+    }
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/margelo/react-native-filament/issues"
@@ -53,13 +59,11 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
-    "@commitlint/config-conventional": "^17.0.2",
     "@evilmartians/lefthook": "^1.5.0",
     "@react-native/eslint-config": "^0.73.1",
     "@release-it/conventional-changelog": "^5.0.0",
     "@types/jest": "^29.5.5",
     "@types/react": "^18.2.44",
-    "commitlint": "^17.0.2",
     "del-cli": "^5.1.0",
     "eslint": "^8.51.0",
     "eslint-config-prettier": "^9.0.0",
