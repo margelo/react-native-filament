@@ -24,6 +24,8 @@ public:
   // TODO(hanno): implement
   int loadModel(const std::string& path);
 
+  jsi::Runtime& getRuntime();
+
 private:
   friend HybridBase;
   jni::global_ref<JFilamentProxy::javaobject> _javaPart;
