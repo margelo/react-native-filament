@@ -26,7 +26,8 @@
     "!**/.*"
   ],
   "scripts": {
-    "typecheck": "tsc --noEmit",
+    "typescript": "tsc --noEmit",
+    "check-all": "scripts/check-all.sh",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "clean": "rm -rf android/build example/android/build example/android/app/build example/ios/build lib",
     "prepare": "bob build",
