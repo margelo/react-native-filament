@@ -15,11 +15,10 @@ using namespace facebook;
 
 class FilamentProxy : public jsi::HostObject {
 public:
-  virtual ~FilamentProxy();
+  virtual ~FilamentProxy() = 0;
 
 private:
-  // TODO(hanno): implement
-  virtual int loadModel(const std::string& path);
+  virtual int loadModel(const std::string& path) = 0;
 
 public:
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime& runtime) override;
