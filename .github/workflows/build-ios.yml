@@ -1,0 +1,77 @@
+name: Build iOS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/build-ios.yml'
+      - 'package/cpp/**'
+      - 'package/ios/**'
+      - 'package/*.podspec'
+      - 'package/example/ios/**'
+  pull_request:
+    paths:
+      - '.github/workflows/build-ios.yml'
+      - 'package/cpp/**'
+      - 'package/ios/**'
+      - 'package/*.podspec'
+      - 'package/example/ios/**'
+
+jobs:
+  build:
+    name: Build iOS Example App
+    runs-on: macOS-latest
+    defaults:
+      run:
+        working-directory: package/example/ios
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+      - name: Restore node_modules from cache
+        uses: actions/cache@v4
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Install node_modules for example/
+        run: yarn install --frozen-lockfile --cwd ..
+
+      - name: Restore buildcache
+        uses: mikehardy/buildcache-action@v2
+        continue-on-error: true
+
+      - name: Setup Ruby (bundle)
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6.10
+          bundler-cache: true
+          working-directory: package/example/ios
+
+      - name: Restore Pods cache
+        uses: actions/cache@v4
+        with:
+          path: package/example/ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+      - name: Install Pods
+        run: bundle exec pod install
+      - name: Install xcpretty
+        run: gem install xcpretty
+      - name: Build App
+        run: "set -o pipefail && xcodebuild \
+          CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ \
+          -derivedDataPath build -UseModernBuildSystem=YES \
+          -workspace FilamentExample.xcworkspace \
+          -scheme FilamentExample \
+          -sdk iphonesimulator \
+          -configuration Debug \
+          -destination 'platform=iOS Simulator,name=iPhone 11 Pro' \
+          build \
+          CODE_SIGNING_ALLOWED=NO | xcpretty"

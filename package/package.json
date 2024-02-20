@@ -65,6 +65,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
+    "@jamesacarr/eslint-formatter-github-actions": "^0.2.0",
     "@react-native/eslint-config": "^0.73.1",
     "@release-it/conventional-changelog": "^5.0.0",
     "@types/react": "^18.2.44",
