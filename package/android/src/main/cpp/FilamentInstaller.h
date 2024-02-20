@@ -2,9 +2,9 @@
 // Created by Marc Rousavy on 20.02.24.
 //
 
+#include "JFilamentProxy.h"
 #include <fbjni/fbjni.h>
 #include <jni.h>
-#include "JFilamentProxy.h"
 
 namespace margelo {
 

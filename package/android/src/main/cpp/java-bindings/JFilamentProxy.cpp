@@ -23,11 +23,11 @@ int JFilamentProxy::loadModel(const std::string& path) {
 }
 
 jsi::Runtime& JFilamentProxy::getRuntime() {
-    if (_runtime == nullptr) {
-        [[unlikely]];
-        throw std::runtime_error("JSI Runtime was null!");
-    }
-    return *_runtime;
+  if (_runtime == nullptr) {
+    [[unlikely]];
+    throw std::runtime_error("JSI Runtime was null!");
+  }
+  return *_runtime;
 }
 
 void JFilamentProxy::registerNatives() {
