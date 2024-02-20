@@ -1,7 +1,7 @@
-#import <React/RCTViewManager.h>
-#import <React/RCTUIManager.h>
 #import "RCTBridge.h"
 #import "Utils.h"
+#import <React/RCTUIManager.h>
+#import <React/RCTViewManager.h>
 
 @interface FilamentViewManager : RCTViewManager
 @end
@@ -10,14 +10,12 @@
 
 RCT_EXPORT_MODULE(FilamentView)
 
-- (UIView *)view
-{
+- (UIView*)view {
   return [[UIView alloc] init];
 }
 
-RCT_CUSTOM_VIEW_PROPERTY(color, NSString, UIView)
-{
-  [view setBackgroundColor: [Utils hexStringToColor:json]];
+RCT_CUSTOM_VIEW_PROPERTY(color, NSString, UIView) {
+  [view setBackgroundColor:[Utils hexStringToColor:json]];
 }
 
 @end

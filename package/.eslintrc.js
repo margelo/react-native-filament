@@ -1,19 +1,16 @@
 module.exports = {
   root: true,
-  extends: [
-    "@react-native",
-    "prettier"
-  ],
+  extends: ['@react-native', 'prettier'],
   rules: {
-    "prettier/prettier": [
-      "error",
+    'prettier/prettier': [
+      'error',
       {
-        quoteProps: "consistent",
+        quoteProps: 'consistent',
         singleQuote: true,
         tabWidth: 2,
-        trailingComma: "es5",
-        useTabs: false
-      }
-    ]
-  }
+        trailingComma: 'es5',
+        useTabs: false,
+      },
+    ],
+  },
 }
