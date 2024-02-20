@@ -16,7 +16,6 @@ add_library(
         ${PACKAGE_NAME}
         SHARED
         # Shared C++
-        ../cpp/MutableRawBuffer.cpp
         ../cpp/FilamentProxy.cpp
         ../cpp/jsi/Promise.cpp
         # Java JNI
