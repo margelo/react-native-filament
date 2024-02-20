@@ -5,10 +5,10 @@
 #include "FilamentProxy.h"
 #include <jsi/jsi.h>
 
+#include "jsi/Promise.h"
 #include <memory>
 #include <string>
 #include <vector>
-#include "jsi/Promise.h"
 
 namespace margelo {
 

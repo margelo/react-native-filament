@@ -1,5 +1,5 @@
 
-package com.filament;
+package com.margelo.filament;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.NativeModule;

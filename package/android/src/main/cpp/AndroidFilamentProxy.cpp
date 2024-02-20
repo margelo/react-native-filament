@@ -8,8 +8,8 @@ namespace margelo {
 
 using namespace facebook;
 
-explicit AndroidFilamentProxy::AndroidFilamentProxy(jni::alias_ref<JFilamentProxy> filamentProxy):
-  _filamentProxy(jni::make_global(filamentProxy)) { }
+explicit AndroidFilamentProxy::AndroidFilamentProxy(jni::alias_ref<JFilamentProxy> filamentProxy)
+    : _filamentProxy(jni::make_global(filamentProxy)) {}
 
 AndroidFilamentProxy::~AndroidFilamentProxy() {
   // Hermes GC might destroy HostObjects on an arbitrary Thread which might not be

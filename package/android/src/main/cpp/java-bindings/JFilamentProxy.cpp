@@ -9,12 +9,9 @@ namespace margelo {
 
 using namespace facebook;
 
-
-JFilamentProxy::JFilamentProxy(const jni::alias_ref<JFilamentProxy::jhybridobject>& javaThis,
-                               jsi::Runtime* runtime,
-                               const std::shared_ptr<facebook::react::CallInvoker>& callInvoker):
-                              _javaPart(make_global(javaThis)), _runtime(runtime), _callInvoker(callInvoker) { }
-
+JFilamentProxy::JFilamentProxy(const jni::alias_ref<JFilamentProxy::jhybridobject>& javaThis, jsi::Runtime* runtime,
+                               const std::shared_ptr<facebook::react::CallInvoker>& callInvoker)
+    : _javaPart(make_global(javaThis)), _runtime(runtime), _callInvoker(callInvoker) {}
 
 JFilamentProxy::~JFilamentProxy() {
   // TODO(hanno): Cleanup?
@@ -29,9 +26,9 @@ void JFilamentProxy::registerNatives() {
   registerHybrid({makeNativeMethod("initHybrid", JFilamentProxy::initHybrid)});
 }
 
-jni::local_ref<JFilamentProxy::jhybriddata> JFilamentProxy::initHybrid(alias_ref<jhybridobject> jThis,
-                                                                       jlong jsRuntimePointer,
-                                                                       jni::alias_ref<facebook::react::CallInvokerHolder::javaobject> jsCallInvokerHolder) {
+jni::local_ref<JFilamentProxy::jhybriddata>
+JFilamentProxy::initHybrid(alias_ref<jhybridobject> jThis, jlong jsRuntimePointer,
+                           jni::alias_ref<facebook::react::CallInvokerHolder::javaobject> jsCallInvokerHolder) {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Initializing JFilamentProxy...");
 
   // cast from JNI hybrid objects to C++ instances

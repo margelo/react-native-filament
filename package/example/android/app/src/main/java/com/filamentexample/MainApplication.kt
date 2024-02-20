@@ -1,4 +1,4 @@
-package com.filamentexample
+package com.margelo.filamentexample
 
 import android.app.Application
 import com.facebook.react.PackageList

@@ -11,18 +11,15 @@ using namespace facebook;
 Promise::Promise(jsi::Runtime& runtime, jsi::Value resolver, jsi::Value rejecter)
     : runtime(runtime), _resolver(std::move(resolver)), _rejecter(std::move(rejecter)) {}
 
-jsi::Value Promise::createPromise(jsi::Runtime& runtime,
-                                  std::function<void(std::shared_ptr<Promise> promise)> run) {
+jsi::Value Promise::createPromise(jsi::Runtime& runtime, std::function<void(std::shared_ptr<Promise> promise)> run) {
   // Get Promise ctor from global
   auto promiseCtor = runtime.global().getPropertyAsFunction(runtime, "Promise");
 
   auto promiseCallback = jsi::Function::createFromHostFunction(
       runtime, jsi::PropNameID::forUtf8(runtime, "PromiseCallback"), 2,
-      [=](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments,
-          size_t count) -> jsi::Value {
+      [=](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
         // Call function
-        auto promise = std::make_shared<Promise>(runtime, arguments[0].asObject(runtime),
-                                                 arguments[1].asObject(runtime));
+        auto promise = std::make_shared<Promise>(runtime, arguments[0].asObject(runtime), arguments[1].asObject(runtime));
         run(promise);
 
         return jsi::Value::undefined();

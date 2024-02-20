@@ -1,4 +1,4 @@
-package com.filamentexample
+package com.margelo.filamentexample
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
