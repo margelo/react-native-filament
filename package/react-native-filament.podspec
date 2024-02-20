@@ -14,7 +14,19 @@ Pod::Spec.new do |s|
   s.platforms    = { :ios => min_ios_version_supported }
   s.source       = { :git => "https://github.com/margelo/react-native-filament.git", :tag => "#{s.version}" }
 
-  s.source_files = "ios/**/*.{h,m,mm}"
+  # All source files that should be publicly visible
+  # Note how this does not include headers, since those can nameclash.
+  s.source_files = [
+    "ios/**/*.{h,m,mm}",
+    "cpp/**/*.{h,hpp,c,cpp}"
+  ]
+  # Any private headers that are not globally unique should be mentioned here.
+  # Otherwise there will be a nameclash, since CocoaPods flattens out any header directories
+  # See https://github.com/firebase/firebase-ios-sdk/issues/4035 for more details.
+  s.preserve_paths = [
+    "cpp/**/*.h",
+    "ios/**/*.h"
+  ]
 
   # Use install_modules_dependencies helper to install the dependencies if React Native version >=0.71.0.
   # See https://github.com/facebook/react-native/blob/febf6b7f33fdb4904669f99d795eba4c0f95d7bf/scripts/cocoapods/new_architecture.rb#L79.
@@ -38,5 +50,5 @@ Pod::Spec.new do |s|
     s.dependency "RCTTypeSafety"
     s.dependency "ReactCommon/turbomodule/core"
    end
-  end    
+  end
 end
