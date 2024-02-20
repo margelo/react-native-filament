@@ -18,7 +18,7 @@ using namespace facebook;
  */
 class AndroidFilamentProxy : public FilamentProxy {
 public:
-  explicit AndroidFilamentProxy(jni::alias_ref<JFilamentProxy> filamentProxy);
+  explicit AndroidFilamentProxy(jni::alias_ref<JFilamentProxy::javaobject> filamentProxy);
   ~AndroidFilamentProxy();
 
 private:
@@ -26,7 +26,7 @@ private:
   int loadModel(const std::string& path);
 
 private:
-  jni::global_ref<JFilamentProxy> _proxy;
+  jni::global_ref<JFilamentProxy::javaobject> _proxy;
 };
 
 } // namespace margelo

@@ -4,6 +4,7 @@
 
 #include <fbjni/fbjni.h>
 #include <jni.h>
+#include "JFilamentProxy.h"
 
 namespace margelo {
 
@@ -13,7 +14,7 @@ class FilamentInstaller : public jni::JavaClass<FilamentInstaller> {
 public:
   static auto constexpr kJavaDescriptor = "Lcom/margelo/filament/FilamentInstaller;";
   static void registerNatives();
-  static void install(jni::alias_ref<jni::JClass> clazz, jni::alias_ref<JVisionCameraProxy::javaobject> proxy);
+  static void install(jni::alias_ref<jni::JClass> clazz, jni::alias_ref<JFilamentProxy::javaobject> proxy);
 };
 
 }; // namespace margelo

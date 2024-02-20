@@ -18,8 +18,16 @@ JFilamentProxy::~JFilamentProxy() {
 }
 
 int JFilamentProxy::loadModel(const std::string& path) {
-  static const auto method = javaClassLocal()->getMethod<jint(jstring)>("loadModel");
-  return method(_javaPart, make_jstring(path));
+  static const auto method = javaClassLocal()->getMethod<jint(jni::alias_ref<jstring>)>("loadModel");
+  return method(_javaPart, jni::make_jstring(path));
+}
+
+jsi::Runtime& JFilamentProxy::getRuntime() {
+    if (_runtime == nullptr) {
+        [[unlikely]];
+        throw std::runtime_error("JSI Runtime was null!");
+    }
+    return *_runtime;
 }
 
 void JFilamentProxy::registerNatives() {
@@ -27,7 +35,7 @@ void JFilamentProxy::registerNatives() {
 }
 
 jni::local_ref<JFilamentProxy::jhybriddata>
-JFilamentProxy::initHybrid(alias_ref<jhybridobject> jThis, jlong jsRuntimePointer,
+JFilamentProxy::initHybrid(jni::alias_ref<jhybridobject> jThis, jlong jsRuntimePointer,
                            jni::alias_ref<facebook::react::CallInvokerHolder::javaobject> jsCallInvokerHolder) {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Initializing JFilamentProxy...");
 
