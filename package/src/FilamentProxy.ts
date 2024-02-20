@@ -1,4 +1,4 @@
-import { FilamentViewNativeComponent } from './FilamentViewNativeComponent'
+import { FilamentView } from './FilamentViewNativeComponent'
 
 export interface TFilamentProxy {
   /**
@@ -20,7 +20,7 @@ if (global.nativeCallSyncHook == null) {
 // In Bridge architecture there was a separate Module and View, but now it's all a View - how do I add static methods on that?
 // Maybe we need to create a separate FilamentModule as well (in addition to the FilamentView).
 // @ts-expect-error
-const successful = FilamentViewNativeComponent.install()
+const successful = FilamentView.install()
 if (!successful) {
   throw new Error('Failed to initialize react-native-filament! Check the native logs (adb logcat or Xcode logs) for more information.')
 }
