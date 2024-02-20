@@ -1,31 +1,52 @@
-# react-native-filament
+<a href="https://margelo.io">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./img/banner-dark.png" />
+    <source media="(prefers-color-scheme: light)" srcset="./img/banner-light.png" />
+    <img alt="react-native-filament" src="./img/banner-light.png" />
+  </picture>
+</a>
 
-A real-time physically based 3D rendering engine for React Native
+<br />
 
-## Installation
+### Features
+
+react-native-filament is a powerful 3D rendering engine for React Native. It features:
+
+* ⚡ List features here with emojis
+
+Install react-native-filament from npm:
 
 ```sh
-npm install react-native-filament
+npm i react-native-filament
+cd ios && pod install
 ```
 
-## Usage
+..and get started by [loading your model](https://docs.go.here)!
 
-```js
-import { FilamentView } from "react-native-filament";
+### Example
 
-// ...
+```tsx
+function App() {
+  const model = useFilamentModel('duck.gltf')
 
-<FilamentView color="tomato" />
+  return (
+    <Filament
+      style={{ width: 100, height: 100 }}
+      model={model}
+    />
+  )
+}
 ```
 
-## Contributing
+> See the [example](./package/example/) app
 
-See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
+### Adopting at scale
 
-## License
+react-native-filament is provided _as is_.
 
-MIT
+If you need help with integrating react-native-filament in your app or have additional bugfixing or feature requests, reach out to us at [margelo.io](https://margelo.io).
 
----
+### Socials
 
-Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
+* 🐦 [**Follow us on Twitter**](https://twitter.com/margelo) for updates
+* 💬 [**Join the Margelo Community Discord**](https://discord.gg/6CSHz2qAvA) for chatting about VisionCamera
