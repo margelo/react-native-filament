@@ -5,4 +5,4 @@ interface NativeProps extends ViewProps {
   color?: string
 }
 
-export const FilamentViewNativeComponent = codegenNativeComponent<NativeProps>('FilamentView')
+export const FilamentView = codegenNativeComponent<NativeProps>('FilamentView')
