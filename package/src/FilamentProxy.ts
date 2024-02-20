@@ -16,7 +16,10 @@ if (global.nativeCallSyncHook == null) {
   )
 }
 
-// TODO: Figure out how to call the native install method. I couldn't get codegen to properly generate that static method.
+// TODO(hanno): Figure out how to call the native install method. I couldn't get codegen to properly generate that static method.
+// In Bridge architecture there was a separate Module and View, but now it's all a View - how do I add static methods on that?
+// Maybe we need to create a separate FilamentModule as well (in addition to the FilamentView).
+// @ts-expect-error
 const successful = FilamentViewNativeComponent.install()
 if (!successful) {
   throw new Error('Failed to initialize react-native-filament! Check the native logs (adb logcat or Xcode logs) for more information.')

@@ -1,8 +1,8 @@
+#import "FilamentInstaller.h"
 #import "RCTBridge.h"
 #import "Utils.h"
 #import <React/RCTUIManager.h>
 #import <React/RCTViewManager.h>
-#import "FilamentInstaller.h"
 
 @interface FilamentViewManager : RCTViewManager
 @end
