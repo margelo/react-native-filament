@@ -1,4 +1,4 @@
-package com.filament;
+package com.margelo.filament;
 
 import android.graphics.Color;
 

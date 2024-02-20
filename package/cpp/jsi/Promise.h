@@ -26,8 +26,7 @@ public:
   /**
    Create a new Promise and runs the given `run` function.
    */
-  static jsi::Value createPromise(jsi::Runtime& runtime,
-                                  std::function<void(std::shared_ptr<Promise> promise)> run);
+  static jsi::Value createPromise(jsi::Runtime& runtime, std::function<void(std::shared_ptr<Promise> promise)> run);
 };
 
 } // namespace margelo

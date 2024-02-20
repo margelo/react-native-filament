@@ -26,4 +26,4 @@ public:
   jsi::Value get(jsi::Runtime& runtime, const jsi::PropNameID& name) override;
 };
 
-} // namespace vision
+} // namespace margelo

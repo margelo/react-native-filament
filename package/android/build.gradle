@@ -1,3 +1,5 @@
+import java.nio.file.Paths
+
 buildscript {
   repositories {
     google()
@@ -36,9 +38,26 @@ def supportsNamespace() {
   return (major == 7 && minor >= 3) || major >= 8
 }
 
+static def findNodeModules(baseDir) {
+  def basePath = baseDir.toPath().normalize()
+  // Node"s module resolution algorithm searches up to the root directory,
+  // after which the base path will be null
+  while (basePath) {
+    def nodeModulesPath = Paths.get(basePath.toString(), "node_modules")
+    def reactNativePath = Paths.get(nodeModulesPath.toString(), "react-native")
+    if (nodeModulesPath.toFile().exists() && reactNativePath.toFile().exists()) {
+      return nodeModulesPath.toString()
+    }
+    basePath = basePath.getParent()
+  }
+  throw new GradleException("react-native-filament: Failed to find node_modules/ path!")
+}
+
+def nodeModules = findNodeModules(projectDir)
+
 android {
   if (supportsNamespace()) {
-    namespace "com.filament"
+    namespace "com.margelo.filament"
 
     sourceSets {
       main {
@@ -54,10 +73,24 @@ android {
     targetSdkVersion getExtOrIntegerDefault("targetSdkVersion")
     buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
 
+    externalNativeBuild {
+      cmake {
+        cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
+        arguments "-DANDROID_STL=c++_shared",
+                "-DNODE_MODULES_DIR=${nodeModules}"
+      }
+    }
+  }
+
+  externalNativeBuild {
+    cmake {
+      path "CMakeLists.txt"
+    }
   }
 
   buildFeatures {
     buildConfig true
+    prefab true
   }
 
   buildTypes {
@@ -107,6 +140,21 @@ if (isNewArchitectureEnabled()) {
   react {
     jsRootDir = file("../src/")
     libraryName = "FilamentView"
-    codegenJavaPackageName = "com.filament"
+    codegenJavaPackageName = "com.margelo.filament"
+  }
+}
+
+task deleteCmakeCache() {
+  doFirst {
+    delete "${projectDir}/.cxx"
+    delete "${nodeModules}/react-native-filament/android/.cxx"
+    delete "${nodeModules}/react-native-filament/android/build"
+  }
+}
+
+tasks.configureEach { task ->
+  // C++ clean
+  if (task.name.contains("clean")) {
+    task.dependsOn(deleteCmakeCache)
   }
 }
