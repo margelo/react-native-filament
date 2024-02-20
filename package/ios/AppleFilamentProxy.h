@@ -7,7 +7,22 @@
 //
 
 #include "FilamentProxy.h"
+#include <jsi/jsi.h>
+#include <ReactCommon/CallInvoker.h>
+
+namespace margelo {
 
 class AppleFilamentProxy : public FilamentProxy {
+public:
+  explicit AppleFilamentProxy(jsi::Runtime* runtime, std::shared_ptr<react::CallInvoker> callInvoker);
   ~AppleFilamentProxy();
-}
+  
+public:
+  int loadModel(const std::string &path) override;
+  
+private:
+  jsi::Runtime* _runtime;
+  std::shared_ptr<react::CallInvoker> _callInvoker;
+};
+
+} // namespace margelo

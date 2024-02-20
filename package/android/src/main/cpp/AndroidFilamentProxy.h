@@ -23,7 +23,7 @@ public:
 
 private:
   // TODO(hanno): implement
-  int loadModel(const std::string& path);
+  int loadModel(const std::string& path) override;
 
 private:
   jni::global_ref<JFilamentProxy::javaobject> _proxy;
