@@ -29,6 +29,7 @@ jsi::Value FilamentProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
         runtime, jsi::PropNameID::forUtf8(runtime, "loadModel"), 1,
         [this](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
           if (count != 1) {
+            [[unlikely]];
             throw jsi::JSError(runtime, "loadModel: Expected 1 argument(s), but received " + std::to_string(count) + "!");
           }
           std::string path = arguments[0].asString(runtime).utf8(runtime);
