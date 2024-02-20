@@ -37,9 +37,9 @@ using namespace facebook;
     return NO;
   }
 
-  // global.__filamentProxy
+  // global.FilamentProxy
   auto filamentProxy = std::make_shared<margelo::AppleFilamentProxy>(runtime, callInvoker);
-  runtime->global().setProperty(*runtime, "__filamentProxy", jsi::Object::createFromHostObject(*runtime, filamentProxy));
+  runtime->global().setProperty(*runtime, "FilamentProxy", jsi::Object::createFromHostObject(*runtime, filamentProxy));
 
   return YES;
 }

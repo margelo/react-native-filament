@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
@@ -14,7 +15,7 @@ import com.facebook.react.uimanager.annotations.ReactProp;
 public class FilamentViewManager extends FilamentViewManagerSpec<FilamentView> {
   public static final String NAME = "FilamentView";
   private final ReactApplicationContext context;
-  private FilamentProxy proxy = null;
+  private @Nullable FilamentProxy proxy = null;
 
   FilamentViewManager(ReactApplicationContext context) {
     this.context = context;
@@ -36,18 +37,14 @@ public class FilamentViewManager extends FilamentViewManagerSpec<FilamentView> {
     view.setBackgroundColor(Color.parseColor(color));
   }
 
-  @Override
-  public void initialize() {
-    super.initialize();
-
-    if (proxy != null) {
-      try {
-        System.loadLibrary("RNFilament");
-        proxy = new FilamentProxy(context);
-        FilamentInstaller.install(proxy);
-      } catch (Throwable cause) {
-        throw new RuntimeException("Failed to initialize react-native-filament! Reason: " + cause.getMessage(), cause);
-      }
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  public void install() {
+    try {
+      System.loadLibrary("RNFilament");
+      proxy = new FilamentProxy(context);
+      FilamentInstaller.install(proxy);
+    } catch (Throwable cause) {
+      throw new RuntimeException("Failed to initialize react-native-filament! Reason: " + cause.getMessage(), cause);
     }
   }
 
