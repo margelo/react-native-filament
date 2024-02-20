@@ -5,9 +5,9 @@
 //  Created by Marc Rousavy on 20.02.24.
 //
 
-#import <Foundation/Foundation.h>
 #import "FilamentInstaller.h"
 #import "AppleFilamentProxy.h"
+#import <Foundation/Foundation.h>
 #import <ReactCommon/CallInvoker.h>
 
 #import <React/RCTBridge+Private.h>
@@ -22,7 +22,7 @@ using namespace facebook;
 
 @implementation FilamentInstaller
 
-+ (BOOL)installToBridge:(RCTBridge *)bridge {
++ (BOOL)installToBridge:(RCTBridge*)bridge {
   RCTCxxBridge* cxxBridge = (RCTCxxBridge*)[RCTBridge currentBridge];
   if (!cxxBridge.runtime) {
     return NO;
