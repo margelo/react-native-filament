@@ -58,7 +58,7 @@ target_link_libraries(
         ReactAndroid::jsi                   # <-- RN: JSI
         ReactAndroid::reactnativejni        # <-- RN: React Native JNI bindings
         fbjni::fbjni                        # <-- fbjni
-        GLESv2                              # <-- OpenGL (Core)
+        GLESv3                              # <-- OpenGL (Core)
         EGL                                 # <-- OpenGL (EGL)
 )
 
