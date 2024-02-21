@@ -9,6 +9,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "core/EngineWrapper.h"
 
 namespace margelo {
 
@@ -17,7 +18,8 @@ using namespace facebook;
 std::vector<jsi::PropNameID> FilamentProxy::getPropertyNames(jsi::Runtime& runtime) {
   std::vector<jsi::PropNameID> result;
   // TODO(hanno): add more methods here?
-  result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("loadModel")));
+    result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("loadModel")));
+    result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("createEngine")));
   return result;
 }
 
@@ -42,6 +44,21 @@ jsi::Value FilamentProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& prop
           });
         });
   }
+    if (name == "createEngine") {
+        return jsi::Function::createFromHostFunction(
+                runtime, jsi::PropNameID::forUtf8(runtime, "createEngine"), 1,
+                [this](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+                    if (count != 1) {
+                        [[unlikely]];
+                        throw jsi::JSError(runtime, "createEngine: Expected 1 argument(s), but received " + std::to_string(count) + "!");
+                    }
+                    std::string backend = arguments[0].asString(runtime).utf8(runtime);
+                    // TODO: Parse backend from string
+                    EngineWrapper engine(filament::Engine::Backend::OPENGL);
+
+                    return jsi::Value(13);
+                });
+    }
 
   return jsi::Value::undefined();
 }

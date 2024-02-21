@@ -15,7 +15,7 @@ using namespace filament;
 
 class EngineWrapper {
 public:
-    explicit EngineWrapper();
+    explicit EngineWrapper(filament::Engine::Backend backend);
     ~EngineWrapper();
 
     void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
