@@ -3,14 +3,13 @@
 //
 
 #include "HybridObject.h"
+#include "JSIConverter.h"
 
 namespace margelo {
 
 HybridObject::~HybridObject() {
     _functionCache.clear();
 }
-
-
 
 jsi::Value HybridObject::get(facebook::jsi::Runtime& runtime, const facebook::jsi::PropNameID& propName) {
     if (!_didLoadMethods) {
@@ -97,20 +96,7 @@ ReturnType HybridObject::callMethod(ClassType* obj,
 
 template<typename ArgType>
 ArgType HybridObject::convertArgument(jsi::Runtime& runtime, const jsi::Value& arg) {
-    if constexpr (std::is_same_v<ArgType, int>) {
-        return static_cast<int>(arg.asNumber());
-    } else if constexpr (std::is_same_v<ArgType, double>) {
-        return arg.asNumber();
-    } else if constexpr (std::is_same_v<ArgType, bool>) {
-        return arg.asBool();
-    } else if constexpr (std::is_same_v<ArgType, std::string>) {
-        return arg.asString(runtime).utf8(runtime);
-    } else if constexpr (std::is_same_v<ArgType, int64_t>) {
-        return arg.asBigInt(runtime).asInt64(runtime);
-    } else if constexpr (std::is_same_v<ArgType, uint64_t>) {
-        return arg.asBigInt(runtime).getUint64(runtime);
-    }
-    // TODO: add cases for array, map and other HybridObjects
+    return JSIConverter<ArgType>::fromJSI(runtime, arg);
 }
 
 } // margelo

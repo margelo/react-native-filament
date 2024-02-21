@@ -6,10 +6,11 @@
 
 #include <string>
 #include <vector>
+#include "jsi/HybridObject.h"
 
 namespace margelo {
 
-class Surface {
+class Surface: public HybridObject {
 public:
   /**
    * Returns the surface ("native window") that can be used as a render target.
@@ -24,6 +25,8 @@ public:
    * Gets the height of the Surface.
    */
   virtual int getHeight() = 0;
+
+  void loadHybridMethods() override;
 };
 
 } // namespace margelo

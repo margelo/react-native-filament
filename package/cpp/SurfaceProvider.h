@@ -10,10 +10,11 @@
 #include <memory>
 #include <mutex>
 #include <vector>
+#include "jsi/HybridObject.h"
 
 namespace margelo {
 
-class SurfaceProvider {
+class SurfaceProvider: public HybridObject {
 public:
   using TOnCreate = std::function<void(std::shared_ptr<Surface> surface)>;
   using TOnResize = std::function<void(std::shared_ptr<Surface> surface, int width, int height)>;
@@ -30,13 +31,12 @@ public:
 
   virtual std::shared_ptr<Surface> getSurfaceOrNull() = 0;
 
+  void loadHybridMethods() override;
+
 protected:
   void onSurfaceCreated(std::shared_ptr<Surface> surface);
   void onSurfaceChanged(std::shared_ptr<Surface> surface, int width, int height);
   void onSurfaceDestroyed(std::shared_ptr<Surface> surface);
-
-private:
-  template <typename TListener> Listener addListenerToList(std::vector<TListener>& list, TListener listener);
 
 private:
   std::vector<Callback> _callbacks;

@@ -6,49 +6,43 @@
 
 namespace margelo {
 
-template <typename TListener> Listener SurfaceProvider::addListenerToList(std::vector<TListener>& list, TListener listener) {
-  std::unique_lock lock(_mutex);
-
-  list.push_back(std::move(listener));
-  size_t index = list.size();
-
-  return Listener([weakThis = this, &list, index]() {
-    if (weakThis != nullptr) {
-      std::unique_lock lock(weakThis->_mutex);
-      list.erase(list.begin() + index);
-    }
-  });
+void SurfaceProvider::loadHybridMethods() {
+    registerHybridMethod("getSurface", &SurfaceProvider::getSurfaceOrNull, this);
 }
 
-Listener SurfaceProvider::addOnSurfaceCreatedListener(SurfaceProvider::TOnCreate callback) {
-  return addListenerToList(_onCreateListeners, callback);
-}
-Listener SurfaceProvider::addOnSurfaceChangedListener(SurfaceProvider::TOnChange callback) {
-  return addListenerToList(_onChangeListeners, callback);
-}
-Listener SurfaceProvider::addOnSurfaceDestroyedListener(SurfaceProvider::TOnDestroy callback) {
-  return addListenerToList(_onDestroyListeners, callback);
+Listener SurfaceProvider::addOnSurfaceChangedListener(margelo::SurfaceProvider::Callback callback) {
+    std::unique_lock lock(_mutex);
+
+    _callbacks.push_back(std::move(callback));
+    size_t index = _callbacks.size();
+
+    return Listener([weakThis = this, index]() {
+        if (weakThis != nullptr) {
+            std::unique_lock lock(weakThis->_mutex);
+            weakThis->_callbacks.erase(weakThis->_callbacks.begin() + index);
+        }
+    });
 }
 
 void SurfaceProvider::onSurfaceCreated(std::shared_ptr<Surface> surface) {
   std::unique_lock lock(_mutex);
-  for (const auto& listener : _onCreateListeners) {
-    listener(surface);
+  for (const auto& listener : _callbacks) {
+      listener.onSurfaceCreated(surface);
   }
 }
 
 void SurfaceProvider::onSurfaceChanged(std::shared_ptr<Surface> surface, int width, int height) {
   std::unique_lock lock(_mutex);
-  for (const auto& listener : _onChangeListeners) {
-    listener(surface, width, height);
-  }
+    for (const auto& listener : _callbacks) {
+        listener.onSurfaceSizeChanged(surface, width, height);
+    }
 }
 
 void SurfaceProvider::onSurfaceDestroyed(std::shared_ptr<Surface> surface) {
   std::unique_lock lock(_mutex);
-  for (const auto& listener : _onDestroyListeners) {
-    listener(surface);
-  }
+    for (const auto& listener : _callbacks) {
+        listener.onSurfaceDestroyed(surface);
+    }
 }
 
 } // namespace margelo
