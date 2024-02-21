@@ -21,9 +21,8 @@ public:
     ~EngineWrapper();
 
     void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
-    int testHybrid(bool parameter);
 
-    void loadMethods() override;
+    void loadHybridMethods() override;
 
 private:
     void setSurface(std::shared_ptr<Surface> surface);
