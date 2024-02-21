@@ -21,7 +21,7 @@ EngineWrapper::~EngineWrapper() {
 }
 
 void EngineWrapper::loadHybridMethods() {
-    registerHybridMethod("test", &EngineWrapper::testHybrid, this);
+    registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {

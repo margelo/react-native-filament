@@ -57,46 +57,6 @@ std::vector<jsi::PropNameID> HybridObject::getPropertyNames(facebook::jsi::Runti
     return result;
 }
 
-template<typename Derived, typename ReturnType, typename... Args>
-void HybridObject::registerHybridMethod(std::string name,
-                                        ReturnType(Derived::*method)(Args...),
-                                        Derived* derivedInstance) {
-    if (_methods.count(name) > 0) {
-        [[unlikely]];
-        throw std::runtime_error("Cannot add Hybrid Method \"" + name + "\" - a method with that name already exists!");
-    }
 
-    // TODO(marc): Use std::shared_ptr<T> instead of T* to keep a strong reference of derivedClass.
-    auto func = [this, derivedInstance, method](jsi::Runtime &runtime,
-                                                const jsi::Value &thisVal,
-                                                const jsi::Value *args,
-                                                size_t count) -> jsi::Value {
-        if constexpr (std::is_same_v<ReturnType, void>) {
-            callMethod(derivedInstance, method, runtime, args, std::index_sequence_for<Args...>{});
-            return jsi::Value::undefined();
-        } else {
-            ReturnType result = callMethod(derivedInstance, method, runtime, args, std::index_sequence_for<Args...>{});
-            return jsi::Value(result);
-        }
-    };
-    _methods[name] = HybridFunction {
-        .function = func,
-        .parameterCount = sizeof...(Args)
-    };
-}
-
-template<typename ClassType, typename ReturnType, typename... Args, size_t... Is>
-ReturnType HybridObject::callMethod(ClassType* obj,
-                                    ReturnType(ClassType::*method)(Args...),
-                                    jsi::Runtime& runtime,
-                                    const jsi::Value* args,
-                                    std::index_sequence<Is...>) {
-    return (obj->*method)(convertArgument<Args>(runtime, args[Is])...);
-}
-
-template<typename ArgType>
-ArgType HybridObject::convertArgument(jsi::Runtime& runtime, const jsi::Value& arg) {
-    return JSIConverter<ArgType>::fromJSI(runtime, arg);
-}
 
 } // margelo

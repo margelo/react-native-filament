@@ -8,6 +8,7 @@
 #include <memory>
 #include <unordered_map>
 #include <jsi/jsi.h>
+#include "JSIConverter.h"
 
 namespace margelo {
 
@@ -48,18 +49,46 @@ private:
     std::unordered_map<jsi::Runtime*, std::unordered_map<std::string, std::shared_ptr<jsi::Function>>> _functionCache;
 
 private:
-    template<typename ArgType>
-    ArgType convertArgument(jsi::Runtime& runtime, const jsi::Value& arg);
-
     template<typename ClassType, typename ReturnType, typename... Args, size_t... Is>
-    ReturnType callMethod(ClassType* obj,
+    jsi::Value callMethod(ClassType* obj,
                           ReturnType(ClassType::*method)(Args...),
                           jsi::Runtime& runtime,
                           const jsi::Value* args,
-                          std::index_sequence<Is...>);
+                          std::index_sequence<Is...>) {
+        if constexpr (std::is_same_v<ReturnType, void>) {
+            (obj->*method)(JSIConverter<Args>::fromJSI(runtime, args[Is])...);
+            return jsi::Value::undefined();
+        } else {
+            ReturnType result = (obj->*method)(JSIConverter<Args>::fromJSI(runtime, args[Is])...);
+            return JSIConverter<ReturnType>::toJSI(runtime, result);
+        }
+    }
+
 protected:
     template<typename Derived, typename ReturnType, typename... Args>
-    void registerHybridMethod(std::string name, ReturnType(Derived::*method)(Args...), Derived* derivedInstance);
+    void registerHybridMethod(std::string name,
+                              ReturnType(Derived::*method)(Args...),
+                              Derived* derivedInstance) {
+        if (_methods.count(name) > 0) {
+            throw std::runtime_error("Cannot add Hybrid Method \"" + name + "\" - a method with that name already exists!");
+        }
+
+        // TODO(marc): Use std::shared_ptr<T> instead of T* to keep a strong reference of derivedClass.
+        auto func = [this, derivedInstance, method](jsi::Runtime &runtime,
+                                                    const jsi::Value &thisVal,
+                                                    const jsi::Value *args,
+                                                    size_t count) -> jsi::Value {
+            return callMethod(derivedInstance,
+                              method,
+                              runtime,
+                              args,
+                              std::index_sequence_for<Args...>{});
+        };
+        _methods[name] = HybridFunction {
+                .function = func,
+                .parameterCount = sizeof...(Args)
+        };
+    }
 };
 
 } // margelo
