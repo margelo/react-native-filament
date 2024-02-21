@@ -4,6 +4,8 @@
 
 #include "JFilamentProxy.h"
 #include <fbjni/fbjni.h>
+#include "JFilamentView.h"
+#include "JNISharedPtr.h"
 
 namespace margelo {
 
@@ -20,6 +22,14 @@ JFilamentProxy::~JFilamentProxy() {
 int JFilamentProxy::loadModel(const std::string& path) {
   static const auto method = javaClassLocal()->getMethod<jint(jni::alias_ref<jstring>)>("loadModel");
   return method(_javaPart, jni::make_jstring(path));
+}
+
+std::shared_ptr<FilamentView> JFilamentProxy::findFilamentView(int id) {
+    static const auto method = javaClassLocal()->getMethod<jni::alias_ref<JFilamentView::javaobject>(jint)>("findFilamentView");
+    jni::local_ref<JFilamentView::javaobject> view = method(_javaPart, id);
+    jni::global_ref<JFilamentView::javaobject> globalRef = jni::make_global(view);
+    std::shared_ptr<JFilamentView> sharedRef = JNISharedPtr::make_shared_from_jni<JFilamentView>(globalRef);
+    return std::static_pointer_cast<FilamentView>(sharedRef);
 }
 
 jsi::Runtime& JFilamentProxy::getRuntime() {
