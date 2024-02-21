@@ -4,4 +4,10 @@
 
 #include "FilamentView.h"
 
-namespace margelo {} // namespace margelo
+namespace margelo {
+
+void FilamentView::loadHybridMethods() {
+    registerHybridMethod("getSurfaceProvider", &FilamentView::getSurfaceProvider, this);
+}
+
+} // namespace margelo

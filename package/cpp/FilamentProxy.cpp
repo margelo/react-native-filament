@@ -16,6 +16,7 @@ using namespace facebook;
 
 void FilamentProxy::loadHybridMethods() {
     registerHybridMethod("loadModel", &FilamentProxy::loadModel, this);
+    registerHybridMethod("findFilamentView", &FilamentProxy::findFilamentView, this);
 }
 
 } // namespace margelo
