@@ -1,5 +1,12 @@
 #!/bin/bash
 
+echo "Did you set up your development tools properly?"
+echo "Did you set up your development tools properly?"
+echo "Did you set up your development tools properly?"
+echo "Did you set up your development tools properly?"
+echo "Did you set up your development tools properly?"
+echo "https://github.com/google/filament/blob/main/BUILDING.md"
+
 sleep 1
 cd "$(dirname "$0")"
 cd ..
