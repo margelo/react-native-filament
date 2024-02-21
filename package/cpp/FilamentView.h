@@ -16,9 +16,6 @@ using namespace facebook;
 
 class FilamentView {
 public:
-  virtual ~FilamentView() = 0;
-
-public:
   virtual const SurfaceProvider& getSurfaceProvider() = 0;
 };
 

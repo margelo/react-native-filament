@@ -16,9 +16,6 @@ namespace margelo {
 using namespace facebook;
 
 class FilamentProxy : public jsi::HostObject {
-public:
-  virtual ~FilamentProxy() = 0;
-
 private:
   virtual int loadModel(const std::string& path) = 0;
   virtual std::shared_ptr<FilamentView> findFilamentView(int id) = 0;

@@ -19,7 +19,7 @@ using namespace facebook;
 class AndroidSurface : public Surface {
 public:
   explicit AndroidSurface(jni::alias_ref<jobject> javaSurface);
-  ~AndroidSurface() override;
+  ~AndroidSurface();
 
   void* getSurface() override;
   int getWidth() override;
