@@ -34,7 +34,7 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
       const view = FilamentProxy.findFilamentView(this.handle)
       const surfaceProvider = view.getSurfaceProvider()
       const surface = surfaceProvider.getSurface()
-      console.log('Surface Width: ' + surface.getWidth())
+      console.log('Surface Width: ' + surface.width)
     }, 1500)
   }
 
