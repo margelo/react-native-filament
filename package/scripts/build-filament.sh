@@ -21,6 +21,7 @@ echo "Preparing desktop tools for macOS... (matc, resgen, etc)"
 echo "Building Filament for iOS and Android ($target)..."
 # -p = platforms
 # -s = iOS simulator support
-./build.sh -p ios,android -i "$target" -s
+# -v = Disable Vulkan support on Android (we only need OpenGL)
+./build.sh -p ios,android -v -i "$target" -s
 
 echo "Done!"
