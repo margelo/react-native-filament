@@ -71,7 +71,10 @@ void HybridObject::set(facebook::jsi::Runtime& runtime,
     if (_setters.count(name) > 0) {
         // Call setter
         _setters[name](runtime, jsi::Value::undefined(), &value, 1);
+        return;
     }
+
+    HostObject::set(runtime, propName, value);
 }
 
 void HybridObject::ensureInitialized() {
