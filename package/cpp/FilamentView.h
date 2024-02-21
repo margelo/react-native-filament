@@ -9,14 +9,17 @@
 #include "SurfaceProvider.h"
 #include <string>
 #include <vector>
+#include "jsi/HybridObject.h"
 
 namespace margelo {
 
 using namespace facebook;
 
-class FilamentView {
+class FilamentView: public HybridObject {
 public:
-  virtual const SurfaceProvider& getSurfaceProvider() = 0;
+  virtual std::shared_ptr<SurfaceProvider> getSurfaceProvider() = 0;
+
+  void loadHybridMethods() override;
 };
 
 } // namespace margelo
