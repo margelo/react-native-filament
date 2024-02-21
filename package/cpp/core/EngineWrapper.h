@@ -9,16 +9,21 @@
 #include "Surface.h"
 #include "SurfaceProvider.h"
 
+#include "jsi/HybridObject.h"
+
 namespace margelo {
 
 using namespace filament;
 
-class EngineWrapper {
+class EngineWrapper: public HybridObject {
 public:
     explicit EngineWrapper(filament::Engine::Backend backend);
     ~EngineWrapper();
 
     void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
+    int testHybrid(bool parameter);
+
+    void loadMethods() override;
 
 private:
     void setSurface(std::shared_ptr<Surface> surface);
