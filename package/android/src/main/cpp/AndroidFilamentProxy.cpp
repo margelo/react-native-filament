@@ -17,7 +17,7 @@ AndroidFilamentProxy::~AndroidFilamentProxy() {
   jni::ThreadScope::WithClassLoader([&] { _proxy.reset(); });
 }
 
-int AndroidFilamentProxy::loadModel(const std::string& path) {
+int AndroidFilamentProxy::loadModel(std::string path) {
   return _proxy->cthis()->loadModel(path);
 }
 
