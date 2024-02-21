@@ -19,7 +19,7 @@ public:
   virtual ~FilamentView() = 0;
 
 public:
-  virtual std::shared_ptr<SurfaceProvider> getSurfaceProvider() = 0;
+  virtual const SurfaceProvider& getSurfaceProvider() = 0;
 };
 
 } // namespace margelo

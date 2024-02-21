@@ -3,10 +3,13 @@
 //
 
 #include "JFilamentView.h"
+#include "JSurfaceProvider.h"
 
 namespace margelo {
 
-JFilamentView::JFilamentView(const jni::alias_ref<jhybridobject>& javaThis): _javaPart(make_global(javaThis)) {}
+JFilamentView::JFilamentView(const jni::alias_ref<jhybridobject>& javaThis,
+                             jni::alias_ref<JSurfaceProvider::javaobject> surfaceProvider):
+                             _javaPart(make_global(javaThis)), _surfaceProvider(jni::make_global(surfaceProvider)) {}
 
 JFilamentView::~JFilamentView() {
     // TODO(marc): Cleanup?
@@ -14,19 +17,18 @@ JFilamentView::~JFilamentView() {
 
 void JFilamentView::registerNatives() {
     registerHybrid({
-           makeNativeMethod("initHybrid", JSurfaceProvider::initHybrid),
+           makeNativeMethod("initHybrid", JFilamentView::initHybrid),
     });
 }
 
-jni::local_ref<JFilamentView::jhybriddata> JFilamentView::initHybrid(jni::alias_ref<jhybridobject> jThis) {
+jni::local_ref<JFilamentView::jhybriddata> JFilamentView::initHybrid(jni::alias_ref<jhybridobject> jThis,
+                                                                     jni::alias_ref<JSurfaceProvider::javaobject> surfaceProvider) {
     __android_log_write(ANDROID_LOG_INFO, TAG, "Initializing JFilamentView...");
-    return makeCxxInstance(jThis);
+    return makeCxxInstance(jThis, surfaceProvider);
 }
 
-std::shared_ptr<SurfaceProvider> getSurfaceProvider() {
-    auto method = getClass()->getMethod<jni::alias_ref<JSurfaceProvider>>("getSurfaceProvider");
-    jni::alias_ref<JSurfaceProvider> surfaceProvider = method(self());
-    return surfaceProvider;
+const SurfaceProvider& JFilamentView::getSurfaceProvider() {
+    return *_surfaceProvider->cthis();
 }
 
 
