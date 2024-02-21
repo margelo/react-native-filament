@@ -16,12 +16,14 @@ public class FilamentViewPackage implements ReactPackage {
   @Override
   public @NonNull List<ViewManager> createViewManagers(@NonNull ReactApplicationContext reactContext) {
     List<ViewManager> viewManagers = new ArrayList<>();
-    viewManagers.add(new FilamentViewManager(reactContext));
+    viewManagers.add(new FilamentViewManager());
     return viewManagers;
   }
 
   @Override
   public @NonNull List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactContext) {
-    return Collections.emptyList();
+    List<NativeModule> modules = new ArrayList<>();
+    modules.add(new FilamentModule(reactContext));
+    return modules;
   }
 }

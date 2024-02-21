@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "FilamentView.h"
 #include <ReactCommon/CallInvokerHolder.h>
 #include <fbjni/fbjni.h>
 #include <jni.h>
@@ -23,6 +24,7 @@ public:
 
   // TODO(hanno): implement
   int loadModel(const std::string& path);
+  std::shared_ptr<FilamentView> findFilamentView(int id);
 
   jsi::Runtime& getRuntime();
 
