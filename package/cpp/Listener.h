@@ -11,6 +11,7 @@ namespace margelo {
 class Listener {
 public:
   explicit Listener(std::function<void()> remove);
+  ~Listener();
   void remove();
 
 private:

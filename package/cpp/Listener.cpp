@@ -8,6 +8,10 @@ namespace margelo {
 
 Listener::Listener(std::function<void()> remove) : _remove(std::move(remove)), _isRemoved(false) {}
 
+Listener::~Listener() {
+  remove();
+}
+
 void Listener::remove() {
   if (_isRemoved) {
     return;

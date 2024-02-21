@@ -16,13 +16,17 @@ namespace margelo {
 class SurfaceProvider {
 public:
   using TOnCreate = std::function<void(std::shared_ptr<Surface> surface)>;
-  using TOnChange = std::function<void(std::shared_ptr<Surface> surface, int width, int height)>;
+  using TOnResize = std::function<void(std::shared_ptr<Surface> surface, int width, int height)>;
   using TOnDestroy = std::function<void(std::shared_ptr<Surface>)>;
 
+    struct Callback {
+        TOnCreate onSurfaceCreated;
+        TOnResize onSurfaceSizeChanged;
+        TOnDestroy onSurfaceDestroyed;
+    };
+
 public:
-  Listener addOnSurfaceCreatedListener(TOnCreate callback);
-  Listener addOnSurfaceChangedListener(TOnChange callback);
-  Listener addOnSurfaceDestroyedListener(TOnDestroy callback);
+  Listener addOnSurfaceChangedListener(Callback callback);
 
   virtual std::shared_ptr<Surface> getSurfaceOrNull() = 0;
 
@@ -35,9 +39,7 @@ private:
   template <typename TListener> Listener addListenerToList(std::vector<TListener>& list, TListener listener);
 
 private:
-  std::vector<TOnCreate> _onCreateListeners;
-  std::vector<TOnChange> _onChangeListeners;
-  std::vector<TOnDestroy> _onDestroyListeners;
+  std::vector<Callback> _callbacks;
   std::mutex _mutex;
 };
 
