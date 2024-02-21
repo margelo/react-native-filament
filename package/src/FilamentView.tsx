@@ -1,11 +1,11 @@
 import React from 'react'
-import { findNodeHandle } from 'react-native'
+import { findNodeHandle, NativeMethods } from 'react-native'
 import { FilamentProxy } from './native/FilamentProxy'
 import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 
 type FilamentViewProps = NativeProps
 
-type RefType = typeof FilamentNativeView
+type RefType = React.Component<NativeProps> & Readonly<NativeMethods>
 
 console.log('loading..')
 console.log('model: ' + FilamentProxy.loadModel('test!'))
@@ -18,6 +18,7 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
     this.ref = React.createRef<RefType>()
   }
 
+  // TODO: Does this also work for Fabric?
   private get handle(): number {
     const nodeHandle = findNodeHandle(this.ref.current)
     if (nodeHandle == null || nodeHandle === -1) {
@@ -29,6 +30,7 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
 
   componentDidMount() {
     setTimeout(() => {
+      // TODO(hanno): Create types for all the things you expose as HybridObjects.
       const view = FilamentProxy.findFilamentView(this.handle)
       const surfaceProvider = view.getSurfaceProvider()
       const surface = surfaceProvider.getSurface()
