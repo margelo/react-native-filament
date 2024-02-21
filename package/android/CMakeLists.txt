@@ -11,6 +11,11 @@ find_package(ReactAndroid REQUIRED CONFIG)
 find_package(fbjni REQUIRED CONFIG)
 find_library(LOG_LIB log)
 
+# Filament (local CMake project as a git submodule)
+set(FILAMENT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../filament")
+set(FILAMENT_ENABLE_JAVA OFF CACHE BOOL "Disable Filament's Java bindings")
+add_subdirectory("${FILAMENT_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/filament_build")
+
 # Add react-native-filament sources
 add_library(
         ${PACKAGE_NAME}
@@ -43,6 +48,7 @@ target_include_directories(
         "${NODE_MODULES_DIR}/react-native/ReactCommon"
         "${NODE_MODULES_DIR}/react-native/ReactCommon/callinvoker"
         "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/react/turbomodule" # <-- CallInvokerHolder JNI wrapper
+        "${FILAMENT_DIR}/filament/include"
 )
 
 # Link everything together
@@ -55,4 +61,5 @@ target_link_libraries(
         fbjni::fbjni                        # <-- fbjni
         GLESv2                              # <-- OpenGL (Core)
         EGL                                 # <-- OpenGL (EGL)
+        filament
 )

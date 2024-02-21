@@ -1,1 +1,1 @@
-export * from './FilamentViewNativeComponent'
+export * from './FilamentView'
