@@ -4,6 +4,4 @@
 
 #include "FilamentView.h"
 
-namespace margelo {
-
-} // namespace margelo
+namespace margelo {} // namespace margelo

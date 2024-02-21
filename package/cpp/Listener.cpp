@@ -6,14 +6,14 @@
 
 namespace margelo {
 
-Listener::Listener(std::function<void()> remove): _remove(std::move(remove)), _isRemoved(false) {}
+Listener::Listener(std::function<void()> remove) : _remove(std::move(remove)), _isRemoved(false) {}
 
 void Listener::remove() {
-    if (_isRemoved) {
-        return;
-    }
-    _remove();
-    _isRemoved = true;
+  if (_isRemoved) {
+    return;
+  }
+  _remove();
+  _isRemoved = true;
 }
 
-} // margelo
+} // namespace margelo

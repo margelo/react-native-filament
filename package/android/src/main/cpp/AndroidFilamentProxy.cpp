@@ -22,7 +22,7 @@ int AndroidFilamentProxy::loadModel(const std::string& path) {
 }
 
 std::shared_ptr<FilamentView> AndroidFilamentProxy::findFilamentView(int id) {
-    return _proxy->cthis()->findFilamentView(id);
+  return _proxy->cthis()->findFilamentView(id);
 }
 
 } // namespace margelo

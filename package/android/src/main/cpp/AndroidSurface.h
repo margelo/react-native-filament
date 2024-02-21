@@ -5,9 +5,9 @@
 #pragma once
 
 #include "Surface.h"
+#include <android/native_window.h>
 #include <fbjni/fbjni.h>
 #include <jni.h>
-#include <android/native_window.h>
 
 namespace margelo {
 
