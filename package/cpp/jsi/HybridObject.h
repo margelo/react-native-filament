@@ -9,8 +9,6 @@
 #include <unordered_map>
 #include <jsi/jsi.h>
 
-#include "JsiTypeTraits.h"
-
 namespace margelo {
 
 using namespace facebook;
