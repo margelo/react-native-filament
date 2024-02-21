@@ -17,13 +17,24 @@ cd filament
 
 target="release"
 
-echo "Preparing desktop tools for macOS... (matc, resgen, etc)"
-./build.sh -p desktop -i release
 
-echo "Building Filament for iOS and Android ($target)..."
-# -p = platforms
+echo "Building Filament for iOS ($target)..."
 # -s = iOS simulator support
-# -v = Disable Vulkan support on Android (we only need OpenGL)
-./build.sh -p ios,android -v -i "$target" -s
+./build.sh -s -p ios "$target"
+
+echo "Building Filament for Android ($target)"
+mkdir out/android-build-release-aarch64
+cd out/android-build-release-aarch64
+cmake -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release
+  -DFILAMENT_ENABLE_LTO=ON \ # Enable link-time optimizations if supported by the compiler
+  -DFILAMENT_BUILD_FILAMAT=OFF \ # Build filamat and JNI buildings
+  -DFILAMENT_SUPPORTS_OPENGL=ON \ # Include the OpenGL backend
+  -DFILAMENT_SUPPORTS_METAL=OFF \ # Include the Metal backend
+  -DFILAMENT_SUPPORTS_VULKAN=OFF \ # Include the Vulkan backend
+  -DFILAMENT_INSTALL_BACKEND_TEST=OFF \ # Install the backend test library so it can be consumed on iOS
+  -DFILAMENT_USE_EXTERNAL_GLES3=OFF \ # Experimental: Compile Filament against OpenGL ES 3
+  -DFILAMENT_USE_SWIFTSHADER=OFF \ # Compile Filament against SwiftShader
+  -DFILAMENT_SKIP_SAMPLES=ON \ # Don't build sample apps
 
 echo "Done!"
