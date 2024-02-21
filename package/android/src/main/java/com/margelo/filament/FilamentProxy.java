@@ -19,7 +19,7 @@ class FilamentProxy {
     /** @noinspection unused, FieldCanBeLocal */
     @DoNotStrip
     @Keep
-    private final HybridData hybridData;
+    private final HybridData mHybridData;
     private final ReactApplicationContext reactContext;
 
     FilamentProxy(@NonNull ReactApplicationContext context) {
@@ -32,7 +32,7 @@ class FilamentProxy {
         if (!(callInvokerHolder instanceof CallInvokerHolderImpl)) {
             throw new RuntimeException("Failed to initialize react-native-filament: JS Call Invoker is null!");
         }
-        hybridData = initHybrid(runtimePointer, (CallInvokerHolderImpl) callInvokerHolder);
+        mHybridData = initHybrid(runtimePointer, (CallInvokerHolderImpl) callInvokerHolder);
         reactContext = context;
     }
 
