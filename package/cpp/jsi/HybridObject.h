@@ -20,8 +20,6 @@ public:
         jsi::HostFunctionType function;
         size_t parameterCount;
     };
-    using TGetProperty = std::function<jsi::Value(jsi::Runtime&)>;
-    using TSetProperty = std::function<void(jsi::Runtime&, const jsi::Value&)>;
 
 public:
     ~HybridObject();
@@ -49,8 +47,8 @@ public:
 private:
     bool _didLoadMethods = false;
     std::unordered_map<std::string, HybridFunction> _methods;
-    std::unordered_map<std::string, TGetProperty> _getters;
-    std::unordered_map<std::string, TSetProperty> _setters;
+    std::unordered_map<std::string, jsi::HostFunctionType> _getters;
+    std::unordered_map<std::string, jsi::HostFunctionType> _setters;
     std::unordered_map<jsi::Runtime*, std::unordered_map<std::string, std::shared_ptr<jsi::Function>>> _functionCache;
 
 private:
@@ -72,7 +70,25 @@ private:
         }
     }
 
+private:
+    template<typename Derived, typename ReturnType, typename... Args>
+    jsi::HostFunctionType createHybridMethod(ReturnType(Derived::*method)(Args...),
+                                             Derived* derivedInstance) {
+        // TODO(marc): Use std::shared_ptr<T> instead of T* to keep a strong reference of derivedClass.
+        return [this, derivedInstance, method](jsi::Runtime &runtime,
+                                               const jsi::Value &thisVal,
+                                               const jsi::Value *args,
+                                               size_t count) -> jsi::Value {
+            return callMethod(derivedInstance,
+                              method,
+                              runtime,
+                              args,
+                              std::index_sequence_for<Args...>{});
+        };
+    }
+
 protected:
+
     template<typename Derived, typename ReturnType, typename... Args>
     void registerHybridMethod(std::string name,
                               ReturnType(Derived::*method)(Args...),
@@ -81,19 +97,8 @@ protected:
             throw std::runtime_error("Cannot add Hybrid Method \"" + name + "\" - a method/property with that name already exists!");
         }
 
-        // TODO(marc): Use std::shared_ptr<T> instead of T* to keep a strong reference of derivedClass.
-        auto func = [this, derivedInstance, method](jsi::Runtime &runtime,
-                                                    const jsi::Value &thisVal,
-                                                    const jsi::Value *args,
-                                                    size_t count) -> jsi::Value {
-            return callMethod(derivedInstance,
-                              method,
-                              runtime,
-                              args,
-                              std::index_sequence_for<Args...>{});
-        };
         _methods[name] = HybridFunction {
-                .function = func,
+                .function = createHybridMethod(method, derivedInstance),
                 .parameterCount = sizeof...(Args)
         };
     }
@@ -107,14 +112,7 @@ protected:
             throw std::runtime_error("Cannot add Hybrid Property \"" + name + "\" - a method/property with that name already exists!");
         }
 
-        // TODO(marc): Use std::shared_ptr<T> instead of T* to keep a strong reference of derivedClass.
-        _getters[name] = [this, derivedInstance, method] (jsi::Runtime& runtime) -> jsi::Value {
-            return callMethod(derivedInstance,
-                              method,
-                              runtime,
-                              {},
-                              {});
-        };
+        _getters[name] = createHybridMethod(method, derivedInstance);
     }
 
     template<typename Derived, typename ValueType>
@@ -126,14 +124,7 @@ protected:
             throw std::runtime_error("Cannot add Hybrid Property \"" + name + "\" - a method/property with that name already exists!");
         }
 
-        // TODO(marc): Use std::shared_ptr<T> instead of T* to keep a strong reference of derivedClass.
-        _setters[name] = [this, derivedInstance, method] (jsi::Runtime& runtime, const jsi::Value& newValue) {
-            callMethod(derivedInstance,
-                      method,
-                      runtime,
-                      &newValue,
-                      std::index_sequence<0>{});
-        };
+        _setters[name] = createHybridMethod(method, derivedInstance);
     }
 };
 

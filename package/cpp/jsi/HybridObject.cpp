@@ -35,7 +35,7 @@ jsi::Value HybridObject::get(facebook::jsi::Runtime& runtime, const facebook::js
 
     if (_getters.count(name) > 0) {
         // it's a property getter
-        return _getters[name](runtime);
+        return _getters[name](runtime, jsi::Value::undefined(), nullptr, 0);
     }
 
     if (functionCache.count(name) > 0) {
@@ -67,7 +67,7 @@ void HybridObject::set(facebook::jsi::Runtime& runtime,
 
     if (_setters.count(name) > 0) {
         // Call setter
-        _setters[name](runtime, value);
+        _setters[name](runtime, jsi::Value::undefined(), &value, 1);
     }
 }
 
