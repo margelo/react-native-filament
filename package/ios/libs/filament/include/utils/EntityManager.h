@@ -37,99 +37,99 @@ namespace utils {
 
 class UTILS_PUBLIC EntityManager {
 public:
-    // Get the global EntityManager. It is recommended to cache this value.
-    // Thread Safe.
-    static EntityManager& get() noexcept;
+  // Get the global EntityManager. It is recommended to cache this value.
+  // Thread Safe.
+  static EntityManager& get() noexcept;
 
-    class Listener {
-    public:
-        virtual void onEntitiesDestroyed(size_t n, Entity const* entities) noexcept = 0;
-    protected:
-        virtual ~Listener() noexcept;
-    };
+  class Listener {
+  public:
+    virtual void onEntitiesDestroyed(size_t n, Entity const* entities) noexcept = 0;
 
-    // maximum number of entities that can exist at the same time
-    static size_t getMaxEntityCount() noexcept {
-        // because index 0 is reserved, we only have 2^GENERATION_SHIFT - 1 valid indices
-        return RAW_INDEX_COUNT - 1;
-    }
+  protected:
+    virtual ~Listener() noexcept;
+  };
 
-    // number of active Entities
-    size_t getEntityCount() const noexcept;
+  // maximum number of entities that can exist at the same time
+  static size_t getMaxEntityCount() noexcept {
+    // because index 0 is reserved, we only have 2^GENERATION_SHIFT - 1 valid indices
+    return RAW_INDEX_COUNT - 1;
+  }
 
-    // Create n entities. Thread safe.
-    void create(size_t n, Entity* entities);
+  // number of active Entities
+  size_t getEntityCount() const noexcept;
 
-    // destroys n entities. Thread safe.
-    void destroy(size_t n, Entity* entities) noexcept;
+  // Create n entities. Thread safe.
+  void create(size_t n, Entity* entities);
 
-    // Create a new Entity. Thread safe.
-    // Return Entity.isNull() if the entity cannot be allocated.
-    Entity create() {
-        Entity e;
-        create(1, &e);
-        return e;
-    }
+  // destroys n entities. Thread safe.
+  void destroy(size_t n, Entity* entities) noexcept;
 
-    // Destroys an Entity. Thread safe.
-    void destroy(Entity e) noexcept {
-        destroy(1, &e);
-    }
+  // Create a new Entity. Thread safe.
+  // Return Entity.isNull() if the entity cannot be allocated.
+  Entity create() {
+    Entity e;
+    create(1, &e);
+    return e;
+  }
 
-    // Return whether the given Entity has been destroyed (false) or not (true).
-    // Thread safe.
-    bool isAlive(Entity e) const noexcept {
-        assert(getIndex(e) < RAW_INDEX_COUNT);
-        return (!e.isNull()) && (getGeneration(e) == mGens[getIndex(e)]);
-    }
+  // Destroys an Entity. Thread safe.
+  void destroy(Entity e) noexcept {
+    destroy(1, &e);
+  }
 
-    // Registers a listener to be called when an entity is destroyed. Thread safe.
-    // If the listener is already registered, this method has no effect.
-    void registerListener(Listener* l) noexcept;
+  // Return whether the given Entity has been destroyed (false) or not (true).
+  // Thread safe.
+  bool isAlive(Entity e) const noexcept {
+    assert(getIndex(e) < RAW_INDEX_COUNT);
+    return (!e.isNull()) && (getGeneration(e) == mGens[getIndex(e)]);
+  }
 
-    // unregisters a listener.
-    void unregisterListener(Listener* l) noexcept;
+  // Registers a listener to be called when an entity is destroyed. Thread safe.
+  // If the listener is already registered, this method has no effect.
+  void registerListener(Listener* l) noexcept;
 
+  // unregisters a listener.
+  void unregisterListener(Listener* l) noexcept;
 
-    /* no user serviceable parts below */
+  /* no user serviceable parts below */
 
-    // current generation of the given index. Use for debugging and testing.
-    uint8_t getGenerationForIndex(size_t index) const noexcept {
-        return mGens[index];
-    }
+  // current generation of the given index. Use for debugging and testing.
+  uint8_t getGenerationForIndex(size_t index) const noexcept {
+    return mGens[index];
+  }
 
-    // singleton, can't be copied
-    EntityManager(const EntityManager& rhs) = delete;
-    EntityManager& operator=(const EntityManager& rhs) = delete;
+  // singleton, can't be copied
+  EntityManager(const EntityManager& rhs) = delete;
+  EntityManager& operator=(const EntityManager& rhs) = delete;
 
 #if FILAMENT_UTILS_TRACK_ENTITIES
-    std::vector<Entity> getActiveEntities() const;
-    void dumpActiveEntities(utils::io::ostream& out) const;
+  std::vector<Entity> getActiveEntities() const;
+  void dumpActiveEntities(utils::io::ostream& out) const;
 #endif
 
 private:
-    friend class EntityManagerImpl;
-    EntityManager();
-    ~EntityManager();
+  friend class EntityManagerImpl;
+  EntityManager();
+  ~EntityManager();
 
-    // GENERATION_SHIFT determines how many simultaneous Entities are available, the
-    // minimum memory requirement is 2^GENERATION_SHIFT bytes.
-    static constexpr const int GENERATION_SHIFT = 17;
-    static constexpr const size_t RAW_INDEX_COUNT = (1 << GENERATION_SHIFT);
-    static constexpr const Entity::Type INDEX_MASK = (1 << GENERATION_SHIFT) - 1u;
+  // GENERATION_SHIFT determines how many simultaneous Entities are available, the
+  // minimum memory requirement is 2^GENERATION_SHIFT bytes.
+  static constexpr const int GENERATION_SHIFT = 17;
+  static constexpr const size_t RAW_INDEX_COUNT = (1 << GENERATION_SHIFT);
+  static constexpr const Entity::Type INDEX_MASK = (1 << GENERATION_SHIFT) - 1u;
 
-    static inline Entity::Type getGeneration(Entity e) noexcept {
-        return e.getId() >> GENERATION_SHIFT;
-    }
-    static inline Entity::Type getIndex(Entity e) noexcept  {
-        return e.getId() & INDEX_MASK;
-    }
-    static inline Entity::Type makeIdentity(Entity::Type g, Entity::Type i) noexcept {
-        return (g << GENERATION_SHIFT) | (i & INDEX_MASK);
-    }
+  static inline Entity::Type getGeneration(Entity e) noexcept {
+    return e.getId() >> GENERATION_SHIFT;
+  }
+  static inline Entity::Type getIndex(Entity e) noexcept {
+    return e.getId() & INDEX_MASK;
+  }
+  static inline Entity::Type makeIdentity(Entity::Type g, Entity::Type i) noexcept {
+    return (g << GENERATION_SHIFT) | (i & INDEX_MASK);
+  }
 
-    // stores the generation of each index.
-    uint8_t * const mGens;
+  // stores the generation of each index.
+  uint8_t* const mGens;
 };
 
 } // namespace utils

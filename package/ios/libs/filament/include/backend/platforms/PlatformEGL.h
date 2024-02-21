@@ -39,122 +39,120 @@ namespace filament::backend {
  */
 class PlatformEGL : public OpenGLPlatform {
 public:
+  PlatformEGL() noexcept;
+  bool isExtraContextSupported() const noexcept override;
+  void createContext(bool shared) override;
+  void releaseContext() noexcept override;
 
-    PlatformEGL() noexcept;
-    bool isExtraContextSupported() const noexcept override;
-    void createContext(bool shared) override;
-    void releaseContext() noexcept override;
-
-    // Return true if we're on an OpenGL platform (as opposed to OpenGL ES). false by default.
-    virtual bool isOpenGL() const noexcept;
+  // Return true if we're on an OpenGL platform (as opposed to OpenGL ES). false by default.
+  virtual bool isOpenGL() const noexcept;
 
 protected:
+  // --------------------------------------------------------------------------------------------
+  // Helper for EGL configs and attributes parameters
 
-    // --------------------------------------------------------------------------------------------
-    // Helper for EGL configs and attributes parameters
+  class Config {
+  public:
+    Config();
+    Config(std::initializer_list<std::pair<EGLint, EGLint>> list);
+    EGLint& operator[](EGLint name);
+    EGLint operator[](EGLint name) const;
+    void erase(EGLint name) noexcept;
+    EGLint const* data() const noexcept {
+      return reinterpret_cast<EGLint const*>(mConfig.data());
+    }
+    size_t size() const noexcept {
+      return mConfig.size();
+    }
 
-    class Config {
-    public:
-        Config();
-        Config(std::initializer_list<std::pair<EGLint, EGLint>> list);
-        EGLint& operator[](EGLint name);
-        EGLint operator[](EGLint name) const;
-        void erase(EGLint name) noexcept;
-        EGLint const* data() const noexcept {
-            return reinterpret_cast<EGLint const*>(mConfig.data());
-        }
-        size_t size() const noexcept {
-            return mConfig.size();
-        }
-    private:
-        std::vector<std::pair<EGLint, EGLint>> mConfig = {{ EGL_NONE, EGL_NONE }};
-    };
+  private:
+    std::vector<std::pair<EGLint, EGLint>> mConfig = {{EGL_NONE, EGL_NONE}};
+  };
 
-    // --------------------------------------------------------------------------------------------
-    // Platform Interface
+  // --------------------------------------------------------------------------------------------
+  // Platform Interface
 
-    /**
-     * Initializes EGL, creates the OpenGL context and returns a concrete Driver implementation
-     * that supports OpenGL/OpenGL ES.
-     */
-    Driver* createDriver(void* sharedContext,
-            const Platform::DriverConfig& driverConfig) noexcept override;
+  /**
+   * Initializes EGL, creates the OpenGL context and returns a concrete Driver implementation
+   * that supports OpenGL/OpenGL ES.
+   */
+  Driver* createDriver(void* sharedContext, const Platform::DriverConfig& driverConfig) noexcept override;
 
-    /**
-     * This returns zero. This method can be overridden to return something more useful.
-     * @return zero
-     */
-    int getOSVersion() const noexcept override;
+  /**
+   * This returns zero. This method can be overridden to return something more useful.
+   * @return zero
+   */
+  int getOSVersion() const noexcept override;
 
-    // --------------------------------------------------------------------------------------------
-    // OpenGLPlatform Interface
+  // --------------------------------------------------------------------------------------------
+  // OpenGLPlatform Interface
 
-    void terminate() noexcept override;
+  void terminate() noexcept override;
 
-    bool isSRGBSwapChainSupported() const noexcept override;
-    SwapChain* createSwapChain(void* nativewindow, uint64_t flags) noexcept override;
-    SwapChain* createSwapChain(uint32_t width, uint32_t height, uint64_t flags) noexcept override;
-    void destroySwapChain(SwapChain* swapChain) noexcept override;
-    void makeCurrent(SwapChain* drawSwapChain, SwapChain* readSwapChain) noexcept override;
-    void commit(SwapChain* swapChain) noexcept override;
+  bool isSRGBSwapChainSupported() const noexcept override;
+  SwapChain* createSwapChain(void* nativewindow, uint64_t flags) noexcept override;
+  SwapChain* createSwapChain(uint32_t width, uint32_t height, uint64_t flags) noexcept override;
+  void destroySwapChain(SwapChain* swapChain) noexcept override;
+  void makeCurrent(SwapChain* drawSwapChain, SwapChain* readSwapChain) noexcept override;
+  void commit(SwapChain* swapChain) noexcept override;
 
-    bool canCreateFence() noexcept override;
-    Fence* createFence() noexcept override;
-    void destroyFence(Fence* fence) noexcept override;
-    FenceStatus waitFence(Fence* fence, uint64_t timeout) noexcept override;
+  bool canCreateFence() noexcept override;
+  Fence* createFence() noexcept override;
+  void destroyFence(Fence* fence) noexcept override;
+  FenceStatus waitFence(Fence* fence, uint64_t timeout) noexcept override;
 
-    OpenGLPlatform::ExternalTexture* createExternalImageTexture() noexcept override;
-    void destroyExternalImage(ExternalTexture* texture) noexcept override;
-    bool setExternalImage(void* externalImage, ExternalTexture* texture) noexcept override;
+  OpenGLPlatform::ExternalTexture* createExternalImageTexture() noexcept override;
+  void destroyExternalImage(ExternalTexture* texture) noexcept override;
+  bool setExternalImage(void* externalImage, ExternalTexture* texture) noexcept override;
 
-    /**
-     * Logs glGetError() to slog.e
-     * @param name a string giving some context on the error. Typically __func__.
-     */
-    static void logEglError(const char* name) noexcept;
-    static void logEglError(const char* name, EGLint error) noexcept;
-    static const char* getEglErrorName(EGLint error) noexcept;
+  /**
+   * Logs glGetError() to slog.e
+   * @param name a string giving some context on the error. Typically __func__.
+   */
+  static void logEglError(const char* name) noexcept;
+  static void logEglError(const char* name, EGLint error) noexcept;
+  static const char* getEglErrorName(EGLint error) noexcept;
 
-    /**
-     * Calls glGetError() to clear the current error flags. logs a warning to log.w if
-     * an error was pending.
-     */
-    static void clearGlError() noexcept;
+  /**
+   * Calls glGetError() to clear the current error flags. logs a warning to log.w if
+   * an error was pending.
+   */
+  static void clearGlError() noexcept;
 
-    /**
-     * Always use this instead of eglMakeCurrent().
-     */
-    EGLBoolean makeCurrent(EGLSurface drawSurface, EGLSurface readSurface) noexcept;
+  /**
+   * Always use this instead of eglMakeCurrent().
+   */
+  EGLBoolean makeCurrent(EGLSurface drawSurface, EGLSurface readSurface) noexcept;
 
-    // TODO: this should probably use getters instead.
-    EGLDisplay mEGLDisplay = EGL_NO_DISPLAY;
-    EGLContext mEGLContext = EGL_NO_CONTEXT;
-    EGLSurface mCurrentDrawSurface = EGL_NO_SURFACE;
-    EGLSurface mCurrentReadSurface = EGL_NO_SURFACE;
-    EGLSurface mEGLDummySurface = EGL_NO_SURFACE;
-    // mEGLConfig is valid only if ext.egl.KHR_no_config_context is false
-    EGLConfig mEGLConfig = EGL_NO_CONFIG_KHR;
-    Config mContextAttribs;
-    std::vector<EGLContext> mAdditionalContexts;
+  // TODO: this should probably use getters instead.
+  EGLDisplay mEGLDisplay = EGL_NO_DISPLAY;
+  EGLContext mEGLContext = EGL_NO_CONTEXT;
+  EGLSurface mCurrentDrawSurface = EGL_NO_SURFACE;
+  EGLSurface mCurrentReadSurface = EGL_NO_SURFACE;
+  EGLSurface mEGLDummySurface = EGL_NO_SURFACE;
+  // mEGLConfig is valid only if ext.egl.KHR_no_config_context is false
+  EGLConfig mEGLConfig = EGL_NO_CONFIG_KHR;
+  Config mContextAttribs;
+  std::vector<EGLContext> mAdditionalContexts;
 
-    // supported extensions detected at runtime
+  // supported extensions detected at runtime
+  struct {
     struct {
-        struct {
-            bool OES_EGL_image_external_essl3 = false;
-        } gl;
-        struct {
-            bool ANDROID_recordable = false;
-            bool KHR_create_context = false;
-            bool KHR_gl_colorspace = false;
-            bool KHR_no_config_context = false;
-            bool KHR_surfaceless_context = false;
-        } egl;
-    } ext;
+      bool OES_EGL_image_external_essl3 = false;
+    } gl;
+    struct {
+      bool ANDROID_recordable = false;
+      bool KHR_create_context = false;
+      bool KHR_gl_colorspace = false;
+      bool KHR_no_config_context = false;
+      bool KHR_surfaceless_context = false;
+    } egl;
+  } ext;
 
-    void initializeGlExtensions() noexcept;
+  void initializeGlExtensions() noexcept;
 
 protected:
-    EGLConfig findSwapChainConfig(uint64_t flags, bool window, bool pbuffer) const;
+  EGLConfig findSwapChainConfig(uint64_t flags, bool window, bool pbuffer) const;
 };
 
 } // namespace filament::backend

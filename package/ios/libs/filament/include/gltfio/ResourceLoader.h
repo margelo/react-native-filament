@@ -24,7 +24,7 @@
 #include <utils/compiler.h>
 
 namespace filament {
-    class Engine;
+class Engine;
 }
 
 namespace filament::gltfio {
@@ -38,17 +38,17 @@ class TextureProvider;
  * \brief Construction parameters for ResourceLoader.
  */
 struct ResourceConfiguration {
-    //! The engine that the loader should pass to builder objects (e.g.
-    //! filament::Texture::Builder).
-    class filament::Engine* engine;
+  //! The engine that the loader should pass to builder objects (e.g.
+  //! filament::Texture::Builder).
+  class filament::Engine* engine;
 
-    //! Optional path or URI that points to the base glTF file. This is used solely
-    //! to resolve relative paths. The string pointer is not retained.
-    const char* gltfPath;
+  //! Optional path or URI that points to the base glTF file. This is used solely
+  //! to resolve relative paths. The string pointer is not retained.
+  const char* gltfPath;
 
-    //! If true, adjusts skinning weights to sum to 1. Well formed glTF files do not need this,
-    //! but it is useful for robustness.
-    bool normalizeSkinningWeights;
+  //! If true, adjusts skinning weights to sum to 1. Well formed glTF files do not need this,
+  //! but it is useful for robustness.
+  bool normalizeSkinningWeights;
 };
 
 /**
@@ -67,101 +67,99 @@ struct ResourceConfiguration {
  */
 class UTILS_PUBLIC ResourceLoader {
 public:
-    using BufferDescriptor = filament::backend::BufferDescriptor;
+  using BufferDescriptor = filament::backend::BufferDescriptor;
 
-    explicit ResourceLoader(const ResourceConfiguration& config);
-    ~ResourceLoader();
+  explicit ResourceLoader(const ResourceConfiguration& config);
+  ~ResourceLoader();
 
+  void setConfiguration(const ResourceConfiguration& config);
 
-    void setConfiguration(const ResourceConfiguration& config);
+  /**
+   * Feeds the binary content of an external resource into the loader's URI cache.
+   *
+   * On some platforms, `ResourceLoader` does not know how to download external resources on its
+   * own (external resources might come from a filesystem, a database, or the internet) so this
+   * method allows clients to download external resources and push them to the loader.
+   *
+   * Every resource should be passed in before calling #loadResources or #asyncBeginLoad. See
+   * also FilamentAsset#getResourceUris.
+   *
+   * When loading GLB files (as opposed to JSON-based glTF files), clients typically do not
+   * need to call this method.
+   */
+  void addResourceData(const char* uri, BufferDescriptor&& buffer);
 
-    /**
-     * Feeds the binary content of an external resource into the loader's URI cache.
-     *
-     * On some platforms, `ResourceLoader` does not know how to download external resources on its
-     * own (external resources might come from a filesystem, a database, or the internet) so this
-     * method allows clients to download external resources and push them to the loader.
-     *
-     * Every resource should be passed in before calling #loadResources or #asyncBeginLoad. See
-     * also FilamentAsset#getResourceUris.
-     *
-     * When loading GLB files (as opposed to JSON-based glTF files), clients typically do not
-     * need to call this method.
-     */
-    void addResourceData(const char* uri, BufferDescriptor&& buffer);
+  /**
+   * Register a plugin that can consume PNG / JPEG content and produce filament::Texture objects.
+   *
+   * Destruction of the given provider is the client's responsibility.
+   */
+  void addTextureProvider(const char* mimeType, TextureProvider* provider);
 
-    /**
-     * Register a plugin that can consume PNG / JPEG content and produce filament::Texture objects.
-     *
-     * Destruction of the given provider is the client's responsibility.
-     */
-    void addTextureProvider(const char* mimeType, TextureProvider* provider);
+  /**
+   * Checks if the given resource has already been added to the URI cache.
+   */
+  bool hasResourceData(const char* uri) const;
 
-    /**
-     * Checks if the given resource has already been added to the URI cache.
-     */
-    bool hasResourceData(const char* uri) const;
+  /**
+   * Frees memory by evicting the URI cache that was populated via addResourceData.
+   *
+   * This can be called only after a model is fully loaded or after loading has been cancelled.
+   */
+  void evictResourceData();
 
-    /**
-     * Frees memory by evicting the URI cache that was populated via addResourceData.
-     *
-     * This can be called only after a model is fully loaded or after loading has been cancelled.
-     */
-    void evictResourceData();
+  /**
+   * Loads resources for the given asset from the filesystem or data cache and "finalizes" the
+   * asset by transforming the vertex data format if necessary, decoding image files, supplying
+   * tangent data, etc.
+   *
+   * Returns false if resources have already been loaded, or if one or more resources could not
+   * be loaded.
+   *
+   * Note: this method is synchronous and blocks until all textures have been decoded.
+   * For an asynchronous alternative, see #asyncBeginLoad.
+   */
+  bool loadResources(FilamentAsset* asset);
 
-    /**
-     * Loads resources for the given asset from the filesystem or data cache and "finalizes" the
-     * asset by transforming the vertex data format if necessary, decoding image files, supplying
-     * tangent data, etc.
-     *
-     * Returns false if resources have already been loaded, or if one or more resources could not
-     * be loaded.
-     *
-     * Note: this method is synchronous and blocks until all textures have been decoded.
-     * For an asynchronous alternative, see #asyncBeginLoad.
-     */
-    bool loadResources(FilamentAsset* asset);
+  /**
+   * Starts an asynchronous resource load.
+   *
+   * Returns false if the loading process was unable to start.
+   *
+   * This is an alternative to #loadResources and requires periodic calls to #asyncUpdateLoad.
+   * On multi-threaded systems this creates threads for texture decoding.
+   */
+  bool asyncBeginLoad(FilamentAsset* asset);
 
-    /**
-     * Starts an asynchronous resource load.
-     *
-     * Returns false if the loading process was unable to start.
-     *
-     * This is an alternative to #loadResources and requires periodic calls to #asyncUpdateLoad.
-     * On multi-threaded systems this creates threads for texture decoding.
-     */
-    bool asyncBeginLoad(FilamentAsset* asset);
+  /**
+   * Gets the status of an asynchronous resource load as a percentage in [0,1].
+   */
+  float asyncGetLoadProgress() const;
 
-    /**
-     * Gets the status of an asynchronous resource load as a percentage in [0,1].
-     */
-    float asyncGetLoadProgress() const;
+  /**
+   * Updates an asynchronous load by performing any pending work that must take place
+   * on the main thread.
+   *
+   * Clients must periodically call this until #asyncGetLoadProgress returns 100%.
+   * After progress reaches 100%, calling this is harmless; it just does nothing.
+   */
+  void asyncUpdateLoad();
 
-    /**
-     * Updates an asynchronous load by performing any pending work that must take place
-     * on the main thread.
-     *
-     * Clients must periodically call this until #asyncGetLoadProgress returns 100%.
-     * After progress reaches 100%, calling this is harmless; it just does nothing.
-     */
-    void asyncUpdateLoad();
-
-    /**
-     * Cancels pending decoder jobs, frees all CPU-side texel data, and flushes the Engine.
-     *
-     * Calling this is only necessary if the asyncBeginLoad API was used
-     * and cancellation is required before progress reaches 100%.
-     */
-    void asyncCancelLoad();
+  /**
+   * Cancels pending decoder jobs, frees all CPU-side texel data, and flushes the Engine.
+   *
+   * Calling this is only necessary if the asyncBeginLoad API was used
+   * and cancellation is required before progress reaches 100%.
+   */
+  void asyncCancelLoad();
 
 private:
-    bool loadResources(FFilamentAsset* asset, bool async);
-    void normalizeSkinningWeights(FFilamentAsset* asset) const;
-    struct Impl;
-    Impl* pImpl;
+  bool loadResources(FFilamentAsset* asset, bool async);
+  void normalizeSkinningWeights(FFilamentAsset* asset) const;
+  struct Impl;
+  Impl* pImpl;
 };
 
 } // namespace filament::gltfio
 
 #endif // GLTFIO_RESOURCELOADER_H
-

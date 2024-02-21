@@ -20,13 +20,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <utils/compiler.h>
 #include <utils/BitmaskEnum.h>
+#include <utils/compiler.h>
 
 namespace filament {
-    class Engine;
-    class Texture;
-}
+class Engine;
+class Texture;
+} // namespace filament
 
 namespace filament::gltfio {
 
@@ -71,100 +71,99 @@ namespace filament::gltfio {
  */
 class UTILS_PUBLIC TextureProvider {
 public:
-    using Texture = filament::Texture;
+  using Texture = filament::Texture;
 
-    enum class TextureFlags : uint64_t {
-        NONE = 0,
-        sRGB = 1 << 0,
-    };
+  enum class TextureFlags : uint64_t {
+    NONE = 0,
+    sRGB = 1 << 0,
+  };
 
-    /**
-     * Creates a Filament texture and pushes it to the asynchronous decoding queue.
-     *
-     * The provider synchronously determines the texture dimensions in order to create a Filament
-     * texture object, then populates the miplevels asynchronously.
-     *
-     * If construction fails, nothing is pushed to the queue and null is returned. The failure
-     * reason can be obtained with getPushMessage(). The given buffer pointer is not held, so the
-     * caller can free it immediately. It is also the caller's responsibility to free the returned
-     * Texture object, but it is only safe to do so after it has been popped from the queue.
-     */
-    virtual Texture* pushTexture(const uint8_t* data, size_t byteCount,
-            const char* mimeType, TextureFlags flags) = 0;
+  /**
+   * Creates a Filament texture and pushes it to the asynchronous decoding queue.
+   *
+   * The provider synchronously determines the texture dimensions in order to create a Filament
+   * texture object, then populates the miplevels asynchronously.
+   *
+   * If construction fails, nothing is pushed to the queue and null is returned. The failure
+   * reason can be obtained with getPushMessage(). The given buffer pointer is not held, so the
+   * caller can free it immediately. It is also the caller's responsibility to free the returned
+   * Texture object, but it is only safe to do so after it has been popped from the queue.
+   */
+  virtual Texture* pushTexture(const uint8_t* data, size_t byteCount, const char* mimeType, TextureFlags flags) = 0;
 
-    /**
-     * Checks if any texture is ready to be removed from the asynchronous decoding queue, and if so
-     * pops it off.
-     *
-     * Unless an error or cancellation occurred during the decoding process, the returned texture
-     * should have all its miplevels populated. If the texture is not complete, the reason can be
-     * obtained with getPopMessage().
-     *
-     * Due to concurrency, textures are not necessarily popped off in the same order they were
-     * pushed. Returns null if there are no textures that are ready to be popped.
-     */
-    virtual Texture* popTexture() = 0;
+  /**
+   * Checks if any texture is ready to be removed from the asynchronous decoding queue, and if so
+   * pops it off.
+   *
+   * Unless an error or cancellation occurred during the decoding process, the returned texture
+   * should have all its miplevels populated. If the texture is not complete, the reason can be
+   * obtained with getPopMessage().
+   *
+   * Due to concurrency, textures are not necessarily popped off in the same order they were
+   * pushed. Returns null if there are no textures that are ready to be popped.
+   */
+  virtual Texture* popTexture() = 0;
 
-    /**
-     * Polls textures in the queue and uploads mipmap images if any have emerged from the decoder.
-     *
-     * This gives the provider an opportunity to call Texture::setImage() on the foreground thread.
-     * If needed, it can also call Texture::generateMipmaps() here.
-     *
-     * Items in the decoding queue can become "poppable" only during this call.
-     */
-    virtual void updateQueue() = 0;
+  /**
+   * Polls textures in the queue and uploads mipmap images if any have emerged from the decoder.
+   *
+   * This gives the provider an opportunity to call Texture::setImage() on the foreground thread.
+   * If needed, it can also call Texture::generateMipmaps() here.
+   *
+   * Items in the decoding queue can become "poppable" only during this call.
+   */
+  virtual void updateQueue() = 0;
 
-    /**
-     * Returns a failure message for the most recent call to pushTexture(), or null for success.
-     *
-     * Note that this method does not pertain to the decoding process. If decoding fails, clients to
-     * can pop the incomplete texture off the queue and obtain a failure message using the
-     * getPopFailure() method.
-     *
-     * The returned string is owned by the provider and becomes invalid after the next call to
-     * pushTexture().
-     */
-    virtual const char* getPushMessage() const = 0;
+  /**
+   * Returns a failure message for the most recent call to pushTexture(), or null for success.
+   *
+   * Note that this method does not pertain to the decoding process. If decoding fails, clients to
+   * can pop the incomplete texture off the queue and obtain a failure message using the
+   * getPopFailure() method.
+   *
+   * The returned string is owned by the provider and becomes invalid after the next call to
+   * pushTexture().
+   */
+  virtual const char* getPushMessage() const = 0;
 
-    /**
-     * Returns a failure message for the most recent call to popTexture(), or null for success.
-     *
-     * If the most recent call to popTexture() returned null, then no error occurred and this
-     * returns null. If the most recent call to popTexture() returned a "complete" texture (i.e.
-     * all miplevels present), then this returns null. This returns non-null only if an error or
-     * cancellation occurred while decoding the popped texture.
-     *
-     * The returned string is owned by the provider and becomes invalid after the next call to
-     * popTexture().
-     */
-    virtual const char* getPopMessage() const = 0;
+  /**
+   * Returns a failure message for the most recent call to popTexture(), or null for success.
+   *
+   * If the most recent call to popTexture() returned null, then no error occurred and this
+   * returns null. If the most recent call to popTexture() returned a "complete" texture (i.e.
+   * all miplevels present), then this returns null. This returns non-null only if an error or
+   * cancellation occurred while decoding the popped texture.
+   *
+   * The returned string is owned by the provider and becomes invalid after the next call to
+   * popTexture().
+   */
+  virtual const char* getPopMessage() const = 0;
 
-    /**
-     * Waits for all outstanding decoding jobs to complete.
-     *
-     * Clients should call updateQueue() afterwards if they wish to update the push / pop queue.
-     */
-    virtual void waitForCompletion() = 0;
+  /**
+   * Waits for all outstanding decoding jobs to complete.
+   *
+   * Clients should call updateQueue() afterwards if they wish to update the push / pop queue.
+   */
+  virtual void waitForCompletion() = 0;
 
-    /**
-     * Cancels all not-yet-started decoding jobs and waits for all other jobs to complete.
-     *
-     * Jobs that have already started cannot be canceled. Textures whose decoding process has
-     * been cancelled will be made poppable on the subsequent call to updateQueue().
-     */
-    virtual void cancelDecoding() = 0;
+  /**
+   * Cancels all not-yet-started decoding jobs and waits for all other jobs to complete.
+   *
+   * Jobs that have already started cannot be canceled. Textures whose decoding process has
+   * been cancelled will be made poppable on the subsequent call to updateQueue().
+   */
+  virtual void cancelDecoding() = 0;
 
-    /** Total number of successful push calls since the provider was created. */
-    virtual size_t getPushedCount() const = 0;
+  /** Total number of successful push calls since the provider was created. */
+  virtual size_t getPushedCount() const = 0;
 
-    /** Total number of successful pop calls since the provider was created. */
-    virtual size_t getPoppedCount() const = 0;
+  /** Total number of successful pop calls since the provider was created. */
+  virtual size_t getPoppedCount() const = 0;
 
-    /** Total number of textures that have become ready-to-pop since the provider was created. */
-    virtual size_t getDecodedCount() const = 0;
+  /** Total number of textures that have become ready-to-pop since the provider was created. */
+  virtual size_t getDecodedCount() const = 0;
 
-    virtual ~TextureProvider() = default;
+  virtual ~TextureProvider() = default;
 };
 
 /**
@@ -181,7 +180,6 @@ TextureProvider* createKtx2Provider(filament::Engine* engine);
 
 } // namespace filament::gltfio
 
-template<> struct utils::EnableBitMaskOperators<filament::gltfio::TextureProvider::TextureFlags>
-        : public std::true_type {};
+template <> struct utils::EnableBitMaskOperators<filament::gltfio::TextureProvider::TextureFlags> : public std::true_type {};
 
 #endif // GLTFIO_TEXTUREPROVIDER_H

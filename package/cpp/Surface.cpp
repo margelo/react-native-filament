@@ -6,9 +6,8 @@
 namespace margelo {
 
 void Surface::loadHybridMethods() {
-    registerHybridGetter("width", &Surface::getWidth, this);
-    registerHybridGetter("height", &Surface::getHeight, this);
+  registerHybridGetter("width", &Surface::getWidth, this);
+  registerHybridGetter("height", &Surface::getHeight, this);
 }
 
 } // namespace margelo
-

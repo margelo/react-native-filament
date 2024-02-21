@@ -30,24 +30,23 @@ namespace filament::backend {
  */
 class PlatformWebGL : public OpenGLPlatform {
 protected:
-    // --------------------------------------------------------------------------------------------
-    // Platform Interface
+  // --------------------------------------------------------------------------------------------
+  // Platform Interface
 
-    Driver* createDriver(void* sharedGLContext,
-            const Platform::DriverConfig& driverConfig) noexcept override;
+  Driver* createDriver(void* sharedGLContext, const Platform::DriverConfig& driverConfig) noexcept override;
 
-    int getOSVersion() const noexcept override;
+  int getOSVersion() const noexcept override;
 
-    // --------------------------------------------------------------------------------------------
-    // OpenGLPlatform Interface
+  // --------------------------------------------------------------------------------------------
+  // OpenGLPlatform Interface
 
-    void terminate() noexcept override;
+  void terminate() noexcept override;
 
-    SwapChain* createSwapChain(void* nativewindow, uint64_t flags) noexcept override;
-    SwapChain* createSwapChain(uint32_t width, uint32_t height, uint64_t flags) noexcept override;
-    void destroySwapChain(SwapChain* swapChain) noexcept override;
-    void makeCurrent(SwapChain* drawSwapChain, SwapChain* readSwapChain) noexcept override;
-    void commit(SwapChain* swapChain) noexcept override;
+  SwapChain* createSwapChain(void* nativewindow, uint64_t flags) noexcept override;
+  SwapChain* createSwapChain(uint32_t width, uint32_t height, uint64_t flags) noexcept override;
+  void destroySwapChain(SwapChain* swapChain) noexcept override;
+  void makeCurrent(SwapChain* drawSwapChain, SwapChain* readSwapChain) noexcept override;
+  void commit(SwapChain* swapChain) noexcept override;
 };
 
 } // namespace filament::backend

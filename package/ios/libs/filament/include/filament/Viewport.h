@@ -35,52 +35,50 @@ namespace filament {
  */
 class UTILS_PUBLIC Viewport : public backend::Viewport {
 public:
-    /**
-     * Creates a Viewport of zero width and height at the origin.
-     */
-    Viewport() noexcept : backend::Viewport{} {}
+  /**
+   * Creates a Viewport of zero width and height at the origin.
+   */
+  Viewport() noexcept : backend::Viewport{} {}
 
-    /**
-     * Creates a Viewport from its left-bottom coordinates, width and height in pixels
-     *
-     * @param left left coordinate in pixel
-     * @param bottom bottom coordinate in pixel
-     * @param width width in pixel
-     * @param height height in pixel
-     */
-    Viewport(int32_t left, int32_t bottom, uint32_t width, uint32_t height) noexcept
-            : backend::Viewport{ left, bottom, width, height } {
-    }
+  /**
+   * Creates a Viewport from its left-bottom coordinates, width and height in pixels
+   *
+   * @param left left coordinate in pixel
+   * @param bottom bottom coordinate in pixel
+   * @param width width in pixel
+   * @param height height in pixel
+   */
+  Viewport(int32_t left, int32_t bottom, uint32_t width, uint32_t height) noexcept : backend::Viewport{left, bottom, width, height} {}
 
-    /**
-     * Returns whether the area of the view port is null.
-     *
-     * @return true if either width or height is 0 pixel.
-     */
-    bool empty() const noexcept { return !width || !height; }
+  /**
+   * Returns whether the area of the view port is null.
+   *
+   * @return true if either width or height is 0 pixel.
+   */
+  bool empty() const noexcept {
+    return !width || !height;
+  }
 
 private:
-    /**
-     * Compares two Viewports for equality
-     * @param lhs reference to the left hand side Viewport
-     * @param rhs reference to the right hand side Viewport
-     * @return true if \p rhs and \p lhs are identical.
-     */
-    friend bool operator==(Viewport const& lhs, Viewport const& rhs) noexcept {
-        return (&rhs == &lhs) ||
-               (rhs.left == lhs.left && rhs.bottom == lhs.bottom &&
-                rhs.width == lhs.width && rhs.height == lhs.height);
-    }
+  /**
+   * Compares two Viewports for equality
+   * @param lhs reference to the left hand side Viewport
+   * @param rhs reference to the right hand side Viewport
+   * @return true if \p rhs and \p lhs are identical.
+   */
+  friend bool operator==(Viewport const& lhs, Viewport const& rhs) noexcept {
+    return (&rhs == &lhs) || (rhs.left == lhs.left && rhs.bottom == lhs.bottom && rhs.width == lhs.width && rhs.height == lhs.height);
+  }
 
-    /**
-     * Compares two Viewports for inequality
-     * @param lhs reference to the left hand side Viewport
-     * @param rhs reference to the right hand side Viewport
-     * @return true if \p rhs and \p lhs are different.
-     */
-    friend bool operator!=(Viewport const& lhs, Viewport const& rhs) noexcept {
-        return !(rhs == lhs);
-    }
+  /**
+   * Compares two Viewports for inequality
+   * @param lhs reference to the left hand side Viewport
+   * @param rhs reference to the right hand side Viewport
+   * @return true if \p rhs and \p lhs are different.
+   */
+  friend bool operator!=(Viewport const& lhs, Viewport const& rhs) noexcept {
+    return !(rhs == lhs);
+  }
 };
 
 } // namespace filament

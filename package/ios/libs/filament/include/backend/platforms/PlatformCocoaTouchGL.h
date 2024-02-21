@@ -29,40 +29,41 @@ struct PlatformCocoaTouchGLImpl;
 
 class PlatformCocoaTouchGL : public OpenGLPlatform {
 public:
-    PlatformCocoaTouchGL();
-    ~PlatformCocoaTouchGL() noexcept override;
+  PlatformCocoaTouchGL();
+  ~PlatformCocoaTouchGL() noexcept override;
 
-    // --------------------------------------------------------------------------------------------
-    // Platform Interface
+  // --------------------------------------------------------------------------------------------
+  // Platform Interface
 
-    Driver* createDriver(void* sharedGLContext,
-            const Platform::DriverConfig& driverConfig) noexcept override;
+  Driver* createDriver(void* sharedGLContext, const Platform::DriverConfig& driverConfig) noexcept override;
 
-    int getOSVersion() const noexcept final { return 0; }
+  int getOSVersion() const noexcept final {
+    return 0;
+  }
 
-    // --------------------------------------------------------------------------------------------
-    // OpenGLPlatform Interface
+  // --------------------------------------------------------------------------------------------
+  // OpenGLPlatform Interface
 
-    void terminate() noexcept override;
+  void terminate() noexcept override;
 
-    uint32_t createDefaultRenderTarget() noexcept override;
+  uint32_t createDefaultRenderTarget() noexcept override;
 
-    bool isExtraContextSupported() const noexcept override;
-    void createContext(bool shared) override;
+  bool isExtraContextSupported() const noexcept override;
+  void createContext(bool shared) override;
 
-    SwapChain* createSwapChain(void* nativewindow, uint64_t flags) noexcept override;
-    SwapChain* createSwapChain(uint32_t width, uint32_t height, uint64_t flags) noexcept override;
-    void destroySwapChain(SwapChain* swapChain) noexcept override;
-    void makeCurrent(SwapChain* drawSwapChain, SwapChain* readSwapChain) noexcept override;
-    void commit(SwapChain* swapChain) noexcept override;
+  SwapChain* createSwapChain(void* nativewindow, uint64_t flags) noexcept override;
+  SwapChain* createSwapChain(uint32_t width, uint32_t height, uint64_t flags) noexcept override;
+  void destroySwapChain(SwapChain* swapChain) noexcept override;
+  void makeCurrent(SwapChain* drawSwapChain, SwapChain* readSwapChain) noexcept override;
+  void commit(SwapChain* swapChain) noexcept override;
 
-    OpenGLPlatform::ExternalTexture* createExternalImageTexture() noexcept override;
-    void destroyExternalImage(ExternalTexture* texture) noexcept override;
-    void retainExternalImage(void* externalImage) noexcept override;
-    bool setExternalImage(void* externalImage, ExternalTexture* texture) noexcept override;
+  OpenGLPlatform::ExternalTexture* createExternalImageTexture() noexcept override;
+  void destroyExternalImage(ExternalTexture* texture) noexcept override;
+  void retainExternalImage(void* externalImage) noexcept override;
+  bool setExternalImage(void* externalImage, ExternalTexture* texture) noexcept override;
 
 private:
-    PlatformCocoaTouchGLImpl* pImpl = nullptr;
+  PlatformCocoaTouchGLImpl* pImpl = nullptr;
 };
 
 using ContextManager = PlatformCocoaTouchGL;

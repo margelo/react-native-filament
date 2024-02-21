@@ -26,15 +26,14 @@ namespace filament::backend {
  */
 class PlatformEGLHeadless : public PlatformEGL {
 public:
-    PlatformEGLHeadless() noexcept;
+  PlatformEGLHeadless() noexcept;
 
-    Driver* createDriver(void* sharedContext,
-            const Platform::DriverConfig& driverConfig) noexcept override;
+  Driver* createDriver(void* sharedContext, const Platform::DriverConfig& driverConfig) noexcept override;
 
 protected:
-    bool isOpenGL() const noexcept override;
+  bool isOpenGL() const noexcept override;
 };
 
-} // namespace filament
+} // namespace filament::backend
 
 #endif // TNT_FILAMENT_DRIVER_OPENGL_PLATFORM_EGL_HEADLESS_H

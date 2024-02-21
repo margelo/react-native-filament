@@ -4,7 +4,4 @@
 
 #include "JNISharedPtr.h"
 
-namespace margelo {
-
-
-} // namespace margelo
+namespace margelo {} // namespace margelo

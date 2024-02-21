@@ -28,11 +28,7 @@
 
 namespace filament::gltfio {
 
-enum class AlphaMode : uint8_t {
-    OPAQUE,
-    MASK,
-    BLEND
-};
+enum class AlphaMode : uint8_t { OPAQUE, MASK, BLEND };
 
 // The following struct gets hashed so all padding bits should be explicit.
 // Tell the compiler to emit a warning if it adds any padding.
@@ -45,55 +41,55 @@ UTILS_WARNING_ENABLE_PADDED
  * \note This key is processed by MurmurHashFn so please make padding explicit.
  */
 struct alignas(4) MaterialKey {
-    // -- 32 bit boundary --
-    bool doubleSided : 1;
-    bool unlit : 1;
-    bool hasVertexColors : 1;
-    bool hasBaseColorTexture : 1;
-    bool hasNormalTexture : 1;
-    bool hasOcclusionTexture : 1;
-    bool hasEmissiveTexture : 1;
-    bool useSpecularGlossiness : 1;
-    AlphaMode alphaMode : 4;
-    bool enableDiagnostics : 4;
-    union {
-        struct {
-            bool hasMetallicRoughnessTexture : 1;
-            uint8_t metallicRoughnessUV : 7;
-        };
-        struct {
-            bool hasSpecularGlossinessTexture : 1;
-            uint8_t specularGlossinessUV : 7;
-        };
+  // -- 32 bit boundary --
+  bool doubleSided : 1;
+  bool unlit : 1;
+  bool hasVertexColors : 1;
+  bool hasBaseColorTexture : 1;
+  bool hasNormalTexture : 1;
+  bool hasOcclusionTexture : 1;
+  bool hasEmissiveTexture : 1;
+  bool useSpecularGlossiness : 1;
+  AlphaMode alphaMode : 4;
+  bool enableDiagnostics : 4;
+  union {
+    struct {
+      bool hasMetallicRoughnessTexture : 1;
+      uint8_t metallicRoughnessUV : 7;
     };
-    uint8_t baseColorUV;
-    // -- 32 bit boundary --
-    bool hasClearCoatTexture : 1;
-    uint8_t clearCoatUV : 7;
-    bool hasClearCoatRoughnessTexture : 1;
-    uint8_t clearCoatRoughnessUV : 7;
-    bool hasClearCoatNormalTexture : 1;
-    uint8_t clearCoatNormalUV : 7;
-    bool hasClearCoat : 1;
-    bool hasTransmission : 1;
-    bool hasTextureTransforms : 6;
-    // -- 32 bit boundary --
-    uint8_t emissiveUV;
-    uint8_t aoUV;
-    uint8_t normalUV;
-    bool hasTransmissionTexture : 1;
-    uint8_t transmissionUV : 7;
-    // -- 32 bit boundary --
-    bool hasSheenColorTexture : 1;
-    uint8_t sheenColorUV : 7;
-    bool hasSheenRoughnessTexture : 1;
-    uint8_t sheenRoughnessUV : 7;
-    bool hasVolumeThicknessTexture : 1;
-    uint8_t volumeThicknessUV : 7;
-    bool hasSheen : 1;
-    bool hasIOR : 1;
-    bool hasVolume : 1;
-    uint8_t padding : 5;
+    struct {
+      bool hasSpecularGlossinessTexture : 1;
+      uint8_t specularGlossinessUV : 7;
+    };
+  };
+  uint8_t baseColorUV;
+  // -- 32 bit boundary --
+  bool hasClearCoatTexture : 1;
+  uint8_t clearCoatUV : 7;
+  bool hasClearCoatRoughnessTexture : 1;
+  uint8_t clearCoatRoughnessUV : 7;
+  bool hasClearCoatNormalTexture : 1;
+  uint8_t clearCoatNormalUV : 7;
+  bool hasClearCoat : 1;
+  bool hasTransmission : 1;
+  bool hasTextureTransforms : 6;
+  // -- 32 bit boundary --
+  uint8_t emissiveUV;
+  uint8_t aoUV;
+  uint8_t normalUV;
+  bool hasTransmissionTexture : 1;
+  uint8_t transmissionUV : 7;
+  // -- 32 bit boundary --
+  bool hasSheenColorTexture : 1;
+  uint8_t sheenColorUV : 7;
+  bool hasSheenRoughnessTexture : 1;
+  uint8_t sheenRoughnessUV : 7;
+  bool hasVolumeThicknessTexture : 1;
+  uint8_t volumeThicknessUV : 7;
+  bool hasSheen : 1;
+  bool hasIOR : 1;
+  bool hasVolume : 1;
+  uint8_t padding : 5;
 };
 
 static_assert(sizeof(MaterialKey) == 16, "MaterialKey has unexpected size.");
@@ -108,10 +104,16 @@ constexpr int UvMapSize = 8;
 using UvMap = std::array<UvSet, UvMapSize>;
 
 inline uint8_t getNumUvSets(const UvMap& uvmap) {
-    return std::max({
-        uvmap[0], uvmap[1], uvmap[2], uvmap[3],
-        uvmap[4], uvmap[5], uvmap[6], uvmap[7],
-    });
+  return std::max({
+      uvmap[0],
+      uvmap[1],
+      uvmap[2],
+      uvmap[3],
+      uvmap[4],
+      uvmap[5],
+      uvmap[6],
+      uvmap[7],
+  });
 };
 
 /**
@@ -132,58 +134,58 @@ inline uint8_t getNumUvSets(const UvMap& uvmap) {
  */
 class UTILS_PUBLIC MaterialProvider {
 public:
-    virtual ~MaterialProvider() {}
+  virtual ~MaterialProvider() {}
 
-    /**
-     * Creates or fetches a compiled Filament material, then creates an instance from it.
-     *
-     * @param config Specifies requirements; might be mutated due to resource constraints.
-     * @param uvmap Output argument that gets populated with a small table that maps from a glTF uv
-     *              index to a Filament uv index.
-     * @param label Optional tag that is not a part of the cache key.
-     * @param extras Optional extras as stringified JSON (not a part of the cache key).
-     *               Does not store the pointer.
-     */
-    virtual MaterialInstance* createMaterialInstance(MaterialKey* config, UvMap* uvmap,
-            const char* label = "material", const char* extras = nullptr) = 0;
+  /**
+   * Creates or fetches a compiled Filament material, then creates an instance from it.
+   *
+   * @param config Specifies requirements; might be mutated due to resource constraints.
+   * @param uvmap Output argument that gets populated with a small table that maps from a glTF uv
+   *              index to a Filament uv index.
+   * @param label Optional tag that is not a part of the cache key.
+   * @param extras Optional extras as stringified JSON (not a part of the cache key).
+   *               Does not store the pointer.
+   */
+  virtual MaterialInstance* createMaterialInstance(MaterialKey* config, UvMap* uvmap, const char* label = "material",
+                                                   const char* extras = nullptr) = 0;
 
-    /**
-     * Creates or fetches a compiled Filament material corresponding to the given config.
-     */
-    virtual Material* getMaterial(MaterialKey* config, UvMap* uvmap,
-            const char* label = "material") { return nullptr; }
+  /**
+   * Creates or fetches a compiled Filament material corresponding to the given config.
+   */
+  virtual Material* getMaterial(MaterialKey* config, UvMap* uvmap, const char* label = "material") {
+    return nullptr;
+  }
 
-    /**
-     * Gets a weak reference to the array of cached materials.
-     */
-    virtual const Material* const* getMaterials() const noexcept = 0;
+  /**
+   * Gets a weak reference to the array of cached materials.
+   */
+  virtual const Material* const* getMaterials() const noexcept = 0;
 
-    /**
-     * Gets the number of cached materials.
-     */
-    virtual size_t getMaterialsCount() const noexcept = 0;
+  /**
+   * Gets the number of cached materials.
+   */
+  virtual size_t getMaterialsCount() const noexcept = 0;
 
-    /**
-     * Destroys all cached materials.
-     *
-     * This is not called automatically when MaterialProvider is destroyed, which allows
-     * clients to take ownership of the cache if desired.
-     */
-    virtual void destroyMaterials() = 0;
+  /**
+   * Destroys all cached materials.
+   *
+   * This is not called automatically when MaterialProvider is destroyed, which allows
+   * clients to take ownership of the cache if desired.
+   */
+  virtual void destroyMaterials() = 0;
 
-    /**
-     * Returns true if the presence of the given vertex attribute is required.
-     *
-     * Some types of providers (e.g. ubershader) require dummy attribute values
-     * if the glTF model does not provide them.
-     */
-    virtual bool needsDummyData(VertexAttribute attrib) const noexcept = 0;
+  /**
+   * Returns true if the presence of the given vertex attribute is required.
+   *
+   * Some types of providers (e.g. ubershader) require dummy attribute values
+   * if the glTF model does not provide them.
+   */
+  virtual bool needsDummyData(VertexAttribute attrib) const noexcept = 0;
 };
 
 void constrainMaterial(MaterialKey* key, UvMap* uvmap);
 
-void processShaderString(std::string* shader, const UvMap& uvmap,
-        const MaterialKey& config);
+void processShaderString(std::string* shader, const UvMap& uvmap, const MaterialKey& config);
 
 /**
  * Creates a material provider that builds materials on the fly, composing GLSL at run time.
@@ -206,8 +208,7 @@ MaterialProvider* createJitShaderProvider(Engine* engine, bool optimizeShaders =
  * @see createJitShaderProvider
  */
 UTILS_PUBLIC
-MaterialProvider* createUbershaderProvider(Engine* engine, const void* archive,
-        size_t archiveByteCount);
+MaterialProvider* createUbershaderProvider(Engine* engine, const void* archive, size_t archiveByteCount);
 
 } // namespace filament::gltfio
 

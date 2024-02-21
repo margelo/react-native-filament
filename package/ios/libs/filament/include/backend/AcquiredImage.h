@@ -28,10 +28,10 @@ class CallbackHandler;
 // very useful.
 
 struct AcquiredImage {
-    void* image = nullptr;
-    backend::StreamCallback callback = nullptr;
-    void* userData = nullptr;
-    CallbackHandler* handler = nullptr;
+  void* image = nullptr;
+  backend::StreamCallback callback = nullptr;
+  void* userData = nullptr;
+  CallbackHandler* handler = nullptr;
 };
 
 } // namespace filament::backend

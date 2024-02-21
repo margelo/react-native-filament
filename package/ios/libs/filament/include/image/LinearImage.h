@@ -43,77 +43,93 @@ namespace image {
  */
 class UTILS_PUBLIC LinearImage {
 public:
+  ~LinearImage();
 
-    ~LinearImage();
+  /**
+   * Allocates a zeroed-out image.
+   */
+  LinearImage(uint32_t width, uint32_t height, uint32_t channels);
 
-    /**
-     * Allocates a zeroed-out image.
-     */
-    LinearImage(uint32_t width, uint32_t height, uint32_t channels);
+  /**
+   * Makes a shallow copy with shared pixel data.
+   */
+  LinearImage(const LinearImage& that);
+  LinearImage& operator=(const LinearImage& that);
 
-    /**
-     * Makes a shallow copy with shared pixel data.
-     */
-    LinearImage(const LinearImage& that);
-    LinearImage& operator=(const LinearImage& that);
+  /**
+   * Creates an empty (invalid) image.
+   */
+  LinearImage() : mDataRef(nullptr), mData(nullptr), mWidth(0), mHeight(0), mChannels(0) {}
+  operator bool() const {
+    return mData != nullptr;
+  }
 
-    /**
-     * Creates an empty (invalid) image.
-     */
-    LinearImage() : mDataRef(nullptr), mData(nullptr), mWidth(0), mHeight(0), mChannels(0) {}
-    operator bool() const { return mData != nullptr; } 
+  /**
+   * Gets a pointer to the underlying pixel data.
+   */
+  float* getPixelRef() {
+    return mData;
+  }
+  template <typename T> T* get() {
+    return reinterpret_cast<T*>(mData);
+  }
 
-    /**
-     * Gets a pointer to the underlying pixel data.
-     */
-    float* getPixelRef() { return mData; }
-    template<typename T> T* get() { return reinterpret_cast<T*>(mData); }
+  /**
+   * Gets a pointer to immutable pixel data.
+   */
+  float const* getPixelRef() const {
+    return mData;
+  }
+  template <typename T> T const* get() const {
+    return reinterpret_cast<T const*>(mData);
+  }
 
-    /**
-     * Gets a pointer to immutable pixel data.
-     */
-    float const* getPixelRef() const { return mData; }
-    template<typename T> T const* get() const { return reinterpret_cast<T const*>(mData); }
+  /**
+   * Gets a pointer to the pixel data at the given column and row. (not bounds checked)
+   */
+  float* getPixelRef(uint32_t column, uint32_t row) {
+    return mData + (column + row * mWidth) * mChannels;
+  }
 
-    /**
-     * Gets a pointer to the pixel data at the given column and row. (not bounds checked)
-     */
-    float* getPixelRef(uint32_t column, uint32_t row) {
-        return mData + (column + row * mWidth) * mChannels;
-    }
+  template <typename T> T* get(uint32_t column, uint32_t row) {
+    return reinterpret_cast<T*>(getPixelRef(column, row));
+  }
 
-    template<typename T>
-    T* get(uint32_t column, uint32_t row) {
-        return reinterpret_cast<T*>(getPixelRef(column, row));
-    }
+  /**
+   * Gets a pointer to the immutable pixel data at the given column and row. (not bounds checked)
+   */
+  float const* getPixelRef(uint32_t column, uint32_t row) const {
+    return mData + (column + row * mWidth) * mChannels;
+  }
 
-    /**
-     * Gets a pointer to the immutable pixel data at the given column and row. (not bounds checked)
-     */
-    float const* getPixelRef(uint32_t column, uint32_t row) const {
-        return mData + (column + row * mWidth) * mChannels;
-    }
+  template <typename T> T const* get(uint32_t column, uint32_t row) const {
+    return reinterpret_cast<T const*>(getPixelRef(column, row));
+  }
 
-    template<typename T>
-    T const* get(uint32_t column, uint32_t row) const {
-        return reinterpret_cast<T const*>(getPixelRef(column, row));
-    }
-
-    uint32_t getWidth() const { return mWidth; }
-    uint32_t getHeight() const { return mHeight; }
-    uint32_t getChannels() const { return mChannels; }
-    void reset() { *this = LinearImage(); }
-    bool isValid() const { return mData; }
+  uint32_t getWidth() const {
+    return mWidth;
+  }
+  uint32_t getHeight() const {
+    return mHeight;
+  }
+  uint32_t getChannels() const {
+    return mChannels;
+  }
+  void reset() {
+    *this = LinearImage();
+  }
+  bool isValid() const {
+    return mData;
+  }
 
 private:
+  struct SharedReference;
+  SharedReference* mDataRef = nullptr;
 
-    struct SharedReference;
-    SharedReference* mDataRef = nullptr;
-
-    float* mData;
-    uint32_t mWidth;
-    uint32_t mHeight;
-    uint32_t mChannels;
+  float* mData;
+  uint32_t mWidth;
+  uint32_t mHeight;
+  uint32_t mChannels;
 };
 
 } // namespace image

@@ -62,123 +62,124 @@ class Texture;
  * @see Scene, IndirectLight
  */
 class UTILS_PUBLIC Skybox : public FilamentAPI {
-    struct BuilderDetails;
+  struct BuilderDetails;
 
 public:
-    //! Use Builder to construct an Skybox object instance
-    class Builder : public BuilderBase<BuilderDetails> {
-        friend struct BuilderDetails;
-    public:
-        Builder() noexcept;
-        Builder(Builder const& rhs) noexcept;
-        Builder(Builder&& rhs) noexcept;
-        ~Builder() noexcept;
-        Builder& operator=(Builder const& rhs) noexcept;
-        Builder& operator=(Builder&& rhs) noexcept;
+  //! Use Builder to construct an Skybox object instance
+  class Builder : public BuilderBase<BuilderDetails> {
+    friend struct BuilderDetails;
 
-        /**
-         * Set the environment map (i.e. the skybox content).
-         *
-         * The Skybox is rendered as though it were an infinitely large cube with the camera
-         * inside it. This means that the cubemap which is mapped onto the cube's exterior
-         * will appear mirrored. This follows the OpenGL conventions.
-         *
-         * The cmgen tool generates reflection maps by default which are therefore ideal to use
-         * as skyboxes.
-         *
-         * @param cubemap This Texture must be a cube map.
-         *
-         * @return This Builder, for chaining calls.
-         *
-         * @see Texture
-         */
-        Builder& environment(Texture* UTILS_NONNULL cubemap) noexcept;
-
-        /**
-         * Indicates whether the sun should be rendered. The sun can only be
-         * rendered if there is at least one light of type SUN in the scene.
-         * The default value is false.
-         *
-         * @param show True if the sun should be rendered, false otherwise
-         *
-         * @return This Builder, for chaining calls.
-         */
-        Builder& showSun(bool show) noexcept;
-
-        /**
-         * Skybox intensity when no IndirectLight is set on the Scene.
-         *
-         * This call is ignored when an IndirectLight is set on the Scene, and the intensity
-         * of the IndirectLight is used instead.
-         *
-         * @param envIntensity  Scale factor applied to the skybox texel values such that
-         *                      the result is in lux, or lumen/m^2 (default = 30000)
-         *
-         * @return This Builder, for chaining calls.
-         *
-         * @see IndirectLight::Builder::intensity
-         */
-        Builder& intensity(float envIntensity) noexcept;
-
-        /**
-         * Sets the skybox to a constant color. Default is opaque black.
-         *
-         * Ignored if an environment is set.
-         *
-         * @param color the constant color
-         *
-         * @return This Builder, for chaining calls.
-         */
-        Builder& color(math::float4 color) noexcept;
-
-        /**
-         * Creates the Skybox object and returns a pointer to it.
-         *
-         * @param engine Reference to the filament::Engine to associate this Skybox with.
-         *
-         * @return pointer to the newly created object.
-         */
-        Skybox* UTILS_NONNULL build(Engine& engine);
-
-    private:
-        friend class FSkybox;
-    };
-
-    void setColor(math::float4 color) noexcept;
+  public:
+    Builder() noexcept;
+    Builder(Builder const& rhs) noexcept;
+    Builder(Builder&& rhs) noexcept;
+    ~Builder() noexcept;
+    Builder& operator=(Builder const& rhs) noexcept;
+    Builder& operator=(Builder&& rhs) noexcept;
 
     /**
-     * Sets bits in a visibility mask. By default, this is 0x1.
+     * Set the environment map (i.e. the skybox content).
      *
-     * This provides a simple mechanism for hiding or showing this Skybox in a Scene.
+     * The Skybox is rendered as though it were an infinitely large cube with the camera
+     * inside it. This means that the cubemap which is mapped onto the cube's exterior
+     * will appear mirrored. This follows the OpenGL conventions.
      *
-     * @see View::setVisibleLayers().
+     * The cmgen tool generates reflection maps by default which are therefore ideal to use
+     * as skyboxes.
      *
-     * For example, to set bit 1 and reset bits 0 and 2 while leaving all other bits unaffected,
-     * call: `setLayerMask(7, 2)`.
+     * @param cubemap This Texture must be a cube map.
      *
-     * @param select the set of bits to affect
-     * @param values the replacement values for the affected bits
+     * @return This Builder, for chaining calls.
+     *
+     * @see Texture
      */
-    void setLayerMask(uint8_t select, uint8_t values) noexcept;
+    Builder& environment(Texture* UTILS_NONNULL cubemap) noexcept;
 
     /**
-     * @return the visibility mask bits
+     * Indicates whether the sun should be rendered. The sun can only be
+     * rendered if there is at least one light of type SUN in the scene.
+     * The default value is false.
+     *
+     * @param show True if the sun should be rendered, false otherwise
+     *
+     * @return This Builder, for chaining calls.
      */
-    uint8_t getLayerMask() const noexcept;
+    Builder& showSun(bool show) noexcept;
 
     /**
-     * Returns the skybox's intensity in lux, or lumen/m^2.
+     * Skybox intensity when no IndirectLight is set on the Scene.
+     *
+     * This call is ignored when an IndirectLight is set on the Scene, and the intensity
+     * of the IndirectLight is used instead.
+     *
+     * @param envIntensity  Scale factor applied to the skybox texel values such that
+     *                      the result is in lux, or lumen/m^2 (default = 30000)
+     *
+     * @return This Builder, for chaining calls.
+     *
+     * @see IndirectLight::Builder::intensity
      */
-    float getIntensity() const noexcept;
+    Builder& intensity(float envIntensity) noexcept;
 
     /**
-     * @return the associated texture
+     * Sets the skybox to a constant color. Default is opaque black.
+     *
+     * Ignored if an environment is set.
+     *
+     * @param color the constant color
+     *
+     * @return This Builder, for chaining calls.
      */
-    Texture const* UTILS_NONNULL getTexture() const noexcept;
+    Builder& color(math::float4 color) noexcept;
+
+    /**
+     * Creates the Skybox object and returns a pointer to it.
+     *
+     * @param engine Reference to the filament::Engine to associate this Skybox with.
+     *
+     * @return pointer to the newly created object.
+     */
+    Skybox* UTILS_NONNULL build(Engine& engine);
+
+  private:
+    friend class FSkybox;
+  };
+
+  void setColor(math::float4 color) noexcept;
+
+  /**
+   * Sets bits in a visibility mask. By default, this is 0x1.
+   *
+   * This provides a simple mechanism for hiding or showing this Skybox in a Scene.
+   *
+   * @see View::setVisibleLayers().
+   *
+   * For example, to set bit 1 and reset bits 0 and 2 while leaving all other bits unaffected,
+   * call: `setLayerMask(7, 2)`.
+   *
+   * @param select the set of bits to affect
+   * @param values the replacement values for the affected bits
+   */
+  void setLayerMask(uint8_t select, uint8_t values) noexcept;
+
+  /**
+   * @return the visibility mask bits
+   */
+  uint8_t getLayerMask() const noexcept;
+
+  /**
+   * Returns the skybox's intensity in lux, or lumen/m^2.
+   */
+  float getIntensity() const noexcept;
+
+  /**
+   * @return the associated texture
+   */
+  Texture const* UTILS_NONNULL getTexture() const noexcept;
 
 protected:
-    // prevent heap allocation
-    ~Skybox() = default;
+  // prevent heap allocation
+  ~Skybox() = default;
 };
 
 } // namespace filament

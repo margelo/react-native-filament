@@ -29,11 +29,11 @@ namespace filament::backend {
 //! \privatesection
 
 struct PipelineState {
-    Handle<HwProgram> program;
-    RasterState rasterState;
-    StencilState stencilState;
-    PolygonOffset polygonOffset;
-    Viewport scissor{ 0, 0, (uint32_t)INT32_MAX, (uint32_t)INT32_MAX };
+  Handle<HwProgram> program;
+  RasterState rasterState;
+  StencilState stencilState;
+  PolygonOffset polygonOffset;
+  Viewport scissor{0, 0, (uint32_t)INT32_MAX, (uint32_t)INT32_MAX};
 };
 
 } // namespace filament::backend
@@ -42,4 +42,4 @@ struct PipelineState {
 utils::io::ostream& operator<<(utils::io::ostream& out, const filament::backend::PipelineState& ps);
 #endif
 
-#endif //TNT_FILAMENT_BACKEND_PIPELINESTATE_H
+#endif // TNT_FILAMENT_BACKEND_PIPELINESTATE_H

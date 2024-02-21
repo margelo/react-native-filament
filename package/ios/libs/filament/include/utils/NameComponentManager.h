@@ -17,11 +17,11 @@
 #ifndef TNT_UTILS_NAMECOMPONENTMANAGER_H
 #define TNT_UTILS_NAMECOMPONENTMANAGER_H
 
-#include <utils/compiler.h>
 #include <utils/CString.h>
 #include <utils/Entity.h>
 #include <utils/EntityInstance.h>
 #include <utils/SingleInstanceComponentManager.h>
+#include <utils/compiler.h>
 
 #include <stddef.h>
 
@@ -49,58 +49,56 @@ class EntityManager;
  */
 class UTILS_PUBLIC NameComponentManager : private SingleInstanceComponentManager<utils::CString> {
 public:
-    using Instance = EntityInstance<NameComponentManager>;
+  using Instance = EntityInstance<NameComponentManager>;
 
-    /**
-     * Creates a new name manager associated with the given entity manager.
-     *
-     * Note that multiple string labels could be associated with each entity simply by
-     * creating multiple instances of NameComponentManager.
-     */
-    explicit NameComponentManager(EntityManager& em);
-    ~NameComponentManager();
+  /**
+   * Creates a new name manager associated with the given entity manager.
+   *
+   * Note that multiple string labels could be associated with each entity simply by
+   * creating multiple instances of NameComponentManager.
+   */
+  explicit NameComponentManager(EntityManager& em);
+  ~NameComponentManager();
 
-    /**
-     * Checks if the given entity already has a name component.
-     */
-    using SingleInstanceComponentManager::hasComponent;
+  /**
+   * Checks if the given entity already has a name component.
+   */
+  using SingleInstanceComponentManager::hasComponent;
 
-    /**
-     * Gets a temporary handle that can be used to access the name.
-     *
-     * @return Non-zero handle if the entity has a name component, 0 otherwise.
-     */
-    Instance getInstance(Entity e) const noexcept {
-        return { SingleInstanceComponentManager::getInstance(e) };
-    }
+  /**
+   * Gets a temporary handle that can be used to access the name.
+   *
+   * @return Non-zero handle if the entity has a name component, 0 otherwise.
+   */
+  Instance getInstance(Entity e) const noexcept {
+    return {SingleInstanceComponentManager::getInstance(e)};
+  }
 
-    /**
-     * Adds a name component to the given entity if it doesn't already exist.
-     */
-    void addComponent(Entity e);
+  /**
+   * Adds a name component to the given entity if it doesn't already exist.
+   */
+  void addComponent(Entity e);
 
-    /**
-     * Removes the name component to the given entity if it exists.
-     */
-    void removeComponent(Entity e);
+  /**
+   * Removes the name component to the given entity if it exists.
+   */
+  void removeComponent(Entity e);
 
-    /**
-     * Stores a copy of the given string and associates it with the given instance.
-     */
-    void setName(Instance instance, const char* name) noexcept;
+  /**
+   * Stores a copy of the given string and associates it with the given instance.
+   */
+  void setName(Instance instance, const char* name) noexcept;
 
-    /**
-     * Retrieves the string associated with the given instance, or nullptr if none exists.
-     *
-     * @return pointer to the copy that was made during setName()
-     */
-    const char* getName(Instance instance) const noexcept;
+  /**
+   * Retrieves the string associated with the given instance, or nullptr if none exists.
+   *
+   * @return pointer to the copy that was made during setName()
+   */
+  const char* getName(Instance instance) const noexcept;
 
-    void gc(EntityManager& em) noexcept {
-        SingleInstanceComponentManager<utils::CString>::gc(em, [this](Entity e) {
-            removeComponent(e);
-        });
-    }
+  void gc(EntityManager& em) noexcept {
+    SingleInstanceComponentManager<utils::CString>::gc(em, [this](Entity e) { removeComponent(e); });
+  }
 };
 
 } // namespace utils

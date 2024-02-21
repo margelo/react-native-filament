@@ -30,15 +30,14 @@ namespace filament {
  */
 namespace geometry {
 
-struct OrientationBuilderImpl;
-struct OrientationImpl;
+  struct OrientationBuilderImpl;
+  struct OrientationImpl;
 
-/**
- * The surface orientation helper can be used to populate Filament-style TANGENTS buffers.
- */
-class UTILS_PUBLIC SurfaceOrientation {
-public:
-
+  /**
+   * The surface orientation helper can be used to populate Filament-style TANGENTS buffers.
+   */
+  class UTILS_PUBLIC SurfaceOrientation {
+  public:
     /**
      * The Builder is used to construct an immutable surface orientation helper.
      *
@@ -65,34 +64,34 @@ public:
      */
     class Builder {
     public:
-        Builder() noexcept;
-        ~Builder() noexcept;
-        Builder(Builder&& that) noexcept;
-        Builder& operator=(Builder&& that) noexcept;
+      Builder() noexcept;
+      ~Builder() noexcept;
+      Builder(Builder&& that) noexcept;
+      Builder& operator=(Builder&& that) noexcept;
 
-        /**
-         * This attribute is required.
-         */
-        Builder& vertexCount(size_t vertexCount) noexcept;
+      /**
+       * This attribute is required.
+       */
+      Builder& vertexCount(size_t vertexCount) noexcept;
 
-        Builder& normals(const filament::math::float3*, size_t stride = 0) noexcept;
-        Builder& tangents(const filament::math::float4*, size_t stride = 0) noexcept;
-        Builder& uvs(const filament::math::float2*, size_t stride = 0) noexcept;
-        Builder& positions(const filament::math::float3*, size_t stride = 0) noexcept;
+      Builder& normals(const filament::math::float3*, size_t stride = 0) noexcept;
+      Builder& tangents(const filament::math::float4*, size_t stride = 0) noexcept;
+      Builder& uvs(const filament::math::float2*, size_t stride = 0) noexcept;
+      Builder& positions(const filament::math::float3*, size_t stride = 0) noexcept;
 
-        Builder& triangleCount(size_t triangleCount) noexcept;
-        Builder& triangles(const filament::math::uint3*) noexcept;
-        Builder& triangles(const filament::math::ushort3*) noexcept;
+      Builder& triangleCount(size_t triangleCount) noexcept;
+      Builder& triangles(const filament::math::uint3*) noexcept;
+      Builder& triangles(const filament::math::ushort3*) noexcept;
 
-        /**
-         * Generates quats or returns null if the submitted data is an incomplete combination.
-         */
-        SurfaceOrientation* build();
+      /**
+       * Generates quats or returns null if the submitted data is an incomplete combination.
+       */
+      SurfaceOrientation* build();
 
     private:
-        OrientationBuilderImpl* mImpl;
-        Builder(const Builder&) = delete;
-        Builder& operator=(const Builder&) = delete;
+      OrientationBuilderImpl* mImpl;
+      Builder(const Builder&) = delete;
+      Builder& operator=(const Builder&) = delete;
     };
 
     ~SurfaceOrientation() noexcept;
@@ -117,13 +116,13 @@ public:
      * @}
      */
 
-private:
+  private:
     SurfaceOrientation(OrientationImpl*) noexcept;
     SurfaceOrientation(const SurfaceOrientation&) = delete;
     SurfaceOrientation& operator=(const SurfaceOrientation&) = delete;
     OrientationImpl* mImpl;
     friend struct OrientationBuilderImpl;
-};
+  };
 
 } // namespace geometry
 } // namespace filament

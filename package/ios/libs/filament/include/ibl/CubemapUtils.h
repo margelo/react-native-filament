@@ -31,41 +31,34 @@ class JobSystem;
 namespace filament {
 namespace ibl {
 
-class CubemapIBL;
+  class CubemapIBL;
 
-/**
- * Create and convert Cubemap formats
- */
-class UTILS_PUBLIC CubemapUtils {
-public:
+  /**
+   * Create and convert Cubemap formats
+   */
+  class UTILS_PUBLIC CubemapUtils {
+  public:
     //! Creates a cubemap object and its backing Image
     static Cubemap create(Image& image, size_t dim, bool horizontal = true);
 
-    struct EmptyState {
-    };
+    struct EmptyState {};
 
-    template<typename STATE>
-    using ScanlineProc = std::function<
-            void(STATE& state, size_t y, Cubemap::Face f, Cubemap::Texel* data, size_t width)>;
+    template <typename STATE>
+    using ScanlineProc = std::function<void(STATE& state, size_t y, Cubemap::Face f, Cubemap::Texel* data, size_t width)>;
 
-    template<typename STATE>
-    using ReduceProc = std::function<void(STATE& state)>;
+    template <typename STATE> using ReduceProc = std::function<void(STATE& state)>;
 
     //! process the cubemap using multithreading
-    template<typename STATE>
-    static void process(Cubemap& cm,
-            utils::JobSystem& js,
-            ScanlineProc<STATE> proc,
-            ReduceProc<STATE> reduce = [](STATE&) {},
-            const STATE& prototype = STATE());
+    template <typename STATE>
+    static void process(
+        Cubemap& cm, utils::JobSystem& js, ScanlineProc<STATE> proc, ReduceProc<STATE> reduce = [](STATE&) {},
+        const STATE& prototype = STATE());
 
     //! process the cubemap
-    template<typename STATE>
-    static void processSingleThreaded(Cubemap& cm,
-            utils::JobSystem& js,
-            ScanlineProc<STATE> proc,
-            ReduceProc<STATE> reduce = [](STATE&) {},
-            const STATE& prototype = STATE());
+    template <typename STATE>
+    static void processSingleThreaded(
+        Cubemap& cm, utils::JobSystem& js, ScanlineProc<STATE> proc, ReduceProc<STATE> reduce = [](STATE&) {},
+        const STATE& prototype = STATE());
 
     //! clamps image to acceptable range
     static void clamp(Image& src);
@@ -84,16 +77,14 @@ public:
     //! Sets a Cubemap faces from a cross image
     static void setAllFacesFromCross(Cubemap& cm, const Image& image);
 
-private:
-
-    //move these into cmgen?
+  private:
+    // move these into cmgen?
     static void setFaceFromCross(Cubemap& cm, Cubemap::Face face, const Image& image);
     static Image createCubemapImage(size_t dim, bool horizontal = true);
 
 #ifndef FILAMENT_IBL_LITE
 
-public:
-
+  public:
     //! Converts horizontal or vertical cross Image to a Cubemap
     static void crossToCubemap(utils::JobSystem& js, Cubemap& dst, const Image& src);
 
@@ -115,8 +106,7 @@ public:
 #endif
 
     friend class CubemapIBL;
-};
-
+  };
 
 } // namespace ibl
 } // namespace filament

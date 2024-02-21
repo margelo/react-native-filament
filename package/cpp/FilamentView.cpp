@@ -7,7 +7,7 @@
 namespace margelo {
 
 void FilamentView::loadHybridMethods() {
-    registerHybridMethod("getSurfaceProvider", &FilamentView::getSurfaceProvider, this);
+  registerHybridMethod("getSurfaceProvider", &FilamentView::getSurfaceProvider, this);
 }
 
 } // namespace margelo

@@ -21,42 +21,44 @@
 
 #include <utils/compiler.h>
 
-#include <stddef.h>
 #include <mutex>
+#include <stddef.h>
 
 class CivetServer;
 
 namespace filament {
 namespace viewer {
 
-class MessageSender;
-class MessageReceiver;
+  class MessageSender;
+  class MessageReceiver;
 
-/**
- * Encapsulates a message sent from the web client.
- *
- * All instances of ReceivedMessage and their data / strings are owned by RemoteServer.
- * These can be freed via RemoteServer::releaseReceivedMessage().
- */
-struct ReceivedMessage {
+  /**
+   * Encapsulates a message sent from the web client.
+   *
+   * All instances of ReceivedMessage and their data / strings are owned by RemoteServer.
+   * These can be freed via RemoteServer::releaseReceivedMessage().
+   */
+  struct ReceivedMessage {
     char* label;
     char* buffer;
     size_t bufferByteCount;
     size_t messageUid;
-};
+  };
 
-/**
- * Manages a tiny WebSocket server that can receive model data and viewer settings.
- *
- * Client apps can call peekReceivedMessage to check for new data, or acquireReceivedMessage
- * to pop it off the small internal queue. When they are done examining the message contents
- * they should call releaseReceivedMessage.
- */
-class UTILS_PUBLIC RemoteServer {
-public:
+  /**
+   * Manages a tiny WebSocket server that can receive model data and viewer settings.
+   *
+   * Client apps can call peekReceivedMessage to check for new data, or acquireReceivedMessage
+   * to pop it off the small internal queue. When they are done examining the message contents
+   * they should call releaseReceivedMessage.
+   */
+  class UTILS_PUBLIC RemoteServer {
+  public:
     RemoteServer(int port = 8082);
     ~RemoteServer();
-    bool isValid() const { return mMessageSender; }
+    bool isValid() const {
+      return mMessageSender;
+    }
 
     /**
      * Checks if a download is currently in progress and returns its label.
@@ -82,7 +84,7 @@ public:
     // For internal use (makes JNI simpler)
     ReceivedMessage const* peekReceivedMessage() const;
 
-private:
+  private:
     void enqueueReceivedMessage(ReceivedMessage* message);
     void setIncomingMessage(ReceivedMessage* message);
     MessageSender* mMessageSender = nullptr;
@@ -94,7 +96,7 @@ private:
     JsonSerializer mSerializer;
     mutable std::mutex mReceivedMessagesMutex;
     friend class MessageReceiver;
-};
+  };
 
 } // namespace viewer
 } // namespace filament

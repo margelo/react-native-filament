@@ -20,8 +20,8 @@
 #include <filament/MaterialEnums.h>
 
 #include <uberz/ArchiveEnums.h>
-#include <utils/FixedCapacityVector.h>
 #include <utils/CString.h>
+#include <utils/FixedCapacityVector.h>
 
 #include <string_view>
 
@@ -34,32 +34,32 @@ namespace filament::uberz {
 // Users do not need to access this class directly, they should go through gltfio.
 class WritableArchive {
 public:
-    WritableArchive(size_t materialCount) : mMaterials(uint32_t(materialCount)) {
-        assert(materialCount <= UINT_MAX);
-    }
+  WritableArchive(size_t materialCount) : mMaterials(uint32_t(materialCount)) {
+    assert(materialCount <= UINT_MAX);
+  }
 
-    void addMaterial(const char* name, const uint8_t* package, size_t packageSize);
-    void addSpecLine(std::string_view line);
-    utils::FixedCapacityVector<uint8_t> serialize() const;
+  void addMaterial(const char* name, const uint8_t* package, size_t packageSize);
+  void addSpecLine(std::string_view line);
+  utils::FixedCapacityVector<uint8_t> serialize() const;
 
-    // Low-level alternatives to addSpecLine that do not involve parsing:
-    void setShadingModel(Shading sm);
-    void setBlendingModel(BlendingMode bm);
-    void setFeatureFlag(const char* key, ArchiveFeature value);
+  // Low-level alternatives to addSpecLine that do not involve parsing:
+  void setShadingModel(Shading sm);
+  void setBlendingModel(BlendingMode bm);
+  void setFeatureFlag(const char* key, ArchiveFeature value);
 
 private:
-    size_t mLineNumber = 1;
-    ssize_t mMaterialIndex = -1;
+  size_t mLineNumber = 1;
+  ssize_t mMaterialIndex = -1;
 
-    struct Material {
-        utils::CString name;
-        utils::FixedCapacityVector<uint8_t> package;
-        Shading shadingModel;
-        BlendingMode blendingMode;
-        tsl::robin_map<utils::CString, ArchiveFeature, utils::CString::Hasher> flags;
-    };
+  struct Material {
+    utils::CString name;
+    utils::FixedCapacityVector<uint8_t> package;
+    Shading shadingModel;
+    BlendingMode blendingMode;
+    tsl::robin_map<utils::CString, ArchiveFeature, utils::CString::Hasher> flags;
+  };
 
-    utils::FixedCapacityVector<Material> mMaterials;
+  utils::FixedCapacityVector<Material> mMaterials;
 };
 
 } // namespace filament::uberz

@@ -24,35 +24,34 @@
 namespace filament {
 namespace viewer {
 
-/**
- * Immutable list of Settings objects generated from a JSON spec.
- *
- * Each top-level item in the JSON spec is an object with "name", "base" and "permute".
- * The "base" object specifies a single set of changes to apply to default settings.
- * The optional "permute" object specifies a cross product of changes to apply to the base.
- *
- * The following example generates a total of 5 test cases.
- * [{
- *    "name": "simple",
- *    "base": {
- *      "view.dof.cocScale": 1.0,
- *      "view.bloom.strength": 0.5
- *   },
- *   "permute": {
- *     "view.bloom.enabled": [false, true],
- *     "view.dof.enabled": [false, true]
- *   }
- * },
- * {
- *   "name": "ppoff",
- *   "base": {
- *     "view.postProcessingEnabled": false
- *   }
- * }]
- */
-class UTILS_PUBLIC AutomationSpec {
-public:
-
+  /**
+   * Immutable list of Settings objects generated from a JSON spec.
+   *
+   * Each top-level item in the JSON spec is an object with "name", "base" and "permute".
+   * The "base" object specifies a single set of changes to apply to default settings.
+   * The optional "permute" object specifies a cross product of changes to apply to the base.
+   *
+   * The following example generates a total of 5 test cases.
+   * [{
+   *    "name": "simple",
+   *    "base": {
+   *      "view.dof.cocScale": 1.0,
+   *      "view.bloom.strength": 0.5
+   *   },
+   *   "permute": {
+   *     "view.bloom.enabled": [false, true],
+   *     "view.dof.enabled": [false, true]
+   *   }
+   * },
+   * {
+   *   "name": "ppoff",
+   *   "base": {
+   *     "view.postProcessingEnabled": false
+   *   }
+   * }]
+   */
+  class UTILS_PUBLIC AutomationSpec {
+  public:
     // Parses a JSON spec, then generates a list of Settings objects.
     // Returns null on failure (see utils log for warnings and errors).
     // Clients should release memory using "delete".
@@ -74,11 +73,11 @@ public:
     // Frees all Settings objects and name strings.
     ~AutomationSpec();
 
-private:
+  private:
     struct Impl;
     AutomationSpec(Impl*);
     Impl* mImpl;
-};
+  };
 
 } // namespace viewer
 } // namespace filament
