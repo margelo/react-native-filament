@@ -1,5 +1,5 @@
 import React from 'react'
-import { findNodeHandle } from 'react-native/types'
+import { findNodeHandle } from 'react-native'
 import { FilamentProxy } from './FilamentProxy'
 import { NativeFilamentView, NativeProps } from './FilamentViewNativeComponent'
 
