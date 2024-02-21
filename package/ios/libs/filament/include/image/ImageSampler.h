@@ -27,24 +27,26 @@ namespace image {
  * Value of a single point sample, allocated according to the number of image channels.
  */
 struct UTILS_PUBLIC SingleSample {
-    float& operator[](int index) { return *(data + index); }
-    float* data = nullptr;
-    ~SingleSample();
+  float& operator[](int index) {
+    return *(data + index);
+  }
+  float* data = nullptr;
+  ~SingleSample();
 };
 
 /**
  * Controls the weighted average used across a window of source samples.
  */
 enum class Filter {
-    DEFAULT,          // Selects MITCHELL or LANCZOS dynamically.
-    BOX,              // Computes the un-weighted average over the filter radius.
-    NEAREST,          // Copies the source sample nearest to the center of the filter.
-    HERMITE,          // Also known as "smoothstep", has some nice properties.
-    GAUSSIAN_SCALARS, // Standard Gaussian filter with sigma = 0.5
-    GAUSSIAN_NORMALS, // Same as GAUSSIAN_SCALARS, but interpolates unitized vectors.
-    MITCHELL,         // Cubic resampling per Mitchell-Netravali, default for magnification.
-    LANCZOS,          // Popular sinc-based filter, default for minification.
-    MINIMUM           // Takes a min val rather than avg, perhaps useful for depth maps and SDF's.
+  DEFAULT,          // Selects MITCHELL or LANCZOS dynamically.
+  BOX,              // Computes the un-weighted average over the filter radius.
+  NEAREST,          // Copies the source sample nearest to the center of the filter.
+  HERMITE,          // Also known as "smoothstep", has some nice properties.
+  GAUSSIAN_SCALARS, // Standard Gaussian filter with sigma = 0.5
+  GAUSSIAN_NORMALS, // Same as GAUSSIAN_SCALARS, but interpolates unitized vectors.
+  MITCHELL,         // Cubic resampling per Mitchell-Netravali, default for magnification.
+  LANCZOS,          // Popular sinc-based filter, default for minification.
+  MINIMUM           // Takes a min val rather than avg, perhaps useful for depth maps and SDF's.
 };
 
 /**
@@ -52,67 +54,60 @@ enum class Filter {
  * pixel, and (1,1) is at the bottom-right corner of the bottom-corner pixel.
  */
 struct Region {
-    float left;
-    float top;
-    float right;
-    float bottom;
+  float left;
+  float top;
+  float right;
+  float bottom;
 };
 
 /**
  * Transforms the texel fetching operation when sampling from adjacent images.
  */
-enum class Orientation {
-    STANDARD = 0,
-    FLIP_X = 1 << 0,
-    FLIP_Y = 1 << 1,
-    FLIP_XY = FLIP_X | FLIP_Y
-};
+enum class Orientation { STANDARD = 0, FLIP_X = 1 << 0, FLIP_Y = 1 << 1, FLIP_XY = FLIP_X | FLIP_Y };
 
 /**
  * Specifies how to generate samples that lie outside the boundaries of the source region.
  */
 struct Boundary {
-    enum {
-        EXCLUDE, // Ignore the samples and renormalize the filter. This is probably what you want.
-        REGION,  // Keep samples that are outside sourceRegion if they are still within the image.
-        CLAMP,   // Pretend the edge pixel is repeated forever. Gives edge pixels more weight.
-        REPEAT,  // Resample from the region, wrapping back to the front of the row or column.
-        MIRROR,  // Resample from the region but assume that it has been flipped.
-        COLOR,   // Use the specified constant color.
-        NEIGHBOR // Sample from an adjacent image.
-    } mode = EXCLUDE;
-    SingleSample color;              // Used only if mode = COLOR
-    LinearImage* neighbor = nullptr; // Used only if mode = NEIGHBOR
-    Orientation orientation;         // Used only if mode = NEIGHBOR
+  enum {
+    EXCLUDE, // Ignore the samples and renormalize the filter. This is probably what you want.
+    REGION,  // Keep samples that are outside sourceRegion if they are still within the image.
+    CLAMP,   // Pretend the edge pixel is repeated forever. Gives edge pixels more weight.
+    REPEAT,  // Resample from the region, wrapping back to the front of the row or column.
+    MIRROR,  // Resample from the region but assume that it has been flipped.
+    COLOR,   // Use the specified constant color.
+    NEIGHBOR // Sample from an adjacent image.
+  } mode = EXCLUDE;
+  SingleSample color;              // Used only if mode = COLOR
+  LinearImage* neighbor = nullptr; // Used only if mode = NEIGHBOR
+  Orientation orientation;         // Used only if mode = NEIGHBOR
 };
 
 /**
  * Configuration for the resampleImage function. Provides reasonable defaults.
  */
 struct ImageSampler {
-    Filter horizontalFilter = Filter::DEFAULT;
-    Filter verticalFilter = Filter::DEFAULT;
-    Region sourceRegion = {0, 0, 1, 1};
-    float filterRadiusMultiplier = 1;
-    Boundary east;
-    Boundary north;
-    Boundary west;
-    Boundary south;
+  Filter horizontalFilter = Filter::DEFAULT;
+  Filter verticalFilter = Filter::DEFAULT;
+  Region sourceRegion = {0, 0, 1, 1};
+  float filterRadiusMultiplier = 1;
+  Boundary east;
+  Boundary north;
+  Boundary west;
+  Boundary south;
 };
 
 /**
  * Resizes or blurs the given linear image, producing a new linear image with the given dimensions.
  */
 UTILS_PUBLIC
-LinearImage resampleImage(const LinearImage& source, uint32_t width, uint32_t height,
-        const ImageSampler& sampler);
+LinearImage resampleImage(const LinearImage& source, uint32_t width, uint32_t height, const ImageSampler& sampler);
 
 /**
  * Resizes the given linear image using a simplified API that takes target dimensions and filter.
  */
 UTILS_PUBLIC
-LinearImage resampleImage(const LinearImage& source, uint32_t width, uint32_t height,
-        Filter filter = Filter::DEFAULT);
+LinearImage resampleImage(const LinearImage& source, uint32_t width, uint32_t height, Filter filter = Filter::DEFAULT);
 
 /**
  * Computes a single sample for the given texture coordinate and writes the resulting color
@@ -131,8 +126,7 @@ LinearImage resampleImage(const LinearImage& source, uint32_t width, uint32_t he
  * the top-left pixel and (+1.0f, +1.0f) is the lower-right boundary of the bottom-right pixel.
  */
 UTILS_PUBLIC
-void computeSingleSample(const LinearImage& source, float x, float y, SingleSample* result,
-        Filter filter = Filter::BOX);
+void computeSingleSample(const LinearImage& source, float x, float y, SingleSample* result, Filter filter = Filter::BOX);
 
 /**
  * Generates a sequence of miplevels using the requested filter. To determine the number of mips

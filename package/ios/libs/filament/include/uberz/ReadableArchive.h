@@ -37,39 +37,39 @@ UTILS_WARNING_ENABLE_PADDED
 // This is the readable counterpart to WriteableArchive.
 // Used by gltfio; users do not need to access this class directly.
 struct ReadableArchive {
-    uint32_t magic;
-    uint32_t version;
-    uint64_t specsCount;
-    union {
-        struct ArchiveSpec* specs;
-        uint64_t specsOffset;
-    };
+  uint32_t magic;
+  uint32_t version;
+  uint64_t specsCount;
+  union {
+    struct ArchiveSpec* specs;
+    uint64_t specsOffset;
+  };
 };
 
-static constexpr Shading INVALID_SHADING_MODEL = (Shading) 0xff;
-static constexpr BlendingMode INVALID_BLENDING = (BlendingMode) 0xff;
+static constexpr Shading INVALID_SHADING_MODEL = (Shading)0xff;
+static constexpr BlendingMode INVALID_BLENDING = (BlendingMode)0xff;
 
 struct ArchiveSpec {
-    Shading shadingModel;
-    BlendingMode blendingMode;
-    uint16_t flagsCount;
-    uint32_t packageByteCount;
-    union {
-        struct ArchiveFlag* flags;
-        uint64_t flagsOffset;
-    };
-    union {
-        uint8_t* package;
-        uint64_t packageOffset;
-    };
+  Shading shadingModel;
+  BlendingMode blendingMode;
+  uint16_t flagsCount;
+  uint32_t packageByteCount;
+  union {
+    struct ArchiveFlag* flags;
+    uint64_t flagsOffset;
+  };
+  union {
+    uint8_t* package;
+    uint64_t packageOffset;
+  };
 };
 
 struct ArchiveFlag {
-    union {
-        const char* name;
-        uint64_t nameOffset;
-    };
-    ArchiveFeature value;
+  union {
+    const char* name;
+    uint64_t nameOffset;
+  };
+  ArchiveFeature value;
 };
 
 UTILS_WARNING_POP

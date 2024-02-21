@@ -40,26 +40,26 @@
 #include <vector>
 
 namespace filagui {
-    class ImGuiHelper;
+class ImGuiHelper;
 }
 
 namespace filament {
 namespace viewer {
 
-/**
- * \class ViewerGui ViewerGui.h viewer/ViewerGui.h
- * \brief Builds ImGui widgets for a simple glTF viewer and manages the associated state.
- *
- * This is a utility that can be used across multiple platforms, including web.
- *
- * \note If you don't need ImGui controls, there is no need to use this class, just use AssetLoader
- * instead.
- */
-class UTILS_PUBLIC ViewerGui {
-public:
+  /**
+   * \class ViewerGui ViewerGui.h viewer/ViewerGui.h
+   * \brief Builds ImGui widgets for a simple glTF viewer and manages the associated state.
+   *
+   * This is a utility that can be used across multiple platforms, including web.
+   *
+   * \note If you don't need ImGui controls, there is no need to use this class, just use AssetLoader
+   * instead.
+   */
+  class UTILS_PUBLIC ViewerGui {
+  public:
     using Animator = gltfio::Animator;
     using FilamentAsset = gltfio::FilamentAsset;
-    using FilamentInstance =  gltfio::FilamentInstance;
+    using FilamentInstance = gltfio::FilamentInstance;
 
     static constexpr int DEFAULT_SIDEBAR_WIDTH = 350;
 
@@ -69,8 +69,7 @@ public:
      * Upon construction, the simple viewer may create some additional Filament objects (such as
      * light sources) that it owns.
      */
-    ViewerGui(Engine* engine, Scene* scene, View* view,
-            int sidebarWidth = DEFAULT_SIDEBAR_WIDTH);
+    ViewerGui(Engine* engine, Scene* scene, View* view, int sidebarWidth = DEFAULT_SIDEBAR_WIDTH);
 
     /**
      * Destroys the ViewerGui and any Filament entities that it owns.
@@ -154,31 +153,39 @@ public:
      * Retrieves the current width of the ImGui "window" which we are using as a sidebar.
      * Clients can monitor this value to adjust the size of the view.
      */
-    int getSidebarWidth() const { return mSidebarWidth; }
+    int getSidebarWidth() const {
+      return mSidebarWidth;
+    }
 
     /**
      * Allows clients to inject custom UI.
      */
-    void setUiCallback(std::function<void()> callback) { mCustomUI = callback; }
+    void setUiCallback(std::function<void()> callback) {
+      mCustomUI = callback;
+    }
 
     /**
      * Draws the bounding box of each renderable.
      * Defaults to false.
      */
-    void enableWireframe(bool b) { mEnableWireframe = b; }
+    void enableWireframe(bool b) {
+      mEnableWireframe = b;
+    }
 
     /**
      * Enables a built-in light source (useful for creating shadows).
      * Defaults to true.
      */
-    void enableSunlight(bool b) { mSettings.lighting.enableSunlight = b; }
+    void enableSunlight(bool b) {
+      mSettings.lighting.enableSunlight = b;
+    }
 
     /**
      * Enables dithering on the view.
      * Defaults to true.
      */
     void enableDithering(bool b) {
-        mSettings.view.dithering = b ? Dithering::TEMPORAL : Dithering::NONE;
+      mSettings.view.dithering = b ? Dithering::TEMPORAL : Dithering::NONE;
     }
 
     /**
@@ -186,7 +193,7 @@ public:
      * Defaults to true.
      */
     void enableFxaa(bool b) {
-        mSettings.view.antiAliasing = b ? AntiAliasing::FXAA : AntiAliasing::NONE;
+      mSettings.view.antiAliasing = b ? AntiAliasing::FXAA : AntiAliasing::NONE;
     }
 
     /**
@@ -194,28 +201,34 @@ public:
      * Defaults to true.
      */
     void enableMsaa(bool b) {
-        mSettings.view.msaa.sampleCount = 4;
-        mSettings.view.msaa.enabled = b;
+      mSettings.view.msaa.sampleCount = 4;
+      mSettings.view.msaa.enabled = b;
     }
 
     /**
      * Enables screen-space ambient occlusion in the post-process pipeline.
      * Defaults to true.
      */
-    void enableSSAO(bool b) { mSettings.view.ssao.enabled = b; }
+    void enableSSAO(bool b) {
+      mSettings.view.ssao.enabled = b;
+    }
 
     /**
      * Enables Bloom.
      * Defaults to true.
      */
-    void enableBloom(bool bloom) { mSettings.view.bloom.enabled = bloom; }
+    void enableBloom(bool bloom) {
+      mSettings.view.bloom.enabled = bloom;
+    }
 
     /**
      * Adjusts the intensity of the IBL.
      * See also IndirectLight::setIntensity().
      * Defaults to 30000.0.
      */
-    void setIBLIntensity(float brightness) { mSettings.lighting.iblIntensity = brightness; }
+    void setIBLIntensity(float brightness) {
+      mSettings.lighting.iblIntensity = brightness;
+    }
 
     /**
      * Updates the transform at the root node according to the autoScaleEnabled setting.
@@ -225,16 +238,24 @@ public:
     /**
      * Gets a modifiable reference to stashed state.
      */
-    Settings& getSettings() { return mSettings; }
+    Settings& getSettings() {
+      return mSettings;
+    }
 
-    void stopAnimation() { mCurrentAnimation = -1; }
+    void stopAnimation() {
+      mCurrentAnimation = -1;
+    }
 
-    int getCurrentCamera() const { return mCurrentCamera; }
+    int getCurrentCamera() const {
+      return mCurrentCamera;
+    }
 
-private:
+  private:
     using SceneMask = gltfio::NodeManager::SceneMask;
 
-    bool isRemoteMode() const { return mAsset == nullptr; }
+    bool isRemoteMode() const {
+      return mAsset == nullptr;
+    }
 
     void sceneSelectionUI();
 
@@ -280,10 +301,10 @@ private:
     float mToneMapPlot[1024];
     float mRangePlot[1024 * 3];
     float mCurvePlot[1024 * 3];
-};
+  };
 
-UTILS_PUBLIC
-math::mat4f fitIntoUnitCube(const Aabb& bounds, float zoffset);
+  UTILS_PUBLIC
+  math::mat4f fitIntoUnitCube(const Aabb& bounds, float zoffset);
 
 } // namespace viewer
 } // namespace filament

@@ -3,8 +3,8 @@
 //
 
 #include "JFilamentView.h"
-#include "JSurfaceProvider.h"
 #include "JNISharedPtr.h"
+#include "JSurfaceProvider.h"
 
 namespace margelo {
 
@@ -28,7 +28,7 @@ jni::local_ref<JFilamentView::jhybriddata> JFilamentView::initHybrid(jni::alias_
 }
 
 std::shared_ptr<SurfaceProvider> JFilamentView::getSurfaceProvider() {
-    return JNISharedPtr::make_shared_from_jni<JSurfaceProvider>(_surfaceProvider);
+  return JNISharedPtr::make_shared_from_jni<JSurfaceProvider>(_surfaceProvider);
 }
 
 } // namespace margelo

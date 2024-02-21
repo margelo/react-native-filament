@@ -19,8 +19,8 @@
 
 #include <filament/FilamentAPI.h>
 
-#include <backend/DriverEnums.h>
 #include <backend/CallbackHandler.h>
+#include <backend/DriverEnums.h>
 
 #include <utils/compiler.h>
 
@@ -80,140 +80,139 @@ class Engine;
  * @see Engine#destroyStream
  */
 class UTILS_PUBLIC Stream : public FilamentAPI {
-    struct BuilderDetails;
+  struct BuilderDetails;
 
 public:
-    using Callback = backend::StreamCallback;
-    using StreamType = backend::StreamType;
+  using Callback = backend::StreamCallback;
+  using StreamType = backend::StreamType;
+
+  /**
+   * Constructs a Stream object instance.
+   *
+   * By default, Stream objects are ACQUIRED and must have external images pushed to them via
+   * <pre>Stream::setAcquiredImage</pre>.
+   *
+   * To create a NATIVE stream, call the <pre>stream</pre> method on the builder.
+   */
+  class Builder : public BuilderBase<BuilderDetails> {
+    friend struct BuilderDetails;
+
+  public:
+    Builder() noexcept;
+    Builder(Builder const& rhs) noexcept;
+    Builder(Builder&& rhs) noexcept;
+    ~Builder() noexcept;
+    Builder& operator=(Builder const& rhs) noexcept;
+    Builder& operator=(Builder&& rhs) noexcept;
 
     /**
-     * Constructs a Stream object instance.
+     * Creates a NATIVE stream. Native streams can sample data directly from an
+     * opaque platform object such as a SurfaceTexture on Android.
      *
-     * By default, Stream objects are ACQUIRED and must have external images pushed to them via
-     * <pre>Stream::setAcquiredImage</pre>.
+     * @param stream An opaque native stream handle. e.g.: on Android this is an
+     *                     `android/graphics/SurfaceTexture` JNI jobject. The wrap mode must
+     *                     be CLAMP_TO_EDGE.
      *
-     * To create a NATIVE stream, call the <pre>stream</pre> method on the builder.
+     * @return This Builder, for chaining calls.
      */
-    class Builder : public BuilderBase<BuilderDetails> {
-        friend struct BuilderDetails;
-    public:
-        Builder() noexcept;
-        Builder(Builder const& rhs) noexcept;
-        Builder(Builder&& rhs) noexcept;
-        ~Builder() noexcept;
-        Builder& operator=(Builder const& rhs) noexcept;
-        Builder& operator=(Builder&& rhs) noexcept;
-
-        /**
-         * Creates a NATIVE stream. Native streams can sample data directly from an
-         * opaque platform object such as a SurfaceTexture on Android.
-         *
-         * @param stream An opaque native stream handle. e.g.: on Android this is an
-         *                     `android/graphics/SurfaceTexture` JNI jobject. The wrap mode must
-         *                     be CLAMP_TO_EDGE.
-         *
-         * @return This Builder, for chaining calls.
-         */
-        Builder& stream(void* UTILS_NULLABLE stream) noexcept;
-
-        /**
-         *
-         * @param width initial width of the incoming stream. Whether this value is used is
-         *              stream dependent. On Android, it must be set when using
-         *              Builder::stream(long externalTextureId).
-         *
-         * @return This Builder, for chaining calls.
-         */
-        Builder& width(uint32_t width) noexcept;
-
-        /**
-         *
-         * @param height initial height of the incoming stream. Whether this value is used is
-         *              stream dependent. On Android, it must be set when using
-         *              Builder::stream(long externalTextureId).
-         *
-         * @return This Builder, for chaining calls.
-         */
-        Builder& height(uint32_t height) noexcept;
-
-        /**
-         * Creates the Stream object and returns a pointer to it.
-         *
-         * @param engine Reference to the filament::Engine to associate this Stream with.
-         *
-         * @return pointer to the newly created object.
-         */
-        Stream* UTILS_NONNULL build(Engine& engine);
-
-    private:
-        friend class FStream;
-    };
+    Builder& stream(void* UTILS_NULLABLE stream) noexcept;
 
     /**
-     * Indicates whether this stream is a NATIVE stream or ACQUIRED stream.
-     */
-    StreamType getStreamType() const noexcept;
-
-    /**
-     * Updates an ACQUIRED stream with an image that is guaranteed to be used in the next frame.
      *
-     * This method tells Filament to immediately "acquire" the image and trigger a callback
-     * when it is done with it. This should be called by the user outside of beginFrame / endFrame,
-     * and should be called only once per frame. If the user pushes images to the same stream
-     * multiple times in a single frame, only the final image is honored, but all callbacks are
-     * invoked.
-     *
-     * This method should be called on the same thread that calls Renderer::beginFrame, which is
-     * also where the callback is invoked. This method can only be used for streams that were
-     * constructed without calling the `stream` method on the builder.
-     *
-     * @see Stream for more information about NATIVE and ACQUIRED configurations.
-     *
-     * @param image      Pointer to AHardwareBuffer, casted to void* since this is a public header.
-     * @param callback   This is triggered by Filament when it wishes to release the image.
-     *                   The callback tales two arguments: the AHardwareBuffer and the userdata.
-     * @param userdata   Optional closure data. Filament will pass this into the callback when it
-     *                   releases the image.
-     */
-    void setAcquiredImage(void* UTILS_NONNULL image,
-            Callback UTILS_NONNULL callback, void* UTILS_NULLABLE userdata) noexcept;
-
-    /**
-     * @see setAcquiredImage(void*, Callback, void*)
-     *
-     * @param image      Pointer to AHardwareBuffer, casted to void* since this is a public header.
-     * @param handler    Handler to dispatch the AcquiredImage or nullptr for the default handler.
-     * @param callback   This is triggered by Filament when it wishes to release the image.
-     *                   It callback tales two arguments: the AHardwareBuffer and the userdata.
-     * @param userdata   Optional closure data. Filament will pass this into the callback when it
-     *                   releases the image.
-     */
-    void setAcquiredImage(void* UTILS_NONNULL image,
-            backend::CallbackHandler* UTILS_NULLABLE handler,
-            Callback UTILS_NONNULL callback, void* UTILS_NULLABLE userdata) noexcept;
-
-    /**
-     * Updates the size of the incoming stream. Whether this value is used is
+     * @param width initial width of the incoming stream. Whether this value is used is
      *              stream dependent. On Android, it must be set when using
      *              Builder::stream(long externalTextureId).
      *
-     * @param width     new width of the incoming stream
-     * @param height    new height of the incoming stream
+     * @return This Builder, for chaining calls.
      */
-    void setDimensions(uint32_t width, uint32_t height) noexcept;
+    Builder& width(uint32_t width) noexcept;
 
     /**
-     * Returns the presentation time of the currently displayed frame in nanosecond.
      *
-     * This value can change at any time.
+     * @param height initial height of the incoming stream. Whether this value is used is
+     *              stream dependent. On Android, it must be set when using
+     *              Builder::stream(long externalTextureId).
      *
-     * @return timestamp in nanosecond.
+     * @return This Builder, for chaining calls.
      */
-    int64_t getTimestamp() const noexcept;
+    Builder& height(uint32_t height) noexcept;
+
+    /**
+     * Creates the Stream object and returns a pointer to it.
+     *
+     * @param engine Reference to the filament::Engine to associate this Stream with.
+     *
+     * @return pointer to the newly created object.
+     */
+    Stream* UTILS_NONNULL build(Engine& engine);
+
+  private:
+    friend class FStream;
+  };
+
+  /**
+   * Indicates whether this stream is a NATIVE stream or ACQUIRED stream.
+   */
+  StreamType getStreamType() const noexcept;
+
+  /**
+   * Updates an ACQUIRED stream with an image that is guaranteed to be used in the next frame.
+   *
+   * This method tells Filament to immediately "acquire" the image and trigger a callback
+   * when it is done with it. This should be called by the user outside of beginFrame / endFrame,
+   * and should be called only once per frame. If the user pushes images to the same stream
+   * multiple times in a single frame, only the final image is honored, but all callbacks are
+   * invoked.
+   *
+   * This method should be called on the same thread that calls Renderer::beginFrame, which is
+   * also where the callback is invoked. This method can only be used for streams that were
+   * constructed without calling the `stream` method on the builder.
+   *
+   * @see Stream for more information about NATIVE and ACQUIRED configurations.
+   *
+   * @param image      Pointer to AHardwareBuffer, casted to void* since this is a public header.
+   * @param callback   This is triggered by Filament when it wishes to release the image.
+   *                   The callback tales two arguments: the AHardwareBuffer and the userdata.
+   * @param userdata   Optional closure data. Filament will pass this into the callback when it
+   *                   releases the image.
+   */
+  void setAcquiredImage(void* UTILS_NONNULL image, Callback UTILS_NONNULL callback, void* UTILS_NULLABLE userdata) noexcept;
+
+  /**
+   * @see setAcquiredImage(void*, Callback, void*)
+   *
+   * @param image      Pointer to AHardwareBuffer, casted to void* since this is a public header.
+   * @param handler    Handler to dispatch the AcquiredImage or nullptr for the default handler.
+   * @param callback   This is triggered by Filament when it wishes to release the image.
+   *                   It callback tales two arguments: the AHardwareBuffer and the userdata.
+   * @param userdata   Optional closure data. Filament will pass this into the callback when it
+   *                   releases the image.
+   */
+  void setAcquiredImage(void* UTILS_NONNULL image, backend::CallbackHandler* UTILS_NULLABLE handler, Callback UTILS_NONNULL callback,
+                        void* UTILS_NULLABLE userdata) noexcept;
+
+  /**
+   * Updates the size of the incoming stream. Whether this value is used is
+   *              stream dependent. On Android, it must be set when using
+   *              Builder::stream(long externalTextureId).
+   *
+   * @param width     new width of the incoming stream
+   * @param height    new height of the incoming stream
+   */
+  void setDimensions(uint32_t width, uint32_t height) noexcept;
+
+  /**
+   * Returns the presentation time of the currently displayed frame in nanosecond.
+   *
+   * This value can change at any time.
+   *
+   * @return timestamp in nanosecond.
+   */
+  int64_t getTimestamp() const noexcept;
 
 protected:
-    // prevent heap allocation
-    ~Stream() = default;
+  // prevent heap allocation
+  ~Stream() = default;
 };
 
 } // namespace filament

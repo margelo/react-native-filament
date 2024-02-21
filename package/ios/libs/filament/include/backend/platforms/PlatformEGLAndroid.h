@@ -35,52 +35,48 @@ class ExternalStreamManagerAndroid;
  */
 class PlatformEGLAndroid : public PlatformEGL {
 public:
-
-    PlatformEGLAndroid() noexcept;
-    ~PlatformEGLAndroid() noexcept override;
+  PlatformEGLAndroid() noexcept;
+  ~PlatformEGLAndroid() noexcept override;
 
 protected:
+  // --------------------------------------------------------------------------------------------
+  // Platform Interface
 
-    // --------------------------------------------------------------------------------------------
-    // Platform Interface
+  /**
+   * Returns the Android SDK version.
+   * @return Android SDK version.
+   */
+  int getOSVersion() const noexcept override;
 
-    /**
-     * Returns the Android SDK version.
-     * @return Android SDK version.
-     */
-    int getOSVersion() const noexcept override;
+  Driver* createDriver(void* sharedContext, const Platform::DriverConfig& driverConfig) noexcept override;
 
-    Driver* createDriver(void* sharedContext,
-            const Platform::DriverConfig& driverConfig) noexcept override;
+  // --------------------------------------------------------------------------------------------
+  // OpenGLPlatform Interface
 
-    // --------------------------------------------------------------------------------------------
-    // OpenGLPlatform Interface
+  void terminate() noexcept override;
 
-    void terminate() noexcept override;
+  /**
+   * Set the presentation time using `eglPresentationTimeANDROID`
+   * @param presentationTimeInNanosecond
+   */
+  void setPresentationTime(int64_t presentationTimeInNanosecond) noexcept override;
 
-    /**
-     * Set the presentation time using `eglPresentationTimeANDROID`
-     * @param presentationTimeInNanosecond
-     */
-    void setPresentationTime(int64_t presentationTimeInNanosecond) noexcept override;
+  Stream* createStream(void* nativeStream) noexcept override;
+  void destroyStream(Stream* stream) noexcept override;
+  void attach(Stream* stream, intptr_t tname) noexcept override;
+  void detach(Stream* stream) noexcept override;
+  void updateTexImage(Stream* stream, int64_t* timestamp) noexcept override;
 
-
-    Stream* createStream(void* nativeStream) noexcept override;
-    void destroyStream(Stream* stream) noexcept override;
-    void attach(Stream* stream, intptr_t tname) noexcept override;
-    void detach(Stream* stream) noexcept override;
-    void updateTexImage(Stream* stream, int64_t* timestamp) noexcept override;
-
-    /**
-     * Converts a AHardwareBuffer to EGLImage
-     * @param source source.image is a AHardwareBuffer
-     * @return source.image contains an EGLImage
-     */
-    AcquiredImage transformAcquiredImage(AcquiredImage source) noexcept override;
+  /**
+   * Converts a AHardwareBuffer to EGLImage
+   * @param source source.image is a AHardwareBuffer
+   * @return source.image contains an EGLImage
+   */
+  AcquiredImage transformAcquiredImage(AcquiredImage source) noexcept override;
 
 private:
-    int mOSVersion;
-    ExternalStreamManagerAndroid& mExternalStreamManager;
+  int mOSVersion;
+  ExternalStreamManagerAndroid& mExternalStreamManager;
 };
 
 } // namespace filament::backend

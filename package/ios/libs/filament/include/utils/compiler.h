@@ -31,43 +31,43 @@
 #endif
 
 #if __has_attribute(visibility)
-#    define UTILS_PUBLIC  __attribute__((visibility("default")))
+#define UTILS_PUBLIC __attribute__((visibility("default")))
 #else
-#    define UTILS_PUBLIC  
+#define UTILS_PUBLIC
 #endif
 
 #if __has_attribute(deprecated)
-#   define UTILS_DEPRECATED [[deprecated]]
+#define UTILS_DEPRECATED [[deprecated]]
 #else
-#   define UTILS_DEPRECATED
+#define UTILS_DEPRECATED
 #endif
 
 #if __has_attribute(packed)
-#   define UTILS_PACKED __attribute__((packed))
+#define UTILS_PACKED __attribute__((packed))
 #else
-#   define UTILS_PACKED
+#define UTILS_PACKED
 #endif
 
 #if __has_attribute(noreturn)
-#    define UTILS_NORETURN __attribute__((noreturn))
+#define UTILS_NORETURN __attribute__((noreturn))
 #else
-#    define UTILS_NORETURN
+#define UTILS_NORETURN
 #endif
 
 #if __has_attribute(fallthrough)
-#   define UTILS_FALLTHROUGH [[fallthrough]]
+#define UTILS_FALLTHROUGH [[fallthrough]]
 #else
-#   define UTILS_FALLTHROUGH
+#define UTILS_FALLTHROUGH
 #endif
 
 #if __has_attribute(visibility)
-#    ifndef TNT_DEV
-#        define UTILS_PRIVATE __attribute__((visibility("hidden")))
-#    else
-#        define UTILS_PRIVATE
-#    endif
+#ifndef TNT_DEV
+#define UTILS_PRIVATE __attribute__((visibility("hidden")))
 #else
-#    define UTILS_PRIVATE
+#define UTILS_PRIVATE
+#endif
+#else
+#define UTILS_PRIVATE
 #endif
 
 #define UTILS_NO_SANITIZE_THREAD
@@ -92,46 +92,46 @@
  * helps the compiler's optimizer predicting branches
  */
 #if __has_builtin(__builtin_expect)
-#   ifdef __cplusplus
-#      define UTILS_LIKELY( exp )    (__builtin_expect( !!(exp), true ))
-#      define UTILS_UNLIKELY( exp )  (__builtin_expect( !!(exp), false ))
-#   else
-#      define UTILS_LIKELY( exp )    (__builtin_expect( !!(exp), 1 ))
-#      define UTILS_UNLIKELY( exp )  (__builtin_expect( !!(exp), 0 ))
-#   endif
+#ifdef __cplusplus
+#define UTILS_LIKELY(exp) (__builtin_expect(!!(exp), true))
+#define UTILS_UNLIKELY(exp) (__builtin_expect(!!(exp), false))
 #else
-#   define UTILS_LIKELY( exp )    (!!(exp))
-#   define UTILS_UNLIKELY( exp )  (!!(exp))
+#define UTILS_LIKELY(exp) (__builtin_expect(!!(exp), 1))
+#define UTILS_UNLIKELY(exp) (__builtin_expect(!!(exp), 0))
+#endif
+#else
+#define UTILS_LIKELY(exp) (!!(exp))
+#define UTILS_UNLIKELY(exp) (!!(exp))
 #endif
 
 #if __has_builtin(__builtin_prefetch)
-#   define UTILS_PREFETCH( exp ) (__builtin_prefetch(exp))
+#define UTILS_PREFETCH(exp) (__builtin_prefetch(exp))
 #else
-#   define UTILS_PREFETCH( exp )
+#define UTILS_PREFETCH(exp)
 #endif
 
 #if __has_builtin(__builtin_assume)
-#   define UTILS_ASSUME( exp ) (__builtin_assume(exp))
+#define UTILS_ASSUME(exp) (__builtin_assume(exp))
 #else
-#   define UTILS_ASSUME( exp )
+#define UTILS_ASSUME(exp)
 #endif
 
 #if (defined(__i386__) || defined(__x86_64__))
-#   define UTILS_HAS_HYPER_THREADING 1      // on x86 we assume we have hyper-threading.
+#define UTILS_HAS_HYPER_THREADING 1 // on x86 we assume we have hyper-threading.
 #else
-#   define UTILS_HAS_HYPER_THREADING 0
+#define UTILS_HAS_HYPER_THREADING 0
 #endif
 
 #if defined(FILAMENT_SINGLE_THREADED)
-#   define UTILS_HAS_THREADING 0
+#define UTILS_HAS_THREADING 0
 #elif defined(__EMSCRIPTEN__)
-#   if defined(__EMSCRIPTEN_PTHREADS__) && defined(FILAMENT_WASM_THREADS)
-#      define UTILS_HAS_THREADING 1
-#   else
-#      define UTILS_HAS_THREADING 0
-#   endif
+#if defined(__EMSCRIPTEN_PTHREADS__) && defined(FILAMENT_WASM_THREADS)
+#define UTILS_HAS_THREADING 1
 #else
-#   define UTILS_HAS_THREADING 1
+#define UTILS_HAS_THREADING 0
+#endif
+#else
+#define UTILS_HAS_THREADING 1
 #endif
 
 #if __has_attribute(noinline)
@@ -164,19 +164,19 @@
 #endif
 
 #if defined(_MSC_VER) && _MSC_VER >= 1900
-#    define UTILS_RESTRICT __restrict
+#define UTILS_RESTRICT __restrict
 #elif (defined(__clang__) || defined(__GNUC__))
-#    define UTILS_RESTRICT __restrict__
+#define UTILS_RESTRICT __restrict__
 #else
-#    define UTILS_RESTRICT
+#define UTILS_RESTRICT
 #endif
 
 #if defined(_MSC_VER) && _MSC_VER >= 1900
-#   define UTILS_HAS_FEATURE_CXX_THREAD_LOCAL 1
+#define UTILS_HAS_FEATURE_CXX_THREAD_LOCAL 1
 #elif __has_feature(cxx_thread_local)
-#   define UTILS_HAS_FEATURE_CXX_THREAD_LOCAL 1
+#define UTILS_HAS_FEATURE_CXX_THREAD_LOCAL 1
 #else
-#   define UTILS_HAS_FEATURE_CXX_THREAD_LOCAL 0
+#define UTILS_HAS_FEATURE_CXX_THREAD_LOCAL 0
 #endif
 
 #if defined(__clang__)
@@ -189,47 +189,47 @@
 
 #if defined(_MSC_VER)
 // MSVC does not support loop unrolling hints
-#   define UTILS_UNROLL
-#   define UTILS_NOUNROLL
+#define UTILS_UNROLL
+#define UTILS_NOUNROLL
 #else
 // C++11 allows pragmas to be specified as part of defines using the _Pragma syntax.
-#   define UTILS_UNROLL _Pragma("unroll")
-#   define UTILS_NOUNROLL _Pragma("nounroll")
+#define UTILS_UNROLL _Pragma("unroll")
+#define UTILS_NOUNROLL _Pragma("nounroll")
 #endif
 
 #if __has_feature(cxx_rtti) || defined(_CPPRTTI)
-#   define UTILS_HAS_RTTI 1
+#define UTILS_HAS_RTTI 1
 #else
-#   define UTILS_HAS_RTTI 0
+#define UTILS_HAS_RTTI 0
 #endif
 
 #ifdef __ARM_ACLE
-#   include <arm_acle.h>
-#   define UTILS_WAIT_FOR_INTERRUPT()   __wfi()
-#   define UTILS_WAIT_FOR_EVENT()       __wfe()
-#   define UTILS_BROADCAST_EVENT()      __sev()
-#   define UTILS_SIGNAL_EVENT()         __sevl()
-#   define UTILS_PAUSE()                __yield()
-#   define UTILS_PREFETCHW(addr)        __pldx(1, 0, 0, addr)
+#include <arm_acle.h>
+#define UTILS_WAIT_FOR_INTERRUPT() __wfi()
+#define UTILS_WAIT_FOR_EVENT() __wfe()
+#define UTILS_BROADCAST_EVENT() __sev()
+#define UTILS_SIGNAL_EVENT() __sevl()
+#define UTILS_PAUSE() __yield()
+#define UTILS_PREFETCHW(addr) __pldx(1, 0, 0, addr)
 #else // !__ARM_ACLE
-#   if (defined(__i386__) || defined(__x86_64__))
-#       define UTILS_X86_PAUSE              {__asm__ __volatile__( "rep; nop" : : : "memory" );}
-#       define UTILS_WAIT_FOR_INTERRUPT()   UTILS_X86_PAUSE
-#       define UTILS_WAIT_FOR_EVENT()       UTILS_X86_PAUSE
-#       define UTILS_BROADCAST_EVENT()
-#       define UTILS_SIGNAL_EVENT()
-#       define UTILS_PAUSE()                UTILS_X86_PAUSE
-#       define UTILS_PREFETCHW(addr)        UTILS_PREFETCH(addr)
-#   else // !x86
-#       define UTILS_WAIT_FOR_INTERRUPT()
-#       define UTILS_WAIT_FOR_EVENT()
-#       define UTILS_BROADCAST_EVENT()
-#       define UTILS_SIGNAL_EVENT()
-#       define UTILS_PAUSE()
-#       define UTILS_PREFETCHW(addr)        UTILS_PREFETCH(addr)
-#   endif // x86
+#if (defined(__i386__) || defined(__x86_64__))
+#define UTILS_X86_PAUSE                                                                                                                    \
+  { __asm__ __volatile__("rep; nop" : : : "memory"); }
+#define UTILS_WAIT_FOR_INTERRUPT() UTILS_X86_PAUSE
+#define UTILS_WAIT_FOR_EVENT() UTILS_X86_PAUSE
+#define UTILS_BROADCAST_EVENT()
+#define UTILS_SIGNAL_EVENT()
+#define UTILS_PAUSE() UTILS_X86_PAUSE
+#define UTILS_PREFETCHW(addr) UTILS_PREFETCH(addr)
+#else // !x86
+#define UTILS_WAIT_FOR_INTERRUPT()
+#define UTILS_WAIT_FOR_EVENT()
+#define UTILS_BROADCAST_EVENT()
+#define UTILS_SIGNAL_EVENT()
+#define UTILS_PAUSE()
+#define UTILS_PREFETCHW(addr) UTILS_PREFETCH(addr)
+#endif // x86
 #endif // __ARM_ACLE
-
 
 // ssize_t is a POSIX type.
 #if defined(WIN32) || defined(_WIN32)
@@ -238,34 +238,33 @@ typedef SSIZE_T ssize_t;
 #endif
 
 #ifdef _MSC_VER
-#   define UTILS_EMPTY_BASES __declspec(empty_bases)
+#define UTILS_EMPTY_BASES __declspec(empty_bases)
 #else
-#   define UTILS_EMPTY_BASES
+#define UTILS_EMPTY_BASES
 #endif
 
 #if defined(WIN32) || defined(_WIN32)
-    #define IMPORTSYMB __declspec(dllimport)
+#define IMPORTSYMB __declspec(dllimport)
 #else
-    #define IMPORTSYMB
+#define IMPORTSYMB
 #endif
 
 #if defined(_MSC_VER) && !defined(__PRETTY_FUNCTION__)
-#    define __PRETTY_FUNCTION__ __FUNCSIG__
-#endif 
-
+#define __PRETTY_FUNCTION__ __FUNCSIG__
+#endif
 
 #if defined(_MSC_VER)
-#   define UTILS_WARNING_PUSH _Pragma("warning( push )")
-#   define UTILS_WARNING_POP _Pragma("warning( pop )")
-#   define UTILS_WARNING_ENABLE_PADDED _Pragma("warning(1: 4324)")
+#define UTILS_WARNING_PUSH _Pragma("warning( push )")
+#define UTILS_WARNING_POP _Pragma("warning( pop )")
+#define UTILS_WARNING_ENABLE_PADDED _Pragma("warning(1: 4324)")
 #elif defined(__clang__)
-#   define UTILS_WARNING_PUSH _Pragma("clang diagnostic push")
-#   define UTILS_WARNING_POP  _Pragma("clang diagnostic pop")
-#   define UTILS_WARNING_ENABLE_PADDED _Pragma("clang diagnostic warning \"-Wpadded\"")
+#define UTILS_WARNING_PUSH _Pragma("clang diagnostic push")
+#define UTILS_WARNING_POP _Pragma("clang diagnostic pop")
+#define UTILS_WARNING_ENABLE_PADDED _Pragma("clang diagnostic warning \"-Wpadded\"")
 #else
-#   define UTILS_WARNING_PUSH
-#   define UTILS_WARNING_POP
-#   define UTILS_WARNING_ENABLE_PADDED
+#define UTILS_WARNING_PUSH
+#define UTILS_WARNING_POP
+#define UTILS_WARNING_ENABLE_PADDED
 #endif
 
 #endif // TNT_UTILS_COMPILER_H

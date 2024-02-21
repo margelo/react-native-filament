@@ -64,7 +64,7 @@ UTILS_PUBLIC int compare(const LinearImage& a, const LinearImage& b, float epsil
 UTILS_PUBLIC void clearToValue(LinearImage& img, float value);
 
 // Called by the coordinate field generator to query if a pixel is within the region of interest.
-using PresenceCallback = bool(*)(const LinearImage& img, uint32_t col, uint32_t row, void* user);
+using PresenceCallback = bool (*)(const LinearImage& img, uint32_t col, uint32_t row, void* user);
 
 // Generates a two-channel field of non-normalized coordinates that indicate the nearest pixel
 // whose presence function returns true. This is the first step before generating a distance
@@ -86,6 +86,5 @@ LinearImage voronoiFromCoordField(const LinearImage& coordField, const LinearIma
 UTILS_PUBLIC void blitImage(LinearImage& target, const LinearImage& source);
 
 } // namespace image
-
 
 #endif /* IMAGE_LINEARIMAGE_H */

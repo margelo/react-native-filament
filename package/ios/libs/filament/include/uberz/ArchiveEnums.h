@@ -21,11 +21,11 @@
 
 namespace filament::uberz {
 
-    enum class ArchiveFeature : uint64_t {
-        UNSUPPORTED,
-        OPTIONAL,
-        REQUIRED,
-    };
+enum class ArchiveFeature : uint64_t {
+  UNSUPPORTED,
+  OPTIONAL,
+  REQUIRED,
+};
 
 } // namespace filament::uberz
 

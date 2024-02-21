@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if defined (WIN32)
+#if defined(WIN32)
 
 #ifdef max
 #undef max

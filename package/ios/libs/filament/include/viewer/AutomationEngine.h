@@ -30,74 +30,74 @@ class View;
 
 namespace viewer {
 
-/**
- * The AutomationEngine makes it easy to push a bag of settings values to Filament.
- * It can also be used to iterate through settings permutations for testing purposes.
- *
- * When creating an automation engine for testing purposes, clients give it an immutable reference
- * to an AutomationSpec. It is always in one of two states: running or idle. The running state can
- * be entered immediately (startRunning) or by requesting batch mode (startBatchMode).
- *
- * When executing a test, clients should call tick() after each frame is rendered, which gives
- * automation an opportunity to push settings to Filament, increment the current test index (if
- * enough time has elapsed), and request an asynchronous screenshot.
- *
- * The time to sleep between tests is configurable and can be set to zero. Automation also waits a
- * specified minimum number of frames between tests.
- *
- * Batch mode is meant for non-interactive applications. In batch mode, automation defers applying
- * the first test case until the client unblocks it via signalBatchMode(). This is useful when
- * waiting for a large model file to become fully loaded. Batch mode also offers a query
- * (shouldClose) that is triggered after the last test has been invoked.
- */
-class UTILS_PUBLIC AutomationEngine {
-public:
+  /**
+   * The AutomationEngine makes it easy to push a bag of settings values to Filament.
+   * It can also be used to iterate through settings permutations for testing purposes.
+   *
+   * When creating an automation engine for testing purposes, clients give it an immutable reference
+   * to an AutomationSpec. It is always in one of two states: running or idle. The running state can
+   * be entered immediately (startRunning) or by requesting batch mode (startBatchMode).
+   *
+   * When executing a test, clients should call tick() after each frame is rendered, which gives
+   * automation an opportunity to push settings to Filament, increment the current test index (if
+   * enough time has elapsed), and request an asynchronous screenshot.
+   *
+   * The time to sleep between tests is configurable and can be set to zero. Automation also waits a
+   * specified minimum number of frames between tests.
+   *
+   * Batch mode is meant for non-interactive applications. In batch mode, automation defers applying
+   * the first test case until the client unblocks it via signalBatchMode(). This is useful when
+   * waiting for a large model file to become fully loaded. Batch mode also offers a query
+   * (shouldClose) that is triggered after the last test has been invoked.
+   */
+  class UTILS_PUBLIC AutomationEngine {
+  public:
     /**
      * Allows users to toggle screenshots, change the sleep duration between tests, etc.
      */
     struct Options {
-        /**
-         * Minimum time that automation waits between applying a settings object and advancing
-         * to the next test case. Specified in seconds.
-         */
-        float sleepDuration = 0.2f;
+      /**
+       * Minimum time that automation waits between applying a settings object and advancing
+       * to the next test case. Specified in seconds.
+       */
+      float sleepDuration = 0.2f;
 
-        /**
-         * Similar to sleepDuration, but expressed as a frame count. Both the minimum sleep time
-         * and the minimum frame count must be elapsed before automation advances to the next test.
-         */
-        int minFrameCount = 2;
+      /**
+       * Similar to sleepDuration, but expressed as a frame count. Both the minimum sleep time
+       * and the minimum frame count must be elapsed before automation advances to the next test.
+       */
+      int minFrameCount = 2;
 
-        /**
-         * If true, test progress is dumped to the utils Log (info priority).
-         */
-        bool verbose = true;
+      /**
+       * If true, test progress is dumped to the utils Log (info priority).
+       */
+      bool verbose = true;
 
-        /**
-         * If true, the tick function writes out a screenshot before advancing to the next test.
-         */
-        bool exportScreenshots = false;
+      /**
+       * If true, the tick function writes out a screenshot before advancing to the next test.
+       */
+      bool exportScreenshots = false;
 
-        /**
-         * If true, the tick function writes out a settings JSON file before advancing.
-         */
-        bool exportSettings = false;
+      /**
+       * If true, the tick function writes out a settings JSON file before advancing.
+       */
+      bool exportSettings = false;
     };
 
     /**
      * Collection of Filament objects that can be modified by the automation engine.
      */
     struct ViewerContent {
-        View* view;
-        Renderer* renderer;
-        MaterialInstance* const* materials;
-        size_t materialCount;
-        LightManager* lightManager;
-        Scene* scene;
-        IndirectLight* indirectLight;
-        utils::Entity sunlight;
-        utils::Entity* assetLights;
-        size_t assetLightCount;
+      View* view;
+      Renderer* renderer;
+      MaterialInstance* const* materials;
+      size_t materialCount;
+      LightManager* lightManager;
+      Scene* scene;
+      IndirectLight* indirectLight;
+      utils::Entity sunlight;
+      utils::Entity* assetLights;
+      size_t assetLightCount;
     };
 
     /**
@@ -111,8 +111,7 @@ public:
      * @see setOptions
      * @see startRunning
      */
-    AutomationEngine(const AutomationSpec* spec, Settings* settings) :
-            mSpec(spec), mSettings(settings) {}
+    AutomationEngine(const AutomationSpec* spec, Settings* settings) : mSpec(spec), mSettings(settings) {}
 
     /**
      * Shortcut constructor that creates an automation engine from a JSON string.
@@ -193,12 +192,16 @@ public:
     /**
      * Signals that batch mode can begin. Call this after all meshes and textures finish loading.
      */
-    void signalBatchMode() { mBatchModeAllowed = true; }
+    void signalBatchMode() {
+      mBatchModeAllowed = true;
+    }
 
     /**
      * Cancels an in-progress automation session.
      */
-    void stopRunning() { mIsRunning = false; }
+    void stopRunning() {
+      mIsRunning = false;
+    }
 
     /**
      * Signals that the application is closing, so all pending screenshots should be cancelled.
@@ -209,12 +212,16 @@ public:
      * Configures the automation engine for users who wish to set up a custom sleep time
      * between tests, etc.
      */
-    void setOptions(Options options) { mOptions = options; }
+    void setOptions(Options options) {
+      mOptions = options;
+    }
 
     /**
      * Returns true if automation is in batch mode and all tests have finished.
      */
-    bool shouldClose() const { return mShouldClose; }
+    bool shouldClose() const {
+      return mShouldClose;
+    }
 
     /**
      * Convenience function that writes out a JSON file to disk containing all settings.
@@ -224,17 +231,27 @@ public:
      */
     static void exportSettings(const Settings& settings, const char* filename);
 
-    Options getOptions() const { return mOptions; }
-    bool isRunning() const { return mIsRunning; }
-    size_t currentTest() const { return mCurrentTest; }
-    size_t testCount() const { return mSpec->size(); }
-    bool isBatchModeEnabled() const { return mBatchModeEnabled; }
+    Options getOptions() const {
+      return mOptions;
+    }
+    bool isRunning() const {
+      return mIsRunning;
+    }
+    size_t currentTest() const {
+      return mCurrentTest;
+    }
+    size_t testCount() const {
+      return mSpec->size();
+    }
+    bool isBatchModeEnabled() const {
+      return mBatchModeEnabled;
+    }
     const char* getStatusMessage() const;
     ~AutomationEngine();
 
-private:
-    AutomationSpec const * const mSpec;
-    Settings * const mSettings;
+  private:
+    AutomationSpec const* const mSpec;
+    Settings* const mSettings;
     Options mOptions;
 
     Engine* mColorGradingEngine = nullptr;
@@ -252,11 +269,15 @@ private:
     bool mTerminated = false;
     bool mOwnsSettings = false;
 
-public:
+  public:
     // For internal use from a screenshot callback.
-    void requestClose() { mShouldClose = true; }
-    bool isTerminated() const { return mTerminated; }
-};
+    void requestClose() {
+      mShouldClose = true;
+    }
+    bool isTerminated() const {
+      return mTerminated;
+    }
+  };
 
 } // namespace viewer
 } // namespace filament

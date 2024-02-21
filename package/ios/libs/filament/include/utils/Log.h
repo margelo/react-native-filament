@@ -23,20 +23,20 @@
 namespace utils {
 
 struct UTILS_PUBLIC Loggers {
-    // DEBUG level logging stream
-    io::ostream& d;
+  // DEBUG level logging stream
+  io::ostream& d;
 
-    // ERROR level logging stream
-    io::ostream& e;
+  // ERROR level logging stream
+  io::ostream& e;
 
-    // WARNING level logging stream
-    io::ostream& w;
+  // WARNING level logging stream
+  io::ostream& w;
 
-    // INFORMATION level logging stream
-    io::ostream& i;
+  // INFORMATION level logging stream
+  io::ostream& i;
 
-    // VERBOSE level logging stream
-    io::ostream& v;
+  // VERBOSE level logging stream
+  io::ostream& v;
 };
 
 extern UTILS_PUBLIC Loggers const slog;

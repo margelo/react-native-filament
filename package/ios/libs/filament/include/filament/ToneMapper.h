@@ -50,22 +50,22 @@ namespace filament {
  * You can create custom tone mapping operators by subclassing ToneMapper.
  */
 struct UTILS_PUBLIC ToneMapper {
-    ToneMapper() noexcept;
-    virtual ~ToneMapper() noexcept;
+  ToneMapper() noexcept;
+  virtual ~ToneMapper() noexcept;
 
-    /**
-     * Maps an open domain (or "scene referred" values) color value to display
-     * domain (or "display referred") color value. Both the input and output
-     * color values are defined in the Rec.2020 color space, with no transfer
-     * function applied ("linear Rec.2020").
-     *
-     * @param c Input color to tone map, in the Rec.2020 color space with no
-     *          transfer function applied ("linear")
-     *
-     * @return A tone mapped color in the Rec.2020 color space, with no transfer
-     *         function applied ("linear")
-     */
-    virtual math::float3 operator()(math::float3 c) const noexcept = 0;
+  /**
+   * Maps an open domain (or "scene referred" values) color value to display
+   * domain (or "display referred") color value. Both the input and output
+   * color values are defined in the Rec.2020 color space, with no transfer
+   * function applied ("linear Rec.2020").
+   *
+   * @param c Input color to tone map, in the Rec.2020 color space with no
+   *          transfer function applied ("linear")
+   *
+   * @return A tone mapped color in the Rec.2020 color space, with no transfer
+   *         function applied ("linear")
+   */
+  virtual math::float3 operator()(math::float3 c) const noexcept = 0;
 };
 
 /**
@@ -73,10 +73,10 @@ struct UTILS_PUBLIC ToneMapper {
  * the 0..1 range. This operator is mostly useful for debugging.
  */
 struct UTILS_PUBLIC LinearToneMapper final : public ToneMapper {
-    LinearToneMapper() noexcept;
-    ~LinearToneMapper() noexcept final;
+  LinearToneMapper() noexcept;
+  ~LinearToneMapper() noexcept final;
 
-    math::float3 operator()(math::float3 c) const noexcept override;
+  math::float3 operator()(math::float3 c) const noexcept override;
 };
 
 /**
@@ -85,10 +85,10 @@ struct UTILS_PUBLIC LinearToneMapper final : public ToneMapper {
  * Transform (ODT) for sRGB monitors (dim surround, 100 nits).
  */
 struct UTILS_PUBLIC ACESToneMapper final : public ToneMapper {
-    ACESToneMapper() noexcept;
-    ~ACESToneMapper() noexcept final;
+  ACESToneMapper() noexcept;
+  ~ACESToneMapper() noexcept final;
 
-    math::float3 operator()(math::float3 c) const noexcept override;
+  math::float3 operator()(math::float3 c) const noexcept override;
 };
 
 /**
@@ -98,10 +98,10 @@ struct UTILS_PUBLIC ACESToneMapper final : public ToneMapper {
  * target brighter viewing environments.
  */
 struct UTILS_PUBLIC ACESLegacyToneMapper final : public ToneMapper {
-    ACESLegacyToneMapper() noexcept;
-    ~ACESLegacyToneMapper() noexcept final;
+  ACESLegacyToneMapper() noexcept;
+  ~ACESLegacyToneMapper() noexcept final;
 
-    math::float3 operator()(math::float3 c) const noexcept override;
+  math::float3 operator()(math::float3 c) const noexcept override;
 };
 
 /**
@@ -111,10 +111,10 @@ struct UTILS_PUBLIC ACESLegacyToneMapper final : public ToneMapper {
  * only for backward compatibility purposes and is not otherwise recommended.
  */
 struct UTILS_PUBLIC FilmicToneMapper final : public ToneMapper {
-    FilmicToneMapper() noexcept;
-    ~FilmicToneMapper() noexcept final;
+  FilmicToneMapper() noexcept;
+  ~FilmicToneMapper() noexcept final;
 
-    math::float3 operator()(math::float3 x) const noexcept override;
+  math::float3 operator()(math::float3 x) const noexcept override;
 };
 
 /**
@@ -122,23 +122,23 @@ struct UTILS_PUBLIC FilmicToneMapper final : public ToneMapper {
  */
 struct UTILS_PUBLIC AgxToneMapper final : public ToneMapper {
 
-    enum class AgxLook : uint8_t {
-        NONE = 0,   //!< Base contrast with no look applied
-        PUNCHY,     //!< A punchy and more chroma laden look for sRGB displays
-        GOLDEN      //!< A golden tinted, slightly washed look for BT.1886 displays
-    };
+  enum class AgxLook : uint8_t {
+    NONE = 0, //!< Base contrast with no look applied
+    PUNCHY,   //!< A punchy and more chroma laden look for sRGB displays
+    GOLDEN    //!< A golden tinted, slightly washed look for BT.1886 displays
+  };
 
-    /**
-     * Builds a new AgX tone mapper.
-     *
-     * @param look an optional creative adjustment to contrast and saturation
-     */
-    explicit AgxToneMapper(AgxLook look = AgxLook::NONE) noexcept;
-    ~AgxToneMapper() noexcept final;
+  /**
+   * Builds a new AgX tone mapper.
+   *
+   * @param look an optional creative adjustment to contrast and saturation
+   */
+  explicit AgxToneMapper(AgxLook look = AgxLook::NONE) noexcept;
+  ~AgxToneMapper() noexcept final;
 
-    math::float3 operator()(math::float3 x) const noexcept override;
+  math::float3 operator()(math::float3 x) const noexcept override;
 
-    AgxLook look;
+  AgxLook look;
 };
 
 /**
@@ -155,63 +155,58 @@ struct UTILS_PUBLIC AgxToneMapper final : public ToneMapper {
  *           output white
  */
 struct UTILS_PUBLIC GenericToneMapper final : public ToneMapper {
-    /**
-     * Builds a new generic tone mapper. The default values of the
-     * constructor parameters approximate an ACES tone mapping curve
-     * and the maximum input value is set to 10.0.
-     *
-     * @param contrast controls the contrast of the curve, must be > 0.0, values
-     *                 in the range 0.5..2.0 are recommended.
-     * @param midGrayIn sets the input middle gray, between 0.0 and 1.0.
-     * @param midGrayOut sets the output middle gray, between 0.0 and 1.0.
-     * @param hdrMax defines the maximum input value that will be mapped to
-     *               output white. Must be >= 1.0.
-     */
-    explicit GenericToneMapper(
-            float contrast = 1.55f,
-            float midGrayIn = 0.18f,
-            float midGrayOut = 0.215f,
-            float hdrMax = 10.0f
-    ) noexcept;
-    ~GenericToneMapper() noexcept final;
+  /**
+   * Builds a new generic tone mapper. The default values of the
+   * constructor parameters approximate an ACES tone mapping curve
+   * and the maximum input value is set to 10.0.
+   *
+   * @param contrast controls the contrast of the curve, must be > 0.0, values
+   *                 in the range 0.5..2.0 are recommended.
+   * @param midGrayIn sets the input middle gray, between 0.0 and 1.0.
+   * @param midGrayOut sets the output middle gray, between 0.0 and 1.0.
+   * @param hdrMax defines the maximum input value that will be mapped to
+   *               output white. Must be >= 1.0.
+   */
+  explicit GenericToneMapper(float contrast = 1.55f, float midGrayIn = 0.18f, float midGrayOut = 0.215f, float hdrMax = 10.0f) noexcept;
+  ~GenericToneMapper() noexcept final;
 
-    GenericToneMapper(GenericToneMapper const&) = delete;
-    GenericToneMapper& operator=(GenericToneMapper const&) = delete;
-    GenericToneMapper(GenericToneMapper&& rhs)  noexcept;
-    GenericToneMapper& operator=(GenericToneMapper&& rhs) noexcept;
+  GenericToneMapper(GenericToneMapper const&) = delete;
+  GenericToneMapper& operator=(GenericToneMapper const&) = delete;
+  GenericToneMapper(GenericToneMapper&& rhs) noexcept;
+  GenericToneMapper& operator=(GenericToneMapper&& rhs) noexcept;
 
-    math::float3 operator()(math::float3 x) const noexcept override;
+  math::float3 operator()(math::float3 x) const noexcept override;
 
-    /** Returns the contrast of the curve as a strictly positive value. */
-    float getContrast() const noexcept;
+  /** Returns the contrast of the curve as a strictly positive value. */
+  float getContrast() const noexcept;
 
-    /** Returns how fast scene referred values map to output white as a value between 0.0 and 1.0. */
-    float getShoulder() const noexcept;
+  /** Returns how fast scene referred values map to output white as a value between 0.0 and 1.0. */
+  float getShoulder() const noexcept;
 
-    /** Returns the middle gray point for input values as a value between 0.0 and 1.0. */
-    float getMidGrayIn() const noexcept;
+  /** Returns the middle gray point for input values as a value between 0.0 and 1.0. */
+  float getMidGrayIn() const noexcept;
 
-    /** Returns the middle gray point for output values as a value between 0.0 and 1.0. */
-    float getMidGrayOut() const noexcept;
+  /** Returns the middle gray point for output values as a value between 0.0 and 1.0. */
+  float getMidGrayOut() const noexcept;
 
-    /** Returns the maximum input value that will map to output white, as a value >= 1.0. */
-    float getHdrMax() const noexcept;
+  /** Returns the maximum input value that will map to output white, as a value >= 1.0. */
+  float getHdrMax() const noexcept;
 
-    /** Sets the contrast of the curve, must be > 0.0, values in the range 0.5..2.0 are recommended. */
-    void setContrast(float contrast) noexcept;
+  /** Sets the contrast of the curve, must be > 0.0, values in the range 0.5..2.0 are recommended. */
+  void setContrast(float contrast) noexcept;
 
-    /** Sets the input middle gray, between 0.0 and 1.0. */
-    void setMidGrayIn(float midGrayIn) noexcept;
+  /** Sets the input middle gray, between 0.0 and 1.0. */
+  void setMidGrayIn(float midGrayIn) noexcept;
 
-    /** Sets the output middle gray, between 0.0 and 1.0. */
-    void setMidGrayOut(float midGrayOut) noexcept;
+  /** Sets the output middle gray, between 0.0 and 1.0. */
+  void setMidGrayOut(float midGrayOut) noexcept;
 
-    /** Defines the maximum input value that will be mapped to output white. Must be >= 1.0. */
-    void setHdrMax(float hdrMax) noexcept;
+  /** Defines the maximum input value that will be mapped to output white. Must be >= 1.0. */
+  void setHdrMax(float hdrMax) noexcept;
 
 private:
-    struct Options;
-    Options* mOptions;
+  struct Options;
+  Options* mOptions;
 };
 
 /**
@@ -242,10 +237,10 @@ private:
  * This tone mapper is useful to validate and tweak scene lighting.
  */
 struct UTILS_PUBLIC DisplayRangeToneMapper final : public ToneMapper {
-    DisplayRangeToneMapper() noexcept;
-    ~DisplayRangeToneMapper() noexcept override;
+  DisplayRangeToneMapper() noexcept;
+  ~DisplayRangeToneMapper() noexcept override;
 
-    math::float3 operator()(math::float3 c) const noexcept override;
+  math::float3 operator()(math::float3 c) const noexcept override;
 };
 
 } // namespace filament

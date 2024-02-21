@@ -25,23 +25,22 @@
 namespace filament {
 namespace camutils {
 
-template <typename FLOAT> class FreeFlightManipulator;
-template <typename FLOAT> class OrbitManipulator;
-template <typename FLOAT> class MapManipulator;
-template <typename FLOAT> class Manipulator;
+  template <typename FLOAT> class FreeFlightManipulator;
+  template <typename FLOAT> class OrbitManipulator;
+  template <typename FLOAT> class MapManipulator;
+  template <typename FLOAT> class Manipulator;
 
-enum class Mode { ORBIT, MAP, FREE_FLIGHT };
+  enum class Mode { ORBIT, MAP, FREE_FLIGHT };
 
-/**
- * Opaque memento to a viewing position and orientation (e.g. the "home" camera position).
- *
- * This little struct is meant to be passed around by value and can be used to track camera
- * animation between waypoints. In map mode this implements Van Wijk interpolation.
- *
- * @see Manipulator::getCurrentBookmark, Manipulator::jumpToBookmark
- */
-template <typename FLOAT>
-struct CAMUTILS_PUBLIC Bookmark {
+  /**
+   * Opaque memento to a viewing position and orientation (e.g. the "home" camera position).
+   *
+   * This little struct is meant to be passed around by value and can be used to track camera
+   * animation between waypoints. In map mode this implements Van Wijk interpolation.
+   *
+   * @see Manipulator::getCurrentBookmark, Manipulator::jumpToBookmark
+   */
+  template <typename FLOAT> struct CAMUTILS_PUBLIC Bookmark {
     /**
      * Interpolates between two bookmarks. The t argument must be between 0 and 1 (inclusive), and
      * the two endpoints must have the same mode (ORBIT or MAP).
@@ -54,21 +53,21 @@ struct CAMUTILS_PUBLIC Bookmark {
      */
     static double duration(Bookmark<FLOAT> a, Bookmark<FLOAT> b);
 
-private:
+  private:
     struct MapParams {
-        FLOAT extent;
-        filament::math::vec2<FLOAT> center;
+      FLOAT extent;
+      filament::math::vec2<FLOAT> center;
     };
     struct OrbitParams {
-        FLOAT phi;
-        FLOAT theta;
-        FLOAT distance;
-        filament::math::vec3<FLOAT> pivot;
+      FLOAT phi;
+      FLOAT theta;
+      FLOAT distance;
+      filament::math::vec3<FLOAT> pivot;
     };
     struct FlightParams {
-        FLOAT pitch;
-        FLOAT yaw;
-        filament::math::vec3<FLOAT> position;
+      FLOAT pitch;
+      FLOAT yaw;
+      filament::math::vec3<FLOAT> position;
     };
     Mode mode;
     MapParams map;
@@ -77,7 +76,7 @@ private:
     friend class FreeFlightManipulator<FLOAT>;
     friend class OrbitManipulator<FLOAT>;
     friend class MapManipulator<FLOAT>;
-};
+  };
 
 } // namespace camutils
 } // namespace filament

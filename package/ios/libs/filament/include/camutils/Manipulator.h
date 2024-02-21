@@ -29,53 +29,52 @@
 namespace filament {
 namespace camutils {
 
-enum class Fov { VERTICAL, HORIZONTAL };
+  enum class Fov { VERTICAL, HORIZONTAL };
 
-/**
- * Helper that enables camera interaction similar to sketchfab or Google Maps.
- *
- * Clients notify the camera manipulator of various mouse or touch events, then periodically call
- * its getLookAt() method so that they can adjust their camera(s). Three modes are supported: ORBIT,
- * MAP, and FREE_FLIGHT. To construct a manipulator instance, the desired mode is passed into the
- * create method.
- *
- * Usage example:
- *
- *     using CameraManipulator = camutils::Manipulator<float>;
- *     CameraManipulator* manip;
- *
- *     void init() {
- *         manip = CameraManipulator::Builder()
- *             .viewport(1024, 768)
- *             .build(camutils::Mode::ORBIT);
- *     }
- *
- *     void onMouseDown(int x, int y) {
- *         manip->grabBegin(x, y, false);
- *     }
- *
- *     void onMouseMove(int x, int y) {
- *         manip->grabUpdate(x, y);
- *     }
- *
- *     void onMouseUp(int x, int y) {
- *         manip->grabEnd();
- *     }
- *
- *     void gameLoop() {
- *         while (true) {
- *             filament::math::float3 eye, center, up;
- *             manip->getLookAt(&eye, &center, &up);
- *             camera->lookAt(eye, center, up);
- *             render();
- *         }
- *     }
- *
- * @see Bookmark
- */
-template <typename FLOAT>
-class CAMUTILS_PUBLIC Manipulator {
-public:
+  /**
+   * Helper that enables camera interaction similar to sketchfab or Google Maps.
+   *
+   * Clients notify the camera manipulator of various mouse or touch events, then periodically call
+   * its getLookAt() method so that they can adjust their camera(s). Three modes are supported: ORBIT,
+   * MAP, and FREE_FLIGHT. To construct a manipulator instance, the desired mode is passed into the
+   * create method.
+   *
+   * Usage example:
+   *
+   *     using CameraManipulator = camutils::Manipulator<float>;
+   *     CameraManipulator* manip;
+   *
+   *     void init() {
+   *         manip = CameraManipulator::Builder()
+   *             .viewport(1024, 768)
+   *             .build(camutils::Mode::ORBIT);
+   *     }
+   *
+   *     void onMouseDown(int x, int y) {
+   *         manip->grabBegin(x, y, false);
+   *     }
+   *
+   *     void onMouseMove(int x, int y) {
+   *         manip->grabUpdate(x, y);
+   *     }
+   *
+   *     void onMouseUp(int x, int y) {
+   *         manip->grabEnd();
+   *     }
+   *
+   *     void gameLoop() {
+   *         while (true) {
+   *             filament::math::float3 eye, center, up;
+   *             manip->getLookAt(&eye, &center, &up);
+   *             camera->lookAt(eye, center, up);
+   *             render();
+   *         }
+   *     }
+   *
+   * @see Bookmark
+   */
+  template <typename FLOAT> class CAMUTILS_PUBLIC Manipulator {
+  public:
     using vec2 = filament::math::vec2<FLOAT>;
     using vec3 = filament::math::vec3<FLOAT>;
     using vec4 = filament::math::vec4<FLOAT>;
@@ -88,69 +87,69 @@ public:
 
     /** Builder state, direct access is allowed but Builder methods are preferred. **/
     struct Config {
-        int viewport[2];
-        vec3 targetPosition;
-        vec3 upVector;
-        FLOAT zoomSpeed;
-        vec3 orbitHomePosition;
-        vec2 orbitSpeed;
-        Fov fovDirection;
-        FLOAT fovDegrees;
-        FLOAT farPlane;
-        vec2 mapExtent;
-        FLOAT mapMinDistance;
-        vec3 flightStartPosition;
-        FLOAT flightStartPitch;
-        FLOAT flightStartYaw;
-        FLOAT flightMaxSpeed;
-        FLOAT flightSpeedSteps;
-        vec2 flightPanSpeed;
-        FLOAT flightMoveDamping;
-        vec4 groundPlane;
-        RayCallback raycastCallback;
-        void* raycastUserdata;
+      int viewport[2];
+      vec3 targetPosition;
+      vec3 upVector;
+      FLOAT zoomSpeed;
+      vec3 orbitHomePosition;
+      vec2 orbitSpeed;
+      Fov fovDirection;
+      FLOAT fovDegrees;
+      FLOAT farPlane;
+      vec2 mapExtent;
+      FLOAT mapMinDistance;
+      vec3 flightStartPosition;
+      FLOAT flightStartPitch;
+      FLOAT flightStartYaw;
+      FLOAT flightMaxSpeed;
+      FLOAT flightSpeedSteps;
+      vec2 flightPanSpeed;
+      FLOAT flightMoveDamping;
+      vec4 groundPlane;
+      RayCallback raycastCallback;
+      void* raycastUserdata;
     };
 
     struct Builder {
-        // Common properties
-        Builder& viewport(int width, int height);           //! Width and height of the viewing area
-        Builder& targetPosition(FLOAT x, FLOAT y, FLOAT z); //! World-space position of interest, defaults to (0,0,0)
-        Builder& upVector(FLOAT x, FLOAT y, FLOAT z);       //! Orientation for the home position, defaults to (0,1,0)
-        Builder& zoomSpeed(FLOAT val);                      //! Multiplied with scroll delta, defaults to 0.01
+      // Common properties
+      Builder& viewport(int width, int height);           //! Width and height of the viewing area
+      Builder& targetPosition(FLOAT x, FLOAT y, FLOAT z); //! World-space position of interest, defaults to (0,0,0)
+      Builder& upVector(FLOAT x, FLOAT y, FLOAT z);       //! Orientation for the home position, defaults to (0,1,0)
+      Builder& zoomSpeed(FLOAT val);                      //! Multiplied with scroll delta, defaults to 0.01
 
-        // Orbit mode properties
-        Builder& orbitHomePosition(FLOAT x, FLOAT y, FLOAT z); //! Initial eye position in world space, defaults to (0,0,1)
-        Builder& orbitSpeed(FLOAT x, FLOAT y);                 //! Multiplied with viewport delta, defaults to 0.01
+      // Orbit mode properties
+      Builder& orbitHomePosition(FLOAT x, FLOAT y, FLOAT z); //! Initial eye position in world space, defaults to (0,0,1)
+      Builder& orbitSpeed(FLOAT x, FLOAT y);                 //! Multiplied with viewport delta, defaults to 0.01
 
-        // Map mode properties
-        Builder& fovDirection(Fov fov);                          //! The axis that's held constant when viewport changes
-        Builder& fovDegrees(FLOAT degrees);                      //! The full FOV (not the half-angle)
-        Builder& farPlane(FLOAT distance);                       //! The distance to the far plane
-        Builder& mapExtent(FLOAT worldWidth, FLOAT worldHeight); //! The ground size for computing home position
-        Builder& mapMinDistance(FLOAT mindist);                  //! Constrains the zoom-in level
+      // Map mode properties
+      Builder& fovDirection(Fov fov);                          //! The axis that's held constant when viewport changes
+      Builder& fovDegrees(FLOAT degrees);                      //! The full FOV (not the half-angle)
+      Builder& farPlane(FLOAT distance);                       //! The distance to the far plane
+      Builder& mapExtent(FLOAT worldWidth, FLOAT worldHeight); //! The ground size for computing home position
+      Builder& mapMinDistance(FLOAT mindist);                  //! Constrains the zoom-in level
 
-        // Free flight properties
-        Builder& flightStartPosition(FLOAT x, FLOAT y, FLOAT z);     //! Initial eye position in world space, defaults to (0,0,0)
-        Builder& flightStartOrientation(FLOAT pitch, FLOAT yaw);     //! Initial orientation in pitch and yaw, defaults to (0,0)
-        Builder& flightMaxMoveSpeed(FLOAT maxSpeed);                 //! The maximum camera speed in world units per second, defaults to 10
-        Builder& flightSpeedSteps(int steps);                        //! The number of speed steps adjustable with scroll wheel, defaults to 80
-        Builder& flightPanSpeed(FLOAT x, FLOAT y);                   //! Multiplied with viewport delta, defaults to 0.01,0.01
-        Builder& flightMoveDamping(FLOAT damping);                   //! Applies a deceleration to camera movement, defaults to 0 (no damping)
-                                                                     //! Lower values give slower damping times, a good default is 15
-                                                                     //! Too high a value may lead to instability
+      // Free flight properties
+      Builder& flightStartPosition(FLOAT x, FLOAT y, FLOAT z); //! Initial eye position in world space, defaults to (0,0,0)
+      Builder& flightStartOrientation(FLOAT pitch, FLOAT yaw); //! Initial orientation in pitch and yaw, defaults to (0,0)
+      Builder& flightMaxMoveSpeed(FLOAT maxSpeed);             //! The maximum camera speed in world units per second, defaults to 10
+      Builder& flightSpeedSteps(int steps);                    //! The number of speed steps adjustable with scroll wheel, defaults to 80
+      Builder& flightPanSpeed(FLOAT x, FLOAT y);               //! Multiplied with viewport delta, defaults to 0.01,0.01
+      Builder& flightMoveDamping(FLOAT damping);               //! Applies a deceleration to camera movement, defaults to 0 (no damping)
+                                                               //! Lower values give slower damping times, a good default is 15
+                                                               //! Too high a value may lead to instability
 
-        // Raycast properties
-        Builder& groundPlane(FLOAT a, FLOAT b, FLOAT c, FLOAT d);  //! Plane equation used as a raycast fallback
-        Builder& raycastCallback(RayCallback cb, void* userdata);  //! Raycast function for accurate grab-and-pan
+      // Raycast properties
+      Builder& groundPlane(FLOAT a, FLOAT b, FLOAT c, FLOAT d); //! Plane equation used as a raycast fallback
+      Builder& raycastCallback(RayCallback cb, void* userdata); //! Raycast function for accurate grab-and-pan
 
-        /**
-         * Creates a new camera manipulator, either ORBIT, MAP, or FREE_FLIGHT.
-         *
-         * Clients can simply use "delete" to destroy the manipulator.
-         */
-        Manipulator* build(Mode mode);
+      /**
+       * Creates a new camera manipulator, either ORBIT, MAP, or FREE_FLIGHT.
+       *
+       * Clients can simply use "delete" to destroy the manipulator.
+       */
+      Manipulator* build(Mode mode);
 
-        Config details = {};
+      Config details = {};
     };
 
     virtual ~Manipulator() = default;
@@ -158,7 +157,9 @@ public:
     /**
      * Gets the immutable mode of the manipulator.
      */
-    Mode getMode() const { return mMode; }
+    Mode getMode() const {
+      return mMode;
+    }
 
     /**
      * Sets the viewport dimensions. The manipulator uses this to process grab events and raycasts.
@@ -213,14 +214,14 @@ public:
      * UP and DOWN boom the camera upwards and downwards.
      */
     enum class Key {
-        FORWARD,
-        LEFT,
-        BACKWARD,
-        RIGHT,
-        UP,
-        DOWN,
+      FORWARD,
+      LEFT,
+      BACKWARD,
+      RIGHT,
+      UP,
+      DOWN,
 
-        COUNT
+      COUNT
     };
 
     /**
@@ -279,7 +280,7 @@ public:
      */
     virtual void jumpToBookmark(const Bookmark& bookmark) = 0;
 
-protected:
+  protected:
     Manipulator(Mode mode, const Config& props);
 
     virtual void setProperties(const Config& props);
@@ -290,7 +291,7 @@ protected:
     Config mProps;
     vec3 mEye;
     vec3 mTarget;
-};
+  };
 
 } // namespace camutils
 } // namespace filament

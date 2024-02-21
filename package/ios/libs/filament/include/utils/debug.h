@@ -20,14 +20,13 @@
 #include <utils/compiler.h>
 
 namespace utils {
-void panic(const char *func, const char * file, int line, const char *assertion) noexcept;
-} // namespace filament
+void panic(const char* func, const char* file, int line, const char* assertion) noexcept;
+} // namespace utils
 
 #ifdef NDEBUG
-#   define	assert_invariant(e)	((void)0)
+#define assert_invariant(e) ((void)0)
 #else
-#   define	assert_invariant(e) \
-            (UTILS_LIKELY(e) ? ((void)0) : utils::panic(__func__, __FILE__, __LINE__, #e))
+#define assert_invariant(e) (UTILS_LIKELY(e) ? ((void)0) : utils::panic(__func__, __FILE__, __LINE__, #e))
 #endif // NDEBUG
 
 #endif // TNT_UTILS_DEBUG_H

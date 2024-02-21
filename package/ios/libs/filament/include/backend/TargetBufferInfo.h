@@ -29,59 +29,51 @@ namespace filament::backend {
 //! \privatesection
 
 struct TargetBufferInfo {
-    // texture to be used as render target
-    Handle<HwTexture> handle;
+  // texture to be used as render target
+  Handle<HwTexture> handle;
 
-    // level to be used
-    uint8_t level = 0;
+  // level to be used
+  uint8_t level = 0;
 
-    // for cubemaps and 3D textures. See TextureCubemapFace for the face->layer mapping
-    uint16_t layer = 0;
+  // for cubemaps and 3D textures. See TextureCubemapFace for the face->layer mapping
+  uint16_t layer = 0;
 };
 
 class MRT {
 public:
-    static constexpr uint8_t MIN_SUPPORTED_RENDER_TARGET_COUNT = 4u;
+  static constexpr uint8_t MIN_SUPPORTED_RENDER_TARGET_COUNT = 4u;
 
-    // When updating this, make sure to also take care of RenderTarget.java
-    static constexpr uint8_t MAX_SUPPORTED_RENDER_TARGET_COUNT = 8u;
+  // When updating this, make sure to also take care of RenderTarget.java
+  static constexpr uint8_t MAX_SUPPORTED_RENDER_TARGET_COUNT = 8u;
 
 private:
-    TargetBufferInfo mInfos[MAX_SUPPORTED_RENDER_TARGET_COUNT];
+  TargetBufferInfo mInfos[MAX_SUPPORTED_RENDER_TARGET_COUNT];
 
 public:
-    TargetBufferInfo const& operator[](size_t i) const noexcept {
-        return mInfos[i];
-    }
+  TargetBufferInfo const& operator[](size_t i) const noexcept {
+    return mInfos[i];
+  }
 
-    TargetBufferInfo& operator[](size_t i) noexcept {
-        return mInfos[i];
-    }
+  TargetBufferInfo& operator[](size_t i) noexcept {
+    return mInfos[i];
+  }
 
-    MRT() noexcept = default;
+  MRT() noexcept = default;
 
-    MRT(TargetBufferInfo const& color) noexcept // NOLINT(hicpp-explicit-conversions)
-            : mInfos{ color } {
-    }
+  MRT(TargetBufferInfo const& color) noexcept // NOLINT(hicpp-explicit-conversions)
+      : mInfos{color} {}
 
-    MRT(TargetBufferInfo const& color0, TargetBufferInfo const& color1) noexcept
-            : mInfos{ color0, color1 } {
-    }
+  MRT(TargetBufferInfo const& color0, TargetBufferInfo const& color1) noexcept : mInfos{color0, color1} {}
 
-    MRT(TargetBufferInfo const& color0, TargetBufferInfo const& color1,
-        TargetBufferInfo const& color2) noexcept
-            : mInfos{ color0, color1, color2 } {
-    }
+  MRT(TargetBufferInfo const& color0, TargetBufferInfo const& color1, TargetBufferInfo const& color2) noexcept
+      : mInfos{color0, color1, color2} {}
 
-    MRT(TargetBufferInfo const& color0, TargetBufferInfo const& color1,
-        TargetBufferInfo const& color2, TargetBufferInfo const& color3) noexcept
-            : mInfos{ color0, color1, color2, color3 } {
-    }
+  MRT(TargetBufferInfo const& color0, TargetBufferInfo const& color1, TargetBufferInfo const& color2,
+      TargetBufferInfo const& color3) noexcept
+      : mInfos{color0, color1, color2, color3} {}
 
-    // this is here for backward compatibility
-    MRT(Handle<HwTexture> handle, uint8_t level, uint16_t layer) noexcept
-            : mInfos{{ handle, level, layer }} {
-    }
+  // this is here for backward compatibility
+  MRT(Handle<HwTexture> handle, uint8_t level, uint16_t layer) noexcept : mInfos{{handle, level, layer}} {}
 };
 
 } // namespace filament::backend
@@ -91,4 +83,4 @@ utils::io::ostream& operator<<(utils::io::ostream& out, const filament::backend:
 utils::io::ostream& operator<<(utils::io::ostream& out, const filament::backend::MRT& mrt);
 #endif
 
-#endif //TNT_FILAMENT_BACKEND_TARGETBUFFERINFO_H
+#endif // TNT_FILAMENT_BACKEND_TARGETBUFFERINFO_H

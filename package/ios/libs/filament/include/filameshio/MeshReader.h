@@ -17,23 +17,22 @@
 #ifndef TNT_FILAMENT_FILAMESHIO_MESHREADER_H
 #define TNT_FILAMENT_FILAMESHIO_MESHREADER_H
 
-#include <utils/compiler.h>
-#include <utils/Entity.h>
 #include <utils/CString.h>
+#include <utils/Entity.h>
+#include <utils/compiler.h>
 
 namespace filament {
-    class Engine;
-    class VertexBuffer;
-    class IndexBuffer;
-    class MaterialInstance;
-}
+class Engine;
+class VertexBuffer;
+class IndexBuffer;
+class MaterialInstance;
+} // namespace filament
 
 namespace utils {
-    class Path;
+class Path;
 }
 
 namespace filamesh {
-
 
 /**
  * This API can be used to read meshes stored in the "filamesh" format produced
@@ -42,77 +41,70 @@ namespace filamesh {
  */
 class UTILS_PUBLIC MeshReader {
 public:
-    using Callback = void(*)(void* buffer, size_t size, void* user);
+  using Callback = void (*)(void* buffer, size_t size, void* user);
 
-    // Class to track material instances
-    class MaterialRegistry {
-    public:
-         MaterialRegistry();
-         MaterialRegistry(const MaterialRegistry& rhs);
-         MaterialRegistry& operator=(const MaterialRegistry& rhs);
-         ~MaterialRegistry();
-         MaterialRegistry(MaterialRegistry&&);
-         MaterialRegistry& operator=(MaterialRegistry&&);
+  // Class to track material instances
+  class MaterialRegistry {
+  public:
+    MaterialRegistry();
+    MaterialRegistry(const MaterialRegistry& rhs);
+    MaterialRegistry& operator=(const MaterialRegistry& rhs);
+    ~MaterialRegistry();
+    MaterialRegistry(MaterialRegistry&&);
+    MaterialRegistry& operator=(MaterialRegistry&&);
 
-         filament::MaterialInstance* getMaterialInstance(const utils::CString& name);
+    filament::MaterialInstance* getMaterialInstance(const utils::CString& name);
 
-         void registerMaterialInstance(const utils::CString& name,
-                 filament::MaterialInstance* materialInstance);
+    void registerMaterialInstance(const utils::CString& name, filament::MaterialInstance* materialInstance);
 
-         void unregisterMaterialInstance(const utils::CString& name);
+    void unregisterMaterialInstance(const utils::CString& name);
 
-         void unregisterAll();
+    void unregisterAll();
 
-         size_t numRegistered() const noexcept;
+    size_t numRegistered() const noexcept;
 
-         void getRegisteredMaterials(filament::MaterialInstance** materialList,
-                 utils::CString* materialNameList) const;
+    void getRegisteredMaterials(filament::MaterialInstance** materialList, utils::CString* materialNameList) const;
 
-         void getRegisteredMaterials(filament::MaterialInstance** materialList) const;
+    void getRegisteredMaterials(filament::MaterialInstance** materialList) const;
 
-         void getRegisteredMaterialNames(utils::CString* materialNameList) const;
+    void getRegisteredMaterialNames(utils::CString* materialNameList) const;
 
-     private:
-         struct MaterialRegistryImpl;
-         MaterialRegistryImpl* mImpl;
-    };
+  private:
+    struct MaterialRegistryImpl;
+    MaterialRegistryImpl* mImpl;
+  };
 
-    struct Mesh {
-        utils::Entity renderable;
-        filament::VertexBuffer* vertexBuffer = nullptr;
-        filament::IndexBuffer* indexBuffer = nullptr;
-    };
+  struct Mesh {
+    utils::Entity renderable;
+    filament::VertexBuffer* vertexBuffer = nullptr;
+    filament::IndexBuffer* indexBuffer = nullptr;
+  };
 
-    /**
-     * Loads a filamesh renderable from the specified file. The material registry
-     * can be used to provide named materials. If a material found in the filamesh
-     * file cannot be matched to a material in the registry, a default material is
-     * used instead. The default material can be overridden by adding a material
-     * named "DefaultMaterial" to the registry.
-     */
-    static Mesh loadMeshFromFile(filament::Engine* engine,
-            const utils::Path& path,
-            MaterialRegistry& materials);
+  /**
+   * Loads a filamesh renderable from the specified file. The material registry
+   * can be used to provide named materials. If a material found in the filamesh
+   * file cannot be matched to a material in the registry, a default material is
+   * used instead. The default material can be overridden by adding a material
+   * named "DefaultMaterial" to the registry.
+   */
+  static Mesh loadMeshFromFile(filament::Engine* engine, const utils::Path& path, MaterialRegistry& materials);
 
-    /**
-     * Loads a filamesh renderable from an in-memory buffer. The material registry
-     * can be used to provide named materials. If a material found in the filamesh
-     * file cannot be matched to a material in the registry, a default material is
-     * used instead. The default material can be overridden by adding a material
-     * named "DefaultMaterial" to the registry.
-     */
-    static Mesh loadMeshFromBuffer(filament::Engine* engine,
-            void const* data, Callback destructor, void* user,
-            MaterialRegistry& materials);
+  /**
+   * Loads a filamesh renderable from an in-memory buffer. The material registry
+   * can be used to provide named materials. If a material found in the filamesh
+   * file cannot be matched to a material in the registry, a default material is
+   * used instead. The default material can be overridden by adding a material
+   * named "DefaultMaterial" to the registry.
+   */
+  static Mesh loadMeshFromBuffer(filament::Engine* engine, void const* data, Callback destructor, void* user, MaterialRegistry& materials);
 
-    /**
-     * Loads a filamesh renderable from an in-memory buffer. The material registry
-     * can be used to provide named materials. All the primitives of the decoded
-     * renderable are assigned the specified default material.
-     */
-    static Mesh loadMeshFromBuffer(filament::Engine* engine,
-            void const* data, Callback destructor, void* user,
-            filament::MaterialInstance* defaultMaterial);
+  /**
+   * Loads a filamesh renderable from an in-memory buffer. The material registry
+   * can be used to provide named materials. All the primitives of the decoded
+   * renderable are assigned the specified default material.
+   */
+  static Mesh loadMeshFromBuffer(filament::Engine* engine, void const* data, Callback destructor, void* user,
+                                 filament::MaterialInstance* defaultMaterial);
 };
 
 } // namespace filamesh

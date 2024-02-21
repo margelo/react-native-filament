@@ -22,7 +22,7 @@ private:
   virtual std::shared_ptr<FilamentView> findFilamentView(int id) = 0;
 
 public:
-    void loadHybridMethods() override;
+  void loadHybridMethods() override;
 };
 
 } // namespace margelo

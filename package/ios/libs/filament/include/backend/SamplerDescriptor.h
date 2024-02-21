@@ -27,8 +27,8 @@
 namespace filament::backend {
 
 struct UTILS_PUBLIC SamplerDescriptor {
-    Handle<HwTexture> t;
-    SamplerParams s{};
+  Handle<HwTexture> t;
+  SamplerParams s{};
 };
 
 } // namespace filament::backend

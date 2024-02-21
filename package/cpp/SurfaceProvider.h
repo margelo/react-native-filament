@@ -6,25 +6,25 @@
 
 #include "Listener.h"
 #include "Surface.h"
+#include "jsi/HybridObject.h"
 #include <functional>
 #include <memory>
 #include <mutex>
 #include <vector>
-#include "jsi/HybridObject.h"
 
 namespace margelo {
 
-class SurfaceProvider: public HybridObject {
+class SurfaceProvider : public HybridObject {
 public:
   using TOnCreate = std::function<void(std::shared_ptr<Surface> surface)>;
   using TOnResize = std::function<void(std::shared_ptr<Surface> surface, int width, int height)>;
   using TOnDestroy = std::function<void(std::shared_ptr<Surface>)>;
 
-    struct Callback {
-        TOnCreate onSurfaceCreated;
-        TOnResize onSurfaceSizeChanged;
-        TOnDestroy onSurfaceDestroyed;
-    };
+  struct Callback {
+    TOnCreate onSurfaceCreated;
+    TOnResize onSurfaceSizeChanged;
+    TOnDestroy onSurfaceDestroyed;
+  };
 
 public:
   Listener addOnSurfaceChangedListener(Callback callback);

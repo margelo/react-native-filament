@@ -44,56 +44,55 @@ class Renderer;
 
 namespace viewer {
 
-struct ColorGradingSettings;
-struct DynamicLightingSettings;
-struct MaterialSettings;
-struct Settings;
-struct ViewSettings;
-struct LightSettings;
-struct ViewerOptions;
+  struct ColorGradingSettings;
+  struct DynamicLightingSettings;
+  struct MaterialSettings;
+  struct Settings;
+  struct ViewSettings;
+  struct LightSettings;
+  struct ViewerOptions;
 
-enum class ToneMapping : uint8_t {
-    LINEAR        = 0,
-    ACES_LEGACY   = 1,
-    ACES          = 2,
-    FILMIC        = 3,
-    AGX           = 4,
-    GENERIC       = 5,
+  enum class ToneMapping : uint8_t {
+    LINEAR = 0,
+    ACES_LEGACY = 1,
+    ACES = 2,
+    FILMIC = 3,
+    AGX = 4,
+    GENERIC = 5,
     DISPLAY_RANGE = 6,
-};
+  };
 
-using AmbientOcclusionOptions = filament::View::AmbientOcclusionOptions;
-using ScreenSpaceReflectionsOptions = filament::View::ScreenSpaceReflectionsOptions;
-using AntiAliasing = filament::View::AntiAliasing;
-using BloomOptions = filament::View::BloomOptions;
-using DepthOfFieldOptions = filament::View::DepthOfFieldOptions;
-using Dithering = filament::View::Dithering;
-using FogOptions = filament::View::FogOptions;
-using RenderQuality = filament::View::RenderQuality;
-using ShadowType = filament::View::ShadowType;
-using DynamicResolutionOptions = filament::View::DynamicResolutionOptions;
-using MultiSampleAntiAliasingOptions = filament::View::MultiSampleAntiAliasingOptions;
-using TemporalAntiAliasingOptions = filament::View::TemporalAntiAliasingOptions;
-using VignetteOptions = filament::View::VignetteOptions;
-using VsmShadowOptions = filament::View::VsmShadowOptions;
-using GuardBandOptions = filament::View::GuardBandOptions;
-using StereoscopicOptions = filament::View::StereoscopicOptions;
-using LightManager = filament::LightManager;
+  using AmbientOcclusionOptions = filament::View::AmbientOcclusionOptions;
+  using ScreenSpaceReflectionsOptions = filament::View::ScreenSpaceReflectionsOptions;
+  using AntiAliasing = filament::View::AntiAliasing;
+  using BloomOptions = filament::View::BloomOptions;
+  using DepthOfFieldOptions = filament::View::DepthOfFieldOptions;
+  using Dithering = filament::View::Dithering;
+  using FogOptions = filament::View::FogOptions;
+  using RenderQuality = filament::View::RenderQuality;
+  using ShadowType = filament::View::ShadowType;
+  using DynamicResolutionOptions = filament::View::DynamicResolutionOptions;
+  using MultiSampleAntiAliasingOptions = filament::View::MultiSampleAntiAliasingOptions;
+  using TemporalAntiAliasingOptions = filament::View::TemporalAntiAliasingOptions;
+  using VignetteOptions = filament::View::VignetteOptions;
+  using VsmShadowOptions = filament::View::VsmShadowOptions;
+  using GuardBandOptions = filament::View::GuardBandOptions;
+  using StereoscopicOptions = filament::View::StereoscopicOptions;
+  using LightManager = filament::LightManager;
 
-// These functions push all editable property values to their respective Filament objects.
-void applySettings(Engine* engine, const ViewSettings& settings, View* dest);
-void applySettings(Engine* engine, const MaterialSettings& settings, MaterialInstance* dest);
-void applySettings(Engine* engine, const LightSettings& settings, IndirectLight* ibl, utils::Entity sunlight,
-        const utils::Entity* sceneLights, size_t sceneLightCount, LightManager* lm, Scene* scene, View* view);
-void applySettings(Engine* engine, const ViewerOptions& settings, Camera* camera, Skybox* skybox,
-        Renderer* renderer);
+  // These functions push all editable property values to their respective Filament objects.
+  void applySettings(Engine* engine, const ViewSettings& settings, View* dest);
+  void applySettings(Engine* engine, const MaterialSettings& settings, MaterialInstance* dest);
+  void applySettings(Engine* engine, const LightSettings& settings, IndirectLight* ibl, utils::Entity sunlight,
+                     const utils::Entity* sceneLights, size_t sceneLightCount, LightManager* lm, Scene* scene, View* view);
+  void applySettings(Engine* engine, const ViewerOptions& settings, Camera* camera, Skybox* skybox, Renderer* renderer);
 
-// Creates a new ColorGrading object based on the given settings.
-UTILS_PUBLIC
-ColorGrading* createColorGrading(const ColorGradingSettings& settings, Engine* engine);
+  // Creates a new ColorGrading object based on the given settings.
+  UTILS_PUBLIC
+  ColorGrading* createColorGrading(const ColorGradingSettings& settings, Engine* engine);
 
-class UTILS_PUBLIC JsonSerializer {
-public:
+  class UTILS_PUBLIC JsonSerializer {
+  public:
     JsonSerializer();
     ~JsonSerializer();
 
@@ -106,27 +105,31 @@ public:
     // - This function writes warnings and error messages into the utils log.
     bool readJson(const char* jsonChunk, size_t size, Settings* out);
 
-private:
+  private:
     class Context;
     Context* context;
-};
+  };
 
-struct GenericToneMapperSettings {
+  struct GenericToneMapperSettings {
     float contrast = 1.55f;
     float midGrayIn = 0.18f;
     float midGrayOut = 0.215f;
     float hdrMax = 10.0f;
-    bool operator!=(const GenericToneMapperSettings& rhs) const { return !(rhs == *this); }
+    bool operator!=(const GenericToneMapperSettings& rhs) const {
+      return !(rhs == *this);
+    }
     bool operator==(const GenericToneMapperSettings& rhs) const;
-};
+  };
 
-struct AgxToneMapperSettings {
+  struct AgxToneMapperSettings {
     AgxToneMapper::AgxLook look = AgxToneMapper::AgxLook::NONE;
-    bool operator!=(const AgxToneMapperSettings& rhs) const { return !(rhs == *this); }
+    bool operator!=(const AgxToneMapperSettings& rhs) const {
+      return !(rhs == *this);
+    }
     bool operator==(const AgxToneMapperSettings& rhs) const;
-};
+  };
 
-struct ColorGradingSettings {
+  struct ColorGradingSettings {
     // fields are ordered to avoid padding
     bool enabled = true;
     bool linkedCurves = false;
@@ -136,7 +139,7 @@ struct ColorGradingSettings {
     ToneMapping toneMapping = ToneMapping::ACES_LEGACY;
     bool padding0{};
     AgxToneMapperSettings agxToneMapper;
-    color::ColorSpace colorspace = Rec709-sRGB-D65;
+    color::ColorSpace colorspace = Rec709 - sRGB - D65;
     GenericToneMapperSettings genericToneMapper;
     math::float4 shadows{1.0f, 1.0f, 1.0f, 0.0f};
     math::float4 midtones{1.0f, 1.0f, 1.0f, 0.0f};
@@ -159,21 +162,23 @@ struct ColorGradingSettings {
     float vibrance = 1.0f;
     float saturation = 1.0f;
 
-    bool operator!=(const ColorGradingSettings &rhs) const { return !(rhs == *this); }
-    bool operator==(const ColorGradingSettings &rhs) const;
-};
+    bool operator!=(const ColorGradingSettings& rhs) const {
+      return !(rhs == *this);
+    }
+    bool operator==(const ColorGradingSettings& rhs) const;
+  };
 
-struct DynamicLightingSettings {
+  struct DynamicLightingSettings {
     float zLightNear = 5;
     float zLightFar = 100;
-};
+  };
 
-struct FogSettings {
+  struct FogSettings {
     Texture* fogColorTexture = nullptr;
-};
+  };
 
-// This defines fields in the same order as the setter methods in filament::View.
-struct ViewSettings {
+  // This defines fields in the same order as the setter methods in filament::View.
+  struct ViewSettings {
     // standalone View settings
     AntiAliasing antiAliasing = AntiAliasing::FXAA;
     Dithering dithering = Dithering::TEMPORAL;
@@ -199,20 +204,22 @@ struct ViewSettings {
     ColorGradingSettings colorGrading;
     DynamicLightingSettings dynamicLighting;
     FogSettings fogSettings;
-};
+  };
 
-template <typename T>
-struct MaterialProperty { std::string name; T value; };
+  template <typename T> struct MaterialProperty {
+    std::string name;
+    T value;
+  };
 
-// This struct has a fixed size for simplicity. Each non-empty property name is an override.
-struct MaterialSettings {
+  // This struct has a fixed size for simplicity. Each non-empty property name is an override.
+  struct MaterialSettings {
     static constexpr size_t MAX_COUNT = 4;
     MaterialProperty<float> scalar[MAX_COUNT];
     MaterialProperty<math::float3> float3[MAX_COUNT];
     MaterialProperty<math::float4> float4[MAX_COUNT];
-};
+  };
 
-struct LightSettings {
+  struct LightSettings {
     bool enableShadows = true;
     bool enableSunlight = true;
     LightManager::ShadowOptions shadowOptions;
@@ -222,12 +229,12 @@ struct LightSettings {
     float sunlightHaloFalloff = 80.0f;
     float sunlightAngularRadius = 1.9f;
     math::float3 sunlightDirection = {0.6, -1.0, -0.8};
-    math::float3 sunlightColor = filament::Color::toLinear<filament::ACCURATE>({ 0.98, 0.92, 0.89});
+    math::float3 sunlightColor = filament::Color::toLinear<filament::ACCURATE>({0.98, 0.92, 0.89});
     float iblIntensity = 30000.0f;
     float iblRotation = 0.0f;
-};
+  };
 
-struct ViewerOptions {
+  struct ViewerOptions {
     float cameraAperture = 16.0f;
     float cameraSpeed = 125.0f;
     float cameraISO = 100.0f;
@@ -238,19 +245,19 @@ struct ViewerOptions {
     float groundShadowStrength = 0.75f;
     bool groundPlaneEnabled = false;
     bool skyboxEnabled = true;
-    sRGBColor backgroundColor = { 0.0f };
+    sRGBColor backgroundColor = {0.0f};
     float cameraFocalLength = 28.0f;
     float cameraFocusDistance = 10.0f;
     bool autoScaleEnabled = true;
     bool autoInstancingEnabled = false;
-};
+  };
 
-struct Settings {
+  struct Settings {
     ViewSettings view;
     MaterialSettings material;
     LightSettings lighting;
     ViewerOptions viewer;
-};
+  };
 
 } // namespace viewer
 } // namespace filament

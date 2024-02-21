@@ -4,13 +4,13 @@
 
 #pragma once
 
+#include "jsi/HybridObject.h"
 #include <string>
 #include <vector>
-#include "jsi/HybridObject.h"
 
 namespace margelo {
 
-class Surface: public HybridObject {
+class Surface : public HybridObject {
 public:
   /**
    * Returns the surface ("native window") that can be used as a render target.

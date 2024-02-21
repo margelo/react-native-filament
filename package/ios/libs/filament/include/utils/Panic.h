@@ -23,7 +23,7 @@
 #include <string>
 
 #ifdef __EXCEPTIONS
-#   define UTILS_EXCEPTIONS 1
+#define UTILS_EXCEPTIONS 1
 #else
 #endif
 
@@ -250,42 +250,42 @@ namespace utils {
  */
 class UTILS_PUBLIC Panic {
 public:
-    virtual ~Panic() noexcept;
+  virtual ~Panic() noexcept;
 
-    /**
-     * @return a detailed description of the error
-     * @see std::exception
-     */
-    virtual const char* what() const noexcept = 0;
+  /**
+   * @return a detailed description of the error
+   * @see std::exception
+   */
+  virtual const char* what() const noexcept = 0;
 
-    /**
-     * Get the function name where the panic was detected
-     * @return a C string containing the function name where the panic was detected
-     */
-    virtual const char* getFunction() const noexcept = 0;
+  /**
+   * Get the function name where the panic was detected
+   * @return a C string containing the function name where the panic was detected
+   */
+  virtual const char* getFunction() const noexcept = 0;
 
-    /**
-     * Get the file name where the panic was detected
-     * @return a C string containing the file name where the panic was detected
-     */
-    virtual const char* getFile() const noexcept = 0;
+  /**
+   * Get the file name where the panic was detected
+   * @return a C string containing the file name where the panic was detected
+   */
+  virtual const char* getFile() const noexcept = 0;
 
-    /**
-     * Get the line number in the file where the panic was detected
-     * @return an integer containing the line number in the file where the panic was detected
-     */
-    virtual int getLine() const noexcept = 0;
+  /**
+   * Get the line number in the file where the panic was detected
+   * @return an integer containing the line number in the file where the panic was detected
+   */
+  virtual int getLine() const noexcept = 0;
 
-    /**
-     * Logs this exception to the system-log
-     */
-    virtual void log() const noexcept = 0;
+  /**
+   * Logs this exception to the system-log
+   */
+  virtual void log() const noexcept = 0;
 
-    /**
-     * Get the CallStack when the panic was detected
-     * @return the CallStack when the panic was detected
-     */
-    virtual const CallStack& getCallStack() const noexcept = 0;
+  /**
+   * Get the CallStack when the panic was detected
+   * @return the CallStack when the panic was detected
+   */
+  virtual const CallStack& getCallStack() const noexcept = 0;
 };
 
 // -----------------------------------------------------------------------------------------------
@@ -298,85 +298,81 @@ public:
  * The TPanic<> class implements the std::exception protocol as well as the Panic
  * interface common to all exceptions thrown by the framework.
  */
-template <typename T>
-class UTILS_PUBLIC TPanic : public Panic {
+template <typename T> class UTILS_PUBLIC TPanic : public Panic {
 public:
-    // std::exception protocol
-    const char* what() const noexcept override;
+  // std::exception protocol
+  const char* what() const noexcept override;
 
-    // Panic interface
-    const char* getFunction() const noexcept override;
-    const char* getFile() const noexcept override;
-    int getLine() const noexcept override;
-    const CallStack& getCallStack() const noexcept override;
-    void log() const noexcept override;
+  // Panic interface
+  const char* getFunction() const noexcept override;
+  const char* getFile() const noexcept override;
+  int getLine() const noexcept override;
+  const CallStack& getCallStack() const noexcept override;
+  void log() const noexcept override;
 
-    /**
-     * Depending on the mode set, either throws an exception of type T with the given reason plus
-     * extra information about the error-site, or logs the error and calls std::terminate().
-     * This function never returns.
-     * @param function the name of the function where the error was detected
-     * @param file the file where the above function in implemented
-     * @param line the line in the above file where the error was detected
-     * @param format printf style string describing the error
-     * @see ASSERT_PRECONDITION, ASSERT_POSTCONDITION, ASSERT_ARITHMETIC
-     * @see PANIC_PRECONDITION, PANIC_POSTCONDITION, PANIC_ARITHMETIC
-     * @see setMode()
-     */
-    static void panic(char const* function, char const* file, int line, const char* format, ...)
-        UTILS_NORETURN;
+  /**
+   * Depending on the mode set, either throws an exception of type T with the given reason plus
+   * extra information about the error-site, or logs the error and calls std::terminate().
+   * This function never returns.
+   * @param function the name of the function where the error was detected
+   * @param file the file where the above function in implemented
+   * @param line the line in the above file where the error was detected
+   * @param format printf style string describing the error
+   * @see ASSERT_PRECONDITION, ASSERT_POSTCONDITION, ASSERT_ARITHMETIC
+   * @see PANIC_PRECONDITION, PANIC_POSTCONDITION, PANIC_ARITHMETIC
+   * @see setMode()
+   */
+  static void panic(char const* function, char const* file, int line, const char* format, ...) UTILS_NORETURN;
 
-    /**
-     * Depending on the mode set, either throws an exception of type T with the given reason plus
-     * extra information about the error-site, or logs the error and calls std::terminate().
-     * This function never returns.
-     * @param function the name of the function where the error was detected
-     * @param file the file where the above function in implemented
-     * @param line the line in the above file where the error was detected
-     * @param s std::string describing the error
-     * @see ASSERT_PRECONDITION, ASSERT_POSTCONDITION, ASSERT_ARITHMETIC
-     * @see PANIC_PRECONDITION, PANIC_POSTCONDITION, PANIC_ARITHMETIC
-     * @see setMode()
-     */
-    static inline void panic(char const* function, char const* file, int line, const std::string& s)
-        UTILS_NORETURN {
-        panic(function, file, line, s.c_str());
-    }
+  /**
+   * Depending on the mode set, either throws an exception of type T with the given reason plus
+   * extra information about the error-site, or logs the error and calls std::terminate().
+   * This function never returns.
+   * @param function the name of the function where the error was detected
+   * @param file the file where the above function in implemented
+   * @param line the line in the above file where the error was detected
+   * @param s std::string describing the error
+   * @see ASSERT_PRECONDITION, ASSERT_POSTCONDITION, ASSERT_ARITHMETIC
+   * @see PANIC_PRECONDITION, PANIC_POSTCONDITION, PANIC_ARITHMETIC
+   * @see setMode()
+   */
+  static inline void panic(char const* function, char const* file, int line, const std::string& s) UTILS_NORETURN {
+    panic(function, file, line, s.c_str());
+  }
 
 protected:
-    /**
-     * Creates a Panic.
-     * @param reason a description of the cause of the error
-     */
-    explicit TPanic(std::string reason);
+  /**
+   * Creates a Panic.
+   * @param reason a description of the cause of the error
+   */
+  explicit TPanic(std::string reason);
 
-    /**
-     * Creates a Panic with extra information about the error-site.
-     * @param function the name of the function where the error was detected
-     * @param file the file where the above function in implemented
-     * @param line the line in the above file where the error was detected
-     * @param reason a description of the cause of the error
-     */
-    TPanic(char const* function, char const* file, int line, std::string reason);
+  /**
+   * Creates a Panic with extra information about the error-site.
+   * @param function the name of the function where the error was detected
+   * @param file the file where the above function in implemented
+   * @param line the line in the above file where the error was detected
+   * @param reason a description of the cause of the error
+   */
+  TPanic(char const* function, char const* file, int line, std::string reason);
 
-    ~TPanic() override;
+  ~TPanic() override;
 
 private:
-    void buildMessage();
+  void buildMessage();
 
-    CallStack m_callstack;
-    std::string m_reason;
-    char const* const m_function = nullptr;
-    char const* const m_file = nullptr;
-    const int m_line = -1;
-    mutable std::string m_msg;
+  CallStack m_callstack;
+  std::string m_reason;
+  char const* const m_function = nullptr;
+  char const* const m_file = nullptr;
+  const int m_line = -1;
+  mutable std::string m_msg;
 };
 
 namespace details {
-// these are private, don't use
-void panicLog(
-        char const* function, char const* file, int line, const char* format, ...) noexcept;
-}  // namespace details
+  // these are private, don't use
+  void panicLog(char const* function, char const* file, int line, const char* format, ...) noexcept;
+} // namespace details
 
 // -----------------------------------------------------------------------------------------------
 
@@ -387,10 +383,10 @@ void panicLog(
  * @see ASSERT_PRECONDITION
  */
 class UTILS_PUBLIC PreconditionPanic : public TPanic<PreconditionPanic> {
-    // Programming error, can be avoided
-    // e.g.: invalid arguments
-    using TPanic<PreconditionPanic>::TPanic;
-    friend class TPanic<PreconditionPanic>;
+  // Programming error, can be avoided
+  // e.g.: invalid arguments
+  using TPanic<PreconditionPanic>::TPanic;
+  friend class TPanic<PreconditionPanic>;
 };
 
 /**
@@ -400,10 +396,10 @@ class UTILS_PUBLIC PreconditionPanic : public TPanic<PreconditionPanic> {
  * @see ASSERT_POSTCONDITION
  */
 class UTILS_PUBLIC PostconditionPanic : public TPanic<PostconditionPanic> {
-    // Usually only detectable at runtime
-    // e.g.: dead-lock would occur, arithmetic errors
-    using TPanic<PostconditionPanic>::TPanic;
-    friend class TPanic<PostconditionPanic>;
+  // Usually only detectable at runtime
+  // e.g.: dead-lock would occur, arithmetic errors
+  using TPanic<PostconditionPanic>::TPanic;
+  friend class TPanic<PostconditionPanic>;
 };
 
 /**
@@ -413,54 +409,48 @@ class UTILS_PUBLIC PostconditionPanic : public TPanic<PostconditionPanic> {
  * @see ASSERT_ARITHMETIC
  */
 class UTILS_PUBLIC ArithmeticPanic : public TPanic<ArithmeticPanic> {
-    // A common case of post-condition error
-    // e.g.: underflow, overflow, internal computations errors
-    using TPanic<ArithmeticPanic>::TPanic;
-    friend class TPanic<ArithmeticPanic>;
+  // A common case of post-condition error
+  // e.g.: underflow, overflow, internal computations errors
+  using TPanic<ArithmeticPanic>::TPanic;
+  friend class TPanic<ArithmeticPanic>;
 };
 
 // -----------------------------------------------------------------------------------------------
-}  // namespace utils
+} // namespace utils
 
 #ifndef NDEBUG
-#   define PANIC_FILE(F) (F)
-#   define PANIC_FUNCTION __PRETTY_FUNCTION__
+#define PANIC_FILE(F) (F)
+#define PANIC_FUNCTION __PRETTY_FUNCTION__
 #else
-#   define PANIC_FILE(F) ""
-#   define PANIC_FUNCTION __func__
+#define PANIC_FILE(F) ""
+#define PANIC_FUNCTION __func__
 #endif
 
 /**
  * PANIC_PRECONDITION is a macro that reports a PreconditionPanic
  * @param format printf-style string describing the error in more details
  */
-#define PANIC_PRECONDITION(format, ...)                                                            \
-    ::utils::PreconditionPanic::panic(PANIC_FUNCTION,                                              \
-            PANIC_FILE(__FILE__), __LINE__, format, ##__VA_ARGS__)
+#define PANIC_PRECONDITION(format, ...)                                                                                                    \
+  ::utils::PreconditionPanic::panic(PANIC_FUNCTION, PANIC_FILE(__FILE__), __LINE__, format, ##__VA_ARGS__)
 
 /**
  * PANIC_POSTCONDITION is a macro that reports a PostconditionPanic
  * @param format printf-style string describing the error in more details
  */
-#define PANIC_POSTCONDITION(format, ...)                                                           \
-    ::utils::PostconditionPanic::panic(PANIC_FUNCTION,                                             \
-            PANIC_FILE(__FILE__), __LINE__, format, ##__VA_ARGS__)
+#define PANIC_POSTCONDITION(format, ...)                                                                                                   \
+  ::utils::PostconditionPanic::panic(PANIC_FUNCTION, PANIC_FILE(__FILE__), __LINE__, format, ##__VA_ARGS__)
 
 /**
  * PANIC_ARITHMETIC is a macro that reports a ArithmeticPanic
  * @param format printf-style string describing the error in more details
  */
-#define PANIC_ARITHMETIC(format, ...)                                                              \
-    ::utils::ArithmeticPanic::panic(PANIC_FUNCTION,                                                \
-            PANIC_FILE(__FILE__), __LINE__, format, ##__VA_ARGS__)
+#define PANIC_ARITHMETIC(format, ...) ::utils::ArithmeticPanic::panic(PANIC_FUNCTION, PANIC_FILE(__FILE__), __LINE__, format, ##__VA_ARGS__)
 
 /**
  * PANIC_LOG is a macro that logs a Panic, and continues as usual.
  * @param format printf-style string describing the error in more details
  */
-#define PANIC_LOG(format, ...)                                                                     \
-    ::utils::details::panicLog(PANIC_FUNCTION,                                                     \
-            PANIC_FILE(__FILE__), __LINE__, format, ##__VA_ARGS__)
+#define PANIC_LOG(format, ...) ::utils::details::panicLog(PANIC_FUNCTION, PANIC_FILE(__FILE__), __LINE__, format, ##__VA_ARGS__)
 
 /**
  * @ingroup errors
@@ -470,17 +460,13 @@ class UTILS_PUBLIC ArithmeticPanic : public TPanic<ArithmeticPanic> {
  * @param cond a boolean expression
  * @param format printf-style string describing the error in more details
  */
-#define ASSERT_PRECONDITION(cond, format, ...)                                                     \
-    (!UTILS_LIKELY(cond) ? PANIC_PRECONDITION(format, ##__VA_ARGS__) : (void)0)
+#define ASSERT_PRECONDITION(cond, format, ...) (!UTILS_LIKELY(cond) ? PANIC_PRECONDITION(format, ##__VA_ARGS__) : (void)0)
 
 #if defined(UTILS_EXCEPTIONS) || !defined(NDEBUG)
-#define ASSERT_PRECONDITION_NON_FATAL(cond, format, ...)                                           \
-    (!UTILS_LIKELY(cond) ? PANIC_PRECONDITION(format, ##__VA_ARGS__), false : true)
+#define ASSERT_PRECONDITION_NON_FATAL(cond, format, ...) (!UTILS_LIKELY(cond) ? PANIC_PRECONDITION(format, ##__VA_ARGS__), false : true)
 #else
-#define ASSERT_PRECONDITION_NON_FATAL(cond, format, ...)                                           \
-    (!UTILS_LIKELY(cond) ? PANIC_LOG(format, ##__VA_ARGS__), false : true)
+#define ASSERT_PRECONDITION_NON_FATAL(cond, format, ...) (!UTILS_LIKELY(cond) ? PANIC_LOG(format, ##__VA_ARGS__), false : true)
 #endif
-
 
 /**
  * @ingroup errors
@@ -498,15 +484,12 @@ class UTILS_PUBLIC ArithmeticPanic : public TPanic<ArithmeticPanic> {
  *     }
  * @endcode
  */
-#define ASSERT_POSTCONDITION(cond, format, ...)                                                    \
-    (!UTILS_LIKELY(cond) ? PANIC_POSTCONDITION(format, ##__VA_ARGS__) : (void)0)
+#define ASSERT_POSTCONDITION(cond, format, ...) (!UTILS_LIKELY(cond) ? PANIC_POSTCONDITION(format, ##__VA_ARGS__) : (void)0)
 
 #if defined(UTILS_EXCEPTIONS) || !defined(NDEBUG)
-#define ASSERT_POSTCONDITION_NON_FATAL(cond, format, ...)                                          \
-    (!UTILS_LIKELY(cond) ? PANIC_POSTCONDITION(format, ##__VA_ARGS__), false : true)
+#define ASSERT_POSTCONDITION_NON_FATAL(cond, format, ...) (!UTILS_LIKELY(cond) ? PANIC_POSTCONDITION(format, ##__VA_ARGS__), false : true)
 #else
-#define ASSERT_POSTCONDITION_NON_FATAL(cond, format, ...)                                          \
-    (!UTILS_LIKELY(cond) ? PANIC_LOG(format, ##__VA_ARGS__), false : true)
+#define ASSERT_POSTCONDITION_NON_FATAL(cond, format, ...) (!UTILS_LIKELY(cond) ? PANIC_LOG(format, ##__VA_ARGS__), false : true)
 #endif
 
 /**
@@ -526,15 +509,12 @@ class UTILS_PUBLIC ArithmeticPanic : public TPanic<ArithmeticPanic> {
  *     }
  * @endcode
  */
-#define ASSERT_ARITHMETIC(cond, format, ...)                                                       \
-    (!(cond) ? PANIC_ARITHMETIC(format, ##__VA_ARGS__) : (void)0)
+#define ASSERT_ARITHMETIC(cond, format, ...) (!(cond) ? PANIC_ARITHMETIC(format, ##__VA_ARGS__) : (void)0)
 
 #if defined(UTILS_EXCEPTIONS) || !defined(NDEBUG)
-#define ASSERT_ARITHMETIC_NON_FATAL(cond, format, ...)                                             \
-    (!UTILS_LIKELY(cond) ? PANIC_ARITHMETIC(format, ##__VA_ARGS__), false : true)
+#define ASSERT_ARITHMETIC_NON_FATAL(cond, format, ...) (!UTILS_LIKELY(cond) ? PANIC_ARITHMETIC(format, ##__VA_ARGS__), false : true)
 #else
-#define ASSERT_ARITHMETIC_NON_FATAL(cond, format, ...)                                             \
-    (!UTILS_LIKELY(cond) ? PANIC_LOG(format, ##__VA_ARGS__), false : true)
+#define ASSERT_ARITHMETIC_NON_FATAL(cond, format, ...) (!UTILS_LIKELY(cond) ? PANIC_LOG(format, ##__VA_ARGS__), false : true)
 #endif
 
 /**
@@ -560,4 +540,4 @@ class UTILS_PUBLIC ArithmeticPanic : public TPanic<ArithmeticPanic> {
  */
 #define ASSERT_DESTRUCTOR(cond, format, ...) (!(cond) ? PANIC_LOG(format, ##__VA_ARGS__) : (void)0)
 
-#endif  // TNT_UTILS_PANIC_H
+#endif // TNT_UTILS_PANIC_H
