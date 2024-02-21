@@ -27,7 +27,7 @@ class FilamentProxy {
         if (jsRuntimeHolder == null) {
             throw new RuntimeException("Failed to initialize react-native-filament: JSI Runtime Holder is null!");
         }
-        Long runtimePointer = jsRuntimeHolder.get();
+        long runtimePointer = jsRuntimeHolder.get();
         CallInvokerHolder callInvokerHolder = context.getCatalystInstance().getJSCallInvokerHolder();
         if (!(callInvokerHolder instanceof CallInvokerHolderImpl)) {
             throw new RuntimeException("Failed to initialize react-native-filament: JS Call Invoker is null!");
@@ -59,5 +59,5 @@ class FilamentProxy {
         return (FilamentView) view;
     }
 
-    private native HybridData initHybrid(Long jsRuntimePointer, CallInvokerHolderImpl callInvokerHolder);
+    private native HybridData initHybrid(long jsRuntimePointer, CallInvokerHolderImpl callInvokerHolder);
 }
