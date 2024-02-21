@@ -14,9 +14,13 @@ cd ..
 cd filament
 
 target="release"
+
+echo "Preparing desktop tools for macOS... (matc, resgen, etc)"
+./build.sh -p desktop -i release
+
 echo "Building Filament for iOS and Android ($target)..."
 # -p = platforms
 # -s = iOS simulator support
-./build.sh -p ios,android "$target" -s
+./build.sh -p ios,android -i "$target" -s
 
 echo "Done!"
