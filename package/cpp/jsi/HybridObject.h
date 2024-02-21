@@ -37,9 +37,16 @@ public:
 private:
     template<typename ArgType>
     ArgType convertArgument(jsi::Runtime& runtime, const jsi::Value& arg) {
-        // Implement conversion from jsi::Value to ArgType
-        // This is a placeholder; actual implementation depends on ArgType
-        return 5;
+        if constexpr (std::is_same_v<ArgType, int>) {
+            return static_cast<int>(arg.asNumber());
+        } else if constexpr (std::is_same_v<ArgType, double>) {
+            return arg.asNumber();
+        } else if constexpr (std::is_same_v<ArgType, bool>) {
+            return arg.asBool();
+        } else if constexpr (std::is_same_v<ArgType, std::string>) {
+            return arg.asString(runtime).utf8(runtime);
+        }
+
     }
 
     template<typename ClassType, typename ReturnType, typename... Args, size_t... Is>

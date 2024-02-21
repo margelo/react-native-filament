@@ -28,14 +28,6 @@ void EngineWrapper::loadMethods() {
     auto what = &EngineWrapper::testHybrid;
 
     registerHybridMethod("test", &EngineWrapper::testHybrid, this);
-    registerHybridMethod("testHybrid", []() {
-
-    });
-    registerHybridMethod("testHybrid", std::bind(&EngineWrapper::testHybrid, this));
-
-    registerHybridMethod("setSurfaceProvider", [this](std::shared_ptr<SurfaceProvider> surfaceProvider) {
-        this->setSurfaceProvider(surfaceProvider);
-    });
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
