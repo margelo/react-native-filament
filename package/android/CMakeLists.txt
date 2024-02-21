@@ -16,6 +16,7 @@ add_library(
         ${PACKAGE_NAME}
         SHARED
         # Shared C++
+        ../cpp/FilamentView.cpp
         ../cpp/FilamentProxy.cpp
         ../cpp/Surface.cpp
         ../cpp/SurfaceProvider.cpp
@@ -28,6 +29,7 @@ add_library(
         src/main/cpp/Filament.cpp
         src/main/cpp/FilamentInstaller.cpp
         src/main/cpp/java-bindings/JFilamentProxy.cpp
+        src/main/cpp/java-bindings/JFilamentView.cpp
         src/main/cpp/java-bindings/JSurfaceProvider.cpp
 )
 
