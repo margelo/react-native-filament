@@ -32,6 +32,7 @@
     "clean": "rm -rf android/build example/android/build example/android/app/build example/ios/build lib",
     "prepare": "git submodule update --init --recursive && bob build",
     "update-submodule": "git submodule update --remote --merge",
+    "build-filament": "scripts/build-filament.sh",
     "release": "release-it"
   },
   "keywords": [
