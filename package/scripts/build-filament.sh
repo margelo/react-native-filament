@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 echo "Did you set up your development tools properly?"
 echo "Did you set up your development tools properly?"
 echo "Did you set up your development tools properly?"
