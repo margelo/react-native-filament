@@ -18,29 +18,21 @@ public class FilamentView extends SurfaceView {
   @DoNotStrip
   @Keep
   private final HybridData mHybridData;
-  private final SurfaceProvider surfaceProvider;
 
   public FilamentView(Context context) {
     super(context);
-    mHybridData = initHybrid();
-    surfaceProvider = new SurfaceProvider(getHolder());
+    mHybridData = initHybrid(new SurfaceProvider(getHolder()));
   }
 
   public FilamentView(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
-    mHybridData = initHybrid();
-    surfaceProvider = new SurfaceProvider(getHolder());
+    mHybridData = initHybrid(new SurfaceProvider(getHolder()));
   }
 
   public FilamentView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
-    mHybridData = initHybrid();
-    surfaceProvider = new SurfaceProvider(getHolder());
+    mHybridData = initHybrid(new SurfaceProvider(getHolder()));
   }
 
-  private SurfaceProvider getSurfaceProvider() {
-    return surfaceProvider;
-  }
-
-  private native HybridData initHybrid();
+  private native HybridData initHybrid(SurfaceProvider surfaceProvider);
 }
