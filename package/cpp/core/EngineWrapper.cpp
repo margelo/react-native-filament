@@ -20,13 +20,7 @@ EngineWrapper::~EngineWrapper() {
     _engine->destroy(&_engine);
 }
 
-int EngineWrapper::testHybrid(bool parameter) {
-    return 5;
-}
-
-void EngineWrapper::loadMethods() {
-    auto what = &EngineWrapper::testHybrid;
-
+void EngineWrapper::loadHybridMethods() {
     registerHybridMethod("test", &EngineWrapper::testHybrid, this);
 }
 
