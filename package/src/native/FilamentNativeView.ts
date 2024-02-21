@@ -5,4 +5,4 @@ export interface NativeProps extends ViewProps {
   model?: number
 }
 
-export const NativeFilamentView = codegenNativeComponent<NativeProps>('FilamentView')
+export const FilamentNativeView = codegenNativeComponent<NativeProps>('FilamentView')
