@@ -33,7 +33,7 @@ mkdir -p out/android-build-release-aarch64
 cd out/android-build-release-aarch64
 cmake -G Ninja \
   -DFILAMENT_ENABLE_LTO=ON \
-  -DFILAMENT_BUILD_FILAMAT=ON \
+  -DFILAMENT_BUILD_FILAMAT=OFF \
   -DFILAMENT_SUPPORTS_OPENGL=ON \
   -DFILAMENT_SUPPORTS_METAL=OFF \
   -DFILAMENT_SUPPORTS_VULKAN=OFF \
