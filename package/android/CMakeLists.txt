@@ -6,13 +6,12 @@ set(BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 17)
 
+set(FILAMENT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/filament")
+
 # Third party libraries (Prefabs)
 find_package(ReactAndroid REQUIRED CONFIG)
 find_package(fbjni REQUIRED CONFIG)
 find_library(LOG_LIB log)
-
-# Filament (local CMake project as a git submodule)
-add_library(libs/filament)
 
 # Add react-native-filament sources
 add_library(
@@ -46,7 +45,7 @@ target_include_directories(
         "${NODE_MODULES_DIR}/react-native/ReactCommon"
         "${NODE_MODULES_DIR}/react-native/ReactCommon/callinvoker"
         "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/react/turbomodule" # <-- CallInvokerHolder JNI wrapper
-        "${FILAMENT_DIR}/filament/include"
+        "${FILAMENT_DIR}/include"
 )
 
 # Link everything together
@@ -59,5 +58,12 @@ target_link_libraries(
         fbjni::fbjni                        # <-- fbjni
         GLESv2                              # <-- OpenGL (Core)
         EGL                                 # <-- OpenGL (EGL)
-        filament
 )
+
+# Filament (local CMake project as a git submodule)
+message("RN Filament: Adding pre-compiled libraries in ${FILAMENT_DIR}...")
+file(GLOB FILAMENT_LIBRARIES "${FILAMENT_DIR}/lib/${ANDROID_ABI}/*.a")
+foreach(file ${FILAMENT_LIBRARIES})
+    message("RN Filament: Linking ${file}...")
+    target_link_libraries(${PACKAGE_NAME} ${file})
+endforeach()
