@@ -14,10 +14,9 @@ cd ..
 cd ..
 cd filament
 
-echo "Building iOS ($mode)..."
-./build.sh -p ios "$mode"
-
-echo "Building Android ($mode)..."
-./build.sh -p android "$mode"
+echo "Building Filament for iOS and Android ($mode)..."
+# -p = platforms
+# -s = iOS simulator support
+./build.sh -p ios,android "$mode" -s
 
 echo "Done!"
