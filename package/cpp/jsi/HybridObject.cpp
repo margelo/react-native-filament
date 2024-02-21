@@ -12,6 +12,7 @@ HybridObject::~HybridObject() {
 }
 
 std::vector<jsi::PropNameID> HybridObject::getPropertyNames(facebook::jsi::Runtime& runtime) {
+    std::unique_lock lock(_mutex);
     ensureInitialized();
 
     std::vector<jsi::PropNameID> result;
@@ -28,6 +29,7 @@ std::vector<jsi::PropNameID> HybridObject::getPropertyNames(facebook::jsi::Runti
 }
 
 jsi::Value HybridObject::get(facebook::jsi::Runtime& runtime, const facebook::jsi::PropNameID& propName) {
+    std::unique_lock lock(_mutex);
     ensureInitialized();
 
     std::string name = propName.utf8(runtime);
@@ -61,6 +63,7 @@ jsi::Value HybridObject::get(facebook::jsi::Runtime& runtime, const facebook::js
 void HybridObject::set(facebook::jsi::Runtime& runtime,
                        const facebook::jsi::PropNameID& propName,
                        const facebook::jsi::Value& value) {
+    std::unique_lock lock(_mutex);
     ensureInitialized();
 
     std::string name = propName.utf8(runtime);
