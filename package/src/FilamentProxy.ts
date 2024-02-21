@@ -1,4 +1,4 @@
-import { FilamentNativeModule } from './FilamentNativeModule'
+import { FilamentNativeModule } from './native/FilamentNativeModule'
 
 export interface TFilamentProxy {
   /**

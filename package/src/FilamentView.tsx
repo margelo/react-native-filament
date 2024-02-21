@@ -1,11 +1,11 @@
 import React from 'react'
 import { findNodeHandle } from 'react-native'
 import { FilamentProxy } from './FilamentProxy'
-import { NativeFilamentView, NativeProps } from './FilamentViewNativeComponent'
+import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 
 type FilamentViewProps = NativeProps
 
-type RefType = typeof NativeFilamentView
+type RefType = typeof FilamentNativeView
 
 console.log('loading..')
 console.log('model: ' + FilamentProxy.loadModel('test!'))
@@ -30,6 +30,6 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
 
   /** @internal */
   public render(): React.ReactNode {
-    return <NativeFilamentView {...this.props} />
+    return <FilamentNativeView {...this.props} />
   }
 }
