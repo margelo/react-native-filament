@@ -31,7 +31,7 @@ cp -rf out/ios-release/filament ../package/ios/libs
 
 echo "Building Filament for Android ($target)"
 # -v = Exclude Vulkan support
-./build.sh -p android -i "$target"
+./build.sh -p android "$target"
 
 # echo "Building Android .aar ($target)..."
 # cd android
