@@ -7,6 +7,9 @@ type FilamentViewProps = NativeProps
 
 type RefType = typeof NativeFilamentView
 
+console.log('loading..')
+console.log('model: ' + FilamentProxy.loadModel('test!'))
+
 export class FilamentView extends React.PureComponent<FilamentViewProps> {
   private readonly ref: React.RefObject<RefType>
 
@@ -15,6 +18,7 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
     this.ref = React.createRef<RefType>()
   }
 
+  // @ts-expect-error
   private get handle(): number {
     const nodeHandle = findNodeHandle(this.ref.current)
     if (nodeHandle == null || nodeHandle === -1) {
@@ -22,10 +26,6 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
     }
 
     return nodeHandle
-  }
-
-  private getSurfaceInternal() {
-    FilamentProxy.getSurface()
   }
 
   /** @internal */

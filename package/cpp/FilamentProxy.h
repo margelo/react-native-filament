@@ -10,19 +10,19 @@
 #include <vector>
 
 #include "FilamentView.h"
+#include "jsi/HybridObject.h"
 
 namespace margelo {
 
 using namespace facebook;
 
-class FilamentProxy : public jsi::HostObject {
+class FilamentProxy : public HybridObject {
 private:
-  virtual int loadModel(const std::string& path) = 0;
+  virtual int loadModel(std::string path) = 0;
   virtual std::shared_ptr<FilamentView> findFilamentView(int id) = 0;
 
 public:
-  std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime& runtime) override;
-  jsi::Value get(jsi::Runtime& runtime, const jsi::PropNameID& name) override;
+    void loadHybridMethods() override;
 };
 
 } // namespace margelo
