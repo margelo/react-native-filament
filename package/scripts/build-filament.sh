@@ -23,7 +23,7 @@ echo "Building Filament for iOS ($target)..."
 ./build.sh -s -p ios "$target"
 
 echo "Building Filament for Android ($target)"
-mkdir out/android-build-release-aarch64
+mkdir -p out/android-build-release-aarch64
 cd out/android-build-release-aarch64
 cmake -G Ninja \
   -DFILAMENT_ENABLE_LTO=ON \ # Enable link-time optimizations if supported by the compiler
