@@ -36,8 +36,9 @@ cmake -G Ninja \
   -DFILAMENT_USE_SWIFTSHADER=OFF \ # Compile Filament against SwiftShader
   -DFILAMENT_SKIP_SAMPLES=ON \ # Don't build sample apps
   -DCMAKE_TOOLCHAIN_FILE=../../build/toolchain-aarch64-linux-android.cmake \
-  -DCMAKE_BUILD_TYPE=Release
-  -DCMAKE_INSTALL_PREFIX=../android-release/filament
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=../android-release/filament \
   ../..
+ninja install/strip
 
 echo "Done!"
