@@ -12,9 +12,7 @@ find_package(fbjni REQUIRED CONFIG)
 find_library(LOG_LIB log)
 
 # Filament (local CMake project as a git submodule)
-set(FILAMENT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../filament")
-set(FILAMENT_ENABLE_JAVA OFF CACHE BOOL "Disable Filament's Java bindings")
-add_subdirectory("${FILAMENT_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/filament_build")
+add_library(libs/filament)
 
 # Add react-native-filament sources
 add_library(
