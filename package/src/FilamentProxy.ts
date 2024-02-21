@@ -21,7 +21,9 @@ if (global.nativeCallSyncHook == null) {
 // Maybe we need to create a separate FilamentModule as well (in addition to the FilamentView).
 const successful = FilamentNativeModule.install()
 if (!successful) {
-  throw new Error('Failed to initialize react-native-filament! Check the native logs (adb logcat or Xcode logs) for more information.')
+  throw new Error(
+    'Failed to initialize react-native-filament! The install() method returned false - check the native logs (adb logcat or Xcode logs) for more information.'
+  )
 }
 
 // @ts-expect-error global is untyped, it's a C++ host-object
