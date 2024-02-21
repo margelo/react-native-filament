@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <jsi/jsi.h>
 #include "JSIConverter.h"
+#include <mutex>
 
 namespace margelo {
 
@@ -46,6 +47,7 @@ public:
 
 private:
     bool _didLoadMethods = false;
+    std::mutex _mutex;
     std::unordered_map<std::string, HybridFunction> _methods;
     std::unordered_map<std::string, jsi::HostFunctionType> _getters;
     std::unordered_map<std::string, jsi::HostFunctionType> _setters;
@@ -62,9 +64,11 @@ private:
                                  const jsi::Value* args,
                                  std::index_sequence<Is...>) {
         if constexpr (std::is_same_v<ReturnType, void>) {
+            // It's a void method.
             (obj->*method)(JSIConverter<Args>::fromJSI(runtime, args[Is])...);
             return jsi::Value::undefined();
         } else {
+            // It's returning some C++ type, we need to convert that to a JSI value now.
             ReturnType result = (obj->*method)(JSIConverter<Args>::fromJSI(runtime, args[Is])...);
             return JSIConverter<ReturnType>::toJSI(runtime, result);
         }
@@ -78,6 +82,8 @@ private:
                                                const jsi::Value &thisVal,
                                                const jsi::Value *args,
                                                size_t count) -> jsi::Value {
+            // Call the actual method with JSI values as arguments and return a JSI value again.
+            // Internally, this method converts the JSI values to C++ values.
             return callMethod(derivedInstance,
                               method,
                               runtime,
