@@ -19,6 +19,7 @@ target="release"
 
 echo "Building Filament for iOS ($target)..."
 # -s = iOS simulator support
+# -l = Build fat universal library (x86_64 + arm64)
 ./build.sh -s -p ios -i "$target"
 
 echo "Copying Filament iOS libraries to react-native-filament..."
@@ -29,23 +30,8 @@ cp -rf out/ios-release/filament ../package/ios/libs
 # TODO(marc): Figure out how we can disable filamat to save binary size here.
 
 echo "Building Filament for Android ($target)"
-mkdir -p out/android-build-release-aarch64
-cd out/android-build-release-aarch64
-cmake -G Ninja \
-  -DFILAMENT_ENABLE_LTO=ON \
-  -DFILAMENT_BUILD_FILAMAT=OFF \
-  -DFILAMENT_SUPPORTS_OPENGL=ON \
-  -DFILAMENT_SUPPORTS_METAL=OFF \
-  -DFILAMENT_SUPPORTS_VULKAN=OFF \
-  -DFILAMENT_USE_EXTERNAL_GLES3=OFF \
-  -DFILAMENT_USE_SWIFTSHADER=OFF \
-  -DFILAMENT_SKIP_SAMPLES=ON \
-  -DCMAKE_TOOLCHAIN_FILE=../../build/toolchain-aarch64-linux-android.cmake \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_INSTALL_PREFIX=../android-release/filament \
-  ../..
-ninja install/strip
-cd ../..
+# -v = Exclude Vulkan support
+./build.sh -p android -i "$target"
 
 # echo "Building Android .aar ($target)..."
 # cd android
