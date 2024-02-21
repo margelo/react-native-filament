@@ -10,13 +10,12 @@ namespace margelo {
 
 class Listener {
 public:
-    explicit Listener(std::function<void()> remove);
-    void remove();
+  explicit Listener(std::function<void()> remove);
+  void remove();
 
 private:
-    std::function<void()> _remove;
-    bool _isRemoved;
+  std::function<void()> _remove;
+  bool _isRemoved;
 };
 
-} // margelo
-
+} // namespace margelo

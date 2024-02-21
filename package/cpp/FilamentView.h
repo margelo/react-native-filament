@@ -6,9 +6,9 @@
 
 #include <jsi/jsi.h>
 
+#include "SurfaceProvider.h"
 #include <string>
 #include <vector>
-#include "SurfaceProvider.h"
 
 namespace margelo {
 
