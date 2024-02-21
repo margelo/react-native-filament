@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+#include "FilamentView.h"
+
 namespace margelo {
 
 using namespace facebook;
@@ -19,6 +21,7 @@ public:
 
 private:
   virtual int loadModel(const std::string& path) = 0;
+  virtual std::shared_ptr<FilamentView> findFilamentView(int id) = 0;
 
 public:
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime& runtime) override;

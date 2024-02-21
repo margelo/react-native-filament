@@ -14,7 +14,7 @@ namespace margelo {
 
 using namespace facebook;
 
-class JFilamentView: public jni::HybridClass<JFilamentView>, FilamentView {
+class JFilamentView: public jni::HybridClass<JFilamentView>, public FilamentView {
 public:
     ~JFilamentView();
     static void registerNatives();
