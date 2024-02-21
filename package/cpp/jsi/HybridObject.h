@@ -52,7 +52,7 @@ private:
     std::unordered_map<jsi::Runtime*, std::unordered_map<std::string, std::shared_ptr<jsi::Function>>> _functionCache;
 
 private:
-    void ensureInitialized();
+    inline void ensureInitialized();
 
 private:
     template<typename ClassType, typename ReturnType, typename... Args, size_t... Is>
@@ -70,7 +70,6 @@ private:
         }
     }
 
-private:
     template<typename Derived, typename ReturnType, typename... Args>
     jsi::HostFunctionType createHybridMethod(ReturnType(Derived::*method)(Args...),
                                              Derived* derivedInstance) {
@@ -88,13 +87,16 @@ private:
     }
 
 protected:
-
     template<typename Derived, typename ReturnType, typename... Args>
     void registerHybridMethod(std::string name,
                               ReturnType(Derived::*method)(Args...),
                               Derived* derivedInstance) {
+        if (_getters.count(name) > 0 || _setters.count(name) > 0) {
+            [[unlikely]];
+            throw std::runtime_error("Cannot add Hybrid Method \"" + name + "\" - a property with that name already exists!");
+        }
         if (_methods.count(name) > 0) {
-            throw std::runtime_error("Cannot add Hybrid Method \"" + name + "\" - a method/property with that name already exists!");
+            throw std::runtime_error("Cannot add Hybrid Method \"" + name + "\" - a method with that name already exists!");
         }
 
         _methods[name] = HybridFunction {
@@ -109,7 +111,11 @@ protected:
                               Derived* derivedInstance) {
         if (_getters.count(name) > 0) {
             [[unlikely]];
-            throw std::runtime_error("Cannot add Hybrid Property \"" + name + "\" - a method/property with that name already exists!");
+            throw std::runtime_error("Cannot add Hybrid Property Getter \"" + name + "\" - a getter with that name already exists!");
+        }
+        if (_methods.count(name) > 0) {
+            [[unlikely]];
+            throw std::runtime_error("Cannot add Hybrid Property Getter \"" + name + "\" - a method with that name already exists!");
         }
 
         _getters[name] = createHybridMethod(method, derivedInstance);
@@ -121,7 +127,11 @@ protected:
                               Derived* derivedInstance) {
         if (_setters.count(name) > 0) {
             [[unlikely]];
-            throw std::runtime_error("Cannot add Hybrid Property \"" + name + "\" - a method/property with that name already exists!");
+            throw std::runtime_error("Cannot add Hybrid Property Setter \"" + name + "\" - a setter with that name already exists!");
+        }
+        if (_methods.count(name) > 0) {
+            [[unlikely]];
+            throw std::runtime_error("Cannot add Hybrid Property Setter \"" + name + "\" - a method with that name already exists!");
         }
 
         _setters[name] = createHybridMethod(method, derivedInstance);
