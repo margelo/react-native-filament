@@ -1,3 +1,7 @@
+# Prebuilt static binaries from filament
+*.a
+*.so
+
 # OSX
 #
 .DS_Store
