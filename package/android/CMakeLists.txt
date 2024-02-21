@@ -17,12 +17,18 @@ add_library(
         SHARED
         # Shared C++
         ../cpp/FilamentProxy.cpp
+        ../cpp/Surface.cpp
+        ../cpp/SurfaceProvider.cpp
+        ../cpp/Listener.cpp
         ../cpp/jsi/Promise.cpp
         # Java JNI
         src/main/cpp/AndroidFilamentProxy.cpp
+        src/main/cpp/AndroidSurface.cpp
+        src/main/cpp/AndroidSurfaceProvider.cpp
         src/main/cpp/Filament.cpp
         src/main/cpp/FilamentInstaller.cpp
         src/main/cpp/java-bindings/JFilamentProxy.cpp
+        src/main/cpp/java-bindings/JSurfaceProvider.cpp
 )
 
 # Header Search Paths (includes)

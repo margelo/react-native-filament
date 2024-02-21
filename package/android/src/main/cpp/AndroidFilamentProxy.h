@@ -19,7 +19,7 @@ using namespace facebook;
 class AndroidFilamentProxy : public FilamentProxy {
 public:
   explicit AndroidFilamentProxy(jni::alias_ref<JFilamentProxy::javaobject> filamentProxy);
-  ~AndroidFilamentProxy();
+  ~AndroidFilamentProxy() override;
 
 private:
   // TODO(hanno): implement
