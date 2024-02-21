@@ -24,6 +24,7 @@ add_library(
         ../cpp/SurfaceProvider.cpp
         ../cpp/Listener.cpp
         ../cpp/jsi/Promise.cpp
+        ../cpp/core/EngineWrapper.cpp
         # Java JNI
         src/main/cpp/AndroidFilamentProxy.cpp
         src/main/cpp/AndroidSurface.cpp
