@@ -1,4 +1,4 @@
-import { FilamentView } from './FilamentViewNativeComponent'
+import { FilamentNativeModule } from './FilamentNativeModule'
 
 export interface TFilamentProxy {
   /**
@@ -19,10 +19,11 @@ if (global.nativeCallSyncHook == null) {
 // TODO(hanno): Figure out how to call the native install method. I couldn't get codegen to properly generate that static method.
 // In Bridge architecture there was a separate Module and View, but now it's all a View - how do I add static methods on that?
 // Maybe we need to create a separate FilamentModule as well (in addition to the FilamentView).
-// @ts-expect-error
-const successful = FilamentView.install()
+const successful = FilamentNativeModule.install()
 if (!successful) {
-  throw new Error('Failed to initialize react-native-filament! Check the native logs (adb logcat or Xcode logs) for more information.')
+  throw new Error(
+    'Failed to initialize react-native-filament! The install() method returned false - check the native logs (adb logcat or Xcode logs) for more information.'
+  )
 }
 
 // @ts-expect-error global is untyped, it's a C++ host-object
