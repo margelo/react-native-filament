@@ -26,7 +26,6 @@ echo "Building Filament for Android ($target)"
 mkdir out/android-build-release-aarch64
 cd out/android-build-release-aarch64
 cmake -G Ninja \
-  -DCMAKE_BUILD_TYPE=Release
   -DFILAMENT_ENABLE_LTO=ON \ # Enable link-time optimizations if supported by the compiler
   -DFILAMENT_BUILD_FILAMAT=OFF \ # Build filamat and JNI buildings
   -DFILAMENT_SUPPORTS_OPENGL=ON \ # Include the OpenGL backend
@@ -36,5 +35,9 @@ cmake -G Ninja \
   -DFILAMENT_USE_EXTERNAL_GLES3=OFF \ # Experimental: Compile Filament against OpenGL ES 3
   -DFILAMENT_USE_SWIFTSHADER=OFF \ # Compile Filament against SwiftShader
   -DFILAMENT_SKIP_SAMPLES=ON \ # Don't build sample apps
+  -DCMAKE_TOOLCHAIN_FILE=../../build/toolchain-aarch64-linux-android.cmake \
+  -DCMAKE_BUILD_TYPE=Release
+  -DCMAKE_INSTALL_PREFIX=../android-release/filament
+  ../..
 
 echo "Done!"
