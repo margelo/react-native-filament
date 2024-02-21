@@ -9,8 +9,8 @@
 
 namespace margelo {
 
-EngineWrapper::EngineWrapper() {
-    _engine = Engine::create(filament::Engine::Backend::OPENGL);
+EngineWrapper::EngineWrapper(filament::Engine::Backend backend) {
+    _engine = Engine::create(backend);
 }
 
 EngineWrapper::~EngineWrapper() {
