@@ -56,11 +56,11 @@ private:
 
 private:
     template<typename ClassType, typename ReturnType, typename... Args, size_t... Is>
-    jsi::Value callMethod(ClassType* obj,
-                          ReturnType(ClassType::*method)(Args...),
-                          jsi::Runtime& runtime,
-                          const jsi::Value* args,
-                          std::index_sequence<Is...>) {
+    inline jsi::Value callMethod(ClassType* obj,
+                                 ReturnType(ClassType::*method)(Args...),
+                                 jsi::Runtime& runtime,
+                                 const jsi::Value* args,
+                                 std::index_sequence<Is...>) {
         if constexpr (std::is_same_v<ReturnType, void>) {
             (obj->*method)(JSIConverter<Args>::fromJSI(runtime, args[Is])...);
             return jsi::Value::undefined();
