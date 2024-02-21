@@ -11,16 +11,32 @@ HybridObject::~HybridObject() {
     _functionCache.clear();
 }
 
-jsi::Value HybridObject::get(facebook::jsi::Runtime& runtime, const facebook::jsi::PropNameID& propName) {
-    if (!_didLoadMethods) {
-        [[unlikely]];
-        // lazy-load all exposed methods
-        loadHybridMethods();
-        _didLoadMethods = true;
+std::vector<jsi::PropNameID> HybridObject::getPropertyNames(facebook::jsi::Runtime& runtime) {
+    ensureInitialized();
+
+    std::vector<jsi::PropNameID> result;
+    for (const auto& item: _methods) {
+        result.push_back(jsi::PropNameID::forUtf8(runtime, item.first));
     }
+    for (const auto& item: _getters) {
+        result.push_back(jsi::PropNameID::forUtf8(runtime, item.first));
+    }
+    for (const auto& item: _setters) {
+        result.push_back(jsi::PropNameID::forUtf8(runtime, item.first));
+    }
+    return result;
+}
+
+jsi::Value HybridObject::get(facebook::jsi::Runtime& runtime, const facebook::jsi::PropNameID& propName) {
+    ensureInitialized();
 
     std::string name = propName.utf8(runtime);
     auto& functionCache = _functionCache[&runtime];
+
+    if (_getters.count(name) > 0) {
+        // it's a property getter
+        return _getters[name](runtime);
+    }
 
     if (functionCache.count(name) > 0) {
         [[likely]];
@@ -42,21 +58,26 @@ jsi::Value HybridObject::get(facebook::jsi::Runtime& runtime, const facebook::js
     return jsi::HostObject::get(runtime, propName);
 }
 
-std::vector<jsi::PropNameID> HybridObject::getPropertyNames(facebook::jsi::Runtime& runtime) {
+void HybridObject::set(facebook::jsi::Runtime& runtime,
+                       const facebook::jsi::PropNameID& propName,
+                       const facebook::jsi::Value& value) {
+    ensureInitialized();
+
+    std::string name = propName.utf8(runtime);
+
+    if (_setters.count(name) > 0) {
+        // Call setter
+        _setters[name](runtime, value);
+    }
+}
+
+void HybridObject::ensureInitialized() {
     if (!_didLoadMethods) {
         [[unlikely]];
         // lazy-load all exposed methods
         loadHybridMethods();
         _didLoadMethods = true;
     }
-
-    std::vector<jsi::PropNameID> result;
-    for (const auto& item: _methods) {
-        result.push_back(jsi::PropNameID::forUtf8(runtime, item.first));
-    }
-    return result;
 }
-
-
 
 } // margelo
