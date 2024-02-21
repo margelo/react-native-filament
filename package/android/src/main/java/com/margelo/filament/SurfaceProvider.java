@@ -13,10 +13,10 @@ public class SurfaceProvider {
     /** @noinspection unused, FieldCanBeLocal */
     @DoNotStrip
     @Keep
-    private final HybridData hybridData;
+    private final HybridData mHybridData;
 
     SurfaceProvider(SurfaceHolder holder) {
-        hybridData = initHybrid();
+        mHybridData = initHybrid();
         holder.addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(@NonNull SurfaceHolder surfaceHolder) {

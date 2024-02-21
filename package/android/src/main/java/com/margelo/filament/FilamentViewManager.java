@@ -13,6 +13,15 @@ import com.facebook.react.uimanager.annotations.ReactProp;
 
 @ReactModule(name = FilamentViewManager.NAME)
 public class FilamentViewManager extends FilamentViewManagerSpec<FilamentView> {
+  static {
+    try {
+      System.loadLibrary("RNFilament");
+    } catch (Throwable throwable) {
+      throw new RuntimeException("Failed to load the C++ react-native-filament library! " +
+              "Reason: " + throwable.getMessage(), throwable);
+    }
+  }
+
   public static final String NAME = "FilamentView";
   private final ReactApplicationContext context;
   private @Nullable FilamentProxy proxy = null;
@@ -40,7 +49,6 @@ public class FilamentViewManager extends FilamentViewManagerSpec<FilamentView> {
   @ReactMethod(isBlockingSynchronousMethod = true)
   public void install() {
     try {
-      System.loadLibrary("RNFilament");
       proxy = new FilamentProxy(context);
       FilamentInstaller.install(proxy);
     } catch (Throwable cause) {
