@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype) init;
 
-- (CAMetalLayer*) layer;
+- (CAMetalLayer*) metalLayer;
 
 @end
 

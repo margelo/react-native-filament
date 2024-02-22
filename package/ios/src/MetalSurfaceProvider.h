@@ -14,9 +14,8 @@
 namespace margelo {
 
 class MetalSurfaceProvider : public SurfaceProvider {
-  explicit MetalSurfaceProvider(CAMetalLayer* layer): _surface(std::make_shared<MetalSurface>(layer)) {
-    onSurfaceCreated(_surface);
-  }
+public:
+  explicit MetalSurfaceProvider(CAMetalLayer* layer): _surface(std::make_shared<MetalSurface>(layer)) { }
   
   std::shared_ptr<Surface> getSurfaceOrNull() override {
     return _surface;
