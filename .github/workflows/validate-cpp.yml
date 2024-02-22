@@ -26,7 +26,6 @@ jobs:
           - 'package/cpp'
           - 'package/android/src/main/cpp'
           - 'package/ios'
-          - '!package/ios/libs'
     steps:
       - uses: actions/checkout@v4
       - name: Run clang-format style check
