@@ -1,11 +1,26 @@
 import { FilamentNativeModule } from './FilamentNativeModule'
 
+interface TestHybridObject {
+  int: number
+  string: string
+
+  multipleArguments(first: number, second: boolean, third: string): Record<string, number>
+  getIntGetter(): () => number
+  sayHelloCallback(callback: () => string): void
+  createNewHybridObject: () => TestHybridObject
+}
+
 export interface TFilamentProxy {
   /**
    * Loads a 3D Model from the given path.
    * @param path A web URL (http:// or https://), local file (file://) or resource ID.
    */
   loadModel(path: string): number
+
+  /**
+   * @private
+   */
+  createTestObject(): TestHybridObject
 }
 
 // Check if we are running on-device (JSI)

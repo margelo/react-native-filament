@@ -10,7 +10,7 @@
 
 namespace margelo {
 
-class Surface : public HybridObject {
+class Surface : public HybridObject<Surface> {
 public:
   /**
    * Returns the surface ("native window") that can be used as a render target.
