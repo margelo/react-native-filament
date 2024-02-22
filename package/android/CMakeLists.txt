@@ -26,6 +26,7 @@ add_library(
         ../cpp/jsi/HybridObject.cpp
         ../cpp/jsi/Promise.cpp
         ../cpp/core/EngineWrapper.cpp
+        ../cpp/core/RendererWrapper.cpp
         ../cpp/test/TestHybridObject.cpp
         # Java JNI
         src/main/cpp/AndroidFilamentProxy.cpp
