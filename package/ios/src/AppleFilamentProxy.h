@@ -9,9 +9,9 @@
 #pragma once
 
 #include "FilamentProxy.h"
+#include "FilamentView.h"
 #include <ReactCommon/CallInvoker.h>
 #include <jsi/jsi.h>
-#include "FilamentView.h"
 
 namespace margelo {
 

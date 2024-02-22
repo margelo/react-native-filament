@@ -1,15 +1,15 @@
 #import "FilamentMetalView.h"
-#import <UIKit/UIKit.h>
 #import <Metal/Metal.h>
+#import <UIKit/UIKit.h>
 
 @implementation FilamentMetalView
 
-+ (Class) layerClass {
++ (Class)layerClass {
   return [CAMetalLayer class];
 }
 
-- (CAMetalLayer*) metalLayer {
-  return (CAMetalLayer*) self.layer;
+- (CAMetalLayer*)metalLayer {
+  return (CAMetalLayer*)self.layer;
 }
 
 - (instancetype)init {
