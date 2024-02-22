@@ -12,6 +12,9 @@ void TestHybridObject::loadHybridMethods() {
   // this.string get & set
   registerHybridGetter("string", &TestHybridObject::getString, this);
   registerHybridSetter("string", &TestHybridObject::setString, this);
+  // this.enum
+  registerHybridGetter("enum", &TestHybridObject::getEnum, this);
+  registerHybridSetter("enum", &TestHybridObject::setEnum, this);
   // methods
   registerHybridMethod("multipleArguments", &TestHybridObject::multipleArguments, this);
   // callbacks

@@ -7,6 +7,7 @@
 #include "jsi/HybridObject.h"
 #include <string>
 #include <vector>
+#include "TestEnum.h"
 
 namespace margelo {
 
@@ -23,6 +24,12 @@ public:
   }
   void setString(std::string newValue) {
     _string = newValue;
+  }
+  void setEnum(TestEnum testEnum) {
+      _enum = testEnum;
+  }
+  TestEnum getEnum() {
+      return _enum;
   }
 
   std::unordered_map<std::string, double> multipleArguments(int first, bool second, std::string third) {
@@ -42,6 +49,7 @@ public:
 private:
   int _int;
   std::string _string;
+  TestEnum _enum;
 
   void loadHybridMethods() override;
 };
