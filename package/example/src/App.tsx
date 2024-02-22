@@ -6,7 +6,7 @@ import { FilamentView } from 'react-native-filament'
 export default function App() {
   return (
     <View style={styles.container}>
-      <FilamentView style={styles.box} />
+      <FilamentView style={styles.filamentView} />
     </View>
   )
 }
@@ -17,9 +17,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  box: {
-    width: 60,
-    height: 60,
-    marginVertical: 20,
+  filamentView: {
+    width: 350,
+    height: 350,
+    backgroundColor: 'black',
   },
 })

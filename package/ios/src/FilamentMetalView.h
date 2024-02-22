@@ -17,6 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (CAMetalLayer*)metalLayer;
 
+- (void)layoutSubviews;
+
 @end
 
 NS_ASSUME_NONNULL_END
