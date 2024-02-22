@@ -14,7 +14,7 @@
 
 namespace margelo {
 
-class SurfaceProvider : public HybridObject<SurfaceProvider> {
+class SurfaceProvider : public HybridObject {
 public:
   using TOnCreate = std::function<void(std::shared_ptr<Surface> surface)>;
   using TOnResize = std::function<void(std::shared_ptr<Surface> surface, int width, int height)>;

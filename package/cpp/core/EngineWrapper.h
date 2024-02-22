@@ -15,7 +15,7 @@ namespace margelo {
 
 using namespace filament;
 
-class EngineWrapper : public HybridObject<EngineWrapper> {
+class EngineWrapper : public HybridObject {
 public:
   explicit EngineWrapper(filament::Engine::Backend backend);
   ~EngineWrapper();
