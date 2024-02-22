@@ -45,7 +45,7 @@ Pod::Spec.new do |s|
         "ios/libs/filament/include/filamat/*.h",
         "ios/libs/filament/include/filament/MaterialChunkType.h",
         "ios/libs/filament/include/filament/MaterialEnums.h"
-    ss.header_mappings_dir = "include"
+    ss.header_mappings_dir = "ios/libs/filament/include"
     ss.vendored_libraries =
       "ios/libs/filament/lib/universal/libfilamat.a",
       "ios/libs/filament/lib/universal/libshaders.a",
@@ -57,7 +57,7 @@ Pod::Spec.new do |s|
 
   s.subspec "gltfio_core" do |ss|
     ss.source_files = "ios/libs/filament/include/gltfio/**/*.h"
-    ss.header_mappings_dir = "include"
+    ss.header_mappings_dir = "ios/libs/filament/include"
     ss.vendored_libraries =
       "ios/libs/filament/lib/universal/libgltfio_core.a",
       "ios/libs/filament/lib/universal/libdracodec.a",
