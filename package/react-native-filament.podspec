@@ -22,7 +22,7 @@ Pod::Spec.new do |s|
   # All source files that should be publicly visible
   # Note how this does not include headers, since those can nameclash.
   s.source_files = [
-    "ios/**/*.{h,m,mm}",
+    "ios/src/**/*.{h,m,mm}",
     "cpp/**/*.{h,hpp,c,cpp}"
   ]
   # Any private headers that are not globally unique should be mentioned here.
@@ -30,7 +30,7 @@ Pod::Spec.new do |s|
   # See https://github.com/firebase/firebase-ios-sdk/issues/4035 for more details.
   s.preserve_paths = [
     "cpp/**/*.h",
-    "ios/**/*.h"
+    "ios/src/**/*.h"
   ]
 
   # Link all libraries:
