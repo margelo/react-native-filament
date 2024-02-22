@@ -5,9 +5,9 @@
 //  Created by Marc Rousavy on 22.02.24.
 //
 
-#import <Foundation/Foundation.h>
 #import "FilamentModule.h"
 #import "FilamentInstaller.h"
+#import <Foundation/Foundation.h>
 #import <React/RCTBridge+Private.h>
 
 @implementation FilamentModule

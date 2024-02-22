@@ -1,6 +1,6 @@
+#import "FilamentMetalView.h"
 #import <Foundation/Foundation.h>
 #import <React/RCTViewManager.h>
-#import "FilamentMetalView.h"
 
 @interface FilamentViewManager : RCTViewManager
 @end

@@ -12,10 +12,10 @@
 
 namespace margelo {
 
-class MetalSurface: public Surface {
+class MetalSurface : public Surface {
 public:
-  explicit MetalSurface(CAMetalLayer* layer): _layer(layer) { }
-  
+  explicit MetalSurface(CAMetalLayer* layer) : _layer(layer) {}
+
   int getWidth() override {
     return static_cast<int>(_layer.drawableSize.width);
   }
@@ -25,6 +25,7 @@ public:
   void* getSurface() override {
     return (__bridge void*)_layer;
   }
+
 private:
   CAMetalLayer* _layer;
 };

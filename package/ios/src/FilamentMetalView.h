@@ -13,9 +13,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FilamentMetalView : UIView
 
-- (instancetype) init;
+- (instancetype)init;
 
-- (CAMetalLayer*) metalLayer;
+- (CAMetalLayer*)metalLayer;
 
 @end
 
