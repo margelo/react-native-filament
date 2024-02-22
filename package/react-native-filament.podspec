@@ -15,8 +15,9 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/margelo/react-native-filament.git", :tag => "#{s.version}" }
 
   s.pod_target_xcconfig = {
-    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/\"/** "
-  }
+    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/**\" \"$(PODS_TARGET_SRCROOT)/ios/libs/filament/lib/filament/include/**\""
+}
 
   # All source files that should be publicly visible
   # Note how this does not include headers, since those can nameclash.
@@ -30,6 +31,32 @@ Pod::Spec.new do |s|
   s.preserve_paths = [
     "cpp/**/*.h",
     "ios/**/*.h"
+  ]
+
+  # Link all libraries:
+  s.ios.vendored_frameworks = [
+    "ios/libs/filament/lib/universal/libfilament.a",
+    "ios/libs/filament/lib/universal/libbackend.a",
+    "ios/libs/filament/lib/universal/libfilabridge.a",
+    "ios/libs/filament/lib/universal/libfilaflat.a",
+    "ios/libs/filament/lib/universal/libibl.a",
+    "ios/libs/filament/lib/universal/libgeometry.a",
+    "ios/libs/filament/lib/universal/libfilamat.a",
+    "ios/libs/filament/lib/universal/libshaders.a",
+    "ios/libs/filament/lib/universal/libsmol-v.a",
+    "ios/libs/filament/lib/universal/libfilabridge.a",
+    "ios/libs/filament/lib/universal/libgltfio_core.a",
+    "ios/libs/filament/lib/universal/libdracodec.a",
+    "ios/libs/filament/lib/universal/libuberarchive.a",
+    "ios/libs/filament/lib/universal/libstb.a",
+    "ios/libs/filament/lib/universal/libfilameshio.a",
+    "ios/libs/filament/lib/universal/libmeshoptimizer.a",
+    "ios/libs/filament/lib/universal/libktxreader.a",
+    "ios/libs/filament/lib/universal/libbasis_transcoder.a",
+    "ios/libs/filament/lib/universal/libviewer.a",
+    "ios/libs/filament/lib/universal/libcivetweb.a",
+    "ios/libs/filament/lib/universal/libuberzlib.a",
+    "ios/libs/filament/lib/universal/libzstd.a"
   ]
 
   # Use install_modules_dependencies helper to install the dependencies if React Native version >=0.71.0.
