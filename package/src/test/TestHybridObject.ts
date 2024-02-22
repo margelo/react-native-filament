@@ -1,20 +1,10 @@
 import { FilamentProxy } from '../native/FilamentProxy'
 
-interface TestHybridObject {
-  int: number
-  string: string
-
-  multipleArguments(first: number, second: boolean, third: string): Record<string, number>
-  getIntGetter(): () => number
-  sayHelloCallback(callback: () => string): void
-  createNewHybridObject: () => TestHybridObject
-}
-
 export function testHybridObject() {
   console.log('------ BEGIN HybridObject tests...')
   // 1. Creation
   console.log('Creating HybridObject...')
-  const hybridObject = FilamentProxy.createTestObject() as TestHybridObject
+  const hybridObject = FilamentProxy.createTestObject()
   console.log('Created HybridObject!')
 
   // 2. Logging the entire thing as JSON
