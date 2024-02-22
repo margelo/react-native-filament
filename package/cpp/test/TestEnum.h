@@ -14,14 +14,4 @@ enum TestEnum {
     THIRD
 };
 
-class TestEnumMapper : public EnumMapper<TestEnum> {
-    std::unordered_map<TestEnum, std::string> getMapping() {
-        return {
-                {FIRST, "first"},
-                {SECOND, "second"},
-                {THIRD, "third"},
-        };
-    }
-};
-
 }
