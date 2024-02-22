@@ -121,6 +121,7 @@ struct JSIConverter<std::function<ReturnType(Args...)>> {
                                                                              size_t count) -> jsi::Value {
             callFunction(function, args, std::index_sequence_for<Args...>{});
         };
+        return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "hostFunction"), sizeof...(Args), jsFunction);
     }
 };
 

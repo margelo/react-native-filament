@@ -11,6 +11,7 @@
 
 #include "FilamentView.h"
 #include "jsi/HybridObject.h"
+#include "test/TestHybridObject.h"
 
 namespace margelo {
 
@@ -20,6 +21,8 @@ class FilamentProxy : public HybridObject {
 private:
   virtual int loadModel(std::string path) = 0;
   virtual std::shared_ptr<FilamentView> findFilamentView(int id) = 0;
+
+  std::shared_ptr<TestHybridObject> createTestObject();
 
 public:
   void loadHybridMethods() override;
