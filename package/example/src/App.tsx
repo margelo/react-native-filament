@@ -6,7 +6,7 @@ import { FilamentView } from 'react-native-filament'
 export default function App() {
   return (
     <View style={styles.container}>
-      <FilamentView color="#32a852" style={styles.box} />
+      <FilamentView style={styles.box} />
     </View>
   )
 }
