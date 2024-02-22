@@ -10,6 +10,7 @@
 #include <memory>
 #include <type_traits>
 #include <unordered_map>
+#include "EnumMapper.h"
 
 namespace margelo {
 
@@ -98,6 +99,17 @@ template <typename TInner> struct JSIConverter<std::optional<TInner>> {
       return JSIConverter<TInner>::toJSI(runtime, arg);
     }
   }
+};
+
+template <typename TEnum> struct JSIConverter<TEnum, std::enable_if_t<std::is_enum<TEnum>::value>> {
+    static TEnum fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
+        std::string string = arg.asString(runtime).utf8(runtime);
+        return EnumMapper<TEnum>::fromJSUnion(string);
+    }
+    static jsi::Value toJSI(jsi::Runtime& runtime, TEnum arg) {
+        std::string string = EnumMapper<TEnum>::toJSUnion(arg);
+        return jsi::String::createFromUtf8(runtime, string);
+    }
 };
 
 template <typename ReturnType, typename... Args> struct JSIConverter<std::function<ReturnType(Args...)>> {
