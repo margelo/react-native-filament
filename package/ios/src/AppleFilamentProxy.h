@@ -9,6 +9,7 @@
 #include "FilamentProxy.h"
 #include <ReactCommon/CallInvoker.h>
 #include <jsi/jsi.h>
+#include "FilamentView.h"
 
 namespace margelo {
 
@@ -19,6 +20,7 @@ public:
 
 public:
   int loadModel(std::string path) override;
+  std::shared_ptr<FilamentView> findFilamentView(int modelId) override;
 
 private:
   jsi::Runtime* _runtime;
