@@ -9,6 +9,7 @@
 #include <memory>
 #include <type_traits>
 #include <unordered_map>
+#include <array>
 
 namespace margelo {
 
@@ -102,24 +103,28 @@ template <typename TInner> struct JSIConverter<std::optional<TInner>> {
 template <typename ReturnType, typename... Args>
 struct JSIConverter<std::function<ReturnType(Args...)>> {
     static std::function<ReturnType(Args...)> fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
-        jsi::Function func = arg.asObject(runtime).asFunction(runtime);
-        return [&runtime, func = std::move(func)] (Args... args) -> ReturnType {
-            func.call(runtime, JSIConverter::toJSI(args...));
+        jsi::Function function = arg.asObject(runtime).asFunction(runtime);
+        return [&runtime, function = std::move(function)] (Args... args) -> ReturnType {
+            jsi::Value result = function.call(runtime, JSIConverter<Args>::toJSI(runtime, args)...);
+            if constexpr (std::is_same_v<ReturnType, void>) {
+                return;
+            } else {
+                return JSIConverter<ReturnType>::fromJSI(runtime, std::move(result));
+            }
         };
     }
 
     template<size_t... Is>
-    static jsi::Value callFunction(std::function<ReturnType(Args...)> function, jsi::Runtime& runtime, const jsi::Value* args, std::index_sequence<Is...>) {
+    static jsi::Value callHybridFunction(const std::function<ReturnType(Args...)>& function, jsi::Runtime& runtime, const jsi::Value* args, std::index_sequence<Is...>) {
         ReturnType result = function(JSIConverter<Args>::fromJSI(runtime, args[Is])...);
         return JSIConverter<ReturnType>::toJSI(runtime, result);
     }
-
     static jsi::Value toJSI(jsi::Runtime& runtime, std::function<ReturnType(Args...)> function) {
         jsi::HostFunctionType jsFunction = [function = std::move(function)] (jsi::Runtime& runtime,
                                                                              const jsi::Value& thisValue,
-                                                                             jsi::Value* args,
+                                                                             const jsi::Value* args,
                                                                              size_t count) -> jsi::Value {
-            callFunction(function, args, std::index_sequence_for<Args...>{});
+            callHybridFunction(function, runtime, args, std::index_sequence_for<Args...>{});
         };
         return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "hostFunction"), sizeof...(Args), jsFunction);
     }
