@@ -9,6 +9,49 @@ PODS:
     - React-Core (= 0.73.4)
     - React-jsi (= 0.73.4)
     - ReactCommon/turbomodule/core (= 0.73.4)
+  - Filament (1.50.2):
+    - Filament/camutils (= 1.50.2)
+    - Filament/filamat (= 1.50.2)
+    - Filament/filament (= 1.50.2)
+    - Filament/filameshio (= 1.50.2)
+    - Filament/gltfio_core (= 1.50.2)
+    - Filament/image (= 1.50.2)
+    - Filament/ktxreader (= 1.50.2)
+    - Filament/math (= 1.50.2)
+    - Filament/tsl (= 1.50.2)
+    - Filament/uberz (= 1.50.2)
+    - Filament/utils (= 1.50.2)
+    - Filament/viewer (= 1.50.2)
+  - Filament/camutils (1.50.2):
+    - Filament/math
+  - Filament/filamat (1.50.2):
+    - Filament/math
+    - Filament/utils
+  - Filament/filament (1.50.2):
+    - Filament/math
+    - Filament/utils
+  - Filament/filameshio (1.50.2):
+    - Filament/filament
+  - Filament/gltfio_core (1.50.2):
+    - Filament/filament
+    - Filament/ktxreader
+    - Filament/uberz
+  - Filament/image (1.50.2):
+    - Filament/filament
+  - Filament/ktxreader (1.50.2):
+    - Filament/filament
+    - Filament/image
+  - Filament/math (1.50.2)
+  - Filament/tsl (1.50.2)
+  - Filament/uberz (1.50.2):
+    - Filament/filamat
+    - Filament/tsl
+    - Filament/utils
+  - Filament/utils (1.50.2):
+    - Filament/tsl
+  - Filament/viewer (1.50.2):
+    - Filament/filament
+    - Filament/gltfio_core
   - fmt (6.2.1)
   - glog (0.3.5)
   - hermes-engine (0.73.4):
@@ -1065,6 +1108,7 @@ DEPENDENCIES:
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native/React/FBReactNativeSpec`)
+  - Filament
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
@@ -1116,6 +1160,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - Filament
     - fmt
     - libevent
     - SocketRocket
@@ -1226,6 +1271,7 @@ SPEC CHECKSUMS:
   DoubleConversion: fea03f2699887d960129cc54bba7e52542b6f953
   FBLazyVector: 84f6edbe225f38aebd9deaf1540a4160b1f087d7
   FBReactNativeSpec: d0086a479be91c44ce4687a962956a352d2dc697
+  Filament: 5dd90546dd8d074ff2c03ab64cd18d06d6fab76b
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: c5d68082e772fa1c511173d6b30a9de2c05a69a2
   hermes-engine: b2669ce35fc4ac14f523b307aff8896799829fe2
@@ -1275,6 +1321,6 @@ SPEC CHECKSUMS:
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: 64cd2a583ead952b0315d5135bf39e053ae9be70
 
-PODFILE CHECKSUM: 51dbb7d1d6cbae06f02ad898d698577809744bba
+PODFILE CHECKSUM: 919dec07cc83c427d2fec3991e5f4efd3a6d3082
 
 COCOAPODS: 1.14.3
