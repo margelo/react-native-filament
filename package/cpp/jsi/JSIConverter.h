@@ -73,6 +73,15 @@ template <> struct JSIConverter<bool> {
   }
 };
 
+template <> struct JSIConverter<std::string> {
+  static std::string fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
+    return arg.asString(runtime).utf8(runtime);
+  }
+  static jsi::Value toJSI(jsi::Runtime& runtime, const std::string& arg) {
+    return jsi::String::createFromUtf8(runtime, arg);
+  }
+};
+
 template <typename TInner> struct JSIConverter<std::optional<TInner>> {
     static std::optional<TInner> fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
         if (arg.isUndefined() || arg.isNull()) {
@@ -90,13 +99,29 @@ template <typename TInner> struct JSIConverter<std::optional<TInner>> {
     }
 };
 
-template <> struct JSIConverter<std::string> {
-  static std::string fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
-    return arg.asString(runtime).utf8(runtime);
-  }
-  static jsi::Value toJSI(jsi::Runtime& runtime, const std::string& arg) {
-    return jsi::String::createFromUtf8(runtime, arg);
-  }
+template <typename ReturnType, typename... Args>
+struct JSIConverter<std::function<ReturnType(Args...)>> {
+    static std::function<ReturnType(Args...)> fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
+        jsi::Function func = arg.asObject(runtime).asFunction(runtime);
+        return [&runtime, func = std::move(func)] (Args... args) -> ReturnType {
+            func.call(runtime, JSIConverter::toJSI(args...));
+        };
+    }
+
+    template<size_t... Is>
+    static jsi::Value callFunction(std::function<ReturnType(Args...)> function, jsi::Runtime& runtime, const jsi::Value* args, std::index_sequence<Is...>) {
+        ReturnType result = function(JSIConverter<Args>::fromJSI(runtime, args[Is])...);
+        return JSIConverter<ReturnType>::toJSI(runtime, result);
+    }
+
+    static jsi::Value toJSI(jsi::Runtime& runtime, std::function<ReturnType(Args...)> function) {
+        jsi::HostFunctionType jsFunction = [function = std::move(function)] (jsi::Runtime& runtime,
+                                                                             const jsi::Value& thisValue,
+                                                                             jsi::Value* args,
+                                                                             size_t count) -> jsi::Value {
+            callFunction(function, args, std::index_sequence_for<Args...>{});
+        };
+    }
 };
 
 template <typename ElementType> struct JSIConverter<std::vector<ElementType>> {
