@@ -33,8 +33,8 @@ public:
    * Get the `std::shared_ptr` instance of this HybridObject.
    * The HybridObject must be managed inside a `shared_ptr` already, otherwise this will fail.
    */
-  std::shared_ptr<HybridObject> shared() {
-      return shared_from_this();
+  template <typename Derived> std::shared_ptr<Derived> shared() {
+    return std::static_pointer_cast<Derived>(shared_from_this());
   }
 
   /**
@@ -65,8 +65,8 @@ private:
   inline void ensureInitialized();
 
 private:
-  template <typename ClassType, typename ReturnType, typename... Args, size_t... Is>
-  inline jsi::Value callMethod(ClassType* obj, ReturnType (ClassType::*method)(Args...), jsi::Runtime& runtime, const jsi::Value* args,
+  template <typename Derived, typename ReturnType, typename... Args, size_t... Is>
+  inline jsi::Value callMethod(Derived* obj, ReturnType (Derived::*method)(Args...), jsi::Runtime& runtime, const jsi::Value* args,
                                std::index_sequence<Is...>) {
     if constexpr (std::is_same_v<ReturnType, void>) {
       // It's a void method.
