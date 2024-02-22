@@ -4,57 +4,30 @@
 
 #pragma once
 
-#include "test/TestEnum.h"
-#include <unordered_map>
+#include <stdexcept>
+#include <string>
 
 namespace margelo {
 
-using namespace facebook;
+namespace EnumMapper {
+  // Add these two methods in namespace "EnumMapper" to allow parsing a custom enum:
+  // 1. `static void convertJSUnionToEnum(const std::string& inUnion, Enum* outEnum)`
+  // 2. `static void convertEnumToJSUnion(Enum inEnum, std::string* outUnion)`
 
-static std::runtime_error invalidUnion(const std::string jsUnion) {
-  return std::runtime_error("Cannot convert JS Value to Enum: Invalid Union value passed! (\"" + jsUnion + "\")");
-}
-template <typename Enum> static std::runtime_error invalidEnum(Enum passedEnum) {
-  return std::runtime_error("Cannot convert Enum to JS Value: Invalid Enum passed! (Value #" + std::to_string(passedEnum) +
-                            " does not exist in " + typeid(Enum).name() + ")");
-}
-
-template <typename Enum> struct EnumMapper {
-  static Enum fromJSUnion(const std::string&) {
-    static_assert(always_false<Enum>::value, "This type is not supported by the EnumMapper!");
-    return Enum();
+  static std::runtime_error invalidUnion(const std::string& passedUnion) {
+    return std::runtime_error("Cannot convert JS Value to Enum: Invalid Union value passed! (\"" + std::string(passedUnion) + "\")");
   }
-  static std::string toJSUnion(Enum) {
-    static_assert(always_false<Enum>::value, "This type is not supported by the EnumMapper!");
-    return std::string();
+  static std::runtime_error invalidEnum(int passedEnum) {
+    return std::runtime_error("Cannot convert Enum to JS Value: Invalid Enum passed! (Value #" + std::to_string(passedEnum) + ")");
   }
 
-private:
-  template <typename> struct always_false : std::false_type {};
-};
+  static void convertJSUnionToEnum(const std::string& inUnion, int*) {
+    throw invalidUnion(inUnion);
+  }
 
-template <> struct EnumMapper<TestEnum> {
-public:
-  static constexpr TestEnum fromJSUnion(const std::string& jsUnion) {
-    if (jsUnion == "first")
-      return FIRST;
-    if (jsUnion == "second")
-      return SECOND;
-    if (jsUnion == "third")
-      return THIRD;
-    throw invalidUnion(jsUnion);
+  static void convertEnumToJSUnion(int inEnum, std::string*) {
+    throw invalidEnum(inEnum);
   }
-  static std::string toJSUnion(TestEnum value) {
-    switch (value) {
-      case FIRST:
-        return "first";
-      case SECOND:
-        return "second";
-      case THIRD:
-        return "third";
-    }
-    throw invalidEnum(value);
-  }
-};
+} // namespace EnumMapper
 
 } // namespace margelo
