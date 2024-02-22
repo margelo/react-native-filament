@@ -37,7 +37,7 @@ std::shared_ptr<FilamentView> AppleFilamentProxy::findFilamentView(int viewId) {
     AppleFilamentView* view = (AppleFilamentView*) anonymousView;
     // TODO: Somehow convert the Objective-C type "AppleFilamentView" to a C++ type "FilamentView"
   });
-  return nullptr;
+  throw std::runtime_error("Cannot get FilamentView on iOS yet!");
 }
 
 
