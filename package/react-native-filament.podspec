@@ -20,42 +20,42 @@ Pod::Spec.new do |s|
     "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/**\""
 }
 
-s.subspec "filament" do |ss|
-  ss.source_files =
-      "ios/libs/filament/include/filament/*.h",
-      "ios/libs/filament/include/backend/*.h",
-      "ios/libs/filament/include/filament/MaterialChunkType.h",
-      "ios/libs/filament/include/filament/MaterialEnums.h",
-      "ios/libs/filament/include/ibl/*.h",
-      "ios/libs/filament/include/geometry/*.h"
-  ss.header_mappings_dir = "ios/libs/filament/include"
-  ss.vendored_libraries =
-      "ios/libs/filament/lib/universal/libfilament.a",
-      "ios/libs/filament/lib/universal/libbackend.a",
-      "ios/libs/filament/lib/universal/libfilabridge.a",
-      "ios/libs/filament/lib/universal/libfilaflat.a",
-      "ios/libs/filament/lib/universal/libibl.a",
-      "ios/libs/filament/lib/universal/libgeometry.a"
-  ss.dependency "react-native-filament/utils"
-  ss.dependency "react-native-filament/math"
-end
+  s.subspec "filament" do |ss|
+    ss.source_files =
+        "ios/libs/filament/include/filament/*.h",
+        "ios/libs/filament/include/backend/*.h",
+        "ios/libs/filament/include/filament/MaterialChunkType.h",
+        "ios/libs/filament/include/filament/MaterialEnums.h",
+        "ios/libs/filament/include/ibl/*.h",
+        "ios/libs/filament/include/geometry/*.h"
+    ss.header_mappings_dir = "ios/libs/filament/include"
+    ss.vendored_libraries =
+        "ios/libs/filament/lib/universal/libfilament.a",
+        "ios/libs/filament/lib/universal/libbackend.a",
+        "ios/libs/filament/lib/universal/libfilabridge.a",
+        "ios/libs/filament/lib/universal/libfilaflat.a",
+        "ios/libs/filament/lib/universal/libibl.a",
+        "ios/libs/filament/lib/universal/libgeometry.a"
+    ss.dependency "react-native-filament/utils"
+    ss.dependency "react-native-filament/math"
+  end
 
-s.subspec "utils" do |ss|
-  ss.source_files = "ios/libs/filament/include/utils/**/*.h"
-  ss.header_mappings_dir = "ios/libs/filament/include"
-  ss.vendored_libraries = "ios/libs/filament/lib/universal/libutils.a"
-  ss.dependency "react-native-filament/tsl"
-end
+  s.subspec "utils" do |ss|
+    ss.source_files = "ios/libs/filament/include/utils/**/*.h"
+    ss.header_mappings_dir = "ios/libs/filament/include"
+    ss.vendored_libraries = "ios/libs/filament/lib/universal/libutils.a"
+    ss.dependency "react-native-filament/tsl"
+  end
 
-s.subspec "tsl" do |ss|
-  ss.source_files = "ios/libs/filament/include/tsl/*.h"
-  ss.header_dir = "tsl"
-end
+  s.subspec "tsl" do |ss|
+    ss.source_files = "ios/libs/filament/include/tsl/*.h"
+    ss.header_dir = "tsl"
+  end
 
-s.subspec "math" do |ss|
-  ss.source_files = "ios/libs/filament/include/math/*.h"
-  ss.header_dir = "math"
-end
+  s.subspec "math" do |ss|
+    ss.source_files = "ios/libs/filament/include/math/*.h"
+    ss.header_dir = "math"
+  end
 
   # All source files that should be publicly visible
   # Note how this does not include headers, since those can nameclash.
