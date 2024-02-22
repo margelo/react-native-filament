@@ -73,6 +73,23 @@ template <> struct JSIConverter<bool> {
   }
 };
 
+template <typename TInner> struct JSIConverter<std::optional<TInner>> {
+    static std::optional<TInner> fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
+        if (arg.isUndefined() || arg.isNull()) {
+            return std::nullopt;
+        } else {
+            return JSIConverter<TInner>::fromJSI(runtime, std::move(arg));
+        }
+    }
+    static jsi::Value toJSI(jsi::Runtime& runtime, std::optional<TInner> arg) {
+        if (arg == std::nullopt) {
+            return jsi::Value::undefined();
+        } else {
+            return JSIConverter<TInner>::toJSI(runtime, arg);
+        }
+    }
+};
+
 template <> struct JSIConverter<std::string> {
   static std::string fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
     return arg.asString(runtime).utf8(runtime);
