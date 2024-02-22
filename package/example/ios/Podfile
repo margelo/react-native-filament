@@ -39,8 +39,6 @@ target 'FilamentExample' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  pod "Filament"
-
   target 'FilamentExampleTests' do
     inherit! :complete
     # Pods for testing
