@@ -5,6 +5,8 @@
 //  Created by Marc Rousavy on 20.02.24.
 //
 
+#pragma once
+
 #import <Foundation/Foundation.h>
 #import <React/RCTBridge.h>
 

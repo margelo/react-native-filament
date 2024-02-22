@@ -1,22 +1,25 @@
 //
 //  AppleFilamentView.h
-//  Pods
+//  react-native-filament
 //
 //  Created by Marc Rousavy on 22.02.24.
 //
 
 #pragma once
 
-#import <UIKit/UIKit.h>
+#include "FilamentView.h"
+#include "FilamentMetalView.h"
+#include "SurfaceProvider.h"
 
-NS_ASSUME_NONNULL_BEGIN
+namespace margelo {
 
-@interface AppleFilamentView : UIView
+class AppleFilamentView : public FilamentView {
+public:
+  explicit AppleFilamentView(FilamentMetalView* view): _view(view) {}
+  
+  std::shared_ptr<SurfaceProvider> getSurfaceProvider() override;
+private:
+  FilamentMetalView* _view;
+};
 
-- (instancetype) init;
-
-- (CAMetalLayer*) layer;
-
-@end
-
-NS_ASSUME_NONNULL_END
+} // namespace margelo

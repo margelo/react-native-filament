@@ -12,6 +12,7 @@
 #import <React/RCTBridge+Private.h>
 #import <React/RCTUIManager.h>
 #import "FilamentView.h"
+#import "FilamentMetalView.h"
 #import "AppleFilamentView.h"
 
 namespace margelo {
@@ -30,14 +31,15 @@ int AppleFilamentProxy::loadModel(std::string path) {
 
 std::shared_ptr<FilamentView> AppleFilamentProxy::findFilamentView(int viewId) {
   // TODO(marc): Make this async when JSIConvert can do that
-  RCTUnsafeExecuteOnMainQueueSync(^{
+  std::shared_ptr<AppleFilamentView> result;
+  RCTUnsafeExecuteOnMainQueueSync([viewId, &result]() {
     RCTBridge* currentBridge = [RCTBridge currentBridge]; // <-- from <React/RCTBridge+Private.h>
     RCTUIManager* uiManager = currentBridge.uiManager; // <-- from <React/RCTUIManager.h>
     UIView* anonymousView = [uiManager viewForReactTag:[NSNumber numberWithInt:viewId]];
-    AppleFilamentView* view = (AppleFilamentView*) anonymousView;
-    // TODO: Somehow convert the Objective-C type "AppleFilamentView" to a C++ type "FilamentView"
+    FilamentMetalView* view = (FilamentMetalView*) anonymousView;
+    result.reset(new AppleFilamentView(view));
   });
-  throw std::runtime_error("Cannot get FilamentView on iOS yet!");
+  return std::static_pointer_cast<FilamentView>(result);
 }
 
 

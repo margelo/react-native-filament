@@ -1,22 +1,16 @@
-#import "AppleFilamentView.h"
-#import <UIKit/UIKit.h>
-#import <Metal/Metal.h>
+//
+//  AppleFilamentView.cpp
+//  react-native-filament
+//
+//  Created by Marc Rousavy on 22.02.24.
+//
 
-@implementation AppleFilamentView
+#include "AppleFilamentView.h"
 
-+ (Class) layerClass {
-  return [CAMetalLayer class];
+namespace margelo {
+
+std::shared_ptr<SurfaceProvider> AppleFilamentView::getSurfaceProvider() {
+  return nullptr;
 }
 
-- (CAMetalLayer*) layer {
-  return (CAMetalLayer*) super.layer;
 }
-
-- (instancetype)init {
-  if (self = [super init]) {
-    // init here
-  }
-  return self;
-}
-
-@end
