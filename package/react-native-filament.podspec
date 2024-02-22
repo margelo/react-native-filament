@@ -26,7 +26,7 @@ Pod::Spec.new do |s|
   # Note how this does not include headers, since those can nameclash.
   s.source_files = [
     "cpp/**/*.{h,c,cpp}",
-    "ios/src/**/*.{h,m,mm}",
+    "ios/src/**/*.{h,m,mm,cpp}",
   ]
 
   # Any private headers that are not globally unique should be mentioned here.

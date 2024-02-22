@@ -6,6 +6,8 @@
 //  Copyright © 2023 mrousavy. All rights reserved.
 //
 
+#pragma once
+
 #include "FilamentProxy.h"
 #include <ReactCommon/CallInvoker.h>
 #include <jsi/jsi.h>
