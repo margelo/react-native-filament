@@ -8,6 +8,7 @@ interface TestHybridObject {
   getIntGetter(): () => number
   sayHelloCallback(callback: () => string): void
   createNewHybridObject: () => TestHybridObject
+  enum: 'first' | 'second' | 'third'
 }
 
 export interface TFilamentProxy {
