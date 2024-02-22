@@ -15,48 +15,60 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/margelo/react-native-filament.git", :tag => "#{s.version}" }
 
   s.pod_target_xcconfig = {
+    'GCC_PREPROCESSOR_DEFINITIONS' => 'FILAMENT_APP_USE_METAL=1 $(inherited)',
     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/**\" \"$(PODS_TARGET_SRCROOT)/ios/libs/filament/include/**\""
+    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/**\""
 }
+
+s.subspec "filament" do |ss|
+  ss.source_files =
+      "ios/libs/filament/include/filament/*.h",
+      "ios/libs/filament/include/backend/*.h",
+      "ios/libs/filament/include/filament/MaterialChunkType.h",
+      "ios/libs/filament/include/filament/MaterialEnums.h",
+      "ios/libs/filament/include/ibl/*.h",
+      "ios/libs/filament/include/geometry/*.h"
+  ss.header_mappings_dir = "ios/libs/filament/include"
+  ss.vendored_libraries =
+      "ios/libs/filament/lib/universal/libfilament.a",
+      "ios/libs/filament/lib/universal/libbackend.a",
+      "ios/libs/filament/lib/universal/libfilabridge.a",
+      "ios/libs/filament/lib/universal/libfilaflat.a",
+      "ios/libs/filament/lib/universal/libibl.a",
+      "ios/libs/filament/lib/universal/libgeometry.a"
+  ss.dependency "react-native-filament/utils"
+  ss.dependency "react-native-filament/math"
+end
+
+s.subspec "utils" do |ss|
+  ss.source_files = "ios/libs/filament/include/utils/**/*.h"
+  ss.header_mappings_dir = "ios/libs/filament/include"
+  ss.vendored_libraries = "ios/libs/filament/lib/universal/libutils.a"
+  ss.dependency "react-native-filament/tsl"
+end
+
+s.subspec "tsl" do |ss|
+  ss.source_files = "ios/libs/filament/include/tsl/*.h"
+  ss.header_dir = "tsl"
+end
+
+s.subspec "math" do |ss|
+  ss.source_files = "ios/libs/filament/include/math/*.h"
+  ss.header_dir = "math"
+end
 
   # All source files that should be publicly visible
   # Note how this does not include headers, since those can nameclash.
   s.source_files = [
+    "cpp/**/*.{h,c,cpp}",
     "ios/src/**/*.{h,m,mm}",
-    "cpp/**/*.{h,hpp,c,cpp}"
   ]
   # Any private headers that are not globally unique should be mentioned here.
   # Otherwise there will be a nameclash, since CocoaPods flattens out any header directories
   # See https://github.com/firebase/firebase-ios-sdk/issues/4035 for more details.
   s.preserve_paths = [
-    "cpp/**/*.h",
-    "ios/src/**/*.h"
-  ]
-
-  # Link all libraries:
-  s.ios.vendored_libraries = [
-    "ios/libs/filament/lib/universal/libfilament.a",
-    "ios/libs/filament/lib/universal/libbackend.a",
-    "ios/libs/filament/lib/universal/libfilabridge.a",
-    "ios/libs/filament/lib/universal/libfilaflat.a",
-    "ios/libs/filament/lib/universal/libibl.a",
-    "ios/libs/filament/lib/universal/libgeometry.a",
-    "ios/libs/filament/lib/universal/libfilamat.a",
-    "ios/libs/filament/lib/universal/libshaders.a",
-    "ios/libs/filament/lib/universal/libsmol-v.a",
-    "ios/libs/filament/lib/universal/libfilabridge.a",
-    "ios/libs/filament/lib/universal/libgltfio_core.a",
-    "ios/libs/filament/lib/universal/libdracodec.a",
-    "ios/libs/filament/lib/universal/libuberarchive.a",
-    "ios/libs/filament/lib/universal/libstb.a",
-    "ios/libs/filament/lib/universal/libfilameshio.a",
-    "ios/libs/filament/lib/universal/libmeshoptimizer.a",
-    "ios/libs/filament/lib/universal/libktxreader.a",
-    "ios/libs/filament/lib/universal/libbasis_transcoder.a",
-    "ios/libs/filament/lib/universal/libviewer.a",
-    "ios/libs/filament/lib/universal/libcivetweb.a",
-    "ios/libs/filament/lib/universal/libuberzlib.a",
-    "ios/libs/filament/lib/universal/libzstd.a"
+    # "cpp/**/*.h",
+    # "ios/src/**/*.h",
   ]
 
   # Use install_modules_dependencies helper to install the dependencies if React Native version >=0.71.0.
