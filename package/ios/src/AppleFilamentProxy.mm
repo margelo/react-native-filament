@@ -17,7 +17,7 @@ AppleFilamentProxy::~AppleFilamentProxy() {
   // TODO(hanno): cleanup here?
 }
 
-int AppleFilamentProxy::loadModel(const std::string path) {
+int AppleFilamentProxy::loadModel(std::string path) {
   // TODO(hanno): Implement model loading here
   return 13;
 }

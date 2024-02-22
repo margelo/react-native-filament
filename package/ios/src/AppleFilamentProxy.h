@@ -18,7 +18,7 @@ public:
   ~AppleFilamentProxy();
 
 public:
-  int loadModel(const std::string path) override;
+  int loadModel(std::string path) override;
 
 private:
   jsi::Runtime* _runtime;
