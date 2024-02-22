@@ -22,4 +22,9 @@ int AppleFilamentProxy::loadModel(std::string path) {
   return 13;
 }
 
+std::shared_ptr<FilamentView> AppleFilamentProxy::findFilamentView(int modelId) {
+  return nullptr;
+}
+
+
 } // namespace margelo
