@@ -25,15 +25,18 @@ using namespace facebook;
 + (BOOL)installToBridge:(RCTBridge*)bridge {
   RCTCxxBridge* cxxBridge = (RCTCxxBridge*)[RCTBridge currentBridge];
   if (!cxxBridge.runtime) {
+    NSLog(@"Failed to install react-native-filament: RCTBridge is not a RCTCxxBridge!");
     return NO;
   }
 
   jsi::Runtime* runtime = (jsi::Runtime*)cxxBridge.runtime;
   if (!runtime) {
+    NSLog(@"Failed to install react-native-filament: jsi::Runtime* was null!");
     return NO;
   }
   std::shared_ptr<react::CallInvoker> callInvoker = cxxBridge.jsCallInvoker;
   if (!callInvoker) {
+    NSLog(@"Failed to install react-native-filament: react::CallInvoker was null!");
     return NO;
   }
 

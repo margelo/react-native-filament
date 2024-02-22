@@ -20,7 +20,9 @@ target="release"
 echo "Building Filament for iOS ($target)..."
 # -s = iOS simulator support
 # -l = Build fat universal library (x86_64 + arm64)
-./build.sh -s -p ios -i "$target"
+# -c = Cleans out the cmake build directory
+# -l = Build fat universal library (x86_64 + arm64), needed to easily include library from podspec
+./build.sh -s -p ios -i "$target" -c -l
 
 echo "Copying Filament iOS libraries to react-native-filament..."
 rm -rf ../package/ios/libs/filament
