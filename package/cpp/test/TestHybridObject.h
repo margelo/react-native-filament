@@ -10,7 +10,7 @@
 
 namespace margelo {
 
-class TestHybridObject : public HybridObject {
+class TestHybridObject : public HybridObject<TestHybridObject> {
 public:
   int getInt() {
     return _int;
