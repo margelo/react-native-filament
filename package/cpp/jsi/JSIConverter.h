@@ -104,8 +104,9 @@ template <typename ReturnType, typename... Args>
 struct JSIConverter<std::function<ReturnType(Args...)>> {
     static std::function<ReturnType(Args...)> fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
         jsi::Function function = arg.asObject(runtime).asFunction(runtime);
-        return [&runtime, function = std::move(function)] (Args... args) -> ReturnType {
-            jsi::Value result = function.call(runtime, JSIConverter<Args>::toJSI(runtime, args)...);
+        std::shared_ptr<jsi::Function> sharedFunction = std::make_shared<jsi::Function>(std::move(function));
+        return [&runtime, sharedFunction] (Args... args) -> ReturnType {
+            jsi::Value result = sharedFunction->call(runtime, JSIConverter<Args>::toJSI(runtime, args)...);
             if constexpr (std::is_same_v<ReturnType, void>) {
                 return;
             } else {
@@ -114,19 +115,20 @@ struct JSIConverter<std::function<ReturnType(Args...)>> {
         };
     }
 
-    template<size_t... Is>
+    /*template<size_t... Is>
     static jsi::Value callHybridFunction(const std::function<ReturnType(Args...)>& function, jsi::Runtime& runtime, const jsi::Value* args, std::index_sequence<Is...>) {
         ReturnType result = function(JSIConverter<Args>::fromJSI(runtime, args[Is])...);
         return JSIConverter<ReturnType>::toJSI(runtime, result);
-    }
+    }*/
     static jsi::Value toJSI(jsi::Runtime& runtime, std::function<ReturnType(Args...)> function) {
-        jsi::HostFunctionType jsFunction = [function = std::move(function)] (jsi::Runtime& runtime,
+        return jsi::Value::undefined();
+        /*jsi::HostFunctionType jsFunction = [function = std::move(function)] (jsi::Runtime& runtime,
                                                                              const jsi::Value& thisValue,
                                                                              const jsi::Value* args,
                                                                              size_t count) -> jsi::Value {
             callHybridFunction(function, runtime, args, std::index_sequence_for<Args...>{});
         };
-        return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "hostFunction"), sizeof...(Args), jsFunction);
+        return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "hostFunction"), sizeof...(Args), jsFunction);*/
     }
 };
 
