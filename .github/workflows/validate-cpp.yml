@@ -8,13 +8,13 @@ on:
       - '.github/workflows/validate-cpp.yml'
       - 'package/cpp/**'
       - 'package/android/src/main/cpp/**'
-      - 'package/ios/**'
+      - 'package/ios/src/**'
   pull_request:
     paths:
       - '.github/workflows/validate-cpp.yml'
       - 'package/cpp/**'
       - 'package/android/src/main/cpp/**'
-      - 'package/ios/**'
+      - 'package/ios/src/**'
 
 jobs:
   lint:
@@ -25,7 +25,7 @@ jobs:
         path:
           - 'package/cpp'
           - 'package/android/src/main/cpp'
-          - 'package/ios'
+          - 'package/ios/src'
     steps:
       - uses: actions/checkout@v4
       - name: Run clang-format style check
