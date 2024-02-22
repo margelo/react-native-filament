@@ -8,10 +8,6 @@
 
 namespace margelo {
 
-enum TestEnum {
-    FIRST,
-    SECOND,
-    THIRD
-};
+enum TestEnum { FIRST, SECOND, THIRD };
 
 }
