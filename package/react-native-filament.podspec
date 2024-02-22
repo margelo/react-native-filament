@@ -34,7 +34,7 @@ Pod::Spec.new do |s|
   ]
 
   # Link all libraries:
-  s.ios.vendored_frameworks = [
+  s.ios.vendored_libraries = [
     "ios/libs/filament/lib/universal/libfilament.a",
     "ios/libs/filament/lib/universal/libbackend.a",
     "ios/libs/filament/lib/universal/libfilabridge.a",
