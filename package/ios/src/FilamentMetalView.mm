@@ -8,8 +8,8 @@
   return [CAMetalLayer class];
 }
 
-- (CAMetalLayer*) layer {
-  return (CAMetalLayer*) super.layer;
+- (CAMetalLayer*) metalLayer {
+  return (CAMetalLayer*) self.layer;
 }
 
 - (instancetype)init {

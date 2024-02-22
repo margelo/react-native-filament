@@ -13,6 +13,7 @@
 namespace margelo {
 
 class MetalSurface: public Surface {
+public:
   explicit MetalSurface(CAMetalLayer* layer): _layer(layer) { }
   
   int getWidth() override {
