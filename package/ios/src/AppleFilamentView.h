@@ -10,16 +10,18 @@
 #include "FilamentView.h"
 #include "FilamentMetalView.h"
 #include "SurfaceProvider.h"
+#include "MetalSurfaceProvider.h"
 
 namespace margelo {
 
 class AppleFilamentView : public FilamentView {
 public:
-  explicit AppleFilamentView(FilamentMetalView* view): _view(view) {}
+  explicit AppleFilamentView(FilamentMetalView* view);
   
   std::shared_ptr<SurfaceProvider> getSurfaceProvider() override;
 private:
   FilamentMetalView* _view;
+  std::shared_ptr<MetalSurfaceProvider> _surfaceProvider;
 };
 
 } // namespace margelo

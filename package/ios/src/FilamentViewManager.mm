@@ -7,7 +7,7 @@
 
 @implementation FilamentViewManager
 
-RCT_EXPORT_MODULE(FilamentMetalView)
+RCT_EXPORT_MODULE(FilamentView)
 
 - (FilamentMetalView*)view {
   return [[FilamentMetalView alloc] init];
