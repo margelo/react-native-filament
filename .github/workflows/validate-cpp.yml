@@ -8,13 +8,13 @@ on:
       - '.github/workflows/validate-cpp.yml'
       - 'package/cpp/**'
       - 'package/android/src/main/cpp/**'
-      - 'package/ios/**'
+      - 'package/ios/src/**'
   pull_request:
     paths:
       - '.github/workflows/validate-cpp.yml'
       - 'package/cpp/**'
       - 'package/android/src/main/cpp/**'
-      - 'package/ios/**'
+      - 'package/ios/src/**'
 
 jobs:
   lint:
