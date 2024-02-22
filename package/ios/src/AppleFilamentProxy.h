@@ -6,7 +6,10 @@
 //  Copyright © 2023 mrousavy. All rights reserved.
 //
 
+#pragma once
+
 #include "FilamentProxy.h"
+#include "FilamentView.h"
 #include <ReactCommon/CallInvoker.h>
 #include <jsi/jsi.h>
 
@@ -18,7 +21,8 @@ public:
   ~AppleFilamentProxy();
 
 public:
-  int loadModel(const std::string& path) override;
+  int loadModel(std::string path) override;
+  std::shared_ptr<FilamentView> findFilamentView(int modelId) override;
 
 private:
   jsi::Runtime* _runtime;

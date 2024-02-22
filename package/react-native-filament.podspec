@@ -15,15 +15,20 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/margelo/react-native-filament.git", :tag => "#{s.version}" }
 
   s.pod_target_xcconfig = {
-    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/\"/** "
+    'GCC_PREPROCESSOR_DEFINITIONS' => 'FILAMENT_APP_USE_METAL=1 $(inherited)',
+    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/**\""
   }
+
+  s.dependency "Filament"
 
   # All source files that should be publicly visible
   # Note how this does not include headers, since those can nameclash.
   s.source_files = [
-    "ios/**/*.{h,m,mm}",
-    "cpp/**/*.{h,hpp,c,cpp}"
+    "cpp/**/*.{h,c,cpp}",
+    "ios/src/**/*.{h,m,mm,cpp}",
   ]
+
   # Any private headers that are not globally unique should be mentioned here.
   # Otherwise there will be a nameclash, since CocoaPods flattens out any header directories
   # See https://github.com/firebase/firebase-ios-sdk/issues/4035 for more details.
