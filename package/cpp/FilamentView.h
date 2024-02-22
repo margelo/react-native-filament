@@ -15,7 +15,7 @@ namespace margelo {
 
 using namespace facebook;
 
-class FilamentView : public HybridObject<FilamentView> {
+class FilamentView : public HybridObject {
 public:
   virtual std::shared_ptr<SurfaceProvider> getSurfaceProvider() = 0;
 
