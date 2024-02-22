@@ -15,7 +15,7 @@ namespace margelo {
 
 using namespace facebook;
 
-class HybridObject : public jsi::HostObject {
+class HybridObject : public jsi::HostObject, std::enable_shared_from_this<HybridObject> {
 public:
   struct HybridFunction {
     jsi::HostFunctionType function;
@@ -28,6 +28,14 @@ public:
   void set(facebook::jsi::Runtime&, const facebook::jsi::PropNameID& name, const facebook::jsi::Value& value) override;
   jsi::Value get(facebook::jsi::Runtime& runtime, const facebook::jsi::PropNameID& propName) override;
   std::vector<jsi::PropNameID> getPropertyNames(facebook::jsi::Runtime& runtime) override;
+
+  /**
+   * Get the `std::shared_ptr` instance of this HybridObject.
+   * The HybridObject must be managed inside a `shared_ptr` already, otherwise this will fail.
+   */
+  std::shared_ptr<HybridObject> shared() {
+      return shared_from_this();
+  }
 
   /**
    * Loads all native methods of this `HybridObject` to be exposed to JavaScript.
@@ -73,7 +81,6 @@ private:
 
   template <typename Derived, typename ReturnType, typename... Args>
   jsi::HostFunctionType createHybridMethod(ReturnType (Derived::*method)(Args...), Derived* derivedInstance) {
-    // TODO(marc): Use std::shared_ptr<T> instead of T* to keep a strong reference of derivedClass.
     return [this, derivedInstance, method](jsi::Runtime& runtime, const jsi::Value& thisVal, const jsi::Value* args,
                                            size_t count) -> jsi::Value {
       // Call the actual method with JSI values as arguments and return a JSI value again.
