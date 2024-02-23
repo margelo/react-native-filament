@@ -19,6 +19,7 @@ void FilamentProxy::loadHybridMethods() {
   registerHybridMethod("findFilamentView", &FilamentProxy::findFilamentView, this);
   registerHybridMethod("createTestObject", &FilamentProxy::createTestObject, this);
   registerHybridMethod("createEngine", &FilamentProxy::createEngine, this);
+  registerHybridMethod("createChoreographer", &FilamentProxy::createChoreographer, this);
 }
 
 std::shared_ptr<TestHybridObject> FilamentProxy::createTestObject() {

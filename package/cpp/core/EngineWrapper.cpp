@@ -4,6 +4,7 @@
 
 #include "EngineWrapper.h"
 
+#include "References.h"
 #include <filament/Color.h>
 #include <filament/Engine.h>
 #include <filament/LightManager.h>
@@ -17,19 +18,18 @@
 namespace margelo {
 
 EngineWrapper::EngineWrapper() {
-  _engine = Engine::create();
+  _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) { engine->destroy(&engine); });
   _materialProvider = filament::gltfio::createUbershaderProvider(_engine, UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
   _assetLoader =
       filament::gltfio::AssetLoader::create(filament::gltfio::AssetConfiguration{.engine = _engine, .materials = _materialProvider});
 }
 
 EngineWrapper::~EngineWrapper() {
-  if (_swapChain) {
-    _engine->destroy(_swapChain);
-  }
+  // if (_swapChain) {
+  //   _engine->destroy(_swapChain);
+  // }
   _assetLoader->destroy(&_assetLoader);
   _materialProvider->destroyMaterials();
-  _engine->destroy(&_engine);
 }
 
 void EngineWrapper::loadHybridMethods() {
@@ -51,22 +51,16 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
   Listener listener = surfaceProvider->addOnSurfaceChangedListener(
       SurfaceProvider::Callback{.onSurfaceCreated = [=](std::shared_ptr<Surface> surface) { this->setSurface(surface); },
                                 .onSurfaceDestroyed = [=](std::shared_ptr<Surface> surface) { this->destroySurface(); }});
-  _listener = std::make_unique<Listener>(std::move(listener));
+  _listener = std::make_shared<Listener>(std::move(listener));
 }
 
 void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
   void* nativeWindow = surface->getSurface();
-  if (_swapChain == nullptr || _swapChain->getNativeWindow() != nativeWindow) {
-    destroySurface();
-    _swapChain = _engine->createSwapChain(nativeWindow);
-  }
+  // TODO: do something with surface
 }
 
 void EngineWrapper::destroySurface() {
-  if (_swapChain != nullptr) {
-    _engine->destroy(_swapChain);
-    _swapChain = nullptr;
-  }
+  // TODO: destroy surface
 }
 
 std::shared_ptr<RendererWrapper> EngineWrapper::createRenderer() {
