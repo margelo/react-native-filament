@@ -4,15 +4,18 @@
 
 #pragma once
 
+#include "jsi/HybridObject.h"
 #include <functional>
 
 namespace margelo {
 
-class Listener {
+class Listener : public HybridObject {
 public:
   explicit Listener(std::function<void()> remove);
   ~Listener();
   void remove();
+
+  void loadHybridMethods() override;
 
 private:
   std::function<void()> _remove;

@@ -14,13 +14,8 @@ Listener SurfaceProvider::addOnSurfaceChangedListener(margelo::SurfaceProvider::
   std::unique_lock lock(_mutex);
 
   _callbacks.push_back(std::move(callback));
-  size_t index = _callbacks.size();
-
-  return Listener([weakThis = this, index]() {
-    if (weakThis != nullptr) {
-      std::unique_lock lock(weakThis->_mutex);
-      weakThis->_callbacks.erase(weakThis->_callbacks.begin() + index);
-    }
+  return Listener([]() {
+    // TODO: Find a safe way to remove this listener from the vector.
   });
 }
 

@@ -25,4 +25,8 @@ std::shared_ptr<FilamentView> AndroidFilamentProxy::findFilamentView(int id) {
   return _proxy->cthis()->findFilamentView(id);
 }
 
+std::shared_ptr<Choreographer> AndroidFilamentProxy::createChoreographer() {
+  return _proxy->cthis()->createChoreographer();
+}
+
 } // namespace margelo

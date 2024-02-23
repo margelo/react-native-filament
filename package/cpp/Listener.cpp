@@ -20,4 +20,8 @@ void Listener::remove() {
   _isRemoved = true;
 }
 
+void Listener::loadHybridMethods() {
+  registerHybridMethod("remove", &Listener::remove, this);
+}
+
 } // namespace margelo
