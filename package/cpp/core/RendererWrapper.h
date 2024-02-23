@@ -9,13 +9,12 @@ using namespace filament;
 
 class RendererWrapper : public HybridObject {
 public:
-  explicit RendererWrapper(Renderer* renderer);
-  ~RendererWrapper();
+  explicit RendererWrapper(const std::shared_ptr<Renderer>& renderer);
 
   void loadHybridMethods() override;
 
 private:
-  Renderer* _renderer;
+  std::shared_ptr<Renderer> _renderer;
 };
 
 } // namespace margelo

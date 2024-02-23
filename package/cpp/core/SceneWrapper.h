@@ -11,12 +11,16 @@ using namespace filament;
 
 class SceneWrapper : public HybridObject {
 public:
-  explicit SceneWrapper(Scene* scene) : _scene(scene) {}
-  ~SceneWrapper();
+  explicit SceneWrapper(const std::shared_ptr<Scene>& scene) : _scene(std::move(scene)) {}
 
   void loadHybridMethods() override;
 
-  Scene* _scene;
+  std::shared_ptr<Scene> getScene() {
+    return _scene;
+  }
+
+private:
+  std::shared_ptr<Scene> _scene;
 
 private:
   void addEntity(std::shared_ptr<EntityWrapper> entity);

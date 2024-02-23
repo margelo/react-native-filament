@@ -14,7 +14,7 @@ void ViewWrapper::loadHybridMethods() {
 
 void ViewWrapper::setScene(std::shared_ptr<SceneWrapper> scene) {
   _scene = scene;
-  _view->setScene(scene->_scene);
+  _view->setScene(scene->getScene().get());
 }
 
 std::shared_ptr<SceneWrapper> ViewWrapper::getScene() {
@@ -23,7 +23,7 @@ std::shared_ptr<SceneWrapper> ViewWrapper::getScene() {
 
 void ViewWrapper::setCamera(std::shared_ptr<CameraWrapper> camera) {
   _camera = camera;
-  _view->setCamera(camera->getCamera());
+  _view->setCamera(camera->getCamera().get());
 }
 
 std::shared_ptr<CameraWrapper> ViewWrapper::getCamera() {

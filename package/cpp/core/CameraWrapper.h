@@ -9,16 +9,15 @@ using namespace filament;
 
 class CameraWrapper : public HybridObject {
 public:
-  explicit CameraWrapper(Camera* camera) : _camera(camera) {}
-  ~CameraWrapper();
+  explicit CameraWrapper(const std::shared_ptr<Camera>& camera) : _camera(std::move(camera)) {}
 
   void loadHybridMethods() override;
 
-  Camera* getCamera() {
+  const std::shared_ptr<Camera>& getCamera() {
     return _camera;
   }
 
 private:
-  Camera* _camera;
+  std::shared_ptr<Camera> _camera;
 };
 } // namespace margelo
