@@ -9,8 +9,8 @@
 
 namespace margelo {
 
-EngineWrapper::EngineWrapper(filament::Engine::Backend backend) {
-  _engine = Engine::create(backend);
+EngineWrapper::EngineWrapper() {
+  _engine = Engine::create();
 }
 
 EngineWrapper::~EngineWrapper() {
@@ -22,6 +22,7 @@ EngineWrapper::~EngineWrapper() {
 
 void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider, this);
+  registerHybridMethod("createRenderer", &EngineWrapper::createRenderer, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
@@ -50,6 +51,10 @@ void EngineWrapper::destroySurface() {
     _engine->destroy(_swapChain);
     _swapChain = nullptr;
   }
+}
+
+std::shared_ptr<RendererWrapper> EngineWrapper::createRenderer() {
+    return std::make_shared<RendererWrapper>(_engine->createRenderer());
 }
 
 } // namespace margelo

@@ -14,14 +14,19 @@ namespace margelo {
 
 using namespace facebook;
 
-std::shared_ptr<TestHybridObject> FilamentProxy::createTestObject() {
-  return std::make_shared<TestHybridObject>();
-}
-
 void FilamentProxy::loadHybridMethods() {
   registerHybridMethod("loadModel", &FilamentProxy::loadModel, this);
   registerHybridMethod("findFilamentView", &FilamentProxy::findFilamentView, this);
   registerHybridMethod("createTestObject", &FilamentProxy::createTestObject, this);
+  registerHybridMethod("createEngine", &FilamentProxy::createEngine, this);
+}
+
+std::shared_ptr<TestHybridObject> FilamentProxy::createTestObject() {
+    return std::make_shared<TestHybridObject>();
+}
+
+std::shared_ptr<EngineWrapper> FilamentProxy::createEngine() {
+    return std::make_shared<EngineWrapper>();
 }
 
 } // namespace margelo

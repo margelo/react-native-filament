@@ -10,6 +10,7 @@
 #include <filament/SwapChain.h>
 
 #include "jsi/HybridObject.h"
+#include "RendererWrapper.h"
 
 namespace margelo {
 
@@ -17,7 +18,7 @@ using namespace filament;
 
 class EngineWrapper : public HybridObject {
 public:
-  explicit EngineWrapper(filament::Engine::Backend backend);
+  explicit EngineWrapper();
   ~EngineWrapper();
 
   void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
@@ -27,6 +28,8 @@ public:
 private:
   void setSurface(std::shared_ptr<Surface> surface);
   void destroySurface();
+  // Wrapper methods
+  std::shared_ptr<RendererWrapper> createRenderer();
 
 private:
   Engine* _engine;
