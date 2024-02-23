@@ -1,5 +1,6 @@
 import { FilamentNativeModule } from './FilamentNativeModule'
 import type { Engine } from './FilamentTypes'
+import { TFilamentView } from './FilamentViewTypes'
 
 interface Listener {
   remove(): void
@@ -20,25 +21,6 @@ interface TestHybridObject {
   sayHelloCallback(callback: () => string): void
   createNewHybridObject: () => TestHybridObject
   enum: 'first' | 'second' | 'third'
-}
-
-export interface TSurface {
-  width: number
-  height: number
-}
-
-export interface TSurfaceProvider {
-  /**
-   * @private
-   */
-  getSurface(): TSurface
-}
-
-export interface TFilamentView {
-  /**
-   * @private
-   */
-  getSurfaceProvider(): TSurfaceProvider
 }
 
 export interface TFilamentProxy {

@@ -35,6 +35,7 @@ add_library(
         ../cpp/core/SceneWrapper.cpp
         ../cpp/core/CameraWrapper.cpp
         ../cpp/core/ViewWrapper.cpp
+        ../cpp/core/SwapChainWrapper.cpp
 
         # Filament Utils
         ../cpp/core/utils/EntityWrapper.cpp
