@@ -8,6 +8,8 @@
 #include "SurfaceProvider.h"
 #include <filament/Engine.h>
 #include <filament/SwapChain.h>
+#include <gltfio/MaterialProvider.h>
+#include <gltfio/AssetLoader.h>
 
 #include "CameraWrapper.h"
 #include "RendererWrapper.h"
@@ -42,6 +44,10 @@ private:
   SwapChain* _swapChain;
   std::shared_ptr<SurfaceProvider> _surfaceProvider;
   std::unique_ptr<Listener> _listener;
+
+  // Internals that we might need to split out later
+  filament::gltfio::MaterialProvider* _materialProvider;
+  filament::gltfio::AssetLoader* _assetLoader;
 };
 
 } // namespace margelo

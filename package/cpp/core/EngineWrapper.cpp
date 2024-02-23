@@ -8,16 +8,23 @@
 #include <filament/SwapChain.h>
 #include <utils/EntityManager.h>
 
+#include <gltfio/MaterialProvider.h>
+#include <gltfio/materials/uberarchive.h>
+
 namespace margelo {
 
 EngineWrapper::EngineWrapper() {
   _engine = Engine::create();
+  _materialProvider = filament::gltfio::createUbershaderProvider(_engine, UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
+  _assetLoader = filament::gltfio::AssetLoader::create(filament::gltfio::AssetConfiguration{.engine = _engine, .materials = _materialProvider});
 }
 
 EngineWrapper::~EngineWrapper() {
   if (_swapChain) {
     _engine->destroy(_swapChain);
   }
+  _assetLoader->destroy(&_assetLoader);
+  _materialProvider->destroyMaterials();
   _engine->destroy(&_engine);
 }
 
