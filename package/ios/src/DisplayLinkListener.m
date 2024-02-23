@@ -30,7 +30,7 @@
   _displayLink = nil;
 }
 
-- (void)onFrame:(CADisplayLink *)displayLink {
+- (void)onFrame:(CADisplayLink*)displayLink {
   _callback(displayLink.timestamp);
 }
 

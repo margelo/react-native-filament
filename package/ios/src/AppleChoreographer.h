@@ -12,13 +12,13 @@
 
 namespace margelo {
 
-class AppleChoreographer: public Choreographer {
+class AppleChoreographer : public Choreographer {
 public:
   explicit AppleChoreographer();
-  
+
   void stop() override;
   void start() override;
-  
+
 private:
   DisplayLinkListener* _displayLink;
 };

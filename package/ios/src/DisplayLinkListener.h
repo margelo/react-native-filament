@@ -11,11 +11,11 @@
 #import <QuartzCore/CADisplayLink.h>
 
 @interface DisplayLinkListener : NSObject
-typedef void (^ OnFrameCallback)(double timestamp);
+typedef void (^OnFrameCallback)(double timestamp);
 
-- (instancetype) initWithCallback:(OnFrameCallback)callback;
-- (void) start;
-- (void) stop;
-- (void) onFrame:(CADisplayLink*)displayLink;
+- (instancetype)initWithCallback:(OnFrameCallback)callback;
+- (void)start;
+- (void)stop;
+- (void)onFrame:(CADisplayLink*)displayLink;
 
 @end
