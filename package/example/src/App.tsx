@@ -15,6 +15,18 @@ const defaultLight = engine.createDefaultLight()
 scene.addEntity(defaultLight)
 
 export default function App() {
+  React.useEffect(() => {
+    const choreographer = FilamentProxy.createChoreographer()
+    choreographer.addOnFrameListener((timestamp: number) => {
+      // TODO: invoke renderer logic here
+    })
+    choreographer.start()
+
+    return () => {
+      choreographer.stop()
+    }
+  }, [])
+
   return (
     <View style={styles.container}>
       <FilamentView style={styles.filamentView} />

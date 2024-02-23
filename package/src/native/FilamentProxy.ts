@@ -22,6 +22,25 @@ interface TestHybridObject {
   enum: 'first' | 'second' | 'third'
 }
 
+export interface TSurface {
+  width: number
+  height: number
+}
+
+export interface TSurfaceProvider {
+  /**
+   * @private
+   */
+  getSurface(): TSurface
+}
+
+export interface TFilamentView {
+  /**
+   * @private
+   */
+  getSurfaceProvider(): TSurfaceProvider
+}
+
 export interface TFilamentProxy {
   /**
    * Loads a 3D Model from the given path.
@@ -36,6 +55,10 @@ export interface TFilamentProxy {
    * @private
    */
   createTestObject(): TestHybridObject
+  /**
+   * @private
+   */
+  findFilamentView(viewTag: number): TFilamentView
 
   /**
    * Creates a new engine. You should only call this once.

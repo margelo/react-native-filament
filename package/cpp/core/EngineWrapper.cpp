@@ -56,11 +56,17 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
 
 void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
   void* nativeWindow = surface->getSurface();
-  // TODO: do something with surface
+  _swapChain = References<SwapChain>::adoptEngineRef(
+      _engine, _engine->createSwapChain(nativeWindow, SwapChain::CONFIG_TRANSPARENT),
+      [](const std::shared_ptr<Engine>& engine, SwapChain* swapChain) { engine->destroy(swapChain); });
 }
 
 void EngineWrapper::destroySurface() {
-  // TODO: destroy surface
+  if (_swapChain) {
+    _engine->destroy(_swapChain.get());
+    _engine->flushAndWait();
+    _swapChain = nullptr;
+  }
 }
 
 std::shared_ptr<RendererWrapper> EngineWrapper::createRenderer() {

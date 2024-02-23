@@ -29,14 +29,13 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
   }
 
   componentDidMount() {
+    // TODO: lets get rid of this timeout
     setTimeout(() => {
-      // TODO(hanno): Create types for all the things you expose as HybridObjects.
-      // @ts-expect-error
       const view = FilamentProxy.findFilamentView(this.handle)
       const surfaceProvider = view.getSurfaceProvider()
       const surface = surfaceProvider.getSurface()
       console.log('Surface Width: ' + surface.width)
-    }, 1500)
+    }, 100)
   }
 
   /** @internal */
