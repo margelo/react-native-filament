@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SwapChainWrapper.h"
+#include "ViewWrapper.h"
 #include "jsi/HybridObject.h"
 #include <filament/Renderer.h>
 
@@ -15,6 +17,11 @@ public:
 
 private:
   std::shared_ptr<Renderer> _renderer;
+
+private:
+  bool beginFrame(std::shared_ptr<SwapChainWrapper> swapChain, double frameTimeNanos);
+  void render(std::shared_ptr<ViewWrapper> view);
+  void endFrame();
 };
 
 } // namespace margelo
