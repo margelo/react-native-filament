@@ -15,6 +15,10 @@ public:
 
   void loadHybridMethods() override;
 
+  std::shared_ptr<View> getView() {
+    return _view;
+  }
+
 private:
   void setScene(std::shared_ptr<SceneWrapper> scene);
   std::shared_ptr<SceneWrapper> getScene();
