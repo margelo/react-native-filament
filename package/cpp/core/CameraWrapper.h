@@ -14,6 +14,11 @@ public:
 
   void loadHybridMethods() override;
 
+  Camera* getCamera() {
+    return _camera;
+  }
+
+private:
   Camera* _camera;
 };
 } // namespace margelo

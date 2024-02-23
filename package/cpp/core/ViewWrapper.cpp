@@ -23,7 +23,7 @@ std::shared_ptr<SceneWrapper> ViewWrapper::getScene() {
 
 void ViewWrapper::setCamera(std::shared_ptr<CameraWrapper> camera) {
   _camera = camera;
-  _view->setCamera(camera->_camera);
+  _view->setCamera(camera->getCamera());
 }
 
 std::shared_ptr<CameraWrapper> ViewWrapper::getCamera() {
