@@ -6,6 +6,7 @@
 
 #include <filament/Engine.h>
 #include <filament/SwapChain.h>
+#include <utils/EntityManager.h>
 
 namespace margelo {
 
@@ -23,6 +24,7 @@ EngineWrapper::~EngineWrapper() {
 void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider, this);
   registerHybridMethod("createRenderer", &EngineWrapper::createRenderer, this);
+  registerHybridMethod("createCamera", &EngineWrapper::createCamera, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
@@ -55,6 +57,13 @@ void EngineWrapper::destroySurface() {
 
 std::shared_ptr<RendererWrapper> EngineWrapper::createRenderer() {
   return std::make_shared<RendererWrapper>(_engine->createRenderer());
+}
+
+std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
+  Camera* camera = _engine->createCamera(_engine->getEntityManager().create());
+  // TODO: make this configurable / expose setExposure to JS
+  camera->setExposure(16.0f, 1.0f / 125.0f, 100.0f);
+  return std::make_shared<CameraWrapper>(camera);
 }
 
 } // namespace margelo

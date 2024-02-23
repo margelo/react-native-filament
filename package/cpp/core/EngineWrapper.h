@@ -9,6 +9,7 @@
 #include <filament/Engine.h>
 #include <filament/SwapChain.h>
 
+#include "CameraWrapper.h"
 #include "RendererWrapper.h"
 #include "jsi/HybridObject.h"
 
@@ -30,6 +31,7 @@ private:
   void destroySurface();
   // Wrapper methods
   std::shared_ptr<RendererWrapper> createRenderer();
+  std::shared_ptr<CameraWrapper> createCamera();
 
 private:
   Engine* _engine;

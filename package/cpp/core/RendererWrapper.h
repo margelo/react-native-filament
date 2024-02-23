@@ -1,3 +1,5 @@
+#pragma once
+
 #include "jsi/HybridObject.h"
 #include <filament/Renderer.h>
 
@@ -7,7 +9,7 @@ using namespace filament;
 
 class RendererWrapper : public HybridObject {
 public:
-  explicit RendererWrapper(Renderer* renderer) : _renderer(renderer) {}
+  explicit RendererWrapper(Renderer* renderer);
   ~RendererWrapper();
 
   void loadHybridMethods() override;
