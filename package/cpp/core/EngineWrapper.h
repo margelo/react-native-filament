@@ -44,10 +44,9 @@ private:
   std::shared_ptr<EntityWrapper> createDefaultLight();
 
 private:
-  Engine* _engine;
-  SwapChain* _swapChain;
+  std::shared_ptr<Engine> _engine;
   std::shared_ptr<SurfaceProvider> _surfaceProvider;
-  std::unique_ptr<Listener> _listener;
+  std::shared_ptr<Listener> _listener;
 
   // Internals that we might need to split out later
   filament::gltfio::MaterialProvider* _materialProvider;
