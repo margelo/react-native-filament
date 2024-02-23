@@ -1,7 +1,12 @@
 import * as React from 'react'
 
 import { StyleSheet, View } from 'react-native'
-import { FilamentView } from 'react-native-filament'
+import { FilamentView, FilamentProxy } from 'react-native-filament'
+
+const engine = FilamentProxy.createEngine()
+const renderer = engine.createRenderer()
+console.log('Engine:', engine)
+console.log('Renderer:', renderer)
 
 export default function App() {
   return (

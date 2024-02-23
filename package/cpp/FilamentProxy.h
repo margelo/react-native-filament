@@ -8,6 +8,7 @@
 
 #include <string>
 #include <vector>
+#include <core/EngineWrapper.h>
 
 #include "FilamentView.h"
 #include "jsi/HybridObject.h"
@@ -22,7 +23,11 @@ private:
   virtual int loadModel(std::string path) = 0;
   virtual std::shared_ptr<FilamentView> findFilamentView(int id) = 0;
 
+  // For testing
   std::shared_ptr<TestHybridObject> createTestObject();
+
+  // Public API
+  std::shared_ptr<EngineWrapper> createEngine();
 
 public:
   void loadHybridMethods() override;
