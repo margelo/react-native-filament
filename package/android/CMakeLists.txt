@@ -26,12 +26,17 @@ add_library(
         ../cpp/Listener.cpp
         ../cpp/jsi/HybridObject.cpp
         ../cpp/jsi/Promise.cpp
+        ../cpp/test/TestHybridObject.cpp
+
+        # Filament Core
         ../cpp/core/EngineWrapper.cpp
         ../cpp/core/RendererWrapper.cpp
         ../cpp/core/SceneWrapper.cpp
         ../cpp/core/CameraWrapper.cpp
         ../cpp/core/ViewWrapper.cpp
-        ../cpp/test/TestHybridObject.cpp
+
+        # Filament Utils
+        ../cpp/core/utils/EntityWrapper.cpp
 
         # Java JNI
         src/main/cpp/AndroidFilamentProxy.cpp

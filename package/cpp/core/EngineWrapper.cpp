@@ -4,8 +4,11 @@
 
 #include "EngineWrapper.h"
 
+#include <filament/Color.h>
 #include <filament/Engine.h>
+#include <filament/LightManager.h>
 #include <filament/SwapChain.h>
+#include <utils/Entity.h>
 #include <utils/EntityManager.h>
 
 #include <gltfio/MaterialProvider.h>
@@ -16,7 +19,8 @@ namespace margelo {
 EngineWrapper::EngineWrapper() {
   _engine = Engine::create();
   _materialProvider = filament::gltfio::createUbershaderProvider(_engine, UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
-  _assetLoader = filament::gltfio::AssetLoader::create(filament::gltfio::AssetConfiguration{.engine = _engine, .materials = _materialProvider});
+  _assetLoader =
+      filament::gltfio::AssetLoader::create(filament::gltfio::AssetConfiguration{.engine = _engine, .materials = _materialProvider});
 }
 
 EngineWrapper::~EngineWrapper() {
@@ -34,6 +38,7 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("createScene", &EngineWrapper::createScene, this);
   registerHybridMethod("createCamera", &EngineWrapper::createCamera, this);
   registerHybridMethod("createView", &EngineWrapper::createView, this);
+  registerHybridMethod("createDefaultLight", &EngineWrapper::createDefaultLight, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
@@ -81,6 +86,19 @@ std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
 
 std::shared_ptr<ViewWrapper> EngineWrapper::createView() {
   return std::make_shared<ViewWrapper>(_engine->createView());
+}
+
+std::shared_ptr<EntityWrapper> EngineWrapper::createDefaultLight() {
+  // Create default directional light (In ModelViewer this is the default, so we use it here as well)
+  // TODO: Remove this any make this configurable / expose setExposure to JS
+  auto lightEntity = _engine->getEntityManager().create();
+  LightManager::Builder(LightManager::Type::DIRECTIONAL)
+      .color(Color::cct(6500.0f))
+      .intensity(10000)
+      .direction({0, -1, 0})
+      .castShadows(true)
+      .build(*_engine, lightEntity);
+  return std::make_shared<EntityWrapper>(lightEntity);
 }
 
 } // namespace margelo

@@ -11,6 +11,9 @@ const view = engine.createView()
 view.scene = scene
 view.camera = camera
 
+const defaultLight = engine.createDefaultLight()
+scene.addEntity(defaultLight)
+
 export default function App() {
   return (
     <View style={styles.container}>
