@@ -4,20 +4,14 @@
 
 #include "EngineWrapper.h"
 
+#include "References.h"
 #include <filament/Engine.h>
 #include <filament/SwapChain.h>
 
 namespace margelo {
 
 EngineWrapper::EngineWrapper(filament::Engine::Backend backend) {
-  _engine = Engine::create(backend);
-}
-
-EngineWrapper::~EngineWrapper() {
-  if (_swapChain) {
-    _engine->destroy(_swapChain);
-  }
-  _engine->destroy(&_engine);
+  _engine = References<Engine>::adoptRef(Engine::create(backend), [](Engine* engine) { engine->destroy(&engine); });
 }
 
 void EngineWrapper::loadHybridMethods() {
@@ -39,17 +33,11 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
 
 void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
   void* nativeWindow = surface->getSurface();
-  if (_swapChain == nullptr || _swapChain->getNativeWindow() != nativeWindow) {
-    destroySurface();
-    _swapChain = _engine->createSwapChain(nativeWindow);
-  }
+  // TODO: do something with surface
 }
 
 void EngineWrapper::destroySurface() {
-  if (_swapChain != nullptr) {
-    _engine->destroy(_swapChain);
-    _swapChain = nullptr;
-  }
+  // TODO: destroy surface
 }
 
 } // namespace margelo
