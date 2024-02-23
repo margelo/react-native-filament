@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "References.h"
 #include "Surface.h"
 #include "SurfaceProvider.h"
 #include <filament/Engine.h>
