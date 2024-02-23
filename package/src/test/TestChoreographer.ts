@@ -12,13 +12,12 @@ export async function testChoreographer() {
   console.log('Created Choreographer!', choreographer, 'Adding onFrame listener...')
 
   let calls = 0
-  choreographer.addOnFrameListener((timestamp) => {
-    console.log(`Choreographer::onFrame(${timestamp})`)
+  choreographer.addOnFrameListener((_timestamp) => {
     calls++
   })
   choreographer.start()
-  await timeout(500)
-  console.log(`onFrame called ${calls} times in 500ms! Stopping...`)
+  await timeout(1000)
+  console.log(`onFrame called ${calls} times in 1000ms, so it's running at ${calls} FPS! Stopping...`)
   const finalCalls = calls
   choreographer.stop()
   await timeout(500)

@@ -1,7 +1,6 @@
 import { FilamentProxy } from '../native/FilamentProxy'
 
 export function testHybridObject() {
-  console.log('------ BEGIN HybridObject tests...')
   // 1. Creation
   console.log('Creating HybridObject...')
   const hybridObject = FilamentProxy.createTestObject()
@@ -37,6 +36,4 @@ export function testHybridObject() {
   // 8. Create a new one
   const newObject = hybridObject.createNewHybridObject()
   console.log(`Created new hybrid object!`, newObject)
-
-  console.log('------ END HybridObject tests!')
 }
