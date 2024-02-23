@@ -1,7 +1,7 @@
 #pragma once
 
-#include "jsi/HybridObject.h"
 #include "core/utils/EntityWrapper.h"
+#include "jsi/HybridObject.h"
 
 #include <filament/Scene.h>
 #include <utils/Entity.h>
@@ -19,6 +19,6 @@ public:
   Scene* _scene;
 
 private:
-    void addEntity(std::shared_ptr<EntityWrapper> entity);
+  void addEntity(std::shared_ptr<EntityWrapper> entity);
 };
 } // namespace margelo

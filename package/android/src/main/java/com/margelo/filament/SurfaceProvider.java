@@ -1,5 +1,7 @@
 package com.margelo.filament;
 
+import android.graphics.PixelFormat;
+import android.view.Choreographer;
 import android.view.SurfaceHolder;
 
 import androidx.annotation.Keep;
@@ -17,6 +19,8 @@ public class SurfaceProvider {
 
     SurfaceProvider(SurfaceHolder holder) {
         mHybridData = initHybrid();
+        // Support transparent background
+        holder.setFormat(PixelFormat.TRANSLUCENT);
         holder.addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(@NonNull SurfaceHolder surfaceHolder) {

@@ -98,7 +98,7 @@ std::shared_ptr<EntityWrapper> EngineWrapper::createDefaultLight() {
       .direction({0, -1, 0})
       .castShadows(true)
       .build(*_engine, lightEntity);
-  return std::make_shared<EntityWrapper>(lightEntity);
+  return std::make_shared<EntityWrapper>(std::move(lightEntity));
 }
 
 } // namespace margelo
