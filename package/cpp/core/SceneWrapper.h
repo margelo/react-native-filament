@@ -1,8 +1,10 @@
 #pragma once
 
 #include "jsi/HybridObject.h"
+#include "core/utils/EntityWrapper.h"
 
 #include <filament/Scene.h>
+#include <utils/Entity.h>
 
 namespace margelo {
 using namespace filament;
@@ -15,5 +17,8 @@ public:
   void loadHybridMethods() override;
 
   Scene* _scene;
+
+private:
+    void addEntity(std::shared_ptr<EntityWrapper> entity);
 };
 } // namespace margelo

@@ -6,10 +6,11 @@
 
 #include "Surface.h"
 #include "SurfaceProvider.h"
+#include <core/utils/EntityWrapper.h>
 #include <filament/Engine.h>
 #include <filament/SwapChain.h>
-#include <gltfio/MaterialProvider.h>
 #include <gltfio/AssetLoader.h>
+#include <gltfio/MaterialProvider.h>
 
 #include "CameraWrapper.h"
 #include "RendererWrapper.h"
@@ -38,6 +39,9 @@ private:
   std::shared_ptr<SceneWrapper> createScene();
   std::shared_ptr<CameraWrapper> createCamera();
   std::shared_ptr<ViewWrapper> createView();
+
+  // Custom simplification methods
+  std::shared_ptr<EntityWrapper> createDefaultLight();
 
 private:
   Engine* _engine;

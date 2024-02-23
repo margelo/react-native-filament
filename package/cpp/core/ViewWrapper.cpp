@@ -6,10 +6,10 @@ ViewWrapper::~ViewWrapper() {
 }
 
 void ViewWrapper::loadHybridMethods() {
-    registerHybridSetter("scene", &ViewWrapper::setScene, this);
-    registerHybridGetter("scene", &ViewWrapper::getScene, this);
-    registerHybridSetter("camera", &ViewWrapper::setCamera, this);
-    registerHybridGetter("camera", &ViewWrapper::getCamera, this);
+  registerHybridSetter("scene", &ViewWrapper::setScene, this);
+  registerHybridGetter("scene", &ViewWrapper::getScene, this);
+  registerHybridSetter("camera", &ViewWrapper::setCamera, this);
+  registerHybridGetter("camera", &ViewWrapper::getCamera, this);
 }
 
 void ViewWrapper::setScene(std::shared_ptr<SceneWrapper> scene) {
@@ -27,6 +27,6 @@ void ViewWrapper::setCamera(std::shared_ptr<CameraWrapper> camera) {
 }
 
 std::shared_ptr<CameraWrapper> ViewWrapper::getCamera() {
-    return _camera;
+  return _camera;
 }
 } // namespace margelo

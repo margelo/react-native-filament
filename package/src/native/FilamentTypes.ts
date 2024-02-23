@@ -38,7 +38,9 @@ export interface Renderer {}
  * @see RenderableManager
  * @see TransformManager
  */
-export interface Scene {}
+export interface Scene {
+  addEntity(entity: Entity): void
+}
 
 /**
  * Camera represents the eye through which the scene is viewed.
@@ -142,9 +144,14 @@ export interface View {
   scene: Scene
 }
 
+// TODO: I think entities are at their core just numbers maybe we can expose them just as such to JS
+export interface Entity {}
+
 export interface Engine {
   createRenderer(): Renderer
   createScene(): Scene
   createCamera(): Camera
   createView(): View
+
+  createDefaultLight(): Entity
 }
