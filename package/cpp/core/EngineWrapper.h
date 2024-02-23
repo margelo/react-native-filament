@@ -19,7 +19,6 @@ using namespace filament;
 class EngineWrapper : public HybridObject {
 public:
   explicit EngineWrapper(filament::Engine::Backend backend);
-  ~EngineWrapper();
 
   void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
 

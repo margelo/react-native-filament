@@ -14,8 +14,6 @@ EngineWrapper::EngineWrapper(filament::Engine::Backend backend) {
   _engine = References<Engine>::adoptRef(Engine::create(backend), [](Engine* engine) { engine->destroy(&engine); });
 }
 
-EngineWrapper::~EngineWrapper() {}
-
 void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider, this);
 }
