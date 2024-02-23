@@ -39,6 +39,13 @@ class FilamentProxy {
     /** @noinspection unused*/
     @DoNotStrip
     @Keep
+    FilamentChoreographer createChoreographer() {
+        return new FilamentChoreographer();
+    }
+
+    /** @noinspection unused*/
+    @DoNotStrip
+    @Keep
     int loadModel(String path) {
         // TODO(hanno): Implement Java part here
         return 13;
