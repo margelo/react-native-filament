@@ -100,6 +100,8 @@ export interface Scene {
   addEntity(entity: Entity): void
 }
 
+export interface Manipulator {}
+
 /**
  * Camera represents the eye through which the scene is viewed.
  *
@@ -177,7 +179,10 @@ export interface Scene {
  *
  * @see View
  */
-export interface Camera {}
+export interface Camera {
+  // Convenience method. The original method works slightly different, this is a simplification, so we don't have to deal with out params.
+  lookAt(cameraManipulator: Manipulator): void
+}
 
 /**
  * Encompasses all the state needed for rendering a {@link Scene}.
@@ -200,6 +205,7 @@ export interface Camera {}
 export interface View {
   camera: Camera
   scene: Scene
+  setViewport(x: number, y: number, width: number, height: number): void
 }
 
 // TODO: I think entities are at their core just numbers maybe we can expose them just as such to JS
@@ -252,5 +258,7 @@ export interface Engine {
   createView(): View
   createSwapChain(surface: TSurface): SwapChain
 
+  // Convenience methods:
   createDefaultLight(): Entity
+  createCameraManipulator(screenWidth: number, screenHeight: number): Manipulator
 }

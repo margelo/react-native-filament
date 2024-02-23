@@ -2,6 +2,7 @@
 
 #include "jsi/HybridObject.h"
 
+#include "utils/ManipulatorWrapper.h"
 #include <filament/Camera.h>
 
 namespace margelo {
@@ -19,5 +20,9 @@ public:
 
 private:
   std::shared_ptr<Camera> _camera;
+
+private:
+  // Convenience methods
+  void lookAt(std::shared_ptr<ManipulatorWrapper> cameraManipulator);
 };
 } // namespace margelo

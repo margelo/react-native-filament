@@ -18,6 +18,7 @@
 namespace margelo {
 
 EngineWrapper::EngineWrapper() {
+  // TODO: make the enum for the backend for the engine configurable
   _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) { engine->destroy(&engine); });
   _materialProvider = filament::gltfio::createUbershaderProvider(_engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
   _assetLoader =
@@ -35,8 +36,11 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("createScene", &EngineWrapper::createScene, this);
   registerHybridMethod("createCamera", &EngineWrapper::createCamera, this);
   registerHybridMethod("createView", &EngineWrapper::createView, this);
-  registerHybridMethod("createDefaultLight", &EngineWrapper::createDefaultLight, this);
   registerHybridMethod("createSwapChain", &EngineWrapper::createSwapChain, this);
+
+  // Custom simplification methods
+  registerHybridMethod("createDefaultLight", &EngineWrapper::createDefaultLight, this);
+  registerHybridMethod("createCameraManipulator", &EngineWrapper::createCameraManipulator, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
@@ -113,6 +117,14 @@ std::shared_ptr<EntityWrapper> EngineWrapper::createDefaultLight() {
       .castShadows(true)
       .build(*_engine, lightEntity);
   return std::make_shared<EntityWrapper>(std::move(lightEntity));
+}
+
+std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator(int width, int height) {
+  ManipulatorBuilder* builder = new ManipulatorBuilder();
+  builder->targetPosition(0.0f, 0.0f, -4.0f); // kDefaultObjectPosition
+  builder->viewport(width, height);
+  std::shared_ptr<Manipulator<float>> manipulator = std::shared_ptr<Manipulator<float>>(builder->build(Mode::ORBIT));
+  return std::make_shared<ManipulatorWrapper>(manipulator);
 }
 
 } // namespace margelo

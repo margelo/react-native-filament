@@ -56,12 +56,18 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
     const view = engine.createView()
     view.scene = scene
     view.camera = camera
+    // TODO: setting the viewport currently crashes the renderer
+    // view.setViewport(0, 0, surface.width, surface.height)
 
     const defaultLight = engine.createDefaultLight()
     scene.addEntity(defaultLight)
 
+    const cameraManipulator = engine.createCameraManipulator(surface.width, surface.height)
+
     // Start the rendering loop:
     this.choreographer.addOnFrameListener((timestamp) => {
+      camera.lookAt(cameraManipulator)
+
       // Render the scene, unless the renderer wants to skip the frame.
       if (renderer.beginFrame(swapChain, timestamp)) {
         renderer.render(view)
