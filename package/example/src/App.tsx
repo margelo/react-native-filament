@@ -5,7 +5,11 @@ import { FilamentView, FilamentProxy } from 'react-native-filament'
 
 const engine = FilamentProxy.createEngine()
 const renderer = engine.createRenderer()
+const scene = engine.createScene()
 const camera = engine.createCamera()
+const view = engine.createView()
+view.scene = scene
+view.camera = camera
 
 export default function App() {
   return (

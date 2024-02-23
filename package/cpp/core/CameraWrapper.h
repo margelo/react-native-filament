@@ -14,7 +14,6 @@ public:
 
   void loadHybridMethods() override;
 
-private:
   Camera* _camera;
 };
 } // namespace margelo

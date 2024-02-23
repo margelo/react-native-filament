@@ -1,4 +1,5 @@
 import { FilamentNativeModule } from './FilamentNativeModule'
+import type { Engine } from './FilamentTypes'
 
 interface TestHybridObject {
   int: number
@@ -9,11 +10,6 @@ interface TestHybridObject {
   sayHelloCallback(callback: () => string): void
   createNewHybridObject: () => TestHybridObject
   enum: 'first' | 'second' | 'third'
-}
-
-export interface Engine {
-  createRenderer(): unknown
-  createCamera(): unknown
 }
 
 export interface TFilamentProxy {
