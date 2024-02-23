@@ -1,4 +1,5 @@
 #include "FilamentInstaller.h"
+#include "JChoreographer.h"
 #include "JFilamentProxy.h"
 #include "JFilamentView.h"
 #include "JSurfaceProvider.h"
@@ -11,5 +12,6 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
     margelo::JFilamentProxy::registerNatives();
     margelo::JSurfaceProvider::registerNatives();
     margelo::JFilamentView::registerNatives();
+    margelo::JChoreographer::registerNatives();
   });
 }

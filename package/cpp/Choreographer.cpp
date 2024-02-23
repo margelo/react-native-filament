@@ -7,7 +7,9 @@
 namespace margelo {
 
 void Choreographer::loadHybridMethods() {
-  registerHybridMethod("setOnFrameCallback", &Choreographer::addOnFrameListener, this);
+  registerHybridMethod("addOnFrameListener", &Choreographer::addOnFrameListener, this);
+  registerHybridMethod("start", &Choreographer::start, this);
+  registerHybridMethod("stop", &Choreographer::stop, this);
 }
 
 std::shared_ptr<Listener> Choreographer::addOnFrameListener(Choreographer::OnFrameCallback onFrameCallback) {
