@@ -11,7 +11,7 @@ using namespace filament;
 
 class ViewWrapper : public HybridObject {
 public:
-  explicit ViewWrapper(View* view) : _view(view) {}
+  explicit ViewWrapper(std::shared_ptr<View> view) : _view(view) {}
   ~ViewWrapper();
 
   void loadHybridMethods() override;
@@ -23,7 +23,7 @@ private:
   std::shared_ptr<CameraWrapper> getCamera();
 
 private:
-  View* _view;
+  std::shared_ptr<View> _view;
   std::shared_ptr<SceneWrapper> _scene;
   std::shared_ptr<CameraWrapper> _camera;
 };

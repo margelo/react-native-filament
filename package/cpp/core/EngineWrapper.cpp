@@ -19,9 +19,9 @@ namespace margelo {
 
 EngineWrapper::EngineWrapper() {
   _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) { engine->destroy(&engine); });
-  _materialProvider = filament::gltfio::createUbershaderProvider(_engine, UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
+  _materialProvider = filament::gltfio::createUbershaderProvider(_engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
   _assetLoader =
-      filament::gltfio::AssetLoader::create(filament::gltfio::AssetConfiguration{.engine = _engine, .materials = _materialProvider});
+      filament::gltfio::AssetLoader::create(filament::gltfio::AssetConfiguration{.engine = _engine.get(), .materials = _materialProvider});
 }
 
 EngineWrapper::~EngineWrapper() {
@@ -64,22 +64,32 @@ void EngineWrapper::destroySurface() {
 }
 
 std::shared_ptr<RendererWrapper> EngineWrapper::createRenderer() {
-  return std::make_shared<RendererWrapper>(_engine->createRenderer());
+  std::shared_ptr<Renderer> renderer = References<Renderer>::adoptEngineRef(
+      _engine, _engine->createRenderer(), [](const std::shared_ptr<Engine>& engine, Renderer* renderer) { engine->destroy(renderer); });
+  return std::make_shared<RendererWrapper>(renderer);
 }
 
 std::shared_ptr<SceneWrapper> EngineWrapper::createScene() {
-  return std::make_shared<SceneWrapper>(_engine->createScene());
+  std::shared_ptr<Scene> scene = References<Scene>::adoptEngineRef(
+      _engine, _engine->createScene(), [](const std::shared_ptr<Engine>& engine, Scene* scene) { engine->destroy(scene); });
+
+  return std::make_shared<SceneWrapper>(scene);
 }
 
 std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
-  Camera* camera = _engine->createCamera(_engine->getEntityManager().create());
-  // TODO: make this configurable / expose setExposure to JS
+  std::shared_ptr<Camera> camera = References<Camera>::adoptEngineRef(
+      _engine, _engine->createCamera(_engine->getEntityManager().create()),
+      [](const std::shared_ptr<Engine>& engine, Camera* camera) { engine->destroyCameraComponent(camera->getEntity()); });
+
   camera->setExposure(16.0f, 1.0f / 125.0f, 100.0f);
   return std::make_shared<CameraWrapper>(camera);
 }
 
 std::shared_ptr<ViewWrapper> EngineWrapper::createView() {
-  return std::make_shared<ViewWrapper>(_engine->createView());
+  std::shared_ptr view = References<View>::adoptEngineRef(_engine, _engine->createView(),
+                                                          [](const std::shared_ptr<Engine>& engine, View* view) { engine->destroy(view); });
+
+  return std::make_shared<ViewWrapper>(view);
 }
 
 std::shared_ptr<EntityWrapper> EngineWrapper::createDefaultLight() {
