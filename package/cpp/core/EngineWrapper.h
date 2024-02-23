@@ -51,6 +51,7 @@ private:
   // Internals that we might need to split out later
   filament::gltfio::MaterialProvider* _materialProvider;
   filament::gltfio::AssetLoader* _assetLoader;
+  std::shared_ptr<SwapChain> _swapChain;
 };
 
 } // namespace margelo
