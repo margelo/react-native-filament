@@ -22,11 +22,11 @@ void FilamentProxy::loadHybridMethods() {
 }
 
 std::shared_ptr<TestHybridObject> FilamentProxy::createTestObject() {
-    return std::make_shared<TestHybridObject>();
+  return std::make_shared<TestHybridObject>();
 }
 
 std::shared_ptr<EngineWrapper> FilamentProxy::createEngine() {
-    return std::make_shared<EngineWrapper>();
+  return std::make_shared<EngineWrapper>();
 }
 
 } // namespace margelo
