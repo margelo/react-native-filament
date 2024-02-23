@@ -54,7 +54,7 @@ void EngineWrapper::destroySurface() {
 }
 
 std::shared_ptr<RendererWrapper> EngineWrapper::createRenderer() {
-    return std::make_shared<RendererWrapper>(_engine->createRenderer());
+  return std::make_shared<RendererWrapper>(_engine->createRenderer());
 }
 
 } // namespace margelo

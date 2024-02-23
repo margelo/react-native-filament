@@ -9,8 +9,8 @@
 #include <filament/Engine.h>
 #include <filament/SwapChain.h>
 
-#include "jsi/HybridObject.h"
 #include "RendererWrapper.h"
+#include "jsi/HybridObject.h"
 
 namespace margelo {
 

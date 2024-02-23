@@ -3,17 +3,17 @@
 
 namespace margelo {
 
-    using namespace filament;
+using namespace filament;
 
-    class RendererWrapper : public HybridObject {
-    public:
-        explicit RendererWrapper(Renderer* renderer) : _renderer(renderer) {}
-        ~RendererWrapper();
+class RendererWrapper : public HybridObject {
+public:
+  explicit RendererWrapper(Renderer* renderer) : _renderer(renderer) {}
+  ~RendererWrapper();
 
-        void loadHybridMethods() override;
+  void loadHybridMethods() override;
 
-    private:
-        Renderer* _renderer;
-    };
+private:
+  Renderer* _renderer;
+};
 
 } // namespace margelo
