@@ -23,6 +23,7 @@ public:
 public:
   int loadModel(std::string path) override;
   std::shared_ptr<FilamentView> findFilamentView(int modelId) override;
+  std::shared_ptr<Choreographer> createChoreographer() override;
 
 private:
   jsi::Runtime* _runtime;

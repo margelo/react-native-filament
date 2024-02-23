@@ -3,6 +3,7 @@
 //
 
 #include "JFilamentProxy.h"
+#include "JChoreographer.h"
 #include "JFilamentView.h"
 #include "JNISharedPtr.h"
 #include <fbjni/fbjni.h>
@@ -30,6 +31,14 @@ std::shared_ptr<FilamentView> JFilamentProxy::findFilamentView(int id) {
   jni::global_ref<JFilamentView::javaobject> globalRef = jni::make_global(view);
   std::shared_ptr<JFilamentView> sharedRef = JNISharedPtr::make_shared_from_jni<JFilamentView>(globalRef);
   return std::static_pointer_cast<FilamentView>(sharedRef);
+}
+
+std::shared_ptr<Choreographer> JFilamentProxy::createChoreographer() {
+  static const auto method = javaClassLocal()->getMethod<jni::alias_ref<JChoreographer::javaobject>()>("createChoreographer");
+  jni::local_ref<JChoreographer::javaobject> choreographer = method(_javaPart);
+  jni::global_ref<JChoreographer::javaobject> globalRef = jni::make_global(choreographer);
+  std::shared_ptr<JChoreographer> sharedRef = JNISharedPtr::make_shared_from_jni<JChoreographer>(globalRef);
+  return std::static_pointer_cast<Choreographer>(sharedRef);
 }
 
 jsi::Runtime& JFilamentProxy::getRuntime() {

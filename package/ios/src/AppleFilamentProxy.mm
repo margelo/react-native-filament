@@ -6,6 +6,7 @@
 //
 
 #import "AppleFilamentProxy.h"
+#import "AppleChoreographer.h"
 #import "AppleFilamentView.h"
 #import "FilamentMetalView.h"
 #import "FilamentView.h"
@@ -40,6 +41,11 @@ std::shared_ptr<FilamentView> AppleFilamentProxy::findFilamentView(int viewId) {
     result.reset(new AppleFilamentView(view));
   });
   return std::static_pointer_cast<FilamentView>(result);
+}
+
+std::shared_ptr<Choreographer> AppleFilamentProxy::createChoreographer() {
+  std::shared_ptr<AppleChoreographer> choreographer = std::make_shared<AppleChoreographer>();
+  return std::static_pointer_cast<Choreographer>(choreographer);
 }
 
 } // namespace margelo

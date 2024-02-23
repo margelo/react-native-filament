@@ -25,6 +25,7 @@ private:
   // TODO(hanno): implement
   int loadModel(std::string path) override;
   std::shared_ptr<FilamentView> findFilamentView(int id) override;
+  std::shared_ptr<Choreographer> createChoreographer() override;
 
 private:
   jni::global_ref<JFilamentProxy::javaobject> _proxy;
