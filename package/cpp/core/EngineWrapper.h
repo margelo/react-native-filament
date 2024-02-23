@@ -15,6 +15,7 @@
 #include "CameraWrapper.h"
 #include "RendererWrapper.h"
 #include "SceneWrapper.h"
+#include "SwapChainWrapper.h"
 #include "ViewWrapper.h"
 #include "jsi/HybridObject.h"
 
@@ -39,6 +40,7 @@ private:
   std::shared_ptr<SceneWrapper> createScene();
   std::shared_ptr<CameraWrapper> createCamera();
   std::shared_ptr<ViewWrapper> createView();
+  std::shared_ptr<SwapChainWrapper> createSwapChain(std::shared_ptr<Surface> surface);
 
   // Custom simplification methods
   std::shared_ptr<EntityWrapper> createDefaultLight();
@@ -51,7 +53,6 @@ private:
   // Internals that we might need to split out later
   filament::gltfio::MaterialProvider* _materialProvider;
   filament::gltfio::AssetLoader* _assetLoader;
-  std::shared_ptr<SwapChain> _swapChain;
 };
 
 } // namespace margelo

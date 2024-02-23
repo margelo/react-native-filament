@@ -1,32 +1,9 @@
 import * as React from 'react'
 
 import { StyleSheet, View } from 'react-native'
-import { FilamentView, FilamentProxy } from 'react-native-filament'
-
-const engine = FilamentProxy.createEngine()
-const renderer = engine.createRenderer()
-const scene = engine.createScene()
-const camera = engine.createCamera()
-const view = engine.createView()
-view.scene = scene
-view.camera = camera
-
-const defaultLight = engine.createDefaultLight()
-scene.addEntity(defaultLight)
+import { FilamentView } from 'react-native-filament'
 
 export default function App() {
-  React.useEffect(() => {
-    const choreographer = FilamentProxy.createChoreographer()
-    choreographer.addOnFrameListener((timestamp: number) => {
-      // TODO: invoke renderer logic here
-    })
-    choreographer.start()
-
-    return () => {
-      choreographer.stop()
-    }
-  }, [])
-
   return (
     <View style={styles.container}>
       <FilamentView style={styles.filamentView} />

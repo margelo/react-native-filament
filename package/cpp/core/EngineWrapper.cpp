@@ -25,9 +25,6 @@ EngineWrapper::EngineWrapper() {
 }
 
 EngineWrapper::~EngineWrapper() {
-  // if (_swapChain) {
-  //   _engine->destroy(_swapChain);
-  // }
   _assetLoader->destroy(&_assetLoader);
   _materialProvider->destroyMaterials();
 }
@@ -39,6 +36,7 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("createCamera", &EngineWrapper::createCamera, this);
   registerHybridMethod("createView", &EngineWrapper::createView, this);
   registerHybridMethod("createDefaultLight", &EngineWrapper::createDefaultLight, this);
+  registerHybridMethod("createSwapChain", &EngineWrapper::createSwapChain, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
@@ -56,17 +54,15 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
 
 void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
   void* nativeWindow = surface->getSurface();
-  _swapChain = References<SwapChain>::adoptEngineRef(
-      _engine, _engine->createSwapChain(nativeWindow, SwapChain::CONFIG_TRANSPARENT),
-      [](const std::shared_ptr<Engine>& engine, SwapChain* swapChain) { engine->destroy(swapChain); });
 }
 
 void EngineWrapper::destroySurface() {
-  if (_swapChain) {
-    _engine->destroy(_swapChain.get());
-    _engine->flushAndWait();
-    _swapChain = nullptr;
-  }
+  // TODO: Implement, probably from JS layer?
+  // if (_swapChain) {
+  //   _engine->destroy(_swapChain.get());
+  //   _engine->flushAndWait();
+  //   _swapChain = nullptr;
+  // }
 }
 
 std::shared_ptr<RendererWrapper> EngineWrapper::createRenderer() {
@@ -96,6 +92,14 @@ std::shared_ptr<ViewWrapper> EngineWrapper::createView() {
                                                           [](const std::shared_ptr<Engine>& engine, View* view) { engine->destroy(view); });
 
   return std::make_shared<ViewWrapper>(view);
+}
+
+std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChain(std::shared_ptr<Surface> surface) {
+  auto _swapChain = References<SwapChain>::adoptEngineRef(
+      _engine, _engine->createSwapChain(surface->getSurface(), SwapChain::CONFIG_TRANSPARENT),
+      [](const std::shared_ptr<Engine>& engine, SwapChain* swapChain) { engine->destroy(swapChain); });
+
+  return std::make_shared<SwapChainWrapper>(_swapChain);
 }
 
 std::shared_ptr<EntityWrapper> EngineWrapper::createDefaultLight() {
