@@ -8,6 +8,7 @@
 #include "SurfaceProvider.h"
 #include <filament/Engine.h>
 #include <filament/SwapChain.h>
+#include "References.h"
 
 #include "jsi/HybridObject.h"
 
@@ -29,8 +30,7 @@ private:
   void destroySurface();
 
 private:
-  Engine* _engine;
-  SwapChain* _swapChain;
+  std::shared_ptr<Engine> _engine;
   std::shared_ptr<SurfaceProvider> _surfaceProvider;
   std::unique_ptr<Listener> _listener;
 };
