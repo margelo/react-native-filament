@@ -10,7 +10,6 @@ using namespace utils;
 class EntityWrapper : public HybridObject {
 public:
   explicit EntityWrapper(Entity entity) : entity(entity) {}
-  ~EntityWrapper();
 
   void loadHybridMethods() override;
 

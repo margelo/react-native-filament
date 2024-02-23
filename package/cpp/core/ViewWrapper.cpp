@@ -1,9 +1,6 @@
 #include "ViewWrapper.h"
 
 namespace margelo {
-ViewWrapper::~ViewWrapper() {
-  _view = nullptr;
-}
 
 void ViewWrapper::loadHybridMethods() {
   registerHybridSetter("scene", &ViewWrapper::setScene, this);
