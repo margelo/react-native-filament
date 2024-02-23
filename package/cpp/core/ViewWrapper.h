@@ -5,13 +5,14 @@
 #include "jsi/HybridObject.h"
 
 #include <filament/View.h>
+#include <filament/Viewport.h>
 
 namespace margelo {
 using namespace filament;
 
 class ViewWrapper : public HybridObject {
 public:
-  explicit ViewWrapper(std::shared_ptr<View> view) : _view(view) {}
+  explicit ViewWrapper(const std::shared_ptr<View>& view) : _view(std::move(view)) {}
 
   void loadHybridMethods() override;
 
@@ -24,6 +25,7 @@ private:
   std::shared_ptr<SceneWrapper> getScene();
   void setCamera(std::shared_ptr<CameraWrapper> camera);
   std::shared_ptr<CameraWrapper> getCamera();
+  void setViewport(int x, int y, int width, int height);
 
 private:
   std::shared_ptr<View> _view;

@@ -18,10 +18,15 @@
 #include "SwapChainWrapper.h"
 #include "ViewWrapper.h"
 #include "jsi/HybridObject.h"
+#include <camutils/Manipulator.h>
+#include <core/utils/ManipulatorWrapper.h>
 
 namespace margelo {
 
 using namespace filament;
+using namespace camutils;
+
+using ManipulatorBuilder = Manipulator<float>::Builder;
 
 class EngineWrapper : public HybridObject {
 public:
@@ -44,6 +49,7 @@ private:
 
   // Custom simplification methods
   std::shared_ptr<EntityWrapper> createDefaultLight();
+  std::shared_ptr<ManipulatorWrapper> createCameraManipulator(int windowWidth, int windowHeight);
 
 private:
   std::shared_ptr<Engine> _engine;

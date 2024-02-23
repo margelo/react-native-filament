@@ -39,6 +39,7 @@ add_library(
 
         # Filament Utils
         ../cpp/core/utils/EntityWrapper.cpp
+        ../cpp/core/utils/ManipulatorWrapper.cpp
 
         # Java JNI
         src/main/cpp/AndroidFilamentProxy.cpp
