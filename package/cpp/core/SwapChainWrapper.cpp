@@ -1,5 +1,3 @@
 #include "SwapChainWrapper.h"
 
-void margelo::SwapChainWrapper::loadHybridMethods() {
-
-}
+void margelo::SwapChainWrapper::loadHybridMethods() {}
