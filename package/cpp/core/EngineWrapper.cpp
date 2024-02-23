@@ -24,7 +24,9 @@ EngineWrapper::~EngineWrapper() {
 void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider, this);
   registerHybridMethod("createRenderer", &EngineWrapper::createRenderer, this);
+  registerHybridMethod("createScene", &EngineWrapper::createScene, this);
   registerHybridMethod("createCamera", &EngineWrapper::createCamera, this);
+  registerHybridMethod("createView", &EngineWrapper::createView, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
@@ -59,11 +61,19 @@ std::shared_ptr<RendererWrapper> EngineWrapper::createRenderer() {
   return std::make_shared<RendererWrapper>(_engine->createRenderer());
 }
 
+std::shared_ptr<SceneWrapper> EngineWrapper::createScene() {
+  return std::make_shared<SceneWrapper>(_engine->createScene());
+}
+
 std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
   Camera* camera = _engine->createCamera(_engine->getEntityManager().create());
   // TODO: make this configurable / expose setExposure to JS
   camera->setExposure(16.0f, 1.0f / 125.0f, 100.0f);
   return std::make_shared<CameraWrapper>(camera);
+}
+
+std::shared_ptr<ViewWrapper> EngineWrapper::createView() {
+  return std::make_shared<ViewWrapper>(_engine->createView());
 }
 
 } // namespace margelo

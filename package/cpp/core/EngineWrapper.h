@@ -11,6 +11,8 @@
 
 #include "CameraWrapper.h"
 #include "RendererWrapper.h"
+#include "SceneWrapper.h"
+#include "ViewWrapper.h"
 #include "jsi/HybridObject.h"
 
 namespace margelo {
@@ -31,7 +33,9 @@ private:
   void destroySurface();
   // Wrapper methods
   std::shared_ptr<RendererWrapper> createRenderer();
+  std::shared_ptr<SceneWrapper> createScene();
   std::shared_ptr<CameraWrapper> createCamera();
+  std::shared_ptr<ViewWrapper> createView();
 
 private:
   Engine* _engine;
