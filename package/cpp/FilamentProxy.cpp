@@ -22,6 +22,7 @@ void FilamentProxy::loadHybridMethods() {
   registerHybridMethod("loadModel", &FilamentProxy::loadModel, this);
   registerHybridMethod("findFilamentView", &FilamentProxy::findFilamentView, this);
   registerHybridMethod("createTestObject", &FilamentProxy::createTestObject, this);
+  registerHybridMethod("createChoreographer", &FilamentProxy::createChoreographer, this);
 }
 
 } // namespace margelo

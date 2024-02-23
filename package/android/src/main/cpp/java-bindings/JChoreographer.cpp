@@ -10,8 +10,6 @@ namespace margelo {
 void JChoreographer::registerNatives() {
   registerHybrid({
       makeNativeMethod("initHybrid", JChoreographer::initHybrid),
-      makeNativeMethod("start", JChoreographer::start),
-      makeNativeMethod("stop", JChoreographer::stop),
       makeNativeMethod("onFrame", JChoreographer::onFrameLong),
   });
 }

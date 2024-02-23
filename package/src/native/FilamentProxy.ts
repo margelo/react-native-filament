@@ -1,5 +1,15 @@
 import { FilamentNativeModule } from './FilamentNativeModule'
 
+interface Listener {
+  remove(): void
+}
+
+interface Choreographer {
+  addOnFrameListener(onFrame: (timestamp: number) => void): Listener
+  start(): void
+  stop(): void
+}
+
 interface TestHybridObject {
   int: number
   string: string
@@ -17,7 +27,10 @@ export interface TFilamentProxy {
    * @param path A web URL (http:// or https://), local file (file://) or resource ID.
    */
   loadModel(path: string): number
-
+  /**
+   * Create a new Choreographer instance running on the caller Thread.
+   */
+  createChoreographer(): Choreographer
   /**
    * @private
    */

@@ -14,29 +14,36 @@ public class FilamentChoreographer {
     @Keep
     private final HybridData mHybridData;
     private final Choreographer choreographer;
-    private final Choreographer.FrameCallback frameCallback;
     private boolean isRunning;
 
     public FilamentChoreographer() {
         mHybridData = initHybrid();
         choreographer = Choreographer.getInstance();
-        frameCallback = timestamp -> {
-            if (!isRunning) return;
-            onFrame(timestamp);
-        };
     }
 
+    private void onFrameCallback(long timestamp) {
+        if (!isRunning) return;
+        onFrame(timestamp);
+        choreographer.postFrameCallback(this::onFrameCallback);
+    }
+
+    /** @noinspection unused */
+    @DoNotStrip
+    @Keep
     private synchronized void start() {
         if (!isRunning) {
             isRunning = true;
-            choreographer.postFrameCallback(frameCallback);
+            choreographer.postFrameCallback(this::onFrameCallback);
         }
     }
 
+    /** @noinspection unused */
+    @DoNotStrip
+    @Keep
     private synchronized void stop() {
         if (isRunning) {
             isRunning = false;
-            choreographer.removeFrameCallback(frameCallback);
+            choreographer.removeFrameCallback(this::onFrameCallback);
         }
     }
 
