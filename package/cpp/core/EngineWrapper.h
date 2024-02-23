@@ -4,11 +4,11 @@
 
 #pragma once
 
+#include "References.h"
 #include "Surface.h"
 #include "SurfaceProvider.h"
 #include <filament/Engine.h>
 #include <filament/SwapChain.h>
-#include "References.h"
 
 #include "jsi/HybridObject.h"
 
