@@ -8,17 +8,7 @@
 #pragma once
 
 #include "Choreographer.h"
-#import <Foundation/Foundation.h>
-
-@interface DisplayLinkListener : NSObject
-typedef void (^ OnFrameCallback)(double timestamp);
-
-- (instancetype) initWithCallback:(OnFrameCallback)callback;
-- (void) start;
-- (void) stop;
-- (void) onFrame:(CADisplayLink*)displayLink;
-
-@end
+#include "DisplayLinkListener.h"
 
 namespace margelo {
 
