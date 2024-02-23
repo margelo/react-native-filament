@@ -28,7 +28,7 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
   Listener listener = surfaceProvider->addOnSurfaceChangedListener(
       SurfaceProvider::Callback{.onSurfaceCreated = [=](std::shared_ptr<Surface> surface) { this->setSurface(surface); },
                                 .onSurfaceDestroyed = [=](std::shared_ptr<Surface> surface) { this->destroySurface(); }});
-  _listener = std::make_unique<Listener>(std::move(listener));
+  _listener = std::make_shared<Listener>(std::move(listener));
 }
 
 void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {

@@ -30,7 +30,7 @@ private:
 private:
   std::shared_ptr<Engine> _engine;
   std::shared_ptr<SurfaceProvider> _surfaceProvider;
-  std::unique_ptr<Listener> _listener;
+  std::shared_ptr<Listener> _listener;
 };
 
 } // namespace margelo
