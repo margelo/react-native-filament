@@ -28,6 +28,7 @@ add_library(
         ../cpp/jsi/Promise.cpp
         ../cpp/core/EngineWrapper.cpp
         ../cpp/core/RendererWrapper.cpp
+        ../cpp/core/CameraWrapper.cpp
         ../cpp/test/TestHybridObject.cpp
 
         # Java JNI

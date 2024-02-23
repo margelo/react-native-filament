@@ -13,6 +13,7 @@ interface TestHybridObject {
 
 export interface Engine {
   createRenderer(): unknown
+  createCamera(): unknown
 }
 
 export interface TFilamentProxy {
