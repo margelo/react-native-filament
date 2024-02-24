@@ -25,6 +25,18 @@ AppleFilamentProxy::~AppleFilamentProxy() {
   // TODO(hanno): cleanup here?
 }
 
+jsi::Runtime& AppleFilamentProxy::getRuntime() {
+  if (_runtime == nullptr) {
+    [[unlikely]];
+    throw std::runtime_error("JSI Runtime was null!");
+  }
+  return *_runtime;
+}
+
+std::shared_ptr<react::CallInvoker> AppleFilamentProxy::getCallInvoker() {
+  return _callInvoker;
+}
+
 int AppleFilamentProxy::loadModel(std::string path) {
   // TODO(hanno): Implement model loading here
   return 13;
