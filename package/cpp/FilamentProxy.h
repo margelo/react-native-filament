@@ -11,6 +11,8 @@
 #include "FilamentView.h"
 #include "jsi/HybridObject.h"
 #include "test/TestHybridObject.h"
+#include <ReactCommon/CallInvoker.h>
+#include <jsi/jsi.h>
 
 namespace margelo {
 
@@ -23,6 +25,10 @@ private:
   virtual std::shared_ptr<Choreographer> createChoreographer() = 0;
 
   std::shared_ptr<TestHybridObject> createTestObject();
+
+public:
+  virtual jsi::Runtime& getRuntime() = 0;
+  virtual std::shared_ptr<react::CallInvoker> getCallInvoker() = 0;
 
 public:
   void loadHybridMethods() override;
