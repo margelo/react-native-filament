@@ -18,7 +18,7 @@ private:
   std::list<Callback> _listeners;
 
 private:
-  std::shared_ptr<ListenerManager<Callback>> shared() {
+  std::shared_ptr<TSelf> shared() {
     return this->shared_from_this();
   }
 
