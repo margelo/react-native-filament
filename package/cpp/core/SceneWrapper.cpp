@@ -5,5 +5,5 @@ void margelo::SceneWrapper::loadHybridMethods() {
 }
 
 void margelo::SceneWrapper::addEntity(std::shared_ptr<EntityWrapper> entity) {
-  _scene->addEntity(entity->entity);
+  _scene->addEntity(entity->getEntity());
 }
