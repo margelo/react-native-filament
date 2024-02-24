@@ -49,6 +49,10 @@ jsi::Runtime& JFilamentProxy::getRuntime() {
   return *_runtime;
 }
 
+std::shared_ptr<react::CallInvoker> JFilamentProxy::getCallInvoker() {
+  return _callInvoker;
+}
+
 void JFilamentProxy::registerNatives() {
   registerHybrid({makeNativeMethod("initHybrid", JFilamentProxy::initHybrid)});
 }

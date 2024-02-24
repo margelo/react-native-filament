@@ -29,6 +29,7 @@ public:
   std::shared_ptr<Choreographer> createChoreographer();
 
   jsi::Runtime& getRuntime();
+  std::shared_ptr<react::CallInvoker> getCallInvoker();
 
 private:
   friend HybridBase;
