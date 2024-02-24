@@ -10,32 +10,29 @@ void SurfaceProvider::loadHybridMethods() {
   registerHybridMethod("getSurface", &SurfaceProvider::getSurfaceOrNull, this);
 }
 
-Listener SurfaceProvider::addOnSurfaceChangedListener(margelo::SurfaceProvider::Callback callback) {
+Listener SurfaceProvider::addOnSurfaceChangedListener(SurfaceProvider::Callback callback) {
   std::unique_lock lock(_mutex);
 
-  _callbacks.push_back(std::move(callback));
-  return Listener([]() {
-    // TODO: Find a safe way to remove this listener from the vector.
-  });
+  return _listeners.add(std::move(callback));
 }
 
 void SurfaceProvider::onSurfaceCreated(std::shared_ptr<Surface> surface) {
   std::unique_lock lock(_mutex);
-  for (const auto& listener : _callbacks) {
+  for (const auto& listener : _listeners.getListeners()) {
     listener.onSurfaceCreated(surface);
   }
 }
 
 void SurfaceProvider::onSurfaceChanged(std::shared_ptr<Surface> surface, int width, int height) {
   std::unique_lock lock(_mutex);
-  for (const auto& listener : _callbacks) {
+  for (const auto& listener : _listeners.getListeners()) {
     listener.onSurfaceSizeChanged(surface, width, height);
   }
 }
 
 void SurfaceProvider::onSurfaceDestroyed(std::shared_ptr<Surface> surface) {
   std::unique_lock lock(_mutex);
-  for (const auto& listener : _callbacks) {
+  for (const auto& listener : _listeners.getListeners()) {
     listener.onSurfaceDestroyed(surface);
   }
 }

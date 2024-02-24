@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Listener.h"
+#include "ListenerManager.h"
 #include "Surface.h"
 #include "jsi/HybridObject.h"
 #include <functional>
@@ -39,7 +40,7 @@ protected:
   void onSurfaceDestroyed(std::shared_ptr<Surface> surface);
 
 private:
-  std::vector<Callback> _callbacks;
+  ListenerManager<Callback> _listeners;
   std::mutex _mutex;
 };
 
