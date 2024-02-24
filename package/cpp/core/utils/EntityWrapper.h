@@ -9,10 +9,15 @@ using namespace utils;
 
 class EntityWrapper : public HybridObject {
 public:
-  explicit EntityWrapper(Entity entity) : entity(entity) {}
+  explicit EntityWrapper(Entity entity) : _entity(entity) {}
 
   void loadHybridMethods() override;
 
-  Entity entity;
+  const Entity& getEntity() {
+    return _entity;
+  }
+
+private:
+  Entity _entity;
 };
 } // namespace margelo
