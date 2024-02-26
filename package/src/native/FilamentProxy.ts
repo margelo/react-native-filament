@@ -2,7 +2,7 @@ import { FilamentNativeModule } from './FilamentNativeModule'
 import type { Engine } from './FilamentTypes'
 import { TFilamentView } from './FilamentViewTypes'
 
-interface Listener {
+export interface Listener {
   remove(): void
 }
 
@@ -52,7 +52,7 @@ export interface TFilamentProxy {
 // @ts-expect-error JSI functions aren't typed
 if (global.nativeCallSyncHook == null) {
   throw new Error(
-    'Failed to initialize react-native-filament: React Native is not running on-device. Filament can only be used when synchronous method invocations (JSI) are possible. If you are using a remote debugger (e.g. Chrome), switch to an on-device debugger (e.g. Flipper) instead.'
+    'Failed to initialize react-native-filament: React Native is not running on-device. Filament can only be used when synchronous method invocations (JSI) are possible. If you are using a remote debugger (e.g. Chrome), switch to an on-device debugger (e.g. Flipper) instead.',
   )
 }
 
@@ -62,7 +62,7 @@ if (global.nativeCallSyncHook == null) {
 const successful = FilamentNativeModule.install()
 if (!successful) {
   throw new Error(
-    'Failed to initialize react-native-filament! The install() method returned false - check the native logs (adb logcat or Xcode logs) for more information.'
+    'Failed to initialize react-native-filament! The install() method returned false - check the native logs (adb logcat or Xcode logs) for more information.',
   )
 }
 
@@ -71,7 +71,7 @@ const proxy = global.FilamentProxy as TFilamentProxy
 
 if (proxy == null) {
   throw new Error(
-    'Failed to initialize react-native-filament. The global proxy instance (global.FilamentProxy) is null. Check the native logs (adb logcat or Xcode logs) for more information.'
+    'Failed to initialize react-native-filament. The global proxy instance (global.FilamentProxy) is null. Check the native logs (adb logcat or Xcode logs) for more information.',
   )
 }
 

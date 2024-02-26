@@ -1,6 +1,6 @@
 import React from 'react'
 import { findNodeHandle, NativeMethods } from 'react-native'
-import { FilamentProxy } from './native/FilamentProxy'
+import { FilamentProxy, Listener } from './native/FilamentProxy'
 import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 
 type FilamentViewProps = NativeProps
@@ -13,6 +13,7 @@ console.log('model: ' + FilamentProxy.loadModel('test!'))
 export class FilamentView extends React.PureComponent<FilamentViewProps> {
   private readonly ref: React.RefObject<RefType>
   private readonly choreographer = FilamentProxy.createChoreographer()
+  private choreographerListener: Listener | null = null
 
   constructor(props: FilamentViewProps) {
     super(props)
@@ -38,6 +39,9 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
 
   componentWillUnmount(): void {
     this.choreographer.stop()
+    if (this.choreographerListener != null) {
+      this.choreographerListener.remove()
+    }
   }
 
   setup3dScene = () => {
@@ -65,7 +69,7 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
     const cameraManipulator = engine.createCameraManipulator(surface.width, surface.height)
 
     // Start the rendering loop:
-    this.choreographer.addOnFrameListener((timestamp) => {
+    this.choreographerListener = this.choreographer.addOnFrameListener((timestamp) => {
       camera.lookAt(cameraManipulator)
 
       // Render the scene, unless the renderer wants to skip the frame.
