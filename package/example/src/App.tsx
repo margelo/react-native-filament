@@ -20,6 +20,5 @@ const styles = StyleSheet.create({
   filamentView: {
     width: 350,
     height: 350,
-    backgroundColor: 'black',
   },
 })
