@@ -260,7 +260,7 @@ export interface Engine {
   createSwapChain(surface: TSurface): SwapChain
 
   // Convenience methods:
-  createDefaultLight(): Entity
+  createDefaultLight(buffer: FilamentBuffer, scene: Scene): Entity
   createCameraManipulator(screenWidth: number, screenHeight: number): Manipulator
   loadAsset(buffer: FilamentBuffer, scene: Scene): void
 }

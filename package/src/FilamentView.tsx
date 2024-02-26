@@ -60,13 +60,14 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
     // TODO: setting the viewport currently crashes the renderer
     view.setViewport(0, 0, surface.width, surface.height)
 
-    const defaultLight = engine.createDefaultLight()
-    scene.addEntity(defaultLight)
-
     const cameraManipulator = engine.createCameraManipulator(surface.width, surface.height)
 
     const modelByteBuffer = FilamentProxy.loadModel('pengu.glb')
     engine.loadAsset(modelByteBuffer, scene)
+
+    const indirectLight = FilamentProxy.loadModel('default_env_ibl.ktx')
+    const defaultLight = engine.createDefaultLight(indirectLight, scene)
+    scene.addEntity(defaultLight)
 
     // Start the rendering loop:
     this.choreographerListener = this.choreographer.addOnFrameListener((timestamp) => {
