@@ -14,6 +14,8 @@ import com.facebook.react.turbomodule.core.CallInvokerHolderImpl;
 import com.facebook.react.turbomodule.core.interfaces.CallInvokerHolder;
 import com.facebook.react.uimanager.UIManagerHelper;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 /** @noinspection JavaJniMissingFunction*/
@@ -48,9 +50,19 @@ class FilamentProxy {
     /** @noinspection unused*/
     @DoNotStrip
     @Keep
-    ByteBuffer loadModel(String path) {
-        // TODO(hanno): Implement Java part here
-        return ByteBuffer.allocate(1);
+    ByteBuffer loadModel(String assetName) throws IOException {
+        InputStream input = reactContext.getAssets().open(assetName);
+        byte[] bytes = new byte[input.available()];
+        input.read(bytes);
+        input.close();
+
+        // Allocate a *direct* ByteBuffer and put the bytes into it.
+        ByteBuffer buffer = ByteBuffer.allocateDirect(bytes.length);
+        buffer.put(bytes);
+        // Reset position to 0 to be ready for reading
+        buffer.flip();
+
+        return buffer;
     }
 
     /** @noinspection unused*/

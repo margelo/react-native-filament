@@ -65,6 +65,8 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
 
     const cameraManipulator = engine.createCameraManipulator(surface.width, surface.height)
 
+    const modelByteBuffer = FilamentProxy.loadModel('pengu.glb')
+
     // Start the rendering loop:
     this.choreographerListener = this.choreographer.addOnFrameListener((timestamp) => {
       camera.lookAt(cameraManipulator)
