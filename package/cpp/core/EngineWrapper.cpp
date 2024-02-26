@@ -19,14 +19,21 @@ namespace margelo {
 
 EngineWrapper::EngineWrapper() {
   // TODO: make the enum for the backend for the engine configurable
-  _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) { engine->destroy(&engine); });
+  _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) { filament::Engine::destroy(&engine); });
   _materialProvider = filament::gltfio::createUbershaderProvider(_engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
   _assetLoader =
       filament::gltfio::AssetLoader::create(filament::gltfio::AssetConfiguration{.engine = _engine.get(), .materials = _materialProvider});
+  _resourceLoader = new filament::gltfio::ResourceLoader({.engine = _engine.get(), .normalizeSkinningWeights = true});
+  // Add texture providers to the resource loader
+  auto stbProvider = filament::gltfio::createStbProvider(_engine.get());
+  auto ktx2Provider = filament::gltfio::createKtx2Provider(_engine.get());
+  _resourceLoader->addTextureProvider("image/jpeg", stbProvider);
+  _resourceLoader->addTextureProvider("image/png", stbProvider);
+  _resourceLoader->addTextureProvider("image/ktx2", ktx2Provider);
 }
 
 EngineWrapper::~EngineWrapper() {
-  _assetLoader->destroy(&_assetLoader);
+  filament::gltfio::AssetLoader::destroy(&_assetLoader);
   _materialProvider->destroyMaterials();
 }
 
@@ -41,6 +48,7 @@ void EngineWrapper::loadHybridMethods() {
   // Custom simplification methods
   registerHybridMethod("createDefaultLight", &EngineWrapper::createDefaultLight, this);
   registerHybridMethod("createCameraManipulator", &EngineWrapper::createCameraManipulator, this);
+  registerHybridMethod("loadAsset", &EngineWrapper::loadAsset, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
@@ -106,6 +114,17 @@ std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChain(std::shared_ptr
   return std::make_shared<SwapChainWrapper>(_swapChain);
 }
 
+void EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
+  filament::gltfio::FilamentAsset* asset = _assetLoader->createAsset(modelBuffer->getData(), modelBuffer->getSize());
+  if (asset == nullptr) {
+    throw std::runtime_error("Failed to load asset");
+  }
+
+  _resourceLoader->loadResources(asset);
+  // TODO: animator = asset.instance.animator # add animator!
+  asset->releaseSourceData();
+}
+
 std::shared_ptr<EntityWrapper> EngineWrapper::createDefaultLight() {
   // Create default directional light (In ModelViewer this is the default, so we use it here as well)
   // TODO: Remove this any make this configurable / expose setExposure to JS
@@ -116,7 +135,7 @@ std::shared_ptr<EntityWrapper> EngineWrapper::createDefaultLight() {
       .direction({0, -1, 0})
       .castShadows(true)
       .build(*_engine, lightEntity);
-  return std::make_shared<EntityWrapper>(std::move(lightEntity));
+  return std::make_shared<EntityWrapper>(lightEntity);
 }
 
 std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator(int width, int height) {

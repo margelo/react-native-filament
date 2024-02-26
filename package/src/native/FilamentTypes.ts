@@ -1,3 +1,4 @@
+import type { FilamentBuffer } from './FilamentBuffer'
 import { TSurface } from './FilamentViewTypes'
 
 /**
@@ -261,4 +262,5 @@ export interface Engine {
   // Convenience methods:
   createDefaultLight(): Entity
   createCameraManipulator(screenWidth: number, screenHeight: number): Manipulator
+  loadAsset(buffer: FilamentBuffer): void
 }
