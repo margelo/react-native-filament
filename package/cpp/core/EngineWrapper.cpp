@@ -11,6 +11,7 @@
 #include <filament/SwapChain.h>
 #include <utils/Entity.h>
 #include <utils/EntityManager.h>
+#include <filament/TransformManager.h>
 
 #include <gltfio/MaterialProvider.h>
 #include <gltfio/materials/uberarchive.h>
@@ -114,15 +115,22 @@ std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChain(std::shared_ptr
   return std::make_shared<SwapChainWrapper>(_swapChain);
 }
 
-void EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
+void EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer, std::shared_ptr<SceneWrapper> scene) {
   filament::gltfio::FilamentAsset* asset = _assetLoader->createAsset(modelBuffer->getData(), modelBuffer->getSize());
   if (asset == nullptr) {
     throw std::runtime_error("Failed to load asset");
   }
 
-  _resourceLoader->loadResources(asset);
+  // TODO: When supporting loading glTF files with external resources, we need to load the resources here
+//    const char* const* const resourceUris = asset->getResourceUris();
+//    const size_t resourceUriCount = asset->getResourceUriCount();
+
+    scene->getScene()->addEntities(asset->getEntities(), asset->getEntityCount());
+    _resourceLoader->loadResources(asset);
   // TODO: animator = asset.instance.animator # add animator!
   asset->releaseSourceData();
+
+  transformToUnitCube(asset);
 }
 
 std::shared_ptr<EntityWrapper> EngineWrapper::createDefaultLight() {
@@ -139,11 +147,25 @@ std::shared_ptr<EntityWrapper> EngineWrapper::createDefaultLight() {
 }
 
 std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator(int width, int height) {
-  ManipulatorBuilder* builder = new ManipulatorBuilder();
-  builder->targetPosition(0.0f, 0.0f, -4.0f); // kDefaultObjectPosition
+  auto* builder = new ManipulatorBuilder();
+  builder->targetPosition(defaultObjectPositionX, defaultObjectPositionY, defaultObjectPositionZ);
   builder->viewport(width, height);
   std::shared_ptr<Manipulator<float>> manipulator = std::shared_ptr<Manipulator<float>>(builder->build(Mode::ORBIT));
   return std::make_shared<ManipulatorWrapper>(manipulator);
+}
+
+/**
+ * Sets up a root transform on the current model to make it fit into a unit cube.
+ */
+void EngineWrapper::transformToUnitCube(filament::gltfio::FilamentAsset* asset) {
+        TransformManager& tm = _engine->getTransformManager();
+        Aabb aabb = asset->getBoundingBox();
+        math::details::TVec3<float> center = aabb.center();
+        math::details::TVec3<float> halfExtent = aabb.extent();
+        float maxExtent = max(halfExtent) * 2;
+        float scaleFactor = 2.0f / maxExtent;
+        math::mat4f transform = math::mat4f::scaling(scaleFactor) * math::mat4f::translation(-center);
+        tm.setTransform(tm.getInstance(asset->getRoot()), transform);
 }
 
 } // namespace margelo

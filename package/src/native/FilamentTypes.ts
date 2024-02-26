@@ -262,5 +262,5 @@ export interface Engine {
   // Convenience methods:
   createDefaultLight(): Entity
   createCameraManipulator(screenWidth: number, screenHeight: number): Manipulator
-  loadAsset(buffer: FilamentBuffer): void
+  loadAsset(buffer: FilamentBuffer, scene: Scene): void
 }
