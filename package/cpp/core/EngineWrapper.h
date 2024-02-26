@@ -49,7 +49,7 @@ private:
   std::shared_ptr<CameraWrapper> createCamera();
   std::shared_ptr<ViewWrapper> createView();
   std::shared_ptr<SwapChainWrapper> createSwapChain(std::shared_ptr<Surface> surface);
-  void loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
+  void loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer, std::shared_ptr<SceneWrapper> scene);
 
   // Custom simplification methods
   std::shared_ptr<EntityWrapper> createDefaultLight();
@@ -64,6 +64,13 @@ private:
   filament::gltfio::MaterialProvider* _materialProvider;
   filament::gltfio::AssetLoader* _assetLoader;
   filament::gltfio::ResourceLoader* _resourceLoader;
+
+  const float defaultObjectPositionX = 0.0f;
+  const float defaultObjectPositionY = 0.0f;
+  const float defaultObjectPositionZ = -4.0f;
+
+private:
+  void transformToUnitCube(filament::gltfio::FilamentAsset* asset);
 };
 
 } // namespace margelo
