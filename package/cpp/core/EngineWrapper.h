@@ -52,7 +52,7 @@ private:
   void loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer, std::shared_ptr<SceneWrapper> scene);
 
   // Custom simplification methods
-  std::shared_ptr<EntityWrapper> createDefaultLight();
+  std::shared_ptr<EntityWrapper> createDefaultLight(std::shared_ptr<FilamentBuffer> modelBuffer, std::shared_ptr<SceneWrapper> scene);
   std::shared_ptr<ManipulatorWrapper> createCameraManipulator(int windowWidth, int windowHeight);
 
 private:

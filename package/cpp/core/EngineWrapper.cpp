@@ -12,9 +12,12 @@
 #include <utils/Entity.h>
 #include <utils/EntityManager.h>
 #include <filament/TransformManager.h>
+#include <filament/IndirectLight.h>
 
 #include <gltfio/MaterialProvider.h>
 #include <gltfio/materials/uberarchive.h>
+
+#include <ktxreader/Ktx1Reader.h>
 
 namespace margelo {
 
@@ -133,8 +136,27 @@ void EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer, std::
   transformToUnitCube(asset);
 }
 
-std::shared_ptr<EntityWrapper> EngineWrapper::createDefaultLight() {
-  // Create default directional light (In ModelViewer this is the default, so we use it here as well)
+std::shared_ptr<EntityWrapper> EngineWrapper::createDefaultLight(std::shared_ptr<FilamentBuffer> modelBuffer, std::shared_ptr<SceneWrapper> scene) {
+    auto* iblBundle = new image::Ktx1Bundle(modelBuffer->getData(), modelBuffer->getSize());
+
+    Texture* cubemap = ktxreader::Ktx1Reader::createTexture(_engine.get(), *iblBundle, false, [](void* userdata) {
+        auto* bundle = (image::Ktx1Bundle*) userdata;
+        delete bundle;
+    }, iblBundle);
+
+
+    math::float3 harmonics[9];
+    iblBundle->getSphericalHarmonics(harmonics);
+
+    IndirectLight* _indirectLight = IndirectLight::Builder()
+            .reflections(cubemap)
+            .irradiance(3, harmonics)
+            .intensity(30000.0f)
+            .build(*_engine);
+
+    scene->getScene()->setIndirectLight(_indirectLight);
+
+  // Create default directional light since it is required for shadowing. (In ModelViewer this is the default, so we use it here as well)
   // TODO: Remove this any make this configurable / expose setExposure to JS
   auto lightEntity = _engine->getEntityManager().create();
   LightManager::Builder(LightManager::Type::DIRECTIONAL)
