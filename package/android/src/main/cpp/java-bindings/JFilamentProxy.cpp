@@ -22,9 +22,10 @@ JFilamentProxy::~JFilamentProxy() {
 }
 
 std::shared_ptr<FilamentBuffer> JFilamentProxy::loadModel(const std::string& path) {
-  static const auto method = javaClassLocal()->getMethod<jni::local_ref<jni::JByteBuffer>(jni::alias_ref<jstring>)>("loadModel");
-  auto byteBuffer = method(_javaPart, jni::make_jstring(path));
-  return std::make_shared<FilamentBuffer>(byteBuffer->getDirectBytes(), byteBuffer->getDirectSize());
+  static const auto method = javaClassLocal()->getMethod<jni::alias_ref<jni::JByteBuffer>(jni::alias_ref<jstring>)>("loadModel");
+  jni::local_ref<jni::JByteBuffer> localRef = method(_javaPart, jni::make_jstring(path));
+  jni::global_ref<jni::JByteBuffer> globalRef = jni::make_global(localRef);
+  return std::make_shared<FilamentBuffer>(globalRef->getDirectBytes(), globalRef->getDirectSize());
 }
 
 std::shared_ptr<FilamentView> JFilamentProxy::findFilamentView(int id) {
