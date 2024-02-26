@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "Choreographer.h"
+#include "FilamentBuffer.h"
 #include "FilamentView.h"
 #include "jsi/HybridObject.h"
 #include "test/TestHybridObject.h"
@@ -21,7 +22,7 @@ using namespace facebook;
 
 class FilamentProxy : public HybridObject {
 private:
-  virtual int loadModel(std::string path) = 0;
+  virtual std::shared_ptr<FilamentBuffer> loadModel(std::string path) = 0;
   virtual std::shared_ptr<FilamentView> findFilamentView(int id) = 0;
   virtual std::shared_ptr<Choreographer> createChoreographer() = 0;
 

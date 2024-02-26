@@ -14,6 +14,8 @@ import com.facebook.react.turbomodule.core.CallInvokerHolderImpl;
 import com.facebook.react.turbomodule.core.interfaces.CallInvokerHolder;
 import com.facebook.react.uimanager.UIManagerHelper;
 
+import java.nio.ByteBuffer;
+
 /** @noinspection JavaJniMissingFunction*/
 class FilamentProxy {
     /** @noinspection unused, FieldCanBeLocal */
@@ -46,9 +48,9 @@ class FilamentProxy {
     /** @noinspection unused*/
     @DoNotStrip
     @Keep
-    int loadModel(String path) {
+    ByteBuffer loadModel(String path) {
         // TODO(hanno): Implement Java part here
-        return 13;
+        return ByteBuffer.allocate(1);
     }
 
     /** @noinspection unused*/

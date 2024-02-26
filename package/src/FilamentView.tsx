@@ -7,9 +7,6 @@ type FilamentViewProps = NativeProps
 
 type RefType = React.Component<NativeProps> & Readonly<NativeMethods>
 
-console.log('loading..')
-console.log('model: ' + FilamentProxy.loadModel('test!'))
-
 export class FilamentView extends React.PureComponent<FilamentViewProps> {
   private readonly ref: React.RefObject<RefType>
   private readonly choreographer = FilamentProxy.createChoreographer()
