@@ -11,6 +11,8 @@
 #include <filament/SwapChain.h>
 #include <gltfio/AssetLoader.h>
 #include <gltfio/MaterialProvider.h>
+#include <gltfio/ResourceLoader.h>
+#include <gltfio/TextureProvider.h>
 
 #include "CameraWrapper.h"
 #include "RendererWrapper.h"
@@ -18,6 +20,7 @@
 #include "SwapChainWrapper.h"
 #include "ViewWrapper.h"
 #include "jsi/HybridObject.h"
+#include <FilamentBuffer.h>
 #include <camutils/Manipulator.h>
 #include <core/utils/ManipulatorWrapper.h>
 
@@ -46,6 +49,7 @@ private:
   std::shared_ptr<CameraWrapper> createCamera();
   std::shared_ptr<ViewWrapper> createView();
   std::shared_ptr<SwapChainWrapper> createSwapChain(std::shared_ptr<Surface> surface);
+  void loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
 
   // Custom simplification methods
   std::shared_ptr<EntityWrapper> createDefaultLight();
@@ -59,6 +63,7 @@ private:
   // Internals that we might need to split out later
   filament::gltfio::MaterialProvider* _materialProvider;
   filament::gltfio::AssetLoader* _assetLoader;
+  filament::gltfio::ResourceLoader* _resourceLoader;
 };
 
 } // namespace margelo

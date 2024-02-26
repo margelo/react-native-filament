@@ -1,3 +1,4 @@
+import { FilamentBuffer } from './FilamentBuffer'
 import { FilamentNativeModule } from './FilamentNativeModule'
 import type { Engine } from './FilamentTypes'
 import { TFilamentView } from './FilamentViewTypes'
@@ -24,11 +25,12 @@ interface TestHybridObject {
 }
 
 export interface TFilamentProxy {
+  // TODO: rename to loadModelBytes
   /**
    * Loads a 3D Model from the given path.
    * @param path A web URL (http:// or https://), local file (file://) or resource ID.
    */
-  loadModel(path: string): number
+  loadModel(path: string): FilamentBuffer
   /**
    * Create a new Choreographer instance running on the caller Thread.
    */
@@ -41,7 +43,6 @@ export interface TFilamentProxy {
    * @private
    */
   findFilamentView(viewTag: number): TFilamentView
-
   /**
    * Creates a new engine. You should only call this once.
    */
