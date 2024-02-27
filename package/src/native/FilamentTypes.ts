@@ -1,4 +1,4 @@
-import { TSurface } from './FilamentViewTypes'
+import { Surface as Surface, SurfaceProvider } from './FilamentViewTypes'
 
 /**
  * A `Renderer` instance represents an operating system's window.
@@ -252,13 +252,10 @@ export interface Entity {}
 export interface SwapChain {}
 
 export interface Engine {
-  createRenderer(): Renderer
-  createScene(): Scene
-  createCamera(): Camera
-  createView(): View
-  createSwapChain(surface: TSurface): SwapChain
-
-  // Convenience methods:
-  createDefaultLight(): Entity
-  createCameraManipulator(screenWidth: number, screenHeight: number): Manipulator
+  setSurfaceProvider(surfaceProvider: SurfaceProvider): void
+  getRenderer(): Renderer
+  getScene(): Scene
+  getCamera(): Camera
+  getView(): View
+  getCameraManipulator(): Manipulator
 }
