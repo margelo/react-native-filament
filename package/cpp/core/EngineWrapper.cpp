@@ -7,17 +7,18 @@
 #include "References.h"
 #include <filament/Color.h>
 #include <filament/Engine.h>
+#include <filament/Fence.h>
 #include <filament/IndirectLight.h>
 #include <filament/LightManager.h>
+#include <filament/RenderableManager.h>
 #include <filament/SwapChain.h>
 #include <filament/TransformManager.h>
-#include <filament/Fence.h>
-#include <filament/RenderableManager.h>
 #include <utils/Entity.h>
 #include <utils/EntityManager.h>
 
 #include <gltfio/MaterialProvider.h>
 #include <gltfio/materials/uberarchive.h>
+#include <gltfio/Animator.h>
 
 #include <ktxreader/Ktx1Reader.h>
 #include <utility>
@@ -76,13 +77,14 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
     setSurface(surface);
   }
 
-  Listener listener = surfaceProvider->addOnSurfaceChangedListener(SurfaceProvider::Callback{
-      .onSurfaceCreated = [=](std::shared_ptr<Surface> surface) { this->setSurface(surface); },
-      .onSurfaceSizeChanged = [=](std::shared_ptr<Surface> surface, int width, int height) {
-        this->surfaceSizeChanged(width, height);
-        this->synchronizePendingFrames();
-      },
-      .onSurfaceDestroyed = [=](std::shared_ptr<Surface> surface) { this->destroySurface(); }});
+  Listener listener = surfaceProvider->addOnSurfaceChangedListener(
+      SurfaceProvider::Callback{.onSurfaceCreated = [=](std::shared_ptr<Surface> surface) { this->setSurface(surface); },
+                                .onSurfaceSizeChanged =
+                                    [=](std::shared_ptr<Surface> surface, int width, int height) {
+                                      this->surfaceSizeChanged(width, height);
+                                      this->synchronizePendingFrames();
+                                    },
+                                .onSurfaceDestroyed = [=](std::shared_ptr<Surface> surface) { this->destroySurface(); }});
   _listener = std::make_shared<Listener>(std::move(listener));
 }
 
@@ -110,7 +112,7 @@ void EngineWrapper::surfaceSizeChanged(int width, int height) {
     _cameraManipulator->getManipulator()->setViewport(width, height);
   }
 
-//  updateCameraProjection();
+//    updateCameraProjection();
 }
 
 void EngineWrapper::destroySurface() {
@@ -141,7 +143,16 @@ void EngineWrapper::renderFrame(double timestamp) {
 
   _resourceLoader->asyncUpdateLoad();
 
-  populateScene();
+  if (_startTime == 0) {
+    _startTime = timestamp;
+  }
+
+  if (_animator) {
+    if (_animator->getAnimationCount() > 0) {
+      _animator->applyAnimation(0, (timestamp - _startTime) / 1e9);
+    }
+    _animator->updateBoneMatrices();
+  }
 
   if (_renderCallback) {
     _renderCallback(nullptr);
@@ -204,9 +215,9 @@ void EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
   //    const char* const* const resourceUris = asset->getResourceUris();
   //    const size_t resourceUriCount = asset->getResourceUriCount();
 
-  _assets.push_back(asset);
+  _scene->getScene()->addEntities(asset->getEntities(), asset->getEntityCount());
   _resourceLoader->asyncBeginLoad(asset);
-  // TODO: animator = asset.instance.animator # add animator!
+  _animator = asset->getInstance()->getAnimator();
   asset->releaseSourceData();
 
   transformToUnitCube(asset);
@@ -272,25 +283,24 @@ void EngineWrapper::transformToUnitCube(filament::gltfio::FilamentAsset* asset) 
   math::details::TVec3<float> halfExtent = aabb.extent();
   float maxExtent = max(halfExtent) * 2.0f;
   float scaleFactor = 2.0f / maxExtent;
-  center -= center / scaleFactor;
+//  center -= center / scaleFactor;
   math::mat4f transform = math::mat4f::scaling(scaleFactor) * math::mat4f::translation(-center);
-  tm.setTransform(tm.getInstance(asset->getRoot()), transpose(transform));
+  tm.setTransform(tm.getInstance(asset->getRoot()), transform);
 }
 
 void EngineWrapper::updateCameraProjection() {
   if (!_view) {
-        throw std::runtime_error("View not initialized");
+    throw std::runtime_error("View not initialized");
   }
   if (!_camera) {
-        throw std::runtime_error("Camera not initialized");
+    throw std::runtime_error("Camera not initialized");
   }
 
   double aspect = _view->getView()->getViewport().width / _view->getView()->getViewport().height;
   float focalLength = 28.0f;
-  float near = 0.05f; // 5cm
+  float near = 0.05f;  // 5cm
   float far = 1000.0f; // 1km
   _camera->getCamera()->setLensProjection(focalLength, aspect, near, far);
-
 }
 void EngineWrapper::synchronizePendingFrames() {
   if (!_engine) {
@@ -302,41 +312,6 @@ void EngineWrapper::synchronizePendingFrames() {
   Fence* fence = _engine->createFence();
   fence->wait(Fence::Mode::FLUSH, Fence::FENCE_WAIT_FOR_EVER);
   _engine->destroy(fence);
-}
-void EngineWrapper::populateScene() {
-  RenderableManager& rcm = _engine->getRenderableManager();
-  for (auto asset : _assets) {
-    std::vector<utils::Entity> readyRenderables;
-
-    // Assuming a reasonable maximum number of renderables to avoid dynamic allocation.
-    const size_t maxRenderables = 128;
-    utils::Entity tempRenderables[maxRenderables];
-    size_t count = 0;
-
-    // Function to populate renderables
-    auto popRenderables = [&]() -> bool {
-      count = asset->popRenderables(tempRenderables, maxRenderables);
-      readyRenderables.assign(tempRenderables, tempRenderables + count);
-      return count != 0;
-    };
-
-    while (popRenderables()) {
-      for (size_t i = 0; i < count; ++i) {
-        auto ri = rcm.getInstance(readyRenderables[i]);
-        if (ri) {
-          rcm.setScreenSpaceContactShadows(ri, true);
-        }
-      }
-      _scene->getScene()->addEntities(tempRenderables, count);
-    }
-
-    // Add light entities to the scene
-    size_t lightEntityCount = asset->getLightEntityCount();
-    if (lightEntityCount > 0) {
-      const auto& lightEntities = asset->getLightEntities();
-      _scene->getScene()->addEntities(lightEntities, lightEntityCount);
-    }
-  }
 }
 
 } // namespace margelo
