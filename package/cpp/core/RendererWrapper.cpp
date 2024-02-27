@@ -23,6 +23,7 @@ bool RendererWrapper::beginFrame(std::shared_ptr<SwapChainWrapper> swapChain, do
   SwapChain* swapChainPtr = swapChain->getSwapChain().get();
   return _renderer->beginFrame(swapChainPtr, frameTimeNanos);
 }
+
 void RendererWrapper::render(std::shared_ptr<ViewWrapper> view) {
   if (view->getView() == nullptr) {
     throw std::runtime_error("View is null");
