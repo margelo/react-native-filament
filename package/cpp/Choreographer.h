@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Listener.h"
+#include "ListenerManager.h"
 #include "jsi/HybridObject.h"
 #include <functional>
 
@@ -25,7 +26,7 @@ protected:
   void loadHybridMethods() override;
 
 private:
-  std::vector<OnFrameCallback> _callbacks;
+  ListenerManager<OnFrameCallback> _listeners;
 };
 
 } // namespace margelo
