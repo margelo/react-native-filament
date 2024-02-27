@@ -17,20 +17,20 @@ cd filament
 
 target="release"
 
-echo "Building Filament for iOS ($target)..."
-# -s = iOS simulator support
-# -l = Build fat universal library (x86_64 + arm64)
-# -c = Cleans out the cmake build directory
-# -l = Build fat universal library (x86_64 + arm64), needed to easily include library from podspec
-./build.sh -s -p ios -i "$target" -c -l
+# On iOS, we already use Filament from CocoaPods.
+                  # echo "Building Filament for iOS ($target)..."
+                  # # -s = iOS simulator support
+                  # # -l = Build fat universal library (x86_64 + arm64)
+                  # # -c = Cleans out the cmake build directory
+                  # # -l = Build fat universal library (x86_64 + arm64), needed to easily include library from podspec
+                  # ./build.sh -s -p ios -i "$target" -c -l
 
-echo "Copying Filament iOS libraries to react-native-filament..."
-rm -rf ../package/ios/libs/filament
-mkdir -p ../package/ios/libs/filament
-cp -rf out/ios-release/filament ../package/ios/libs
+                  # echo "Copying Filament iOS libraries to react-native-filament..."
+                  # rm -rf ../package/ios/libs/filament
+                  # mkdir -p ../package/ios/libs/filament
+                  # cp -rf out/ios-release/filament ../package/ios/libs
 
-# TODO(marc): Figure out how we can disable filamat to save binary size here.
-
+# TODO(Marc): Use Filament from the Maven/Gradle library, to avoid shipping this huge dependency over npm.
 echo "Building Filament for Android ($target)"
 # -v = Exclude Vulkan support
 ./build.sh -p android "$target"
