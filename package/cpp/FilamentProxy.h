@@ -15,6 +15,8 @@
 #include "FilamentView.h"
 #include "jsi/HybridObject.h"
 #include "test/TestHybridObject.h"
+#include <ReactCommon/CallInvoker.h>
+#include <jsi/jsi.h>
 
 namespace margelo {
 
@@ -31,6 +33,10 @@ private:
 
   // Public API
   std::shared_ptr<EngineWrapper> createEngine();
+
+public:
+  virtual jsi::Runtime& getRuntime() = 0;
+  virtual std::shared_ptr<react::CallInvoker> getCallInvoker() = 0;
 
 public:
   void loadHybridMethods() override;

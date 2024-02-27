@@ -53,6 +53,18 @@ std::shared_ptr<FilamentBuffer> AppleFilamentProxy::getAssetByteBuffer(std::stri
   return std::make_shared<FilamentBuffer>(data, size);
 }
 
+jsi::Runtime& AppleFilamentProxy::getRuntime() {
+  if (_runtime == nullptr) {
+    [[unlikely]];
+    throw std::runtime_error("JSI Runtime was null!");
+  }
+  return *_runtime;
+}
+
+std::shared_ptr<react::CallInvoker> AppleFilamentProxy::getCallInvoker() {
+  return _callInvoker;
+}
+
 std::shared_ptr<FilamentView> AppleFilamentProxy::findFilamentView(int viewId) {
   // TODO(marc): Make this async when JSIConvert can do that
   std::shared_ptr<AppleFilamentView> result;
