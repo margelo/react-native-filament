@@ -125,6 +125,7 @@ void EngineWrapper::renderFrame(double timestamp) {
   }
 
   if (_renderCallback) {
+    // Call JS callback with scene information
     _renderCallback(nullptr);
   }
 
