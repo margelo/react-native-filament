@@ -255,7 +255,7 @@ void EngineWrapper::createDefaultLight(std::shared_ptr<FilamentBuffer> iblBuffer
 
 std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator(int width, int height) {
   auto* builder = new ManipulatorBuilder();
-  builder->targetPosition(defaultObjectPosition.x, defaultObjectPosition.y, defaultObjectPosition.z);
+  builder->orbitHomePosition(defaultObjectPosition.x, defaultObjectPosition.y, defaultObjectPosition.z);
   builder->viewport(width, height);
   std::shared_ptr<Manipulator<float>> manipulator = std::shared_ptr<Manipulator<float>>(builder->build(Mode::ORBIT));
   return std::make_shared<ManipulatorWrapper>(manipulator);
@@ -271,9 +271,8 @@ void EngineWrapper::transformToUnitCube(filament::gltfio::FilamentAsset* asset) 
   math::details::TVec3<float> halfExtent = aabb.extent();
   float maxExtent = max(halfExtent) * 2.0f;
   float scaleFactor = 2.0f / maxExtent;
-  center -= defaultObjectPosition / scaleFactor;
   math::mat4f transform = math::mat4f::scaling(scaleFactor) * math::mat4f::translation(-center);
-  tm.setTransform(tm.getInstance(asset->getRoot()), transpose(transform));
+  tm.setTransform(tm.getInstance(asset->getRoot()), transform);
 }
 
 void EngineWrapper::updateCameraProjection() {
