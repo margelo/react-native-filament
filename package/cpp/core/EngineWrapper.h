@@ -48,9 +48,12 @@ private:
   void setRenderCallback(std::function<void(std::shared_ptr<EngineWrapper>)> callback);
   void renderFrame(double timestamp);
 
-  void transformToUnitCube(filament::gltfio::FilamentAsset* asset);
+  void transformToUnitCube(gltfio::FilamentAsset* asset);
   void loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
   void createDefaultLight(std::shared_ptr<FilamentBuffer> modelBuffer);
+  void updateCameraProjection();
+  void synchronizePendingFrames();
+  void populateScene();
 
 private:
   std::shared_ptr<Engine> _engine;
@@ -61,10 +64,12 @@ private:
   std::shared_ptr<Choreographer> _choreographer;
   std::shared_ptr<Listener> _choreographerListener;
 
+  std::vector<gltfio::FilamentAsset*> _assets;
+
   // Internals that we might need to split out later
-  filament::gltfio::MaterialProvider* _materialProvider;
-  filament::gltfio::AssetLoader* _assetLoader;
-  filament::gltfio::ResourceLoader* _resourceLoader;
+  gltfio::MaterialProvider* _materialProvider;
+  gltfio::AssetLoader* _assetLoader;
+  gltfio::ResourceLoader* _resourceLoader;
 
   const float defaultObjectPositionX = 0.0f;
   const float defaultObjectPositionY = 0.0f;
