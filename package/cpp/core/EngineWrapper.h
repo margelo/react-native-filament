@@ -68,9 +68,7 @@ private:
   gltfio::AssetLoader* _assetLoader;
   gltfio::ResourceLoader* _resourceLoader;
 
-  const float defaultObjectPositionX = 0.0f;
-  const float defaultObjectPositionY = 0.0f;
-  const float defaultObjectPositionZ = -4.0f;
+  const math::float3 defaultObjectPosition = {0.0f, 0.0f, -4.0f};
 
 private:
   // Internals we create, but share the access with the user

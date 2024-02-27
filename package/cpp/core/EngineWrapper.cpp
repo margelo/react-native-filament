@@ -16,9 +16,9 @@
 #include <utils/Entity.h>
 #include <utils/EntityManager.h>
 
+#include <gltfio/Animator.h>
 #include <gltfio/MaterialProvider.h>
 #include <gltfio/materials/uberarchive.h>
-#include <gltfio/Animator.h>
 
 #include <ktxreader/Ktx1Reader.h>
 #include <utility>
@@ -105,14 +105,14 @@ void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
 }
 
 void EngineWrapper::surfaceSizeChanged(int width, int height) {
-  if (_view) {
-    _view->setViewport(0, 0, width, height);
-  }
   if (_cameraManipulator) {
     _cameraManipulator->getManipulator()->setViewport(width, height);
   }
+  if (_view) {
+    _view->setViewport(0, 0, width, height);
+  }
 
-//    updateCameraProjection();
+  updateCameraProjection();
 }
 
 void EngineWrapper::destroySurface() {
@@ -205,7 +205,7 @@ void EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
   //    const size_t resourceUriCount = asset->getResourceUriCount();
 
   _scene->getScene()->addEntities(asset->getEntities(), asset->getEntityCount());
-  _resourceLoader->asyncBeginLoad(asset);
+  _resourceLoader->loadResources(asset);
   asset->releaseSourceData();
 
   transformToUnitCube(asset);
@@ -255,7 +255,7 @@ void EngineWrapper::createDefaultLight(std::shared_ptr<FilamentBuffer> iblBuffer
 
 std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator(int width, int height) {
   auto* builder = new ManipulatorBuilder();
-  builder->targetPosition(defaultObjectPositionX, defaultObjectPositionY, defaultObjectPositionZ);
+  builder->targetPosition(defaultObjectPosition.x, defaultObjectPosition.y, defaultObjectPosition.z);
   builder->viewport(width, height);
   std::shared_ptr<Manipulator<float>> manipulator = std::shared_ptr<Manipulator<float>>(builder->build(Mode::ORBIT));
   return std::make_shared<ManipulatorWrapper>(manipulator);
@@ -271,9 +271,9 @@ void EngineWrapper::transformToUnitCube(filament::gltfio::FilamentAsset* asset) 
   math::details::TVec3<float> halfExtent = aabb.extent();
   float maxExtent = max(halfExtent) * 2.0f;
   float scaleFactor = 2.0f / maxExtent;
-//  center -= center / scaleFactor;
+  center -= defaultObjectPosition / scaleFactor;
   math::mat4f transform = math::mat4f::scaling(scaleFactor) * math::mat4f::translation(-center);
-  tm.setTransform(tm.getInstance(asset->getRoot()), transform);
+  tm.setTransform(tm.getInstance(asset->getRoot()), transpose(transform));
 }
 
 void EngineWrapper::updateCameraProjection() {
@@ -284,12 +284,13 @@ void EngineWrapper::updateCameraProjection() {
     throw std::runtime_error("Camera not initialized");
   }
 
-  double aspect = _view->getView()->getViewport().width / _view->getView()->getViewport().height;
-  float focalLength = 28.0f;
-  float near = 0.05f;  // 5cm
-  float far = 1000.0f; // 1km
+  const double aspect = (double)_view->getView()->getViewport().width / _view->getView()->getViewport().height;
+  double focalLength = 28.0;
+  double near = 0.05;  // 5cm
+  double far = 1000.0; // 1km
   _camera->getCamera()->setLensProjection(focalLength, aspect, near, far);
 }
+
 void EngineWrapper::synchronizePendingFrames() {
   if (!_engine) {
     throw std::runtime_error("Engine not initialized");
