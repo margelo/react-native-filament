@@ -25,9 +25,8 @@ AppleFilamentProxy::~AppleFilamentProxy() {
   // TODO(hanno): cleanup here?
 }
 
-int AppleFilamentProxy::loadModel(std::string path) {
-  // TODO(hanno): Implement model loading here
-  return 13;
+std::shared_ptr<FilamentBuffer> AppleFilamentProxy::getAssetByteBuffer(std::string path) {
+  
 }
 
 std::shared_ptr<FilamentView> AppleFilamentProxy::findFilamentView(int viewId) {
