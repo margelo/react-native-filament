@@ -21,8 +21,8 @@ JFilamentProxy::~JFilamentProxy() {
   // TODO(hanno): Cleanup?
 }
 
-std::shared_ptr<FilamentBuffer> JFilamentProxy::loadModel(const std::string& path) {
-  static const auto method = javaClassLocal()->getMethod<jni::alias_ref<jni::JByteBuffer>(jni::alias_ref<jstring>)>("loadModel");
+std::shared_ptr<FilamentBuffer> JFilamentProxy::getAssetByteBuffer(const std::string& path) {
+  static const auto method = javaClassLocal()->getMethod<jni::alias_ref<jni::JByteBuffer>(jni::alias_ref<jstring>)>("getAssetByteBuffer");
   jni::local_ref<jni::JByteBuffer> localRef = method(_javaPart, jni::make_jstring(path));
   jni::global_ref<jni::JByteBuffer> globalRef = jni::make_global(localRef);
   return std::make_shared<FilamentBuffer>(globalRef->getDirectBytes(), globalRef->getDirectSize());

@@ -50,12 +50,12 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
     const engine = FilamentProxy.createEngine()
 
     // Load a model into the scene:
-    const modelByteBuffer = FilamentProxy.loadModel('pengu.glb')
-    engine.loadAsset(modelByteBuffer)
+    const modelBuffer = FilamentProxy.getAssetByteBuffer('pengu.glb')
+    engine.loadAsset(modelBuffer)
 
     // Create a default light:
-    const indirectLight = FilamentProxy.loadModel('default_env_ibl.ktx')
-    engine.createDefaultLight(indirectLight)
+    const indirectLightBuffer = FilamentProxy.getAssetByteBuffer('default_env_ibl.ktx')
+    engine.createDefaultLight(indirectLightBuffer)
 
     // Link the surface with the engine:
     engine.setSurfaceProvider(surfaceProvider)

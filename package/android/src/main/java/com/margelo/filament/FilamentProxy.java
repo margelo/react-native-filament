@@ -50,7 +50,7 @@ class FilamentProxy {
     /** @noinspection unused*/
     @DoNotStrip
     @Keep
-    ByteBuffer loadModel(String assetName) throws IOException {
+    ByteBuffer getAssetByteBuffer(String assetName) throws IOException {
         InputStream input = reactContext.getAssets().open(assetName);
         byte[] bytes = new byte[input.available()];
         input.read(bytes);
