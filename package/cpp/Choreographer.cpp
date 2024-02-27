@@ -3,6 +3,7 @@
 //
 
 #include "Choreographer.h"
+#include "ListenerManager.h"
 
 namespace margelo {
 
@@ -13,15 +14,13 @@ void Choreographer::loadHybridMethods() {
 }
 
 std::shared_ptr<Listener> Choreographer::addOnFrameListener(Choreographer::OnFrameCallback onFrameCallback) {
-  _callbacks.push_back(std::move(onFrameCallback));
-  return std::make_shared<Listener>([]() {
-    // TODO: Find a safe way to remove this listener from the vector.
-  });
+  auto listener = _listeners.add(std::move(onFrameCallback));
+  return std::make_shared<Listener>(std::move(listener));
 }
 
 void Choreographer::onFrame(double timestamp) {
-  for (const auto& callback : _callbacks) {
-    callback(timestamp);
+  for (const auto& listener : _listeners.getListeners()) {
+    listener(timestamp);
   }
 }
 
