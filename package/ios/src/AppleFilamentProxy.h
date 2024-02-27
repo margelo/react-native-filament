@@ -26,6 +26,9 @@ public:
   std::shared_ptr<FilamentView> findFilamentView(int modelId) override;
   std::shared_ptr<Choreographer> createChoreographer() override;
 
+  jsi::Runtime& getRuntime() override;
+  std::shared_ptr<react::CallInvoker> getCallInvoker() override;
+
 private:
   jsi::Runtime* _runtime;
   std::shared_ptr<react::CallInvoker> _callInvoker;

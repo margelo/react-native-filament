@@ -26,6 +26,10 @@ private:
   std::shared_ptr<FilamentView> findFilamentView(int id) override;
   std::shared_ptr<Choreographer> createChoreographer() override;
 
+public:
+  jsi::Runtime& getRuntime() override;
+  std::shared_ptr<react::CallInvoker> getCallInvoker() override;
+
 private:
   jni::global_ref<JFilamentProxy::javaobject> _proxy;
 };

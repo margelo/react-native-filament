@@ -29,4 +29,12 @@ std::shared_ptr<Choreographer> AndroidFilamentProxy::createChoreographer() {
   return _proxy->cthis()->createChoreographer();
 }
 
+std::shared_ptr<react::CallInvoker> AndroidFilamentProxy::getCallInvoker() {
+  return _proxy->cthis()->getCallInvoker();
+}
+
+jsi::Runtime& AndroidFilamentProxy::getRuntime() {
+  return _proxy->cthis()->getRuntime();
+}
+
 } // namespace margelo
