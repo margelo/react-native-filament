@@ -253,6 +253,8 @@ export interface SwapChain {}
 
 export interface Engine {
   setSurfaceProvider(surfaceProvider: SurfaceProvider): void
+  setRenderCallback(callback: (engine: Engine) => void): void
+
   getRenderer(): Renderer
   getScene(): Scene
   getCamera(): Camera
