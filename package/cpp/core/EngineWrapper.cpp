@@ -189,7 +189,7 @@ void EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
   }
 
   if (!_scene) {
-     throw std::runtime_error("Scene not initialized");
+    throw std::runtime_error("Scene not initialized");
   }
 
   // TODO: When supporting loading glTF files with external resources, we need to load the resources here

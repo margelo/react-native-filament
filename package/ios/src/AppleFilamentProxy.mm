@@ -26,7 +26,31 @@ AppleFilamentProxy::~AppleFilamentProxy() {
 }
 
 std::shared_ptr<FilamentBuffer> AppleFilamentProxy::getAssetByteBuffer(std::string path) {
-  
+  NSString* filePath = [NSString stringWithUTF8String:path.c_str()];
+
+  // Split the path at the last dot to separate name and extension
+  NSArray<NSString*>* pathComponents = [filePath componentsSeparatedByString:@"."];
+  if ([pathComponents count] < 2) {
+    throw std::runtime_error("Invalid file path: no extension found");
+  }
+  NSString* name = [pathComponents firstObject];
+  NSString* extension = [pathComponents lastObject];
+
+  // Load the resource from the main bundle
+  NSString* resourcePath = [[NSBundle mainBundle] pathForResource:name ofType:extension];
+  if (!resourcePath) {
+    throw std::runtime_error("File not found");
+  }
+
+  // Load the data from the file
+  NSData* bufferData = [NSData dataWithContentsOfFile:resourcePath];
+  if (!bufferData) {
+    throw std::runtime_error("File not found or could not be read");
+  }
+
+  u_int8_t* data = (u_int8_t*)[bufferData bytes];
+  size_t size = [bufferData length];
+  return std::make_shared<FilamentBuffer>(data, size);
 }
 
 std::shared_ptr<FilamentView> AppleFilamentProxy::findFilamentView(int viewId) {
