@@ -48,37 +48,21 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
     // Get Surface:
     const fView = FilamentProxy.findFilamentView(this.handle)
     const surfaceProvider = fView.getSurfaceProvider()
-    const surface = surfaceProvider.getSurface()
-    console.log('Surface Width: ' + surface.width)
 
     const engine = FilamentProxy.createEngine()
-    const swapChain = engine.createSwapChain(surface)
-
-    const renderer = engine.createRenderer()
-    const scene = engine.createScene()
-    const camera = engine.createCamera()
-    const view = engine.createView()
-    view.scene = scene
-    view.camera = camera
-    // TODO: setting the viewport currently crashes the renderer
-    // view.setViewport(0, 0, surface.width, surface.height)
-
-    const defaultLight = engine.createDefaultLight()
-    scene.addEntity(defaultLight)
-
-    const cameraManipulator = engine.createCameraManipulator(surface.width, surface.height)
+    engine.setSurfaceProvider(surfaceProvider)
 
     // Start the rendering loop:
-    this.choreographerListener = this.choreographer.addOnFrameListener((timestamp) => {
-      camera.lookAt(cameraManipulator)
+    // this.choreographerListener = this.choreographer.addOnFrameListener((timestamp) => {
+    //   camera.lookAt(cameraManipulator)
 
-      // Render the scene, unless the renderer wants to skip the frame.
-      if (renderer.beginFrame(swapChain, timestamp)) {
-        renderer.render(view)
-        renderer.endFrame()
-      }
-    })
-    this.choreographer.start()
+    //   // Render the scene, unless the renderer wants to skip the frame.
+    //   if (renderer.beginFrame(swapChain, timestamp)) {
+    //     renderer.render(view)
+    //     renderer.endFrame()
+    //   }
+    // })
+    // this.choreographer.start()
   }
 
   /** @internal */

@@ -20,12 +20,13 @@ public:
     return _view;
   }
 
+  void setViewport(int x, int y, int width, int height);
+
 private:
   void setScene(std::shared_ptr<SceneWrapper> scene);
   std::shared_ptr<SceneWrapper> getScene();
   void setCamera(std::shared_ptr<CameraWrapper> camera);
   std::shared_ptr<CameraWrapper> getCamera();
-  void setViewport(int x, int y, int width, int height);
 
 private:
   std::shared_ptr<View> _view;

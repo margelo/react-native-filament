@@ -19,28 +19,33 @@ namespace margelo {
 
 EngineWrapper::EngineWrapper() {
   // TODO: make the enum for the backend for the engine configurable
-  _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) { engine->destroy(&engine); });
-  _materialProvider = filament::gltfio::createUbershaderProvider(_engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
-  _assetLoader =
-      filament::gltfio::AssetLoader::create(filament::gltfio::AssetConfiguration{.engine = _engine.get(), .materials = _materialProvider});
+  _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) { Engine::destroy(&engine); });
+  _materialProvider = gltfio::createUbershaderProvider(_engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
+  _assetLoader = gltfio::AssetLoader::create(filament::gltfio::AssetConfiguration{.engine = _engine.get(), .materials = _materialProvider});
+
+  _renderer = createRenderer();
+  _scene = createScene();
+  _view = createView();
+  _camera = createCamera();
+
+  _view->getView()->setScene(_scene->getScene().get());
+  _view->getView()->setCamera(_camera->getCamera().get());
+
+  createDefaultLight();
 }
 
 EngineWrapper::~EngineWrapper() {
-  _assetLoader->destroy(&_assetLoader);
+  gltfio::AssetLoader::destroy(&_assetLoader);
   _materialProvider->destroyMaterials();
 }
 
 void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider, this);
-  registerHybridMethod("createRenderer", &EngineWrapper::createRenderer, this);
-  registerHybridMethod("createScene", &EngineWrapper::createScene, this);
-  registerHybridMethod("createCamera", &EngineWrapper::createCamera, this);
-  registerHybridMethod("createView", &EngineWrapper::createView, this);
-  registerHybridMethod("createSwapChain", &EngineWrapper::createSwapChain, this);
-
-  // Custom simplification methods
-  registerHybridMethod("createDefaultLight", &EngineWrapper::createDefaultLight, this);
-  registerHybridMethod("createCameraManipulator", &EngineWrapper::createCameraManipulator, this);
+  registerHybridMethod("getRenderer", &EngineWrapper::getRenderer, this);
+  registerHybridMethod("getScene", &EngineWrapper::getScene, this);
+  registerHybridMethod("getView", &EngineWrapper::getView, this);
+  registerHybridMethod("getCamera", &EngineWrapper::getCamera, this);
+  registerHybridMethod("getCameraManipulator", &EngineWrapper::getCameraManipulator, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
@@ -50,23 +55,41 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
     setSurface(surface);
   }
 
-  Listener listener = surfaceProvider->addOnSurfaceChangedListener(
-      SurfaceProvider::Callback{.onSurfaceCreated = [=](std::shared_ptr<Surface> surface) { this->setSurface(surface); },
-                                .onSurfaceDestroyed = [=](std::shared_ptr<Surface> surface) { this->destroySurface(); }});
+  Listener listener = surfaceProvider->addOnSurfaceChangedListener(SurfaceProvider::Callback{
+      .onSurfaceCreated = [=](std::shared_ptr<Surface> surface) { this->setSurface(surface); },
+      .onSurfaceSizeChanged = [=](std::shared_ptr<Surface> surface, int width, int height) { this->surfaceSizeChanged(width, height); },
+      .onSurfaceDestroyed = [=](std::shared_ptr<Surface> surface) { this->destroySurface(); }});
   _listener = std::make_shared<Listener>(std::move(listener));
 }
 
 void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
-  void* nativeWindow = surface->getSurface();
+  // Setup swapchain
+  _swapChain = createSwapChain(surface);
+
+  // Setup camera manipulator
+  _cameraManipulator = createCameraManipulator(surface->getWidth(), surface->getHeight());
+
+  surfaceSizeChanged(surface->getWidth(), surface->getHeight());
+}
+
+void EngineWrapper::surfaceSizeChanged(int width, int height) {
+  if (_view) {
+    _view->setViewport(0, 0, width, height);
+  }
+  if (_cameraManipulator) {
+    _cameraManipulator->getManipulator()->setViewport(width, height);
+  }
+  // TODO:
+  //    updateCameraProjection()
+  //    synchronizePendingFrames(engine)
 }
 
 void EngineWrapper::destroySurface() {
-  // TODO: Implement, probably from JS layer?
-  // if (_swapChain) {
-  //   _engine->destroy(_swapChain.get());
-  //   _engine->flushAndWait();
-  //   _swapChain = nullptr;
-  // }
+  if (_swapChain->getSwapChain()) {
+    _engine->destroy(_swapChain->getSwapChain().get());
+    _engine->flushAndWait();
+    _swapChain = nullptr;
+  }
 }
 
 std::shared_ptr<RendererWrapper> EngineWrapper::createRenderer() {
@@ -82,6 +105,21 @@ std::shared_ptr<SceneWrapper> EngineWrapper::createScene() {
   return std::make_shared<SceneWrapper>(scene);
 }
 
+std::shared_ptr<ViewWrapper> EngineWrapper::createView() {
+  std::shared_ptr view = References<View>::adoptEngineRef(_engine, _engine->createView(),
+                                                          [](const std::shared_ptr<Engine>& engine, View* view) { engine->destroy(view); });
+
+  return std::make_shared<ViewWrapper>(view);
+}
+
+std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChain(std::shared_ptr<Surface> surface) {
+  auto swapChain = References<SwapChain>::adoptEngineRef(
+      _engine, _engine->createSwapChain(surface->getSurface(), SwapChain::CONFIG_TRANSPARENT),
+      [](const std::shared_ptr<Engine>& engine, SwapChain* swapChain) { engine->destroy(swapChain); });
+
+  return std::make_shared<SwapChainWrapper>(swapChain);
+}
+
 std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
   std::shared_ptr<Camera> camera = References<Camera>::adoptEngineRef(
       _engine, _engine->createCamera(_engine->getEntityManager().create()),
@@ -91,24 +129,8 @@ std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
   return std::make_shared<CameraWrapper>(camera);
 }
 
-std::shared_ptr<ViewWrapper> EngineWrapper::createView() {
-  std::shared_ptr view = References<View>::adoptEngineRef(_engine, _engine->createView(),
-                                                          [](const std::shared_ptr<Engine>& engine, View* view) { engine->destroy(view); });
-
-  return std::make_shared<ViewWrapper>(view);
-}
-
-std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChain(std::shared_ptr<Surface> surface) {
-  auto _swapChain = References<SwapChain>::adoptEngineRef(
-      _engine, _engine->createSwapChain(surface->getSurface(), SwapChain::CONFIG_TRANSPARENT),
-      [](const std::shared_ptr<Engine>& engine, SwapChain* swapChain) { engine->destroy(swapChain); });
-
-  return std::make_shared<SwapChainWrapper>(_swapChain);
-}
-
-std::shared_ptr<EntityWrapper> EngineWrapper::createDefaultLight() {
+void EngineWrapper::createDefaultLight() {
   // Create default directional light (In ModelViewer this is the default, so we use it here as well)
-  // TODO: Remove this any make this configurable / expose setExposure to JS
   auto lightEntity = _engine->getEntityManager().create();
   LightManager::Builder(LightManager::Type::DIRECTIONAL)
       .color(Color::cct(6500.0f))
@@ -116,7 +138,8 @@ std::shared_ptr<EntityWrapper> EngineWrapper::createDefaultLight() {
       .direction({0, -1, 0})
       .castShadows(true)
       .build(*_engine, lightEntity);
-  return std::make_shared<EntityWrapper>(std::move(lightEntity));
+
+  _scene->getScene()->addEntity(lightEntity);
 }
 
 std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator(int width, int height) {
