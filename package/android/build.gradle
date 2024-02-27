@@ -172,9 +172,35 @@ task deleteCmakeCache() {
   }
 }
 
+task extractFilament(type: Copy) {
+  // Define the AAR file as an input
+  def filamentAar = configurations.compileClasspath.filter { it.name.contains("filament-android") }.singleFile
+  inputs.file(filamentAar)
+
+  // Define the output directory
+  def outputDir = file("$buildDir/filament")
+  outputs.dir(outputDir)
+
+  from zipTree(filamentAar)
+  into outputDir
+
+  include "jni/**/*"
+  include "libs/**/*.so"
+
+  doFirst {
+    println "Extracting Filament AAR..."
+  }
+  doLast {
+    println "Extraction complete."
+  }
+}
+
 tasks.configureEach { task ->
   // C++ clean
   if (task.name.contains("clean")) {
     task.dependsOn(deleteCmakeCache)
+  }
+  if (task.name.startsWith('externalNativeBuild')) {
+    task.dependsOn(extractFilament)
   }
 }
