@@ -36,9 +36,7 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer) {
 
   createDefaultLight();
 
-  // Install our render frame function into the choreographer
   _choreographer = std::move(choreographer);
-  _choreographer->addOnFrameListener([this](double timestamp) { this->renderFrame(timestamp); });
 }
 
 EngineWrapper::~EngineWrapper() {
@@ -82,6 +80,8 @@ void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
   // Notify about the surface size change
   surfaceSizeChanged(surface->getWidth(), surface->getHeight());
 
+  // Install our render function into the choreographer
+  _choreographerListener = _choreographer->addOnFrameListener([this](double timestamp) { this->renderFrame(timestamp); });
   // Start the rendering
   _choreographer->start();
 }
@@ -100,6 +100,7 @@ void EngineWrapper::surfaceSizeChanged(int width, int height) {
 
 void EngineWrapper::destroySurface() {
   _choreographer->stop();
+  _choreographerListener->remove();
 
   if (_swapChain->getSwapChain()) {
     _engine->destroy(_swapChain->getSwapChain().get());
