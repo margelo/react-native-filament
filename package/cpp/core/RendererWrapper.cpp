@@ -35,4 +35,5 @@ void RendererWrapper::render(std::shared_ptr<ViewWrapper> view) {
 void RendererWrapper::endFrame() {
   _renderer->endFrame();
 }
+
 } // namespace margelo
