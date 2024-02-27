@@ -1,5 +1,5 @@
 import React from 'react'
-import { findNodeHandle, NativeMethods } from 'react-native'
+import { findNodeHandle, NativeMethods, Platform } from 'react-native'
 import { FilamentProxy, Listener } from './native/FilamentProxy'
 import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 
@@ -50,11 +50,19 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
     const engine = FilamentProxy.createEngine()
 
     // Load a model into the scene:
-    const modelBuffer = FilamentProxy.getAssetByteBuffer('custom/pengu.glb')
+    const modelPath = Platform.select({
+      android: 'custom/pengu.glb',
+      ios: 'pengu.glb',
+    })
+    const modelBuffer = FilamentProxy.getAssetByteBuffer(modelPath!)
     engine.loadAsset(modelBuffer)
 
     // Create a default light:
-    const indirectLightBuffer = FilamentProxy.getAssetByteBuffer('custom/default_env_ibl.ktx')
+    const indirectLightPath = Platform.select({
+      android: 'custom/default_env_ibl.ktx',
+      ios: 'default_env_ibl.ktx',
+    })
+    const indirectLightBuffer = FilamentProxy.getAssetByteBuffer(indirectLightPath!)
     engine.createDefaultLight(indirectLightBuffer)
 
     // Link the surface with the engine:

@@ -8,9 +8,9 @@
 
 #pragma once
 
+#include "FilamentBuffer.h"
 #include "FilamentProxy.h"
 #include "FilamentView.h"
-#include "FilamentBuffer.h"
 #include <ReactCommon/CallInvoker.h>
 #include <jsi/jsi.h>
 

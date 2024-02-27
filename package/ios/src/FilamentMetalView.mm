@@ -14,7 +14,7 @@
 
 - (instancetype)init {
   if (self = [super init]) {
-    // init here
+    self.opaque = NO;
   }
   return self;
 }
