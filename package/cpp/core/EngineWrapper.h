@@ -18,6 +18,7 @@
 #include "SwapChainWrapper.h"
 #include "ViewWrapper.h"
 #include "jsi/HybridObject.h"
+#include <Choreographer.h>
 #include <camutils/Manipulator.h>
 #include <core/utils/ManipulatorWrapper.h>
 
@@ -30,7 +31,7 @@ using ManipulatorBuilder = Manipulator<float>::Builder;
 
 class EngineWrapper : public HybridObject {
 public:
-  explicit EngineWrapper();
+  explicit EngineWrapper(std::shared_ptr<Choreographer> choreographer);
   ~EngineWrapper();
 
   void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
@@ -41,14 +42,17 @@ private:
   void setSurface(std::shared_ptr<Surface> surface);
   void destroySurface();
   void surfaceSizeChanged(int width, int height);
+  void setRenderCallback(std::function<void(std::shared_ptr<EngineWrapper>)> callback);
+  void renderFrame(double timestamp);
 
-  // Custom simplification methods
   void createDefaultLight();
 
 private:
   std::shared_ptr<Engine> _engine;
   std::shared_ptr<SurfaceProvider> _surfaceProvider;
   std::shared_ptr<Listener> _listener;
+  std::function<void(std::shared_ptr<EngineWrapper>)> _renderCallback;
+  std::shared_ptr<Choreographer> _choreographer;
 
   // Internals that we might need to split out later
   filament::gltfio::MaterialProvider* _materialProvider;

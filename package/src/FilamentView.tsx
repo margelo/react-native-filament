@@ -49,20 +49,14 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
     const fView = FilamentProxy.findFilamentView(this.handle)
     const surfaceProvider = fView.getSurfaceProvider()
 
+    // Create engine and link it to the surface:
     const engine = FilamentProxy.createEngine()
     engine.setSurfaceProvider(surfaceProvider)
 
-    // Start the rendering loop:
-    // this.choreographerListener = this.choreographer.addOnFrameListener((timestamp) => {
-    //   camera.lookAt(cameraManipulator)
-
-    //   // Render the scene, unless the renderer wants to skip the frame.
-    //   if (renderer.beginFrame(swapChain, timestamp)) {
-    //     renderer.render(view)
-    //     renderer.endFrame()
-    //   }
-    // })
-    // this.choreographer.start()
+    // Callback for rendering every frame
+    engine.setRenderCallback(() => {
+      engine.getCamera().lookAt(engine.getCameraManipulator())
+    })
   }
 
   /** @internal */

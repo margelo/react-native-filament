@@ -15,14 +15,17 @@
 #include <gltfio/MaterialProvider.h>
 #include <gltfio/materials/uberarchive.h>
 
+#include <utility>
+
 namespace margelo {
 
-EngineWrapper::EngineWrapper() {
+EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer) {
   // TODO: make the enum for the backend for the engine configurable
   _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) { Engine::destroy(&engine); });
   _materialProvider = gltfio::createUbershaderProvider(_engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
   _assetLoader = gltfio::AssetLoader::create(filament::gltfio::AssetConfiguration{.engine = _engine.get(), .materials = _materialProvider});
 
+  // Setup filament:
   _renderer = createRenderer();
   _scene = createScene();
   _view = createView();
@@ -32,6 +35,10 @@ EngineWrapper::EngineWrapper() {
   _view->getView()->setCamera(_camera->getCamera().get());
 
   createDefaultLight();
+
+  // Install our render frame function into the choreographer
+  _choreographer = std::move(choreographer);
+  _choreographer->addOnFrameListener([this](double timestamp) { this->renderFrame(timestamp); });
 }
 
 EngineWrapper::~EngineWrapper() {
@@ -41,6 +48,9 @@ EngineWrapper::~EngineWrapper() {
 
 void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider, this);
+  registerHybridMethod("setRenderCallback", &EngineWrapper::setRenderCallback, this);
+
+  // Filament API:
   registerHybridMethod("getRenderer", &EngineWrapper::getRenderer, this);
   registerHybridMethod("getScene", &EngineWrapper::getScene, this);
   registerHybridMethod("getView", &EngineWrapper::getView, this);
@@ -69,7 +79,11 @@ void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
   // Setup camera manipulator
   _cameraManipulator = createCameraManipulator(surface->getWidth(), surface->getHeight());
 
+  // Notify about the surface size change
   surfaceSizeChanged(surface->getWidth(), surface->getHeight());
+
+  // Start the rendering
+  _choreographer->start();
 }
 
 void EngineWrapper::surfaceSizeChanged(int width, int height) {
@@ -85,10 +99,37 @@ void EngineWrapper::surfaceSizeChanged(int width, int height) {
 }
 
 void EngineWrapper::destroySurface() {
+  _choreographer->stop();
+
   if (_swapChain->getSwapChain()) {
     _engine->destroy(_swapChain->getSwapChain().get());
     _engine->flushAndWait();
     _swapChain = nullptr;
+  }
+}
+
+void EngineWrapper::setRenderCallback(std::function<void(std::shared_ptr<EngineWrapper>)> callback) {
+  _renderCallback = std::move(callback);
+}
+
+// This method is connected to the choreographer and gets called every frame,
+// once we have a surface.
+void EngineWrapper::renderFrame(double timestamp) {
+  if (!_swapChain) {
+    return;
+  }
+
+  if (!_view) {
+    return;
+  }
+
+  if (_renderCallback) {
+    _renderCallback(nullptr);
+  }
+
+  if (_renderer->getRenderer()->beginFrame(_swapChain->getSwapChain().get(), timestamp)) {
+    _renderer->getRenderer()->render(_view->getView().get());
+    _renderer->getRenderer()->endFrame();
   }
 }
 
