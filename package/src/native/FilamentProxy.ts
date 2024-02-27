@@ -1,6 +1,6 @@
 import { FilamentNativeModule } from './FilamentNativeModule'
-import type { Engine } from './FilamentTypes'
-import { TFilamentView } from './FilamentViewTypes'
+import type { Engine } from '../types/Engine'
+import { FilamentView } from './FilamentViewTypes'
 
 export interface Listener {
   remove(): void
@@ -40,7 +40,7 @@ export interface TFilamentProxy {
   /**
    * @private
    */
-  findFilamentView(viewTag: number): TFilamentView
+  findFilamentView(viewTag: number): FilamentView
 
   /**
    * Creates a new engine. You should only call this once.

@@ -10,7 +10,7 @@ export interface SurfaceProvider {
   getSurface(): Surface
 }
 
-export interface TFilamentView {
+export interface FilamentView {
   /**
    * @private
    */
