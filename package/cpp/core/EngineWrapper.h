@@ -62,8 +62,6 @@ private:
   std::function<std::shared_ptr<FilamentBuffer>(std::string)> _getAssetBytes;
   std::shared_ptr<Choreographer> _choreographer;
   std::shared_ptr<Listener> _choreographerListener;
-  gltfio::Animator* _animator; // TODO: we currently only have one animator for one asset, need to have multiple in the future
-  double _startTime =0;
 
   // Internals that we might need to split out later
   gltfio::MaterialProvider* _materialProvider;
