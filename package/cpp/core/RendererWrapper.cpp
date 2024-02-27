@@ -31,6 +31,7 @@ void RendererWrapper::render(std::shared_ptr<ViewWrapper> view) {
   View* viewPtr = view->getView().get();
   _renderer->render(viewPtr);
 }
+
 void RendererWrapper::endFrame() {
   _renderer->endFrame();
 }
