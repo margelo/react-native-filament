@@ -7,26 +7,26 @@
 #include "References.h"
 #include <filament/Color.h>
 #include <filament/Engine.h>
+#include <filament/IndirectLight.h>
 #include <filament/LightManager.h>
 #include <filament/SwapChain.h>
+#include <filament/TransformManager.h>
 #include <utils/Entity.h>
 #include <utils/EntityManager.h>
-#include <filament/TransformManager.h>
-#include <filament/IndirectLight.h>
 
 #include <gltfio/MaterialProvider.h>
 #include <gltfio/materials/uberarchive.h>
 
 #include <ktxreader/Ktx1Reader.h>
+#include <utility>
 
 namespace margelo {
 
-EngineWrapper::EngineWrapper() {
+EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer) {
   // TODO: make the enum for the backend for the engine configurable
-  _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) { filament::Engine::destroy(&engine); });
-  _materialProvider = filament::gltfio::createUbershaderProvider(_engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
-  _assetLoader =
-      filament::gltfio::AssetLoader::create(filament::gltfio::AssetConfiguration{.engine = _engine.get(), .materials = _materialProvider});
+  _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) { Engine::destroy(&engine); });
+  _materialProvider = gltfio::createUbershaderProvider(_engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
+  _assetLoader = gltfio::AssetLoader::create(filament::gltfio::AssetConfiguration{.engine = _engine.get(), .materials = _materialProvider});
   _resourceLoader = new filament::gltfio::ResourceLoader({.engine = _engine.get(), .normalizeSkinningWeights = true});
   // Add texture providers to the resource loader
   auto stbProvider = filament::gltfio::createStbProvider(_engine.get());
@@ -34,25 +34,39 @@ EngineWrapper::EngineWrapper() {
   _resourceLoader->addTextureProvider("image/jpeg", stbProvider);
   _resourceLoader->addTextureProvider("image/png", stbProvider);
   _resourceLoader->addTextureProvider("image/ktx2", ktx2Provider);
+
+  // Setup filament:
+  _renderer = createRenderer();
+  _scene = createScene();
+  _view = createView();
+  _camera = createCamera();
+
+  _view->getView()->setScene(_scene->getScene().get());
+  _view->getView()->setCamera(_camera->getCamera().get());
+
+  // TODO: migrate
+  // createDefaultLight();
+
+  _choreographer = std::move(choreographer);
 }
 
 EngineWrapper::~EngineWrapper() {
-  filament::gltfio::AssetLoader::destroy(&_assetLoader);
+  gltfio::AssetLoader::destroy(&_assetLoader);
   _materialProvider->destroyMaterials();
 }
 
 void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider, this);
-  registerHybridMethod("createRenderer", &EngineWrapper::createRenderer, this);
-  registerHybridMethod("createScene", &EngineWrapper::createScene, this);
-  registerHybridMethod("createCamera", &EngineWrapper::createCamera, this);
-  registerHybridMethod("createView", &EngineWrapper::createView, this);
-  registerHybridMethod("createSwapChain", &EngineWrapper::createSwapChain, this);
+  registerHybridMethod("setRenderCallback", &EngineWrapper::setRenderCallback, this);
 
-  // Custom simplification methods
-  registerHybridMethod("createDefaultLight", &EngineWrapper::createDefaultLight, this);
-  registerHybridMethod("createCameraManipulator", &EngineWrapper::createCameraManipulator, this);
   registerHybridMethod("loadAsset", &EngineWrapper::loadAsset, this);
+
+  // Filament API:
+  registerHybridMethod("getRenderer", &EngineWrapper::getRenderer, this);
+  registerHybridMethod("getScene", &EngineWrapper::getScene, this);
+  registerHybridMethod("getView", &EngineWrapper::getView, this);
+  registerHybridMethod("getCamera", &EngineWrapper::getCamera, this);
+  registerHybridMethod("getCameraManipulator", &EngineWrapper::getCameraManipulator, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
@@ -62,23 +76,75 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
     setSurface(surface);
   }
 
-  Listener listener = surfaceProvider->addOnSurfaceChangedListener(
-      SurfaceProvider::Callback{.onSurfaceCreated = [=](std::shared_ptr<Surface> surface) { this->setSurface(surface); },
-                                .onSurfaceDestroyed = [=](std::shared_ptr<Surface> surface) { this->destroySurface(); }});
+  Listener listener = surfaceProvider->addOnSurfaceChangedListener(SurfaceProvider::Callback{
+      .onSurfaceCreated = [=](std::shared_ptr<Surface> surface) { this->setSurface(surface); },
+      .onSurfaceSizeChanged = [=](std::shared_ptr<Surface> surface, int width, int height) { this->surfaceSizeChanged(width, height); },
+      .onSurfaceDestroyed = [=](std::shared_ptr<Surface> surface) { this->destroySurface(); }});
   _listener = std::make_shared<Listener>(std::move(listener));
 }
 
 void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
-  void* nativeWindow = surface->getSurface();
+  // Setup swapchain
+  _swapChain = createSwapChain(surface);
+
+  // Setup camera manipulator
+  _cameraManipulator = createCameraManipulator(surface->getWidth(), surface->getHeight());
+
+  // Notify about the surface size change
+  surfaceSizeChanged(surface->getWidth(), surface->getHeight());
+
+  // Install our render function into the choreographer
+  _choreographerListener = _choreographer->addOnFrameListener([this](double timestamp) { this->renderFrame(timestamp); });
+  // Start the rendering
+  _choreographer->start();
+}
+
+void EngineWrapper::surfaceSizeChanged(int width, int height) {
+  if (_view) {
+    _view->setViewport(0, 0, width, height);
+  }
+  if (_cameraManipulator) {
+    _cameraManipulator->getManipulator()->setViewport(width, height);
+  }
+  // TODO:
+  //    updateCameraProjection()
+  //    synchronizePendingFrames(engine)
 }
 
 void EngineWrapper::destroySurface() {
-  // TODO: Implement, probably from JS layer?
-  // if (_swapChain) {
-  //   _engine->destroy(_swapChain.get());
-  //   _engine->flushAndWait();
-  //   _swapChain = nullptr;
-  // }
+  _choreographer->stop();
+  _choreographerListener->remove();
+
+  if (_swapChain->getSwapChain()) {
+    _engine->destroy(_swapChain->getSwapChain().get());
+    _engine->flushAndWait();
+    _swapChain = nullptr;
+  }
+}
+
+void EngineWrapper::setRenderCallback(std::function<void(std::shared_ptr<EngineWrapper>)> callback) {
+  _renderCallback = std::move(callback);
+}
+
+// This method is connected to the choreographer and gets called every frame,
+// once we have a surface.
+void EngineWrapper::renderFrame(double timestamp) {
+  if (!_swapChain) {
+    return;
+  }
+
+  if (!_view) {
+    return;
+  }
+
+  if (_renderCallback) {
+    _renderCallback(nullptr);
+  }
+
+  if (_renderer->getRenderer()->beginFrame(_swapChain->getSwapChain().get(), timestamp)) {
+    _renderer->getRenderer()->render(_view->getView().get());
+    _renderer->getRenderer()->endFrame();
+  }
 }
 
 std::shared_ptr<RendererWrapper> EngineWrapper::createRenderer() {
@@ -94,6 +160,21 @@ std::shared_ptr<SceneWrapper> EngineWrapper::createScene() {
   return std::make_shared<SceneWrapper>(scene);
 }
 
+std::shared_ptr<ViewWrapper> EngineWrapper::createView() {
+  std::shared_ptr view = References<View>::adoptEngineRef(_engine, _engine->createView(),
+                                                          [](const std::shared_ptr<Engine>& engine, View* view) { engine->destroy(view); });
+
+  return std::make_shared<ViewWrapper>(view);
+}
+
+std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChain(std::shared_ptr<Surface> surface) {
+  auto swapChain = References<SwapChain>::adoptEngineRef(
+      _engine, _engine->createSwapChain(surface->getSurface(), SwapChain::CONFIG_TRANSPARENT),
+      [](const std::shared_ptr<Engine>& engine, SwapChain* swapChain) { engine->destroy(swapChain); });
+
+  return std::make_shared<SwapChainWrapper>(swapChain);
+}
+
 std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
   std::shared_ptr<Camera> camera = References<Camera>::adoptEngineRef(
       _engine, _engine->createCamera(_engine->getEntityManager().create()),
@@ -103,21 +184,6 @@ std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
   return std::make_shared<CameraWrapper>(camera);
 }
 
-std::shared_ptr<ViewWrapper> EngineWrapper::createView() {
-  std::shared_ptr view = References<View>::adoptEngineRef(_engine, _engine->createView(),
-                                                          [](const std::shared_ptr<Engine>& engine, View* view) { engine->destroy(view); });
-
-  return std::make_shared<ViewWrapper>(view);
-}
-
-std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChain(std::shared_ptr<Surface> surface) {
-  auto _swapChain = References<SwapChain>::adoptEngineRef(
-      _engine, _engine->createSwapChain(surface->getSurface(), SwapChain::CONFIG_TRANSPARENT),
-      [](const std::shared_ptr<Engine>& engine, SwapChain* swapChain) { engine->destroy(swapChain); });
-
-  return std::make_shared<SwapChainWrapper>(_swapChain);
-}
-
 void EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer, std::shared_ptr<SceneWrapper> scene) {
   filament::gltfio::FilamentAsset* asset = _assetLoader->createAsset(modelBuffer->getData(), modelBuffer->getSize());
   if (asset == nullptr) {
@@ -125,39 +191,36 @@ void EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer, std::
   }
 
   // TODO: When supporting loading glTF files with external resources, we need to load the resources here
-//    const char* const* const resourceUris = asset->getResourceUris();
-//    const size_t resourceUriCount = asset->getResourceUriCount();
+  //    const char* const* const resourceUris = asset->getResourceUris();
+  //    const size_t resourceUriCount = asset->getResourceUriCount();
 
-    scene->getScene()->addEntities(asset->getEntities(), asset->getEntityCount());
-    _resourceLoader->loadResources(asset);
+  scene->getScene()->addEntities(asset->getEntities(), asset->getEntityCount());
+  _resourceLoader->loadResources(asset);
   // TODO: animator = asset.instance.animator # add animator!
   asset->releaseSourceData();
 
   transformToUnitCube(asset);
 }
 
-std::shared_ptr<EntityWrapper> EngineWrapper::createDefaultLight(std::shared_ptr<FilamentBuffer> modelBuffer, std::shared_ptr<SceneWrapper> scene) {
-    auto* iblBundle = new image::Ktx1Bundle(modelBuffer->getData(), modelBuffer->getSize());
+void EngineWrapper::createDefaultLight(std::shared_ptr<FilamentBuffer> modelBuffer, std::shared_ptr<SceneWrapper> scene) {
+  auto* iblBundle = new image::Ktx1Bundle(modelBuffer->getData(), modelBuffer->getSize());
 
-    Texture* cubemap = ktxreader::Ktx1Reader::createTexture(_engine.get(), *iblBundle, false, [](void* userdata) {
-        auto* bundle = (image::Ktx1Bundle*) userdata;
+  Texture* cubemap = ktxreader::Ktx1Reader::createTexture(
+      _engine.get(), *iblBundle, false,
+      [](void* userdata) {
+        auto* bundle = (image::Ktx1Bundle*)userdata;
         delete bundle;
-    }, iblBundle);
+      },
+      iblBundle);
 
+  math::float3 harmonics[9];
+  iblBundle->getSphericalHarmonics(harmonics);
 
-    math::float3 harmonics[9];
-    iblBundle->getSphericalHarmonics(harmonics);
+  IndirectLight* _indirectLight =
+      IndirectLight::Builder().reflections(cubemap).irradiance(3, harmonics).intensity(30000.0f).build(*_engine);
 
-    IndirectLight* _indirectLight = IndirectLight::Builder()
-            .reflections(cubemap)
-            .irradiance(3, harmonics)
-            .intensity(30000.0f)
-            .build(*_engine);
+  scene->getScene()->setIndirectLight(_indirectLight);
 
-    scene->getScene()->setIndirectLight(_indirectLight);
-
-  // Create default directional light since it is required for shadowing. (In ModelViewer this is the default, so we use it here as well)
-  // TODO: Remove this any make this configurable / expose setExposure to JS
   auto lightEntity = _engine->getEntityManager().create();
   LightManager::Builder(LightManager::Type::DIRECTIONAL)
       .color(Color::cct(6500.0f))
@@ -165,7 +228,8 @@ std::shared_ptr<EntityWrapper> EngineWrapper::createDefaultLight(std::shared_ptr
       .direction({0, -1, 0})
       .castShadows(true)
       .build(*_engine, lightEntity);
-  return std::make_shared<EntityWrapper>(lightEntity);
+
+  _scene->getScene()->addEntity(lightEntity);
 }
 
 std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator(int width, int height) {
@@ -180,14 +244,14 @@ std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator(int w
  * Sets up a root transform on the current model to make it fit into a unit cube.
  */
 void EngineWrapper::transformToUnitCube(filament::gltfio::FilamentAsset* asset) {
-        TransformManager& tm = _engine->getTransformManager();
-        Aabb aabb = asset->getBoundingBox();
-        math::details::TVec3<float> center = aabb.center();
-        math::details::TVec3<float> halfExtent = aabb.extent();
-        float maxExtent = max(halfExtent) * 2;
-        float scaleFactor = 2.0f / maxExtent;
-        math::mat4f transform = math::mat4f::scaling(scaleFactor) * math::mat4f::translation(-center);
-        tm.setTransform(tm.getInstance(asset->getRoot()), transform);
+  TransformManager& tm = _engine->getTransformManager();
+  Aabb aabb = asset->getBoundingBox();
+  math::details::TVec3<float> center = aabb.center();
+  math::details::TVec3<float> halfExtent = aabb.extent();
+  float maxExtent = max(halfExtent) * 2;
+  float scaleFactor = 2.0f / maxExtent;
+  math::mat4f transform = math::mat4f::scaling(scaleFactor) * math::mat4f::translation(-center);
+  tm.setTransform(tm.getInstance(asset->getRoot()), transform);
 }
 
 } // namespace margelo

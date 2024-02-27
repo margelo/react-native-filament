@@ -1,18 +1,18 @@
-export interface TSurface {
-  width: number
-  height: number
+export interface Surface {
+  readonly width: number
+  readonly height: number
 }
 
-export interface TSurfaceProvider {
+export interface SurfaceProvider {
   /**
    * @private
    */
-  getSurface(): TSurface
+  getSurface(): Surface
 }
 
-export interface TFilamentView {
+export interface FilamentView {
   /**
    * @private
    */
-  getSurfaceProvider(): TSurfaceProvider
+  getSurfaceProvider(): SurfaceProvider
 }

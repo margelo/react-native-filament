@@ -45,41 +45,15 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
     // Get Surface:
     const fView = FilamentProxy.findFilamentView(this.handle)
     const surfaceProvider = fView.getSurfaceProvider()
-    const surface = surfaceProvider.getSurface()
-    console.log('Surface Width: ' + surface.width)
 
+    // Create engine and link it to the surface:
     const engine = FilamentProxy.createEngine()
-    const swapChain = engine.createSwapChain(surface)
+    engine.setSurfaceProvider(surfaceProvider)
 
-    const renderer = engine.createRenderer()
-    const scene = engine.createScene()
-    const camera = engine.createCamera()
-    const view = engine.createView()
-    view.scene = scene
-    view.camera = camera
-    // TODO: setting the viewport currently crashes the renderer
-    view.setViewport(0, 0, surface.width, surface.height)
-
-    const cameraManipulator = engine.createCameraManipulator(surface.width, surface.height)
-
-    const modelByteBuffer = FilamentProxy.loadModel('pengu.glb')
-    engine.loadAsset(modelByteBuffer, scene)
-
-    const indirectLight = FilamentProxy.loadModel('default_env_ibl.ktx')
-    const defaultLight = engine.createDefaultLight(indirectLight, scene)
-    scene.addEntity(defaultLight)
-
-    // Start the rendering loop:
-    this.choreographerListener = this.choreographer.addOnFrameListener((timestamp) => {
-      camera.lookAt(cameraManipulator)
-
-      // Render the scene, unless the renderer wants to skip the frame.
-      if (renderer.beginFrame(swapChain, timestamp)) {
-        renderer.render(view)
-        renderer.endFrame()
-      }
+    // Callback for rendering every frame
+    engine.setRenderCallback(() => {
+      engine.getCamera().lookAt(engine.getCameraManipulator())
     })
-    this.choreographer.start()
   }
 
   /** @internal */

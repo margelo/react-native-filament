@@ -15,6 +15,10 @@ public:
 
   void loadHybridMethods() override;
 
+  std::shared_ptr<Renderer> getRenderer() {
+    return _renderer;
+  }
+
 private:
   std::shared_ptr<Renderer> _renderer;
 
