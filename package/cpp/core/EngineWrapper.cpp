@@ -44,9 +44,6 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer) {
   _view->getView()->setScene(_scene->getScene().get());
   _view->getView()->setCamera(_camera->getCamera().get());
 
-  // TODO: migrate
-  // createDefaultLight();
-
   _choreographer = std::move(choreographer);
 }
 
@@ -58,6 +55,7 @@ EngineWrapper::~EngineWrapper() {
 void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider, this);
   registerHybridMethod("setRenderCallback", &EngineWrapper::setRenderCallback, this);
+  registerHybridMethod("createDefaultLight", &EngineWrapper::createDefaultLight, this);
 
   registerHybridMethod("loadAsset", &EngineWrapper::loadAsset, this);
 
@@ -184,17 +182,21 @@ std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
   return std::make_shared<CameraWrapper>(camera);
 }
 
-void EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer, std::shared_ptr<SceneWrapper> scene) {
+void EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
   filament::gltfio::FilamentAsset* asset = _assetLoader->createAsset(modelBuffer->getData(), modelBuffer->getSize());
   if (asset == nullptr) {
     throw std::runtime_error("Failed to load asset");
+  }
+
+  if (!_scene) {
+     throw std::runtime_error("Scene not initialized");
   }
 
   // TODO: When supporting loading glTF files with external resources, we need to load the resources here
   //    const char* const* const resourceUris = asset->getResourceUris();
   //    const size_t resourceUriCount = asset->getResourceUriCount();
 
-  scene->getScene()->addEntities(asset->getEntities(), asset->getEntityCount());
+  _scene->getScene()->addEntities(asset->getEntities(), asset->getEntityCount());
   _resourceLoader->loadResources(asset);
   // TODO: animator = asset.instance.animator # add animator!
   asset->releaseSourceData();
@@ -202,8 +204,19 @@ void EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer, std::
   transformToUnitCube(asset);
 }
 
-void EngineWrapper::createDefaultLight(std::shared_ptr<FilamentBuffer> modelBuffer, std::shared_ptr<SceneWrapper> scene) {
-  auto* iblBundle = new image::Ktx1Bundle(modelBuffer->getData(), modelBuffer->getSize());
+// Default light is a directional light for shadows + a default IBL
+void EngineWrapper::createDefaultLight(std::shared_ptr<FilamentBuffer> iblBuffer) {
+  if (!_scene) {
+    throw std::runtime_error("Scene not initialized");
+  }
+  if (!iblBuffer) {
+    throw std::runtime_error("IBL buffer is null");
+  }
+  if (iblBuffer->getSize() == 0) {
+    throw std::runtime_error("IBL buffer is empty");
+  }
+
+  auto* iblBundle = new image::Ktx1Bundle(iblBuffer->getData(), iblBuffer->getSize());
 
   Texture* cubemap = ktxreader::Ktx1Reader::createTexture(
       _engine.get(), *iblBundle, false,
@@ -219,8 +232,9 @@ void EngineWrapper::createDefaultLight(std::shared_ptr<FilamentBuffer> modelBuff
   IndirectLight* _indirectLight =
       IndirectLight::Builder().reflections(cubemap).irradiance(3, harmonics).intensity(30000.0f).build(*_engine);
 
-  scene->getScene()->setIndirectLight(_indirectLight);
+  _scene->getScene()->setIndirectLight(_indirectLight);
 
+  // Add directional light for supporting shadows
   auto lightEntity = _engine->getEntityManager().create();
   LightManager::Builder(LightManager::Type::DIRECTIONAL)
       .color(Color::cct(6500.0f))

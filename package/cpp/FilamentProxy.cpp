@@ -8,6 +8,7 @@
 #include "jsi/Promise.h"
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace margelo {
