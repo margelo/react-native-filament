@@ -16,9 +16,9 @@
 #include <utils/Entity.h>
 #include <utils/EntityManager.h>
 
-#include <gltfio/Animator.h>
 #include <gltfio/MaterialProvider.h>
 #include <gltfio/materials/uberarchive.h>
+#include <gltfio/Animator.h>
 
 #include <ktxreader/Ktx1Reader.h>
 #include <utility>
@@ -143,6 +143,17 @@ void EngineWrapper::renderFrame(double timestamp) {
 
   _resourceLoader->asyncUpdateLoad();
 
+  if (_startTime == 0) {
+    _startTime = timestamp;
+  }
+
+  if (_animator) {
+    if (_animator->getAnimationCount() > 0) {
+      _animator->applyAnimation(0, (timestamp - _startTime) / 1e9);
+    }
+    _animator->updateBoneMatrices();
+  }
+
   if (_renderCallback) {
     _renderCallback(nullptr);
   }
@@ -206,6 +217,7 @@ void EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
 
   _scene->getScene()->addEntities(asset->getEntities(), asset->getEntityCount());
   _resourceLoader->loadResources(asset);
+  _animator = asset->getInstance()->getAnimator();
   asset->releaseSourceData();
 
   transformToUnitCube(asset);
