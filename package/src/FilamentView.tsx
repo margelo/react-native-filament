@@ -46,8 +46,18 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
     const fView = FilamentProxy.findFilamentView(this.handle)
     const surfaceProvider = fView.getSurfaceProvider()
 
-    // Create engine and link it to the surface:
+    // Create engine:
     const engine = FilamentProxy.createEngine()
+
+    // Load a model into the scene:
+    const modelByteBuffer = FilamentProxy.loadModel('pengu.glb')
+    engine.loadAsset(modelByteBuffer)
+
+    // Create a default light:
+    const indirectLight = FilamentProxy.loadModel('default_env_ibl.ktx')
+    engine.createDefaultLight(indirectLight)
+
+    // Link the surface with the engine:
     engine.setSurfaceProvider(surfaceProvider)
 
     // Callback for rendering every frame

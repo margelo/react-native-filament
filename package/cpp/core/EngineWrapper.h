@@ -48,14 +48,16 @@ private:
   void setRenderCallback(std::function<void(std::shared_ptr<EngineWrapper>)> callback);
   void renderFrame(double timestamp);
 
-  void loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer, std::shared_ptr<SceneWrapper> scene);
-  void createDefaultLight();
+  void transformToUnitCube(filament::gltfio::FilamentAsset* asset);
+  void loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
+  void createDefaultLight(std::shared_ptr<FilamentBuffer> modelBuffer);
 
 private:
   std::shared_ptr<Engine> _engine;
   std::shared_ptr<SurfaceProvider> _surfaceProvider;
   std::shared_ptr<Listener> _listener;
   std::function<void(std::shared_ptr<EngineWrapper>)> _renderCallback;
+  std::function<std::shared_ptr<FilamentBuffer>(std::string)> _getAssetBytes;
   std::shared_ptr<Choreographer> _choreographer;
   std::shared_ptr<Listener> _choreographerListener;
 
@@ -67,9 +69,6 @@ private:
   const float defaultObjectPositionX = 0.0f;
   const float defaultObjectPositionY = 0.0f;
   const float defaultObjectPositionZ = -4.0f;
-
-private:
-  void transformToUnitCube(filament::gltfio::FilamentAsset* asset);
 
 private:
   // Internals we create, but share the access with the user
