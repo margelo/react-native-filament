@@ -53,6 +53,7 @@ private:
   std::shared_ptr<Listener> _listener;
   std::function<void(std::shared_ptr<EngineWrapper>)> _renderCallback;
   std::shared_ptr<Choreographer> _choreographer;
+  std::shared_ptr<Listener> _choreographerListener;
 
   // Internals that we might need to split out later
   filament::gltfio::MaterialProvider* _materialProvider;
