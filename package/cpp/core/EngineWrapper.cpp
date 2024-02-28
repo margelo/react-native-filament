@@ -129,9 +129,12 @@ void EngineWrapper::renderFrame(double timestamp) {
     _renderCallback(nullptr);
   }
 
-  if (_renderer->getRenderer()->beginFrame(_swapChain->getSwapChain().get(), timestamp)) {
-    _renderer->getRenderer()->render(_view->getView().get());
-    _renderer->getRenderer()->endFrame();
+  std::shared_ptr<Renderer> renderer = _renderer->getRenderer();
+  std::shared_ptr<SwapChain> swapChain = _swapChain->getSwapChain();
+  if (renderer->beginFrame(swapChain.get(), timestamp)) {
+    std::shared_ptr<FilamentView> view = _view->getView();
+    renderer->render(view.get());
+    renderer->endFrame();
   }
 }
 
