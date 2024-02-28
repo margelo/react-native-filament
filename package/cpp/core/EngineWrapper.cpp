@@ -127,7 +127,7 @@ void EngineWrapper::renderFrame(double timestamp) {
   std::shared_ptr<Renderer> renderer = _renderer->getRenderer();
   std::shared_ptr<SwapChain> swapChain = _swapChain->getSwapChain();
   if (renderer->beginFrame(swapChain.get(), timestamp)) {
-    std::shared_ptr<FilamentView> view = _view->getView();
+    std::shared_ptr<View> view = _view->getView();
     renderer->render(view.get());
     renderer->endFrame();
   }
@@ -166,7 +166,10 @@ std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
       _engine, _engine->createCamera(_engine->getEntityManager().create()),
       [](const std::shared_ptr<Engine>& engine, Camera* camera) { engine->destroyCameraComponent(camera->getEntity()); });
 
-  camera->setExposure(16.0f, 1.0f / 125.0f, 100.0f);
+  const float aperture = 16.0f;
+  const float shutterSpeed = 1.0f / 125.0f;
+  const float sensitivity = 100.0f;
+  camera->setExposure(aperture, shutterSpeed, sensitivity);
   return std::make_shared<CameraWrapper>(camera);
 }
 
