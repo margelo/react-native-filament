@@ -118,12 +118,7 @@ void EngineWrapper::surfaceSizeChanged(int width, int height) {
 void EngineWrapper::destroySurface() {
   _choreographer->stop();
   _choreographerListener->remove();
-
-  if (_swapChain->getSwapChain()) {
-    _engine->destroy(_swapChain->getSwapChain().get());
-    _engine->flushAndWait();
-    _swapChain = nullptr;
-  }
+  _swapChain = nullptr;
 }
 
 void EngineWrapper::setRenderCallback(std::function<void(std::shared_ptr<EngineWrapper>)> callback) {
@@ -155,12 +150,16 @@ void EngineWrapper::renderFrame(double timestamp) {
   }
 
   if (_renderCallback) {
+    // Call JS callback with scene information
     _renderCallback(nullptr);
   }
 
-  if (_renderer->getRenderer()->beginFrame(_swapChain->getSwapChain().get(), timestamp)) {
-    _renderer->getRenderer()->render(_view->getView().get());
-    _renderer->getRenderer()->endFrame();
+  std::shared_ptr<Renderer> renderer = _renderer->getRenderer();
+  std::shared_ptr<SwapChain> swapChain = _swapChain->getSwapChain();
+  if (renderer->beginFrame(swapChain.get(), timestamp)) {
+    std::shared_ptr<View> view = _view->getView();
+    renderer->render(view.get());
+    renderer->endFrame();
   }
 }
 
@@ -197,7 +196,10 @@ std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
       _engine, _engine->createCamera(_engine->getEntityManager().create()),
       [](const std::shared_ptr<Engine>& engine, Camera* camera) { engine->destroyCameraComponent(camera->getEntity()); });
 
-  camera->setExposure(16.0f, 1.0f / 125.0f, 100.0f);
+  const float aperture = 16.0f;
+  const float shutterSpeed = 1.0f / 125.0f;
+  const float sensitivity = 100.0f;
+  camera->setExposure(aperture, shutterSpeed, sensitivity);
   return std::make_shared<CameraWrapper>(camera);
 }
 
