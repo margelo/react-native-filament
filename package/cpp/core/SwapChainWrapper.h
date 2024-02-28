@@ -11,7 +11,7 @@ class SwapChainWrapper : public HybridObject {
 public:
   explicit SwapChainWrapper(const std::shared_ptr<SwapChain>& swapChain) : _swapChain(std::move(swapChain)) {}
 
-  void loadHybridMethods() override;
+  void loadHybridMethods() override {}
 
   std::shared_ptr<SwapChain> getSwapChain() {
     return _swapChain;
