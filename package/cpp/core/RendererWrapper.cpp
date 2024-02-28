@@ -16,22 +16,17 @@ void RendererWrapper::loadHybridMethods() {
 }
 
 bool RendererWrapper::beginFrame(std::shared_ptr<SwapChainWrapper> swapChain, double frameTimeNanos) {
-  if (swapChain->getSwapChain() == nullptr) {
-    throw std::runtime_error("SwapChain is null");
-  }
-
   SwapChain* swapChainPtr = swapChain->getSwapChain().get();
   return _renderer->beginFrame(swapChainPtr, frameTimeNanos);
 }
-void RendererWrapper::render(std::shared_ptr<ViewWrapper> view) {
-  if (view->getView() == nullptr) {
-    throw std::runtime_error("View is null");
-  }
 
+void RendererWrapper::render(std::shared_ptr<ViewWrapper> view) {
   View* viewPtr = view->getView().get();
   _renderer->render(viewPtr);
 }
+
 void RendererWrapper::endFrame() {
   _renderer->endFrame();
 }
+
 } // namespace margelo
