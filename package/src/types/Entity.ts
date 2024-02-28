@@ -1,3 +1,5 @@
-// TODO: I think entities are at their core just numbers maybe we can expose them just as such to JS
-
+/**
+ * Everything inside the scene is an entity.
+ * Entities are managed by the EntityManager.
+ */
 export interface Entity {}
