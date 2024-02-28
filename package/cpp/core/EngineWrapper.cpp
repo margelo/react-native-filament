@@ -16,9 +16,9 @@
 #include <utils/Entity.h>
 #include <utils/EntityManager.h>
 
+#include <gltfio/Animator.h>
 #include <gltfio/MaterialProvider.h>
 #include <gltfio/materials/uberarchive.h>
-#include <gltfio/Animator.h>
 
 #include <ktxreader/Ktx1Reader.h>
 #include <utility>
