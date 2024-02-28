@@ -16,10 +16,6 @@ void RendererWrapper::loadHybridMethods() {
 }
 
 bool RendererWrapper::beginFrame(std::shared_ptr<SwapChainWrapper> swapChain, double frameTimeNanos) {
-  if (swapChain->getSwapChain() == nullptr) {
-    throw std::runtime_error("SwapChain is null");
-  }
-
   SwapChain* swapChainPtr = swapChain->getSwapChain().get();
   return _renderer->beginFrame(swapChainPtr, frameTimeNanos);
 }
