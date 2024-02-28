@@ -142,12 +142,12 @@ void EngineWrapper::renderFrame(double timestamp) {
     _startTime = timestamp;
   }
 
-  if (_animator) {
-    if (_animator->getAnimationCount() > 0) {
-      _animator->applyAnimation(0, (timestamp - _startTime) / 1e9);
-    }
-    _animator->updateBoneMatrices();
-  }
+  //  if (_animator) {
+  //    if (_animator->getAnimationCount() > 0) {
+  //      _animator->applyAnimation(0, (timestamp - _startTime) / 1e9);
+  //    }
+  //    _animator->updateBoneMatrices();
+  //  }
 
   if (_renderCallback) {
     // Call JS callback with scene information
@@ -269,7 +269,10 @@ void EngineWrapper::createDefaultLight(std::shared_ptr<FilamentBuffer> iblBuffer
 
 std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator(int width, int height) {
   auto* builder = new ManipulatorBuilder();
-  builder->orbitHomePosition(defaultObjectPosition.x, defaultObjectPosition.y, defaultObjectPosition.z);
+  // Position of the camera:
+  builder->orbitHomePosition(defaultCameraPosition.x, defaultCameraPosition.y, defaultCameraPosition.z);
+  // Position the camera points to:
+  builder->targetPosition(defaultObjectPosition.x, defaultObjectPosition.y, defaultObjectPosition.z);
   builder->viewport(width, height);
   std::shared_ptr<Manipulator<float>> manipulator = std::shared_ptr<Manipulator<float>>(builder->build(Mode::ORBIT));
   return std::make_shared<ManipulatorWrapper>(manipulator);
@@ -286,7 +289,8 @@ void EngineWrapper::transformToUnitCube(filament::gltfio::FilamentAsset* asset) 
   float maxExtent = max(halfExtent) * 2.0f;
   float scaleFactor = 2.0f / maxExtent;
   math::mat4f transform = math::mat4f::scaling(scaleFactor) * math::mat4f::translation(-center);
-  tm.setTransform(tm.getInstance(asset->getRoot()), transform);
+  auto transformInstance = tm.getInstance(asset->getRoot());
+  tm.setTransform(transformInstance, transform);
 }
 
 void EngineWrapper::updateCameraProjection() {
