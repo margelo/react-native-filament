@@ -289,7 +289,7 @@ void EngineWrapper::transformToUnitCube(filament::gltfio::FilamentAsset* asset) 
   float maxExtent = max(halfExtent) * 2.0f;
   float scaleFactor = 2.0f / maxExtent;
   math::mat4f transform = math::mat4f::scaling(scaleFactor) * math::mat4f::translation(-center);
-  auto transformInstance = tm.getInstance(asset->getRoot());
+  EntityInstance<TransformManager> transformInstance = tm.getInstance(asset->getRoot());
   tm.setTransform(transformInstance, transform);
 }
 
