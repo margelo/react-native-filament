@@ -101,12 +101,7 @@ void EngineWrapper::surfaceSizeChanged(int width, int height) {
 void EngineWrapper::destroySurface() {
   _choreographer->stop();
   _choreographerListener->remove();
-
-  if (_swapChain->getSwapChain()) {
-    _engine->destroy(_swapChain->getSwapChain().get());
-    _engine->flushAndWait();
-    _swapChain = nullptr;
-  }
+  _swapChain = nullptr;
 }
 
 void EngineWrapper::setRenderCallback(std::function<void(std::shared_ptr<EngineWrapper>)> callback) {
