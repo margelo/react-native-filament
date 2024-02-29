@@ -11,7 +11,7 @@ import { Float3 } from './float3'
 
 export interface Engine {
   setSurfaceProvider(surfaceProvider: SurfaceProvider): void
-  setRenderCallback(callback: (engine: Engine) => void): void
+  setRenderCallback(callback: (timestamp: number, startTime: number, passedSeconds: number) => void): void
 
   /**
    * Given a @see FilamentBuffer (e.g. from a .glb file), load the asset into the engine.

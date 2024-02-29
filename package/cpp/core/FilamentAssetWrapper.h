@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AnimatorWrapper.h"
 #include "core/utils/EntityWrapper.h"
 #include "jsi/HybridObject.h"
 #include <filament/TransformManager.h>
@@ -19,6 +20,8 @@ public:
 
 private:
   std::shared_ptr<EntityWrapper> getRoot();
+  void releaseSourceData();
+  std::shared_ptr<AnimatorWrapper> getAnimator();
 
 private:
   std::shared_ptr<gltfio::FilamentAsset> _asset;

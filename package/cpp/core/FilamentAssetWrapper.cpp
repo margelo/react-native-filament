@@ -1,5 +1,6 @@
 #include "FilamentAssetWrapper.h"
 
+#include <filament/Engine.h>
 #include <utils/Entity.h>
 #include <utils/EntityInstance.h>
 
@@ -9,6 +10,8 @@ using namespace utils;
 
 void FilamentAssetWrapper::loadHybridMethods() {
   registerHybridMethod("getRoot", &FilamentAssetWrapper::getRoot, this);
+  registerHybridMethod("releaseSourceData", &FilamentAssetWrapper::releaseSourceData, this);
+  registerHybridMethod("getAnimator", &FilamentAssetWrapper::getAnimator, this);
 }
 
 /**
@@ -28,6 +31,16 @@ void FilamentAssetWrapper::transformToUnitCube(TransformManager& transformManage
 std::shared_ptr<EntityWrapper> FilamentAssetWrapper::getRoot() {
   Entity rootEntity = _asset->getRoot();
   return std::make_shared<EntityWrapper>(rootEntity);
+}
+
+void FilamentAssetWrapper::releaseSourceData() {
+  _asset->releaseSourceData();
+}
+std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::getAnimator() {
+  Animator* animator = _asset->getInstance()->getAnimator();
+  // Note: i haven't found anyway to cleanup the animator, in the sample code they just set it to nullptr
+  // I believe it's memory gets cleaned up when the asset is destroyed.
+  return std::make_shared<AnimatorWrapper>(animator);
 }
 
 } // namespace margelo

@@ -3,6 +3,7 @@ import { findNodeHandle, NativeMethods, Platform } from 'react-native'
 import { FilamentProxy } from './native/FilamentProxy'
 import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 import type { Float3 } from './types/float3'
+import { Animator } from './types/Animator'
 
 type FilamentViewProps = NativeProps
 
@@ -21,6 +22,7 @@ const indirectLightPath = Platform.select({
 export class FilamentView extends React.PureComponent<FilamentViewProps> {
   private readonly ref: React.RefObject<RefType>
   private readonly engine = FilamentProxy.createEngine()
+  private animator: Animator | null = null
 
   constructor(props: FilamentViewProps) {
     super(props)
@@ -50,13 +52,12 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
     // Load a model into the scene:
     const modelBuffer = FilamentProxy.getAssetByteBuffer(penguModelPath)
     const penguAsset = this.engine.loadAsset(modelBuffer)
+    this.animator = penguAsset.getAnimator()
+    penguAsset.releaseSourceData() // Cleanup memory after loading the asset
+
     // By default all assets get added to the origin at 0,0,0,
     // we transform it to fit into a unit cube at the origin using this utility:
     this.engine.transformToUnitCube(penguAsset)
-
-    // We can also change the pengus position, rotation and scale:
-    const penguEntity = penguAsset.getRoot()
-    this.engine.setEntityPosition(penguEntity, [0, 2, 0], true) // Move the pengu up by 2 units
 
     // Create a default light:
     const indirectLightBuffer = FilamentProxy.getAssetByteBuffer(indirectLightPath)
@@ -67,10 +68,15 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
     this.engine.getScene().addEntity(light)
   }
 
-  renderCallback = () => {
+  renderCallback = (_timestamp: number, _startTime: number, passedSeconds: number) => {
     const cameraPosition: Float3 = [0, 0, 5]
     const cameraTarget: Float3 = [0, 0, 0]
     const cameraUp: Float3 = [0, 1, 0]
+
+    if (this.animator) {
+      this.animator.applyAnimation(0, passedSeconds)
+      this.animator.updateBoneMatrices()
+    }
 
     this.engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
   }
