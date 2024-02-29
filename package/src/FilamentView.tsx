@@ -42,7 +42,8 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
       ios: 'pengu.glb',
     })
     const modelBuffer = FilamentProxy.getAssetByteBuffer(modelPath!)
-    this.engine.loadAsset(modelBuffer)
+    const penguAsset = this.engine.loadAsset(modelBuffer)
+    this.engine.transformToUnitCube(penguAsset)
 
     // Create a default light:
     const indirectLightPath = Platform.select({

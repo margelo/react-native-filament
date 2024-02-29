@@ -51,7 +51,7 @@ private:
   void setRenderCallback(std::function<void(std::shared_ptr<EngineWrapper>)> callback);
   void renderFrame(double timestamp);
 
-  void transformToUnitCube(const std::shared_ptr<FilamentAssetWrapper>& asset);
+  void transformToUnitCube(std::shared_ptr<FilamentAssetWrapper> asset);
   std::shared_ptr<FilamentAssetWrapper> loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
   void setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer);
 

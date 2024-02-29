@@ -76,6 +76,7 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("getCamera", &EngineWrapper::getCamera, this);
   registerHybridMethod("getCameraManipulator", &EngineWrapper::getCameraManipulator, this);
   registerHybridMethod("createLightEntity", &EngineWrapper::createLightEntity, this);
+  registerHybridMethod("transformToUnitCube", &EngineWrapper::transformToUnitCube, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
@@ -298,7 +299,7 @@ std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator(int w
 /**
  * Sets up a root transform on the current model to make it fit into a unit cube.
  */
-void EngineWrapper::transformToUnitCube(const std::shared_ptr<FilamentAssetWrapper>& asset) {
+void EngineWrapper::transformToUnitCube(std::shared_ptr<FilamentAssetWrapper> asset) {
   TransformManager& tm = _engine->getTransformManager();
   asset->transformToUnitCube(tm);
 }
