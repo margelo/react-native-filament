@@ -28,7 +28,7 @@ export interface Engine {
     directionX: number,
     directionY: number,
     directionZ: number,
-    castShadows: boolean,
+    castShadows: boolean
   ): Entity
 
   transformToUnitCube(entity: FilamentAsset): void
