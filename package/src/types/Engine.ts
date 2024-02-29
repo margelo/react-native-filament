@@ -20,10 +20,8 @@ export interface Engine {
   getView(): View
   getCameraManipulator(): Manipulator
 
-  // std::shared_ptr<EntityWrapper> createLightEntity(LightManager::Type type, float colorFahrenheit, float intensity, float directionX,
-  //   float directionY, float directionZ, bool castShadows);
   createLightEntity(
-    type: number,
+    type: 'directional' | 'spot' | 'point' | 'focused_point' | 'sun',
     colorFahrenheit: number,
     intensity: number,
     directionX: number,
