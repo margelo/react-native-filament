@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/utils/EntityWrapper.h"
 #include "jsi/HybridObject.h"
 #include <filament/TransformManager.h>
 #include <gltfio/FilamentAsset.h>
@@ -15,6 +16,9 @@ public:
   void loadHybridMethods() override;
 
   void transformToUnitCube(TransformManager& transformManager);
+
+private:
+  std::shared_ptr<EntityWrapper> getRoot();
 
 private:
   std::shared_ptr<gltfio::FilamentAsset> _asset;

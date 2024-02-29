@@ -60,6 +60,11 @@ private:
   std::shared_ptr<EntityWrapper> createLightEntity(std::string lightTypeStr, double colorFahrenheit, double intensity, double directionX,
                                                    double directionY, double directionZ, bool castShadows);
 
+  void setEntityPosition(std::shared_ptr<EntityWrapper> entity, double x, double y, double z);
+  void setEntityRotation(std::shared_ptr<EntityWrapper> entity, double angleRadians, double x, double y, double z);
+  void setEntityScale(std::shared_ptr<EntityWrapper> entity, double x, double y, double z);
+  void translateEntityPosition(std::shared_ptr<EntityWrapper> entity, double x, double y, double z);
+
 private:
   std::shared_ptr<Engine> _engine;
   std::shared_ptr<SurfaceProvider> _surfaceProvider;

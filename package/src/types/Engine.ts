@@ -32,4 +32,9 @@ export interface Engine {
   ): Entity
 
   transformToUnitCube(entity: FilamentAsset): void
+
+  setEntityPosition(entity: Entity, x: number, y: number, z: number): void
+  setEntityRotation(entity: Entity, angleRadians: number, x: number, y: number, z: number): void
+  setEntityScale(entity: Entity, x: number, y: number, z: number): void
+  translateEntityPosition(entity: Entity, x: number, y: number, z: number): void
 }

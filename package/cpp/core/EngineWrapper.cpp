@@ -77,6 +77,10 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("getCameraManipulator", &EngineWrapper::getCameraManipulator, this);
   registerHybridMethod("createLightEntity", &EngineWrapper::createLightEntity, this);
   registerHybridMethod("transformToUnitCube", &EngineWrapper::transformToUnitCube, this);
+  registerHybridMethod("setEntityPosition", &EngineWrapper::setEntityPosition, this);
+  registerHybridMethod("setEntityRotation", &EngineWrapper::setEntityRotation, this);
+  registerHybridMethod("setEntityScale", &EngineWrapper::setEntityScale, this);
+  registerHybridMethod("translateEntityPosition", &EngineWrapper::translateEntityPosition, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
@@ -315,6 +319,58 @@ void EngineWrapper::synchronizePendingFrames() {
   Fence* fence = _engine->createFence();
   fence->wait(Fence::Mode::FLUSH, Fence::FENCE_WAIT_FOR_EVER);
   _engine->destroy(fence);
+}
+
+// TODO(Marc): Ideally i want to do this in the entity wrapper, but i dont have access to the transform manager there
+void EngineWrapper::setEntityPosition(std::shared_ptr<EntityWrapper> entity, double x, double y, double z) {
+  if (!entity) {
+    throw std::invalid_argument("Entity is null");
+  }
+
+  math::float3 position = math::float3(x, y, z);
+  TransformManager& tm = _engine->getTransformManager();
+  EntityInstance<TransformManager> entityInstance = tm.getInstance(entity->getEntity());
+  auto translationMatrix = math::mat4::translation(position);
+  tm.setTransform(entityInstance, math::mat4::translation(position));
+}
+
+void EngineWrapper::setEntityRotation(std::shared_ptr<EntityWrapper> entity, double angleRadians, double x, double y, double z) {
+  if (!entity) {
+    throw std::invalid_argument("Entity is null");
+  }
+
+  math::float3 axis = math::float3(x, y, z);
+  float angle = static_cast<float>(angleRadians);
+
+  TransformManager& tm = _engine->getTransformManager();
+  EntityInstance<TransformManager> entityInstance = tm.getInstance(entity->getEntity());
+  auto rotationMatrix = math::mat4::rotation(angle, axis);
+  tm.setTransform(entityInstance, rotationMatrix);
+}
+
+void EngineWrapper::setEntityScale(std::shared_ptr<EntityWrapper> entity, double x, double y, double z) {
+  if (!entity) {
+    throw std::invalid_argument("Entity is null");
+  }
+
+  math::float3 scale = math::float3(x, y, z);
+  TransformManager& tm = _engine->getTransformManager();
+  EntityInstance<TransformManager> entityInstance = tm.getInstance(entity->getEntity());
+  tm.setTransform(entityInstance, math::mat4::scaling(scale));
+}
+
+void EngineWrapper::translateEntityPosition(std::shared_ptr<EntityWrapper> entity, double x, double y, double z) {
+  if (!entity) {
+    throw std::invalid_argument("Entity is null");
+  }
+
+  math::float3 position = math::float3(x, y, z);
+  TransformManager& tm = _engine->getTransformManager();
+  EntityInstance<TransformManager> entityInstance = tm.getInstance(entity->getEntity());
+  auto translationMatrix = math::mat4::translation(position);
+  auto currentTransform = tm.getTransform(entityInstance);
+  auto newTransform = currentTransform * translationMatrix;
+  tm.setTransform(entityInstance, newTransform);
 }
 
 } // namespace margelo
