@@ -92,7 +92,7 @@ template <typename TInner> struct JSIConverter<std::optional<TInner>> {
       return JSIConverter<TInner>::fromJSI(runtime, std::move(arg));
     }
   }
-  static jsi::Value toJSI(jsi::Runtime& runtime, std::optional<TInner> arg) {
+  static jsi::Value toJSI(jsi::Runtime& runtime, const std::optional<TInner>& arg) {
     if (arg == std::nullopt) {
       return jsi::Value::undefined();
     } else {
@@ -142,7 +142,7 @@ template <typename ReturnType, typename... Args> struct JSIConverter<std::functi
       return JSIConverter<ReturnType>::toJSI(runtime, result);
     }
   }
-  static jsi::Value toJSI(jsi::Runtime& runtime, std::function<ReturnType(Args...)> function) {
+  static jsi::Value toJSI(jsi::Runtime& runtime, const std::function<ReturnType(Args...)>& function) {
     jsi::HostFunctionType jsFunction = [function = std::move(function)](jsi::Runtime& runtime, const jsi::Value& thisValue,
                                                                         const jsi::Value* args, size_t count) -> jsi::Value {
       if (count != sizeof...(Args)) {
@@ -169,7 +169,7 @@ template <typename ElementType> struct JSIConverter<std::vector<ElementType>> {
     }
     return vector;
   }
-  static jsi::Value toJSI(jsi::Runtime& runtime, std::vector<ElementType>& vector) {
+  static jsi::Value toJSI(jsi::Runtime& runtime, const std::vector<ElementType>& vector) {
     jsi::Array array(runtime, vector.size());
     for (size_t i = 0; i < vector.size(); i++) {
       jsi::Value value = JSIConverter<ElementType>::toJSI(runtime, vector[i]);
@@ -186,14 +186,15 @@ template <typename ValueType> struct JSIConverter<std::unordered_map<std::string
     size_t length = propertyNames.size(runtime);
 
     std::unordered_map<std::string, ValueType> map;
+    map.reserve(length);
     for (size_t i = 0; i < length; ++i) {
-      auto key = propertyNames.getValueAtIndex(runtime, i).asString(runtime).utf8(runtime);
+      std::string key = propertyNames.getValueAtIndex(runtime, i).asString(runtime).utf8(runtime);
       jsi::Value value = object.getProperty(runtime, key.c_str());
       map.emplace(key, JSIConverter<ValueType>::fromJSI(runtime, value));
     }
     return map;
   }
-  static jsi::Value toJSI(jsi::Runtime& runtime, std::unordered_map<std::string, ValueType>& map) {
+  static jsi::Value toJSI(jsi::Runtime& runtime, const std::unordered_map<std::string, ValueType>& map) {
     jsi::Object object(runtime);
     for (const auto& pair : map) {
       jsi::Value value = JSIConverter<ValueType>::toJSI(runtime, pair.second);
@@ -212,7 +213,7 @@ template <typename T> struct JSIConverter<T, std::enable_if_t<is_shared_ptr_to_h
   static T fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
     return arg.asObject(runtime).asHostObject<typename T::element_type>(runtime);
   }
-  static jsi::Value toJSI(jsi::Runtime& runtime, T& arg) {
+  static jsi::Value toJSI(jsi::Runtime& runtime, const T& arg) {
     return jsi::Object::createFromHostObject(runtime, arg);
   }
 };
