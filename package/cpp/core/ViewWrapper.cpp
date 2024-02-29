@@ -42,17 +42,10 @@ void ViewWrapper::setViewport(int x, int y, int width, int height) {
     throw std::invalid_argument("Invalid viewport size");
   }
 
-  if (!_view) {
-    throw std::invalid_argument("View is null");
-  }
-
   _view->setViewport({x, y, static_cast<uint32_t>(width), static_cast<uint32_t>(height)});
 }
 
 double ViewWrapper::getAspectRatio() {
-  if (!_view) {
-    throw std::invalid_argument("View is null");
-  }
   return (double)_view->getViewport().width / _view->getViewport().height;
 }
 
