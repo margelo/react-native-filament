@@ -11,12 +11,12 @@ type RefType = React.Component<NativeProps> & Readonly<NativeMethods>
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',
   ios: 'pengu.glb',
-})
+})!
 
 const indirectLightPath = Platform.select({
   android: 'custom/default_env_ibl.ktx',
   ios: 'default_env_ibl.ktx',
-})
+})!
 
 export class FilamentView extends React.PureComponent<FilamentViewProps> {
   private readonly ref: React.RefObject<RefType>
@@ -48,7 +48,7 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
 
   setup3dScene = () => {
     // Load a model into the scene:
-    const modelBuffer = FilamentProxy.getAssetByteBuffer(penguModelPath!)
+    const modelBuffer = FilamentProxy.getAssetByteBuffer(penguModelPath)
     const penguAsset = this.engine.loadAsset(modelBuffer)
     // By default all assets get added to the origin at 0,0,0,
     // we transform it to fit into a unit cube at the origin using this utility:
@@ -59,7 +59,7 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
     this.engine.setEntityPosition(penguEntity, [0, 2, 0], true) // Move the pengu up by 2 units
 
     // Create a default light:
-    const indirectLightBuffer = FilamentProxy.getAssetByteBuffer(indirectLightPath!)
+    const indirectLightBuffer = FilamentProxy.getAssetByteBuffer(indirectLightPath)
     this.engine.setIndirectLight(indirectLightBuffer)
 
     // Create a directional light for supporting shadows
