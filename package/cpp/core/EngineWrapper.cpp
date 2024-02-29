@@ -6,6 +6,7 @@
 
 #include "References.h"
 
+#include "LightEnum.h"
 #include <filament/Color.h>
 #include <filament/Engine.h>
 #include <filament/Fence.h>
