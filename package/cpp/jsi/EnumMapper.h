@@ -17,8 +17,9 @@ namespace EnumMapper {
   static std::runtime_error invalidUnion(const std::string& passedUnion) {
     return std::runtime_error("Cannot convert JS Value to Enum: Invalid Union value passed! (\"" + std::string(passedUnion) + "\")");
   }
-  static std::runtime_error invalidEnum(int passedEnum) {
-    return std::runtime_error("Cannot convert Enum to JS Value: Invalid Enum passed! (Value #" + std::to_string(passedEnum) + ")");
+  template <typename T> static std::runtime_error invalidEnum(T passedEnum) {
+    return std::runtime_error("Cannot convert Enum to JS Value: Invalid Enum passed! (Value #" +
+                              std::to_string(static_cast<int>(passedEnum)) + ")");
   }
 
   static void convertJSUnionToEnum(const std::string& inUnion, int*) {

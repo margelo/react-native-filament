@@ -20,7 +20,12 @@
 #include <gltfio/MaterialProvider.h>
 #include <gltfio/materials/uberarchive.h>
 
+#include <filament/LightManager.h>
+#include <filament/SwapChain.h>
 #include <ktxreader/Ktx1Reader.h>
+#include <utils/Entity.h>
+#include <utils/EntityManager.h>
+
 #include <utility>
 
 namespace margelo {
