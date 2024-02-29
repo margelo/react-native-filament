@@ -70,12 +70,12 @@ private:
                                std::index_sequence<Is...>) {
     if constexpr (std::is_same_v<ReturnType, void>) {
       // It's a void method.
-      (obj->*method)(JSIConverter<Args>::fromJSI(runtime, args[Is])...);
+      (obj->*method)(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
       return jsi::Value::undefined();
     } else {
       // It's returning some C++ type, we need to convert that to a JSI value now.
-      ReturnType result = (obj->*method)(JSIConverter<Args>::fromJSI(runtime, args[Is])...);
-      return JSIConverter<ReturnType>::toJSI(runtime, result);
+      ReturnType result = (obj->*method)(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
+      return JSIConverter<std::decay_t<ReturnType>>::toJSI(runtime, result);
     }
   }
 
