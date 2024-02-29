@@ -16,6 +16,9 @@ std::vector<jsi::PropNameID> HybridObject::getPropertyNames(facebook::jsi::Runti
   ensureInitialized();
 
   std::vector<jsi::PropNameID> result;
+  size_t totalSize = _methods.size() + _getters.size() + _setters.size();
+  result.reserve(totalSize);
+
   for (const auto& item : _methods) {
     result.push_back(jsi::PropNameID::forUtf8(runtime, item.first));
   }
