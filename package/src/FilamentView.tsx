@@ -53,7 +53,7 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
     this.engine.setIndirectLight(indirectLightBuffer)
 
     // Create a directional light for supporting shadows
-    const light = this.engine.createLightEntity(1, 0.98, 100000, 0.5, -1, 0.5, true)
+    const light = this.engine.createLightEntity('directional', 6500, 10000, 0, -1, 0, true)
     this.engine.getScene().addEntity(light)
   }
 
