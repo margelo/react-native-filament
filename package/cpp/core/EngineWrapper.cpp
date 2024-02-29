@@ -102,6 +102,10 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
 }
 
 void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
+  if (_swapChain) {
+      return;
+  }
+
   // Setup swapchain
   _swapChain = createSwapChain(surface);
 
