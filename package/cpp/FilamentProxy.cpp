@@ -27,7 +27,8 @@ std::shared_ptr<TestHybridObject> FilamentProxy::createTestObject() {
 }
 
 std::shared_ptr<EngineWrapper> FilamentProxy::createEngine() {
-  return std::make_shared<EngineWrapper>(createChoreographer());
+  std::shared_ptr<Choreographer> choreographer = createChoreographer();
+  return std::make_shared<EngineWrapper>(choreographer);
 }
 
 } // namespace margelo
