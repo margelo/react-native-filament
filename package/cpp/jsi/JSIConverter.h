@@ -108,7 +108,7 @@ template <typename TEnum> struct JSIConverter<TEnum, std::enable_if_t<std::is_en
     EnumMapper::convertJSUnionToEnum(string, &outEnum);
     return outEnum;
   }
-  static jsi::Value toJSI(jsi::Runtime& runtime, TEnum arg) {
+  static jsi::Value toJSI(jsi::Runtime& runtime, const TEnum& arg) {
     std::string outUnion;
     EnumMapper::convertEnumToJSUnion(arg, &outUnion);
     return jsi::String::createFromUtf8(runtime, outUnion);

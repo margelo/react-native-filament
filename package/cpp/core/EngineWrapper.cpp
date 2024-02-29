@@ -16,6 +16,7 @@
 #include <filament/TransformManager.h>
 #include <utils/Entity.h>
 #include <utils/EntityManager.h>
+#include "LightEnum.h"
 
 #include <gltfio/Animator.h>
 #include <gltfio/MaterialProvider.h>

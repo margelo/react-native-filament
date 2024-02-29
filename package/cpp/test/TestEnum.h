@@ -19,7 +19,7 @@ namespace EnumMapper {
     else if (inUnion == "third")
       *outEnum = TestEnum::THIRD;
     else
-      throw invalidUnion(inUnion);
+      throw invalidUnion<TestEnum>(inUnion);
   }
   static void convertEnumToJSUnion(TestEnum inEnum, std::string* outUnion) {
     switch (inEnum) {
