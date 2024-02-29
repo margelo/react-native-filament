@@ -22,7 +22,8 @@ private:
   std::shared_ptr<Camera> _camera;
 
 private:
+  void lookAt(std::vector<double> eye, std::vector<double> center, std::vector<double> up);
   // Convenience methods
-  void lookAt(std::shared_ptr<ManipulatorWrapper> cameraManipulator);
+  void lookAtCameraManipulator(std::shared_ptr<ManipulatorWrapper> cameraManipulator);
 };
 } // namespace margelo
