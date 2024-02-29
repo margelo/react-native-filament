@@ -38,6 +38,7 @@ protected:
   void onSurfaceCreated(std::shared_ptr<Surface> surface);
   void onSurfaceChanged(std::shared_ptr<Surface> surface, int width, int height);
   void onSurfaceDestroyed(std::shared_ptr<Surface> surface);
+  void render(float frameTimeNanos);
 
 private:
   ListenerManager<Callback> _listeners;

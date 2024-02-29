@@ -1,6 +1,8 @@
 import { FilamentNativeModule } from './FilamentNativeModule'
+import type { Engine } from '../types/Engine'
+import { FilamentView } from './FilamentViewTypes'
 
-interface Listener {
+export interface Listener {
   remove(): void
 }
 
@@ -35,6 +37,15 @@ export interface TFilamentProxy {
    * @private
    */
   createTestObject(): TestHybridObject
+  /**
+   * @private
+   */
+  findFilamentView(viewTag: number): FilamentView
+
+  /**
+   * Creates a new engine. You should only call this once.
+   */
+  createEngine(): Engine
 }
 
 // Check if we are running on-device (JSI)
