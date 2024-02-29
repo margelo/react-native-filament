@@ -56,8 +56,7 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
 
     // We can also change the pengus position, rotation and scale:
     const penguEntity = penguAsset.getRoot()
-    // this.engine.setEntityRotation(penguEntity, Math.PI / 2, 0, 1, 0)
-    this.engine.translateEntityPosition(penguEntity, 0, 2, 0)
+    this.engine.translateEntityPosition(penguEntity, 0, 1, 0) // Move the pengu up by 1 unit
 
     // Create a default light:
     const indirectLightBuffer = FilamentProxy.getAssetByteBuffer(indirectLightPath!)
