@@ -26,9 +26,6 @@
 #include <utils/Entity.h>
 #include <utils/EntityManager.h>
 
-#include <gltfio/MaterialProvider.h>
-#include <gltfio/materials/uberarchive.h>
-
 #include <utility>
 
 namespace margelo {

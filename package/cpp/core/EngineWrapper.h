@@ -53,7 +53,6 @@ private:
   void createDefaultLight(std::shared_ptr<FilamentBuffer> modelBuffer);
   void updateCameraProjection();
   void synchronizePendingFrames();
-  void createDefaultLight();
 
 private:
   std::shared_ptr<Engine> _engine;
@@ -73,12 +72,6 @@ private:
 
   const math::float3 defaultObjectPosition = {0.0f, 0.0f, 0.0f};
   const math::float3 defaultCameraPosition = {0.0f, 0.0f, 5.0f};
-  std::shared_ptr<Choreographer> _choreographer;
-  std::shared_ptr<Listener> _choreographerListener;
-
-  // Internals that we might need to split out later
-  filament::gltfio::MaterialProvider* _materialProvider;
-  filament::gltfio::AssetLoader* _assetLoader;
 
 private:
   // Internals we create, but share the access with the user
