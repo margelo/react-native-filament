@@ -24,7 +24,7 @@ namespace EnumMapper {
     else if (inUnion == "sun")
       *outEnum = LightManager::Type::SUN;
     else
-      throw invalidUnion<LightManager::Type>(inUnion);
+      throw invalidUnion(inUnion);
   }
   static void convertEnumToJSUnion(LightManager::Type inEnum, std::string* outUnion) {
     switch (inEnum) {
