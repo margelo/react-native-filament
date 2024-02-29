@@ -14,7 +14,7 @@ namespace EnumMapper {
   // 1. `static void convertJSUnionToEnum(const std::string& inUnion, Enum* outEnum)`
   // 2. `static void convertEnumToJSUnion(Enum inEnum, std::string* outUnion)`
 
-  template <typename TEnum> static std::runtime_error invalidUnion(const std::string& passedUnion) {
+  static std::runtime_error invalidUnion(const std::string& passedUnion) {
     return std::runtime_error("Cannot convert JS Value to Enum: Invalid Union value passed! (\"" + std::string(passedUnion) + "\")");
   }
 
