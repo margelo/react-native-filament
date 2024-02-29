@@ -6,12 +6,13 @@ import { Scene } from './Scene'
 import { View } from './View'
 import { FilamentBuffer } from '../native/FilamentBuffer'
 import { Entity } from './Entity'
+import { FilamentAsset } from './FilamentAsset'
 
 export interface Engine {
   setSurfaceProvider(surfaceProvider: SurfaceProvider): void
   setRenderCallback(callback: (engine: Engine) => void): void
 
-  loadAsset(buffer: FilamentBuffer): void
+  loadAsset(buffer: FilamentBuffer): FilamentAsset
   setIndirectLight(iblBuffer: FilamentBuffer): void
 
   getRenderer(): Renderer
@@ -27,6 +28,8 @@ export interface Engine {
     directionX: number,
     directionY: number,
     directionZ: number,
-    castShadows: boolean
+    castShadows: boolean,
   ): Entity
+
+  transformToUnitCube(entity: FilamentAsset): void
 }
