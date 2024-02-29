@@ -1,12 +1,15 @@
 #include "FilamentAssetWrapper.h"
 
+#include <utils/Entity.h>
 #include <utils/EntityInstance.h>
 
 namespace margelo {
 
 using namespace utils;
 
-void FilamentAssetWrapper::loadHybridMethods() {}
+void FilamentAssetWrapper::loadHybridMethods() {
+  registerHybridMethod("getRoot", &FilamentAssetWrapper::getRoot, this);
+}
 
 /**
  * Sets up a root transform on the current model to make it fit into a unit cube.
@@ -20,6 +23,11 @@ void FilamentAssetWrapper::transformToUnitCube(TransformManager& transformManage
   math::mat4f transform = math::mat4f::scaling(scaleFactor) * math::mat4f::translation(-center);
   EntityInstance<TransformManager> transformInstance = transformManager.getInstance(_asset->getRoot());
   transformManager.setTransform(transformInstance, transform);
+}
+
+std::shared_ptr<EntityWrapper> FilamentAssetWrapper::getRoot() {
+  Entity rootEntity = _asset->getRoot();
+  return std::make_shared<EntityWrapper>(rootEntity);
 }
 
 } // namespace margelo
