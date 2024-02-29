@@ -57,8 +57,8 @@ private:
   void updateCameraProjection();
   void synchronizePendingFrames();
 
-  std::shared_ptr<EntityWrapper> createLightEntity(LightManager::Type type, float colorFahrenheit, float intensity, float directionX,
-                                                   float directionY, float directionZ, bool castShadows);
+  std::shared_ptr<EntityWrapper> createLightEntity(LightManager::Type type, double colorFahrenheit, double intensity, double directionX,
+                                                   double directionY, double directionZ, bool castShadows);
 
 private:
   std::shared_ptr<Engine> _engine;
