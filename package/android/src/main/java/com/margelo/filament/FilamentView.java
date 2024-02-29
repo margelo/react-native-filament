@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 import android.content.Context;
 import android.util.AttributeSet;
 
+import android.view.Choreographer;
 import android.view.SurfaceView;
 import android.view.View;
 
@@ -22,16 +23,26 @@ public class FilamentView extends SurfaceView {
   public FilamentView(Context context) {
     super(context);
     mHybridData = initHybrid(new SurfaceProvider(getHolder()));
+    setupView();
   }
 
   public FilamentView(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
     mHybridData = initHybrid(new SurfaceProvider(getHolder()));
+    setupView();
   }
 
   public FilamentView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
     mHybridData = initHybrid(new SurfaceProvider(getHolder()));
+    setupView();
+  }
+
+  public void setupView() {
+    // Support transparent background
+    this.setZOrderOnTop(true);
+    // Disable overflow
+    this.setClipToOutline(true);
   }
 
   private native HybridData initHybrid(SurfaceProvider surfaceProvider);

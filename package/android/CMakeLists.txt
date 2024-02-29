@@ -17,6 +17,7 @@ find_library(LOG_LIB log)
 add_library(
         ${PACKAGE_NAME}
         SHARED
+
         # Shared C++
         ../cpp/FilamentView.cpp
         ../cpp/FilamentProxy.cpp
@@ -26,8 +27,20 @@ add_library(
         ../cpp/Listener.cpp
         ../cpp/jsi/HybridObject.cpp
         ../cpp/jsi/Promise.cpp
-        ../cpp/core/EngineWrapper.cpp
         ../cpp/test/TestHybridObject.cpp
+
+        # Filament Core
+        ../cpp/core/EngineWrapper.cpp
+        ../cpp/core/RendererWrapper.cpp
+        ../cpp/core/SceneWrapper.cpp
+        ../cpp/core/CameraWrapper.cpp
+        ../cpp/core/ViewWrapper.cpp
+        ../cpp/core/SwapChainWrapper.cpp
+
+        # Filament Utils
+        ../cpp/core/utils/EntityWrapper.cpp
+        ../cpp/core/utils/ManipulatorWrapper.cpp
+
         # Java JNI
         src/main/cpp/AndroidFilamentProxy.cpp
         src/main/cpp/AndroidSurface.cpp
@@ -56,19 +69,20 @@ target_include_directories(
 # Link everything together
 target_link_libraries(
         ${PACKAGE_NAME}
-        ${LOG_LIB}                          # <-- Logcat logger
-        android                             # <-- Android JNI core
-        ReactAndroid::jsi                   # <-- RN: JSI
-        ReactAndroid::reactnativejni        # <-- RN: React Native JNI bindings
-        fbjni::fbjni                        # <-- fbjni
-        GLESv3                              # <-- OpenGL (Core)
-        EGL                                 # <-- OpenGL (EGL)
+        ${LOG_LIB} # <-- Logcat logger
+        android # <-- Android JNI core
+        ReactAndroid::jsi # <-- RN: JSI
+        ReactAndroid::reactnativejni # <-- RN: React Native JNI bindings
+        fbjni::fbjni # <-- fbjni
+        GLESv3 # <-- OpenGL (Core)
+        EGL # <-- OpenGL (EGL)
 )
 
 # Filament (local CMake project as a git submodule)
 message("RN Filament: Adding pre-compiled libraries in ${FILAMENT_DIR}...")
 file(GLOB FILAMENT_LIBRARIES "${FILAMENT_DIR}/lib/${ANDROID_ABI}/*.a")
+
 foreach(file ${FILAMENT_LIBRARIES})
-    message("RN Filament: Linking ${file}...")
-    target_link_libraries(${PACKAGE_NAME} ${file})
+        message("RN Filament: Linking ${file}...")
+        target_link_libraries(${PACKAGE_NAME} ${file})
 endforeach()

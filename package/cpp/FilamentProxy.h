@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include <jsi/jsi.h>
+
+#include <core/EngineWrapper.h>
 #include <string>
 #include <vector>
 
@@ -24,7 +27,11 @@ private:
   virtual std::shared_ptr<FilamentView> findFilamentView(int id) = 0;
   virtual std::shared_ptr<Choreographer> createChoreographer() = 0;
 
+  // For testing
   std::shared_ptr<TestHybridObject> createTestObject();
+
+  // Public API
+  std::shared_ptr<EngineWrapper> createEngine();
 
 public:
   virtual jsi::Runtime& getRuntime() = 0;

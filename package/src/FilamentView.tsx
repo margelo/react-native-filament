@@ -1,6 +1,6 @@
 import React from 'react'
 import { findNodeHandle, NativeMethods } from 'react-native'
-import { FilamentProxy } from './native/FilamentProxy'
+import { FilamentProxy, Listener } from './native/FilamentProxy'
 import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 
 type FilamentViewProps = NativeProps
@@ -12,6 +12,8 @@ console.log('model: ' + FilamentProxy.loadModel('test!'))
 
 export class FilamentView extends React.PureComponent<FilamentViewProps> {
   private readonly ref: React.RefObject<RefType>
+  private readonly choreographer = FilamentProxy.createChoreographer()
+  private choreographerListener: Listener | null = null
 
   constructor(props: FilamentViewProps) {
     super(props)
@@ -29,14 +31,32 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
   }
 
   componentDidMount() {
+    // TODO: lets get rid of this timeout
     setTimeout(() => {
-      // TODO(hanno): Create types for all the things you expose as HybridObjects.
-      // @ts-expect-error
-      const view = FilamentProxy.findFilamentView(this.handle)
-      const surfaceProvider = view.getSurfaceProvider()
-      const surface = surfaceProvider.getSurface()
-      console.log('Surface Width: ' + surface.width)
-    }, 1500)
+      this.setup3dScene()
+    }, 100)
+  }
+
+  componentWillUnmount(): void {
+    this.choreographer.stop()
+    if (this.choreographerListener != null) {
+      this.choreographerListener.remove()
+    }
+  }
+
+  setup3dScene = () => {
+    // Get Surface:
+    const fView = FilamentProxy.findFilamentView(this.handle)
+    const surfaceProvider = fView.getSurfaceProvider()
+
+    // Create engine and link it to the surface:
+    const engine = FilamentProxy.createEngine()
+    engine.setSurfaceProvider(surfaceProvider)
+
+    // Callback for rendering every frame
+    engine.setRenderCallback(() => {
+      engine.getCamera().lookAt(engine.getCameraManipulator())
+    })
   }
 
   /** @internal */
