@@ -58,7 +58,7 @@ EngineWrapper::~EngineWrapper() {
 void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider, this);
   registerHybridMethod("setRenderCallback", &EngineWrapper::setRenderCallback, this);
-  registerHybridMethod("createDefaultLight", &EngineWrapper::createDefaultLight, this);
+  registerHybridMethod("setIndirectLight", &EngineWrapper::setIndirectLight, this);
 
   registerHybridMethod("loadAsset", &EngineWrapper::loadAsset, this);
 
@@ -68,6 +68,7 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("getView", &EngineWrapper::getView, this);
   registerHybridMethod("getCamera", &EngineWrapper::getCamera, this);
   registerHybridMethod("getCameraManipulator", &EngineWrapper::getCameraManipulator, this);
+  registerHybridMethod("createLightEntity", &EngineWrapper::createLightEntity, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
@@ -226,7 +227,7 @@ void EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
 }
 
 // Default light is a directional light for shadows + a default IBL
-void EngineWrapper::createDefaultLight(std::shared_ptr<FilamentBuffer> iblBuffer) {
+void EngineWrapper::setIndirectLight(std::shared_ptr<FilamentBuffer> iblBuffer) {
   if (!_scene) {
     throw std::runtime_error("Scene not initialized");
   }
@@ -254,17 +255,18 @@ void EngineWrapper::createDefaultLight(std::shared_ptr<FilamentBuffer> iblBuffer
       IndirectLight::Builder().reflections(cubemap).irradiance(3, harmonics).intensity(30000.0f).build(*_engine);
 
   _scene->getScene()->setIndirectLight(_indirectLight);
+}
 
-  // Add directional light for supporting shadows
+std::shared_ptr<EntityWrapper> EngineWrapper::createLightEntity(LightManager::Type type, float colorFahrenheit, float intensity,
+                                                                float directionX, float directionY, float directionZ, bool castShadows) {
   auto lightEntity = _engine->getEntityManager().create();
-  LightManager::Builder(LightManager::Type::DIRECTIONAL)
-      .color(Color::cct(6500.0f))
-      .intensity(10000)
-      .direction({0, -1, 0})
-      .castShadows(true)
-      .build(*_engine, lightEntity);
-
-  _scene->getScene()->addEntity(lightEntity);
+  LightManager::Builder(type)
+                   .color(Color::cct(colorFahrenheit))
+                   .intensity(intensity)
+                   .direction({directionX, directionY, directionZ})
+                   .castShadows(castShadows)
+                   .build(*_engine, lightEntity);
+  return std::make_shared<EntityWrapper>(lightEntity);
 }
 
 std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator(int width, int height) {

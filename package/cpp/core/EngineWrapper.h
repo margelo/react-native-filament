@@ -6,6 +6,7 @@
 
 #include "Surface.h"
 #include "SurfaceProvider.h"
+#include "LightEnum.h"
 #include <core/utils/EntityWrapper.h>
 #include <filament/Engine.h>
 #include <filament/SwapChain.h>
@@ -24,6 +25,7 @@
 #include <FilamentBuffer.h>
 #include <camutils/Manipulator.h>
 #include <core/utils/ManipulatorWrapper.h>
+#include <filament/LightManager.h>
 
 namespace margelo {
 
@@ -50,9 +52,13 @@ private:
 
   void transformToUnitCube(gltfio::FilamentAsset* asset);
   void loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
-  void createDefaultLight(std::shared_ptr<FilamentBuffer> modelBuffer);
+  void setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer);
+
   void updateCameraProjection();
   void synchronizePendingFrames();
+
+  std::shared_ptr<EntityWrapper> createLightEntity(LightManager::Type type, float colorFahrenheit, float intensity, float directionX,
+                                                   float directionY, float directionZ, bool castShadows);
 
 private:
   std::shared_ptr<Engine> _engine;
