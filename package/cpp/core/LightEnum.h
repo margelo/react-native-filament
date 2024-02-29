@@ -44,7 +44,7 @@ namespace EnumMapper {
         *outUnion = "sun";
         break;
       default:
-        throw invalidEnum(static_cast<int>(inEnum));
+        throw invalidEnum(inEnum);
     }
   }
 } // namespace EnumMapper
