@@ -267,10 +267,14 @@ void EngineWrapper::setIndirectLight(std::shared_ptr<FilamentBuffer> iblBuffer) 
   _scene->getScene()->setIndirectLight(_indirectLight);
 }
 
-std::shared_ptr<EntityWrapper> EngineWrapper::createLightEntity(LightManager::Type type, double colorFahrenheit, double intensity,
+std::shared_ptr<EntityWrapper> EngineWrapper::createLightEntity(const std::string& type, double colorFahrenheit, double intensity,
                                                                 double directionX, double directionY, double directionZ, bool castShadows) {
   auto lightEntity = _engine->getEntityManager().create();
-  LightManager::Builder(type)
+
+  LightManager::Type outLightType;
+  EnumMapper::convertJSUnionToEnum(type, &outLightType);
+
+  LightManager::Builder(outLightType)
       .color(Color::cct(static_cast<float>(colorFahrenheit)))
       .intensity(static_cast<float>(intensity))
       .direction({directionX, directionY, directionZ})
