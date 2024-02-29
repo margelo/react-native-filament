@@ -15,6 +15,7 @@ interface Choreographer {
 interface TestHybridObject {
   int: number
   string: string
+  nullableString: string | undefined
 
   multipleArguments(first: number, second: boolean, third: string): Record<string, number>
   getIntGetter(): () => number

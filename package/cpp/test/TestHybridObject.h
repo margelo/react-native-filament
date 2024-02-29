@@ -6,6 +6,7 @@
 
 #include "TestEnum.h"
 #include "jsi/HybridObject.h"
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -31,6 +32,12 @@ public:
   TestEnum getEnum() {
     return _enum;
   }
+  std::optional<std::string> getNullableString() {
+    return _nullableString;
+  }
+  void setNullableString(std::optional<std::string> string) {
+    _nullableString = string;
+  }
 
   std::unordered_map<std::string, double> multipleArguments(int first, bool second, std::string third) {
     return std::unordered_map<std::string, double>{{"first", 5312}, {"second", 532233}, {"third", 2786}};
@@ -50,6 +57,7 @@ private:
   int _int;
   std::string _string;
   TestEnum _enum;
+  std::optional<std::string> _nullableString;
 
   void loadHybridMethods() override;
 };
