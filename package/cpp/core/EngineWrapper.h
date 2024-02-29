@@ -48,7 +48,7 @@ private:
   void setSurface(std::shared_ptr<Surface> surface);
   void destroySurface();
   void surfaceSizeChanged(int width, int height);
-  void setRenderCallback(std::function<void(std::shared_ptr<EngineWrapper>)> callback);
+  void setRenderCallback(std::function<void(double, double, double)> callback);
   void renderFrame(double timestamp);
 
   void transformToUnitCube(std::shared_ptr<FilamentAssetWrapper> asset);
@@ -69,7 +69,7 @@ private:
   std::shared_ptr<Engine> _engine;
   std::shared_ptr<SurfaceProvider> _surfaceProvider;
   std::shared_ptr<Listener> _listener;
-  std::function<void(std::shared_ptr<EngineWrapper>)> _renderCallback;
+  std::function<void(double, double, double)> _renderCallback;
   std::function<std::shared_ptr<FilamentBuffer>(std::string)> _getAssetBytes;
   std::shared_ptr<Choreographer> _choreographer;
   std::shared_ptr<Listener> _choreographerListener;

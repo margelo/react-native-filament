@@ -37,6 +37,7 @@ add_library(
         ../cpp/core/ViewWrapper.cpp
         ../cpp/core/SwapChainWrapper.cpp
         ../cpp/core/FilamentAssetWrapper.cpp
+        ../cpp/core/AnimatorWrapper.cpp
 
         # Filament Utils
         ../cpp/core/utils/EntityWrapper.cpp
