@@ -121,7 +121,7 @@ void EngineWrapper::surfaceSizeChanged(int width, int height) {
     _view->setViewport(0, 0, width, height);
   }
 
-  updateCameraProjection();
+//  updateCameraProjection();
 }
 
 void EngineWrapper::destroySurface() {
@@ -304,20 +304,20 @@ void EngineWrapper::transformToUnitCube(std::shared_ptr<FilamentAssetWrapper> as
   asset->transformToUnitCube(tm);
 }
 
-void EngineWrapper::updateCameraProjection() {
-  if (!_view) {
-    throw std::runtime_error("View not initialized");
-  }
-  if (!_camera) {
-    throw std::runtime_error("Camera not initialized");
-  }
-
-  const double aspect = (double)_view->getView()->getViewport().width / _view->getView()->getViewport().height;
-  double focalLength = 28.0;
-  double near = 0.05;  // 5cm
-  double far = 1000.0; // 1km
-  _camera->getCamera()->setLensProjection(focalLength, aspect, near, far);
-}
+//void EngineWrapper::updateCameraProjection() {
+//  if (!_view) {
+//    throw std::runtime_error("View not initialized");
+//  }
+//  if (!_camera) {
+//    throw std::runtime_error("Camera not initialized");
+//  }
+//
+//  const double aspect = (double)_view->getView()->getViewport().width / _view->getView()->getViewport().height;
+//  double focalLength = 28.0;
+//  double near = 0.05;  // 5cm
+//  double far = 1000.0; // 1km
+//  _camera->getCamera()->setLensProjection(focalLength, aspect, near, far);
+//}
 
 void EngineWrapper::synchronizePendingFrames() {
   if (!_engine) {

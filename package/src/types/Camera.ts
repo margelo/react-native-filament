@@ -89,4 +89,27 @@ export interface Camera {
    * @param up The up vector of the camera (Usually (0, 1, 0))
    */
   lookAt(eye: Float3, center: Float3, up: Float3): void
+
+  /** Utility to set the projection matrix from the focal length.
+   *
+   * @param focalLengthInMillimeters lens's focal length in millimeters.focalLength > 0.
+   * @param aspect      aspect ratio (You can use view.aspectRatio)
+   * @param near        distance in world units from the camera to the near plane. near > 0.
+   * @param far         distance in world units from the camera to the far plane. far > near.
+   */
+  setLensProjection(focalLengthInMillimeters: number, aspect: number, near: number, far: number): void
+
+  //TODO(Hanno): This also accepts a last parameter called direction. Implement once custom enums are fixed
+  /**
+   * Utility to set the projection matrix from the field-of-view.
+   *
+   * @param fovInDegrees full field-of-view in degrees. 0 < \p fov < 180.
+   * @param aspect       aspect ratio \f$ \frac{width}{height} \f$. \p aspect > 0.
+   * @param near         distance in world units from the camera to the near plane. \p near > 0.
+   * @param far          distance in world units from the camera to the far plane. \p far > \p near.
+   * @param direction    direction of the \p fovInDegrees parameter.
+   *
+   * @see Fov.
+   */
+  setProjection(fov: number, aspect: number, near: number, far: number): void
 }

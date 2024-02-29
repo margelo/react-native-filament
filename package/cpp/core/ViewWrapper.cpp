@@ -8,6 +8,7 @@ void ViewWrapper::loadHybridMethods() {
   registerHybridSetter("camera", &ViewWrapper::setCamera, this);
   registerHybridGetter("camera", &ViewWrapper::getCamera, this);
   registerHybridMethod("setViewport", &ViewWrapper::setViewport, this);
+  registerHybridGetter("aspectRatio", &ViewWrapper::getAspectRatio, this);
 }
 
 void ViewWrapper::setScene(std::shared_ptr<SceneWrapper> scene) {
@@ -47,5 +48,12 @@ void ViewWrapper::setViewport(int x, int y, int width, int height) {
 
   _view->setViewport({x, y, static_cast<uint32_t>(width), static_cast<uint32_t>(height)});
 }
+
+    double ViewWrapper::getAspectRatio() {
+        if (!_view) {
+            throw std::invalid_argument("View is null");
+        }
+        return (double)_view->getViewport().width / _view->getViewport().height;
+    }
 
 } // namespace margelo

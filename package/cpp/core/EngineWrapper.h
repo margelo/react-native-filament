@@ -55,7 +55,7 @@ private:
   std::shared_ptr<FilamentAssetWrapper> loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
   void setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer);
 
-  void updateCameraProjection();
+//  void updateCameraProjection();
   void synchronizePendingFrames();
 
   std::shared_ptr<EntityWrapper> createLightEntity(std::string lightTypeStr, double colorFahrenheit, double intensity, double directionX,

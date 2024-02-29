@@ -77,6 +77,16 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
     // Link the surface with the engine:
     this.engine.setSurfaceProvider(surfaceProvider)
 
+    // Configure camera lens (Important, do so after linking the surface)
+    const view = this.engine.getView()
+    const aspectRatio = view.aspectRatio
+    const focalLengthInMillimeters = 28
+    const near = 0.1
+    const far = 1000
+    this.engine.getCamera().setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
+    console.log('aspectRatio', aspectRatio)
+    // Alternatively setProjection can be used
+
     // Callback for rendering every frame
     this.engine.setRenderCallback(this.renderCallback)
   }
