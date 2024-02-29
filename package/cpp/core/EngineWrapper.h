@@ -4,28 +4,29 @@
 
 #pragma once
 
-#include "LightEnum.h"
+#include "jsi/HybridObject.h"
+
+#include "CameraWrapper.h"
+#include "Choreographer.h"
+#include "FilamentAssetWrapper.h"
+#include "FilamentBuffer.h"
+#include "RendererWrapper.h"
+#include "SceneWrapper.h"
 #include "Surface.h"
 #include "SurfaceProvider.h"
-#include <core/utils/EntityWrapper.h>
+#include "SwapChainWrapper.h"
+#include "ViewWrapper.h"
+#include "core/utils/EntityWrapper.h"
+#include "core/utils/ManipulatorWrapper.h"
+
+#include <camutils/Manipulator.h>
 #include <filament/Engine.h>
+#include <filament/LightManager.h>
 #include <filament/SwapChain.h>
 #include <gltfio/AssetLoader.h>
 #include <gltfio/MaterialProvider.h>
 #include <gltfio/ResourceLoader.h>
 #include <gltfio/TextureProvider.h>
-
-#include "CameraWrapper.h"
-#include "RendererWrapper.h"
-#include "SceneWrapper.h"
-#include "SwapChainWrapper.h"
-#include "ViewWrapper.h"
-#include "jsi/HybridObject.h"
-#include <Choreographer.h>
-#include <FilamentBuffer.h>
-#include <camutils/Manipulator.h>
-#include <core/utils/ManipulatorWrapper.h>
-#include <filament/LightManager.h>
 
 namespace margelo {
 
@@ -50,8 +51,8 @@ private:
   void setRenderCallback(std::function<void(std::shared_ptr<EngineWrapper>)> callback);
   void renderFrame(double timestamp);
 
-  void transformToUnitCube(gltfio::FilamentAsset* asset);
-  void loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
+  void transformToUnitCube(const std::shared_ptr<FilamentAssetWrapper>& asset);
+  std::shared_ptr<FilamentAssetWrapper> loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
   void setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer);
 
   void updateCameraProjection();
@@ -77,7 +78,7 @@ private:
   gltfio::ResourceLoader* _resourceLoader;
 
   const math::float3 defaultObjectPosition = {0.0f, 0.0f, 0.0f};
-  const math::float3 defaultCameraPosition = {0.0f, 0.0f, 5.0f};
+  const math::float3 defaultCameraPosition = {0.0f, 0.0f, 0.0f};
 
 private:
   // Internals we create, but share the access with the user

@@ -5,8 +5,8 @@
 #include "EngineWrapper.h"
 
 #include "References.h"
-
 #include "LightEnum.h"
+
 #include <filament/Color.h>
 #include <filament/Engine.h>
 #include <filament/Fence.h>
@@ -211,8 +211,8 @@ std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
   return std::make_shared<CameraWrapper>(camera);
 }
 
-void EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
-  filament::gltfio::FilamentAsset* asset = _assetLoader->createAsset(modelBuffer->getData(), modelBuffer->getSize());
+std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
+  gltfio::FilamentAsset* asset = _assetLoader->createAsset(modelBuffer->getData(), modelBuffer->getSize());
   if (asset == nullptr) {
     throw std::runtime_error("Failed to load asset");
   }
@@ -230,7 +230,10 @@ void EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
   _animator = asset->getInstance()->getAnimator();
   asset->releaseSourceData();
 
-  transformToUnitCube(asset);
+  auto sharedPtr = std::shared_ptr<gltfio::FilamentAsset>(asset, [](gltfio::FilamentAsset* asset) {
+    // TODO: destroy the asset
+  });
+  return std::make_shared<FilamentAssetWrapper>(sharedPtr);
 }
 
 // Default light is a directional light for shadows + a default IBL
@@ -290,16 +293,9 @@ std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator(int w
 /**
  * Sets up a root transform on the current model to make it fit into a unit cube.
  */
-void EngineWrapper::transformToUnitCube(filament::gltfio::FilamentAsset* asset) {
+void EngineWrapper::transformToUnitCube(const std::shared_ptr<FilamentAssetWrapper>& asset) {
   TransformManager& tm = _engine->getTransformManager();
-  Aabb aabb = asset->getBoundingBox();
-  math::details::TVec3<float> center = aabb.center();
-  math::details::TVec3<float> halfExtent = aabb.extent();
-  float maxExtent = max(halfExtent) * 2.0f;
-  float scaleFactor = 2.0f / maxExtent;
-  math::mat4f transform = math::mat4f::scaling(scaleFactor) * math::mat4f::translation(-center);
-  EntityInstance<TransformManager> transformInstance = tm.getInstance(asset->getRoot());
-  tm.setTransform(transformInstance, transform);
+  asset->transformToUnitCube(tm);
 }
 
 void EngineWrapper::updateCameraProjection() {
