@@ -23,7 +23,7 @@ public:
   std::string getString() {
     return _string;
   }
-  void setString(std::string newValue) {
+  void setString(const std::string& newValue) {
     _string = newValue;
   }
   void setEnum(TestEnum testEnum) {
