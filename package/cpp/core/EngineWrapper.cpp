@@ -268,11 +268,11 @@ std::shared_ptr<EntityWrapper> EngineWrapper::createLightEntity(LightManager::Ty
                                                                 double directionX, double directionY, double directionZ, bool castShadows) {
   auto lightEntity = _engine->getEntityManager().create();
   LightManager::Builder(type)
-                   .color(Color::cct(static_cast<float>(colorFahrenheit)))
-                   .intensity(static_cast<float>(intensity))
-                   .direction({directionX, directionY, directionZ})
-                   .castShadows(castShadows)
-                   .build(*_engine, lightEntity);
+      .color(Color::cct(static_cast<float>(colorFahrenheit)))
+      .intensity(static_cast<float>(intensity))
+      .direction({directionX, directionY, directionZ})
+      .castShadows(castShadows)
+      .build(*_engine, lightEntity);
   return std::make_shared<EntityWrapper>(lightEntity);
 }
 

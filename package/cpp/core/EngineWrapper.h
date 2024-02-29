@@ -4,9 +4,9 @@
 
 #pragma once
 
+#include "LightEnum.h"
 #include "Surface.h"
 #include "SurfaceProvider.h"
-#include "LightEnum.h"
 #include <core/utils/EntityWrapper.h>
 #include <filament/Engine.h>
 #include <filament/SwapChain.h>
