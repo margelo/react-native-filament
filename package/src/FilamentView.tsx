@@ -1,6 +1,6 @@
 import React from 'react'
 import { findNodeHandle, NativeMethods, Platform } from 'react-native'
-import { FilamentProxy, Listener } from './native/FilamentProxy'
+import { FilamentProxy } from './native/FilamentProxy'
 import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 
 type FilamentViewProps = NativeProps
@@ -9,12 +9,13 @@ type RefType = React.Component<NativeProps> & Readonly<NativeMethods>
 
 export class FilamentView extends React.PureComponent<FilamentViewProps> {
   private readonly ref: React.RefObject<RefType>
-  private readonly choreographer = FilamentProxy.createChoreographer()
-  private choreographerListener: Listener | null = null
+  private readonly engine = FilamentProxy.createEngine()
 
   constructor(props: FilamentViewProps) {
     super(props)
     this.ref = React.createRef<RefType>()
+
+    this.setup3dScene()
   }
 
   // TODO: Does this also work for Fabric?
@@ -30,32 +31,18 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
   componentDidMount() {
     // TODO: lets get rid of this timeout
     setTimeout(() => {
-      this.setup3dScene()
+      this.setupSurface()
     }, 100)
   }
 
-  componentWillUnmount(): void {
-    this.choreographer.stop()
-    if (this.choreographerListener != null) {
-      this.choreographerListener.remove()
-    }
-  }
-
   setup3dScene = () => {
-    // Get Surface:
-    const fView = FilamentProxy.findFilamentView(this.handle)
-    const surfaceProvider = fView.getSurfaceProvider()
-
-    // Create engine:
-    const engine = FilamentProxy.createEngine()
-
     // Load a model into the scene:
     const modelPath = Platform.select({
       android: 'custom/pengu.glb',
       ios: 'pengu.glb',
     })
     const modelBuffer = FilamentProxy.getAssetByteBuffer(modelPath!)
-    engine.loadAsset(modelBuffer)
+    this.engine.loadAsset(modelBuffer)
 
     // Create a default light:
     const indirectLightPath = Platform.select({
@@ -63,15 +50,23 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
       ios: 'default_env_ibl.ktx',
     })
     const indirectLightBuffer = FilamentProxy.getAssetByteBuffer(indirectLightPath!)
-    engine.createDefaultLight(indirectLightBuffer)
+    this.engine.createDefaultLight(indirectLightBuffer)
+  }
+
+  renderCallback = () => {
+    this.engine.getCamera().lookAt(this.engine.getCameraManipulator())
+  }
+
+  setupSurface = () => {
+    // Get Surface:
+    const fView = FilamentProxy.findFilamentView(this.handle)
+    const surfaceProvider = fView.getSurfaceProvider()
 
     // Link the surface with the engine:
-    engine.setSurfaceProvider(surfaceProvider)
+    this.engine.setSurfaceProvider(surfaceProvider)
 
     // Callback for rendering every frame
-    engine.setRenderCallback(() => {
-      engine.getCamera().lookAt(engine.getCameraManipulator())
-    })
+    this.engine.setRenderCallback(this.renderCallback)
   }
 
   /** @internal */
