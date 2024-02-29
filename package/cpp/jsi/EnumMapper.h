@@ -35,12 +35,12 @@ namespace EnumMapper {
   struct has_enum_to_js_union<T, std::void_t<decltype(convertEnumToJSUnion(std::declval<T>(), std::declval<std::string*>()))>>
       : std::true_type {};
 
-  template <typename TEnum> static void convertJSUnionToEnum(const std::string& inUnion, TEnum*) {
+  template <typename TEnum> static void convertJSUnionToEnum(const std::string&, TEnum*) {
     static_assert(has_js_union_to_enum<TEnum>::value,
                   "Cannot convert a JS union to this enum type. Did you implement EnumMapper::convertJSUnionToEnum(...)?");
   }
 
-  template <typename TEnum> static void convertEnumToJSUnion(TEnum inEnum, std::string*) {
+  template <typename TEnum> static void convertEnumToJSUnion(TEnum, std::string*) {
     static_assert(has_enum_to_js_union<TEnum>::value,
                   "Cannot convert this enum type to a JS union. Did you implement EnumMapper::convertEnumToJSUnion(...)?");
   }
