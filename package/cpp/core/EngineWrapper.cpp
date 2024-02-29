@@ -5,6 +5,7 @@
 #include "EngineWrapper.h"
 
 #include "References.h"
+
 #include <filament/Color.h>
 #include <filament/Engine.h>
 #include <filament/Fence.h>
@@ -262,12 +263,12 @@ void EngineWrapper::setIndirectLight(std::shared_ptr<FilamentBuffer> iblBuffer) 
   _scene->getScene()->setIndirectLight(_indirectLight);
 }
 
-std::shared_ptr<EntityWrapper> EngineWrapper::createLightEntity(LightManager::Type type, float colorFahrenheit, float intensity,
-                                                                float directionX, float directionY, float directionZ, bool castShadows) {
+std::shared_ptr<EntityWrapper> EngineWrapper::createLightEntity(LightManager::Type type, double colorFahrenheit, double intensity,
+                                                                double directionX, double directionY, double directionZ, bool castShadows) {
   auto lightEntity = _engine->getEntityManager().create();
   LightManager::Builder(type)
-                   .color(Color::cct(colorFahrenheit))
-                   .intensity(intensity)
+                   .color(Color::cct(static_cast<float>(colorFahrenheit)))
+                   .intensity(static_cast<float>(intensity))
                    .direction({directionX, directionY, directionZ})
                    .castShadows(castShadows)
                    .build(*_engine, lightEntity);
