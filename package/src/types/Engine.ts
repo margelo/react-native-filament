@@ -7,6 +7,7 @@ import { View } from './View'
 import { FilamentBuffer } from '../native/FilamentBuffer'
 import { Entity } from './Entity'
 import { FilamentAsset } from './FilamentAsset'
+import { Float3 } from './float3'
 
 export interface Engine {
   setSurfaceProvider(surfaceProvider: SurfaceProvider): void
@@ -33,8 +34,7 @@ export interface Engine {
 
   transformToUnitCube(entity: FilamentAsset): void
 
-  setEntityPosition(entity: Entity, x: number, y: number, z: number): void
-  setEntityRotation(entity: Entity, angleRadians: number, x: number, y: number, z: number): void
-  setEntityScale(entity: Entity, x: number, y: number, z: number): void
-  translateEntityPosition(entity: Entity, x: number, y: number, z: number): void
+  setEntityPosition(entity: Entity, position: Float3, multiplyCurrent: boolean): void
+  setEntityRotation(entity: Entity, angleRadians: number, axis: Float3, multiplyCurrent: boolean): void
+  setEntityScale(entity: Entity, scale: Float3, multiplyCurrent: boolean): void
 }
