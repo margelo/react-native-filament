@@ -6,6 +6,7 @@
 
 #include "LightEnum.h"
 #include "References.h"
+#include "utils/Converter.h"
 
 #include <filament/Color.h>
 #include <filament/Engine.h>
@@ -80,7 +81,6 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setEntityPosition", &EngineWrapper::setEntityPosition, this);
   registerHybridMethod("setEntityRotation", &EngineWrapper::setEntityRotation, this);
   registerHybridMethod("setEntityScale", &EngineWrapper::setEntityScale, this);
-  registerHybridMethod("translateEntityPosition", &EngineWrapper::translateEntityPosition, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
@@ -321,56 +321,42 @@ void EngineWrapper::synchronizePendingFrames() {
   _engine->destroy(fence);
 }
 
-// TODO(Marc): Ideally i want to do this in the entity wrapper, but i dont have access to the transform manager there
-void EngineWrapper::setEntityPosition(std::shared_ptr<EntityWrapper> entity, double x, double y, double z) {
+/**
+ * Internal method that will help updating the transform of an entity.
+ * @param transform The transform matrix to apply
+ * @param entity The entity to apply the transform to
+ * @param multiplyCurrent If true, the current transform will be multiplied with the new transform, otherwise it will be replaced
+ */
+void EngineWrapper::updateTransform(math::mat4 transform, std::shared_ptr<EntityWrapper> entity, bool multiplyCurrent) {
   if (!entity) {
     throw std::invalid_argument("Entity is null");
   }
 
-  math::float3 position = math::float3(x, y, z);
   TransformManager& tm = _engine->getTransformManager();
   EntityInstance<TransformManager> entityInstance = tm.getInstance(entity->getEntity());
-  auto translationMatrix = math::mat4::translation(position);
-  tm.setTransform(entityInstance, math::mat4::translation(position));
-}
-
-void EngineWrapper::setEntityRotation(std::shared_ptr<EntityWrapper> entity, double angleRadians, double x, double y, double z) {
-  if (!entity) {
-    throw std::invalid_argument("Entity is null");
-  }
-
-  math::float3 axis = math::float3(x, y, z);
-  float angle = static_cast<float>(angleRadians);
-
-  TransformManager& tm = _engine->getTransformManager();
-  EntityInstance<TransformManager> entityInstance = tm.getInstance(entity->getEntity());
-  auto rotationMatrix = math::mat4::rotation(angle, axis);
-  tm.setTransform(entityInstance, rotationMatrix);
-}
-
-void EngineWrapper::setEntityScale(std::shared_ptr<EntityWrapper> entity, double x, double y, double z) {
-  if (!entity) {
-    throw std::invalid_argument("Entity is null");
-  }
-
-  math::float3 scale = math::float3(x, y, z);
-  TransformManager& tm = _engine->getTransformManager();
-  EntityInstance<TransformManager> entityInstance = tm.getInstance(entity->getEntity());
-  tm.setTransform(entityInstance, math::mat4::scaling(scale));
-}
-
-void EngineWrapper::translateEntityPosition(std::shared_ptr<EntityWrapper> entity, double x, double y, double z) {
-  if (!entity) {
-    throw std::invalid_argument("Entity is null");
-  }
-
-  math::float3 position = math::float3(x, y, z);
-  TransformManager& tm = _engine->getTransformManager();
-  EntityInstance<TransformManager> entityInstance = tm.getInstance(entity->getEntity());
-  auto translationMatrix = math::mat4::translation(position);
   auto currentTransform = tm.getTransform(entityInstance);
-  auto newTransform = currentTransform * translationMatrix;
+  auto newTransform = multiplyCurrent ? (currentTransform * transform) : transform;
   tm.setTransform(entityInstance, newTransform);
+}
+
+// TODO(Marc): Ideally i want to do this in the entity wrapper, but i dont have access to the transform manager there
+void EngineWrapper::setEntityPosition(std::shared_ptr<EntityWrapper> entity, std::vector<double> positionVec, bool multiplyCurrent) {
+  math::float3 position = Converter::VecToFloat3(positionVec);
+  auto translationMatrix = math::mat4::translation(position);
+  updateTransform(translationMatrix, entity, multiplyCurrent);
+}
+
+void EngineWrapper::setEntityRotation(std::shared_ptr<EntityWrapper> entity, double angleRadians, std::vector<double> axisVec,
+                                      bool multiplyCurrent) {
+  math::float3 axis = Converter::VecToFloat3(axisVec);
+  auto rotationMatrix = math::mat4::rotation(angleRadians, axis);
+  updateTransform(rotationMatrix, entity, multiplyCurrent);
+}
+
+void EngineWrapper::setEntityScale(std::shared_ptr<EntityWrapper> entity, std::vector<double> scaleVec, bool multiplyCurrent) {
+  math::float3 scale = Converter::VecToFloat3(scaleVec);
+  auto scaleMatrix = math::mat4::scaling(scale);
+  updateTransform(scaleMatrix, entity, multiplyCurrent);
 }
 
 } // namespace margelo

@@ -52,11 +52,11 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
     const penguAsset = this.engine.loadAsset(modelBuffer)
     // By default all assets get added to the origin at 0,0,0,
     // we transform it to fit into a unit cube at the origin using this utility:
-    // this.engine.transformToUnitCube(penguAsset)
+    this.engine.transformToUnitCube(penguAsset)
 
     // We can also change the pengus position, rotation and scale:
     const penguEntity = penguAsset.getRoot()
-    this.engine.translateEntityPosition(penguEntity, 0, 1, 0) // Move the pengu up by 1 unit
+    this.engine.setEntityPosition(penguEntity, [0, 2, 0], true) // Move the pengu up by 2 units
 
     // Create a default light:
     const indirectLightBuffer = FilamentProxy.getAssetByteBuffer(indirectLightPath!)
