@@ -1,8 +1,8 @@
 #pragma once
 
 #include "jsi/HybridObject.h"
-#include <gltfio/FilamentAsset.h>
 #include <filament/TransformManager.h>
+#include <gltfio/FilamentAsset.h>
 
 namespace margelo {
 
