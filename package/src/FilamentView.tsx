@@ -2,10 +2,21 @@ import React from 'react'
 import { findNodeHandle, NativeMethods, Platform } from 'react-native'
 import { FilamentProxy } from './native/FilamentProxy'
 import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
+import type { Float3 } from './types/float3'
 
 type FilamentViewProps = NativeProps
 
 type RefType = React.Component<NativeProps> & Readonly<NativeMethods>
+
+const penguModelPath = Platform.select({
+  android: 'custom/pengu.glb',
+  ios: 'pengu.glb',
+})
+
+const indirectLightPath = Platform.select({
+  android: 'custom/default_env_ibl.ktx',
+  ios: 'default_env_ibl.ktx',
+})
 
 export class FilamentView extends React.PureComponent<FilamentViewProps> {
   private readonly ref: React.RefObject<RefType>
@@ -37,19 +48,11 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
 
   setup3dScene = () => {
     // Load a model into the scene:
-    const modelPath = Platform.select({
-      android: 'custom/pengu.glb',
-      ios: 'pengu.glb',
-    })
-    const modelBuffer = FilamentProxy.getAssetByteBuffer(modelPath!)
+    const modelBuffer = FilamentProxy.getAssetByteBuffer(penguModelPath!)
     const penguAsset = this.engine.loadAsset(modelBuffer)
     this.engine.transformToUnitCube(penguAsset)
 
     // Create a default light:
-    const indirectLightPath = Platform.select({
-      android: 'custom/default_env_ibl.ktx',
-      ios: 'default_env_ibl.ktx',
-    })
     const indirectLightBuffer = FilamentProxy.getAssetByteBuffer(indirectLightPath!)
     this.engine.setIndirectLight(indirectLightBuffer)
 
@@ -59,7 +62,11 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
   }
 
   renderCallback = () => {
-    this.engine.getCamera().lookAt(this.engine.getCameraManipulator())
+    const cameraPosition: Float3 = [0, 0, 5]
+    const cameraTarget: Float3 = [0, 0, 0]
+    const cameraUp: Float3 = [0, 1, 0]
+
+    this.engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
   }
 
   setupSurface = () => {

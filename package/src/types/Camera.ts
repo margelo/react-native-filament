@@ -1,4 +1,5 @@
 import { Manipulator } from './Manipulator'
+import { Float3 } from './float3'
 
 /**
  * Camera represents the eye through which the scene is viewed.
@@ -79,6 +80,13 @@ import { Manipulator } from './Manipulator'
  */
 
 export interface Camera {
-  // Convenience method. The original method works slightly different, this is a simplification, so we don't have to deal with out params.
-  lookAt(cameraManipulator: Manipulator): void
+  // Convenience method
+  lookAtCameraManipulator(cameraManipulator: Manipulator): void
+  /**
+   *
+   * @param eye The position of the camera in space
+   * @param center The target position to look at
+   * @param up The up vector of the camera (Usually (0, 1, 0))
+   */
+  lookAt(eye: Float3, center: Float3, up: Float3): void
 }
