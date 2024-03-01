@@ -16,6 +16,8 @@
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		0B65F1CE0E1D4DBB9E25D0BD /* default_env_ibl.ktx in Resources */ = {isa = PBXBuildFile; fileRef = 7A69823713B34897AF31CAF0 /* default_env_ibl.ktx */; };
 		59249653BB174593BEDB9F3D /* pengu.glb in Resources */ = {isa = PBXBuildFile; fileRef = 3E2439B417DA497E83EB1F05 /* pengu.glb */; };
+		0BF3FBAC90C441EAA712EE28 /* pijamas.glb in Resources */ = {isa = PBXBuildFile; fileRef = BE173E0B3B23427D84C92C91 /* pijamas.glb */; };
+		94671BF6DAD54DF8A7B842C3 /* pirate.glb in Resources */ = {isa = PBXBuildFile; fileRef = 034C2E5BF6EE449290528E8D /* pirate.glb */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +50,8 @@
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		7A69823713B34897AF31CAF0 /* default_env_ibl.ktx */ = {isa = PBXFileReference; name = "default_env_ibl.ktx"; path = "../assets/default_env_ibl.ktx"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		3E2439B417DA497E83EB1F05 /* pengu.glb */ = {isa = PBXFileReference; name = "pengu.glb"; path = "../assets/pengu.glb"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		BE173E0B3B23427D84C92C91 /* pijamas.glb */ = {isa = PBXFileReference; name = "pijamas.glb"; path = "../assets/pijamas.glb"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		034C2E5BF6EE449290528E8D /* pirate.glb */ = {isa = PBXFileReference; name = "pirate.glb"; path = "../assets/pirate.glb"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -158,6 +162,8 @@
 			children = (
 				7A69823713B34897AF31CAF0 /* default_env_ibl.ktx */,
 				3E2439B417DA497E83EB1F05 /* pengu.glb */,
+				BE173E0B3B23427D84C92C91 /* pijamas.glb */,
+				034C2E5BF6EE449290528E8D /* pirate.glb */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -260,6 +266,8 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				0B65F1CE0E1D4DBB9E25D0BD /* default_env_ibl.ktx in Resources */,
 				59249653BB174593BEDB9F3D /* pengu.glb in Resources */,
+				0BF3FBAC90C441EAA712EE28 /* pijamas.glb in Resources */,
+				94671BF6DAD54DF8A7B842C3 /* pirate.glb in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

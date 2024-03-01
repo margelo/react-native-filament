@@ -8,6 +8,14 @@
     {
       "path": "assets/pengu.glb",
       "sha1": "9c3aa64101b6af758735eeaafb48d482526d2c69"
+    },
+    {
+      "path": "assets/pijamas.glb",
+      "sha1": "cdd1368ca552bdcb54457ed9628235a8de203dad"
+    },
+    {
+      "path": "assets/pirate.glb",
+      "sha1": "d4290fad8455ae940baa90e59d70659c021590f7"
     }
   ]
 }
