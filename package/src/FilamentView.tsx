@@ -55,14 +55,15 @@ export class FilamentView extends React.PureComponent<FilamentViewProps, _State>
 
     const pirateHatBuffer = FilamentProxy.getAssetByteBuffer(pirateHatPath)
     const pirateHatAsset = this.engine.loadAsset(pirateHatBuffer)
-    // pengu.applyAnimatorTo(pirateHatAsset)
     this.hatAnimator = pirateHatAsset.createAnimatorWithAnimationsFrom(pengu)
     const pijamaBuffer = FilamentProxy.getAssetByteBuffer(pijamaPath)
     const pijamaAsset = this.engine.loadAsset(pijamaBuffer)
     this.pijamaAnimator = pijamaAsset.createAnimatorWithAnimationsFrom(pengu)
 
-    // pengu.releaseSourceData() // Cleanup memory after loading the asset
-    // pirateHatAsset.releaseSourceData()
+    // Cleanup memory after loading the asset
+    pengu.releaseSourceData()
+    pirateHatAsset.releaseSourceData()
+    pijamaAsset.releaseSourceData()
 
     this.setup3dScene()
   }
