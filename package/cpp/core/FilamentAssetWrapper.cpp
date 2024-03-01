@@ -12,6 +12,8 @@ void FilamentAssetWrapper::loadHybridMethods() {
   registerHybridMethod("getRoot", &FilamentAssetWrapper::getRoot, this);
   registerHybridMethod("releaseSourceData", &FilamentAssetWrapper::releaseSourceData, this);
   registerHybridMethod("getAnimator", &FilamentAssetWrapper::getAnimator, this);
+        registerHybridMethod("applyAnimatorTo", &FilamentAssetWrapper::applyAnimatorTo, this);
+        registerHybridMethod("createAnimatorWithAnimationsFrom", &FilamentAssetWrapper::createAnimatorWithAnimationsFrom, this);
 }
 
 /**
@@ -41,6 +43,13 @@ std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::getAnimator() {
   // Note: i haven't found anyway to cleanup the animator, in the sample code they just set it to nullptr
   // I believe it's memory gets cleaned up when the asset is destroyed.
   return std::make_shared<AnimatorWrapper>(animator);
+}
+void FilamentAssetWrapper::applyAnimatorTo(std::shared_ptr<FilamentAssetWrapper> other) {
+  _asset->getInstance()->getAnimator()->applyToInstance(other->_asset->getInstance());
+}
+std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::createAnimatorWithAnimationsFrom(std::shared_ptr<FilamentAssetWrapper> otherAsset) {
+  Animator* animator = new gltfio::Animator(otherAsset->_asset.get(), _asset->getInstance());
+        return std::make_shared<AnimatorWrapper>(animator);
 }
 
 } // namespace margelo
