@@ -22,7 +22,6 @@ private:
   std::shared_ptr<EntityWrapper> getRoot();
   void releaseSourceData();
   std::shared_ptr<AnimatorWrapper> getAnimator();
-  void applyAnimatorTo(std::shared_ptr<FilamentAssetWrapper> other);
   std::shared_ptr<AnimatorWrapper> createAnimatorWithAnimationsFrom(std::shared_ptr<FilamentAssetWrapper> otherAsset);
 
 private:

@@ -177,10 +177,7 @@ public:
     }
 
     const_reference operator[](size_type n) const noexcept {
-//        assert(n < size());
-//        if (n >= size()) {
-//            return nullptr;
-//        }
+        assert(n < size());
         return *(begin() + n);
     }
 
