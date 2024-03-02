@@ -1,7 +1,7 @@
 import * as React from 'react'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 
-import { Platform, StyleSheet, useWindowDimensions } from 'react-native'
+import { Platform, StyleSheet } from 'react-native'
 import { FilamentProxy, FilamentView, Float3, RenderCallback } from 'react-native-filament'
 
 const engine = FilamentProxy.createEngine()
@@ -16,17 +16,15 @@ const indirectLightPath = Platform.select({
   ios: 'default_env_ibl.ktx',
 })!
 
+// Camera config:
 const cameraPosition: Float3 = [0, 0, 8]
 const cameraTarget: Float3 = [0, 0, 0]
 const cameraUp: Float3 = [0, 1, 0]
+const focalLengthInMillimeters = 28
+const near = 0.1
+const far = 1000
 
 export default function App() {
-  const { width, height } = useWindowDimensions()
-  // As the view is flex: 1 its aspect ratio is equal to the screen's aspect ratio
-  // otherwise you can use engine.getView().aspectRatio
-  const viewAspectRatio = width / height
-  // TODO: It would be better to rely on the engine.view's aspect ratio
-
   const [_pengu, penguAnimator] = useMemo(() => {
     const modelBuffer = FilamentProxy.getAssetByteBuffer(penguModelPath)
     const asset = engine.loadAsset(modelBuffer)
@@ -36,8 +34,18 @@ export default function App() {
     return [asset, animator]
   }, [])
 
+  const prevAspectRatio = useRef(0)
   const renderCallback: RenderCallback = useCallback(
     (_timestamp, _startTime, passedSeconds) => {
+      const view = engine.getView()
+      const aspectRatio = view.aspectRatio
+      if (prevAspectRatio.current !== aspectRatio) {
+        prevAspectRatio.current = aspectRatio
+        // Setup camera lens:
+        const camera = engine.getCamera()
+        camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
+      }
+
       penguAnimator.applyAnimation(0, passedSeconds)
       penguAnimator.updateBoneMatrices()
 
@@ -55,14 +63,7 @@ export default function App() {
     // Create a directional light for supporting shadows
     const light = engine.createLightEntity('directional', 6500, 10000, 0, -1, 0, true)
     engine.getScene().addEntity(light)
-
-    // Setup camera lens:
-    const focalLengthInMillimeters = 28
-    const near = 0.1
-    const far = 1000
-    const camera = engine.getCamera()
-    camera.setLensProjection(focalLengthInMillimeters, viewAspectRatio, near, far)
-  }, [viewAspectRatio])
+  }, [])
 
   return <FilamentView style={styles.filamentView} engine={engine} renderCallback={renderCallback} />
 }
