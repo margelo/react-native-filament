@@ -17,7 +17,7 @@ mkdir -p ../package/android/libs/bullet3/include
 cp -f scripts/BulletAndroidApplication.mk ../bullet3/build3/Android/jni/Application.mk
 
 cd ../bullet3/build3/Android/jni
-ANDROID_NDK_VERSION="24.0.8215888" # This version supports arm64 architecture (apple silicon)
+ANDROID_NDK_VERSION="24.0.8215888" # This version supports arm64 architecture (apple silicon), make sure its installed on your system
 # Build the Bullet3 library
 $ANDROID_HOME/ndk/$ANDROID_NDK_VERSION/ndk-build
 
