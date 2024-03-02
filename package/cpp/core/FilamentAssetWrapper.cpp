@@ -47,7 +47,7 @@ std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::getAnimator() {
 
 std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::createAnimatorWithAnimationsFrom(std::shared_ptr<FilamentAssetWrapper> otherAsset) {
   Animator* animator = new gltfio::Animator(otherAsset->_asset.get(), _asset->getInstance());
-        return std::make_shared<AnimatorWrapper>(animator);
+  return std::make_shared<AnimatorWrapper>(animator);
 }
 
 } // namespace margelo
