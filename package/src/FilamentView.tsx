@@ -40,6 +40,9 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
 
     // Link the surface with the engine:
     this.props.engine.setSurfaceProvider(surfaceProvider)
+
+    // Set the render callback:
+    this.props.engine.setRenderCallback(this.props.renderCallback)
   }
 
   /** @internal */
