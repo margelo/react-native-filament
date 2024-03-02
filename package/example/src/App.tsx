@@ -43,7 +43,7 @@ export default function App() {
 
       engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
     },
-    [penguAnimator],
+    [penguAnimator]
   )
 
   // Setup the 3D scene:
