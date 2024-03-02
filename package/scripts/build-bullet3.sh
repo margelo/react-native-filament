@@ -11,6 +11,7 @@ PACKAGE_DIR=$(pwd)
 rm -rf ../package/android/libs/bullet3
 mkdir -p ../package/android/libs/bullet3
 mkdir -p ../package/android/libs/bullet3/lib
+mkdir -p ../package/android/libs/bullet3/include
 
 # # We need to copy over the Updated BulletAndroid.mk file
 cp -f scripts/BulletAndroidApplication.mk ../bullet3/build3/Android/jni/Application.mk
@@ -33,6 +34,15 @@ rm -rf arm64-v8a/objs
 rm -rf armeabi-v7a/objs
 rm -rf x86/objs
 rm -rf x86_64/objs
+
+# Copy over all headers
+cd $PACKAGE_DIR
+cp -rf ../bullet3/src/* android/libs/bullet3/include
+cd android/libs/bullet3/include
+# Remove all .cpp, .lua and .txt files
+find . -type f -name "*.cpp" -delete
+find . -type f -name "*.lua" -delete
+find . -type f -name "*.txt" -delete
 
 #############
 #    iOS    #
