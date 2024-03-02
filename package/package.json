@@ -33,7 +33,7 @@
     "prepare": "git submodule update --init --recursive && bob build",
     "update-submodule": "git submodule update --remote --merge",
     "build-filament": "scripts/build-filament.sh",
-    "copy-bullet3": "scripts/copy-bullet3.sh",
+    "build-bullet3": "scripts/build-bullet3.sh",
     "release": "yarn build-filament && yarn copy-bullet3 && release-it"
   },
   "keywords": [
