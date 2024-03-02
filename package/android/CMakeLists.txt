@@ -7,6 +7,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 17)
 
 set(FILAMENT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/filament")
+set(BULLET3_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/bullet3")
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DDEBUG=1)
@@ -73,6 +74,7 @@ target_include_directories(
         "${NODE_MODULES_DIR}/react-native/ReactCommon/callinvoker"
         "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/react/turbomodule" # <-- CallInvokerHolder JNI wrapper
         "${FILAMENT_DIR}/include"
+        ${BULLET3_DIR}
 )
 
 # Link everything together
