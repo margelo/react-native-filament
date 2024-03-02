@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useCallback, useEffect, useMemo } from 'react'
 
-import { Platform, StyleSheet } from 'react-native'
+import { Platform, StyleSheet, useWindowDimensions } from 'react-native'
 import { FilamentProxy, FilamentView, Float3, RenderCallback } from 'react-native-filament'
 
 const engine = FilamentProxy.createEngine()
@@ -21,6 +21,12 @@ const cameraTarget: Float3 = [0, 0, 0]
 const cameraUp: Float3 = [0, 1, 0]
 
 export default function App() {
+  const { width, height } = useWindowDimensions()
+  // As the view is flex: 1 its aspect ratio is equal to the screen's aspect ratio
+  // otherwise you can use engine.getView().aspectRatio
+  const viewAspectRatio = width / height
+  // TODO: It would be better to rely on the engine.view's aspect ratio
+
   const [_pengu, penguAnimator] = useMemo(() => {
     const modelBuffer = FilamentProxy.getAssetByteBuffer(penguModelPath)
     const asset = engine.loadAsset(modelBuffer)
@@ -42,28 +48,21 @@ export default function App() {
 
   // Setup the 3D scene:
   useEffect(() => {
-    // TODO: I have to use requestAnimationFrame here, otherwise the view is not yet linked (componentDidMount)
-    requestAnimationFrame(() => {
-      // Create a default light:
-      const indirectLightBuffer = FilamentProxy.getAssetByteBuffer(indirectLightPath)
-      engine.setIndirectLight(indirectLightBuffer)
+    // Create a default light:
+    const indirectLightBuffer = FilamentProxy.getAssetByteBuffer(indirectLightPath)
+    engine.setIndirectLight(indirectLightBuffer)
 
-      // Create a directional light for supporting shadows
-      const light = engine.createLightEntity('directional', 6500, 10000, 0, -1, 0, true)
-      engine.getScene().addEntity(light)
+    // Create a directional light for supporting shadows
+    const light = engine.createLightEntity('directional', 6500, 10000, 0, -1, 0, true)
+    engine.getScene().addEntity(light)
 
-      // Setup camera lens:
-      // TODO: Issue, view is only available after we linked the surface hmmm
-      const view = engine.getView()
-      const aspectRatio = view.aspectRatio
-      console.log('aspectRatio', aspectRatio)
-      const focalLengthInMillimeters = 28
-      const near = 0.1
-      const far = 1000
-      const camera = engine.getCamera()
-      camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
-    })
-  }, [])
+    // Setup camera lens:
+    const focalLengthInMillimeters = 28
+    const near = 0.1
+    const far = 1000
+    const camera = engine.getCamera()
+    camera.setLensProjection(focalLengthInMillimeters, viewAspectRatio, near, far)
+  }, [viewAspectRatio])
 
   return <FilamentView style={styles.filamentView} engine={engine} renderCallback={renderCallback} />
 }
