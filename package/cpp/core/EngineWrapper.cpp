@@ -125,9 +125,6 @@ void EngineWrapper::surfaceSizeChanged(int width, int height) {
   if (_view) {
     _view->setViewport(0, 0, width, height);
   }
-
-  // TODO: when the surface resizes we need to update the camera projection, but that one is owned by JS now.
-  //  updateCameraProjection();
 }
 
 void EngineWrapper::destroySurface() {
