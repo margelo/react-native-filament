@@ -33,7 +33,8 @@
     "prepare": "git submodule update --init --recursive && bob build",
     "update-submodule": "git submodule update --remote --merge",
     "build-filament": "scripts/build-filament.sh",
-    "release": "yarn build-filament && release-it"
+    "copy-bullet3": "scripts/copy-bullet3.sh",
+    "release": "yarn build-filament && yarn copy-bullet3 && release-it"
   },
   "keywords": [
     "react-native",
