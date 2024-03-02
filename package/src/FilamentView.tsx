@@ -30,10 +30,7 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
   }
 
   componentDidMount() {
-    // TODO: lets get rid of this timeout
-    setTimeout(() => {
-      this.setupSurface()
-    }, 100)
+    this.setupSurface()
   }
 
   setupSurface = () => {
