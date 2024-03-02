@@ -157,13 +157,6 @@ void EngineWrapper::renderFrame(double timestamp) {
     _startTime = timestamp;
   }
 
-  //  if (_animator) {
-  //    if (_animator->getAnimationCount() > 0) {
-  //      _animator->applyAnimation(0, (timestamp - _startTime) / 1e9);
-  //    }
-  //    _animator->updateBoneMatrices();
-  //  }
-
   if (_renderCallback) {
     // Call JS callback with scene information
     double passedSeconds = (timestamp - _startTime) / 1e9;
