@@ -9,9 +9,11 @@ import { Entity } from './Entity'
 import { FilamentAsset } from './FilamentAsset'
 import { Float3 } from './float3'
 
+export type RenderCallback = (timestamp: number, startTime: number, passedSeconds: number) => void
+
 export interface Engine {
   setSurfaceProvider(surfaceProvider: SurfaceProvider): void
-  setRenderCallback(callback: (timestamp: number, startTime: number, passedSeconds: number) => void): void
+  setRenderCallback(callback: RenderCallback): void
 
   /**
    * Given a @see FilamentBuffer (e.g. from a .glb file), load the asset into the engine.
