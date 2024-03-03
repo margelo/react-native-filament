@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = {
     'GCC_PREPROCESSOR_DEFINITIONS' => 'FILAMENT_APP_USE_METAL=1 $(inherited)',
     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/**\""
+    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/**\" \"$(PODS_TARGET_SRCROOT)/ios/libs/bullet3/**\""
   }
 
   # Fix linking error with Xcode 12; we do not yet support the simulator on Apple silicon.
@@ -133,6 +133,7 @@ Pod::Spec.new do |s|
   s.source_files = [
     "cpp/**/*.{h,c,cpp}",
     "ios/src/**/*.{h,m,mm,cpp}",
+    "ios/libs/bullet3/**/*.{h,c,cpp}"
   ]
 
   # Any private headers that are not globally unique should be mentioned here.
