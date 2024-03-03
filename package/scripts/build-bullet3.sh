@@ -2,11 +2,11 @@
 
 set -e
 
+PACKAGE_DIR=$(pwd)
+
 #############
 #  Android  #
 #############
-
-PACKAGE_DIR=$(pwd)
 
 rm -rf ../package/android/libs/bullet3
 mkdir -p ../package/android/libs/bullet3
@@ -47,3 +47,13 @@ find . -type f -name "*.txt" -delete
 #############
 #    iOS    #
 #############
+
+cd $PACKAGE_DIR
+
+# For iOS we only need to copy the source files over (this is the recommended approach by bullet3):
+rm -rf ./ios/libs/bullet3
+mkdir -p ./ios/libs/bullet3
+cp -rf ../bullet3/src/* ./ios/libs/bullet3
+
+# We need to remove the OpenCL folder as it is not supported on iOS
+rm -rf ./ios/libs/bullet3/Bullet3OpenCL
