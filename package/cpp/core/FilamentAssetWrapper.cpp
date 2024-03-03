@@ -51,7 +51,7 @@ std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::getAnimator() {
 
 std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::createAnimatorWithAnimationsFrom(std::shared_ptr<FilamentAssetWrapper> otherAsset) {
 #if defined(TARGET_OS_IPHONE) || defined(TARGET_IPHONE_SIMULATOR)
-    return getAnimator();
+  return getAnimator();
 #else
   // Note: This constructor is only availbe on android yet where we build filament from source.
   // Should be unified once https://github.com/google/filament/issues/7622 is resolved.

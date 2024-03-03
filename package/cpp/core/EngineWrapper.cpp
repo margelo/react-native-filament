@@ -246,8 +246,13 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<F
   _resourceLoader->loadResources(asset);
   _animator = asset->getInstance()->getAnimator();
 
-  auto sharedPtr = std::shared_ptr<gltfio::FilamentAsset>(asset, [](gltfio::FilamentAsset* asset) {
-    // TODO: destroy the asset
+  auto sharedPtr = std::shared_ptr<gltfio::FilamentAsset>(asset, [this](gltfio::FilamentAsset* asset) {
+    if (_scene) {
+      _scene->getScene()->removeEntities(asset->getEntities(), asset->getEntityCount());
+    }
+    if (_assetLoader) {
+      _assetLoader->destroyAsset(asset);
+    }
   });
   return std::make_shared<FilamentAssetWrapper>(sharedPtr);
 }

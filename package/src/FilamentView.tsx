@@ -30,7 +30,9 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
   }
 
   componentDidMount() {
-    this.setupSurface()
+    // TODO(Marc): I had to add this setTimeout(, 0), otherwise there would be no render output on iOS.
+    //             I assume its because the surface isn't ready yet or something?
+    setTimeout(this.setupSurface, 0)
   }
 
   setupSurface = () => {
