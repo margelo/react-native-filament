@@ -40,7 +40,7 @@ export interface Engine {
     directionX: number,
     directionY: number,
     directionZ: number,
-    castShadows: boolean,
+    castShadows: boolean
   ): Entity
 
   /**
