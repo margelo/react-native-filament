@@ -4,6 +4,10 @@
 #include <utils/Entity.h>
 #include <utils/EntityInstance.h>
 
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#endif
+
 namespace margelo {
 
 using namespace utils;
@@ -46,8 +50,14 @@ std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::getAnimator() {
 }
 
 std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::createAnimatorWithAnimationsFrom(std::shared_ptr<FilamentAssetWrapper> otherAsset) {
+#if defined(TARGET_OS_IPHONE) || defined(TARGET_IPHONE_SIMULATOR)
+  return getAnimator();
+#else
+  // Note: This constructor is only availbe on android yet where we build filament from source.
+  // Should be unified once https://github.com/google/filament/issues/7622 is resolved.
   Animator* animator = new gltfio::Animator(otherAsset->_asset.get(), _asset->getInstance());
   return std::make_shared<AnimatorWrapper>(animator);
+#endif
 }
 
 } // namespace margelo
