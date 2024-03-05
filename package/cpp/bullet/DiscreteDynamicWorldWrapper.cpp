@@ -17,5 +17,20 @@ namespace margelo {
     dynamicsWorld->setGravity(btVector3(gravityX, gravityY, gravityZ));
   }
 
-  void DiscreteDynamicWorldWrapper::loadHybridMethods() {}
+void DiscreteDynamicWorldWrapper::loadHybridMethods() {
+  registerHybridMethod("addRigidBody", &DiscreteDynamicWorldWrapper::addRigidBody, this);
+  registerHybridMethod("stepSimulation", &DiscreteDynamicWorldWrapper::stepSimulation, this);
+}
+
+void DiscreteDynamicWorldWrapper::addRigidBody(std::shared_ptr<RigidBodyWrapper> rigidBody) {
+  if (!rigidBody) {
+    throw std::runtime_error("RigidBody is null");
+  }
+  btRigidBody *body = rigidBody->getRigidBody().get();
+  dynamicsWorld->addRigidBody(body);
+}
+
+void DiscreteDynamicWorldWrapper::stepSimulation(double timeStep, double maxSubSteps) {
+  dynamicsWorld->stepSimulation(timeStep, maxSubSteps);
+}
 } // namespace margelo

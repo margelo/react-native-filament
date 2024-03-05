@@ -5,6 +5,7 @@
 #pragma once
 
 #include "DiscreteDynamicWorldWrapper.h"
+#include "RigidBodyWrapper.h"
 #include "jsi/HybridObject.h"
 
 namespace margelo {
@@ -16,6 +17,7 @@ public:
 
 private:
   std::shared_ptr<DiscreteDynamicWorldWrapper> createDiscreteDynamicWorld(double gravityX, double gravityY, double gravityZ);
+  std::shared_ptr<RigidBodyWrapper> createRigidBody(double mass, double x, double y, double z, double shapeX, double shapeY, double shapeZ);
 };
 
 } // namespace margelo
