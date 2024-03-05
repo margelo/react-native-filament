@@ -18,7 +18,7 @@ public:
     _buffer->rewind();
   }
 
-  ~AndroidManagedBuffer() {
+  ~AndroidManagedBuffer() override {
     jni::ThreadScope::WithClassLoader([&] { _buffer.reset(); });
   }
 
