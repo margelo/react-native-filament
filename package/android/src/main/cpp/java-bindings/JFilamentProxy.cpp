@@ -6,6 +6,7 @@
 #include "JChoreographer.h"
 #include "JFilamentView.h"
 #include "JNISharedPtr.h"
+#include <fbjni/ByteBuffer.h>
 #include <fbjni/fbjni.h>
 
 namespace margelo {
@@ -20,9 +21,11 @@ JFilamentProxy::~JFilamentProxy() {
   // TODO(hanno): Cleanup?
 }
 
-int JFilamentProxy::loadModel(const std::string& path) {
-  static const auto method = javaClassLocal()->getMethod<jint(jni::alias_ref<jstring>)>("loadModel");
-  return method(_javaPart, jni::make_jstring(path));
+std::shared_ptr<FilamentBuffer> JFilamentProxy::getAssetByteBuffer(const std::string& path) {
+  static const auto method = javaClassLocal()->getMethod<jni::alias_ref<jni::JByteBuffer>(jni::alias_ref<jstring>)>("getAssetByteBuffer");
+  jni::local_ref<jni::JByteBuffer> localRef = method(_javaPart, jni::make_jstring(path));
+  jni::global_ref<jni::JByteBuffer> globalRef = jni::make_global(localRef);
+  return std::make_shared<FilamentBuffer>(globalRef->getDirectBytes(), globalRef->getDirectSize());
 }
 
 std::shared_ptr<FilamentView> JFilamentProxy::findFilamentView(int id) {

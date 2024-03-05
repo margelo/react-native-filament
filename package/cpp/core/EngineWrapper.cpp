@@ -7,13 +7,24 @@
 #include "References.h"
 #include <filament/Color.h>
 #include <filament/Engine.h>
+#include <filament/Fence.h>
+#include <filament/IndirectLight.h>
 #include <filament/LightManager.h>
+#include <filament/RenderableManager.h>
 #include <filament/SwapChain.h>
+#include <filament/TransformManager.h>
 #include <utils/Entity.h>
 #include <utils/EntityManager.h>
 
+#include <gltfio/Animator.h>
 #include <gltfio/MaterialProvider.h>
 #include <gltfio/materials/uberarchive.h>
+
+#include <filament/LightManager.h>
+#include <filament/SwapChain.h>
+#include <ktxreader/Ktx1Reader.h>
+#include <utils/Entity.h>
+#include <utils/EntityManager.h>
 
 #include <utility>
 
@@ -22,8 +33,35 @@ namespace margelo {
 EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer) {
   // TODO: make the enum for the backend for the engine configurable
   _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) { Engine::destroy(&engine); });
-  _materialProvider = gltfio::createUbershaderProvider(_engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
-  _assetLoader = gltfio::AssetLoader::create(filament::gltfio::AssetConfiguration{.engine = _engine.get(), .materials = _materialProvider});
+
+  gltfio::MaterialProvider* _materialProviderPtr = gltfio::createUbershaderProvider(_engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
+  _materialProvider = References<gltfio::MaterialProvider>::adoptEngineRef(
+      _engine, _materialProviderPtr, [](const std::shared_ptr<Engine>& engine, gltfio::MaterialProvider* provider) {
+        provider->destroyMaterials();
+        delete provider;
+      });
+
+  gltfio::AssetLoader* assetLoaderPtr = gltfio::AssetLoader::create(filament::gltfio::AssetConfiguration{.engine = _engine.get(), .materials = _materialProvider.get()});
+  _assetLoader = References<gltfio::AssetLoader>::adoptEngineRef(
+      _engine, assetLoaderPtr, [](const std::shared_ptr<Engine>& engine, gltfio::AssetLoader* assetLoader) {
+        auto* ncm = assetLoader->getNames();
+        delete ncm;
+        gltfio::AssetLoader::destroy(&assetLoader);
+      });
+
+  gltfio::ResourceLoader* resourceLoaderPtr = new filament::gltfio::ResourceLoader({.engine = _engine.get(), .normalizeSkinningWeights = true});
+  // Add texture providers to the resource loader
+  auto stbProvider = filament::gltfio::createStbProvider(_engine.get());
+  auto ktx2Provider = filament::gltfio::createKtx2Provider(_engine.get());
+  resourceLoaderPtr->addTextureProvider("image/jpeg", stbProvider);
+  resourceLoaderPtr->addTextureProvider("image/png", stbProvider);
+  resourceLoaderPtr->addTextureProvider("image/ktx2", ktx2Provider);
+  _resourceLoader = References<gltfio::ResourceLoader>::adoptEngineRef(
+      _engine, resourceLoaderPtr, [stbProvider, ktx2Provider](const std::shared_ptr<Engine>& engine, gltfio::ResourceLoader* resourceLoader) {
+        delete stbProvider;
+        delete ktx2Provider;
+        delete resourceLoader;
+      });
 
   // Setup filament:
   _renderer = createRenderer();
@@ -34,19 +72,15 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer) {
   _view->getView()->setScene(_scene->getScene().get());
   _view->getView()->setCamera(_camera->getCamera().get());
 
-  createDefaultLight();
-
   _choreographer = std::move(choreographer);
-}
-
-EngineWrapper::~EngineWrapper() {
-  gltfio::AssetLoader::destroy(&_assetLoader);
-  _materialProvider->destroyMaterials();
 }
 
 void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider, this);
   registerHybridMethod("setRenderCallback", &EngineWrapper::setRenderCallback, this);
+  registerHybridMethod("createDefaultLight", &EngineWrapper::createDefaultLight, this);
+
+  registerHybridMethod("loadAsset", &EngineWrapper::loadAsset, this);
 
   // Filament API:
   registerHybridMethod("getRenderer", &EngineWrapper::getRenderer, this);
@@ -63,10 +97,14 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
     setSurface(surface);
   }
 
-  Listener listener = surfaceProvider->addOnSurfaceChangedListener(SurfaceProvider::Callback{
-      .onSurfaceCreated = [=](std::shared_ptr<Surface> surface) { this->setSurface(surface); },
-      .onSurfaceSizeChanged = [=](std::shared_ptr<Surface> surface, int width, int height) { this->surfaceSizeChanged(width, height); },
-      .onSurfaceDestroyed = [=](std::shared_ptr<Surface> surface) { this->destroySurface(); }});
+  Listener listener = surfaceProvider->addOnSurfaceChangedListener(
+      SurfaceProvider::Callback{.onSurfaceCreated = [=](std::shared_ptr<Surface> surface) { this->setSurface(surface); },
+                                .onSurfaceSizeChanged =
+                                    [=](std::shared_ptr<Surface> surface, int width, int height) {
+                                      this->surfaceSizeChanged(width, height);
+                                      this->synchronizePendingFrames();
+                                    },
+                                .onSurfaceDestroyed = [=](std::shared_ptr<Surface> surface) { this->destroySurface(); }});
   _listener = std::make_shared<Listener>(std::move(listener));
 }
 
@@ -87,15 +125,14 @@ void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
 }
 
 void EngineWrapper::surfaceSizeChanged(int width, int height) {
-  if (_view) {
-    _view->setViewport(0, 0, width, height);
-  }
   if (_cameraManipulator) {
     _cameraManipulator->getManipulator()->setViewport(width, height);
   }
-  // TODO:
-  //    updateCameraProjection()
-  //    synchronizePendingFrames(engine)
+  if (_view) {
+    _view->setViewport(0, 0, width, height);
+  }
+
+  updateCameraProjection();
 }
 
 void EngineWrapper::destroySurface() {
@@ -118,6 +155,19 @@ void EngineWrapper::renderFrame(double timestamp) {
   if (!_view) {
     return;
   }
+
+  _resourceLoader->asyncUpdateLoad();
+
+  if (_startTime == 0) {
+    _startTime = timestamp;
+  }
+
+  //  if (_animator) {
+  //    if (_animator->getAnimationCount() > 0) {
+  //      _animator->applyAnimation(0, (timestamp - _startTime) / 1e9);
+  //    }
+  //    _animator->updateBoneMatrices();
+  //  }
 
   if (_renderCallback) {
     // Call JS callback with scene information
@@ -173,8 +223,59 @@ std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
   return std::make_shared<CameraWrapper>(camera);
 }
 
-void EngineWrapper::createDefaultLight() {
-  // Create default directional light (In ModelViewer this is the default, so we use it here as well)
+void EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
+  filament::gltfio::FilamentAsset* asset = _assetLoader->createAsset(modelBuffer->getData(), modelBuffer->getSize());
+  if (asset == nullptr) {
+    throw std::runtime_error("Failed to load asset");
+  }
+
+  if (!_scene) {
+    throw std::runtime_error("Scene not initialized");
+  }
+
+  // TODO: When supporting loading glTF files with external resources, we need to load the resources here
+  //    const char* const* const resourceUris = asset->getResourceUris();
+  //    const size_t resourceUriCount = asset->getResourceUriCount();
+
+  _scene->getScene()->addEntities(asset->getEntities(), asset->getEntityCount());
+  _resourceLoader->loadResources(asset);
+  _animator = asset->getInstance()->getAnimator();
+  asset->releaseSourceData();
+
+  transformToUnitCube(asset);
+}
+
+// Default light is a directional light for shadows + a default IBL
+void EngineWrapper::createDefaultLight(std::shared_ptr<FilamentBuffer> iblBuffer) {
+  if (!_scene) {
+    throw std::runtime_error("Scene not initialized");
+  }
+  if (!iblBuffer) {
+    throw std::runtime_error("IBL buffer is null");
+  }
+  if (iblBuffer->getSize() == 0) {
+    throw std::runtime_error("IBL buffer is empty");
+  }
+
+  auto* iblBundle = new image::Ktx1Bundle(iblBuffer->getData(), iblBuffer->getSize());
+
+  Texture* cubemap = ktxreader::Ktx1Reader::createTexture(
+      _engine.get(), *iblBundle, false,
+      [](void* userdata) {
+        auto* bundle = (image::Ktx1Bundle*)userdata;
+        delete bundle;
+      },
+      iblBundle);
+
+  math::float3 harmonics[9];
+  iblBundle->getSphericalHarmonics(harmonics);
+
+  IndirectLight* _indirectLight =
+      IndirectLight::Builder().reflections(cubemap).irradiance(3, harmonics).intensity(30000.0f).build(*_engine);
+
+  _scene->getScene()->setIndirectLight(_indirectLight);
+
+  // Add directional light for supporting shadows
   auto lightEntity = _engine->getEntityManager().create();
   LightManager::Builder(LightManager::Type::DIRECTIONAL)
       .color(Color::cct(6500.0f))
@@ -187,11 +288,56 @@ void EngineWrapper::createDefaultLight() {
 }
 
 std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator(int width, int height) {
-  ManipulatorBuilder* builder = new ManipulatorBuilder();
-  builder->targetPosition(0.0f, 0.0f, -4.0f); // kDefaultObjectPosition
-  builder->viewport(width, height);
-  std::shared_ptr<Manipulator<float>> manipulator = std::shared_ptr<Manipulator<float>>(builder->build(Mode::ORBIT));
+  ManipulatorBuilder builder;
+  // Position of the camera:
+  builder.orbitHomePosition(defaultCameraPosition.x, defaultCameraPosition.y, defaultCameraPosition.z);
+  // Position the camera points to:
+  builder.targetPosition(defaultObjectPosition.x, defaultObjectPosition.y, defaultObjectPosition.z);
+  builder.viewport(width, height);
+  std::shared_ptr<Manipulator<float>> manipulator = std::shared_ptr<Manipulator<float>>(builder.build(Mode::ORBIT));
   return std::make_shared<ManipulatorWrapper>(manipulator);
+}
+
+/**
+ * Sets up a root transform on the current model to make it fit into a unit cube.
+ */
+void EngineWrapper::transformToUnitCube(filament::gltfio::FilamentAsset* asset) {
+  TransformManager& tm = _engine->getTransformManager();
+  Aabb aabb = asset->getBoundingBox();
+  math::details::TVec3<float> center = aabb.center();
+  math::details::TVec3<float> halfExtent = aabb.extent();
+  float maxExtent = max(halfExtent) * 2.0f;
+  float scaleFactor = 2.0f / maxExtent;
+  math::mat4f transform = math::mat4f::scaling(scaleFactor) * math::mat4f::translation(-center);
+  EntityInstance<TransformManager> transformInstance = tm.getInstance(asset->getRoot());
+  tm.setTransform(transformInstance, transform);
+}
+
+void EngineWrapper::updateCameraProjection() {
+  if (!_view) {
+    throw std::runtime_error("View not initialized");
+  }
+  if (!_camera) {
+    throw std::runtime_error("Camera not initialized");
+  }
+
+  const double aspect = (double)_view->getView()->getViewport().width / _view->getView()->getViewport().height;
+  double focalLength = 28.0;
+  double near = 0.05;  // 5cm
+  double far = 1000.0; // 1km
+  _camera->getCamera()->setLensProjection(focalLength, aspect, near, far);
+}
+
+void EngineWrapper::synchronizePendingFrames() {
+  if (!_engine) {
+    throw std::runtime_error("Engine not initialized");
+  }
+  // Wait for all pending frames to be processed before returning. This is to
+  // avoid a race between the surface being resized before pending frames are
+  // rendered into it.
+  Fence* fence = _engine->createFence();
+  fence->wait(Fence::Mode::FLUSH, Fence::FENCE_WAIT_FOR_EVER);
+  _engine->destroy(fence);
 }
 
 } // namespace margelo

@@ -17,8 +17,8 @@ AndroidFilamentProxy::~AndroidFilamentProxy() {
   jni::ThreadScope::WithClassLoader([&] { _proxy.reset(); });
 }
 
-int AndroidFilamentProxy::loadModel(std::string path) {
-  return _proxy->cthis()->loadModel(path);
+std::shared_ptr<FilamentBuffer> AndroidFilamentProxy::getAssetByteBuffer(std::string path) {
+  return _proxy->cthis()->getAssetByteBuffer(path);
 }
 
 std::shared_ptr<FilamentView> AndroidFilamentProxy::findFilamentView(int id) {

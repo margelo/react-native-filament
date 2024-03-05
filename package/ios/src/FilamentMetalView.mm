@@ -14,7 +14,9 @@
 
 - (instancetype)init {
   if (self = [super init]) {
-    // init here
+    CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
+    metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+    metalLayer.opaque = NO;
   }
   return self;
 }

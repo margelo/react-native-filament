@@ -14,6 +14,12 @@ import com.facebook.react.turbomodule.core.CallInvokerHolderImpl;
 import com.facebook.react.turbomodule.core.interfaces.CallInvokerHolder;
 import com.facebook.react.uimanager.UIManagerHelper;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+
 /** @noinspection JavaJniMissingFunction*/
 class FilamentProxy {
     /** @noinspection unused, FieldCanBeLocal */
@@ -46,9 +52,18 @@ class FilamentProxy {
     /** @noinspection unused*/
     @DoNotStrip
     @Keep
-    int loadModel(String path) {
-        // TODO(hanno): Implement Java part here
-        return 13;
+    ByteBuffer getAssetByteBuffer(String assetName) throws IOException {
+        InputStream input = reactContext.getAssets().open(assetName);
+        // Create a channel from the input stream
+        ReadableByteChannel channel = Channels.newChannel(input);
+        int estimatedSize = input.available(); // This is not always accurate for the actual size
+        ByteBuffer buffer = ByteBuffer.allocateDirect(estimatedSize);
+        // Read directly into the ByteBuffer via the channel
+        int res = channel.read(buffer);
+        // Reset position to 0 to be ready for reading
+        buffer.flip();
+
+        return buffer;
     }
 
     /** @noinspection unused*/
