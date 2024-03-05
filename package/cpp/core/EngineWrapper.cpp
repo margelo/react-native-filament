@@ -4,7 +4,10 @@
 
 #include "EngineWrapper.h"
 
+#include "LightEnum.h"
 #include "References.h"
+#include "utils/Converter.h"
+
 #include <filament/Color.h>
 #include <filament/Engine.h>
 #include <filament/Fence.h>
@@ -78,7 +81,7 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer) {
 void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider, this);
   registerHybridMethod("setRenderCallback", &EngineWrapper::setRenderCallback, this);
-  registerHybridMethod("createDefaultLight", &EngineWrapper::createDefaultLight, this);
+  registerHybridMethod("setIndirectLight", &EngineWrapper::setIndirectLight, this);
 
   registerHybridMethod("loadAsset", &EngineWrapper::loadAsset, this);
 
@@ -88,6 +91,11 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("getView", &EngineWrapper::getView, this);
   registerHybridMethod("getCamera", &EngineWrapper::getCamera, this);
   registerHybridMethod("getCameraManipulator", &EngineWrapper::getCameraManipulator, this);
+  registerHybridMethod("createLightEntity", &EngineWrapper::createLightEntity, this);
+  registerHybridMethod("transformToUnitCube", &EngineWrapper::transformToUnitCube, this);
+  registerHybridMethod("setEntityPosition", &EngineWrapper::setEntityPosition, this);
+  registerHybridMethod("setEntityRotation", &EngineWrapper::setEntityRotation, this);
+  registerHybridMethod("setEntityScale", &EngineWrapper::setEntityScale, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
@@ -132,7 +140,8 @@ void EngineWrapper::surfaceSizeChanged(int width, int height) {
     _view->setViewport(0, 0, width, height);
   }
 
-  updateCameraProjection();
+  // TODO: when the surface resizes we need to update the camera projection, but that one is owned by JS now.
+  //  updateCameraProjection();
 }
 
 void EngineWrapper::destroySurface() {
@@ -223,8 +232,8 @@ std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
   return std::make_shared<CameraWrapper>(camera);
 }
 
-void EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
-  filament::gltfio::FilamentAsset* asset = _assetLoader->createAsset(modelBuffer->getData(), modelBuffer->getSize());
+std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
+  gltfio::FilamentAsset* asset = _assetLoader->createAsset(modelBuffer->getData(), modelBuffer->getSize());
   if (asset == nullptr) {
     throw std::runtime_error("Failed to load asset");
   }
@@ -242,11 +251,14 @@ void EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
   _animator = asset->getInstance()->getAnimator();
   asset->releaseSourceData();
 
-  transformToUnitCube(asset);
+  auto sharedPtr = std::shared_ptr<gltfio::FilamentAsset>(asset, [](gltfio::FilamentAsset* asset) {
+    // TODO: destroy the asset
+  });
+  return std::make_shared<FilamentAssetWrapper>(sharedPtr);
 }
 
 // Default light is a directional light for shadows + a default IBL
-void EngineWrapper::createDefaultLight(std::shared_ptr<FilamentBuffer> iblBuffer) {
+void EngineWrapper::setIndirectLight(std::shared_ptr<FilamentBuffer> iblBuffer) {
   if (!_scene) {
     throw std::runtime_error("Scene not initialized");
   }
@@ -274,17 +286,23 @@ void EngineWrapper::createDefaultLight(std::shared_ptr<FilamentBuffer> iblBuffer
       IndirectLight::Builder().reflections(cubemap).irradiance(3, harmonics).intensity(30000.0f).build(*_engine);
 
   _scene->getScene()->setIndirectLight(_indirectLight);
+}
 
-  // Add directional light for supporting shadows
+std::shared_ptr<EntityWrapper> EngineWrapper::createLightEntity(std::string lightTypeStr, double colorFahrenheit, double intensity,
+                                                                double directionX, double directionY, double directionZ, bool castShadows) {
   auto lightEntity = _engine->getEntityManager().create();
-  LightManager::Builder(LightManager::Type::DIRECTIONAL)
-      .color(Color::cct(6500.0f))
-      .intensity(10000)
-      .direction({0, -1, 0})
-      .castShadows(true)
-      .build(*_engine, lightEntity);
 
-  _scene->getScene()->addEntity(lightEntity);
+  // TODO(Marc): Fix enum converter
+  LightManager::Type lightType;
+  EnumMapper::convertJSUnionToEnum(lightTypeStr, &lightType);
+
+  LightManager::Builder(lightType)
+      .color(Color::cct(static_cast<float>(colorFahrenheit)))
+      .intensity(static_cast<float>(intensity))
+      .direction({directionX, directionY, directionZ})
+      .castShadows(castShadows)
+      .build(*_engine, lightEntity);
+  return std::make_shared<EntityWrapper>(lightEntity);
 }
 
 std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator(int width, int height) {
@@ -301,31 +319,9 @@ std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator(int w
 /**
  * Sets up a root transform on the current model to make it fit into a unit cube.
  */
-void EngineWrapper::transformToUnitCube(filament::gltfio::FilamentAsset* asset) {
+void EngineWrapper::transformToUnitCube(std::shared_ptr<FilamentAssetWrapper> asset) {
   TransformManager& tm = _engine->getTransformManager();
-  Aabb aabb = asset->getBoundingBox();
-  math::details::TVec3<float> center = aabb.center();
-  math::details::TVec3<float> halfExtent = aabb.extent();
-  float maxExtent = max(halfExtent) * 2.0f;
-  float scaleFactor = 2.0f / maxExtent;
-  math::mat4f transform = math::mat4f::scaling(scaleFactor) * math::mat4f::translation(-center);
-  EntityInstance<TransformManager> transformInstance = tm.getInstance(asset->getRoot());
-  tm.setTransform(transformInstance, transform);
-}
-
-void EngineWrapper::updateCameraProjection() {
-  if (!_view) {
-    throw std::runtime_error("View not initialized");
-  }
-  if (!_camera) {
-    throw std::runtime_error("Camera not initialized");
-  }
-
-  const double aspect = (double)_view->getView()->getViewport().width / _view->getView()->getViewport().height;
-  double focalLength = 28.0;
-  double near = 0.05;  // 5cm
-  double far = 1000.0; // 1km
-  _camera->getCamera()->setLensProjection(focalLength, aspect, near, far);
+  asset->transformToUnitCube(tm);
 }
 
 void EngineWrapper::synchronizePendingFrames() {
@@ -338,6 +334,44 @@ void EngineWrapper::synchronizePendingFrames() {
   Fence* fence = _engine->createFence();
   fence->wait(Fence::Mode::FLUSH, Fence::FENCE_WAIT_FOR_EVER);
   _engine->destroy(fence);
+}
+
+/**
+ * Internal method that will help updating the transform of an entity.
+ * @param transform The transform matrix to apply
+ * @param entity The entity to apply the transform to
+ * @param multiplyCurrent If true, the current transform will be multiplied with the new transform, otherwise it will be replaced
+ */
+void EngineWrapper::updateTransform(math::mat4 transform, std::shared_ptr<EntityWrapper> entity, bool multiplyCurrent) {
+  if (!entity) {
+    throw std::invalid_argument("Entity is null");
+  }
+
+  TransformManager& tm = _engine->getTransformManager();
+  EntityInstance<TransformManager> entityInstance = tm.getInstance(entity->getEntity());
+  auto currentTransform = tm.getTransform(entityInstance);
+  auto newTransform = multiplyCurrent ? (currentTransform * transform) : transform;
+  tm.setTransform(entityInstance, newTransform);
+}
+
+// TODO(Marc): Ideally i want to do this in the entity wrapper, but i dont have access to the transform manager there
+void EngineWrapper::setEntityPosition(std::shared_ptr<EntityWrapper> entity, std::vector<double> positionVec, bool multiplyCurrent) {
+  math::float3 position = Converter::VecToFloat3(positionVec);
+  auto translationMatrix = math::mat4::translation(position);
+  updateTransform(translationMatrix, entity, multiplyCurrent);
+}
+
+void EngineWrapper::setEntityRotation(std::shared_ptr<EntityWrapper> entity, double angleRadians, std::vector<double> axisVec,
+                                      bool multiplyCurrent) {
+  math::float3 axis = Converter::VecToFloat3(axisVec);
+  auto rotationMatrix = math::mat4::rotation(angleRadians, axis);
+  updateTransform(rotationMatrix, entity, multiplyCurrent);
+}
+
+void EngineWrapper::setEntityScale(std::shared_ptr<EntityWrapper> entity, std::vector<double> scaleVec, bool multiplyCurrent) {
+  math::float3 scale = Converter::VecToFloat3(scaleVec);
+  auto scaleMatrix = math::mat4::scaling(scale);
+  updateTransform(scaleMatrix, entity, multiplyCurrent);
 }
 
 } // namespace margelo
