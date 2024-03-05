@@ -16,19 +16,19 @@ private:
   Logger() = delete;
 
 private:
-  template <typename T> static void processArg(std::ostringstream& oss, const T& value) {
+  template <typename T> inline static void processArg(std::ostringstream& oss, const T& value) {
     oss << value;
   }
 
-  template <typename T, typename... Args> static void processArg(std::ostringstream& oss, const T& value, Args&&... args) {
+  template <typename T, typename... Args> inline static void processArg(std::ostringstream& oss, const T& value, Args&&... args) {
     oss << value;
     processArg(oss, std::forward<Args>(args)...);
   }
 
 public:
-  static void log(const std::string& string);
+  static void log(const std::string& message);
 
-  template <typename... Args> static void log(const std::string& formatString, Args&&... args) {
+  template <typename... Args> inline static void log(const std::string& formatString, Args&&... args) {
     std::ostringstream stream;
     stream << formatString;
     processArg(stream, std::forward<Args>(args)...);

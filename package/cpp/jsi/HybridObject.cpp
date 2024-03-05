@@ -4,10 +4,14 @@
 
 #include "HybridObject.h"
 #include "JSIConverter.h"
+#include "Logger.h"
 
 namespace margelo {
 
 HybridObject::~HybridObject() {
+#if DEBUG
+  Logger::log("Deleting HybridObject");
+#endif
   _functionCache.clear();
 }
 
