@@ -4,34 +4,33 @@
 
 #pragma once
 
-#include <jsi/jsi.h>
 #include <ReactCommon/CallInvoker.h>
 #include <functional>
+#include <jsi/jsi.h>
 
 namespace margelo {
 
 using namespace facebook;
 
 class JSDispatchQueue {
-using Callback = std::function<void()>;
+  using Callback = std::function<void()>;
 
- public:
+public:
   explicit JSDispatchQueue(std::shared_ptr<react::CallInvoker> callInvoker) {
-    _runOnJSAsync = [callInvoker] (Callback callback) {
-      callInvoker->invokeAsync(std::move(callback));
-    };
-    _runOnJSSync = [callInvoker] (Callback callback) {
-      callInvoker->invokeSync(std::move(callback));
-    };
+    _runOnJSAsync = [callInvoker](Callback callback) { callInvoker->invokeAsync(std::move(callback)); };
+    _runOnJSSync = [callInvoker](Callback callback) { callInvoker->invokeSync(std::move(callback)); };
   }
 
-  void runOnJS(const Callback& function) { _runOnJSAsync(function); }
-  void runOnJSAndWait(const Callback& function) { _runOnJSSync(function); }
+  void runOnJS(const Callback& function) {
+    _runOnJSAsync(function);
+  }
+  void runOnJSAndWait(const Callback& function) {
+    _runOnJSSync(function);
+  }
 
- private:
+private:
   std::function<void(Callback)> _runOnJSAsync;
   std::function<void(Callback)> _runOnJSSync;
 };
-
 
 } // namespace margelo

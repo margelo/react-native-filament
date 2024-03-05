@@ -33,8 +33,7 @@
 
 namespace margelo {
 
-EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer,
-                             std::shared_ptr<JSDispatchQueue> jsDispatchQueue) {
+EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<JSDispatchQueue> jsDispatchQueue) {
   // TODO: make the enum for the backend for the engine configurable
   _jsDispatchQueue = jsDispatchQueue;
   _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) { Engine::destroy(&engine); });
@@ -47,9 +46,8 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer,
         delete provider;
       });
 
-  gltfio::AssetConfiguration assetConfig {.engine = _engine.get(), .materials = _materialProvider.get()};
-  gltfio::AssetLoader* assetLoaderPtr =
-      gltfio::AssetLoader::create(assetConfig);
+  gltfio::AssetConfiguration assetConfig{.engine = _engine.get(), .materials = _materialProvider.get()};
+  gltfio::AssetLoader* assetLoaderPtr = gltfio::AssetLoader::create(assetConfig);
   _assetLoader = References<gltfio::AssetLoader>::adoptEngineRef(
       _engine, assetLoaderPtr, [](const std::shared_ptr<Engine>& engine, gltfio::AssetLoader* assetLoader) {
         auto* ncm = assetLoader->getNames();
@@ -57,11 +55,7 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer,
         gltfio::AssetLoader::destroy(&assetLoader);
       });
 
-
-  filament::gltfio::ResourceConfiguration resourceConfig {
-    .engine = _engine.get(),
-    .normalizeSkinningWeights = true
-  };
+  filament::gltfio::ResourceConfiguration resourceConfig{.engine = _engine.get(), .normalizeSkinningWeights = true};
   auto* resourceLoaderPtr = new filament::gltfio::ResourceLoader(resourceConfig);
   // Add texture providers to the resource loader
   auto stbProvider = filament::gltfio::createStbProvider(_engine.get());
@@ -122,24 +116,16 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
 
   auto queue = _jsDispatchQueue;
   auto sharedThis = shared<EngineWrapper>();
-  SurfaceProvider::Callback callback {
-      .onSurfaceCreated = [=](std::shared_ptr<Surface> surface) {
-        queue->runOnJS([=] () {
-          sharedThis->setSurface(surface);
-        });
-      },
-      .onSurfaceSizeChanged = [queue, sharedThis](std::shared_ptr<Surface> surface, int width, int height) {
-        queue->runOnJS([=] () {
-          sharedThis->surfaceSizeChanged(width, height);
-          sharedThis->synchronizePendingFrames();
-        });
-      },
-      .onSurfaceDestroyed = [=](std::shared_ptr<Surface> surface) {
-        queue->runOnJSAndWait([=] () {
-          sharedThis->destroySurface();
-        });
-      }
-  };
+  SurfaceProvider::Callback callback{
+      .onSurfaceCreated = [=](std::shared_ptr<Surface> surface) { queue->runOnJS([=]() { sharedThis->setSurface(surface); }); },
+      .onSurfaceSizeChanged =
+          [queue, sharedThis](std::shared_ptr<Surface> surface, int width, int height) {
+            queue->runOnJS([=]() {
+              sharedThis->surfaceSizeChanged(width, height);
+              sharedThis->synchronizePendingFrames();
+            });
+          },
+      .onSurfaceDestroyed = [=](std::shared_ptr<Surface> surface) { queue->runOnJSAndWait([=]() { sharedThis->destroySurface(); }); }};
   Listener listener = surfaceProvider->addOnSurfaceChangedListener(callback);
   _listener = std::make_shared<Listener>(std::move(listener));
 }
@@ -281,9 +267,8 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<F
   asset->releaseSourceData();
 
   auto assetLoader = _assetLoader;
-  auto sharedPtr = References<gltfio::FilamentAsset>::adoptRef(asset, [assetLoader](gltfio::FilamentAsset* asset) {
-    assetLoader->destroyAsset(asset);
-  });
+  auto sharedPtr =
+      References<gltfio::FilamentAsset>::adoptRef(asset, [assetLoader](gltfio::FilamentAsset* asset) { assetLoader->destroyAsset(asset); });
   return std::make_shared<FilamentAssetWrapper>(sharedPtr);
 }
 
