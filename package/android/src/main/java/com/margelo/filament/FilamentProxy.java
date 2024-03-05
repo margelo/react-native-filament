@@ -17,6 +17,8 @@ import com.facebook.react.uimanager.UIManagerHelper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 
 /** @noinspection JavaJniMissingFunction*/
 class FilamentProxy {
@@ -52,13 +54,12 @@ class FilamentProxy {
     @Keep
     ByteBuffer getAssetByteBuffer(String assetName) throws IOException {
         InputStream input = reactContext.getAssets().open(assetName);
-        byte[] bytes = new byte[input.available()];
-        input.read(bytes);
-        input.close();
-
-        // Allocate a *direct* ByteBuffer and put the bytes into it.
-        ByteBuffer buffer = ByteBuffer.allocateDirect(bytes.length);
-        buffer.put(bytes);
+        // Create a channel from the input stream
+        ReadableByteChannel channel = Channels.newChannel(input);
+        int estimatedSize = input.available(); // This is not always accurate for the actual size
+        ByteBuffer buffer = ByteBuffer.allocateDirect(estimatedSize);
+        // Read directly into the ByteBuffer via the channel
+        int res = channel.read(buffer);
         // Reset position to 0 to be ready for reading
         buffer.flip();
 
