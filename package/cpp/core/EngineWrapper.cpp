@@ -280,7 +280,6 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<F
   //    const size_t resourceUriCount = asset->getResourceUriCount();
 
   _scene->addAsset(asset);
-  _scene->getScene()->addEntities(asset->getEntities(), asset->getEntityCount());
   _resourceLoader->loadResources(asset.get());
   _animator = asset->getInstance()->getAnimator();
   asset->releaseSourceData();
