@@ -26,13 +26,13 @@ private:
   }
 
 public:
-  static void log(const std::string& message);
+  static void log(const std::string& tag, const std::string& message);
 
-  template <typename... Args> inline static void log(const std::string& formatString, Args&&... args) {
+  template <typename... Args> inline static void log(const std::string& tag, const std::string& formatString, Args&&... args) {
     std::ostringstream stream;
     stream << formatString;
     processArg(stream, std::forward<Args>(args)...);
-    log(stream.str());
+    log(tag, stream.str());
   }
 };
 
