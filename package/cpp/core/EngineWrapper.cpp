@@ -110,6 +110,10 @@ void EngineWrapper::loadHybridMethods() {
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
+  if (surfaceProvider == nullptr) {
+    [[unlikely]];
+    throw std::runtime_error("SurfaceProvider cannot be null!");
+  }
   _surfaceProvider = surfaceProvider;
   std::shared_ptr<Surface> surface = surfaceProvider->getSurfaceOrNull();
   if (surface != nullptr) {

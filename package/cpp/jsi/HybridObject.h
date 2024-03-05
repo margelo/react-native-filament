@@ -15,7 +15,7 @@ namespace margelo {
 
 using namespace facebook;
 
-class HybridObject : public jsi::HostObject, std::enable_shared_from_this<HybridObject> {
+class HybridObject : public jsi::HostObject, public std::enable_shared_from_this<HybridObject> {
 public:
   struct HybridFunction {
     jsi::HostFunctionType function;
