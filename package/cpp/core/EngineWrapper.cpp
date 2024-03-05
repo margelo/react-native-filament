@@ -241,7 +241,8 @@ std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
 }
 
 std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
-  gltfio::FilamentAsset* asset = _assetLoader->createAsset(modelBuffer->getData(), modelBuffer->getSize());
+  std::shared_ptr<ManagedBuffer> buffer = modelBuffer->getBuffer();
+  gltfio::FilamentAsset* asset = _assetLoader->createAsset(buffer->getData(), buffer->getSize());
   if (asset == nullptr) {
     throw std::runtime_error("Failed to load asset");
   }
@@ -259,8 +260,9 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<F
   _animator = asset->getInstance()->getAnimator();
   asset->releaseSourceData();
 
-  auto sharedPtr = std::shared_ptr<gltfio::FilamentAsset>(asset, [](gltfio::FilamentAsset* asset) {
-    // TODO: destroy the asset
+  auto assetLoader = _assetLoader;
+  auto sharedPtr = References<gltfio::FilamentAsset>::adoptRef(asset, [assetLoader](gltfio::FilamentAsset* asset) {
+    assetLoader->destroyAsset(asset);
   });
   return std::make_shared<FilamentAssetWrapper>(sharedPtr);
 }
@@ -273,12 +275,12 @@ void EngineWrapper::setIndirectLight(std::shared_ptr<FilamentBuffer> iblBuffer) 
   if (!iblBuffer) {
     throw std::runtime_error("IBL buffer is null");
   }
-  if (iblBuffer->getSize() == 0) {
+  auto buffer = iblBuffer->getBuffer();
+  if (buffer->getSize() == 0) {
     throw std::runtime_error("IBL buffer is empty");
   }
 
-  auto* iblBundle = new image::Ktx1Bundle(iblBuffer->getData(), iblBuffer->getSize());
-
+  auto* iblBundle = new image::Ktx1Bundle(buffer->getData(), buffer->getSize());
   Texture* cubemap = ktxreader::Ktx1Reader::createTexture(
       _engine.get(), *iblBundle, false,
       [](void* userdata) {
