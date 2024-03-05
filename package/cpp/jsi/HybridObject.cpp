@@ -8,9 +8,28 @@
 
 namespace margelo {
 
+#if DEBUG
+static std::unordered_map<const char*, int> _instanceIds;
+
+static int getId(const char* name) {
+  if (!_instanceIds.contains(name)) {
+    _instanceIds.insert({name, 1});
+  }
+  auto iterator = _instanceIds.find(name);
+  return iterator->second++;
+}
+#endif
+
+HybridObject::HybridObject(const char* name) : _name(name) {
+#if DEBUG
+  _instanceId = getId(name);
+  Logger::log(TAG, "Creating %s (#%i)...", _name, _instanceId);
+#endif
+}
+
 HybridObject::~HybridObject() {
 #if DEBUG
-  Logger::log(TAG, "Deleting HybridObject");
+  Logger::log(TAG, "Deleting %s (#%i)...", _name, _instanceId);
 #endif
   _functionCache.clear();
 }

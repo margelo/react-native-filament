@@ -24,6 +24,7 @@ public:
   };
 
 public:
+  explicit HybridObject(const char* name);
   ~HybridObject();
 
   void set(facebook::jsi::Runtime&, const facebook::jsi::PropNameID& name, const facebook::jsi::Value& value) override;
@@ -55,15 +56,15 @@ public:
   virtual void loadHybridMethods() = 0;
 
 private:
+  static constexpr auto TAG = "HybridObject";
+  const char* _name = TAG;
+  int _instanceId = 1;
   bool _didLoadMethods = false;
   std::mutex _mutex;
   std::unordered_map<std::string, HybridFunction> _methods;
   std::unordered_map<std::string, jsi::HostFunctionType> _getters;
   std::unordered_map<std::string, jsi::HostFunctionType> _setters;
   std::unordered_map<jsi::Runtime*, std::unordered_map<std::string, std::shared_ptr<jsi::Function>>> _functionCache;
-
-private:
-  static constexpr auto TAG = "HybridObject";
 
 private:
   inline void ensureInitialized();

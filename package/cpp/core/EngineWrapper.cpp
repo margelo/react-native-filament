@@ -33,7 +33,8 @@
 
 namespace margelo {
 
-EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<JSDispatchQueue> jsDispatchQueue) {
+EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<JSDispatchQueue> jsDispatchQueue)
+    : HybridObject("EngineWrapper") {
   // TODO: make the enum for the backend for the engine configurable
   _jsDispatchQueue = jsDispatchQueue;
   _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) { Engine::destroy(&engine); });
@@ -262,10 +263,13 @@ std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
 
 std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
   std::shared_ptr<ManagedBuffer> buffer = modelBuffer->getBuffer();
-  gltfio::FilamentAsset* asset = _assetLoader->createAsset(buffer->getData(), buffer->getSize());
-  if (asset == nullptr) {
+  gltfio::FilamentAsset* assetPtr = _assetLoader->createAsset(buffer->getData(), buffer->getSize());
+  if (assetPtr == nullptr) {
     throw std::runtime_error("Failed to load asset");
   }
+  auto assetLoader = _assetLoader;
+  auto asset = References<gltfio::FilamentAsset>::adoptRef(
+      assetPtr, [assetLoader](gltfio::FilamentAsset* asset) { assetLoader->destroyAsset(asset); });
 
   if (!_scene) {
     throw std::runtime_error("Scene not initialized");
@@ -275,15 +279,12 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<F
   //    const char* const* const resourceUris = asset->getResourceUris();
   //    const size_t resourceUriCount = asset->getResourceUriCount();
 
-  _scene->getScene()->addEntities(asset->getEntities(), asset->getEntityCount());
-  _resourceLoader->loadResources(asset);
+  _scene->addAsset(asset);
+  _resourceLoader->loadResources(asset.get());
   _animator = asset->getInstance()->getAnimator();
   asset->releaseSourceData();
 
-  auto assetLoader = _assetLoader;
-  auto sharedPtr =
-      References<gltfio::FilamentAsset>::adoptRef(asset, [assetLoader](gltfio::FilamentAsset* asset) { assetLoader->destroyAsset(asset); });
-  return std::make_shared<FilamentAssetWrapper>(sharedPtr);
+  return std::make_shared<FilamentAssetWrapper>(asset);
 }
 
 // Default light is a directional light for shadows + a default IBL
