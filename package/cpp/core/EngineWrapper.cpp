@@ -273,13 +273,13 @@ void EngineWrapper::createDefaultLight(std::shared_ptr<FilamentBuffer> iblBuffer
 }
 
 std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator(int width, int height) {
-  auto* builder = new ManipulatorBuilder();
+  ManipulatorBuilder builder;
   // Position of the camera:
-  builder->orbitHomePosition(defaultCameraPosition.x, defaultCameraPosition.y, defaultCameraPosition.z);
+  builder.orbitHomePosition(defaultCameraPosition.x, defaultCameraPosition.y, defaultCameraPosition.z);
   // Position the camera points to:
-  builder->targetPosition(defaultObjectPosition.x, defaultObjectPosition.y, defaultObjectPosition.z);
-  builder->viewport(width, height);
-  std::shared_ptr<Manipulator<float>> manipulator = std::shared_ptr<Manipulator<float>>(builder->build(Mode::ORBIT));
+  builder.targetPosition(defaultObjectPosition.x, defaultObjectPosition.y, defaultObjectPosition.z);
+  builder.viewport(width, height);
+  std::shared_ptr<Manipulator<float>> manipulator = std::shared_ptr<Manipulator<float>>(builder.build(Mode::ORBIT));
   return std::make_shared<ManipulatorWrapper>(manipulator);
 }
 
