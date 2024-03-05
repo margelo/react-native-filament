@@ -45,7 +45,6 @@ add_library(
         # Java JNI
         src/main/cpp/AndroidFilamentProxy.cpp
         src/main/cpp/AndroidSurface.cpp
-        src/main/cpp/AndroidManagedBuffer.cpp
         src/main/cpp/Filament.cpp
         src/main/cpp/JNISharedPtr.cpp
         src/main/cpp/FilamentInstaller.cpp
