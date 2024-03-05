@@ -13,6 +13,8 @@ namespace margelo {
 // Main Wrapper for all Bullet Physics related APIs
 class BulletWrapper : public HybridObject {
 public:
+  explicit BulletWrapper() : HybridObject("BulletWrapper") {}
+
   void loadHybridMethods() override;
 
 private:
