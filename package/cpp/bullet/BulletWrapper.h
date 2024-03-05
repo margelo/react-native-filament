@@ -19,4 +19,3 @@ private:
 };
 
 } // namespace margelo
-
