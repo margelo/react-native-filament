@@ -27,6 +27,7 @@ private:
   std::shared_ptr<SceneWrapper> getScene();
   void setCamera(std::shared_ptr<CameraWrapper> camera);
   std::shared_ptr<CameraWrapper> getCamera();
+  double getAspectRatio();
 
 private:
   std::shared_ptr<View> _view;
