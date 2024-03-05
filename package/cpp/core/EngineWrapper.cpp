@@ -11,7 +11,6 @@
 #include <filament/Color.h>
 #include <filament/Engine.h>
 #include <filament/Fence.h>
-#include <filament/FilamentAPI.h>
 #include <filament/IndirectLight.h>
 #include <filament/LightManager.h>
 #include <filament/RenderableManager.h>
@@ -36,23 +35,44 @@
 
 namespace margelo {
 
-EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer) {
-  Engine::Config config = {
-    .perRenderPassArenaSizeMB = 64,
-    .perFrameCommandsSizeMB = 64,
-  };
-
+EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<JSDispatchQueue> jsDispatchQueue)
+    : HybridObject("EngineWrapper") {
   // TODO: make the enum for the backend for the engine configurable
-  _engine = References<Engine>::adoptRef(Engine::create(Engine::Backend::DEFAULT, nullptr, nullptr, &config), [](Engine* engine) { Engine::destroy(&engine); });
-  _materialProvider = gltfio::createUbershaderProvider(_engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
-  _assetLoader = gltfio::AssetLoader::create(filament::gltfio::AssetConfiguration{.engine = _engine.get(), .materials = _materialProvider});
-  _resourceLoader = new filament::gltfio::ResourceLoader({.engine = _engine.get(), .normalizeSkinningWeights = true});
+  _jsDispatchQueue = jsDispatchQueue;
+  _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) { Engine::destroy(&engine); });
+
+  gltfio::MaterialProvider* _materialProviderPtr =
+      gltfio::createUbershaderProvider(_engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
+  _materialProvider = References<gltfio::MaterialProvider>::adoptEngineRef(
+      _engine, _materialProviderPtr, [](const std::shared_ptr<Engine>& engine, gltfio::MaterialProvider* provider) {
+        provider->destroyMaterials();
+        delete provider;
+      });
+
+  gltfio::AssetConfiguration assetConfig{.engine = _engine.get(), .materials = _materialProvider.get()};
+  gltfio::AssetLoader* assetLoaderPtr = gltfio::AssetLoader::create(assetConfig);
+  _assetLoader = References<gltfio::AssetLoader>::adoptEngineRef(
+      _engine, assetLoaderPtr, [](const std::shared_ptr<Engine>& engine, gltfio::AssetLoader* assetLoader) {
+        auto* ncm = assetLoader->getNames();
+        delete ncm;
+        gltfio::AssetLoader::destroy(&assetLoader);
+      });
+
+  filament::gltfio::ResourceConfiguration resourceConfig{.engine = _engine.get(), .normalizeSkinningWeights = true};
+  auto* resourceLoaderPtr = new filament::gltfio::ResourceLoader(resourceConfig);
   // Add texture providers to the resource loader
   auto stbProvider = filament::gltfio::createStbProvider(_engine.get());
   auto ktx2Provider = filament::gltfio::createKtx2Provider(_engine.get());
-  _resourceLoader->addTextureProvider("image/jpeg", stbProvider);
-  _resourceLoader->addTextureProvider("image/png", stbProvider);
-  _resourceLoader->addTextureProvider("image/ktx2", ktx2Provider);
+  resourceLoaderPtr->addTextureProvider("image/jpeg", stbProvider);
+  resourceLoaderPtr->addTextureProvider("image/png", stbProvider);
+  resourceLoaderPtr->addTextureProvider("image/ktx2", ktx2Provider);
+  _resourceLoader = References<gltfio::ResourceLoader>::adoptEngineRef(
+      _engine, resourceLoaderPtr,
+      [stbProvider, ktx2Provider](const std::shared_ptr<Engine>& engine, gltfio::ResourceLoader* resourceLoader) {
+        delete stbProvider;
+        delete ktx2Provider;
+        delete resourceLoader;
+      });
 
   // Setup filament:
   _renderer = createRenderer();
@@ -64,11 +84,6 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer) {
   _view->getView()->setCamera(_camera->getCamera().get());
 
   _choreographer = std::move(choreographer);
-}
-
-EngineWrapper::~EngineWrapper() {
-  gltfio::AssetLoader::destroy(&_assetLoader);
-  _materialProvider->destroyMaterials();
 }
 
 void EngineWrapper::loadHybridMethods() {
@@ -93,24 +108,47 @@ void EngineWrapper::loadHybridMethods() {
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
+  if (surfaceProvider == nullptr) {
+    [[unlikely]];
+    throw std::runtime_error("SurfaceProvider cannot be null!");
+  }
   _surfaceProvider = surfaceProvider;
   std::shared_ptr<Surface> surface = surfaceProvider->getSurfaceOrNull();
   if (surface != nullptr) {
     setSurface(surface);
   }
 
-  Listener listener = surfaceProvider->addOnSurfaceChangedListener(
-      SurfaceProvider::Callback{.onSurfaceCreated = [=](std::shared_ptr<Surface> surface) { this->setSurface(surface); },
-                                .onSurfaceSizeChanged =
-                                    [=](std::shared_ptr<Surface> surface, int width, int height) {
-                                      this->surfaceSizeChanged(width, height);
-                                      this->synchronizePendingFrames();
-                                    },
-                                .onSurfaceDestroyed = [=](std::shared_ptr<Surface> surface) { this->destroySurface(); }});
+  auto queue = _jsDispatchQueue;
+  auto sharedThis = shared<EngineWrapper>();
+  SurfaceProvider::Callback callback{.onSurfaceCreated =
+                                         [=](std::shared_ptr<Surface> surface) {
+                                           queue->runOnJS([=]() {
+                                             Logger::log(TAG, "Initializing surface...");
+                                             sharedThis->setSurface(surface);
+                                           });
+                                         },
+                                     .onSurfaceSizeChanged =
+                                         [queue, sharedThis](std::shared_ptr<Surface> surface, int width, int height) {
+                                           queue->runOnJS([=]() {
+                                             Logger::log(TAG, "Updating Surface size...");
+                                             sharedThis->surfaceSizeChanged(width, height);
+                                             sharedThis->synchronizePendingFrames();
+                                           });
+                                         },
+                                     .onSurfaceDestroyed =
+                                         [=](std::shared_ptr<Surface> surface) {
+                                           queue->runOnJSAndWait([=]() {
+                                             Logger::log(TAG, "Destroying surface...");
+                                             sharedThis->destroySurface();
+                                           });
+                                         }};
+  Listener listener = surfaceProvider->addOnSurfaceChangedListener(callback);
   _listener = std::make_shared<Listener>(std::move(listener));
 }
 
 void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
+  Logger::log(TAG, "Initializing SwapChain...");
+
   // Setup swapchain
   _swapChain = createSwapChain(surface);
 
@@ -216,10 +254,14 @@ std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
 }
 
 std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
-  gltfio::FilamentAsset* asset = _assetLoader->createAsset(modelBuffer->getData(), modelBuffer->getSize());
-  if (asset == nullptr) {
+  std::shared_ptr<ManagedBuffer> buffer = modelBuffer->getBuffer();
+  gltfio::FilamentAsset* assetPtr = _assetLoader->createAsset(buffer->getData(), buffer->getSize());
+  if (assetPtr == nullptr) {
     throw std::runtime_error("Failed to load asset");
   }
+  auto assetLoader = _assetLoader;
+  auto asset = References<gltfio::FilamentAsset>::adoptRef(
+      assetPtr, [assetLoader](gltfio::FilamentAsset* asset) { assetLoader->destroyAsset(asset); });
 
   if (!_scene) {
     throw std::runtime_error("Scene not initialized");
@@ -229,19 +271,11 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<F
   //    const char* const* const resourceUris = asset->getResourceUris();
   //    const size_t resourceUriCount = asset->getResourceUriCount();
 
-  _scene->getScene()->addEntities(asset->getEntities(), asset->getEntityCount());
-  _resourceLoader->loadResources(asset);
+  _scene->addAsset(asset);
+  _resourceLoader->loadResources(asset.get());
   _animator = asset->getInstance()->getAnimator();
 
-  auto sharedPtr = std::shared_ptr<gltfio::FilamentAsset>(asset, [this](gltfio::FilamentAsset* asset) {
-    if (_scene) {
-      _scene->getScene()->removeEntities(asset->getEntities(), asset->getEntityCount());
-    }
-    if (_assetLoader) {
-      _assetLoader->destroyAsset(asset);
-    }
-  });
-  return std::make_shared<FilamentAssetWrapper>(sharedPtr);
+  return std::make_shared<FilamentAssetWrapper>(asset);
 }
 
 // Default light is a directional light for shadows + a default IBL
@@ -252,12 +286,12 @@ void EngineWrapper::setIndirectLight(std::shared_ptr<FilamentBuffer> iblBuffer) 
   if (!iblBuffer) {
     throw std::runtime_error("IBL buffer is null");
   }
-  if (iblBuffer->getSize() == 0) {
+  auto buffer = iblBuffer->getBuffer();
+  if (buffer->getSize() == 0) {
     throw std::runtime_error("IBL buffer is empty");
   }
 
-  auto* iblBundle = new image::Ktx1Bundle(iblBuffer->getData(), iblBuffer->getSize());
-
+  auto* iblBundle = new image::Ktx1Bundle(buffer->getData(), buffer->getSize());
   Texture* cubemap = ktxreader::Ktx1Reader::createTexture(
       _engine.get(), *iblBundle, false,
       [](void* userdata) {
@@ -293,13 +327,13 @@ std::shared_ptr<EntityWrapper> EngineWrapper::createLightEntity(std::string ligh
 }
 
 std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator(int width, int height) {
-  auto* builder = new ManipulatorBuilder();
+  ManipulatorBuilder builder;
   // Position of the camera:
-  builder->orbitHomePosition(defaultCameraPosition.x, defaultCameraPosition.y, defaultCameraPosition.z);
+  builder.orbitHomePosition(defaultCameraPosition.x, defaultCameraPosition.y, defaultCameraPosition.z);
   // Position the camera points to:
-  builder->targetPosition(defaultObjectPosition.x, defaultObjectPosition.y, defaultObjectPosition.z);
-  builder->viewport(width, height);
-  std::shared_ptr<Manipulator<float>> manipulator = std::shared_ptr<Manipulator<float>>(builder->build(Mode::ORBIT));
+  builder.targetPosition(defaultObjectPosition.x, defaultObjectPosition.y, defaultObjectPosition.z);
+  builder.viewport(width, height);
+  std::shared_ptr<Manipulator<float>> manipulator = std::shared_ptr<Manipulator<float>>(builder.build(Mode::ORBIT));
   return std::make_shared<ManipulatorWrapper>(manipulator);
 }
 
@@ -362,27 +396,27 @@ void EngineWrapper::setEntityScale(std::shared_ptr<EntityWrapper> entity, std::v
 }
 
 void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> entity, std::shared_ptr<RigidBodyWrapper> rigidBody) {
-        if (!entity) {
-          throw std::invalid_argument("Entity is null");
-        }
-        if (!rigidBody) {
-          throw std::invalid_argument("RigidBody is null");
-        }
+  if (!entity) {
+    throw std::invalid_argument("Entity is null");
+  }
+  if (!rigidBody) {
+    throw std::invalid_argument("RigidBody is null");
+  }
 
-        btTransform& bodyTransform = rigidBody->getRigidBody()->getWorldTransform();
-        btScalar bodyTransformMatrix[16];
-        bodyTransform.getOpenGLMatrix(bodyTransformMatrix);
+  btTransform& bodyTransform = rigidBody->getRigidBody()->getWorldTransform();
+  btScalar bodyTransformMatrix[16];
+  bodyTransform.getOpenGLMatrix(bodyTransformMatrix);
 
-        math::float3 position = {bodyTransformMatrix[12], bodyTransformMatrix[13], bodyTransformMatrix[14]};
-        auto translationMatrix = math::mat4::translation(position);
+  math::float3 position = {bodyTransformMatrix[12], bodyTransformMatrix[13], bodyTransformMatrix[14]};
+  auto translationMatrix = math::mat4::translation(position);
 
-        TransformManager& tm = _engine->getTransformManager();
-//        tm.openLocalTransformTransaction();
-        EntityInstance<TransformManager> entityInstance = tm.getInstance(entity->getEntity());
-//        auto currentTransform = tm.getTransform(entityInstance);
-//        auto newTransform = currentTransform * translationMatrix;
-        tm.setTransform(entityInstance, translationMatrix);
-//        tm.commitLocalTransformTransaction();
+  TransformManager& tm = _engine->getTransformManager();
+  //        tm.openLocalTransformTransaction();
+  EntityInstance<TransformManager> entityInstance = tm.getInstance(entity->getEntity());
+  //        auto currentTransform = tm.getTransform(entityInstance);
+  //        auto newTransform = currentTransform * translationMatrix;
+  tm.setTransform(entityInstance, translationMatrix);
+  //        tm.commitLocalTransformTransaction();
 }
 
 } // namespace margelo
