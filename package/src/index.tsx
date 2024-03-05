@@ -1,6 +1,7 @@
 // native base
 export * from './native/FilamentProxy'
 export * from './types'
+export * from './bullet'
 
 // react components
 export * from './Filament'

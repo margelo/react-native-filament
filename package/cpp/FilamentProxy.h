@@ -15,6 +15,7 @@
 #include "Dispatcher.h"
 #include "FilamentBuffer.h"
 #include "FilamentView.h"
+#include "bullet/BulletWrapper.h"
 #include "jsi/HybridObject.h"
 #include "test/TestHybridObject.h"
 #include <ReactCommon/CallInvoker.h>
@@ -43,6 +44,7 @@ private:
   std::future<std::shared_ptr<FilamentBuffer>> loadAssetAsync(std::string path);
   std::future<std::shared_ptr<FilamentView>> findFilamentViewAsync(int id);
   std::shared_ptr<EngineWrapper> createEngine();
+  std::shared_ptr<BulletWrapper> createBullet();
 
 public:
   virtual jsi::Runtime& getRuntime() = 0;

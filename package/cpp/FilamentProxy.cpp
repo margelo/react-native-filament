@@ -21,6 +21,7 @@ void FilamentProxy::loadHybridMethods() {
   registerHybridMethod("findFilamentView", &FilamentProxy::findFilamentViewAsync, this);
   registerHybridMethod("createTestObject", &FilamentProxy::createTestObject, this);
   registerHybridMethod("createEngine", &FilamentProxy::createEngine, this);
+  registerHybridMethod("createBullet", &FilamentProxy::createBullet, this);
 }
 
 std::future<std::shared_ptr<FilamentBuffer>> FilamentProxy::loadAssetAsync(std::string path) {
@@ -57,6 +58,10 @@ std::shared_ptr<EngineWrapper> FilamentProxy::createEngine() {
   std::shared_ptr<Choreographer> choreographer = createChoreographer();
   auto jsDispatchQueue = std::make_shared<JSDispatchQueue>(getCallInvoker());
   return std::make_shared<EngineWrapper>(choreographer, jsDispatchQueue);
+}
+
+std::shared_ptr<BulletWrapper> FilamentProxy::createBullet() {
+  return std::make_shared<BulletWrapper>();
 }
 
 } // namespace margelo

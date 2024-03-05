@@ -49,6 +49,10 @@ add_library(
         ../cpp/core/utils/EntityWrapper.cpp
         ../cpp/core/utils/ManipulatorWrapper.cpp
 
+        # Bullet Physics Engine
+        ../cpp/bullet/BulletWrapper.cpp
+        ../cpp/bullet/DiscreteDynamicWorldWrapper.cpp
+
         # Java JNI
         src/main/cpp/AndroidFilamentProxy.cpp
         src/main/cpp/AndroidSurface.cpp
