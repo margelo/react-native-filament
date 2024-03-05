@@ -14,6 +14,9 @@ namespace margelo {
 
 class TestHybridObject : public HybridObject {
 public:
+  explicit TestHybridObject() : HybridObject("TestHybridObject") {}
+
+public:
   int getInt() {
     return _int;
   }

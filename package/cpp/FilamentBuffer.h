@@ -7,7 +7,7 @@ namespace margelo {
 
 class FilamentBuffer : public HybridObject {
 public:
-  explicit FilamentBuffer(const std::shared_ptr<ManagedBuffer>& buffer) : _buffer(std::move(buffer)) {}
+  explicit FilamentBuffer(const std::shared_ptr<ManagedBuffer>& buffer) : HybridObject("FilamentBuffer"), _buffer(std::move(buffer)) {}
 
   void loadHybridMethods() override {}
 
