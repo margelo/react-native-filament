@@ -134,6 +134,9 @@ private:
   std::shared_ptr<ManipulatorWrapper> getCameraManipulator() {
     return _cameraManipulator;
   }
+
+private:
+  static constexpr auto TAG = "EngineWrapper";
 };
 
 } // namespace margelo

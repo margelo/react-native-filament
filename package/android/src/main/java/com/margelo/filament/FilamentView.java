@@ -50,6 +50,7 @@ public class FilamentView extends FrameLayout implements TextureView.SurfaceText
     // Disable overflow
     textureView.setClipToOutline(true);
     textureView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+    textureView.setSurfaceTextureListener(this);
     addView(textureView);
   }
 

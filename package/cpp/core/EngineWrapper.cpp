@@ -119,14 +119,14 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
   SurfaceProvider::Callback callback{.onSurfaceCreated =
                                          [=](std::shared_ptr<Surface> surface) {
                                            queue->runOnJS([=]() {
-                                             Logger::log("Initializing surface...");
+                                             Logger::log(TAG, "Initializing surface...");
                                              sharedThis->setSurface(surface);
                                            });
                                          },
                                      .onSurfaceSizeChanged =
                                          [queue, sharedThis](std::shared_ptr<Surface> surface, int width, int height) {
                                            queue->runOnJS([=]() {
-                                             Logger::log("Updating Surface size...");
+                                             Logger::log(TAG, "Updating Surface size...");
                                              sharedThis->surfaceSizeChanged(width, height);
                                              sharedThis->synchronizePendingFrames();
                                            });
@@ -134,7 +134,7 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
                                      .onSurfaceDestroyed =
                                          [=](std::shared_ptr<Surface> surface) {
                                            queue->runOnJSAndWait([=]() {
-                                             Logger::log("Destroying surface...");
+                                             Logger::log(TAG, "Destroying surface...");
                                              sharedThis->destroySurface();
                                            });
                                          }};
@@ -143,7 +143,7 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
 }
 
 void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
-  Logger::log("Initializing SwapChain...");
+  Logger::log(TAG, "Initializing SwapChain...");
 
   // Setup swapchain
   _swapChain = createSwapChain(surface);
