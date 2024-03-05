@@ -82,8 +82,7 @@ template <> struct JSIConverter<bool> {
 };
 
 // std::string <> string
-template <>
-struct JSIConverter<std::string> {
+template <> struct JSIConverter<std::string> {
   static std::string fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
     return arg.asString(runtime).utf8(runtime);
   }
