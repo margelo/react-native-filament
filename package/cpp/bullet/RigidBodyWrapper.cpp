@@ -3,6 +3,8 @@
 //
 
 #include "RigidBodyWrapper.h"
+#include "jsi/EnumMapper.h"
+#include "ActivationStateEnum.h"
 
 namespace margelo {
 RigidBodyWrapper::RigidBodyWrapper(double mass, double x, double y, double z, double shapeX, double shapeY, double shapeZ) {
@@ -26,6 +28,8 @@ void RigidBodyWrapper::loadHybridMethods() {
   registerHybridMethod("setDamping", &RigidBodyWrapper::setDamping, this);
   registerHybridSetter("friction", &RigidBodyWrapper::setFriction, this);
   registerHybridGetter("friction", &RigidBodyWrapper::getFriction, this);
+  registerHybridSetter("activationState", &RigidBodyWrapper::setActivationState, this);
+  registerHybridGetter("activationState", &RigidBodyWrapper::getActivationState, this);
 }
 
 void RigidBodyWrapper::setDamping(double linearDamping, double angularDamping) {
@@ -38,6 +42,21 @@ void RigidBodyWrapper::setFriction(double friction) {
 
 double RigidBodyWrapper::getFriction() {
   return _rigidBody->getFriction();
+}
+
+void RigidBodyWrapper::setActivationState(std::string activationState) {
+  ActivationState state;
+  EnumMapper::convertJSUnionToEnum(activationState, &state);
+
+  _rigidBody->setActivationState(static_cast<int>(state));
+}
+
+std::string RigidBodyWrapper::getActivationState() {
+  ActivationState state = static_cast<ActivationState>(_rigidBody->getActivationState());
+  std::string stateString;
+  EnumMapper::convertEnumToJSUnion(state, &stateString);
+
+  return stateString;
 }
 
 } // namespace margelo

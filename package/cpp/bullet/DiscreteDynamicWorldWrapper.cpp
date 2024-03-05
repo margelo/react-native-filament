@@ -30,7 +30,7 @@ void DiscreteDynamicWorldWrapper::addRigidBody(std::shared_ptr<RigidBodyWrapper>
   dynamicsWorld->addRigidBody(body);
 }
 
-void DiscreteDynamicWorldWrapper::stepSimulation(double timeStep, double maxSubSteps) {
-  dynamicsWorld->stepSimulation(timeStep, maxSubSteps);
+void DiscreteDynamicWorldWrapper::stepSimulation(double timeStep, double maxSubSteps, double fixedTimeStep) {
+  dynamicsWorld->stepSimulation(timeStep, maxSubSteps, fixedTimeStep);
 }
 } // namespace margelo

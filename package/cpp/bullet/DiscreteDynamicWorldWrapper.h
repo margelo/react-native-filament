@@ -18,7 +18,7 @@ public:
 
 private:
   void addRigidBody(std::shared_ptr<RigidBodyWrapper> rigidBody);
-        void stepSimulation(double timeStep, double maxSubSteps);
+  void stepSimulation(double timeStep, double maxSubSteps, double fixedTimeStep);
 
 private:
   std::unique_ptr<btBroadphaseInterface> broadphase;
