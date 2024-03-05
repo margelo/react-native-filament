@@ -37,8 +37,13 @@
 namespace margelo {
 
 EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer) {
+  Engine::Config config = {
+    .perRenderPassArenaSizeMB = 64,
+    .perFrameCommandsSizeMB = 64,
+  };
+
   // TODO: make the enum for the backend for the engine configurable
-  _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) { Engine::destroy(&engine); });
+  _engine = References<Engine>::adoptRef(Engine::create(Engine::Backend::DEFAULT, nullptr, nullptr, &config), [](Engine* engine) { Engine::destroy(&engine); });
   _materialProvider = gltfio::createUbershaderProvider(_engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
   _assetLoader = gltfio::AssetLoader::create(filament::gltfio::AssetConfiguration{.engine = _engine.get(), .materials = _materialProvider});
   _resourceLoader = new filament::gltfio::ResourceLoader({.engine = _engine.get(), .normalizeSkinningWeights = true});
@@ -150,8 +155,6 @@ void EngineWrapper::renderFrame(double timestamp) {
   if (!_view) {
     return;
   }
-
-  _resourceLoader->asyncUpdateLoad();
 
   if (_startTime == 0) {
     _startTime = timestamp;
@@ -374,10 +377,12 @@ void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> en
         auto translationMatrix = math::mat4::translation(position);
 
         TransformManager& tm = _engine->getTransformManager();
+//        tm.openLocalTransformTransaction();
         EntityInstance<TransformManager> entityInstance = tm.getInstance(entity->getEntity());
-        auto currentTransform = tm.getTransform(entityInstance);
-        auto newTransform = currentTransform * translationMatrix;
-        tm.setTransform(entityInstance, newTransform);
+//        auto currentTransform = tm.getTransform(entityInstance);
+//        auto newTransform = currentTransform * translationMatrix;
+        tm.setTransform(entityInstance, translationMatrix);
+//        tm.commitLocalTransformTransaction();
 }
 
 } // namespace margelo
