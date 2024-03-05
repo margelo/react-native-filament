@@ -2,6 +2,7 @@ import { FilamentBuffer } from './FilamentBuffer'
 import { FilamentNativeModule } from './FilamentNativeModule'
 import type { Engine } from '../types/Engine'
 import { FilamentView } from './FilamentViewTypes'
+import type { BulletAPI } from '../bullet/types/api'
 
 export interface Listener {
   remove(): void
@@ -48,6 +49,12 @@ export interface TFilamentProxy {
    * Creates a new engine. You should only call this once.
    */
   createEngine(): Engine
+
+  /**
+   * Creates the bullet API wrapper.
+   * @private
+   */
+  createBullet(): BulletAPI
 }
 
 // Check if we are running on-device (JSI)

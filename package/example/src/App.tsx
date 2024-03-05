@@ -2,9 +2,10 @@ import * as React from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { Platform, StyleSheet } from 'react-native'
-import { FilamentProxy, FilamentView, Float3, RenderCallback } from 'react-native-filament'
+import { BulletAPI, FilamentProxy, FilamentView, Float3, RenderCallback } from 'react-native-filament'
 
 const engine = FilamentProxy.createEngine()
+const world = BulletAPI.createDiscreteDynamicWorld(0, -10, 0)
 
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',

@@ -21,6 +21,7 @@ void FilamentProxy::loadHybridMethods() {
   registerHybridMethod("createTestObject", &FilamentProxy::createTestObject, this);
   registerHybridMethod("createEngine", &FilamentProxy::createEngine, this);
   registerHybridMethod("createChoreographer", &FilamentProxy::createChoreographer, this);
+  registerHybridMethod("createBullet", &FilamentProxy::createBullet, this);
 }
 
 std::shared_ptr<TestHybridObject> FilamentProxy::createTestObject() {
@@ -30,6 +31,10 @@ std::shared_ptr<TestHybridObject> FilamentProxy::createTestObject() {
 std::shared_ptr<EngineWrapper> FilamentProxy::createEngine() {
   std::shared_ptr<Choreographer> choreographer = createChoreographer();
   return std::make_shared<EngineWrapper>(choreographer);
+}
+
+std::shared_ptr<BulletWrapper> FilamentProxy::createBullet() {
+  return std::make_shared<BulletWrapper>();
 }
 
 } // namespace margelo
