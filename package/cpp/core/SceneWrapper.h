@@ -24,5 +24,8 @@ private:
 
 private:
   void addEntity(std::shared_ptr<EntityWrapper> entity);
+
+private:
+  const char* getName() override { return "SceneWrapper"; }
 };
 } // namespace margelo

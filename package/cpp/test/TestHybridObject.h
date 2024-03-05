@@ -60,6 +60,9 @@ private:
   std::optional<std::string> _nullableString;
 
   void loadHybridMethods() override;
+
+private:
+  const char* getName() override { return "TestHybridObject"; }
 };
 
 } // namespace margelo

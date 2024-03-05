@@ -19,5 +19,8 @@ public:
 
 private:
   Entity _entity;
+
+private:
+  const char* getName() override { return "EntityWrapper"; }
 };
 } // namespace margelo

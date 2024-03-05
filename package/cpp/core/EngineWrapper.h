@@ -137,6 +137,7 @@ private:
 
 private:
   static constexpr auto TAG = "EngineWrapper";
+  const char* getName() override { return TAG; }
 };
 
 } // namespace margelo

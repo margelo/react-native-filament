@@ -19,5 +19,8 @@ public:
 
 private:
   std::shared_ptr<SwapChain> _swapChain;
+
+private:
+  const char* getName() override { return "SwapChainWrapper"; }
 };
 } // namespace margelo

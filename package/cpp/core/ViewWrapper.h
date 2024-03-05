@@ -33,5 +33,8 @@ private:
   std::shared_ptr<View> _view;
   std::shared_ptr<SceneWrapper> _scene;
   std::shared_ptr<CameraWrapper> _camera;
+
+private:
+  const char* getName() override { return "ViewWrapper"; }
 };
 } // namespace margelo

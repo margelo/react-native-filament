@@ -20,5 +20,8 @@ public:
 
 private:
   std::shared_ptr<Manipulator<float>> _manipulator;
+
+private:
+  const char* getName() override { return "ManipulatorWrapper"; }
 };
 } // namespace margelo

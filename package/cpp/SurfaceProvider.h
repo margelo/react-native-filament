@@ -45,6 +45,7 @@ private:
 
 private:
   static constexpr auto TAG = "SurfaceProvider";
+  const char* getName() override { return TAG; }
 };
 
 } // namespace margelo
