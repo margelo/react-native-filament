@@ -62,7 +62,9 @@ public class FilamentView extends FrameLayout implements TextureView.SurfaceText
 
   @Override
   public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture surfaceTexture, int width, int height) {
-    assert surface != null;
+    if (surface == null) {
+      throw new RuntimeException("Surface cannot be null! Was the Surface even created?");
+    }
     surfaceProvider.onSurfaceChanged(surface, width, height);
   }
 
