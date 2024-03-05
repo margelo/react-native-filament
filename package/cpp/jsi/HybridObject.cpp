@@ -10,7 +10,7 @@ namespace margelo {
 
 HybridObject::~HybridObject() {
 #if DEBUG
-  Logger::log("Deleting HybridObject");
+  Logger::log(TAG, "Deleting HybridObject");
 #endif
   _functionCache.clear();
 }

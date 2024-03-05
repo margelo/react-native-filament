@@ -63,6 +63,9 @@ private:
   std::unordered_map<jsi::Runtime*, std::unordered_map<std::string, std::shared_ptr<jsi::Function>>> _functionCache;
 
 private:
+  static constexpr auto TAG = "HybridObject";
+
+private:
   inline void ensureInitialized();
 
 private:
