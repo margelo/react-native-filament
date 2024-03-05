@@ -11,7 +11,7 @@ using namespace filament;
 
 class SceneWrapper : public HybridObject {
 public:
-  explicit SceneWrapper(const std::shared_ptr<Scene>& scene) : _scene(std::move(scene)) {}
+  explicit SceneWrapper(const std::shared_ptr<Scene>& scene) : HybridObject("SceneWrapper"), _scene(std::move(scene)) {}
 
   void loadHybridMethods() override;
 
@@ -24,8 +24,5 @@ private:
 
 private:
   void addEntity(std::shared_ptr<EntityWrapper> entity);
-
-private:
-  const char* getName() override { return "SceneWrapper"; }
 };
 } // namespace margelo

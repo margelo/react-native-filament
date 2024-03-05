@@ -12,6 +12,9 @@ namespace margelo {
 
 class Surface : public HybridObject {
 public:
+  explicit Surface() : HybridObject("Surface") {}
+
+public:
   /**
    * Returns the surface ("native window") that can be used as a render target.
    * On Android, this is a `ANativeWindow*`, on iOS it is a `CAMetalLayer*`.
@@ -27,9 +30,6 @@ public:
   virtual int getHeight() = 0;
 
   void loadHybridMethods() override;
-
-private:
-  const char* getName() override { return "Surface"; }
 };
 
 } // namespace margelo

@@ -23,6 +23,9 @@ namespace margelo {
 using namespace facebook;
 
 class FilamentProxy : public HybridObject {
+public:
+  explicit FilamentProxy() : HybridObject("FilamentProxy") {}
+
 private:
   virtual std::shared_ptr<FilamentBuffer> getAssetByteBuffer(std::string path) = 0;
   virtual std::shared_ptr<FilamentView> findFilamentView(int id) = 0;
@@ -33,8 +36,6 @@ private:
 
   // Public API
   std::shared_ptr<EngineWrapper> createEngine();
-
-  const char* getName() override { return "FilamentProxy"; }
 
 public:
   virtual jsi::Runtime& getRuntime() = 0;

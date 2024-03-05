@@ -17,12 +17,12 @@ using namespace facebook;
 
 class FilamentView : public HybridObject {
 public:
+  explicit FilamentView() : HybridObject("FilamentView") {}
+
+public:
   virtual std::shared_ptr<SurfaceProvider> getSurfaceProvider() = 0;
 
   void loadHybridMethods() override;
-
-private:
-  const char* getName() override { return "FilamentView"; }
 };
 
 } // namespace margelo

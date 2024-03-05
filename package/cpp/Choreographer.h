@@ -13,14 +13,13 @@ namespace margelo {
 
 class Choreographer : public HybridObject {
 public:
+  explicit Choreographer() : HybridObject("Choreographer") {}
   using OnFrameCallback = std::function<void(double timestamp)>;
 
   std::shared_ptr<Listener> addOnFrameListener(OnFrameCallback onFrameCallback);
 
   virtual void start() = 0;
   virtual void stop() = 0;
-
-  const char* getName() override { return "Choreographer"; }
 
 protected:
   void onFrame(double timestamp);
