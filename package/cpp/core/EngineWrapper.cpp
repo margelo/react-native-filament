@@ -54,8 +54,12 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer) {
         gltfio::AssetLoader::destroy(&assetLoader);
       });
 
-  gltfio::ResourceLoader* resourceLoaderPtr =
-      new filament::gltfio::ResourceLoader({.engine = _engine.get(), .normalizeSkinningWeights = true});
+
+  filament::gltfio::ResourceConfiguration config {
+    .engine = _engine.get(),
+    .normalizeSkinningWeights = true
+  };
+  auto* resourceLoaderPtr = new filament::gltfio::ResourceLoader(config);
   // Add texture providers to the resource loader
   auto stbProvider = filament::gltfio::createStbProvider(_engine.get());
   auto ktx2Provider = filament::gltfio::createKtx2Provider(_engine.get());
