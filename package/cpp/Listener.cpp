@@ -6,7 +6,7 @@
 
 namespace margelo {
 
-Listener::Listener(std::function<void()> remove) : _remove(std::move(remove)), _isRemoved(false) {}
+Listener::Listener(std::function<void()> remove) : HybridObject("Listener"), _remove(std::move(remove)), _isRemoved(false) {}
 
 Listener::~Listener() {
   remove();

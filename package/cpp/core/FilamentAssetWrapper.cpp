@@ -1,6 +1,5 @@
 #include "FilamentAssetWrapper.h"
 
-#include <filament/Engine.h>
 #include <utils/Entity.h>
 #include <utils/EntityInstance.h>
 
