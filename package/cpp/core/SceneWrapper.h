@@ -1,5 +1,6 @@
 #pragma once
 
+#include "FilamentAssetWrapper.h"
 #include "core/utils/EntityWrapper.h"
 #include "jsi/HybridObject.h"
 
@@ -19,7 +20,10 @@ public:
     return _scene;
   }
 
+  void addAsset(std::shared_ptr<gltfio::FilamentAsset> asset);
+
 private:
+  std::vector<std::shared_ptr<gltfio::FilamentAsset>> _assets;
   std::shared_ptr<Scene> _scene;
 
 private:
