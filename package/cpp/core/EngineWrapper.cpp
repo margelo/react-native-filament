@@ -116,21 +116,35 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
 
   auto queue = _jsDispatchQueue;
   auto sharedThis = shared<EngineWrapper>();
-  SurfaceProvider::Callback callback{
-      .onSurfaceCreated = [=](std::shared_ptr<Surface> surface) { queue->runOnJS([=]() { sharedThis->setSurface(surface); }); },
-      .onSurfaceSizeChanged =
-          [queue, sharedThis](std::shared_ptr<Surface> surface, int width, int height) {
-            queue->runOnJS([=]() {
-              sharedThis->surfaceSizeChanged(width, height);
-              sharedThis->synchronizePendingFrames();
-            });
-          },
-      .onSurfaceDestroyed = [=](std::shared_ptr<Surface> surface) { queue->runOnJSAndWait([=]() { sharedThis->destroySurface(); }); }};
+  SurfaceProvider::Callback callback{.onSurfaceCreated =
+                                         [=](std::shared_ptr<Surface> surface) {
+                                           queue->runOnJS([=]() {
+                                             Logger::log("Initializing surface...");
+                                             sharedThis->setSurface(surface);
+                                           });
+                                         },
+                                     .onSurfaceSizeChanged =
+                                         [queue, sharedThis](std::shared_ptr<Surface> surface, int width, int height) {
+                                           queue->runOnJS([=]() {
+                                             Logger::log("Updating Surface size...");
+                                             sharedThis->surfaceSizeChanged(width, height);
+                                             sharedThis->synchronizePendingFrames();
+                                           });
+                                         },
+                                     .onSurfaceDestroyed =
+                                         [=](std::shared_ptr<Surface> surface) {
+                                           queue->runOnJSAndWait([=]() {
+                                             Logger::log("Destroying surface...");
+                                             sharedThis->destroySurface();
+                                           });
+                                         }};
   Listener listener = surfaceProvider->addOnSurfaceChangedListener(callback);
   _listener = std::make_shared<Listener>(std::move(listener));
 }
 
 void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
+  Logger::log("Initializing SwapChain...");
+
   // Setup swapchain
   _swapChain = createSwapChain(surface);
 

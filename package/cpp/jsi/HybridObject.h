@@ -5,6 +5,7 @@
 #pragma once
 
 #include "JSIConverter.h"
+#include "Logger.h"
 #include <functional>
 #include <jsi/jsi.h>
 #include <memory>
