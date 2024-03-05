@@ -26,6 +26,9 @@ private:
   bool beginFrame(std::shared_ptr<SwapChainWrapper> swapChain, double frameTimeNanos);
   void render(std::shared_ptr<ViewWrapper> view);
   void endFrame();
+
+private:
+  const char* getName() override { return "RendererWrapper"; }
 };
 
 } // namespace margelo

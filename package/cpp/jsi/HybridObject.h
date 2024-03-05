@@ -54,7 +54,10 @@ public:
    */
   virtual void loadHybridMethods() = 0;
 
+  virtual const char* getName() = 0;
+
 private:
+  const char* _name = "HybridObject";
   bool _didLoadMethods = false;
   std::mutex _mutex;
   std::unordered_map<std::string, HybridFunction> _methods;

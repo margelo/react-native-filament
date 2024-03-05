@@ -20,6 +20,8 @@ public:
   virtual void start() = 0;
   virtual void stop() = 0;
 
+  const char* getName() override { return "Choreographer"; }
+
 protected:
   void onFrame(double timestamp);
 

@@ -34,6 +34,8 @@ private:
   // Public API
   std::shared_ptr<EngineWrapper> createEngine();
 
+  const char* getName() override { return "FilamentProxy"; }
+
 public:
   virtual jsi::Runtime& getRuntime() = 0;
   virtual std::shared_ptr<react::CallInvoker> getCallInvoker() = 0;

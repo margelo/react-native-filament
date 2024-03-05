@@ -22,6 +22,9 @@ private:
 
 private:
   std::shared_ptr<gltfio::FilamentAsset> _asset;
+
+private:
+  const char* getName() override { return "FilamentAssetWrapper"; }
 };
 
 } // namespace margelo

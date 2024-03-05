@@ -27,6 +27,9 @@ public:
   virtual int getHeight() = 0;
 
   void loadHybridMethods() override;
+
+private:
+  const char* getName() override { return "Surface"; }
 };
 
 } // namespace margelo

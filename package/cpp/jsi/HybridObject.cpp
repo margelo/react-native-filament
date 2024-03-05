@@ -10,7 +10,7 @@ namespace margelo {
 
 HybridObject::~HybridObject() {
 #if DEBUG
-  Logger::log(TAG, "Deleting HybridObject");
+  Logger::log(TAG, "Deleting %s...", _name);
 #endif
   _functionCache.clear();
 }
@@ -86,6 +86,7 @@ void HybridObject::ensureInitialized() {
     // lazy-load all exposed methods
     loadHybridMethods();
     _didLoadMethods = true;
+    _name = getName();
   }
 }
 

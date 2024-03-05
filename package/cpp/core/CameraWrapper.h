@@ -22,6 +22,9 @@ private:
   std::shared_ptr<Camera> _camera;
 
 private:
+  const char* getName() override { return "CameraWrapper"; }
+
+private:
   void lookAt(std::vector<double> eye, std::vector<double> center, std::vector<double> up);
   void setLensProjection(double fov, double aspect, double near, double far);
   // TODO(Hanno): Add directionStr , Camera::Fov directionStr = Camera::Fov::VERTICAL

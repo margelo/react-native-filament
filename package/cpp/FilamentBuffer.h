@@ -15,6 +15,8 @@ public:
     return _buffer;
   }
 
+  const char* getName() override { return "FilamentBuffer"; }
+
 private:
   std::shared_ptr<ManagedBuffer> _buffer;
 };

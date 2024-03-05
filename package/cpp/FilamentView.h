@@ -20,6 +20,9 @@ public:
   virtual std::shared_ptr<SurfaceProvider> getSurfaceProvider() = 0;
 
   void loadHybridMethods() override;
+
+private:
+  const char* getName() override { return "FilamentView"; }
 };
 
 } // namespace margelo

@@ -19,6 +19,9 @@ public:
   void loadHybridMethods() override;
 
 private:
+  const char* getName() override { return "Listener"; }
+
+private:
   std::function<void()> _remove;
   bool _isRemoved;
 };
