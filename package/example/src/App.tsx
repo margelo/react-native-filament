@@ -6,6 +6,13 @@ import { BulletAPI, FilamentProxy, FilamentView, Float3, RenderCallback } from '
 
 const engine = FilamentProxy.createEngine()
 const world = BulletAPI.createDiscreteDynamicWorld(0, -10, 0)
+const origin = [0, 0, 0] as const
+const shape = [1, 1, 1] as const
+const rigidBody = BulletAPI.createRigidBody(1, ...origin, ...shape)
+rigidBody.setDamping(0.0, 0.5)
+rigidBody.friction = 1
+rigidBody.activationState = 'disable_deactivation'
+world.addRigidBody(rigidBody)
 
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',
@@ -38,14 +45,16 @@ export default function App() {
   const prevAspectRatio = useRef(0)
   const renderCallback: RenderCallback = useCallback(
     (_timestamp, _startTime, passedSeconds) => {
+      // Update camera lens eventually:
       const view = engine.getView()
       const aspectRatio = view.aspectRatio
       if (prevAspectRatio.current !== aspectRatio) {
         prevAspectRatio.current = aspectRatio
-        // Setup camera lens:
         const camera = engine.getCamera()
         camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
       }
+
+      world.stepSimulation(1 / 20, 0, 1 / 60)
 
       penguAnimator.applyAnimation(0, passedSeconds)
       penguAnimator.updateBoneMatrices()

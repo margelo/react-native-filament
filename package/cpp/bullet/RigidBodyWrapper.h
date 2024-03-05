@@ -6,6 +6,7 @@
 
 #include "jsi/HybridObject.h"
 #include <btBulletDynamicsCommon.h>
+#include "ActivationStateEnum.h"
 
 namespace margelo {
 
@@ -21,6 +22,8 @@ private:
   void setDamping(double linearDamping, double angularDamping);
   void setFriction(double friction);
   double getFriction();
+  void setActivationState(std::string activationState);
+  std::string getActivationState();
 
 private:
   std::shared_ptr<btRigidBody> _rigidBody;
