@@ -18,6 +18,11 @@ public:
   }
 
 private:
+  void setDamping(double linearDamping, double angularDamping);
+  void setFriction(double friction);
+  double getFriction();
+
+private:
   std::shared_ptr<btRigidBody> _rigidBody;
 };
 
