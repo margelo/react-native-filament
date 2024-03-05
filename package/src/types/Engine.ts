@@ -8,6 +8,7 @@ import { FilamentBuffer } from '../native/FilamentBuffer'
 import { Entity } from './Entity'
 import { FilamentAsset } from './FilamentAsset'
 import { Float3 } from './float3'
+import { RigidBody } from '../bullet/types/RigidBody'
 
 export type RenderCallback = (timestamp: number, startTime: number, passedSeconds: number) => void
 
@@ -52,4 +53,6 @@ export interface Engine {
   setEntityPosition(entity: Entity, position: Float3, multiplyCurrent: boolean): void
   setEntityRotation(entity: Entity, angleRadians: number, axis: Float3, multiplyCurrent: boolean): void
   setEntityScale(entity: Entity, scale: Float3, multiplyCurrent: boolean): void
+
+  updateTransformByRigidBody(entity: Entity, rigidBody: RigidBody): void
 }
