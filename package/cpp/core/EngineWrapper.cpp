@@ -45,8 +45,9 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer) {
         delete provider;
       });
 
+  gltfio::AssetConfiguration assetConfig {.engine = _engine.get(), .materials = _materialProvider.get()};
   gltfio::AssetLoader* assetLoaderPtr =
-      gltfio::AssetLoader::create(filament::gltfio::AssetConfiguration{.engine = _engine.get(), .materials = _materialProvider.get()});
+      gltfio::AssetLoader::create(assetConfig);
   _assetLoader = References<gltfio::AssetLoader>::adoptEngineRef(
       _engine, assetLoaderPtr, [](const std::shared_ptr<Engine>& engine, gltfio::AssetLoader* assetLoader) {
         auto* ncm = assetLoader->getNames();
@@ -55,11 +56,11 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer) {
       });
 
 
-  filament::gltfio::ResourceConfiguration config {
+  filament::gltfio::ResourceConfiguration resourceConfig {
     .engine = _engine.get(),
     .normalizeSkinningWeights = true
   };
-  auto* resourceLoaderPtr = new filament::gltfio::ResourceLoader(config);
+  auto* resourceLoaderPtr = new filament::gltfio::ResourceLoader(resourceConfig);
   // Add texture providers to the resource loader
   auto stbProvider = filament::gltfio::createStbProvider(_engine.get());
   auto ktx2Provider = filament::gltfio::createKtx2Provider(_engine.get());
