@@ -3,8 +3,8 @@
 //
 
 #include "FilamentProxy.h"
-#include <jsi/jsi.h>
 #include "JSDispatchQueue.h"
+#include <jsi/jsi.h>
 
 #include "jsi/Promise.h"
 #include <memory>
