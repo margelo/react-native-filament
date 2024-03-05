@@ -42,6 +42,9 @@ protected:
 private:
   ListenerManager<Callback> _listeners;
   std::mutex _mutex;
+
+private:
+  static constexpr auto TAG = "SurfaceProvider";
 };
 
 } // namespace margelo

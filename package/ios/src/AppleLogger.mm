@@ -10,11 +10,10 @@
 
 namespace margelo {
 
-void Logger::log(const std::string& message) {
-  NSString* string = [NSString stringWithUTF8String:message.c_str()];
+void Logger::log(const std::string& tag, const std::string& message) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wformat-security"
-  NSLog(string);
+  NSLog(@"[%s]: %s", tag.c_str(), message.c_str());
 #pragma clang diagnostic pop
 }
 
