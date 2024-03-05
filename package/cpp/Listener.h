@@ -11,15 +11,12 @@ namespace margelo {
 
 class Listener : public HybridObject {
 public:
-  Listener(Listener&& listener) : _remove(std::move(listener._remove)), _isRemoved(listener._isRemoved) {}
+  Listener(Listener&& listener) : HybridObject("Listener"), _remove(std::move(listener._remove)), _isRemoved(listener._isRemoved) {}
   explicit Listener(std::function<void()> remove);
   ~Listener();
   void remove();
 
   void loadHybridMethods() override;
-
-private:
-  const char* getName() override { return "Listener"; }
 
 private:
   std::function<void()> _remove;

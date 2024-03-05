@@ -10,7 +10,8 @@ using namespace camutils;
 
 class ManipulatorWrapper : public HybridObject {
 public:
-  explicit ManipulatorWrapper(const std::shared_ptr<Manipulator<float>>& manipulator) : _manipulator(manipulator) {}
+  explicit ManipulatorWrapper(const std::shared_ptr<Manipulator<float>>& manipulator)
+      : HybridObject("ManipulatorWrapper"), _manipulator(manipulator) {}
 
   void loadHybridMethods() override;
 
@@ -20,8 +21,5 @@ public:
 
 private:
   std::shared_ptr<Manipulator<float>> _manipulator;
-
-private:
-  const char* getName() override { return "ManipulatorWrapper"; }
 };
 } // namespace margelo

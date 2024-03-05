@@ -11,7 +11,7 @@ using namespace filament;
 
 class FilamentAssetWrapper : public HybridObject {
 public:
-  explicit FilamentAssetWrapper(std::shared_ptr<gltfio::FilamentAsset> asset) : _asset(asset) {}
+  explicit FilamentAssetWrapper(std::shared_ptr<gltfio::FilamentAsset> asset) : HybridObject("FilamentAssetWrapper"), _asset(asset) {}
 
   void loadHybridMethods() override;
 
@@ -22,9 +22,6 @@ private:
 
 private:
   std::shared_ptr<gltfio::FilamentAsset> _asset;
-
-private:
-  const char* getName() override { return "FilamentAssetWrapper"; }
 };
 
 } // namespace margelo

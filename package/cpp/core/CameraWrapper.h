@@ -10,7 +10,7 @@ using namespace filament;
 
 class CameraWrapper : public HybridObject {
 public:
-  explicit CameraWrapper(const std::shared_ptr<Camera>& camera) : _camera(std::move(camera)) {}
+  explicit CameraWrapper(const std::shared_ptr<Camera>& camera) : HybridObject("CameraWrapper"), _camera(std::move(camera)) {}
 
   void loadHybridMethods() override;
 
@@ -20,9 +20,6 @@ public:
 
 private:
   std::shared_ptr<Camera> _camera;
-
-private:
-  const char* getName() override { return "CameraWrapper"; }
 
 private:
   void lookAt(std::vector<double> eye, std::vector<double> center, std::vector<double> up);
