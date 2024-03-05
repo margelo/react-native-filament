@@ -22,6 +22,22 @@ RigidBodyWrapper::RigidBodyWrapper(double mass, double x, double y, double z, do
   _rigidBody = std::make_shared<btRigidBody>(rigidBodyCI);
 }
 
-void RigidBodyWrapper::loadHybridMethods() {}
+void RigidBodyWrapper::loadHybridMethods() {
+  registerHybridMethod("setDamping", &RigidBodyWrapper::setDamping, this);
+  registerHybridSetter("friction", &RigidBodyWrapper::setFriction, this);
+  registerHybridGetter("friction", &RigidBodyWrapper::getFriction, this);
+}
+
+void RigidBodyWrapper::setDamping(double linearDamping, double angularDamping) {
+  _rigidBody->setDamping(linearDamping, angularDamping);
+}
+
+void RigidBodyWrapper::setFriction(double friction) {
+  _rigidBody->setFriction(friction);
+}
+
+double RigidBodyWrapper::getFriction() {
+  return _rigidBody->getFriction();
+}
 
 } // namespace margelo
