@@ -5,7 +5,8 @@
 #include "DiscreteDynamicWorldWrapper.h"
 
 namespace margelo {
-DiscreteDynamicWorldWrapper::DiscreteDynamicWorldWrapper(double gravityX, double gravityY, double gravityZ) {
+DiscreteDynamicWorldWrapper::DiscreteDynamicWorldWrapper(double gravityX, double gravityY, double gravityZ)
+    : HybridObject("DiscreteDynamicWorldWrapper") {
   broadphase = std::make_unique<btDbvtBroadphase>();
 
   collisionConfiguration = std::make_unique<btDefaultCollisionConfiguration>();

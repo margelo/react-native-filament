@@ -7,7 +7,8 @@
 #include "ActivationStateEnum.h"
 
 namespace margelo {
-RigidBodyWrapper::RigidBodyWrapper(double mass, double x, double y, double z, double shapeX, double shapeY, double shapeZ) {
+RigidBodyWrapper::RigidBodyWrapper(double mass, double x, double y, double z, double shapeX, double shapeY, double shapeZ)
+    : HybridObject("RigidBodyWrapper") {
   btTransform transform;
   transform.setIdentity();
   transform.setOrigin(btVector3(x, y, z));
