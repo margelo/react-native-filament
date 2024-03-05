@@ -10,40 +10,47 @@ import android.util.AttributeSet;
 
 import android.view.Surface;
 import android.view.TextureView;
+import android.widget.FrameLayout;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
 
 /** @noinspection JavaJniMissingFunction*/
-public class FilamentView extends TextureView implements TextureView.SurfaceTextureListener {
+public class FilamentView extends FrameLayout implements TextureView.SurfaceTextureListener {
   /** @noinspection unused, FieldCanBeLocal */
   @DoNotStrip
   @Keep
   private final HybridData mHybridData;
+  private final TextureView textureView;
   private final SurfaceProvider surfaceProvider = new SurfaceProvider();
   private Surface surface = null;
 
   public FilamentView(Context context) {
     super(context);
+    textureView = new TextureView(context);
     mHybridData = initHybrid(surfaceProvider);
     setupView();
   }
 
   public FilamentView(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
+    textureView = new TextureView(context);
     mHybridData = initHybrid(surfaceProvider);
     setupView();
   }
 
   public FilamentView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
+    textureView = new TextureView(context);
     mHybridData = initHybrid(surfaceProvider);
     setupView();
   }
 
   private void setupView() {
     // Disable overflow
-    this.setClipToOutline(true);
+    textureView.setClipToOutline(true);
+    textureView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+    addView(textureView);
   }
 
   @Override
