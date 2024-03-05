@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "RigidBodyWrapper.h"
 #include "jsi/HybridObject.h"
 
 #include <btBulletDynamicsCommon.h>
@@ -14,6 +15,10 @@ public:
   explicit DiscreteDynamicWorldWrapper(double gravityX, double gravityY, double gravityZ);
 
   void loadHybridMethods() override;
+
+private:
+  void addRigidBody(std::shared_ptr<RigidBodyWrapper> rigidBody);
+        void stepSimulation(double timeStep, double maxSubSteps);
 
 private:
   std::unique_ptr<btBroadphaseInterface> broadphase;
