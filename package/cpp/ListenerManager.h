@@ -25,13 +25,14 @@ private:
 public:
   Listener add(Callback listener) {
     _listeners.push_back(std::move(listener));
-    auto id = --_listeners.end();
-    auto weakThis = std::weak_ptr<TSelf>(shared());
-    return Listener([id, weakThis]() {
-      auto sharedThis = weakThis.lock();
-      if (sharedThis) {
-        sharedThis->_listeners.erase(id);
-      }
+    // TODO(Marc): fix this to not cause a bad_weak_ptr
+    //    auto id = --_listeners.end();
+    //    auto weakThis = std::weak_ptr<TSelf>(shared());
+    return Listener([]() {
+      //      auto sharedThis = weakThis.lock();
+      //      if (sharedThis) {
+      //        sharedThis->_listeners.erase(id);
+      //      }
     });
   }
 

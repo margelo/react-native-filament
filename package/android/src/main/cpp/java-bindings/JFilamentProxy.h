@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Choreographer.h"
+#include "FilamentBuffer.h"
 #include "FilamentView.h"
 #include <ReactCommon/CallInvokerHolder.h>
 #include <fbjni/fbjni.h>
@@ -23,8 +24,7 @@ public:
   ~JFilamentProxy();
   static void registerNatives();
 
-  // TODO(hanno): implement
-  int loadModel(const std::string& path);
+  std::shared_ptr<FilamentBuffer> getAssetByteBuffer(const std::string& path);
   std::shared_ptr<FilamentView> findFilamentView(int id);
   std::shared_ptr<Choreographer> createChoreographer();
 

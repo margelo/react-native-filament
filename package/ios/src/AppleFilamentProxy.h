@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "FilamentBuffer.h"
 #include "FilamentProxy.h"
 #include "FilamentView.h"
 #include <ReactCommon/CallInvoker.h>
@@ -21,7 +22,7 @@ public:
   ~AppleFilamentProxy();
 
 public:
-  int loadModel(std::string path) override;
+  std::shared_ptr<FilamentBuffer> getAssetByteBuffer(std::string path) override;
   std::shared_ptr<FilamentView> findFilamentView(int modelId) override;
   std::shared_ptr<Choreographer> createChoreographer() override;
 

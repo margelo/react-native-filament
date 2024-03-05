@@ -1,0 +1,13 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/default_env_ibl.ktx",
+      "sha1": "432ab7515c66e2fc88bed2766e4972bbf36bb361"
+    },
+    {
+      "path": "assets/pengu.glb",
+      "sha1": "9c3aa64101b6af758735eeaafb48d482526d2c69"
+    }
+  ]
+}

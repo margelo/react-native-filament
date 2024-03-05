@@ -1,3 +1,4 @@
+import { FilamentBuffer } from './FilamentBuffer'
 import { FilamentNativeModule } from './FilamentNativeModule'
 import type { Engine } from '../types/Engine'
 import { FilamentView } from './FilamentViewTypes'
@@ -25,11 +26,12 @@ interface TestHybridObject {
 }
 
 export interface TFilamentProxy {
+  // TODO: rename to loadModelBytes
   /**
-   * Loads a 3D Model from the given path.
-   * @param path A web URL (http:// or https://), local file (file://) or resource ID.
+   * Loads the byte buffer for any given path.
+   * @param path A web URL (http:// or https://), local file (file://) or resource ID. (Only resource ID supported for now)
    */
-  loadModel(path: string): number
+  getAssetByteBuffer(path: string): FilamentBuffer
   /**
    * Create a new Choreographer instance running on the caller Thread.
    */

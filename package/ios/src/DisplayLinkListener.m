@@ -31,7 +31,7 @@
 }
 
 - (void)onFrame:(CADisplayLink*)displayLink {
-  _callback(displayLink.timestamp);
+  _callback(displayLink.timestamp * 1e9);
 }
 
 @end

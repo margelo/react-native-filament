@@ -8,6 +8,7 @@
 #include "jsi/Promise.h"
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace margelo {
@@ -15,7 +16,7 @@ namespace margelo {
 using namespace facebook;
 
 void FilamentProxy::loadHybridMethods() {
-  registerHybridMethod("loadModel", &FilamentProxy::loadModel, this);
+  registerHybridMethod("getAssetByteBuffer", &FilamentProxy::getAssetByteBuffer, this);
   registerHybridMethod("findFilamentView", &FilamentProxy::findFilamentView, this);
   registerHybridMethod("createTestObject", &FilamentProxy::createTestObject, this);
   registerHybridMethod("createEngine", &FilamentProxy::createEngine, this);
