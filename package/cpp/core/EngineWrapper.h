@@ -24,6 +24,7 @@
 #include <FilamentBuffer.h>
 #include <camutils/Manipulator.h>
 #include <core/utils/ManipulatorWrapper.h>
+#include <utils/NameComponentManager.h>
 
 namespace margelo {
 
@@ -35,7 +36,6 @@ using ManipulatorBuilder = Manipulator<float>::Builder;
 class EngineWrapper : public HybridObject {
 public:
   explicit EngineWrapper(std::shared_ptr<Choreographer> choreographer);
-  ~EngineWrapper();
 
   void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
 
@@ -66,9 +66,9 @@ private:
   double _startTime = 0;
 
   // Internals that we might need to split out later
-  gltfio::MaterialProvider* _materialProvider;
-  gltfio::AssetLoader* _assetLoader;
-  gltfio::ResourceLoader* _resourceLoader;
+  std::shared_ptr<gltfio::MaterialProvider> _materialProvider;
+  std::shared_ptr<gltfio::AssetLoader> _assetLoader;
+  std::shared_ptr<gltfio::ResourceLoader> _resourceLoader;
 
   const math::float3 defaultObjectPosition = {0.0f, 0.0f, 0.0f};
   const math::float3 defaultCameraPosition = {0.0f, 0.0f, 5.0f};

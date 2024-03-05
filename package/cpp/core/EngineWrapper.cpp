@@ -33,15 +33,35 @@ namespace margelo {
 EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer) {
   // TODO: make the enum for the backend for the engine configurable
   _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) { Engine::destroy(&engine); });
-  _materialProvider = gltfio::createUbershaderProvider(_engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
-  _assetLoader = gltfio::AssetLoader::create(filament::gltfio::AssetConfiguration{.engine = _engine.get(), .materials = _materialProvider});
-  _resourceLoader = new filament::gltfio::ResourceLoader({.engine = _engine.get(), .normalizeSkinningWeights = true});
+
+  gltfio::MaterialProvider* _materialProviderPtr = gltfio::createUbershaderProvider(_engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
+  _materialProvider = References<gltfio::MaterialProvider>::adoptEngineRef(
+      _engine, _materialProviderPtr, [](const std::shared_ptr<Engine>& engine, gltfio::MaterialProvider* provider) {
+        provider->destroyMaterials();
+        delete provider;
+      });
+
+  gltfio::AssetLoader* assetLoaderPtr = gltfio::AssetLoader::create(filament::gltfio::AssetConfiguration{.engine = _engine.get(), .materials = _materialProvider.get()});
+  _assetLoader = References<gltfio::AssetLoader>::adoptEngineRef(
+      _engine, assetLoaderPtr, [](const std::shared_ptr<Engine>& engine, gltfio::AssetLoader* assetLoader) {
+        auto* ncm = assetLoader->getNames();
+        delete ncm;
+        gltfio::AssetLoader::destroy(&assetLoader);
+      });
+
+  gltfio::ResourceLoader* resourceLoaderPtr = new filament::gltfio::ResourceLoader({.engine = _engine.get(), .normalizeSkinningWeights = true});
   // Add texture providers to the resource loader
   auto stbProvider = filament::gltfio::createStbProvider(_engine.get());
   auto ktx2Provider = filament::gltfio::createKtx2Provider(_engine.get());
-  _resourceLoader->addTextureProvider("image/jpeg", stbProvider);
-  _resourceLoader->addTextureProvider("image/png", stbProvider);
-  _resourceLoader->addTextureProvider("image/ktx2", ktx2Provider);
+  resourceLoaderPtr->addTextureProvider("image/jpeg", stbProvider);
+  resourceLoaderPtr->addTextureProvider("image/png", stbProvider);
+  resourceLoaderPtr->addTextureProvider("image/ktx2", ktx2Provider);
+  _resourceLoader = References<gltfio::ResourceLoader>::adoptEngineRef(
+      _engine, resourceLoaderPtr, [stbProvider, ktx2Provider](const std::shared_ptr<Engine>& engine, gltfio::ResourceLoader* resourceLoader) {
+        delete stbProvider;
+        delete ktx2Provider;
+        delete resourceLoader;
+      });
 
   // Setup filament:
   _renderer = createRenderer();
@@ -53,11 +73,6 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer) {
   _view->getView()->setCamera(_camera->getCamera().get());
 
   _choreographer = std::move(choreographer);
-}
-
-EngineWrapper::~EngineWrapper() {
-  gltfio::AssetLoader::destroy(&_assetLoader);
-  _materialProvider->destroyMaterials();
 }
 
 void EngineWrapper::loadHybridMethods() {
