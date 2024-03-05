@@ -84,6 +84,7 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setEntityPosition", &EngineWrapper::setEntityPosition, this);
   registerHybridMethod("setEntityRotation", &EngineWrapper::setEntityRotation, this);
   registerHybridMethod("setEntityScale", &EngineWrapper::setEntityScale, this);
+  registerHybridMethod("updateTransformByRigidBody", &EngineWrapper::updateTransformByRigidBody, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
@@ -355,6 +356,28 @@ void EngineWrapper::setEntityScale(std::shared_ptr<EntityWrapper> entity, std::v
   math::float3 scale = Converter::VecToFloat3(scaleVec);
   auto scaleMatrix = math::mat4::scaling(scale);
   updateTransform(scaleMatrix, entity, multiplyCurrent);
+}
+
+void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> entity, std::shared_ptr<RigidBodyWrapper> rigidBody) {
+        if (!entity) {
+          throw std::invalid_argument("Entity is null");
+        }
+        if (!rigidBody) {
+          throw std::invalid_argument("RigidBody is null");
+        }
+
+        btTransform& bodyTransform = rigidBody->getRigidBody()->getWorldTransform();
+        btScalar bodyTransformMatrix[16];
+        bodyTransform.getOpenGLMatrix(bodyTransformMatrix);
+
+        math::float3 position = {bodyTransformMatrix[12], bodyTransformMatrix[13], bodyTransformMatrix[14]};
+        auto translationMatrix = math::mat4::translation(position);
+
+        TransformManager& tm = _engine->getTransformManager();
+        EntityInstance<TransformManager> entityInstance = tm.getInstance(entity->getEntity());
+        auto currentTransform = tm.getTransform(entityInstance);
+        auto newTransform = currentTransform * translationMatrix;
+        tm.setTransform(entityInstance, newTransform);
 }
 
 } // namespace margelo

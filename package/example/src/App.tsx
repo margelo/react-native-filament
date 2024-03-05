@@ -5,7 +5,7 @@ import { Platform, StyleSheet } from 'react-native'
 import { BulletAPI, FilamentProxy, FilamentView, Float3, RenderCallback } from 'react-native-filament'
 
 const engine = FilamentProxy.createEngine()
-const world = BulletAPI.createDiscreteDynamicWorld(0, -10, 0)
+const world = BulletAPI.createDiscreteDynamicWorld(0, -4, 0)
 const origin = [0, 0, 0] as const
 const shape = [1, 1, 1] as const
 const rigidBody = BulletAPI.createRigidBody(1, ...origin, ...shape)
@@ -33,7 +33,7 @@ const near = 0.1
 const far = 1000
 
 export default function App() {
-  const [_pengu, penguAnimator] = useMemo(() => {
+  const [pengu, penguAnimator] = useMemo(() => {
     const modelBuffer = FilamentProxy.getAssetByteBuffer(penguModelPath)
     const asset = engine.loadAsset(modelBuffer)
     const animator = asset.getAnimator()
@@ -54,14 +54,15 @@ export default function App() {
         camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
       }
 
-      world.stepSimulation(1 / 20, 0, 1 / 60)
+      // penguAnimator.applyAnimation(0, passedSeconds)
+      // penguAnimator.updateBoneMatrices()
 
-      penguAnimator.applyAnimation(0, passedSeconds)
-      penguAnimator.updateBoneMatrices()
+      // world.stepSimulation(1 / 20, 0, 1 / 60)
+      // engine.updateTransformByRigidBody(pengu.getRoot(), rigidBody)
 
       engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
     },
-    [penguAnimator]
+    [pengu]
   )
 
   // Setup the 3D scene:
