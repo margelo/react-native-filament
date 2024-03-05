@@ -14,6 +14,7 @@ import com.facebook.react.turbomodule.core.CallInvokerHolderImpl;
 import com.facebook.react.turbomodule.core.interfaces.CallInvokerHolder;
 import com.facebook.react.uimanager.UIManagerHelper;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -49,21 +50,32 @@ class FilamentProxy {
         return new FilamentChoreographer();
     }
 
+    private static byte[] readAllBytes(InputStream inputStream) throws IOException {
+        final int bufferSize = 4096; // 4KB
+        byte[] buffer = new byte[bufferSize];
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer, 0, bufferSize)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+
+            return outputStream.toByteArray();
+        }
+    }
+
     /** @noinspection unused*/
     @DoNotStrip
     @Keep
     ByteBuffer getAssetByteBuffer(String assetName) throws IOException {
-        InputStream input = reactContext.getAssets().open(assetName);
-        // Create a channel from the input stream
-        ReadableByteChannel channel = Channels.newChannel(input);
-        int estimatedSize = input.available(); // This is not always accurate for the actual size
-        ByteBuffer buffer = ByteBuffer.allocateDirect(estimatedSize);
-        // Read directly into the ByteBuffer via the channel
-        int res = channel.read(buffer);
-        // Reset position to 0 to be ready for reading
-        buffer.flip();
+        try (InputStream inputStream = reactContext.getAssets().open(assetName)) {
+            byte[] bytes = readAllBytes(inputStream);
+            ByteBuffer buffer = ByteBuffer.allocateDirect(bytes.length);
 
-        return buffer;
+            buffer.put(bytes, 0, bytes.length);
+            buffer.rewind();
+            return buffer;
+        }
     }
 
     /** @noinspection unused*/
