@@ -37,23 +37,6 @@
 namespace margelo {
 
 EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer) {
-  // --- Initialization ---
-
-  // Build the broadphase
-  btBroadphaseInterface* broadphase = new btDbvtBroadphase();
-
-  // Set up the collision configuration and dispatcher
-  btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
-  btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
-
-  // The constraint solver
-  btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
-
-  // The dynamics world
-  btDiscreteDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-  dynamicsWorld->setGravity(btVector3(0, -10, 0)); // Set gravity
-
-
   // TODO: make the enum for the backend for the engine configurable
   _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) { Engine::destroy(&engine); });
   _materialProvider = gltfio::createUbershaderProvider(_engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
