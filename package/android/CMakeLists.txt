@@ -47,6 +47,7 @@ add_library(
         # Bullet Physics Engine
         ../cpp/bullet/BulletWrapper.cpp
         ../cpp/bullet/DiscreteDynamicWorldWrapper.cpp
+        ../cpp/bullet/RigidBodyWrapper.cpp
 
         # Java JNI
         src/main/cpp/AndroidFilamentProxy.cpp
