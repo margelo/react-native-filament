@@ -6,12 +6,16 @@
 
 #include "TestEnum.h"
 #include "jsi/HybridObject.h"
+#include <optional>
 #include <string>
 #include <vector>
 
 namespace margelo {
 
 class TestHybridObject : public HybridObject {
+public:
+  explicit TestHybridObject() : HybridObject("TestHybridObject") {}
+
 public:
   int getInt() {
     return _int;
@@ -22,7 +26,7 @@ public:
   std::string getString() {
     return _string;
   }
-  void setString(std::string newValue) {
+  void setString(const std::string& newValue) {
     _string = newValue;
   }
   void setEnum(TestEnum testEnum) {
@@ -30,6 +34,12 @@ public:
   }
   TestEnum getEnum() {
     return _enum;
+  }
+  std::optional<std::string> getNullableString() {
+    return _nullableString;
+  }
+  void setNullableString(std::optional<std::string> string) {
+    _nullableString = string;
   }
 
   std::unordered_map<std::string, double> multipleArguments(int first, bool second, std::string third) {
@@ -50,6 +60,7 @@ private:
   int _int;
   std::string _string;
   TestEnum _enum;
+  std::optional<std::string> _nullableString;
 
   void loadHybridMethods() override;
 };

@@ -3,6 +3,7 @@
 //
 
 #include "FilamentProxy.h"
+#include "JSDispatchQueue.h"
 #include <jsi/jsi.h>
 
 #include "jsi/Promise.h"
@@ -30,7 +31,8 @@ std::shared_ptr<TestHybridObject> FilamentProxy::createTestObject() {
 
 std::shared_ptr<EngineWrapper> FilamentProxy::createEngine() {
   std::shared_ptr<Choreographer> choreographer = createChoreographer();
-  return std::make_shared<EngineWrapper>(choreographer);
+  auto jsDispatchQueue = std::make_shared<JSDispatchQueue>(getCallInvoker());
+  return std::make_shared<EngineWrapper>(choreographer, jsDispatchQueue);
 }
 
 std::shared_ptr<BulletWrapper> FilamentProxy::createBullet() {

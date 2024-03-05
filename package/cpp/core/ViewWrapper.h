@@ -12,7 +12,7 @@ using namespace filament;
 
 class ViewWrapper : public HybridObject {
 public:
-  explicit ViewWrapper(std::shared_ptr<View> view) : _view(view) {}
+  explicit ViewWrapper(std::shared_ptr<View> view) : HybridObject("ViewWrapper"), _view(view) {}
 
   void loadHybridMethods() override;
 

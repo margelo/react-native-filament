@@ -28,6 +28,9 @@ public:
   };
 
 public:
+  explicit SurfaceProvider() : HybridObject("SurfaceProvider") {}
+
+public:
   Listener addOnSurfaceChangedListener(Callback callback);
 
   virtual std::shared_ptr<Surface> getSurfaceOrNull() = 0;
@@ -38,11 +41,13 @@ protected:
   void onSurfaceCreated(std::shared_ptr<Surface> surface);
   void onSurfaceChanged(std::shared_ptr<Surface> surface, int width, int height);
   void onSurfaceDestroyed(std::shared_ptr<Surface> surface);
-  void render(float frameTimeNanos);
 
 private:
   ListenerManager<Callback> _listeners;
   std::mutex _mutex;
+
+private:
+  static constexpr auto TAG = "SurfaceProvider";
 };
 
 } // namespace margelo
