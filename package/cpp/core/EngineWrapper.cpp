@@ -395,10 +395,7 @@ void EngineWrapper::setEntityScale(std::shared_ptr<EntityWrapper> entity, std::v
   updateTransform(scaleMatrix, entity, multiplyCurrent);
 }
 
-void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> entity, std::shared_ptr<RigidBodyWrapper> rigidBody) {
-  if (!entity) {
-    throw std::invalid_argument("Entity is null");
-  }
+void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<FilamentAssetWrapper> asset, std::shared_ptr<RigidBodyWrapper> rigidBody) {
   if (!rigidBody) {
     throw std::invalid_argument("RigidBody is null");
   }
@@ -412,10 +409,11 @@ void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> en
 
   TransformManager& tm = _engine->getTransformManager();
   //        tm.openLocalTransformTransaction();
-  EntityInstance<TransformManager> entityInstance = tm.getInstance(entity->getEntity());
-  //        auto currentTransform = tm.getTransform(entityInstance);
-  //        auto newTransform = currentTransform * translationMatrix;
-  tm.setTransform(entityInstance, translationMatrix);
+  Entity entity = asset->getRoot2();
+  EntityInstance<TransformManager> entityInstance = tm.getInstance(entity);
+  auto currentTransform = tm.getTransform(entityInstance);
+  auto newTransform = currentTransform * translationMatrix;
+  tm.setTransform(entityInstance, newTransform);
   //        tm.commitLocalTransformTransaction();
 }
 

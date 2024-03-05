@@ -18,6 +18,10 @@ public:
 
   void transformToUnitCube(TransformManager& transformManager);
 
+  Entity getRoot2() {
+    return _asset->getRoot();
+  }
+
 private:
   std::shared_ptr<EntityWrapper> getRoot();
   void releaseSourceData();
