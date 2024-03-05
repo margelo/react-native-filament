@@ -78,7 +78,7 @@ private:
   void setEntityPosition(std::shared_ptr<EntityWrapper> entity, std::vector<double> positionVec, bool multiplyCurrent);
   void setEntityRotation(std::shared_ptr<EntityWrapper> entity, double angleRadians, std::vector<double> axisVec, bool multiplyCurrent);
   void setEntityScale(std::shared_ptr<EntityWrapper> entity, std::vector<double> scaleVec, bool multiplyCurrent);
-  void updateTransformByRigidBody(std::shared_ptr<EntityWrapper> entity, std::shared_ptr<RigidBodyWrapper> rigidBody);
+  void updateTransformByRigidBody(std::shared_ptr<FilamentAssetWrapper> entity, std::shared_ptr<RigidBodyWrapper> rigidBody);
 
 private:
   std::shared_ptr<JSDispatchQueue> _jsDispatchQueue;
