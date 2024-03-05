@@ -4,10 +4,24 @@
 
 #pragma once
 
+#include "jsi/HybridObject.h"
+
+#include "CameraWrapper.h"
+#include "Choreographer.h"
+#include "FilamentAssetWrapper.h"
+#include "FilamentBuffer.h"
+#include "RendererWrapper.h"
+#include "SceneWrapper.h"
 #include "Surface.h"
 #include "SurfaceProvider.h"
-#include <core/utils/EntityWrapper.h>
+#include "SwapChainWrapper.h"
+#include "ViewWrapper.h"
+#include "core/utils/EntityWrapper.h"
+#include "core/utils/ManipulatorWrapper.h"
+
+#include <camutils/Manipulator.h>
 #include <filament/Engine.h>
+#include <filament/LightManager.h>
 #include <filament/SwapChain.h>
 #include <gltfio/AssetLoader.h>
 #include <gltfio/MaterialProvider.h>
@@ -48,11 +62,19 @@ private:
   void setRenderCallback(std::function<void(std::shared_ptr<EngineWrapper>)> callback);
   void renderFrame(double timestamp);
 
-  void transformToUnitCube(gltfio::FilamentAsset* asset);
-  void loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
-  void createDefaultLight(std::shared_ptr<FilamentBuffer> modelBuffer);
-  void updateCameraProjection();
+  void transformToUnitCube(std::shared_ptr<FilamentAssetWrapper> asset);
+  std::shared_ptr<FilamentAssetWrapper> loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
+  void setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer);
+
   void synchronizePendingFrames();
+
+  std::shared_ptr<EntityWrapper> createLightEntity(std::string lightTypeStr, double colorFahrenheit, double intensity, double directionX,
+                                                   double directionY, double directionZ, bool castShadows);
+
+  void updateTransform(math::mat4 transform, std::shared_ptr<EntityWrapper> entity, bool multiplyCurrent);
+  void setEntityPosition(std::shared_ptr<EntityWrapper> entity, std::vector<double> positionVec, bool multiplyCurrent);
+  void setEntityRotation(std::shared_ptr<EntityWrapper> entity, double angleRadians, std::vector<double> axisVec, bool multiplyCurrent);
+  void setEntityScale(std::shared_ptr<EntityWrapper> entity, std::vector<double> scaleVec, bool multiplyCurrent);
 
 private:
   std::shared_ptr<Engine> _engine;
@@ -71,7 +93,7 @@ private:
   std::shared_ptr<gltfio::ResourceLoader> _resourceLoader;
 
   const math::float3 defaultObjectPosition = {0.0f, 0.0f, 0.0f};
-  const math::float3 defaultCameraPosition = {0.0f, 0.0f, 5.0f};
+  const math::float3 defaultCameraPosition = {0.0f, 0.0f, 0.0f};
 
 private:
   // Internals we create, but share the access with the user
