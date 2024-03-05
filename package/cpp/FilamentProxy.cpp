@@ -4,6 +4,7 @@
 
 #include "FilamentProxy.h"
 #include <jsi/jsi.h>
+#include "JSDispatchQueue.h"
 
 #include "jsi/Promise.h"
 #include <memory>
@@ -29,7 +30,8 @@ std::shared_ptr<TestHybridObject> FilamentProxy::createTestObject() {
 
 std::shared_ptr<EngineWrapper> FilamentProxy::createEngine() {
   std::shared_ptr<Choreographer> choreographer = createChoreographer();
-  return std::make_shared<EngineWrapper>(choreographer);
+  auto jsDispatchQueue = std::make_shared<JSDispatchQueue>(getCallInvoker());
+  return std::make_shared<EngineWrapper>(choreographer, jsDispatchQueue);
 }
 
 } // namespace margelo

@@ -33,8 +33,10 @@
 
 namespace margelo {
 
-EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer) {
+EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer,
+                             std::shared_ptr<JSDispatchQueue> jsDispatchQueue) {
   // TODO: make the enum for the backend for the engine configurable
+  _jsDispatchQueue = jsDispatchQueue;
   _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) { Engine::destroy(&engine); });
 
   gltfio::MaterialProvider* _materialProviderPtr =
@@ -108,20 +110,37 @@ void EngineWrapper::loadHybridMethods() {
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
+  if (surfaceProvider == nullptr) {
+    [[unlikely]];
+    throw std::runtime_error("SurfaceProvider cannot be null!");
+  }
   _surfaceProvider = surfaceProvider;
   std::shared_ptr<Surface> surface = surfaceProvider->getSurfaceOrNull();
   if (surface != nullptr) {
     setSurface(surface);
   }
 
-  Listener listener = surfaceProvider->addOnSurfaceChangedListener(
-      SurfaceProvider::Callback{.onSurfaceCreated = [=](std::shared_ptr<Surface> surface) { this->setSurface(surface); },
-                                .onSurfaceSizeChanged =
-                                    [=](std::shared_ptr<Surface> surface, int width, int height) {
-                                      this->surfaceSizeChanged(width, height);
-                                      this->synchronizePendingFrames();
-                                    },
-                                .onSurfaceDestroyed = [=](std::shared_ptr<Surface> surface) { this->destroySurface(); }});
+  auto queue = _jsDispatchQueue;
+  auto sharedThis = shared<EngineWrapper>();
+  SurfaceProvider::Callback callback {
+      .onSurfaceCreated = [=](std::shared_ptr<Surface> surface) {
+        queue->runOnJS([=] () {
+          sharedThis->setSurface(surface);
+        });
+      },
+      .onSurfaceSizeChanged = [queue, sharedThis](std::shared_ptr<Surface> surface, int width, int height) {
+        queue->runOnJS([=] () {
+          sharedThis->surfaceSizeChanged(width, height);
+          sharedThis->synchronizePendingFrames();
+        });
+      },
+      .onSurfaceDestroyed = [=](std::shared_ptr<Surface> surface) {
+        queue->runOnJSAndWait([=] () {
+          sharedThis->destroySurface();
+        });
+      }
+  };
+  Listener listener = surfaceProvider->addOnSurfaceChangedListener(callback);
   _listener = std::make_shared<Listener>(std::move(listener));
 }
 

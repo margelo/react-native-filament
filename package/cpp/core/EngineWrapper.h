@@ -15,6 +15,7 @@
 #include "Surface.h"
 #include "SurfaceProvider.h"
 #include "SwapChainWrapper.h"
+#include "JSDispatchQueue.h"
 #include "ViewWrapper.h"
 #include "core/utils/EntityWrapper.h"
 #include "core/utils/ManipulatorWrapper.h"
@@ -49,7 +50,8 @@ using ManipulatorBuilder = Manipulator<float>::Builder;
 
 class EngineWrapper : public HybridObject {
 public:
-  explicit EngineWrapper(std::shared_ptr<Choreographer> choreographer);
+  explicit EngineWrapper(std::shared_ptr<Choreographer> choreographer,
+                         std::shared_ptr<JSDispatchQueue> jsDispatchQueue);
 
   void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
 
@@ -77,6 +79,7 @@ private:
   void setEntityScale(std::shared_ptr<EntityWrapper> entity, std::vector<double> scaleVec, bool multiplyCurrent);
 
 private:
+  std::shared_ptr<JSDispatchQueue> _jsDispatchQueue;
   std::shared_ptr<Engine> _engine;
   std::shared_ptr<SurfaceProvider> _surfaceProvider;
   std::shared_ptr<Listener> _listener;
