@@ -8,6 +8,7 @@
 #import "AppleFilamentProxy.h"
 #import "AppleChoreographer.h"
 #import "AppleFilamentView.h"
+#import "AppleManagedBuffer.h"
 #import "FilamentMetalView.h"
 #import "FilamentView.h"
 #import <Foundation/Foundation.h>
@@ -48,9 +49,8 @@ std::shared_ptr<FilamentBuffer> AppleFilamentProxy::getAssetByteBuffer(std::stri
     throw std::runtime_error("File not found or could not be read");
   }
 
-  u_int8_t* data = (u_int8_t*)[bufferData bytes];
-  size_t size = [bufferData length];
-  return std::make_shared<FilamentBuffer>(data, size);
+  auto managedBuffer = std::make_shared<AppleManagedBuffer>(bufferData);
+  return std::make_shared<FilamentBuffer>(managedBuffer);
 }
 
 jsi::Runtime& AppleFilamentProxy::getRuntime() {
