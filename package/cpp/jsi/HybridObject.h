@@ -5,6 +5,7 @@
 #pragma once
 
 #include "JSIConverter.h"
+#include "Logger.h"
 #include <functional>
 #include <jsi/jsi.h>
 #include <memory>
@@ -15,7 +16,7 @@ namespace margelo {
 
 using namespace facebook;
 
-class HybridObject : public jsi::HostObject, std::enable_shared_from_this<HybridObject> {
+class HybridObject : public jsi::HostObject, public std::enable_shared_from_this<HybridObject> {
 public:
   struct HybridFunction {
     jsi::HostFunctionType function;
@@ -23,6 +24,7 @@ public:
   };
 
 public:
+  explicit HybridObject(const char* name);
   ~HybridObject();
 
   void set(facebook::jsi::Runtime&, const facebook::jsi::PropNameID& name, const facebook::jsi::Value& value) override;
@@ -54,6 +56,9 @@ public:
   virtual void loadHybridMethods() = 0;
 
 private:
+  static constexpr auto TAG = "HybridObject";
+  const char* _name = TAG;
+  int _instanceId = 1;
   bool _didLoadMethods = false;
   std::mutex _mutex;
   std::unordered_map<std::string, HybridFunction> _methods;
@@ -70,12 +75,12 @@ private:
                                std::index_sequence<Is...>) {
     if constexpr (std::is_same_v<ReturnType, void>) {
       // It's a void method.
-      (obj->*method)(JSIConverter<Args>::fromJSI(runtime, args[Is])...);
+      (obj->*method)(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
       return jsi::Value::undefined();
     } else {
       // It's returning some C++ type, we need to convert that to a JSI value now.
-      ReturnType result = (obj->*method)(JSIConverter<Args>::fromJSI(runtime, args[Is])...);
-      return JSIConverter<ReturnType>::toJSI(runtime, result);
+      ReturnType result = (obj->*method)(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
+      return JSIConverter<std::decay_t<ReturnType>>::toJSI(runtime, result);
     }
   }
 

@@ -12,6 +12,9 @@ void TestHybridObject::loadHybridMethods() {
   // this.string get & set
   registerHybridGetter("string", &TestHybridObject::getString, this);
   registerHybridSetter("string", &TestHybridObject::setString, this);
+  // this.nullableString get & set
+  registerHybridGetter("nullableString", &TestHybridObject::getNullableString, this);
+  registerHybridSetter("nullableString", &TestHybridObject::setNullableString, this);
   // this.enum
   registerHybridGetter("enum", &TestHybridObject::getEnum, this);
   registerHybridSetter("enum", &TestHybridObject::setEnum, this);
