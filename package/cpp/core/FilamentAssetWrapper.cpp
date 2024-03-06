@@ -1,6 +1,5 @@
 #include "FilamentAssetWrapper.h"
 
-#include <filament/Engine.h>
 #include <utils/Entity.h>
 #include <utils/EntityInstance.h>
 
@@ -43,9 +42,8 @@ void FilamentAssetWrapper::releaseSourceData() {
 }
 
 std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::getAnimator() {
+  // The animator is owned by the asset and should not be manually deleted.
   Animator* animator = _asset->getInstance()->getAnimator();
-  // Note: i haven't found anyway to cleanup the animator, in the sample code they just set it to nullptr
-  // I believe it's memory gets cleaned up when the asset is destroyed.
   return std::make_shared<AnimatorWrapper>(animator);
 }
 

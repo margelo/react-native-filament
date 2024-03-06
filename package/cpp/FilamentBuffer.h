@@ -1,26 +1,22 @@
 #pragma once
 
+#include "ManagedBuffer.h"
 #include "jsi/HybridObject.h"
-#include <cstdint>
-#include <stddef.h>
 
 namespace margelo {
 
 class FilamentBuffer : public HybridObject {
 public:
-  explicit FilamentBuffer(uint8_t* data, size_t size) : _data(data), _size(size) {}
+  explicit FilamentBuffer(const std::shared_ptr<ManagedBuffer>& buffer) : HybridObject("FilamentBuffer"), _buffer(std::move(buffer)) {}
 
   void loadHybridMethods() override {}
 
-  uint8_t* getData() const {
-    return _data;
-  }
-  size_t getSize() const {
-    return _size;
+  const std::shared_ptr<ManagedBuffer>& getBuffer() {
+    return _buffer;
   }
 
 private:
-  uint8_t* _data;
-  size_t _size;
+  std::shared_ptr<ManagedBuffer> _buffer;
 };
+
 } // namespace margelo

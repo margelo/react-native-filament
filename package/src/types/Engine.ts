@@ -27,6 +27,18 @@ export interface Engine {
    */
   setIndirectLight(iblBuffer: FilamentBuffer): void
 
+  /**
+   * Given a @see FilamentBuffer (e.g. from a .glb file), load the asset into the engine.
+   * This will by default add all entities from the asset to the attached default scene.
+   */
+  loadAsset(buffer: FilamentBuffer): FilamentAsset
+
+  /**
+   * Set the indirect light for the scene.
+   * @param iblBuffer A buffer containing the IBL data (e.g. from a .ktx file)
+   */
+  setIndirectLight(iblBuffer: FilamentBuffer): void
+
   getRenderer(): Renderer
   getScene(): Scene
   getCamera(): Camera
