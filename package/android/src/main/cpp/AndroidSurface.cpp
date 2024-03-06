@@ -11,7 +11,6 @@ using namespace facebook;
 
 AndroidSurface::AndroidSurface(jni::alias_ref<jobject> javaSurface) {
   ANativeWindow* window = ANativeWindow_fromSurface(jni::Environment::current(), javaSurface.get());
-  ANativeWindow_acquire(window);
   _surface = window;
   _javaSurface = jni::make_global(javaSurface);
 }

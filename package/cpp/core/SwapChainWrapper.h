@@ -9,7 +9,8 @@ using namespace filament;
 
 class SwapChainWrapper : public HybridObject {
 public:
-  explicit SwapChainWrapper(const std::shared_ptr<SwapChain>& swapChain) : _swapChain(std::move(swapChain)) {}
+  explicit SwapChainWrapper(const std::shared_ptr<SwapChain>& swapChain)
+      : HybridObject("SwapChainWrapper"), _swapChain(std::move(swapChain)) {}
 
   void loadHybridMethods() override {}
 

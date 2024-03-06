@@ -13,7 +13,7 @@ using namespace filament::gltfio;
 
 class AnimatorWrapper : public HybridObject {
 public:
-  explicit AnimatorWrapper(Animator* animator) : _animator(animator) {}
+  explicit AnimatorWrapper(Animator* animator) : HybridObject("AnimatorWrapper"), _animator(animator) {}
 
   void loadHybridMethods() override;
 

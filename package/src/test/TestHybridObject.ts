@@ -24,16 +24,21 @@ export function testHybridObject() {
   hybridObject.string = 'new string value!'
   console.log(`New String: ${hybridObject.string}`)
 
-  // 6. Testing multiple arguments and maps
+  // 6. Nullable String Getter & Setter
+  console.log(`Nullable String: ${hybridObject.nullableString}`)
+  hybridObject.nullableString = 'now its not null!'
+  console.log(`New Nullable String: ${hybridObject.nullableString}`)
+
+  // 7. Testing multiple arguments and maps
   const result = hybridObject.multipleArguments(5, true, 'hahah!')
   console.log(`multipleArguments() -> ${JSON.stringify(result)}`)
 
-  // 7. Testing callbacks
+  // 8. Testing callbacks
   hybridObject.sayHelloCallback(() => 'hello from JS!')
   const getter = hybridObject.getIntGetter()
   console.log(`Int getter: ${getter()}`)
 
-  // 8. Create a new one
+  // 9. Create a new one
   const newObject = hybridObject.createNewHybridObject()
   console.log(`Created new hybrid object!`, newObject)
 }
