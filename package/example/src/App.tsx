@@ -4,8 +4,6 @@ import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Platform, StyleSheet } from 'react-native'
 import { FilamentProxy, FilamentView, Float3, RenderCallback } from 'react-native-filament'
 
-const engine = FilamentProxy.createEngine()
-
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',
   ios: 'pengu.glb',
@@ -25,6 +23,8 @@ const near = 0.1
 const far = 1000
 
 export default function App() {
+  const engine = useMemo(() => FilamentProxy.createEngine(), [])
+
   const [_pengu, penguAnimator] = useMemo(() => {
     const modelBuffer = FilamentProxy.getAssetByteBuffer(penguModelPath)
     const asset = engine.loadAsset(modelBuffer)
@@ -32,7 +32,7 @@ export default function App() {
     asset.releaseSourceData()
 
     return [asset, animator]
-  }, [])
+  }, [engine])
 
   const prevAspectRatio = useRef(0)
   const renderCallback: RenderCallback = useCallback(
@@ -51,7 +51,7 @@ export default function App() {
 
       engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
     },
-    [penguAnimator]
+    [engine, penguAnimator]
   )
 
   // Setup the 3D scene:
@@ -63,7 +63,7 @@ export default function App() {
     // Create a directional light for supporting shadows
     const light = engine.createLightEntity('directional', 6500, 10000, 0, -1, 0, true)
     engine.getScene().addEntity(light)
-  }, [])
+  }, [engine])
 
   return <FilamentView style={styles.filamentView} engine={engine} renderCallback={renderCallback} />
 }
