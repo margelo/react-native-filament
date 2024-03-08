@@ -42,9 +42,7 @@ void FilamentAssetWrapper::releaseSourceData() {
 }
 
 std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::getAnimator() {
-  // The animator is owned by the asset and should not be manually deleted.
-  Animator* animator = _asset->getInstance()->getAnimator();
-  return std::make_shared<AnimatorWrapper>(animator);
+  return std::make_shared<AnimatorWrapper>(_asset);
 }
 
 std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::createAnimatorWithAnimationsFrom(std::shared_ptr<FilamentAssetWrapper> otherAsset) {
