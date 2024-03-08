@@ -8,6 +8,10 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(FILAMENT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/filament")
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions(-DDEBUG=1)
+endif ()
+
 # Third party libraries (Prefabs)
 find_package(ReactAndroid REQUIRED CONFIG)
 find_package(fbjni REQUIRED CONFIG)
