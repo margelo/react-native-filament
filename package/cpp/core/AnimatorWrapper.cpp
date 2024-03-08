@@ -32,10 +32,12 @@ Animator* AnimatorWrapper::getAnimator() {
   return instance->getAnimator();
 }
 
+// TODO(copy-animations): We currently copy animations from an asset onto another instance (different model than the original asset), we
+// should replace this with once we found a good solution discussed here: https://github.com/google/filament/issues/7622
 AnimatorWrapper::~AnimatorWrapper() {
   if (_optionalAnimator != nullptr) {
 #if defined(TARGET_OS_IPHONE) || defined(TARGET_IPHONE_SIMULATOR)
-      // On iOS we currently don't have the patch to create a custom animator.
+    // On iOS we currently don't have the patch to create a custom animator.
 #else
     delete _optionalAnimator;
 #endif
