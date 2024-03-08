@@ -1,6 +1,7 @@
 #import "FilamentMetalView.h"
 #import <Metal/Metal.h>
 #import <UIKit/UIKit.h>
+#import <React/RCTViewManager.h>
 
 @implementation FilamentMetalView
 
@@ -17,6 +18,7 @@
     CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
     metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
     metalLayer.opaque = NO;
+    self.onViewReady(@{});
   }
   return self;
 }

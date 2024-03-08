@@ -48,6 +48,8 @@ using namespace camutils;
 
 using ManipulatorBuilder = Manipulator<float>::Builder;
 
+using RenderCallback = std::function<void(double, double, double)>;
+
 class EngineWrapper : public HybridObject {
 public:
   explicit EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<JSDispatchQueue> jsDispatchQueue);
@@ -60,7 +62,7 @@ private:
   void setSurface(std::shared_ptr<Surface> surface);
   void destroySurface();
   void surfaceSizeChanged(int width, int height);
-  void setRenderCallback(std::function<void(double, double, double)> callback);
+  void setRenderCallback(std::optional<RenderCallback> callback);
   void renderFrame(double timestamp);
 
   void transformToUnitCube(std::shared_ptr<FilamentAssetWrapper> asset);
@@ -82,7 +84,7 @@ private:
   std::shared_ptr<Engine> _engine;
   std::shared_ptr<SurfaceProvider> _surfaceProvider;
   std::shared_ptr<Listener> _listener;
-  std::function<void(double, double, double)> _renderCallback;
+  std::optional<RenderCallback> _renderCallback;
   std::function<std::shared_ptr<FilamentBuffer>(std::string)> _getAssetBytes;
   std::shared_ptr<Choreographer> _choreographer;
   std::shared_ptr<Listener> _choreographerListener;
