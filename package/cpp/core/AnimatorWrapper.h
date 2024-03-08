@@ -14,6 +14,11 @@ using namespace filament::gltfio;
 class AnimatorWrapper : public HybridObject {
 public:
   explicit AnimatorWrapper(const std::shared_ptr<FilamentAsset>& asset) : HybridObject("AnimatorWrapper"), _asset(std::move(asset)) {}
+  // Its possible that we are constructing a custom Animator which should be used instead of the asset's default one.
+  explicit AnimatorWrapper(const std::shared_ptr<FilamentAsset>& asset, Animator* optionalAnimator) : AnimatorWrapper(asset) {
+    _optionalAnimator = optionalAnimator;
+  }
+  ~AnimatorWrapper() override;
 
   void loadHybridMethods() override;
 
@@ -30,6 +35,7 @@ private:
 
 private:
   std::shared_ptr<FilamentAsset> _asset;
+  Animator* _optionalAnimator;
 };
 
 } // namespace margelo
