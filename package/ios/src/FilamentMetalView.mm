@@ -3,7 +3,9 @@
 #import <UIKit/UIKit.h>
 #import <React/RCTViewManager.h>
 
-@implementation FilamentMetalView
+@implementation FilamentMetalView {
+    bool isMounted;
+}
 
 + (Class)layerClass {
   return [CAMetalLayer class];
@@ -18,12 +20,16 @@
     CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
     metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
     metalLayer.opaque = NO;
+    isMounted = false;
   }
   return self;
 }
 
 - (void)didMoveToWindow {
-  if (self.window != nil) {
+  [super didMoveToWindow];
+    
+  if (self.window != nil && !isMounted) {
+    isMounted = true;
     self.onViewReady(@{});
   }
 }

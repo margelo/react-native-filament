@@ -7,13 +7,16 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.events.Event;
 
 public class FilamentViewReadyEvent extends Event<FilamentViewReadyEvent> {
+
+    public static final String EVENT_NAME = "filamentViewReady";
+
     FilamentViewReadyEvent(int surfaceId, int viewTag) {
         super(surfaceId, viewTag);
     }
 
     @Override
     public String getEventName() {
-        return "filamentViewReady";
+        return EVENT_NAME;
     }
 
     @Nullable
