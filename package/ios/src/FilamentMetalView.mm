@@ -18,9 +18,14 @@
     CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
     metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
     metalLayer.opaque = NO;
-    self.onViewReady(@{});
   }
   return self;
+}
+
+- (void)didMoveToWindow {
+  if (self.window != nil) {
+    self.onViewReady(@{});
+  }
 }
 
 - (void)layoutSubviews {

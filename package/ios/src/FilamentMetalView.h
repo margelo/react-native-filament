@@ -22,6 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) RCTDirectEventBlock onViewReady;
 
+- (void)didMoveToWindow;
+
 @end
 
 NS_ASSUME_NONNULL_END

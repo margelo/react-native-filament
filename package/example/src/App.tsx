@@ -1,8 +1,8 @@
 import * as React from 'react'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 
 import { Platform, StyleSheet } from 'react-native'
-import { FilamentProxy, FilamentView, Float3, RenderCallback } from 'react-native-filament'
+import { FilamentProxy, Filament, useEngine, Float3 } from 'react-native-filament'
 
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',
@@ -23,20 +23,8 @@ const near = 0.1
 const far = 1000
 
 export default function App() {
-  const engine = useMemo(() => FilamentProxy.createEngine(), [])
-
-  const [_pengu, penguAnimator] = useMemo(() => {
-    const modelBuffer = FilamentProxy.getAssetByteBuffer(penguModelPath)
-    const asset = engine.loadAsset(modelBuffer)
-    const animator = asset.getAnimator()
-    asset.releaseSourceData()
-
-    return [asset, animator]
-  }, [engine])
-
-  const prevAspectRatio = useRef(0)
-  const renderCallback: RenderCallback = useCallback(
-    (_timestamp, _startTime, passedSeconds) => {
+  const engine = useEngine({
+    onFrame: (_timestamp, _startTime, passedSeconds) => {
       const view = engine.getView()
       const aspectRatio = view.aspectRatio
       if (prevAspectRatio.current !== aspectRatio) {
@@ -51,8 +39,18 @@ export default function App() {
 
       engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
     },
-    [engine, penguAnimator]
-  )
+  })
+
+  const [_pengu, penguAnimator] = useMemo(() => {
+    const modelBuffer = FilamentProxy.getAssetByteBuffer(penguModelPath)
+    const asset = engine.loadAsset(modelBuffer)
+    const animator = asset.getAnimator()
+    asset.releaseSourceData()
+
+    return [asset, animator]
+  }, [engine])
+
+  const prevAspectRatio = useRef(0)
 
   // Setup the 3D scene:
   useEffect(() => {
@@ -65,7 +63,7 @@ export default function App() {
     engine.getScene().addEntity(light)
   }, [engine])
 
-  return <FilamentView style={styles.filamentView} engine={engine} renderCallback={renderCallback} />
+  return <Filament style={styles.filamentView} engine={engine} />
 }
 
 const styles = StyleSheet.create({
