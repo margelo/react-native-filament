@@ -23,13 +23,13 @@ static int getId(const char* name) {
 HybridObject::HybridObject(const char* name) : _name(name) {
 #if DEBUG
   _instanceId = getId(name);
-  Logger::log(TAG, "Creating %s (#%i)...", _name, _instanceId);
+  Logger::log(TAG, "(MEMORY) Creating %s (#%i)... ✅", _name, _instanceId);
 #endif
 }
 
 HybridObject::~HybridObject() {
 #if DEBUG
-  Logger::log(TAG, "Deleting %s (#%i)...", _name, _instanceId);
+  Logger::log(TAG, "(MEMORY) Deleting %s (#%i)... ❌", _name, _instanceId);
 #endif
   _functionCache.clear();
 }
