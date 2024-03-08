@@ -97,9 +97,13 @@ public:
     // For internal use only.
     void addInstance(FFilamentInstance* instance);
 
+    // TODO(copy-animations): We currently copy animations from an asset onto another instance (different model than the original asset), we should replace this with once we found a good solution discussed here: https://github.com/google/filament/issues/7622
     // Public constructor for creating an animator with the animations from an asset
     // and applying the animations to a different instance.
     Animator(FilamentAsset *asset, FilamentInstance *instance);
+
+    // TODO(copy-animations): We currently copy animations from an asset onto another instance (different model than the original asset), we should replace this with once we found a good solution discussed here: https://github.com/google/filament/issues/7622
+    ~Animator();
 
 private:
 
@@ -110,7 +114,6 @@ private:
 
     // If "instance" is null, then this is the primary animator.
     Animator(FFilamentAsset const* asset, FFilamentInstance* instance);
-    ~Animator();
 
     Animator(const Animator& animator) = delete;
     Animator(Animator&& animator) = delete;

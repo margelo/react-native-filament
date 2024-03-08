@@ -42,19 +42,17 @@ void FilamentAssetWrapper::releaseSourceData() {
 }
 
 std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::getAnimator() {
-  // The animator is owned by the asset and should not be manually deleted.
-  Animator* animator = _asset->getInstance()->getAnimator();
-  return std::make_shared<AnimatorWrapper>(animator);
+  return std::make_shared<AnimatorWrapper>(_asset);
 }
 
 std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::createAnimatorWithAnimationsFrom(std::shared_ptr<FilamentAssetWrapper> otherAsset) {
-#if defined(TARGET_OS_IPHONE) || defined(TARGET_IPHONE_SIMULATOR)
-  return getAnimator();
-#else
-  // Note: This constructor is only availbe on android yet where we build filament from source.
-  // Should be unified once https://github.com/google/filament/issues/7622 is resolved.
+#if ANDROID
+  // TODO(copy-animations): We currently copy animations from an asset onto another instance (different model than the original asset), we
+  // should replace this with once we found a good solution discussed here: https://github.com/google/filament/issues/7622
   Animator* animator = new gltfio::Animator(otherAsset->_asset.get(), _asset->getInstance());
-  return std::make_shared<AnimatorWrapper>(animator);
+  return std::make_shared<AnimatorWrapper>(_asset, animator);
+#else
+  return getAnimator();
 #endif
 }
 

@@ -15,31 +15,61 @@ void AnimatorWrapper::loadHybridMethods() {
   registerHybridMethod("getAnimationName", &AnimatorWrapper::getAnimationName, this);
 }
 
-void AnimatorWrapper::applyAnimation(int number, double time) {
-  _animator->applyAnimation(number, time);
+Animator* AnimatorWrapper::getAnimator() {
+  if (_optionalAnimator != nullptr) {
+    return _optionalAnimator;
+  }
+
+  FilamentInstance* instance = _asset->getInstance();
+  if (instance == nullptr) {
+    [[unlikely]];
+    throw std::runtime_error("Filament Asset does not contain a valid FilamentInstance!");
+  }
+  return instance->getAnimator();
+}
+
+// TODO(copy-animations): We currently copy animations from an asset onto another instance (different model than the original asset), we
+// should replace this with once we found a good solution discussed here: https://github.com/google/filament/issues/7622
+AnimatorWrapper::~AnimatorWrapper() {
+  if (_optionalAnimator != nullptr) {
+#if ANDROID
+    delete _optionalAnimator;
+#endif
+  }
+}
+
+void AnimatorWrapper::applyAnimation(int animationIndex, double time) {
+  Animator* animator = getAnimator();
+  animator->applyAnimation(animationIndex, time);
 }
 
 void AnimatorWrapper::updateBoneMatrices() {
-  _animator->updateBoneMatrices();
+  Animator* animator = getAnimator();
+  animator->updateBoneMatrices();
 }
 
-void AnimatorWrapper::applyCrossFade(int previousAnimIndex, double previousAnimTime, double alpha) {
-  _animator->applyCrossFade(previousAnimIndex, previousAnimTime, alpha);
+void AnimatorWrapper::applyCrossFade(int previousAnimationIndex, double previousAnimationTime, double alpha) {
+  Animator* animator = getAnimator();
+  animator->applyCrossFade(previousAnimationIndex, previousAnimationTime, alpha);
 }
 
 void AnimatorWrapper::resetBoneMatrices() {
-  _animator->resetBoneMatrices();
+  Animator* animator = getAnimator();
+  animator->resetBoneMatrices();
 }
 
 int AnimatorWrapper::getAnimationCount() {
-  return _animator->getAnimationCount();
+  Animator* animator = getAnimator();
+  return animator->getAnimationCount();
 }
 
 double AnimatorWrapper::getAnimationDuration(int animationIndex) {
-  return _animator->getAnimationDuration(animationIndex);
+  Animator* animator = getAnimator();
+  return animator->getAnimationDuration(animationIndex);
 }
 
 std::string AnimatorWrapper::getAnimationName(int animationIndex) {
-  return _animator->getAnimationName(animationIndex);
+  Animator* animator = getAnimator();
+  return animator->getAnimationName(animationIndex);
 }
 } // namespace margelo
