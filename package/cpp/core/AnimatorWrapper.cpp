@@ -16,12 +16,22 @@ void AnimatorWrapper::loadHybridMethods() {
 }
 
 Animator* AnimatorWrapper::getAnimator() {
+  if (_optionalAnimator != nullptr) {
+    return _optionalAnimator;
+  }
+
   FilamentInstance* instance = _asset->getInstance();
   if (instance == nullptr) {
     [[unlikely]];
     throw std::runtime_error("Filament Asset does not contain a valid FilamentInstance!");
   }
   return instance->getAnimator();
+}
+
+AnimatorWrapper::~AnimatorWrapper() {
+  if (_optionalAnimator != nullptr) {
+    delete _optionalAnimator;
+  }
 }
 
 void AnimatorWrapper::applyAnimation(int animationIndex, double time) {
