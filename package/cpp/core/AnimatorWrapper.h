@@ -18,8 +18,8 @@ public:
   void loadHybridMethods() override;
 
 private:
-  void applyAnimation(int number, double time);
-  void applyCrossFade(int previousAnimIndex, double previousAnimTime, double alpha);
+  void applyAnimation(int animationIndex, double time);
+  void applyCrossFade(int previousAnimationIndex, double previousAnimationTime, double alpha);
   void updateBoneMatrices();
   void resetBoneMatrices();
   int getAnimationCount();

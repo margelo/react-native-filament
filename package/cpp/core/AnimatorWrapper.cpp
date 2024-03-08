@@ -24,9 +24,9 @@ Animator* AnimatorWrapper::getAnimator() {
   return instance->getAnimator();
 }
 
-void AnimatorWrapper::applyAnimation(int number, double time) {
+void AnimatorWrapper::applyAnimation(int animationIndex, double time) {
   Animator* animator = getAnimator();
-  animator->applyAnimation(number, time);
+  animator->applyAnimation(animationIndex, time);
 }
 
 void AnimatorWrapper::updateBoneMatrices() {
@@ -34,9 +34,9 @@ void AnimatorWrapper::updateBoneMatrices() {
   animator->updateBoneMatrices();
 }
 
-void AnimatorWrapper::applyCrossFade(int previousAnimIndex, double previousAnimTime, double alpha) {
+void AnimatorWrapper::applyCrossFade(int previousAnimationIndex, double previousAnimationTime, double alpha) {
   Animator* animator = getAnimator();
-  animator->applyCrossFade(previousAnimIndex, previousAnimTime, alpha);
+  animator->applyCrossFade(previousAnimationIndex, previousAnimationTime, alpha);
 }
 
 void AnimatorWrapper::resetBoneMatrices() {
