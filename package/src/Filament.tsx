@@ -2,21 +2,23 @@ import React from 'react'
 import { findNodeHandle, NativeMethods } from 'react-native'
 import { FilamentProxy } from './native/FilamentProxy'
 import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
-import { Engine, RenderCallback } from './types'
+import { Engine } from './types'
+import { FilamentView } from './native/FilamentViewTypes'
 
-type FilamentViewProps = NativeProps & {
+export interface FilamentProps extends NativeProps {
   engine: Engine
-  renderCallback: RenderCallback
 }
 
 type RefType = React.Component<NativeProps> & Readonly<NativeMethods>
 
-export class FilamentView extends React.PureComponent<FilamentViewProps> {
+export class Filament extends React.PureComponent<FilamentProps> {
   private readonly ref: React.RefObject<RefType>
+  private view: FilamentView | undefined = undefined
 
-  constructor(props: FilamentViewProps) {
+  constructor(props: FilamentProps) {
     super(props)
     this.ref = React.createRef<RefType>()
+    this.view = undefined
   }
 
   // TODO: Does this also work for Fabric?
@@ -29,28 +31,22 @@ export class FilamentView extends React.PureComponent<FilamentViewProps> {
     return nodeHandle
   }
 
-  componentDidMount() {
-    // TODO(Marc): I had to add this setTimeout(, 0), otherwise there would be no render output on iOS.
-    //             I assume its because the surface isn't ready yet or something?
-    setTimeout(this.setupSurface, 0)
-  }
+  onViewReady = () => {
+    const handle = this.handle
+    this.view = FilamentProxy.findFilamentView(handle)
+    if (this.view == null) {
+      throw new Error(`Failed to find FilamentView #${handle}!`)
+    }
 
-  setupSurface = () => {
-    // Get Surface:
-    const fView = FilamentProxy.findFilamentView(this.handle)
-    const surfaceProvider = fView.getSurfaceProvider()
-
+    const surfaceProvider = this.view.getSurfaceProvider()
     // Link the surface with the engine:
     this.props.engine.setSurfaceProvider(surfaceProvider)
-
-    // Set the render callback:
-    this.props.engine.setRenderCallback(this.props.renderCallback)
   }
 
   /** @internal */
   public render(): React.ReactNode {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { engine, renderCallback, ...nativeProps } = this.props
-    return <FilamentNativeView ref={this.ref} {...nativeProps} />
+    const { engine, ...nativeProps } = this.props
+    return <FilamentNativeView ref={this.ref} onViewReady={this.onViewReady} {...nativeProps} />
   }
 }
