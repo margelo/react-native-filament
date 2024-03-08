@@ -11,6 +11,7 @@ void FilamentAssetWrapper::loadHybridMethods() {
   registerHybridMethod("getRoot", &FilamentAssetWrapper::getRoot, this);
   registerHybridMethod("releaseSourceData", &FilamentAssetWrapper::releaseSourceData, this);
   registerHybridMethod("getAnimator", &FilamentAssetWrapper::getAnimator, this);
+  registerHybridMethod("createAnimatorWithAnimationsFrom", &FilamentAssetWrapper::createAnimatorWithAnimationsFrom, this);
 }
 
 /**
@@ -38,6 +39,17 @@ void FilamentAssetWrapper::releaseSourceData() {
 
 std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::getAnimator() {
   return std::make_shared<AnimatorWrapper>(_asset);
+}
+
+std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::createAnimatorWithAnimationsFrom(std::shared_ptr<FilamentAssetWrapper> otherAsset) {
+#if ANDROID
+  // TODO(copy-animations): We currently copy animations from an asset onto another instance (different model than the original asset), we
+  // should replace this with once we found a good solution discussed here: https://github.com/google/filament/issues/7622
+  Animator* animator = new gltfio::Animator(otherAsset->_asset.get(), _asset->getInstance());
+  return std::make_shared<AnimatorWrapper>(_asset, animator);
+#else
+  return getAnimator();
+#endif
 }
 
 } // namespace margelo

@@ -16,12 +16,26 @@ void AnimatorWrapper::loadHybridMethods() {
 }
 
 Animator* AnimatorWrapper::getAnimator() {
+  if (_optionalAnimator != nullptr) {
+    return _optionalAnimator;
+  }
+
   FilamentInstance* instance = _asset->getInstance();
   if (instance == nullptr) {
     [[unlikely]];
     throw std::runtime_error("Filament Asset does not contain a valid FilamentInstance!");
   }
   return instance->getAnimator();
+}
+
+// TODO(copy-animations): We currently copy animations from an asset onto another instance (different model than the original asset), we
+// should replace this with once we found a good solution discussed here: https://github.com/google/filament/issues/7622
+AnimatorWrapper::~AnimatorWrapper() {
+  if (_optionalAnimator != nullptr) {
+#if ANDROID
+    delete _optionalAnimator;
+#endif
+  }
 }
 
 void AnimatorWrapper::applyAnimation(int animationIndex, double time) {

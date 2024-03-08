@@ -1,6 +1,6 @@
 {
   "name": "react-native-filament",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A real-time physically based 3D rendering engine for React Native",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -32,7 +32,8 @@
     "clean": "rm -rf android/build example/android/build example/android/app/build example/ios/build lib",
     "prepare": "git submodule update --init --recursive && bob build",
     "update-submodule": "git submodule update --remote --merge",
-    "build-filament": "scripts/build-filament.sh",
+    "patch-filament": "cd ../filament ; git apply ../package/filament_animator_feat.patch ; cd -",
+    "build-filament": "yarn patch-filament && scripts/build-filament.sh",
     "release": "yarn build-filament && release-it"
   },
   "keywords": [
