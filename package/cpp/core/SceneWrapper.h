@@ -12,7 +12,7 @@ using namespace filament;
 
 class SceneWrapper : public HybridObject {
 public:
-  explicit SceneWrapper(const std::shared_ptr<Scene>& scene) : HybridObject("SceneWrapper"), _scene(std::move(scene)) {}
+  explicit SceneWrapper(const std::shared_ptr<Scene>& scene) : HybridObject("SceneWrapper"), _scene(scene) {}
 
   void loadHybridMethods() override;
 

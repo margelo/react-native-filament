@@ -12,7 +12,7 @@ namespace margelo {
 class Listener : public HybridObject {
 public:
   Listener(Listener&& listener) : HybridObject("Listener"), _remove(std::move(listener._remove)), _isRemoved(listener._isRemoved) {}
-  explicit Listener(std::function<void()> remove);
+  explicit Listener(const std::function<void()>& remove);
   ~Listener();
   void remove();
 
