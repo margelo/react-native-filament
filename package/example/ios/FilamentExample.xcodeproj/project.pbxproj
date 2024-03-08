@@ -52,6 +52,10 @@
 		89C6BE57DB24E9ADA2F236DE /* Pods-FilamentExample-FilamentExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FilamentExample-FilamentExampleTests.release.xcconfig"; path = "Target Support Files/Pods-FilamentExample-FilamentExampleTests/Pods-FilamentExample-FilamentExampleTests.release.xcconfig"; sourceTree = "<group>"; };
 		BE173E0B3B23427D84C92C91 /* pijamas.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = pijamas.glb; path = ../assets/pijamas.glb; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		7A69823713B34897AF31CAF0 /* default_env_ibl.ktx */ = {isa = PBXFileReference; name = "default_env_ibl.ktx"; path = "../assets/default_env_ibl.ktx"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		3E2439B417DA497E83EB1F05 /* pengu.glb */ = {isa = PBXFileReference; name = "pengu.glb"; path = "../assets/pengu.glb"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		BE173E0B3B23427D84C92C91 /* pijamas.glb */ = {isa = PBXFileReference; name = "pijamas.glb"; path = "../assets/pijamas.glb"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		034C2E5BF6EE449290528E8D /* pirate.glb */ = {isa = PBXFileReference; name = "pirate.glb"; path = "../assets/pirate.glb"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -168,6 +172,18 @@
 			);
 			path = Pods;
 			sourceTree = "<group>";
+		};
+		995DFB4F30584326AD631A9F /* Resources */ = {
+			isa = "PBXGroup";
+			children = (
+				7A69823713B34897AF31CAF0 /* default_env_ibl.ktx */,
+				3E2439B417DA497E83EB1F05 /* pengu.glb */,
+				BE173E0B3B23427D84C92C91 /* pijamas.glb */,
+				034C2E5BF6EE449290528E8D /* pirate.glb */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+			path = "";
 		};
 /* End PBXGroup section */
 
@@ -607,10 +623,7 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -678,10 +691,7 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
