@@ -7,6 +7,8 @@
 
 @implementation FilamentViewManager
 
+RCT_EXPORT_VIEW_PROPERTY(onViewReady, RCTDirectEventBlock);
+
 RCT_EXPORT_MODULE(FilamentView)
 
 - (FilamentMetalView*)view {

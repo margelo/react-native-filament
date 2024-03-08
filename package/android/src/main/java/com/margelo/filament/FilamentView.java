@@ -14,6 +14,10 @@ import android.widget.FrameLayout;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
+import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.uimanager.UIManagerHelper;
+import com.facebook.react.uimanager.events.Event;
+import com.facebook.react.uimanager.events.EventDispatcher;
 
 /** @noinspection JavaJniMissingFunction*/
 public class FilamentView extends FrameLayout implements TextureView.SurfaceTextureListener {
@@ -53,6 +57,21 @@ public class FilamentView extends FrameLayout implements TextureView.SurfaceText
     textureView.setSurfaceTextureListener(this);
     textureView.setOpaque(false);
     addView(textureView);
+    onViewReady();
+  }
+
+  private void onViewReady() {
+    int surfaceId = UIManagerHelper.getSurfaceId(this);
+    FilamentViewReadyEvent event = new FilamentViewReadyEvent(surfaceId, getId());
+    this.sendEvent(event);
+  }
+
+  private void sendEvent(Event<?> event) {
+    ReactContext reactContext = (ReactContext) getContext();
+    EventDispatcher dispatcher = UIManagerHelper.getEventDispatcherForReactTag(reactContext, getId());
+    if (dispatcher != null) {
+      dispatcher.dispatchEvent(event);
+    }
   }
 
   @Override

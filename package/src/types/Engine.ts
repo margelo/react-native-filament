@@ -13,7 +13,7 @@ export type RenderCallback = (timestamp: number, startTime: number, passedSecond
 
 export interface Engine {
   setSurfaceProvider(surfaceProvider: SurfaceProvider): void
-  setRenderCallback(callback: RenderCallback): void
+  setRenderCallback(callback: RenderCallback | undefined): void
 
   /**
    * Given a @see FilamentBuffer (e.g. from a .glb file), load the asset into the engine.
@@ -52,7 +52,7 @@ export interface Engine {
     directionX: number,
     directionY: number,
     directionZ: number,
-    castShadows: boolean,
+    castShadows: boolean
   ): Entity
 
   /**

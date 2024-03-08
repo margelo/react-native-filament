@@ -1,4 +1,4 @@
-export * from './FilamentView'
+export * from './Filament'
 export * from './native/FilamentProxy'
 export * from './types'
 

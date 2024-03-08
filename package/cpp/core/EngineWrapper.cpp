@@ -176,7 +176,7 @@ void EngineWrapper::destroySurface() {
   _swapChain = nullptr;
 }
 
-void EngineWrapper::setRenderCallback(std::function<void(double, double, double)> callback) {
+void EngineWrapper::setRenderCallback(std::optional<RenderCallback> callback) {
   _renderCallback = std::move(callback);
 }
 
@@ -186,7 +186,6 @@ void EngineWrapper::renderFrame(double timestamp) {
   if (!_swapChain) {
     return;
   }
-
   if (!_view) {
     return;
   }
