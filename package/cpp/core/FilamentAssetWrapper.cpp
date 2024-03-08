@@ -3,10 +3,6 @@
 #include <utils/Entity.h>
 #include <utils/EntityInstance.h>
 
-#if defined(__APPLE__)
-#include <TargetConditionals.h>
-#endif
-
 namespace margelo {
 
 using namespace utils;
