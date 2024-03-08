@@ -2,7 +2,7 @@ import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNati
 import type { ViewProps } from 'react-native'
 
 export interface NativeProps extends ViewProps {
-  model?: number
+  onViewReady?: () => void
 }
 
 export const FilamentNativeView = codegenNativeComponent<NativeProps>('FilamentView')

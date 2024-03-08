@@ -1,6 +1,7 @@
 #import "FilamentMetalView.h"
 #import <Metal/Metal.h>
 #import <UIKit/UIKit.h>
+#import <React/RCTViewManager.h>
 
 @implementation FilamentMetalView
 
@@ -19,6 +20,12 @@
     metalLayer.opaque = NO;
   }
   return self;
+}
+
+- (void)didMoveToWindow {
+  if (self.window != nil) {
+    self.onViewReady(@{});
+  }
 }
 
 - (void)layoutSubviews {

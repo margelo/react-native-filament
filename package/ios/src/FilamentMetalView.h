@@ -8,6 +8,7 @@
 #pragma once
 
 #import <UIKit/UIKit.h>
+#import <React/RCTViewManager.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -18,6 +19,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (CAMetalLayer*)metalLayer;
 
 - (void)layoutSubviews;
+
+@property (nonatomic, strong) RCTDirectEventBlock onViewReady;
+
+- (void)didMoveToWindow;
 
 @end
 
