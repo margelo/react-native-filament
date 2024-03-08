@@ -8,19 +8,25 @@ import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.util.AttributeSet;
 
+import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 import android.widget.FrameLayout;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.uimanager.UIManagerHelper;
 import com.facebook.react.uimanager.events.Event;
 import com.facebook.react.uimanager.events.EventDispatcher;
+import com.facebook.react.uimanager.events.RCTEventEmitter;
 
 /** @noinspection JavaJniMissingFunction*/
 public class FilamentView extends FrameLayout implements TextureView.SurfaceTextureListener {
+
+  private static final String TAG = "FilamentView";
+
   /** @noinspection unused, FieldCanBeLocal */
   @DoNotStrip
   @Keep
@@ -28,6 +34,7 @@ public class FilamentView extends FrameLayout implements TextureView.SurfaceText
   private final TextureView textureView;
   private final SurfaceProvider surfaceProvider = new SurfaceProvider();
   private Surface surface = null;
+  private boolean isMounted = false;
 
   public FilamentView(Context context) {
     super(context);
@@ -57,7 +64,15 @@ public class FilamentView extends FrameLayout implements TextureView.SurfaceText
     textureView.setSurfaceTextureListener(this);
     textureView.setOpaque(false);
     addView(textureView);
-    onViewReady();
+  }
+
+  @Override
+  protected void onAttachedToWindow() {
+    super.onAttachedToWindow();
+    if (!isMounted) {
+      isMounted = true;
+      onViewReady();
+    }
   }
 
   private void onViewReady() {

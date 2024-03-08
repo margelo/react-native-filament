@@ -6,14 +6,13 @@
 
 #include "Listener.h"
 #include "ListenerManager.h"
-#include "jsi/HybridObject.h"
 #include <functional>
 
 namespace margelo {
 
-class Choreographer : public HybridObject {
+class Choreographer {
 public:
-  explicit Choreographer() : HybridObject("Choreographer") {}
+  explicit Choreographer() {}
   using OnFrameCallback = std::function<void(double timestamp)>;
 
   std::shared_ptr<Listener> addOnFrameListener(OnFrameCallback onFrameCallback);
@@ -23,8 +22,6 @@ public:
 
 protected:
   void onFrame(double timestamp);
-
-  void loadHybridMethods() override;
 
 private:
   ListenerManager<OnFrameCallback> _listeners;

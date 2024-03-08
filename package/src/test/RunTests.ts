@@ -1,4 +1,3 @@
-import { testChoreographer } from './TestChoreographer'
 import { testHybridObject } from './TestHybridObject'
 
 async function wrapTest(name: string, func: () => void | Promise<void>): Promise<void> {
@@ -18,7 +17,6 @@ export function runTests() {
   if (__DEV__ && TEST_HYBRID_OBJECTS) {
     const run = async () => {
       await wrapTest('HybridObject', testHybridObject)
-      await wrapTest('Choreographer', testChoreographer)
     }
     run()
   }
