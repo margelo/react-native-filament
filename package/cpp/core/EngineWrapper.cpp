@@ -81,7 +81,7 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
   _view->getView()->setScene(_scene->getScene().get());
   _view->getView()->setCamera(_camera->getCamera().get());
 
-  _choreographer = std::move(choreographer);
+  _choreographer = choreographer;
 }
 
 void EngineWrapper::loadHybridMethods() {
@@ -135,10 +135,10 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
                                      .onSurfaceDestroyed =
                                          [=](std::shared_ptr<Surface> surface) {
                                            // TODO: Properly delete swapchain
-//                                           queue->runOnJSAndWait([=]() {
-//                                             Logger::log(TAG, "Destroying surface...");
-//                                             sharedThis->destroySurface();
-//                                           });
+                                           //                                           queue->runOnJSAndWait([=]() {
+                                           //                                             Logger::log(TAG, "Destroying surface...");
+                                           //                                             sharedThis->destroySurface();
+                                           //                                           });
                                          }};
   Listener listener = surfaceProvider->addOnSurfaceChangedListener(callback);
   _listener = std::make_shared<Listener>(std::move(listener));
@@ -157,7 +157,13 @@ void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
   surfaceSizeChanged(surface->getWidth(), surface->getHeight());
 
   // Install our render function into the choreographer
-  _choreographerListener = _choreographer->addOnFrameListener([this](double timestamp) { this->renderFrame(timestamp); });
+  std::weak_ptr<EngineWrapper> weakSelf = shared<EngineWrapper>();
+  _choreographerListener = _choreographer->addOnFrameListener([weakSelf](double timestamp) {
+    auto sharedThis = weakSelf.lock();
+    if (sharedThis != nullptr) {
+      sharedThis->renderFrame(timestamp);
+    }
+  });
   // Start the rendering
   _choreographer->start();
 }
@@ -262,6 +268,7 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<F
   auto assetLoader = _assetLoader;
   auto scene = _scene->getScene();
   auto asset = References<gltfio::FilamentAsset>::adoptRef(assetPtr, [scene, assetLoader](gltfio::FilamentAsset* asset) {
+    Logger::log(TAG, "Destroying asset...");
     scene->removeEntities(asset->getEntities(), asset->getEntityCount());
     assetLoader->destroyAsset(asset);
   });

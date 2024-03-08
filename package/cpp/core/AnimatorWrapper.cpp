@@ -38,8 +38,16 @@ AnimatorWrapper::~AnimatorWrapper() {
   }
 }
 
+inline  void assertAnimationIndexSmallerThan(int animationIndex, int max) {
+  if (animationIndex >= max || animationIndex < 0) {
+    [[unlikely]];
+    throw std::invalid_argument("Animation index out of range! Expected <" + std::to_string(max) + ", received " + std::to_string(animationIndex));
+  }
+}
+
 void AnimatorWrapper::applyAnimation(int animationIndex, double time) {
   Animator* animator = getAnimator();
+  assertAnimationIndexSmallerThan(animationIndex, animator->getAnimationCount());
   animator->applyAnimation(animationIndex, time);
 }
 
@@ -50,6 +58,7 @@ void AnimatorWrapper::updateBoneMatrices() {
 
 void AnimatorWrapper::applyCrossFade(int previousAnimationIndex, double previousAnimationTime, double alpha) {
   Animator* animator = getAnimator();
+  assertAnimationIndexSmallerThan(previousAnimationIndex, animator->getAnimationCount());
   animator->applyCrossFade(previousAnimationIndex, previousAnimationTime, alpha);
 }
 

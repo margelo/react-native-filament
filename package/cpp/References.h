@@ -17,7 +17,7 @@ public:
 
   struct Deleter {
   public:
-    explicit Deleter(const CleanupRefFunction& cleanup) : _cleanup(std::move(cleanup)) {}
+    explicit Deleter(const CleanupRefFunction& cleanup) : _cleanup(cleanup) {}
     void operator()(T* ref) {
       _cleanup(ref);
     }
@@ -36,7 +36,7 @@ public:
    * @return A shared_ptr safely managing the reference to T.
    */
   static std::shared_ptr<T> adoptRef(T* value, const CleanupRefFunction& cleanup) {
-    return std::shared_ptr<T>(value, Deleter(std::move(cleanup)));
+    return std::shared_ptr<T>(value, Deleter(cleanup));
   }
 
   /**
@@ -44,7 +44,7 @@ public:
    * This is used to clean up children of `Engine`, e.g. via `Engine::destroy(Renderer)`.
    */
   static std::shared_ptr<T> adoptEngineRef(const std::shared_ptr<filament::Engine>& engine, T* value, CleanupEngineRefFunction cleanup) {
-    return adoptRef(value, [engine = std::move(engine), cleanup = std::move(cleanup)](T* ref) { cleanup(engine, ref); });
+    return adoptRef(value, [engine = engine, cleanup = cleanup](T* ref) { cleanup(engine, ref); });
   }
 };
 
