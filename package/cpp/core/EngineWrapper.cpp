@@ -196,10 +196,11 @@ void EngineWrapper::renderFrame(double timestamp) {
     _startTime = timestamp;
   }
 
-  if (_renderCallback) {
+  if (_renderCallback.has_value()) {
+    const auto& renderCallback = _renderCallback.value();
     // Call JS callback with scene information
     double passedSeconds = (timestamp - _startTime) / 1e9;
-    _renderCallback(timestamp, _startTime, passedSeconds);
+    renderCallback(timestamp, _startTime, passedSeconds);
   }
 
   std::shared_ptr<Renderer> renderer = _renderer->getRenderer();
