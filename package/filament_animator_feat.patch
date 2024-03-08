@@ -1,0 +1,39 @@
+diff --git a/libs/gltfio/include/gltfio/Animator.h b/libs/gltfio/include/gltfio/Animator.h
+index 199555a40..f426edf0e 100644
+--- a/libs/gltfio/include/gltfio/Animator.h
++++ b/libs/gltfio/include/gltfio/Animator.h
+@@ -97,6 +97,12 @@ public:
+     // For internal use only.
+     void addInstance(FFilamentInstance* instance);
+ 
++    // Public constructor for creating an animator with the animations from an asset
++    // and applying the animations to a different instance.
++    Animator(FilamentAsset *asset, FilamentInstance *instance);
++
++    ~Animator();
++
+ private:
+ 
+     /*! \cond PRIVATE */
+@@ -106,7 +112,6 @@ private:
+ 
+     // If "instance" is null, then this is the primary animator.
+     Animator(FFilamentAsset const* asset, FFilamentInstance* instance);
+-    ~Animator();
+ 
+     Animator(const Animator& animator) = delete;
+     Animator(Animator&& animator) = delete;
+diff --git a/libs/gltfio/src/Animator.cpp b/libs/gltfio/src/Animator.cpp
+index 99a4269d0..036adcb8d 100644
+--- a/libs/gltfio/src/Animator.cpp
++++ b/libs/gltfio/src/Animator.cpp
+@@ -238,6 +238,9 @@ Animator::Animator(FFilamentAsset const* asset, FFilamentInstance* instance) {
+     }
+ }
+ 
++Animator::Animator(FilamentAsset *asset, FilamentInstance *instance) : Animator(downcast(asset), downcast(instance)) {
++}
++
+ void Animator::applyCrossFade(size_t previousAnimIndex, float previousAnimTime, float alpha) {
+     mImpl->stashCrossFade();
+     applyAnimation(previousAnimIndex, previousAnimTime);
