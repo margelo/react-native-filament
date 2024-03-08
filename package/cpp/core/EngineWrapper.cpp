@@ -134,10 +134,11 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
                                          },
                                      .onSurfaceDestroyed =
                                          [=](std::shared_ptr<Surface> surface) {
-                                           queue->runOnJSAndWait([=]() {
-                                             Logger::log(TAG, "Destroying surface...");
-                                             sharedThis->destroySurface();
-                                           });
+                                           // TODO: Properly delete swapchain
+//                                           queue->runOnJSAndWait([=]() {
+//                                             Logger::log(TAG, "Destroying surface...");
+//                                             sharedThis->destroySurface();
+//                                           });
                                          }};
   Listener listener = surfaceProvider->addOnSurfaceChangedListener(callback);
   _listener = std::make_shared<Listener>(std::move(listener));
