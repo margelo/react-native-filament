@@ -35,7 +35,7 @@ Animator* AnimatorWrapper::getAnimator() {
 AnimatorWrapper::~AnimatorWrapper() {
   if (_optionalAnimator != nullptr) {
 #if defined(TARGET_OS_IPHONE) || defined(TARGET_IPHONE_SIMULATOR)
-      // On iOS we currenlty don't have the patch to create a custom animator.
+      // On iOS we currently don't have the patch to create a custom animator.
 #else
     delete _optionalAnimator;
 #endif
