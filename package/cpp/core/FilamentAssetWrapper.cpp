@@ -9,6 +9,8 @@ using namespace utils;
 
 void FilamentAssetWrapper::loadHybridMethods() {
   registerHybridMethod("getRoot", &FilamentAssetWrapper::getRoot, this);
+  registerHybridMethod("releaseSourceData", &FilamentAssetWrapper::releaseSourceData, this);
+  registerHybridMethod("getAnimator", &FilamentAssetWrapper::getAnimator, this);
 }
 
 /**
@@ -28,6 +30,14 @@ void FilamentAssetWrapper::transformToUnitCube(TransformManager& transformManage
 std::shared_ptr<EntityWrapper> FilamentAssetWrapper::getRoot() {
   Entity rootEntity = _asset->getRoot();
   return std::make_shared<EntityWrapper>(rootEntity);
+}
+
+void FilamentAssetWrapper::releaseSourceData() {
+  _asset->releaseSourceData();
+}
+
+std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::getAnimator() {
+  return std::make_shared<AnimatorWrapper>(_asset);
 }
 
 } // namespace margelo
