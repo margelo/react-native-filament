@@ -12,7 +12,7 @@ namespace margelo {
 static std::unordered_map<const char*, int> _instanceIds;
 
 static int getId(const char* name) {
-  if (!_instanceIds.contains(name)) {
+  if (_instanceIds.find(name) == _instanceIds.end()) {
     _instanceIds.insert({name, 1});
   }
   auto iterator = _instanceIds.find(name);
