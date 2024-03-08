@@ -179,7 +179,7 @@ void EngineWrapper::destroySurface() {
   _swapChain = nullptr;
 }
 
-void EngineWrapper::setRenderCallback(std::function<void(std::shared_ptr<EngineWrapper>)> callback) {
+void EngineWrapper::setRenderCallback(std::function<void(double, double, double)> callback) {
   _renderCallback = std::move(callback);
 }
 
@@ -209,7 +209,8 @@ void EngineWrapper::renderFrame(double timestamp) {
 
   if (_renderCallback) {
     // Call JS callback with scene information
-    _renderCallback(nullptr);
+    double passedSeconds = (timestamp - _startTime) / 1e9;
+    _renderCallback(timestamp, _startTime, passedSeconds);
   }
 
   std::shared_ptr<Renderer> renderer = _renderer->getRenderer();

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AnimatorWrapper.h"
 #include "core/utils/EntityWrapper.h"
 #include "jsi/HybridObject.h"
 #include <filament/TransformManager.h>
@@ -17,12 +18,10 @@ public:
 
   void transformToUnitCube(TransformManager& transformManager);
 
-  const std::shared_ptr<gltfio::FilamentAsset> getAsset() {
-    return _asset;
-  }
-
 private:
   std::shared_ptr<EntityWrapper> getRoot();
+  void releaseSourceData();
+  std::shared_ptr<AnimatorWrapper> getAnimator();
 
 private:
   std::shared_ptr<gltfio::FilamentAsset> _asset;
