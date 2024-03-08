@@ -4,10 +4,6 @@
 
 #include "AnimatorWrapper.h"
 
-#if defined(__APPLE__)
-#include <TargetConditionals.h>
-#endif
-
 namespace margelo {
 void AnimatorWrapper::loadHybridMethods() {
   registerHybridMethod("applyAnimation", &AnimatorWrapper::applyAnimation, this);
@@ -36,9 +32,7 @@ Animator* AnimatorWrapper::getAnimator() {
 // should replace this with once we found a good solution discussed here: https://github.com/google/filament/issues/7622
 AnimatorWrapper::~AnimatorWrapper() {
   if (_optionalAnimator != nullptr) {
-#if defined(TARGET_OS_IPHONE) || defined(TARGET_IPHONE_SIMULATOR)
-    // On iOS we currently don't have the patch to create a custom animator.
-#else
+#if ANDROID
     delete _optionalAnimator;
 #endif
   }
