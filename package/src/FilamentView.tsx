@@ -19,22 +19,28 @@ const indirectLightPath = Platform.select({
   ios: 'default_env_ibl.ktx',
 })!
 
+const pirateHatPath = Platform.select({
+  android: 'custom/pirate.glb',
+  ios: 'pirate.glb',
+})!
+
+const pijamaPath = Platform.select({
+  android: 'custom/pijamas.glb',
+  ios: 'pijamas.glb',
+})!
+
 // Temporarily
 type _State = {
   animationNames: string[]
   currentAnimation: number
 }
 
-const animationInterpolationTime = 5 // 1 second
-
 export class FilamentView extends React.PureComponent<FilamentViewProps, _State> {
   private readonly ref: React.RefObject<RefType>
   private readonly engine = FilamentProxy.createEngine()
   private animator: Animator
-
-  private prevAnimationIndex: number | null = null
-  private prevAnimationStarted: number | null = null
-  private animationInterpolation = 0
+  private hatAnimator: Animator
+  private pijamaAnimator: Animator
 
   constructor(props: FilamentViewProps) {
     super(props)
@@ -46,8 +52,18 @@ export class FilamentView extends React.PureComponent<FilamentViewProps, _State>
       animationNames: Array.from({ length: this.animator.getAnimationCount() }, (_, i) => this.animator.getAnimationName(i)),
       currentAnimation: 0,
     }
-    pengu.releaseSourceData() // Cleanup memory after loading the asset
-    console.log('animationNames', this.state.animationNames)
+
+    const pirateHatBuffer = FilamentProxy.getAssetByteBuffer(pirateHatPath)
+    const pirateHatAsset = this.engine.loadAsset(pirateHatBuffer)
+    this.hatAnimator = pirateHatAsset.createAnimatorWithAnimationsFrom(pengu)
+    const pijamaBuffer = FilamentProxy.getAssetByteBuffer(pijamaPath)
+    const pijamaAsset = this.engine.loadAsset(pijamaBuffer)
+    this.pijamaAnimator = pijamaAsset.createAnimatorWithAnimationsFrom(pengu)
+
+    // Cleanup memory after loading the asset
+    pengu.releaseSourceData()
+    pirateHatAsset.releaseSourceData()
+    pijamaAsset.releaseSourceData()
 
     this.setup3dScene()
   }
@@ -74,10 +90,6 @@ export class FilamentView extends React.PureComponent<FilamentViewProps, _State>
     const modelBuffer = FilamentProxy.getAssetByteBuffer(penguModelPath)
     const penguAsset = this.engine.loadAsset(modelBuffer)
 
-    // By default all assets get added to the origin at 0,0,0,
-    // we transform it to fit into a unit cube at the origin using this utility:
-    this.engine.transformToUnitCube(penguAsset)
-
     return penguAsset
   }
 
@@ -92,30 +104,21 @@ export class FilamentView extends React.PureComponent<FilamentViewProps, _State>
   }
 
   renderCallback = (_timestamp: number, _startTime: number, passedSeconds: number) => {
-    const cameraPosition: Float3 = [0, 0, 5]
+    const cameraPosition: Float3 = [0, 0, 8]
     const cameraTarget: Float3 = [0, 0, 0]
     const cameraUp: Float3 = [0, 1, 0]
 
     if (this.animator) {
       this.animator.applyAnimation(this.state.currentAnimation, passedSeconds)
-      if (this.prevAnimationIndex !== null) {
-        if (this.prevAnimationStarted === null) {
-          this.prevAnimationStarted = passedSeconds
-        }
-        this.animationInterpolation += passedSeconds - this.prevAnimationStarted
-        const alpha = this.animationInterpolation / animationInterpolationTime
-
-        this.animator.applyCrossFade(this.prevAnimationIndex, this.prevAnimationStarted!, alpha)
-        console.log('this.animationInterpolation', this.animationInterpolation)
-        console.log('passedSeconds', passedSeconds)
-        if (this.animationInterpolation >= animationInterpolationTime) {
-          this.prevAnimationIndex = null
-          this.prevAnimationStarted = null
-          this.animationInterpolation = 0
-        }
-      }
-
       this.animator.updateBoneMatrices()
+    }
+    if (this.hatAnimator) {
+      this.hatAnimator.applyAnimation(this.state.currentAnimation, passedSeconds)
+      this.hatAnimator.updateBoneMatrices()
+    }
+    if (this.pijamaAnimator) {
+      this.pijamaAnimator.applyAnimation(this.state.currentAnimation, passedSeconds)
+      this.pijamaAnimator.updateBoneMatrices()
     }
 
     this.engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
@@ -154,7 +157,7 @@ export class FilamentView extends React.PureComponent<FilamentViewProps, _State>
             <Button
               key={i}
               onPress={() => {
-                this.prevAnimationIndex = this.state.currentAnimation
+                // this.prevAnimationIndex = this.state.currentAnimation
                 this.setState({ currentAnimation: i })
               }}
               title={name}

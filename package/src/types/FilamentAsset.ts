@@ -9,4 +9,9 @@ export interface FilamentAsset {
    * Reclaims CPU-side memory for URI strings, binding lists, and raw animation data.
    */
   releaseSourceData(): void
+
+  /**
+   * Creates a new animator with the animations from the given asset.
+   */
+  createAnimatorWithAnimationsFrom(asset: FilamentAsset): Animator
 }

@@ -43,6 +43,6 @@ echo "Building Filament for Android ($target)"
 echo "Copying Filament Android libraries to react-native-filament..."
 rm -rf ../package/android/libs/filament
 mkdir -p ../package/android/libs/filament
-cp -rf out/android-release/filament ../package/android/libs
+cp -rf out/android-$target/filament ../package/android/libs
 
 echo "Done!"

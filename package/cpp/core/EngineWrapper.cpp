@@ -200,13 +200,6 @@ void EngineWrapper::renderFrame(double timestamp) {
     _startTime = timestamp;
   }
 
-  //  if (_animator) {
-  //    if (_animator->getAnimationCount() > 0) {
-  //      _animator->applyAnimation(0, (timestamp - _startTime) / 1e9);
-  //    }
-  //    _animator->updateBoneMatrices();
-  //  }
-
   if (_renderCallback) {
     // Call JS callback with scene information
     double passedSeconds = (timestamp - _startTime) / 1e9;
@@ -269,8 +262,11 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<F
     throw std::runtime_error("Failed to load asset");
   }
   auto assetLoader = _assetLoader;
-  auto asset = References<gltfio::FilamentAsset>::adoptRef(
-      assetPtr, [assetLoader](gltfio::FilamentAsset* asset) { assetLoader->destroyAsset(asset); });
+  auto scene = _scene->getScene();
+  auto asset = References<gltfio::FilamentAsset>::adoptRef(assetPtr, [scene, assetLoader](gltfio::FilamentAsset* asset) {
+    scene->removeEntities(asset->getEntities(), asset->getEntityCount());
+    assetLoader->destroyAsset(asset);
+  });
 
   if (!_scene) {
     throw std::runtime_error("Scene not initialized");
@@ -282,8 +278,6 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<F
 
   _scene->addAsset(asset);
   _resourceLoader->loadResources(asset.get());
-  _animator = asset->getInstance()->getAnimator();
-  asset->releaseSourceData();
 
   return std::make_shared<FilamentAssetWrapper>(asset);
 }
