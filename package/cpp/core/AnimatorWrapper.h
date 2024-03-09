@@ -38,7 +38,7 @@ private:
   std::shared_ptr<FilamentAsset> _asset;
   // TODO(copy-animations): We currently copy animations from an asset onto another instance (different model than the original asset), we
   // should replace this with once we found a good solution discussed here: https://github.com/google/filament/issues/7622
-  Animator* _optionalAnimator;
+  Animator* _optionalAnimator = nullptr;
 };
 
 } // namespace margelo
