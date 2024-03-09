@@ -37,13 +37,18 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
     : HybridObject("EngineWrapper") {
   // TODO: make the enum for the backend for the engine configurable
   _jsDispatchQueue = jsDispatchQueue;
-  _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) { Engine::destroy(&engine); });
+  _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) {
+    Logger::log(TAG, "Destroying engine...");
+    Engine::destroy(&engine);
+  });
 
   gltfio::MaterialProvider* _materialProviderPtr =
       gltfio::createUbershaderProvider(_engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
   _materialProvider = References<gltfio::MaterialProvider>::adoptEngineRef(
       _engine, _materialProviderPtr, [](const std::shared_ptr<Engine>& engine, gltfio::MaterialProvider* provider) {
-        provider->destroyMaterials();
+        Logger::log(TAG, "Destroying material provider...");
+        // Note: The materials of the provider are getting destroyed when the scene is destroyed,
+        // as the scene controls when the assets are getting destroyed (and only then we can destroy the materials).
         delete provider;
       });
 
@@ -51,6 +56,7 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
   gltfio::AssetLoader* assetLoaderPtr = gltfio::AssetLoader::create(assetConfig);
   _assetLoader = References<gltfio::AssetLoader>::adoptEngineRef(
       _engine, assetLoaderPtr, [](const std::shared_ptr<Engine>& engine, gltfio::AssetLoader* assetLoader) {
+        Logger::log(TAG, "Destroying asset loader...");
         auto* ncm = assetLoader->getNames();
         delete ncm;
         gltfio::AssetLoader::destroy(&assetLoader);
@@ -59,14 +65,15 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
   filament::gltfio::ResourceConfiguration resourceConfig{.engine = _engine.get(), .normalizeSkinningWeights = true};
   auto* resourceLoaderPtr = new filament::gltfio::ResourceLoader(resourceConfig);
   // Add texture providers to the resource loader
-  auto stbProvider = filament::gltfio::createStbProvider(_engine.get());
-  auto ktx2Provider = filament::gltfio::createKtx2Provider(_engine.get());
+  auto* stbProvider = filament::gltfio::createStbProvider(_engine.get());
+  auto* ktx2Provider = filament::gltfio::createKtx2Provider(_engine.get());
   resourceLoaderPtr->addTextureProvider("image/jpeg", stbProvider);
   resourceLoaderPtr->addTextureProvider("image/png", stbProvider);
   resourceLoaderPtr->addTextureProvider("image/ktx2", ktx2Provider);
   _resourceLoader = References<gltfio::ResourceLoader>::adoptEngineRef(
       _engine, resourceLoaderPtr,
       [stbProvider, ktx2Provider](const std::shared_ptr<Engine>& engine, gltfio::ResourceLoader* resourceLoader) {
+        Logger::log(TAG, "Destroying resource loader...");
         delete stbProvider;
         delete ktx2Provider;
         delete resourceLoader;
@@ -226,10 +233,17 @@ std::shared_ptr<RendererWrapper> EngineWrapper::createRenderer() {
 }
 
 std::shared_ptr<SceneWrapper> EngineWrapper::createScene() {
-  std::shared_ptr<Scene> scene = References<Scene>::adoptEngineRef(
-      _engine, _engine->createScene(), [](const std::shared_ptr<Engine>& engine, Scene* scene) { engine->destroy(scene); });
+  auto materialProvider = _materialProvider;
+  std::shared_ptr<Scene> scene = References<Scene>::adoptEngineRef(_engine, _engine->createScene(),
+                                                                   [materialProvider](const std::shared_ptr<Engine>& engine, Scene* scene) {
+                                                                     Logger::log(TAG, "Destroying scene...");
+                                                                     // The scene will destroy all assets that were used in that scene, so
+                                                                     // now we can destroy all materials:
+                                                                     materialProvider->destroyMaterials();
+                                                                     engine->destroy(scene);
+                                                                   });
 
-  return std::make_shared<SceneWrapper>(scene);
+  return std::make_shared<SceneWrapper>(scene, _assetLoader);
 }
 
 std::shared_ptr<ViewWrapper> EngineWrapper::createView() {
@@ -266,22 +280,21 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<F
     throw std::runtime_error("Failed to load asset");
   }
   auto assetLoader = _assetLoader;
-  auto scene = _scene->getScene();
-  auto asset = References<gltfio::FilamentAsset>::adoptRef(assetPtr, [scene, assetLoader](gltfio::FilamentAsset* asset) {
-    Logger::log(TAG, "Destroying asset...");
-    scene->removeEntities(asset->getEntities(), asset->getEntityCount());
-    assetLoader->destroyAsset(asset);
+  auto asset = References<gltfio::FilamentAsset>::adoptRef(assetPtr, [assetLoader](gltfio::FilamentAsset* asset) {
+    // The deletion of the assets is handled automatically when the scene gets deleted (which usually happens when the engine gets deleted).
+    // TODO(Hanno): Add user API to manually remove an asset from the scene while the scene/engine is still alive.
   });
 
-  if (!_scene) {
+  auto scene = _scene;
+  if (!scene) {
     throw std::runtime_error("Scene not initialized");
   }
+
+  scene->addAsset(asset);
 
   // TODO: When supporting loading glTF files with external resources, we need to load the resources here
   //    const char* const* const resourceUris = asset->getResourceUris();
   //    const size_t resourceUriCount = asset->getResourceUriCount();
-
-  _scene->addAsset(asset);
   _resourceLoader->loadResources(asset.get());
 
   return std::make_shared<FilamentAssetWrapper>(asset);
