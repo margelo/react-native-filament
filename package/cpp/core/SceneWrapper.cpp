@@ -3,6 +3,15 @@
 
 namespace margelo {
 
+SceneWrapper::~SceneWrapper() {
+  // Remove all assets from the scene and then destroy them
+  Logger::log("SceneWrapper", "Removing all assets from scene and destroying them");
+  for (auto& asset : _assets) {
+    removeAsset(asset);
+    _assetLoader->destroyAsset(asset.get());
+  }
+}
+
 void margelo::SceneWrapper::loadHybridMethods() {
   registerHybridMethod("addEntity", &SceneWrapper::addEntity, this);
 }
@@ -18,6 +27,15 @@ void margelo::SceneWrapper::addEntity(std::shared_ptr<EntityWrapper> entity) {
 void SceneWrapper::addAsset(std::shared_ptr<gltfio::FilamentAsset> asset) {
   _assets.push_back(asset);
   _scene->addEntities(asset->getEntities(), asset->getEntityCount());
+}
+
+void SceneWrapper::removeAsset(std::shared_ptr<gltfio::FilamentAsset> asset) {
+  Logger::log("SceneWrapper", "Removing an asset from scene");
+  auto newEnd = std::remove(_assets.begin(), _assets.end(), asset);
+  _assets.erase(newEnd, _assets.end());
+  auto entities = asset->getEntities();
+  auto entityCount = asset->getEntityCount();
+  _scene->removeEntities(entities, entityCount);
 }
 
 } // namespace margelo
