@@ -31,17 +31,18 @@ Animator* AnimatorWrapper::getAnimator() {
 // TODO(copy-animations): We currently copy animations from an asset onto another instance (different model than the original asset), we
 // should replace this with once we found a good solution discussed here: https://github.com/google/filament/issues/7622
 AnimatorWrapper::~AnimatorWrapper() {
-  if (_optionalAnimator != nullptr) {
 #if ANDROID
+  if (_optionalAnimator) {
     delete _optionalAnimator;
-#endif
   }
+#endif
 }
 
-inline  void assertAnimationIndexSmallerThan(int animationIndex, int max) {
+inline void assertAnimationIndexSmallerThan(int animationIndex, int max) {
   if (animationIndex >= max || animationIndex < 0) {
     [[unlikely]];
-    throw std::invalid_argument("Animation index out of range! Expected <" + std::to_string(max) + ", received " + std::to_string(animationIndex));
+    throw std::invalid_argument("Animation index out of range! Expected <" + std::to_string(max) + ", received " +
+                                std::to_string(animationIndex));
   }
 }
 
