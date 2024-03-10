@@ -8,8 +8,7 @@
 namespace margelo {
 
 std::shared_ptr<Listener> Choreographer::addOnFrameListener(Choreographer::OnFrameCallback onFrameCallback) {
-  auto listener = _listeners.add(std::move(onFrameCallback));
-  return std::make_shared<Listener>(std::move(listener));
+  return _listeners.add(std::move(onFrameCallback));
 }
 
 void Choreographer::onFrame(double timestamp) {

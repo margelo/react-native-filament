@@ -12,32 +12,20 @@
 
 namespace margelo {
 
-template <typename Callback> class ListenerManager : public std::enable_shared_from_this<ListenerManager<Callback>> {
+template <typename Callback> class ListenerManager {
 private:
-  using TSelf = ListenerManager<Callback>;
-  std::list<Callback> _listeners;
-
-private:
-  std::shared_ptr<TSelf> shared() {
-    return this->shared_from_this();
-  }
+  std::shared_ptr<std::list<Callback>> _listeners = std::make_shared<std::list<Callback>>();
 
 public:
-  Listener add(Callback listener) {
-    _listeners.push_back(std::move(listener));
-    // TODO(Marc): fix this to not cause a bad_weak_ptr
-    //    auto id = --_listeners.end();
-    //    auto weakThis = std::weak_ptr<TSelf>(shared());
-    return Listener([]() {
-      //      auto sharedThis = weakThis.lock();
-      //      if (sharedThis) {
-      //        sharedThis->_listeners.erase(id);
-      //      }
-    });
+  std::shared_ptr<Listener> add(Callback listener) {
+    _listeners->push_back(std::move(listener));
+    auto id = --_listeners->end();
+    auto listeners = _listeners;
+    return std::make_shared<Listener>([id, listeners] { listeners->erase(id); });
   }
 
   const std::list<Callback>& getListeners() {
-    return _listeners;
+    return *_listeners;
   }
 };
 

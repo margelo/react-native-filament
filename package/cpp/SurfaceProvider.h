@@ -31,7 +31,7 @@ public:
   explicit SurfaceProvider() : HybridObject("SurfaceProvider") {}
 
 public:
-  Listener addOnSurfaceChangedListener(Callback callback);
+  std::shared_ptr<Listener> addOnSurfaceChangedListener(Callback callback);
 
   virtual std::shared_ptr<Surface> getSurfaceOrNull() = 0;
 
