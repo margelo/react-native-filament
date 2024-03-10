@@ -141,14 +141,14 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
                                          },
                                      .onSurfaceDestroyed =
                                          [=](std::shared_ptr<Surface> surface) {
-                                           // TODO: Properly delete swapchain
-                                           //                                           queue->runOnJSAndWait([=]() {
-                                           //                                             Logger::log(TAG, "Destroying surface...");
-                                           //                                             sharedThis->destroySurface();
-                                           //                                           });
+                                           // TODO(Marc): When compiling in debug mode we get an assertion error here, because we are
+                                           // destroying the surface from the wrong thread.
+                                           queue->runOnJSAndWait([=]() {
+                                             Logger::log(TAG, "Destroying surface...");
+                                             sharedThis->destroySurface();
+                                           });
                                          }};
-  Listener listener = surfaceProvider->addOnSurfaceChangedListener(callback);
-  _listener = std::make_shared<Listener>(std::move(listener));
+  _listener = surfaceProvider->addOnSurfaceChangedListener(callback);
 }
 
 void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
@@ -171,6 +171,7 @@ void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
       sharedThis->renderFrame(timestamp);
     }
   });
+
   // Start the rendering
   _choreographer->start();
 }
@@ -187,6 +188,7 @@ void EngineWrapper::surfaceSizeChanged(int width, int height) {
 void EngineWrapper::destroySurface() {
   _choreographer->stop();
   _choreographerListener->remove();
+  _renderCallback = std::nullopt;
   _swapChain = nullptr;
 }
 
