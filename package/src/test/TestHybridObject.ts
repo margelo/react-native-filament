@@ -46,6 +46,8 @@ export async function testHybridObject(): Promise<void> {
 
   // 10. Test Promises
   console.log(`Calculating Fibonacci up to number ${FIBONACCI_LIMIT}...`)
+  const start = performance.now()
   const fibonacci = await hybridObject.calculateFibonacciAsync(FIBONACCI_LIMIT)
-  console.log(`Fibonacci at ${FIBONACCI_LIMIT} = ${fibonacci}`)
+  const end = performance.now()
+  console.log(`Calculated Fibonacci for ${FIBONACCI_LIMIT} = ${fibonacci} (took ${(end - start).toFixed(0)}ms)`)
 }
