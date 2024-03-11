@@ -7,8 +7,8 @@
 
 #pragma once
 
-#import <UIKit/UIKit.h>
 #import <React/RCTViewManager.h>
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)layoutSubviews;
 
-@property (nonatomic, strong) RCTDirectEventBlock onViewReady;
+@property(nonatomic, strong) RCTDirectEventBlock onViewReady;
 
 - (void)didMoveToWindow;
 

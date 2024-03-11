@@ -6,21 +6,25 @@
 
 #include "jsi/HybridObject.h"
 #include <functional>
+#include <memory>
 
 namespace margelo {
 
-class Listener : public HybridObject {
+class Listener {
 public:
-  Listener(Listener&& listener) : HybridObject("Listener"), _remove(std::move(listener._remove)), _isRemoved(listener._isRemoved) {}
-  explicit Listener(const std::function<void()>& remove);
+  using ListenerRemover = std::function<void()>;
+
+  static std::shared_ptr<Listener> create(ListenerRemover remover);
   ~Listener();
   void remove();
 
-  void loadHybridMethods() override;
+private:
+  explicit Listener(const std::function<void()>& remove);
 
 private:
   std::function<void()> _remove;
   bool _isRemoved;
+  static constexpr auto TAG = "Listener";
 };
 
 } // namespace margelo

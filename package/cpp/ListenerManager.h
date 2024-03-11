@@ -14,30 +14,36 @@ namespace margelo {
 
 template <typename Callback> class ListenerManager : public std::enable_shared_from_this<ListenerManager<Callback>> {
 private:
-  using TSelf = ListenerManager<Callback>;
   std::list<Callback> _listeners;
 
-private:
-  std::shared_ptr<TSelf> shared() {
-    return this->shared_from_this();
-  }
-
 public:
-  Listener add(Callback listener) {
+  std::shared_ptr<Listener> add(Callback listener) {
     _listeners.push_back(std::move(listener));
-    // TODO(Marc): fix this to not cause a bad_weak_ptr
-    //    auto id = --_listeners.end();
-    //    auto weakThis = std::weak_ptr<TSelf>(shared());
-    return Listener([]() {
-      //      auto sharedThis = weakThis.lock();
-      //      if (sharedThis) {
-      //        sharedThis->_listeners.erase(id);
-      //      }
+    auto id = --_listeners.end();
+
+    auto weakThis = std::weak_ptr<ListenerManager<Callback>>(shared());
+    return Listener::create([id, weakThis] {
+      auto sharedThis = weakThis.lock();
+      if (sharedThis) {
+        sharedThis->_listeners.erase(id);
+      }
     });
   }
 
   const std::list<Callback>& getListeners() {
     return _listeners;
+  }
+
+private:
+  explicit ListenerManager() {}
+
+  std::shared_ptr<ListenerManager<Callback>> shared() {
+    return this->shared_from_this();
+  }
+
+public:
+  static std::shared_ptr<ListenerManager<Callback>> create() {
+    return std::shared_ptr<ListenerManager<Callback>>(new ListenerManager());
   }
 };
 

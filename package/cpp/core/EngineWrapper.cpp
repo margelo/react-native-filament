@@ -141,14 +141,14 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
                                          },
                                      .onSurfaceDestroyed =
                                          [=](std::shared_ptr<Surface> surface) {
-                                           // TODO: Properly delete swapchain
-                                           //                                           queue->runOnJSAndWait([=]() {
-                                           //                                             Logger::log(TAG, "Destroying surface...");
-                                           //                                             sharedThis->destroySurface();
-                                           //                                           });
+                                           // TODO(Marc): When compiling in debug mode we get an assertion error here, because we are
+                                           // destroying the surface from the wrong thread.
+                                           queue->runOnJSAndWait([=]() {
+                                             Logger::log(TAG, "Destroying surface...");
+                                             sharedThis->destroySurface();
+                                           });
                                          }};
-  Listener listener = surfaceProvider->addOnSurfaceChangedListener(callback);
-  _listener = std::make_shared<Listener>(std::move(listener));
+  _surfaceListener = surfaceProvider->addOnSurfaceChangedListener(callback);
 }
 
 void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
@@ -171,6 +171,7 @@ void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
       sharedThis->renderFrame(timestamp);
     }
   });
+
   // Start the rendering
   _choreographer->start();
 }
@@ -187,7 +188,9 @@ void EngineWrapper::surfaceSizeChanged(int width, int height) {
 void EngineWrapper::destroySurface() {
   _choreographer->stop();
   _choreographerListener->remove();
+  _renderCallback = std::nullopt;
   _swapChain = nullptr;
+  _surfaceListener->remove();
 }
 
 void EngineWrapper::setRenderCallback(std::optional<RenderCallback> callback) {
@@ -262,9 +265,11 @@ std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChain(std::shared_ptr
 }
 
 std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
-  std::shared_ptr<Camera> camera = References<Camera>::adoptEngineRef(
-      _engine, _engine->createCamera(_engine->getEntityManager().create()),
-      [](const std::shared_ptr<Engine>& engine, Camera* camera) { engine->destroyCameraComponent(camera->getEntity()); });
+  std::shared_ptr<Camera> camera = References<Camera>::adoptEngineRef(_engine, _engine->createCamera(_engine->getEntityManager().create()),
+                                                                      [](const std::shared_ptr<Engine>& engine, Camera* camera) {
+                                                                        EntityManager::get().destroy(camera->getEntity());
+                                                                        engine->destroyCameraComponent(camera->getEntity());
+                                                                      });
 
   const float aperture = 16.0f;
   const float shutterSpeed = 1.0f / 125.0f;

@@ -24,7 +24,7 @@ protected:
   void onFrame(double timestamp);
 
 private:
-  ListenerManager<OnFrameCallback> _listeners;
+  std::shared_ptr<ListenerManager<OnFrameCallback>> _listeners = ListenerManager<OnFrameCallback>::create();
 };
 
 } // namespace margelo
