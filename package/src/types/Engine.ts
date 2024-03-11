@@ -64,4 +64,11 @@ export interface Engine {
   setEntityPosition(entity: Entity, position: Float3, multiplyCurrent: boolean): void
   setEntityRotation(entity: Entity, angleRadians: number, axis: Float3, multiplyCurrent: boolean): void
   setEntityScale(entity: Entity, scale: Float3, multiplyCurrent: boolean): void
+
+  /**
+   * Controls whether the engine is currently actively rendering, or not.
+   * Pausing the engine will stop the choreographer and no frame callbacks will be invoked.
+   * @param isPaused whether the rendering will be paused or not. Default: false
+   */
+  setIsPaused(isPaused: boolean): void
 }

@@ -185,6 +185,17 @@ void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
   _choreographer->start();
 }
 
+void EngineWrapper::setIsPaused(bool isPaused) {
+  _isPaused = isPaused;
+  if (isPaused) {
+    Logger::log(TAG, "Pausing renderer...");
+    _choreographer->stop();
+  } else {
+    Logger::log(TAG, "Resuming renderer...");
+    _choreographer->start();
+  }
+}
+
 void EngineWrapper::surfaceSizeChanged(int width, int height) {
   if (_cameraManipulator) {
     _cameraManipulator->getManipulator()->setViewport(width, height);
