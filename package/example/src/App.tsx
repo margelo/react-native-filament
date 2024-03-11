@@ -1,8 +1,8 @@
 import * as React from 'react'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { Platform, StyleSheet } from 'react-native'
-import { Filament, useEngine, Float3, useRenderCallback, useAsset } from 'react-native-filament'
+import { Filament, useEngine, Float3, useRenderCallback, useAsset, useModel } from 'react-native-filament'
 
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',
@@ -25,17 +25,8 @@ const far = 1000
 export default function App() {
   const engine = useEngine()
 
-  const pengu = useAsset({ path: penguModelPath })
+  const pengu = useModel({ engine: engine, path: penguModelPath })
   const light = useAsset({ path: indirectLightPath })
-
-  const penguAnimator = useMemo(() => {
-    if (pengu == null) return undefined
-
-    const asset = engine.loadAsset(pengu)
-    const animator = asset.getAnimator()
-    asset.releaseSourceData()
-    return animator
-  }, [engine, pengu])
 
   useEffect(() => {
     if (light == null) return
@@ -61,9 +52,9 @@ export default function App() {
       camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
     }
 
-    if (penguAnimator != null) {
-      penguAnimator.applyAnimation(0, passedSeconds)
-      penguAnimator.updateBoneMatrices()
+    if (pengu.state === 'loaded') {
+      pengu.animator.applyAnimation(0, passedSeconds)
+      pengu.animator.updateBoneMatrices()
     }
 
     engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
