@@ -181,8 +181,13 @@ void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
     }
   });
 
-  // Start the rendering
-  _choreographer->start();
+  if (!_isPaused) {
+    // Start the rendering
+    Logger::log(TAG, "Successfully created SwapChain, starting choreographer!");
+    _choreographer->start();
+  } else {
+    Logger::log(TAG, "Successfully created SwapChain, but rendering is paused!");
+  }
 }
 
 void EngineWrapper::setIsPaused(bool isPaused) {
