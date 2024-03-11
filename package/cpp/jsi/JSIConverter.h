@@ -10,6 +10,7 @@
 #include "PromiseFactory.h"
 #include <ReactCommon/CallInvoker.h>
 #include <array>
+#include <future>
 #include <jsi/jsi.h>
 #include <memory>
 #include <type_traits>
@@ -124,6 +125,44 @@ template <typename TEnum> struct JSIConverter<TEnum, std::enable_if_t<std::is_en
     std::string outUnion;
     EnumMapper::convertEnumToJSUnion(arg, &outUnion);
     return jsi::String::createFromUtf8(runtime, outUnion);
+  }
+};
+
+// std::future<T> <> Promise<T>
+template <typename TResult> struct JSIConverter<std::future<TResult>> {
+  static std::future<TResult> fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
+    throw std::runtime_error("Promise cannot be converted to a native type - it needs to be awaited first!");
+  }
+  static jsi::Value toJSI(jsi::Runtime& runtime, std::future<TResult>&& arg) {
+    auto sharedFuture = std::make_shared<std::future<TResult>>(std::move(arg));
+    return PromiseFactory::createPromise(
+        runtime, [sharedFuture = std::move(sharedFuture)](jsi::Runtime& runtime, const std::shared_ptr<Promise>& promise,
+                                                          const std::shared_ptr<react::CallInvoker>& callInvoker) {
+          // Spawn new async thread to wait for the result
+          std::thread waiterThread([promise, &runtime, callInvoker, sharedFuture = std::move(sharedFuture)]() {
+            try {
+              // wait until the future completes. we are running on a background task here.
+              sharedFuture->wait();
+
+              // the async function completed successfully, resolve the promise on JS Thread
+              callInvoker->invokeAsync([&runtime, promise, sharedFuture]() {
+                if constexpr (std::is_same_v<TResult, void>) {
+                  // it's returning void, just return undefined to JS
+                  promise->resolve(jsi::Value::undefined());
+                } else {
+                  // it's returning a custom type, convert it to a jsi::Value
+                  TResult result = sharedFuture->get();
+                  jsi::Value jsResult = JSIConverter<TResult>::toJSI(runtime, result);
+                  promise->resolve(std::move(jsResult));
+                }
+              });
+            } catch (std::exception& exception) {
+              // the async function threw an error, reject the promise on JS Thread
+              callInvoker->invokeAsync([promise, exception = std::move(exception)]() { promise->reject(exception.what()); });
+            }
+          });
+          waiterThread.detach();
+        });
   }
 };
 

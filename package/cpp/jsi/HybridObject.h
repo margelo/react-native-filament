@@ -7,7 +7,6 @@
 #include "JSIConverter.h"
 #include "Logger.h"
 #include <functional>
-#include <future>
 #include <jsi/jsi.h>
 #include <memory>
 #include <mutex>
@@ -72,7 +71,6 @@ private:
   inline void ensureInitialized();
 
 private:
-  // Sync (any of the JSIConverter values)
   template <typename Derived, typename ReturnType, typename... Args, size_t... Is>
   inline jsi::Value callMethod(Derived* obj, ReturnType (Derived::*method)(Args...), jsi::Runtime& runtime, const jsi::Value* args,
                                std::index_sequence<Is...>) {
@@ -83,46 +81,8 @@ private:
     } else {
       // It's returning some C++ type, we need to convert that to a JSI value now.
       ReturnType result = (obj->*method)(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
-      return JSIConverter<std::decay_t<ReturnType>>::toJSI(runtime, result);
+      return JSIConverter<std::decay_t<ReturnType>>::toJSI(runtime, std::move(result));
     }
-  }
-
-  // Async (std::future)
-  template <typename Derived, typename ReturnType, typename... Args, size_t... Is>
-  inline jsi::Value callMethod(Derived* obj, std::future<ReturnType> (Derived::*method)(Args...), jsi::Runtime& runtime,
-                               const jsi::Value* args, std::index_sequence<Is...>) {
-    // It's an async method.
-    std::future<ReturnType> future = (obj->*method)(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
-    std::shared_ptr<std::future<ReturnType>> sharedFuture = std::make_shared<std::future<ReturnType>>(std::move(future));
-
-
-    return PromiseFactory::createPromise(runtime, [sharedFuture = std::move(sharedFuture)](jsi::Runtime& runtime, const std::shared_ptr<Promise>& promise,
-                                                                 const std::shared_ptr<react::CallInvoker>& callInvoker) {
-      // Spawn new async thread to wait for the result
-      std::thread waiterThread([promise, &runtime, callInvoker, sharedFuture = std::move(sharedFuture)]() {
-        try {
-          // wait until the future completes. we are running on a background task here.
-          sharedFuture->wait();
-
-          // the async function completed successfully, resolve the promise on JS Thread
-          callInvoker->invokeAsync([&runtime, promise, sharedFuture]() {
-            if constexpr (std::is_same_v<ReturnType, void>) {
-              // it's returning void, just return undefined to JS
-              promise->resolve(jsi::Value::undefined());
-            } else {
-              // it's returning a custom type, convert it to a jsi::Value
-              ReturnType result = sharedFuture->get();
-              jsi::Value jsResult = JSIConverter<ReturnType>::toJSI(runtime, result);
-              promise->resolve(std::move(jsResult));
-            }
-          });
-        } catch (std::exception& exception) {
-          // the async function threw an error, reject the promise on JS Thread
-          callInvoker->invokeAsync([promise, exception = std::move(exception)]() { promise->reject(exception.what()); });
-        }
-      });
-      waiterThread.detach();
-    });
   }
 
   template <typename Derived, typename ReturnType, typename... Args>
