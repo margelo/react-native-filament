@@ -10,6 +10,7 @@
 #include <jsi/jsi.h>
 #include <memory>
 #include <mutex>
+#include <type_traits>
 #include <unordered_map>
 
 namespace margelo {
@@ -80,7 +81,7 @@ private:
     } else {
       // It's returning some C++ type, we need to convert that to a JSI value now.
       ReturnType result = (obj->*method)(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
-      return JSIConverter<std::decay_t<ReturnType>>::toJSI(runtime, result);
+      return JSIConverter<std::decay_t<ReturnType>>::toJSI(runtime, std::move(result));
     }
   }
 

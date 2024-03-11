@@ -31,6 +31,7 @@ add_library(
         ../cpp/Listener.cpp
         ../cpp/jsi/HybridObject.cpp
         ../cpp/jsi/Promise.cpp
+        ../cpp/jsi/PromiseFactory.cpp
         ../cpp/test/TestHybridObject.cpp
 
         # Filament Core

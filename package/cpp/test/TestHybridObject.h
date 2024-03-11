@@ -56,6 +56,31 @@ public:
     return std::make_shared<TestHybridObject>();
   }
 
+  uint64_t calculateFibonacci(int count) {
+    if (count < 0)
+      throw std::invalid_argument("Cannot calculate fibonacci for " + std::to_string(count) + " - it needs to be at least 0!");
+    if (count == 0)
+      return 0;
+    if (count == 1)
+      return 1;
+    if (count >= 94)
+      throw std::invalid_argument("Cannot calculate fibonacci for " + std::to_string(count) +
+                                  " - it needs to be 94 at max, the number will overflow!");
+
+    uint64_t prev = 0;
+    uint64_t current = 1;
+    for (unsigned int i = 2; i <= count; ++i) {
+      uint64_t next = prev + current;
+      prev = current;
+      current = next;
+    }
+    return current;
+  }
+
+  std::future<uint64_t> calculateFibonacciAsync(int count) {
+    return std::async(std::launch::async, [count, this]() { return this->calculateFibonacci(count); });
+  }
+
 private:
   int _int;
   std::string _string;

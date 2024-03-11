@@ -117,6 +117,7 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setEntityPosition", &EngineWrapper::setEntityPosition, this);
   registerHybridMethod("setEntityRotation", &EngineWrapper::setEntityRotation, this);
   registerHybridMethod("setEntityScale", &EngineWrapper::setEntityScale, this);
+  registerHybridMethod("setIsPaused", &EngineWrapper::setIsPaused, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
@@ -188,8 +189,24 @@ void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
     }
   });
 
-  // Start the rendering
-  _choreographer->start();
+  if (!_isPaused) {
+    // Start the rendering
+    Logger::log(TAG, "Successfully created SwapChain, starting choreographer!");
+    _choreographer->start();
+  } else {
+    Logger::log(TAG, "Successfully created SwapChain, but rendering is paused!");
+  }
+}
+
+void EngineWrapper::setIsPaused(bool isPaused) {
+  _isPaused = isPaused;
+  if (isPaused) {
+    Logger::log(TAG, "Pausing renderer...");
+    _choreographer->stop();
+  } else {
+    Logger::log(TAG, "Resuming renderer...");
+    _choreographer->start();
+  }
 }
 
 void EngineWrapper::surfaceSizeChanged(int width, int height) {
@@ -228,6 +245,8 @@ void EngineWrapper::renderFrame(double timestamp) {
   if (!_view) {
     return;
   }
+
+  _resourceLoader->asyncUpdateLoad();
 
   if (_startTime == 0) {
     _startTime = timestamp;
