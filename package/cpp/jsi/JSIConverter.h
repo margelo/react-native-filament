@@ -130,7 +130,7 @@ template <typename TEnum> struct JSIConverter<TEnum, std::enable_if_t<std::is_en
 
 // std::future<T> <> Promise<T>
 template <typename TResult> struct JSIConverter<std::future<TResult>> {
-  static std::future<TResult> fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
+  static std::future<TResult> fromJSI(jsi::Runtime&, const jsi::Value&) {
     throw std::runtime_error("Promise cannot be converted to a native type - it needs to be awaited first!");
   }
   static jsi::Value toJSI(jsi::Runtime& runtime, std::future<TResult>&& arg) {
