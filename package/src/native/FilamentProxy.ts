@@ -12,7 +12,7 @@ interface TestHybridObject {
   getIntGetter(): () => number
   sayHelloCallback(callback: () => string): void
   createNewHybridObject: () => TestHybridObject
-  calculateFibonacciAsync: (count: number) => Promise<number>
+  calculateFibonacciAsync: (count: number) => Promise<BigInt>
   calculateFibonacci: (count: number) => number
   enum: 'first' | 'second' | 'third'
 }
