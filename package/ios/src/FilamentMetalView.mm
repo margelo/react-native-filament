@@ -1,10 +1,10 @@
 #import "FilamentMetalView.h"
 #import <Metal/Metal.h>
-#import <UIKit/UIKit.h>
 #import <React/RCTViewManager.h>
+#import <UIKit/UIKit.h>
 
 @implementation FilamentMetalView {
-    bool isMounted;
+  bool isMounted;
 }
 
 + (Class)layerClass {
@@ -27,7 +27,7 @@
 
 - (void)didMoveToWindow {
   [super didMoveToWindow];
-    
+
   if (self.window != nil && !isMounted) {
     isMounted = true;
     self.onViewReady(@{});

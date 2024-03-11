@@ -37,7 +37,6 @@ export class Filament extends React.PureComponent<FilamentProps> {
     if (this.view == null) {
       throw new Error(`Failed to find FilamentView #${handle}!`)
     }
-
     const surfaceProvider = this.view.getSurfaceProvider()
     // Link the surface with the engine:
     this.props.engine.setSurfaceProvider(surfaceProvider)

@@ -3,10 +3,6 @@ import { FilamentNativeModule } from './FilamentNativeModule'
 import type { Engine } from '../types/Engine'
 import { FilamentView } from './FilamentViewTypes'
 
-export interface Listener {
-  remove(): void
-}
-
 interface TestHybridObject {
   int: number
   string: string
