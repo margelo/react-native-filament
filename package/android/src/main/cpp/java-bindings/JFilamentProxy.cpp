@@ -22,8 +22,8 @@ JFilamentProxy::~JFilamentProxy() {
   // TODO(hanno): Cleanup?
 }
 
-std::shared_ptr<FilamentBuffer> JFilamentProxy::getAssetByteBuffer(const std::string& path) {
-  static const auto method = javaClassLocal()->getMethod<jni::alias_ref<jni::JByteBuffer>(jni::alias_ref<jstring>)>("getAssetByteBuffer");
+std::shared_ptr<FilamentBuffer> JFilamentProxy::loadAsset(const std::string& path) {
+  static const auto method = javaClassLocal()->getMethod<jni::alias_ref<jni::JByteBuffer>(jni::alias_ref<jstring>)>("loadAsset");
   jni::local_ref<jni::JByteBuffer> buffer = method(_javaPart, jni::make_jstring(path));
   auto managedBuffer = std::make_shared<AndroidManagedBuffer>(buffer);
   return std::make_shared<FilamentBuffer>(managedBuffer);

@@ -17,10 +17,22 @@ namespace margelo {
 using namespace facebook;
 
 void FilamentProxy::loadHybridMethods() {
-  registerHybridMethod("getAssetByteBuffer", &FilamentProxy::getAssetByteBuffer, this);
+  registerHybridMethod("loadAsset", &FilamentProxy::loadAssetAsync, this);
   registerHybridMethod("findFilamentView", &FilamentProxy::findFilamentView, this);
   registerHybridMethod("createTestObject", &FilamentProxy::createTestObject, this);
   registerHybridMethod("createEngine", &FilamentProxy::createEngine, this);
+}
+
+std::future<std::shared_ptr<FilamentBuffer>> FilamentProxy::loadAssetAsync(std::string path) {
+  auto weakThis = std::weak_ptr<FilamentProxy>(shared<FilamentProxy>());
+  return std::async(std::launch::async, [=]() {
+    auto sharedThis = weakThis.lock();
+    if (sharedThis != nullptr) {
+      return this->loadAsset();
+    } else {
+      throw std::runtime_error("Failed to load asset, FilamentProxy has already been destroyed!");
+    }
+  });
 }
 
 std::shared_ptr<TestHybridObject> FilamentProxy::createTestObject() {
