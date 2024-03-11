@@ -95,8 +95,8 @@ private:
     std::future<ReturnType> future = (obj->*method)(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
     std::shared_ptr<std::future<ReturnType>> sharedFuture = std::make_shared<std::future<ReturnType>>(std::move(future));
 
-    auto run = [sharedFuture](jsi::Runtime& runtime, const std::shared_ptr<Promise>& promise,
-                              const std::shared_ptr<react::CallInvoker>& callInvoker) {
+    return PromiseFactory::createPromise(runtime, [sharedFuture](jsi::Runtime& runtime, const std::shared_ptr<Promise>& promise,
+                                                                 const std::shared_ptr<react::CallInvoker>& callInvoker) {
       // Spawn new async thread to wait for the result
       std::async(std::launch::async, [promise, &runtime, callInvoker, sharedFuture]() {
         try {
@@ -121,9 +121,7 @@ private:
           return;
         }
       });
-    };
-
-    return PromiseFactory::createPromise(runtime, std::move(run));
+    });
   }
 
   template <typename Derived, typename ReturnType, typename... Args>
