@@ -93,27 +93,40 @@ private:
                                std::index_sequence<Is...>) {
     // It's an async method.
     std::future<ReturnType> future = (obj->*method)(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
-    return PromiseFactory::createPromise(runtime, [future = std::move(future)](jsi::Runtime& runtime,
-                                                     const std::shared_ptr<Promise>& promise,
-                                                     const std::shared_ptr<react::CallInvoker>& callInvoker) {
+    std::shared_ptr<std::future<ReturnType>> sharedFuture = std::make_shared<std::future<ReturnType>>(std::move(future));
+
+    auto run = [sharedFuture](jsi::Runtime& runtime,
+                                            const std::shared_ptr<Promise>& promise,
+                                            const std::shared_ptr<react::CallInvoker>& callInvoker) {
       // Spawn new async thread to wait for the result
-      std::async(std::launch::async, [promise, &runtime, future = std::move(future)] () {
+      std::async(std::launch::async, [promise, &runtime, callInvoker, sharedFuture] () {
         try {
-          if constexpr (std::is_same_v<ReturnType, void>) {
-            // it's returning void. wait til it's complete, then return jsi::Value::undefined
-            future.wait();
-            promise->resolve(jsi::Value::undefined());
-          } else {
-            // it's returning a custom type. wait til it's complete, then convert it to a jsi::Value
-            ReturnType result = future.wait();
-            jsi::Value jsResult = JSIConverter<ReturnType>::toJSI(runtime, result);
-            promise->resolve(std::move(jsResult));
-          }
+          // wait until the future completes. we are running on a background task here.
+          sharedFuture->wait();
+
+          // the async function completed successfully, resolve the promise on JS Thread
+          callInvoker->invokeAsync([&runtime, promise, sharedFuture]() {
+            if constexpr (std::is_same_v<ReturnType, void>) {
+              // it's returning void, just return undefined to JS
+              promise->resolve(jsi::Value::undefined());
+            } else {
+              // it's returning a custom type, convert it to a jsi::Value
+              ReturnType result = sharedFuture->get();
+              jsi::Value jsResult = JSIConverter<ReturnType>::toJSI(runtime, result);
+              promise->resolve(std::move(jsResult));
+            }
+          });
         } catch (std::exception& exception) {
-          promise->reject(exception.what());
+          // the async function threw an error, reject the promise on JS Thread
+          callInvoker->invokeAsync([promise, exception = std::move(exception)]() {
+            promise->reject(exception.what());
+          });
+          return;
         }
       });
-    });
+    };
+
+    return PromiseFactory::createPromise(runtime, std::move(run));
   }
 
   template <typename Derived, typename ReturnType, typename... Args>
