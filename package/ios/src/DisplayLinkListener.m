@@ -16,16 +16,22 @@
 - (instancetype)initWithCallback:(OnFrameCallback)callback {
   if (self = [super init]) {
     _callback = callback;
+    _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(onFrame:)];
+    _displayLink.paused = YES;
+    [_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
   }
   return self;
 }
 
 - (void)start {
-  _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(onFrame:)];
-  [_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+  _displayLink.paused = NO;
 }
 
 - (void)stop {
+  _displayLink.paused = YES;
+}
+
+- (void)invalidate {
   [_displayLink invalidate];
   _displayLink = nil;
 }

@@ -16,6 +16,7 @@ typedef void (^OnFrameCallback)(double timestamp);
 - (instancetype)initWithCallback:(OnFrameCallback)callback;
 - (void)start;
 - (void)stop;
+- (void)invalidate;
 - (void)onFrame:(CADisplayLink*)displayLink;
 
 @end

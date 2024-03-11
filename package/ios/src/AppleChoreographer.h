@@ -12,9 +12,10 @@
 
 namespace margelo {
 
-class AppleChoreographer : public Choreographer {
+class AppleChoreographer : public Choreographer, public std::enable_shared_from_this<AppleChoreographer> {
 public:
   explicit AppleChoreographer();
+  ~AppleChoreographer();
 
   void stop() override;
   void start() override;

@@ -15,6 +15,10 @@ AppleChoreographer::AppleChoreographer() {
   }];
 }
 
+AppleChoreographer::~AppleChoreographer() {
+  [_displayLink invalidate];
+}
+
 void AppleChoreographer::stop() {
   [_displayLink stop];
 }
