@@ -56,13 +56,17 @@ public:
     return std::make_shared<TestHybridObject>();
   }
 
-  int calculateFibonacci(int count) {
-    if (count <= 1)
-      return count;
-    return calculateFibonacci(count - 1) + calculateFibonacci(count - 2);
+  uint64_t calculateFibonacci(int count) {
+    uint64_t a = 1, b = 1;
+    for (int i = 3; i <= count; i++) {
+      int c = a + b;
+      a = b;
+      b = c;
+    }
+    return b;
   }
 
-  std::future<int> calculateFibonacciAsync(int count) {
+  std::future<uint64_t> calculateFibonacciAsync(int count) {
     return std::async(std::launch::async, [count, this]() { return this->calculateFibonacci(count); });
   }
 
