@@ -1,6 +1,6 @@
 import { FilamentProxy } from '../native/FilamentProxy'
 
-const FIBONACCI_LIMIT = 30
+const FIBONACCI_LIMIT = 94
 
 export async function testHybridObject(): Promise<void> {
   // 1. Creation
