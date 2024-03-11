@@ -10,7 +10,6 @@
 namespace margelo {
 
 AppleChoreographer::AppleChoreographer() {
-  Logger::log("AppleChoreographer", "Allocate AppleChoreographer");
   _displayLink = [[DisplayLinkListener alloc] initWithCallback:^(double timestamp) {
     onFrame(timestamp);
   }];
