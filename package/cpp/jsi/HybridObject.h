@@ -95,10 +95,11 @@ private:
     std::future<ReturnType> future = (obj->*method)(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
     std::shared_ptr<std::future<ReturnType>> sharedFuture = std::make_shared<std::future<ReturnType>>(std::move(future));
 
-    return PromiseFactory::createPromise(runtime, [sharedFuture](jsi::Runtime& runtime, const std::shared_ptr<Promise>& promise,
+
+    return PromiseFactory::createPromise(runtime, [sharedFuture = std::move(sharedFuture)](jsi::Runtime& runtime, const std::shared_ptr<Promise>& promise,
                                                                  const std::shared_ptr<react::CallInvoker>& callInvoker) {
       // Spawn new async thread to wait for the result
-      std::async(std::launch::async, [promise, &runtime, callInvoker, sharedFuture]() {
+      std::thread waiterThread([promise, &runtime, callInvoker, sharedFuture = std::move(sharedFuture)]() {
         try {
           // wait until the future completes. we are running on a background task here.
           sharedFuture->wait();
@@ -118,9 +119,9 @@ private:
         } catch (std::exception& exception) {
           // the async function threw an error, reject the promise on JS Thread
           callInvoker->invokeAsync([promise, exception = std::move(exception)]() { promise->reject(exception.what()); });
-          return;
         }
       });
+      waiterThread.detach();
     });
   }
 
