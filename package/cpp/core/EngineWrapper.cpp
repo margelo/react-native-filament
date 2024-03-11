@@ -74,9 +74,10 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
       _engine, resourceLoaderPtr,
       [stbProvider, ktx2Provider](const std::shared_ptr<Engine>& engine, gltfio::ResourceLoader* resourceLoader) {
         Logger::log(TAG, "Destroying resource loader...");
+        resourceLoader->evictResourceData();
+        delete resourceLoader;
         delete stbProvider;
         delete ktx2Provider;
-        delete resourceLoader;
       });
 
   // Setup filament:
@@ -123,29 +124,37 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
   }
 
   auto queue = _jsDispatchQueue;
-  auto sharedThis = shared<EngineWrapper>();
+  std::weak_ptr<EngineWrapper> weakSelf = shared<EngineWrapper>();
   SurfaceProvider::Callback callback{.onSurfaceCreated =
-                                         [=](std::shared_ptr<Surface> surface) {
+                                         [queue, weakSelf](std::shared_ptr<Surface> surface) {
                                            queue->runOnJS([=]() {
-                                             Logger::log(TAG, "Initializing surface...");
-                                             sharedThis->setSurface(surface);
+                                             auto sharedThis = weakSelf.lock();
+                                             if (sharedThis != nullptr) {
+                                               Logger::log(TAG, "Initializing surface...");
+                                               sharedThis->setSurface(surface);
+                                             }
                                            });
                                          },
                                      .onSurfaceSizeChanged =
-                                         [queue, sharedThis](std::shared_ptr<Surface> surface, int width, int height) {
+                                         [queue, weakSelf](std::shared_ptr<Surface> surface, int width, int height) {
                                            queue->runOnJS([=]() {
-                                             Logger::log(TAG, "Updating Surface size...");
-                                             sharedThis->surfaceSizeChanged(width, height);
-                                             sharedThis->synchronizePendingFrames();
+                                             auto sharedThis = weakSelf.lock();
+                                             if (sharedThis != nullptr) {
+                                               Logger::log(TAG, "Updating Surface size...");
+                                               sharedThis->surfaceSizeChanged(width, height);
+                                               sharedThis->synchronizePendingFrames();
+                                             }
                                            });
                                          },
                                      .onSurfaceDestroyed =
-                                         [=](std::shared_ptr<Surface> surface) {
+                                         [queue, weakSelf](std::shared_ptr<Surface> surface) {
                                            // TODO(Marc): When compiling in debug mode we get an assertion error here, because we are
                                            // destroying the surface from the wrong thread.
                                            queue->runOnJSAndWait([=]() {
-                                             Logger::log(TAG, "Destroying surface...");
-                                             sharedThis->destroySurface();
+                                             auto sharedThis = weakSelf.lock();
+                                             if (sharedThis != nullptr) {
+                                               sharedThis->destroySurface();
+                                             }
                                            });
                                          }};
   _surfaceListener = surfaceProvider->addOnSurfaceChangedListener(callback);
@@ -186,6 +195,12 @@ void EngineWrapper::surfaceSizeChanged(int width, int height) {
 }
 
 void EngineWrapper::destroySurface() {
+  if (_swapChain == nullptr) {
+    // Surface is already destroyed / never existed.
+    return;
+  }
+
+  Logger::log(TAG, "Destroying surface...");
   _choreographer->stop();
   _choreographerListener->remove();
   _renderCallback = std::nullopt;
@@ -206,8 +221,6 @@ void EngineWrapper::renderFrame(double timestamp) {
   if (!_view) {
     return;
   }
-
-  _resourceLoader->asyncUpdateLoad();
 
   if (_startTime == 0) {
     _startTime = timestamp;
