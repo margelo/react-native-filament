@@ -7,6 +7,7 @@
   "types": "lib/typescript/src/index.d.ts",
   "react-native": "src/index",
   "source": "src/index",
+  "test": "src/test/RunTests",
   "files": [
     "src",
     "lib",
