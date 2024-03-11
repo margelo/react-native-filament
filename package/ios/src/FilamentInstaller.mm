@@ -44,7 +44,7 @@ using namespace facebook;
   // global.FilamentProxy
   auto filamentProxy = std::make_shared<margelo::AppleFilamentProxy>(runtime, callInvoker);
   runtime->global().setProperty(*runtime, "FilamentProxy", jsi::Object::createFromHostObject(*runtime, filamentProxy));
-  
+
   // PromiseFactory
   margelo::PromiseFactory::install(*runtime, callInvoker);
 
