@@ -53,7 +53,6 @@ using RenderCallback = std::function<void(double, double, double)>;
 class EngineWrapper : public HybridObject {
 public:
   explicit EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<JSDispatchQueue> jsDispatchQueue);
-  ~EngineWrapper() override;
 
   void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
 

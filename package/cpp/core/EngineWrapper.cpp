@@ -92,13 +92,6 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
   _choreographer = choreographer;
 }
 
-EngineWrapper::~EngineWrapper() {
-  // It can happen that the engine gets destroyed before the onSurfaceDestroyed callback was invoked (which would call destroySurface).
-  // In that case the listener that would call onSurfaceDestroyed gets removed as well, and onSurfaceDestroyed would never be called.
-  // So when the EngineWrapper gets destroyed we also want to destroy the surface resources properly.
-  //  destroySurface();
-}
-
 void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider, this);
   registerHybridMethod("setRenderCallback", &EngineWrapper::setRenderCallback, this);
