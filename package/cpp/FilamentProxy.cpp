@@ -28,7 +28,7 @@ std::future<std::shared_ptr<FilamentBuffer>> FilamentProxy::loadAssetAsync(std::
   return std::async(std::launch::async, [=]() {
     auto sharedThis = weakThis.lock();
     if (sharedThis != nullptr) {
-      return this->loadAsset();
+      return this->loadAsset(path);
     } else {
       throw std::runtime_error("Failed to load asset, FilamentProxy has already been destroyed!");
     }
