@@ -43,7 +43,7 @@ protected:
   void onSurfaceDestroyed(std::shared_ptr<Surface> surface);
 
 private:
-  ListenerManager<Callback> _listeners;
+  std::shared_ptr<ListenerManager<Callback>> _listeners = ListenerManager<Callback>::create();
   std::mutex _mutex;
 
 private:
