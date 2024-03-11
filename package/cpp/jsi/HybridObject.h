@@ -7,12 +7,12 @@
 #include "JSIConverter.h"
 #include "Logger.h"
 #include <functional>
+#include <future>
 #include <jsi/jsi.h>
 #include <memory>
 #include <mutex>
-#include <unordered_map>
 #include <type_traits>
-#include <future>
+#include <unordered_map>
 
 namespace margelo {
 
@@ -89,17 +89,16 @@ private:
 
   // Async (std::future)
   template <typename Derived, typename ReturnType, typename... Args, size_t... Is>
-  inline jsi::Value callMethod(Derived* obj, std::future<ReturnType> (Derived::*method)(Args...), jsi::Runtime& runtime, const jsi::Value* args,
-                               std::index_sequence<Is...>) {
+  inline jsi::Value callMethod(Derived* obj, std::future<ReturnType> (Derived::*method)(Args...), jsi::Runtime& runtime,
+                               const jsi::Value* args, std::index_sequence<Is...>) {
     // It's an async method.
     std::future<ReturnType> future = (obj->*method)(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
     std::shared_ptr<std::future<ReturnType>> sharedFuture = std::make_shared<std::future<ReturnType>>(std::move(future));
 
-    auto run = [sharedFuture](jsi::Runtime& runtime,
-                                            const std::shared_ptr<Promise>& promise,
-                                            const std::shared_ptr<react::CallInvoker>& callInvoker) {
+    auto run = [sharedFuture](jsi::Runtime& runtime, const std::shared_ptr<Promise>& promise,
+                              const std::shared_ptr<react::CallInvoker>& callInvoker) {
       // Spawn new async thread to wait for the result
-      std::async(std::launch::async, [promise, &runtime, callInvoker, sharedFuture] () {
+      std::async(std::launch::async, [promise, &runtime, callInvoker, sharedFuture]() {
         try {
           // wait until the future completes. we are running on a background task here.
           sharedFuture->wait();
@@ -118,9 +117,7 @@ private:
           });
         } catch (std::exception& exception) {
           // the async function threw an error, reject the promise on JS Thread
-          callInvoker->invokeAsync([promise, exception = std::move(exception)]() {
-            promise->reject(exception.what());
-          });
+          callInvoker->invokeAsync([promise, exception = std::move(exception)]() { promise->reject(exception.what()); });
           return;
         }
       });
