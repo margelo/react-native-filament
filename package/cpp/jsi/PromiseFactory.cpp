@@ -23,7 +23,7 @@ void PromiseFactory::install(jsi::Runtime &runtime, const std::shared_ptr<react:
 }
 
 
-jsi::Value PromiseFactory::createPromise(jsi::Runtime &runtime, RunPromise run) {
+jsi::Value PromiseFactory::createPromise(jsi::Runtime &runtime, RunPromise&& run) {
 #if DEBUG
   if (!runtime.global().hasProperty(runtime, GLOBAL_PROMISE_FACTORY_CALL_INVOKER_HOLDER_NAME)) {
     throw jsi::JSError(runtime, "Failed to create Promise - the global CallInvoker holder does not exist! "

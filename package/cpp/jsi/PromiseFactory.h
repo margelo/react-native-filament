@@ -40,7 +40,7 @@ public:
    Create a new promise and run the given function.
    The caller needs to ensure that the Promise is resolved eventually (on the JS thread with the CallInvoker).
    */
-  static jsi::Value createPromise(jsi::Runtime& runtime, RunPromise run);
+  static jsi::Value createPromise(jsi::Runtime& runtime, RunPromise&& run);
   
 private:
   static constexpr auto GLOBAL_PROMISE_FACTORY_CALL_INVOKER_HOLDER_NAME = "__promiseFactoryCallInvoker";
