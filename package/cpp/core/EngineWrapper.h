@@ -64,6 +64,7 @@ private:
   void surfaceSizeChanged(int width, int height);
   void setRenderCallback(std::optional<RenderCallback> callback);
   void renderFrame(double timestamp);
+  void setIsPaused(bool isPaused);
 
   void transformToUnitCube(std::shared_ptr<FilamentAssetWrapper> asset);
   std::shared_ptr<FilamentAssetWrapper> loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
@@ -89,6 +90,7 @@ private:
   std::shared_ptr<Choreographer> _choreographer;
   std::shared_ptr<Listener> _choreographerListener;
   double _startTime = 0;
+  bool _isPaused = false;
 
   // Internals that we might need to split out later
   std::shared_ptr<gltfio::MaterialProvider> _materialProvider;
