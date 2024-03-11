@@ -10,7 +10,7 @@ using namespace facebook;
 
 class Promise {
 public:
-  Promise(jsi::Runtime& runtime, jsi::Value resolver, jsi::Value rejecter);
+  Promise(jsi::Runtime& runtime, jsi::Function&& resolver, jsi::Function&& rejecter);
 
   void resolve(jsi::Value&& result);
   void reject(std::string error);
@@ -19,8 +19,8 @@ public:
   jsi::Runtime& runtime;
 
 private:
-  jsi::Value _resolver;
-  jsi::Value _rejecter;
+  jsi::Function _resolver;
+  jsi::Function _rejecter;
 
 public:
   using RunPromise = std::function<void(jsi::Runtime& runtime, const std::shared_ptr<Promise>& promise)>;
