@@ -55,6 +55,17 @@ public:
   std::shared_ptr<TestHybridObject> createNewHybridObject() {
     return std::make_shared<TestHybridObject>();
   }
+  
+  int calculateFibonacci(int count) {
+    if (count <= 1) return count;
+    return calculateFibonacci(count - 1) + calculateFibonacci(count - 2);
+  }
+  
+  std::future<int> calculateFibonacciAsync(int count) {
+    return std::async(std::launch::async, [count, this]() {
+      return this->calculateFibonacci(count);
+    });
+  }
 
 private:
   int _int;

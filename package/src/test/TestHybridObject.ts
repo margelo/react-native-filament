@@ -1,6 +1,8 @@
 import { FilamentProxy } from '../native/FilamentProxy'
 
-export function testHybridObject() {
+const FIBONACCI_LIMIT = 30
+
+export async function testHybridObject(): Promise<void> {
   // 1. Creation
   console.log('Creating HybridObject...')
   const hybridObject = FilamentProxy.createTestObject()
@@ -41,4 +43,9 @@ export function testHybridObject() {
   // 9. Create a new one
   const newObject = hybridObject.createNewHybridObject()
   console.log(`Created new hybrid object!`, newObject)
+
+  // 10. Test Promises
+  console.log(`Calculating Fibonacci up to number ${FIBONACCI_LIMIT}...`)
+  const fibonacci = await hybridObject.calculateFibonacciAsync(FIBONACCI_LIMIT)
+  console.log(`Fibonacci at ${FIBONACCI_LIMIT} = ${fibonacci}`)
 }
