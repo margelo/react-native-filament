@@ -26,7 +26,7 @@ AppleFilamentProxy::~AppleFilamentProxy() {
   // TODO(hanno): cleanup here?
 }
 
-std::shared_ptr<FilamentBuffer> AppleFilamentProxy::getAssetByteBuffer(std::string path) {
+std::shared_ptr<FilamentBuffer> AppleFilamentProxy::loadAsset(std::string path) {
   NSString* filePath = [NSString stringWithUTF8String:path.c_str()];
 
   // Split the path at the last dot to separate name and extension
