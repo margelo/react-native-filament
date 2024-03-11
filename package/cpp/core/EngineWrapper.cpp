@@ -96,7 +96,7 @@ EngineWrapper::~EngineWrapper() {
   // It can happen that the engine gets destroyed before the onSurfaceDestroyed callback was invoked (which would call destroySurface).
   // In that case the listener that would call onSurfaceDestroyed gets removed as well, and onSurfaceDestroyed would never be called.
   // So when the EngineWrapper gets destroyed we also want to destroy the surface resources properly.
-  destroySurface();
+  //  destroySurface();
 }
 
 void EngineWrapper::loadHybridMethods() {
