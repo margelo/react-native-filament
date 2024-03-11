@@ -1,8 +1,8 @@
 import * as React from 'react'
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { Platform, StyleSheet } from 'react-native'
-import { Filament, useEngine, Float3, useRenderCallback, useAsset, useModel } from 'react-native-filament'
+import { FilamentProxy, Filament, useEngine, Float3, useRenderCallback, RenderCallback } from 'react-native-filament'
 
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',
@@ -25,40 +25,46 @@ const far = 1000
 export default function App() {
   const engine = useEngine()
 
-  const pengu = useModel({ engine: engine, path: penguModelPath })
-  const light = useAsset({ path: indirectLightPath })
+  const [_pengu, penguAnimator] = useMemo(() => {
+    const modelBuffer = FilamentProxy.getAssetByteBuffer(penguModelPath)
+    const asset = engine.loadAsset(modelBuffer)
+    const animator = asset.getAnimator()
+    asset.releaseSourceData()
 
-  useEffect(() => {
-    if (light == null) return
-    // create a default light
-    engine.setIndirectLight(light)
-
-    // Create a directional light for supporting shadows
-    const directionalLight = engine.createLightEntity('directional', 6500, 10000, 0, -1, 0, true)
-    engine.getScene().addEntity(directionalLight)
-    return () => {
-      // TODO: Remove directionalLight from scene
-    }
-  }, [engine, light])
+    return [asset, animator]
+  }, [engine])
 
   const prevAspectRatio = useRef(0)
-  useRenderCallback(engine, (_timestamp, _startTime, passedSeconds) => {
-    const view = engine.getView()
-    const aspectRatio = view.aspectRatio
-    if (prevAspectRatio.current !== aspectRatio) {
-      prevAspectRatio.current = aspectRatio
-      // Setup camera lens:
-      const camera = engine.getCamera()
-      camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
-    }
+  const renderCallback: RenderCallback = useCallback(
+    (_timestamp, _startTime, passedSeconds) => {
+      const view = engine.getView()
+      const aspectRatio = view.aspectRatio
+      if (prevAspectRatio.current !== aspectRatio) {
+        prevAspectRatio.current = aspectRatio
+        // Setup camera lens:
+        const camera = engine.getCamera()
+        camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
+      }
 
-    if (pengu.state === 'loaded') {
-      pengu.animator.applyAnimation(0, passedSeconds)
-      pengu.animator.updateBoneMatrices()
-    }
+      penguAnimator.applyAnimation(0, passedSeconds)
+      penguAnimator.updateBoneMatrices()
 
-    engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
-  })
+      engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
+    },
+    [engine, penguAnimator]
+  )
+  useRenderCallback(engine, renderCallback)
+
+  // Setup the 3D scene:
+  useEffect(() => {
+    // Create a default light:
+    const indirectLightBuffer = FilamentProxy.getAssetByteBuffer(indirectLightPath)
+    engine.setIndirectLight(indirectLightBuffer)
+
+    // Create a directional light for supporting shadows
+    const light = engine.createLightEntity('directional', 6500, 10000, 0, -1, 0, true)
+    engine.getScene().addEntity(light)
+  }, [engine])
 
   return <Filament style={styles.filamentView} engine={engine} />
 }
