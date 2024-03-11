@@ -3,12 +3,16 @@
 //
 
 #include "Listener.h"
+#include "Logger.h"
 
 namespace margelo {
 
-Listener::Listener(const std::function<void()>& remove) : HybridObject("Listener"), _remove(remove), _isRemoved(false) {}
+Listener::Listener(const std::function<void()>& remove) : _remove(remove), _isRemoved(false) {
+  Logger::log(TAG, "Creating Listener...");
+}
 
 Listener::~Listener() {
+  Logger::log(TAG, "Destroying Listener...");
   remove();
 }
 
@@ -20,8 +24,8 @@ void Listener::remove() {
   _isRemoved = true;
 }
 
-void Listener::loadHybridMethods() {
-  registerHybridMethod("remove", &Listener::remove, this);
+std::shared_ptr<Listener> Listener::create(margelo::Listener::ListenerRemover remover) {
+  return std::shared_ptr<Listener>(new Listener(std::move(remover)));
 }
 
 } // namespace margelo

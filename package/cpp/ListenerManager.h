@@ -12,20 +12,38 @@
 
 namespace margelo {
 
-template <typename Callback> class ListenerManager {
+template <typename Callback> class ListenerManager : public std::enable_shared_from_this<ListenerManager<Callback>> {
 private:
-  std::shared_ptr<std::list<Callback>> _listeners = std::make_shared<std::list<Callback>>();
+  std::list<Callback> _listeners;
 
 public:
   std::shared_ptr<Listener> add(Callback listener) {
-    _listeners->push_back(std::move(listener));
-    auto id = --_listeners->end();
-    auto listeners = _listeners;
-    return std::make_shared<Listener>([id, listeners] { listeners->erase(id); });
+    _listeners.push_back(std::move(listener));
+    auto id = --_listeners.end();
+
+    auto weakThis = std::weak_ptr<ListenerManager<Callback>>(shared());
+    return Listener::create([id, weakThis] {
+      auto sharedThis = weakThis.lock();
+      if (sharedThis) {
+        sharedThis->_listeners.erase(id);
+      }
+    });
   }
 
   const std::list<Callback>& getListeners() {
-    return *_listeners;
+    return _listeners;
+  }
+
+private:
+  explicit ListenerManager() {}
+
+  std::shared_ptr<ListenerManager<Callback>> shared() {
+    return this->shared_from_this();
+  }
+
+public:
+  static std::shared_ptr<ListenerManager<Callback>> create() {
+    return std::shared_ptr<ListenerManager<Callback>>(new ListenerManager());
   }
 };
 
