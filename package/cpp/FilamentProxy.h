@@ -9,6 +9,7 @@
 #include <core/EngineWrapper.h>
 #include <string>
 #include <vector>
+#include <future>
 
 #include "Choreographer.h"
 #include "FilamentBuffer.h"
@@ -27,7 +28,8 @@ public:
   explicit FilamentProxy() : HybridObject("FilamentProxy") {}
 
 private:
-  virtual std::shared_ptr<FilamentBuffer> getAssetByteBuffer(std::string path) = 0;
+  std::future<std::shared_ptr<FilamentBuffer>> loadAssetAsync(std::string path);
+  virtual std::shared_ptr<FilamentBuffer> loadAsset(std::string path) = 0;
   virtual std::shared_ptr<FilamentView> findFilamentView(int id) = 0;
   virtual std::shared_ptr<Choreographer> createChoreographer() = 0;
 

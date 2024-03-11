@@ -24,7 +24,7 @@ public:
   ~JFilamentProxy();
   static void registerNatives();
 
-  std::shared_ptr<FilamentBuffer> getAssetByteBuffer(const std::string& path);
+  std::shared_ptr<FilamentBuffer> loadAsset(const std::string& path);
   std::shared_ptr<FilamentView> findFilamentView(int id);
   std::shared_ptr<Choreographer> createChoreographer();
 
