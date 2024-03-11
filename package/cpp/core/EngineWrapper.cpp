@@ -222,6 +222,8 @@ void EngineWrapper::renderFrame(double timestamp) {
     return;
   }
 
+  _resourceLoader->asyncUpdateLoad();
+
   if (_startTime == 0) {
     _startTime = timestamp;
   }
