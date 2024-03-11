@@ -92,10 +92,6 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
   _choreographer = choreographer;
 }
 
-EngineWrapper::~EngineWrapper() {
-  destroySurface();
-}
-
 void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider, this);
   registerHybridMethod("setRenderCallback", &EngineWrapper::setRenderCallback, this);
@@ -129,8 +125,7 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
 
   auto queue = _jsDispatchQueue;
   std::weak_ptr<EngineWrapper> weakSelf = shared<EngineWrapper>();
-  SurfaceProvider::Callback callback{// NOTE: This callback will only be invoked on android
-                                     .onSurfaceCreated =
+  SurfaceProvider::Callback callback{.onSurfaceCreated =
                                          [queue, weakSelf](std::shared_ptr<Surface> surface) {
                                            queue->runOnJS([=]() {
                                              auto sharedThis = weakSelf.lock();
@@ -151,7 +146,6 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
                                              }
                                            });
                                          },
-                                     // NOTE: This callback will only be invoked on android
                                      .onSurfaceDestroyed =
                                          [queue, weakSelf](std::shared_ptr<Surface> surface) {
                                            // TODO(Marc): When compiling in debug mode we get an assertion error here, because we are
