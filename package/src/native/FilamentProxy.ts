@@ -18,11 +18,12 @@ interface TestHybridObject {
 }
 
 export interface TFilamentProxy {
+  // TODO: rename to loadModelBytes
   /**
-   * Asynchronously loads the the given asset into a ByteBuffer.
+   * Loads the byte buffer for any given path.
    * @param path A web URL (http:// or https://), local file (file://) or resource ID. (Only resource ID supported for now)
    */
-  loadAsset(path: string): Promise<FilamentBuffer>
+  getAssetByteBuffer(path: string): FilamentBuffer
   /**
    * @private
    */
