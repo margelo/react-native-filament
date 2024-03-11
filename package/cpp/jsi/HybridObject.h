@@ -11,6 +11,8 @@
 #include <memory>
 #include <mutex>
 #include <unordered_map>
+#include <type_traits>
+#include <future>
 
 namespace margelo {
 
@@ -70,6 +72,7 @@ private:
   inline void ensureInitialized();
 
 private:
+  // Sync (any of the JSIConverter values)
   template <typename Derived, typename ReturnType, typename... Args, size_t... Is>
   inline jsi::Value callMethod(Derived* obj, ReturnType (Derived::*method)(Args...), jsi::Runtime& runtime, const jsi::Value* args,
                                std::index_sequence<Is...>) {
@@ -82,6 +85,35 @@ private:
       ReturnType result = (obj->*method)(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
       return JSIConverter<std::decay_t<ReturnType>>::toJSI(runtime, result);
     }
+  }
+
+  // Async (std::future)
+  template <typename Derived, typename ReturnType, typename... Args, size_t... Is>
+  inline jsi::Value callMethod(Derived* obj, std::future<ReturnType> (Derived::*method)(Args...), jsi::Runtime& runtime, const jsi::Value* args,
+                               std::index_sequence<Is...>) {
+    // It's an async method.
+    std::future<ReturnType> future = (obj->*method)(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
+    return PromiseFactory::createPromise(runtime, [future = std::move(future)](jsi::Runtime& runtime,
+                                                     const std::shared_ptr<Promise>& promise,
+                                                     const std::shared_ptr<react::CallInvoker>& callInvoker) {
+      // Spawn new async thread to wait for the result
+      std::async(std::launch::async, [promise, &runtime, future = std::move(future)] () {
+        try {
+          if constexpr (std::is_same_v<ReturnType, void>) {
+            // it's returning void. wait til it's complete, then return jsi::Value::undefined
+            future.wait();
+            promise->resolve(jsi::Value::undefined());
+          } else {
+            // it's returning a custom type. wait til it's complete, then convert it to a jsi::Value
+            ReturnType result = future.wait();
+            jsi::Value jsResult = JSIConverter<ReturnType>::toJSI(runtime, result);
+            promise->resolve(std::move(jsResult));
+          }
+        } catch (std::exception& exception) {
+          promise->reject(exception.what());
+        }
+      });
+    });
   }
 
   template <typename Derived, typename ReturnType, typename... Args>
