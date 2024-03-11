@@ -2,14 +2,10 @@
   "extends": "../tsconfig",
   "compilerOptions": {
     "paths": {
-      "react-native-filament": ["../src/index"]
-    },
+      "react-native-filament": ["../src/index"],
+      "react-native-filament-test": ["../src/test/RunTests"]
+    }
   },
-  "include": [
-    "src",
-    "index.js"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["src", "index.js"],
+  "exclude": ["node_modules"]
 }

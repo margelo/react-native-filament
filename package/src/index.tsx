@@ -8,6 +8,3 @@ export * from './Filament'
 // hooks
 export * from './hooks/useEngine'
 export * from './hooks/useRenderCallback'
-
-// import { runTests } from './test/RunTests'
-// runTests()
