@@ -23,10 +23,11 @@ private:
   jsi::Value _rejecter;
 
 public:
+  using RunPromise = std::function<void(jsi::Runtime& runtime, const std::shared_ptr<Promise>& promise)>;
   /**
    Create a new Promise and runs the given `run` function.
    */
-  static jsi::Value createPromise(jsi::Runtime& runtime, std::function<void(std::shared_ptr<Promise> promise)> run);
+  static jsi::Value createPromise(jsi::Runtime& runtime, RunPromise run);
 };
 
 } // namespace margelo
