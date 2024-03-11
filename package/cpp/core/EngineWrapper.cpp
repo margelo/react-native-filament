@@ -110,6 +110,7 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setEntityPosition", &EngineWrapper::setEntityPosition, this);
   registerHybridMethod("setEntityRotation", &EngineWrapper::setEntityRotation, this);
   registerHybridMethod("setEntityScale", &EngineWrapper::setEntityScale, this);
+  registerHybridMethod("setIsPaused", &EngineWrapper::setIsPaused, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
