@@ -16,10 +16,10 @@ export async function testHybridObject(): Promise<void> {
   hybridObject.int = 6723
   console.log(`New Int: ${hybridObject.int}`)
 
-  // // 4. Enum Getter & Setter
-  // console.log(`Enum: ${hybridObject.enum}`)
-  // hybridObject.enum = 'second'
-  // console.log(`New Enum: ${hybridObject.enum}`)
+  // 4. Enum Getter & Setter
+  console.log(`Enum: ${hybridObject.enum}`)
+  hybridObject.enum = 'second'
+  console.log(`New Enum: ${hybridObject.enum}`)
 
   // 5. String Getter & Setter
   console.log(`String: ${hybridObject.string}`)
