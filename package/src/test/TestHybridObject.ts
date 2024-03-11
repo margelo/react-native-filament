@@ -1,6 +1,8 @@
 import { FilamentProxy } from '../native/FilamentProxy'
 
-export function testHybridObject() {
+const FIBONACCI_LIMIT = 70
+
+export async function testHybridObject(): Promise<void> {
   // 1. Creation
   console.log('Creating HybridObject...')
   const hybridObject = FilamentProxy.createTestObject()
@@ -41,4 +43,24 @@ export function testHybridObject() {
   // 9. Create a new one
   const newObject = hybridObject.createNewHybridObject()
   console.log(`Created new hybrid object!`, newObject)
+
+  // 10. Test Promises
+  console.log(`Calculating Fibonacci up to number ${FIBONACCI_LIMIT}...`)
+  const start = performance.now()
+  const fibonacci = await hybridObject.calculateFibonacciAsync(FIBONACCI_LIMIT)
+  const end = performance.now()
+  console.log(`Calculated Fibonacci for ${FIBONACCI_LIMIT} = ${fibonacci} (took ${(end - start).toFixed(0)}ms)`)
+}
+
+// @ts-expect-error
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function fib(count: number): BigInt {
+  let prev = 0n
+  let current = 1n
+  for (let i = 2; i <= count; ++i) {
+    let next = prev + current
+    prev = current
+    current = next
+  }
+  return current
 }

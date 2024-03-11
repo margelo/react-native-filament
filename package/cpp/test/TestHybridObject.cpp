@@ -25,6 +25,9 @@ void TestHybridObject::loadHybridMethods() {
   registerHybridMethod("sayHelloCallback", &TestHybridObject::sayHelloCallback, this);
   // custom types
   registerHybridMethod("createNewHybridObject", &TestHybridObject::createNewHybridObject, this);
+  // Promises
+  registerHybridMethod("calculateFibonacci", &TestHybridObject::calculateFibonacci, this);
+  registerHybridMethod("calculateFibonacciAsync", &TestHybridObject::calculateFibonacciAsync, this);
 }
 
 } // namespace margelo

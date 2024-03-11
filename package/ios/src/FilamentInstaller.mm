@@ -7,6 +7,7 @@
 
 #import "FilamentInstaller.h"
 #import "AppleFilamentProxy.h"
+#import "PromiseFactory.h"
 #import <Foundation/Foundation.h>
 #import <ReactCommon/CallInvoker.h>
 
@@ -43,6 +44,9 @@ using namespace facebook;
   // global.FilamentProxy
   auto filamentProxy = std::make_shared<margelo::AppleFilamentProxy>(runtime, callInvoker);
   runtime->global().setProperty(*runtime, "FilamentProxy", jsi::Object::createFromHostObject(*runtime, filamentProxy));
+
+  // PromiseFactory
+  margelo::PromiseFactory::install(*runtime, callInvoker);
 
   return YES;
 }
