@@ -10,7 +10,6 @@
 #include "PromiseFactory.h"
 #include <ReactCommon/CallInvoker.h>
 #include <array>
-#include <future>
 #include <jsi/jsi.h>
 #include <memory>
 #include <type_traits>
@@ -145,32 +144,13 @@ template <typename ReturnType, typename... Args> struct JSIConverter<std::functi
     };
   }
 
-  template <typename T> struct is_future : std::false_type {};
-  template <typename T> struct is_future<std::future<T>> : std::true_type {};
-
-  template <typename TFutureResult, size_t... Is>
+  template <size_t... Is>
   static jsi::Value callHybridFunction(const std::function<ReturnType(Args...)>& function, jsi::Runtime& runtime, const jsi::Value* args,
                                        std::index_sequence<Is...>) {
     if constexpr (std::is_same_v<ReturnType, void>) {
       // it is a void function (will return undefined in JS)
       function(JSIConverter<Args>::fromJSI(runtime, args[Is])...);
       return jsi::Value::undefined();
-    } else if constexpr (is_future<ReturnType>::value) {
-      // it is an std::async function that returns an std::future (will return a Promise in JS)
-      std::future<TFutureResult> future = function(JSIConverter<Args>::fromJSI(runtime, args[Is])...);
-      return PromiseFactory::createPromise(runtime,
-                                           [future = std::move(future)](jsi::Runtime& runtime, const std::shared_ptr<Promise>& promise,
-                                                                        const std::shared_ptr<react::CallInvoker>& callInvoker) {
-                                             std::async(std::launch::async, [&runtime, promise, callInvoker, future = std::move(future)]() {
-                                               // wait for the async function's result on a background thread
-                                               TFutureResult result = future.wait();
-                                               callInvoker->invokeAsync([&runtime, promise, result = std::move(result)]() {
-                                                 // resolve the Promise on the JS Thread
-                                                 jsi::Value jsResult = JSIConverter<TFutureResult>::toJSI(runtime, std::move(result));
-                                                 promise->resolve(std::move(jsResult));
-                                               });
-                                             });
-                                           });
     } else {
       // it is a custom type, parse it to a JS value
       ReturnType result = function(JSIConverter<Args>::fromJSI(runtime, args[Is])...);
