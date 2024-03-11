@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import type { Engine, RenderCallback } from '../types'
 
-export function useRenderCallback(engine: Engine, onFrame: RenderCallback): Engine {
+export function useRenderCallback(engine: Engine, onFrame: RenderCallback) {
   const renderCallback = useRef(onFrame)
   renderCallback.current = onFrame
 
@@ -25,6 +25,4 @@ export function useRenderCallback(engine: Engine, onFrame: RenderCallback): Engi
       engine.setRenderCallback(undefined)
     }
   }, [engine])
-
-  return engine
 }
