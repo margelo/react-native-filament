@@ -42,7 +42,7 @@ std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::getAnimator() {
 }
 
 std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::createAnimatorWithAnimationsFrom(std::shared_ptr<FilamentAssetWrapper> otherAsset) {
-#if ANDROID
+#ifdef HAS_FILAMENT_ANIMATOR_PATCH
   // TODO(copy-animations): We currently copy animations from an asset onto another instance (different model than the original asset), we
   // should replace this with once we found a good solution discussed here: https://github.com/google/filament/issues/7622
   Animator* animator = new gltfio::Animator(otherAsset->_asset.get(), _asset->getInstance());
