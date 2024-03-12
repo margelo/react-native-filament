@@ -31,9 +31,9 @@ export class Filament extends React.PureComponent<FilamentProps> {
     return nodeHandle
   }
 
-  onViewReady = () => {
+  onViewReady = async () => {
     const handle = this.handle
-    this.view = FilamentProxy.findFilamentView(handle)
+    this.view = await FilamentProxy.findFilamentView(handle)
     if (this.view == null) {
       throw new Error(`Failed to find FilamentView #${handle}!`)
     }

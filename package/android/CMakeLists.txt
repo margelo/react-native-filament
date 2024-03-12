@@ -58,6 +58,7 @@ add_library(
         src/main/cpp/java-bindings/JFilamentProxy.cpp
         src/main/cpp/java-bindings/JChoreographer.cpp
         src/main/cpp/java-bindings/JFilamentView.cpp
+        src/main/cpp/java-bindings/JDispatcher.cpp
         src/main/cpp/java-bindings/JSurfaceProvider.cpp
 )
 

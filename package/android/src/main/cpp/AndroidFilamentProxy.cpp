@@ -19,11 +19,11 @@ AndroidFilamentProxy::~AndroidFilamentProxy() {
 }
 
 std::shared_ptr<FilamentBuffer> AndroidFilamentProxy::loadAsset(std::string path) {
-  return jni::WithJNIScope<std::shared_ptr<FilamentBuffer>>([=] { return _proxy->cthis()->loadAsset(path); });
+  return _proxy->cthis()->loadAsset(path);
 }
 
 std::shared_ptr<FilamentView> AndroidFilamentProxy::findFilamentView(int id) {
-  return jni::WithJNIScope<std::shared_ptr<FilamentView>>([=] { return _proxy->cthis()->findFilamentView(id); });
+  return _proxy->cthis()->findFilamentView(id);
 }
 
 std::shared_ptr<Choreographer> AndroidFilamentProxy::createChoreographer() {
@@ -32,6 +32,14 @@ std::shared_ptr<Choreographer> AndroidFilamentProxy::createChoreographer() {
 
 std::shared_ptr<react::CallInvoker> AndroidFilamentProxy::getCallInvoker() {
   return _proxy->cthis()->getCallInvoker();
+}
+
+std::shared_ptr<Dispatcher> AndroidFilamentProxy::getUIDispatcher() {
+  return _proxy->cthis()->getUIDispatcher();
+}
+
+std::shared_ptr<Dispatcher> AndroidFilamentProxy::getBackgroundDispatcher() {
+  return _proxy->cthis()->getBackgroundDispatcher();
 }
 
 jsi::Runtime& AndroidFilamentProxy::getRuntime() {
