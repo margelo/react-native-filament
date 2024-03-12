@@ -4,6 +4,7 @@ import { FilamentProxy } from './native/FilamentProxy'
 import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 import { Engine } from './types'
 import { FilamentView } from './native/FilamentViewTypes'
+import { reportError } from './ErrorUtils'
 
 export interface FilamentProps extends NativeProps {
   engine: Engine
@@ -32,14 +33,18 @@ export class Filament extends React.PureComponent<FilamentProps> {
   }
 
   onViewReady = async () => {
-    const handle = this.handle
-    this.view = await FilamentProxy.findFilamentView(handle)
-    if (this.view == null) {
-      throw new Error(`Failed to find FilamentView #${handle}!`)
+    try {
+      const handle = this.handle
+      this.view = await FilamentProxy.findFilamentView(handle)
+      if (this.view == null) {
+        throw new Error(`Failed to find FilamentView #${handle}!`)
+      }
+      const surfaceProvider = this.view.getSurfaceProvider()
+      // Link the surface with the engine:
+      this.props.engine.setSurfaceProvider(surfaceProvider)
+    } catch (e) {
+      reportError(e)
     }
-    const surfaceProvider = this.view.getSurfaceProvider()
-    // Link the surface with the engine:
-    this.props.engine.setSurfaceProvider(surfaceProvider)
   }
 
   /** @internal */
