@@ -4,6 +4,7 @@ import android.view.View;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
@@ -18,8 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
+import java.util.concurrent.Executors;
 
 /** @noinspection JavaJniMissingFunction*/
 class FilamentProxy {
@@ -28,6 +28,8 @@ class FilamentProxy {
     @Keep
     private final HybridData mHybridData;
     private final ReactApplicationContext reactContext;
+    private final Dispatcher uiThreadDispatcher;
+    private final Dispatcher backgroundThreadDispatcher;
 
     FilamentProxy(@NonNull ReactApplicationContext context) {
         JavaScriptContextHolder jsRuntimeHolder = context.getJavaScriptContextHolder();
@@ -41,6 +43,9 @@ class FilamentProxy {
         }
         mHybridData = initHybrid(runtimePointer, (CallInvokerHolderImpl) callInvokerHolder);
         reactContext = context;
+
+        uiThreadDispatcher = new Dispatcher(ContextCompat.getMainExecutor(context));
+        backgroundThreadDispatcher = new Dispatcher(Executors.newCachedThreadPool());
     }
 
     /** @noinspection unused*/
@@ -91,6 +96,20 @@ class FilamentProxy {
             throw new RuntimeException("Filament View with id " + id + " cannot be found!");
         }
         return (FilamentView) view;
+    }
+
+    /** @noinspection unused*/
+    @DoNotStrip
+    @Keep
+    Dispatcher getUIDispatcher() {
+        return uiThreadDispatcher;
+    }
+
+    /** @noinspection unused*/
+    @DoNotStrip
+    @Keep
+    Dispatcher getBackgroundDispatcher() {
+        return backgroundThreadDispatcher;
     }
 
     private native HybridData initHybrid(long jsRuntimePointer, CallInvokerHolderImpl callInvokerHolder);

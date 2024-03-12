@@ -5,6 +5,7 @@
 #include "JFilamentProxy.h"
 #include "AndroidManagedBuffer.h"
 #include "JChoreographer.h"
+#include "JDispatcher.h"
 #include "JFilamentView.h"
 #include "JNISharedPtr.h"
 #include <fbjni/ByteBuffer.h>
@@ -43,6 +44,26 @@ std::shared_ptr<Choreographer> JFilamentProxy::createChoreographer() {
   jni::global_ref<JChoreographer::javaobject> globalRef = jni::make_global(choreographer);
   std::shared_ptr<JChoreographer> sharedRef = JNISharedPtr::make_shared_from_jni<JChoreographer>(globalRef);
   return std::static_pointer_cast<Choreographer>(sharedRef);
+}
+
+std::shared_ptr<Dispatcher> JFilamentProxy::getUIDispatcher() {
+  if (_uiDispatcher == nullptr) {
+    static const auto method = javaClassLocal()->getMethod<jni::alias_ref<JDispatcher::javaobject>()>("getUIDispatcher");
+    jni::local_ref<JDispatcher::javaobject> dispatcher = method(_javaPart);
+    jni::global_ref<JDispatcher::javaobject> globalRef = jni::make_global(dispatcher);
+    _uiDispatcher = JNISharedPtr::make_shared_from_jni<JDispatcher>(globalRef);
+  }
+  return _uiDispatcher;
+}
+
+std::shared_ptr<Dispatcher> JFilamentProxy::getBackgroundDispatcher() {
+  if (_backgroundDispatcher == nullptr) {
+    static const auto method = javaClassLocal()->getMethod<jni::alias_ref<JDispatcher::javaobject>()>("getBackgroundDispatcher");
+    jni::local_ref<JDispatcher::javaobject> dispatcher = method(_javaPart);
+    jni::global_ref<JDispatcher::javaobject> globalRef = jni::make_global(dispatcher);
+    _backgroundDispatcher = JNISharedPtr::make_shared_from_jni<JDispatcher>(globalRef);
+  }
+  return _backgroundDispatcher;
 }
 
 jsi::Runtime& JFilamentProxy::getRuntime() {

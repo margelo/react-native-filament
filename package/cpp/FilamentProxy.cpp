@@ -18,19 +18,33 @@ using namespace facebook;
 
 void FilamentProxy::loadHybridMethods() {
   registerHybridMethod("loadAsset", &FilamentProxy::loadAssetAsync, this);
-  registerHybridMethod("findFilamentView", &FilamentProxy::findFilamentView, this);
+  registerHybridMethod("findFilamentView", &FilamentProxy::findFilamentViewAsync, this);
   registerHybridMethod("createTestObject", &FilamentProxy::createTestObject, this);
   registerHybridMethod("createEngine", &FilamentProxy::createEngine, this);
 }
 
 std::future<std::shared_ptr<FilamentBuffer>> FilamentProxy::loadAssetAsync(std::string path) {
   auto weakThis = std::weak_ptr<FilamentProxy>(shared<FilamentProxy>());
-  return std::async(std::launch::async, [=]() {
+  auto dispatcher = getBackgroundDispatcher();
+  return dispatcher->runAsync<std::shared_ptr<FilamentBuffer>>([=]() {
     auto sharedThis = weakThis.lock();
     if (sharedThis != nullptr) {
       return this->loadAsset(path);
     } else {
       throw std::runtime_error("Failed to load asset, FilamentProxy has already been destroyed!");
+    }
+  });
+}
+
+std::future<std::shared_ptr<FilamentView>> FilamentProxy::findFilamentViewAsync(int id) {
+  auto weakThis = std::weak_ptr<FilamentProxy>(shared<FilamentProxy>());
+  auto dispatcher = getUIDispatcher();
+  return dispatcher->runAsync<std::shared_ptr<FilamentView>>([=]() {
+    auto sharedThis = weakThis.lock();
+    if (sharedThis != nullptr) {
+      return this->findFilamentView(id);
+    } else {
+      throw std::runtime_error("Failed to find Filament View, FilamentProxy has already been destroyed!");
     }
   });
 }

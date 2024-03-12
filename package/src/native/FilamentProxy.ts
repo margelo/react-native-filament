@@ -30,7 +30,7 @@ export interface TFilamentProxy {
   /**
    * @private
    */
-  findFilamentView(viewTag: number): FilamentView
+  findFilamentView(viewTag: number): Promise<FilamentView>
 
   /**
    * Creates a new engine. You should only call this once.
