@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import type { Engine, RenderCallback } from '../types'
+import { reportError } from '../ErrorUtils'
 
 export function useRenderCallback(engine: Engine, onFrame: RenderCallback) {
   const renderCallback = useRef(onFrame)
@@ -11,13 +12,7 @@ export function useRenderCallback(engine: Engine, onFrame: RenderCallback) {
       try {
         renderCallback.current(...args)
       } catch (e) {
-        // @ts-expect-error this is defined by react-native.
-        if (global.ErorrUtils != null) {
-          // @ts-expect-error this is defined by react-native.
-          global.ErrorUtils.reportFatalError(e)
-        } else {
-          console.error(`Filament failed to render!`, e)
-        }
+        reportError(e)
       }
     })
     return () => {
