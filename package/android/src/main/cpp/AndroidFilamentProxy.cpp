@@ -3,6 +3,7 @@
 //
 
 #include "AndroidFilamentProxy.h"
+#include "WithJNIScope.h"
 
 namespace margelo {
 
@@ -18,11 +19,11 @@ AndroidFilamentProxy::~AndroidFilamentProxy() {
 }
 
 std::shared_ptr<FilamentBuffer> AndroidFilamentProxy::loadAsset(std::string path) {
-  return _proxy->cthis()->loadAsset(path);
+  return jni::WithJNIScope<std::shared_ptr<FilamentBuffer>>([=] { return _proxy->cthis()->loadAsset(path); });
 }
 
 std::shared_ptr<FilamentView> AndroidFilamentProxy::findFilamentView(int id) {
-  return _proxy->cthis()->findFilamentView(id);
+  return jni::WithJNIScope<std::shared_ptr<FilamentView>>([=] { return _proxy->cthis()->findFilamentView(id); });
 }
 
 std::shared_ptr<Choreographer> AndroidFilamentProxy::createChoreographer() {
