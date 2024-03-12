@@ -36,7 +36,6 @@ std::future<std::shared_ptr<FilamentBuffer>> FilamentProxy::loadAssetAsync(std::
   });
 }
 
-
 std::future<std::shared_ptr<FilamentView>> FilamentProxy::findFilamentViewAsync(int id) {
   auto weakThis = std::weak_ptr<FilamentProxy>(shared<FilamentProxy>());
   auto dispatcher = getUIDispatcher();

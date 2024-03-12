@@ -12,15 +12,19 @@
 
 namespace margelo {
 
-class AppleDispatcher: public Dispatcher {
+class AppleDispatcher : public Dispatcher {
 public:
-  explicit AppleDispatcher(dispatch_queue_t dispatchQueue): _dispatchQueue(dispatchQueue) { }
-  
+  explicit AppleDispatcher(dispatch_queue_t dispatchQueue) : _dispatchQueue(dispatchQueue) {}
+
 public:
-  void scheduleTrigger() override;
-  
+  void scheduleTrigger() override {
+    dispatch_async(_dispatchQueue, ^{
+      trigger();
+    });
+  }
+
 private:
   dispatch_queue_t _dispatchQueue;
 };
 
-}
+} // namespace margelo
