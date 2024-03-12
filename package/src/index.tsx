@@ -8,3 +8,5 @@ export * from './Filament'
 // hooks
 export * from './hooks/useEngine'
 export * from './hooks/useRenderCallback'
+export * from './hooks/useAsset'
+export * from './hooks/useModel'
