@@ -34,21 +34,19 @@ public:
     auto promise = std::make_shared<std::promise<T>>();
     std::future<T> future = promise->get_future();
 
-    {
-      std::unique_lock lock(_mutex);
-      _jobs.push([function = std::move(function), promise]() {
-        try {
-          // 4. Call the actual function on the new Thread
-          T result = function();
-          // 5.a. Resolve the Promise if we succeeded
-          promise->set_value(std::move(result));
-        } catch (...) {
-          // 5.b. Reject the Promise if the call failed
-          promise->set_exception(std::current_exception());
-        }
-      });
-      scheduleTrigger();
-    }
+    std::unique_lock lock(_mutex);
+    _jobs.push([function = std::move(function), promise]() {
+      try {
+        // 4. Call the actual function on the new Thread
+        T result = function();
+        // 5.a. Resolve the Promise if we succeeded
+        promise->set_value(std::move(result));
+      } catch (...) {
+        // 5.b. Reject the Promise if the call failed
+        promise->set_exception(std::current_exception());
+      }
+    });
+    scheduleTrigger();
 
     // 3. Return an open future that gets resolved later by the dispatcher Thread
     return future;
