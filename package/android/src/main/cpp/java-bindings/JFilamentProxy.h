@@ -5,13 +5,13 @@
 #pragma once
 
 #include "Choreographer.h"
+#include "Dispatcher.h"
 #include "FilamentBuffer.h"
 #include "FilamentView.h"
 #include <ReactCommon/CallInvokerHolder.h>
 #include <fbjni/fbjni.h>
 #include <jni.h>
 #include <jsi/jsi.h>
-#include "Dispatcher.h"
 
 namespace margelo {
 
@@ -42,7 +42,7 @@ private:
   std::shared_ptr<Dispatcher> _uiDispatcher;
   std::shared_ptr<Dispatcher> _backgroundDispatcher;
 
- private:
+private:
   static auto constexpr TAG = "FilamentProxy";
   static auto constexpr kJavaDescriptor = "Lcom/margelo/filament/FilamentProxy;";
 

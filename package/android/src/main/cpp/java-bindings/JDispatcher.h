@@ -4,36 +4,35 @@
 
 #pragma once
 
-#include <fbjni/fbjni.h>
 #include "Dispatcher.h"
+#include <fbjni/fbjni.h>
 
 namespace margelo {
 
 using namespace facebook;
 
 class JDispatcher : public jni::HybridClass<JDispatcher>, public Dispatcher {
- public:
+public:
   ~JDispatcher();
   static void registerNatives();
 
- public:
-  void dispatch(std::function<void()>&& function) override;
+public:
+  void scheduleTrigger() override;
 
- private:
-  void runFunction(jlong functionPointer);
+private:
+  void triggerParent();
 
- private:
+private:
   friend HybridBase;
   jni::global_ref<JDispatcher::javaobject> _javaPart;
 
- private:
+private:
   static auto constexpr TAG = "JDispatcher";
   static auto constexpr kJavaDescriptor = "Lcom/margelo/filament/Dispatcher;";
 
- private:
+private:
   explicit JDispatcher(const jni::alias_ref<jhybridobject>& javaThis);
   static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> javaThis);
 };
 
-} // margelo
-
+} // namespace margelo

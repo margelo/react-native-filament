@@ -24,12 +24,10 @@ public class Dispatcher {
     /** @noinspection unused */
     @DoNotStrip
     @Keep
-    private void dispatch(long functionPointer) {
-        executor.execute(() -> {
-            this.runFunction(functionPointer);
-        });
+    private void scheduleTrigger() {
+        executor.execute(this::trigger);
     }
 
-    private native void runFunction(long functionPointer);
+    private native void trigger();
     private native HybridData initHybrid();
 }
