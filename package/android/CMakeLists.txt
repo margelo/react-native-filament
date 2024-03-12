@@ -29,6 +29,7 @@ add_library(
         ../cpp/SurfaceProvider.cpp
         ../cpp/Choreographer.cpp
         ../cpp/Listener.cpp
+        ../cpp/Dispatcher.cpp
         ../cpp/jsi/HybridObject.cpp
         ../cpp/jsi/Promise.cpp
         ../cpp/jsi/PromiseFactory.cpp
@@ -58,6 +59,7 @@ add_library(
         src/main/cpp/java-bindings/JFilamentProxy.cpp
         src/main/cpp/java-bindings/JChoreographer.cpp
         src/main/cpp/java-bindings/JFilamentView.cpp
+        src/main/cpp/java-bindings/JDispatcher.cpp
         src/main/cpp/java-bindings/JSurfaceProvider.cpp
 )
 

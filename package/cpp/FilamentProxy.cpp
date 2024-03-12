@@ -25,7 +25,8 @@ void FilamentProxy::loadHybridMethods() {
 
 std::future<std::shared_ptr<FilamentBuffer>> FilamentProxy::loadAssetAsync(std::string path) {
   auto weakThis = std::weak_ptr<FilamentProxy>(shared<FilamentProxy>());
-  return std::async(std::launch::async, [=]() {
+  auto dispatcher = getBackgroundDispatcher();
+  return dispatcher->runAsync<std::shared_ptr<FilamentBuffer>>([=]() {
     auto sharedThis = weakThis.lock();
     if (sharedThis != nullptr) {
       return this->loadAsset(path);
