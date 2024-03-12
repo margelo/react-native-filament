@@ -29,7 +29,6 @@ add_library(
         ../cpp/SurfaceProvider.cpp
         ../cpp/Choreographer.cpp
         ../cpp/Listener.cpp
-        ../cpp/Dispatcher.cpp
         ../cpp/jsi/HybridObject.cpp
         ../cpp/jsi/Promise.cpp
         ../cpp/jsi/PromiseFactory.cpp
