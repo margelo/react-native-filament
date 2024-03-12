@@ -11,9 +11,13 @@ namespace facebook {
 namespace jni {
 
   template <typename T> T WithJNIScope(std::function<T()>&& lambda) {
-    T result;
-    jni::ThreadScope::WithClassLoader([&result, lambda = std::move(lambda)]() { result = lambda(); });
-    return std::move(result);
+    // std::optional delays default constructor
+    std::optional<T> result;
+    jni::ThreadScope::WithClassLoader([&result, lambda = std::move(lambda)]() {
+      // update the optional value
+      result.emplace(lambda());
+    });
+    return std::move(result.value());
   }
 
 } // namespace jni
