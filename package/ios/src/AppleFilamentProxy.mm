@@ -65,7 +65,7 @@ std::shared_ptr<Dispatcher> AppleFilamentProxy::getBackgroundDispatcher() {
   if (_backgroundDispatcher == nullptr) {
     dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_USER_INITIATED, -1);
     dispatch_queue_t queue = dispatch_queue_create("filament.background.queue", qos);
-    _uiDispatcher = std::make_shared<AppleDispatcher>(queue);
+    _backgroundDispatcher = std::make_shared<AppleDispatcher>(queue);
   }
   return _backgroundDispatcher;
 }
