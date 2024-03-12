@@ -1,8 +1,17 @@
 diff --git a/libs/gltfio/include/gltfio/Animator.h b/libs/gltfio/include/gltfio/Animator.h
-index 199555a40..f426edf0e 100644
+index 199555a40..9111df050 100644
 --- a/libs/gltfio/include/gltfio/Animator.h
 +++ b/libs/gltfio/include/gltfio/Animator.h
-@@ -97,6 +97,12 @@ public:
+@@ -20,6 +20,8 @@
+ #include <gltfio/FilamentAsset.h>
+ #include <gltfio/FilamentInstance.h>
+ 
++#define HAS_FILAMENT_ANIMATOR_PATCH 1
++
+ namespace filament::gltfio {
+ 
+ struct FFilamentAsset;
+@@ -97,6 +99,12 @@ public:
      // For internal use only.
      void addInstance(FFilamentInstance* instance);
  
@@ -15,7 +24,7 @@ index 199555a40..f426edf0e 100644
  private:
  
      /*! \cond PRIVATE */
-@@ -106,7 +112,6 @@ private:
+@@ -106,7 +114,6 @@ private:
  
      // If "instance" is null, then this is the primary animator.
      Animator(FFilamentAsset const* asset, FFilamentInstance* instance);
