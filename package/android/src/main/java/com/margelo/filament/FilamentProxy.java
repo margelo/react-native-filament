@@ -98,10 +98,16 @@ class FilamentProxy {
         return (FilamentView) view;
     }
 
-    Dispatcher getMainDispatcher() {
+    /** @noinspection unused*/
+    @DoNotStrip
+    @Keep
+    Dispatcher getUIDispatcher() {
         return uiThreadDispatcher;
     }
 
+    /** @noinspection unused*/
+    @DoNotStrip
+    @Keep
     Dispatcher getBackgroundDispatcher() {
         return backgroundThreadDispatcher;
     }

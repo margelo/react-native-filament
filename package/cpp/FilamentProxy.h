@@ -29,7 +29,7 @@ public:
   explicit FilamentProxy() : HybridObject("FilamentProxy") {}
 
 private:
-  std::future<std::shared_ptr<FilamentBuffer>> loadAssetAsync(std::string path);
+  // Platform-specific implementations
   virtual std::shared_ptr<FilamentBuffer> loadAsset(std::string path) = 0;
   virtual std::shared_ptr<FilamentView> findFilamentView(int id) = 0;
   virtual std::shared_ptr<Choreographer> createChoreographer() = 0;
@@ -40,6 +40,8 @@ private:
   std::shared_ptr<TestHybridObject> createTestObject();
 
   // Public API
+  std::future<std::shared_ptr<FilamentBuffer>> loadAssetAsync(std::string path);
+  std::future<std::shared_ptr<FilamentView>> findFilamentViewAsync(int id);
   std::shared_ptr<EngineWrapper> createEngine();
 
 public:
