@@ -8,6 +8,7 @@
 #import "AppleFilamentProxy.h"
 #import "AppleChoreographer.h"
 #import "AppleFilamentView.h"
+#import "AppleDispatcher.h"
 #import "AppleManagedBuffer.h"
 #import "FilamentMetalView.h"
 #import "FilamentView.h"
@@ -51,6 +52,22 @@ std::shared_ptr<FilamentBuffer> AppleFilamentProxy::loadAsset(std::string path) 
 
   auto managedBuffer = std::make_shared<AppleManagedBuffer>(bufferData);
   return std::make_shared<FilamentBuffer>(managedBuffer);
+}
+
+std::shared_ptr<Dispatcher> AppleFilamentProxy::getUIDispatcher() {
+  if (_uiDispatcher == nullptr) {
+    _uiDispatcher = std::make_shared<AppleDispatcher>(dispatch_get_main_queue());
+  }
+  return _uiDispatcher;
+}
+
+std::shared_ptr<Dispatcher> AppleFilamentProxy::getBackgroundDispatcher() {
+  if (_backgroundDispatcher == nullptr) {
+    dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_USER_INITIATED, -1);
+    dispatch_queue_t queue = dispatch_queue_create("filament.background.queue", qos);
+    _uiDispatcher = std::make_shared<AppleDispatcher>(queue);
+  }
+  return _backgroundDispatcher;
 }
 
 jsi::Runtime& AppleFilamentProxy::getRuntime() {
