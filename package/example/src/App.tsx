@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { useEffect, useRef } from 'react'
 
-import { Platform, StyleSheet } from 'react-native'
-import { Filament, useEngine, Float3, useRenderCallback, useAsset, useModel } from 'react-native-filament'
+import { Platform, StyleSheet, View } from 'react-native'
+import { Filament, useEngine, Float3, useRenderCallback, useAsset, useModel, Animator } from 'react-native-filament'
 
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',
@@ -12,6 +12,11 @@ const penguModelPath = Platform.select({
 const indirectLightPath = Platform.select({
   android: 'custom/default_env_ibl.ktx',
   ios: 'default_env_ibl.ktx',
+})!
+
+const pirateHatPath = Platform.select({
+  android: 'custom/pirate.glb',
+  ios: 'pirate.glb',
 })!
 
 // Camera config:
@@ -27,6 +32,15 @@ export default function App() {
 
   const pengu = useModel({ engine: engine, path: penguModelPath })
   const light = useAsset({ path: indirectLightPath })
+  const pirateHat = useModel({ engine: engine, path: pirateHatPath })
+  const pirateHatAnimatorRef = useRef<Animator>()
+
+  // Copy animations from pirate hat to pengu
+  useEffect(() => {
+    if (pirateHat.state === 'loaded' && pengu.state === 'loaded') {
+      pirateHatAnimatorRef.current = pirateHat.asset.createAnimatorWithAnimationsFrom(pengu.asset)
+    }
+  }, [pengu, pirateHat])
 
   useEffect(() => {
     if (light == null) return
@@ -56,14 +70,25 @@ export default function App() {
       pengu.animator.applyAnimation(0, passedSeconds)
       pengu.animator.updateBoneMatrices()
     }
+    if (pirateHatAnimatorRef.current != null) {
+      pirateHatAnimatorRef.current.applyAnimation(0, passedSeconds)
+      pirateHatAnimatorRef.current.updateBoneMatrices()
+    }
 
     engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
   })
 
-  return <Filament style={styles.filamentView} engine={engine} />
+  return (
+    <View style={styles.container}>
+      <Filament style={styles.filamentView} engine={engine} />
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   filamentView: {
     flex: 1,
     backgroundColor: 'lightblue',
