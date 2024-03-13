@@ -35,13 +35,11 @@ export default function App() {
   const pengu = useModel({ engine: engine, path: penguModelPath })
   const light = useAsset({ path: indirectLightPath })
   const pirateHat = useModel({ engine: engine, path: pirateHatPath })
-  const pirateHatAnimatorRef = useRef<Animator>()
-
-  // Copy animations from pirate hat to pengu
-  useEffect(() => {
-    if (pirateHat.state === 'loaded' && pengu.state === 'loaded') {
-      pirateHatAnimatorRef.current = pirateHat.asset.createAnimatorWithAnimationsFrom(pengu.asset)
+  const pirateHatAnimator = useMemo(() => {
+    if (pirateHat.state !== 'loaded' || pengu.state !== 'loaded') {
+      return undefined
     }
+    return pirateHat.asset.createAnimatorWithAnimationsFrom(pengu.asset)
   }, [pengu, pirateHat])
 
   const prevAnimationIndex = useRef<number>()
@@ -75,13 +73,13 @@ export default function App() {
 
     engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
 
-    if (pengu.state !== 'loaded' || pirateHatAnimatorRef.current == null) {
+    if (pengu.state !== 'loaded' || pirateHatAnimator == null) {
       return
     }
 
     // Update the animators to play the current animation
     pengu.animator.applyAnimation(currentAnimationIndex.current, passedSeconds)
-    pirateHatAnimatorRef.current.applyAnimation(currentAnimationIndex.current, passedSeconds)
+    pirateHatAnimator.applyAnimation(currentAnimationIndex.current, passedSeconds)
 
     // Eventually apply a cross fade
     if (prevAnimationIndex.current != null) {
@@ -97,7 +95,7 @@ export default function App() {
 
       // Blend animations using a cross fade
       pengu.animator.applyCrossFade(prevAnimationIndex.current, prevAnimationStarted.current!, alpha)
-      pirateHatAnimatorRef.current.applyCrossFade(prevAnimationIndex.current, prevAnimationStarted.current!, alpha)
+      pirateHatAnimator.applyCrossFade(prevAnimationIndex.current, prevAnimationStarted.current!, alpha)
 
       // Reset the prev animation once the transition is completed
       if (alpha >= 1) {
@@ -108,7 +106,7 @@ export default function App() {
     }
 
     pengu.animator.updateBoneMatrices()
-    pirateHatAnimatorRef.current.updateBoneMatrices()
+    pirateHatAnimator.updateBoneMatrices()
   })
 
   const animations = useMemo(() => {
