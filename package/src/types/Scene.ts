@@ -7,7 +7,7 @@ import type { FilamentAsset } from './FilamentAsset'
  *
  * A `Scene` doesn't provide a hierarchy of objects, i.e.: it's not a scene-graph.
  * However, it manages the list of objects to render and the list of lights. These can
- * be added or removeEd from a `Scene` at any time.
+ * be added or removed from a `Scene` at any time.
  * Moreover clients can use `TransformManager` to create a graph of transforms.
  *
  * A `RenderableManager` component must be added to a `Scene` in order
