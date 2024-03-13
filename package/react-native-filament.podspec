@@ -115,6 +115,19 @@ Pod::Spec.new do |s|
     ss.dependency "react-native-filament/utils"
   end
 
+  s.subspec "gltfio_core" do |ss|
+    ss.source_files = "ios/libs/filament/include/gltfio/**/*.h"
+    ss.header_mappings_dir = "ios/libs/filament/include"
+    ss.vendored_libraries =
+      "ios/libs/filament/lib/universal/libgltfio_core.a",
+      "ios/libs/filament/lib/universal/libdracodec.a",
+      "ios/libs/filament/lib/universal/libuberarchive.a",
+      "ios/libs/filament/lib/universal/libstb.a"
+    ss.dependency "react-native-filament/filament"
+    ss.dependency "react-native-filament/ktxreader"
+    ss.dependency "react-native-filament/uberz"
+  end
+
   # All source files that should be publicly visible
   # Note how this does not include headers, since those can nameclash.
   s.source_files = [
