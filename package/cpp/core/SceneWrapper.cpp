@@ -1,5 +1,6 @@
 #include "SceneWrapper.h"
 #include <filament/TransformManager.h>
+#include <utils/Entity.h>
 
 namespace margelo {
 
@@ -14,6 +15,8 @@ SceneWrapper::~SceneWrapper() {
 
 void margelo::SceneWrapper::loadHybridMethods() {
   registerHybridMethod("addEntity", &SceneWrapper::addEntity, this);
+  registerHybridMethod("addAssetEntities", &SceneWrapper::addAssetEntities, this);
+  registerHybridMethod("removeAssetEntities", &SceneWrapper::removeAssetEntities, this);
 }
 
 void margelo::SceneWrapper::addEntity(std::shared_ptr<EntityWrapper> entity) {
@@ -46,6 +49,32 @@ void SceneWrapper::removeAsset(std::shared_ptr<gltfio::FilamentAsset> asset) {
   auto entities = asset->getEntities();
   auto entityCount = asset->getEntityCount();
   _scene->removeEntities(entities, entityCount);
+}
+
+void SceneWrapper::removeAssetEntities(std::shared_ptr<FilamentAssetWrapper> asset) {
+  if (asset == nullptr) {
+    throw new std::invalid_argument("Asset is null");
+  }
+
+  std::shared_ptr<gltfio::FilamentAsset> filamentAsset = asset->getAsset();
+  if (filamentAsset == nullptr) {
+    throw new std::invalid_argument("Filament asset is null");
+  }
+
+  removeAsset(filamentAsset);
+}
+
+void SceneWrapper::addAssetEntities(std::shared_ptr<FilamentAssetWrapper> asset) {
+  if (asset == nullptr) {
+    throw new std::invalid_argument("Asset is null");
+  }
+
+  std::shared_ptr<gltfio::FilamentAsset> filamentAsset = asset->getAsset();
+  if (filamentAsset == nullptr) {
+    throw new std::invalid_argument("Filament asset is null");
+  }
+
+  addAsset(filamentAsset);
 }
 
 } // namespace margelo
