@@ -20,10 +20,8 @@ target="release"
 # On iOS, we already use Filament from CocoaPods.
 echo "Building Filament for iOS ($target)..."
 # -s = iOS simulator support
-# -l = Build fat universal library (x86_64 + arm64)
-# -c = Cleans out the cmake build directory
 # -l = Build fat universal library (x86_64 + arm64), needed to easily include library from podspec
-./build.sh -s -p ios -i "$target" -l
+./build.sh -s -l -p ios -i "$target"
 
 echo "Copying Filament iOS libraries to react-native-filament..."
 rm -rf ../package/ios/libs/filament
