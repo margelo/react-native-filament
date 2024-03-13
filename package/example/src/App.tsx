@@ -48,14 +48,6 @@ export default function App() {
   const animationInterpolation = useRef(0)
   const currentAnimationIndex = useRef(0)
 
-  // Add models to the scene as they become available
-  useEffect(() => {
-    if (pengu.state === 'loaded' && pirateHat.state === 'loaded') {
-      engine.getScene().addAssetEntities(pengu.asset)
-      engine.getScene().addAssetEntities(pirateHat.asset)
-    }
-  }, [engine, pengu, pirateHat])
-
   useEffect(() => {
     if (light == null) return
     // create a default light
