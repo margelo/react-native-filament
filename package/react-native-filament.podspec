@@ -45,7 +45,6 @@ Pod::Spec.new do |s|
         "ios/libs/filament/lib/universal/libgeometry.a"
     ss.dependency "react-native-filament/utils"
     ss.dependency "react-native-filament/math"
-    # ss.header_dir = "filament"
   end
 
   s.subspec "camutils" do |ss|
@@ -60,7 +59,6 @@ Pod::Spec.new do |s|
     ss.header_mappings_dir = "ios/libs/filament/include"
     ss.vendored_libraries = "ios/libs/filament/lib/universal/libutils.a"
     ss.dependency "react-native-filament/tsl"
-    # ss.header_dir = "utils"
   end
 
   s.subspec "tsl" do |ss|
@@ -71,6 +69,28 @@ Pod::Spec.new do |s|
   s.subspec "math" do |ss|
     ss.source_files = "ios/libs/filament/include/math/*.h"
     ss.header_dir = "math"
+  end
+
+  s.subspec "filamat" do |ss|
+    ss.source_files =
+        "ios/libs/filament/include/filamat/*.h",
+        "ios/libs/filament/include/filament/MaterialChunkType.h",
+        "ios/libs/filament/include/filament/MaterialEnums.h"
+    ss.header_mappings_dir = "include"
+    ss.vendored_libraries =
+      "ios/libs/filament/lib/universal/libfilamat.a",
+      "ios/libs/filament/lib/universal/libshaders.a",
+      "ios/libs/filament/lib/universal/libsmol-v.a",
+      "ios/libs/filament/lib/universal/libfilabridge.a"
+    ss.dependency "react-native-filament/utils"
+    ss.dependency "react-native-filament/math"
+  end
+
+  s.subspec "image" do |ss|
+    ss.source_files = "ios/libs/filament/include/image/*.h"
+    ss.vendored_libraries = "ios/libs/filament/lib/universal/libimage.a"
+    ss.header_dir = "image"
+    ss.dependency "react-native-filament/filament"
   end
 
   # All source files that should be publicly visible
