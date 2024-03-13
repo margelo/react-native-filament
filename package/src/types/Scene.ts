@@ -1,4 +1,5 @@
-import { Entity } from './Entity'
+import type { Entity } from './Entity'
+import type { FilamentAsset } from './FilamentAsset'
 
 /**
  * A `Scene` is a flat container of `RenderableManager` and `LightManager`
@@ -24,5 +25,18 @@ import { Entity } from './Entity'
  */
 
 export interface Scene {
+  /**
+   * Adds a single entity to the scene.
+   * If you want to add your asset to the scene, which likely contains multiple entities,
+   * use {@link addAssetEntities} instead.
+   */
   addEntity(entity: Entity): void
+  /**
+   * Adds all entities associated with the given asset to the scene.
+   */
+  addAssetEntities(asset: FilamentAsset): void
+  /**
+   * Removes all entities associated with the given asset from the scene.
+   */
+  removeAssetEntities(asset: FilamentAsset): void
 }
