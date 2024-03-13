@@ -76,7 +76,7 @@ Pod::Spec.new do |s|
         "ios/libs/filament/include/filamat/*.h",
         "ios/libs/filament/include/filament/MaterialChunkType.h",
         "ios/libs/filament/include/filament/MaterialEnums.h"
-    ss.header_mappings_dir = "include"
+    ss.header_mappings_dir = "ios/libs/filament/include"
     ss.vendored_libraries =
       "ios/libs/filament/lib/universal/libfilamat.a",
       "ios/libs/filament/lib/universal/libshaders.a",
@@ -91,6 +91,28 @@ Pod::Spec.new do |s|
     ss.vendored_libraries = "ios/libs/filament/lib/universal/libimage.a"
     ss.header_dir = "image"
     ss.dependency "react-native-filament/filament"
+  end
+
+  s.subspec "ktxreader" do |ss|
+    ss.source_files = "ios/libs/filament/include/ktxreader/*.h"
+    ss.header_mappings_dir = "ios/libs/filament/include"
+    ss.vendored_libraries =
+        "ios/libs/filament/lib/universal/libktxreader.a",
+        "ios/libs/filament/lib/universal/libbasis_transcoder.a"
+    ss.dependency "react-native-filament/image"
+    ss.dependency "react-native-filament/filament"
+  end
+
+  s.subspec "uberz" do |ss|
+    ss.source_files = "ios/libs/filament/include/uberz/*.h"
+    ss.header_mappings_dir = "ios/libs/filament/include"
+    ss.vendored_libraries =
+        "ios/libs/filament/lib/universal/libuberzlib.a",
+        "ios/libs/filament/lib/universal/libzstd.a"
+    ss.header_dir = "uberz"
+    ss.dependency "react-native-filament/filamat"
+    ss.dependency "react-native-filament/tsl"
+    ss.dependency "react-native-filament/utils"
   end
 
   # All source files that should be publicly visible
