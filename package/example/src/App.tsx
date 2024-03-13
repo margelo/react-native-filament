@@ -88,10 +88,6 @@ export default function App() {
       }
       animationInterpolation.current += passedSeconds - prevAnimationStarted.current
       const alpha = animationInterpolation.current / animationInterpolationTime
-      console.log('alpha', alpha)
-      console.log('prevAnimationIndex.current', prevAnimationIndex.current)
-      console.log('prevAnimationStarted.current', prevAnimationStarted.current)
-      console.log('currentAnimationIndex.current', currentAnimationIndex.current)
 
       // Blend animations using a cross fade
       pengu.animator.applyCrossFade(prevAnimationIndex.current, prevAnimationStarted.current!, alpha)
