@@ -1,5 +1,6 @@
 #pragma once
 
+#include "FilamentAssetWrapper.h"
 #include "core/utils/EntityWrapper.h"
 #include "jsi/HybridObject.h"
 
@@ -32,6 +33,14 @@ private:
 
 private:
   void addEntity(std::shared_ptr<EntityWrapper> entity);
+  /**
+   * Removed all entities associated with the provided asset from the scene.
+   */
+  void removeAssetEntities(std::shared_ptr<FilamentAssetWrapper> asset);
+  /**
+   * Adds all entities associated with the provided asset to the scene.
+   */
+  void addAssetEntities(std::shared_ptr<FilamentAssetWrapper> asset);
   std::shared_ptr<gltfio::AssetLoader> _assetLoader;
 };
 } // namespace margelo

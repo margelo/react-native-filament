@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useEffect, useMemo, useRef } from 'react'
 
 import { Button, Platform, ScrollView, StyleSheet, View } from 'react-native'
-import { Filament, useEngine, Float3, useRenderCallback, useAsset, useModel, Animator } from 'react-native-filament'
+import { Filament, useEngine, Float3, useRenderCallback, useAsset, useModel } from 'react-native-filament'
 
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',
@@ -41,6 +41,7 @@ export default function App() {
     }
     return pirateHat.asset.createAnimatorWithAnimationsFrom(pengu.asset)
   }, [pengu, pirateHat])
+  const isPirateHatAdded = useRef(true) // assets are added by default to the scene
 
   const prevAnimationIndex = useRef<number>()
   const prevAnimationStarted = useRef<number>()
@@ -119,6 +120,22 @@ export default function App() {
     <View style={styles.container}>
       <Filament style={styles.filamentView} engine={engine} />
       <ScrollView style={styles.btnContainer}>
+        <Button
+          title="Toggle Pirate Hat"
+          onPress={() => {
+            if (pirateHat.state === 'loaded') {
+              if (isPirateHatAdded.current) {
+                console.log('Removing pirate hat')
+                engine.getScene().removeAssetEntities(pirateHat.asset)
+                isPirateHatAdded.current = false
+              } else {
+                console.log('Adding pirate hat')
+                engine.getScene().addAssetEntities(pirateHat.asset)
+                isPirateHatAdded.current = true
+              }
+            }
+          }}
+        />
         {animations.map((name, i) => (
           <Button
             key={name}

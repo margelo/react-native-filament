@@ -18,6 +18,10 @@ public:
 
   void transformToUnitCube(TransformManager& transformManager);
 
+  std::shared_ptr<gltfio::FilamentAsset> getAsset() {
+    return _asset;
+  }
+
 private:
   std::shared_ptr<EntityWrapper> getRoot();
   void releaseSourceData();
