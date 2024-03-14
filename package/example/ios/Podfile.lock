@@ -886,71 +886,71 @@ PODS:
   - React-Mapbuffer (0.73.4):
     - glog
     - React-debug
-  - react-native-filament (0.7.1):
+  - react-native-filament (0.8.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-    - react-native-filament/camutils (= 0.7.1)
-    - react-native-filament/filamat (= 0.7.1)
-    - react-native-filament/filament (= 0.7.1)
-    - react-native-filament/gltfio_core (= 0.7.1)
-    - react-native-filament/image (= 0.7.1)
-    - react-native-filament/ktxreader (= 0.7.1)
-    - react-native-filament/math (= 0.7.1)
-    - react-native-filament/tsl (= 0.7.1)
-    - react-native-filament/uberz (= 0.7.1)
-    - react-native-filament/utils (= 0.7.1)
-  - react-native-filament/camutils (0.7.1):
-    - glog
-    - RCT-Folly (= 2022.05.16.00)
-    - React-Core
-    - react-native-filament/math
-  - react-native-filament/filamat (0.7.1):
+    - react-native-filament/camutils (= 0.8.0)
+    - react-native-filament/filamat (= 0.8.0)
+    - react-native-filament/filament (= 0.8.0)
+    - react-native-filament/gltfio_core (= 0.8.0)
+    - react-native-filament/image (= 0.8.0)
+    - react-native-filament/ktxreader (= 0.8.0)
+    - react-native-filament/math (= 0.8.0)
+    - react-native-filament/tsl (= 0.8.0)
+    - react-native-filament/uberz (= 0.8.0)
+    - react-native-filament/utils (= 0.8.0)
+  - react-native-filament/camutils (0.8.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - react-native-filament/math
-    - react-native-filament/utils
-  - react-native-filament/filament (0.7.1):
+  - react-native-filament/filamat (0.8.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - react-native-filament/math
     - react-native-filament/utils
-  - react-native-filament/gltfio_core (0.7.1):
+  - react-native-filament/filament (0.8.0):
+    - glog
+    - RCT-Folly (= 2022.05.16.00)
+    - React-Core
+    - react-native-filament/math
+    - react-native-filament/utils
+  - react-native-filament/gltfio_core (0.8.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - react-native-filament/filament
     - react-native-filament/ktxreader
     - react-native-filament/uberz
-  - react-native-filament/image (0.7.1):
+  - react-native-filament/image (0.8.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - react-native-filament/filament
-  - react-native-filament/ktxreader (0.7.1):
+  - react-native-filament/ktxreader (0.8.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - react-native-filament/filament
     - react-native-filament/image
-  - react-native-filament/math (0.7.1):
+  - react-native-filament/math (0.8.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-  - react-native-filament/tsl (0.7.1):
+  - react-native-filament/tsl (0.8.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-  - react-native-filament/uberz (0.7.1):
+  - react-native-filament/uberz (0.8.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - react-native-filament/filamat
     - react-native-filament/tsl
     - react-native-filament/utils
-  - react-native-filament/utils (0.7.1):
+  - react-native-filament/utils (0.8.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1316,7 +1316,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 9ac353eccf6ab54d1e0a33862ba91221d1e88460
   React-logger: 0a57b68dd2aec7ff738195f081f0520724b35dab
   React-Mapbuffer: 63913773ed7f96b814a2521e13e6d010282096ad
-  react-native-filament: 464502d80e6ef3fdeabbef9569a80ab7a8b3f073
+  react-native-filament: c69afb4f5e2ec86b4773aa03b2ee19ec08a46015
   React-nativeconfig: d7af5bae6da70fa15ce44f045621cf99ed24087c
   React-NativeModulesApple: 0123905d5699853ac68519607555a9a4f5c7b3ac
   React-perflogger: 8a1e1af5733004bdd91258dcefbde21e0d1faccd
