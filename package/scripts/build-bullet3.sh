@@ -13,11 +13,18 @@ mkdir -p ../package/android/libs/bullet3
 mkdir -p ../package/android/libs/bullet3/lib
 mkdir -p ../package/android/libs/bullet3/include
 
-# # We need to copy over the Updated BulletAndroid.mk file
+TARGET_SDK="$(grep '^Filament_targetSdkVersion' ./android/gradle.properties | cut -d'=' -f2)"
+ANDROID_NDK_VERSION="$(grep '^Filament_ndkversion' ./android/gradle.properties | cut -d'=' -f2)"
+
+echo "Using target SDK: $TARGET_SDK"
+echo "Using NDK version: $ANDROID_NDK_VERSION"
+
+# We need to copy over the updated BulletAndroid.mk file, since theirs is outdated
 cp -f scripts/BulletAndroidApplication.mk ../bullet3/build3/Android/jni/Application.mk
+# Change the {PLATFORM_NAME} to the actual platform value from gradle.properties
+sed -i '' "s/{PLATFORM_NAME}/$TARGET_SDK/g" ../bullet3/build3/Android/jni/Application.mk
 
 cd ../bullet3/build3/Android/jni
-ANDROID_NDK_VERSION="24.0.8215888" # This version supports arm64 architecture (apple silicon), make sure its installed on your system
 # Build the Bullet3 library
 $ANDROID_HOME/ndk/$ANDROID_NDK_VERSION/ndk-build
 
