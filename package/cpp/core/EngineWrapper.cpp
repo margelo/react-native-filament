@@ -468,16 +468,18 @@ void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> en
   btScalar bodyTransformMatrix[16];
   bodyTransform.getOpenGLMatrix(bodyTransformMatrix);
 
-  math::float3 position = {bodyTransformMatrix[12], bodyTransformMatrix[13], bodyTransformMatrix[14]};
-  auto translationMatrix = math::mat4::translation(position);
+  filament::math::mat4f filamentMatrix(bodyTransformMatrix[0], bodyTransformMatrix[1], bodyTransformMatrix[2], bodyTransformMatrix[3],
+                                       bodyTransformMatrix[4], bodyTransformMatrix[5], bodyTransformMatrix[6], bodyTransformMatrix[7],
+                                       bodyTransformMatrix[8], bodyTransformMatrix[9], bodyTransformMatrix[10], bodyTransformMatrix[11],
+                                       bodyTransformMatrix[12], bodyTransformMatrix[13], bodyTransformMatrix[14], bodyTransformMatrix[15]);
 
   TransformManager& tm = _engine->getTransformManager();
 
   Entity entity = entityWrapper->getEntity();
   EntityInstance<TransformManager> entityInstance = tm.getInstance(entity);
   auto currentTransform = tm.getTransform(entityInstance);
-  auto newTransform = currentTransform * translationMatrix;
-  tm.setTransform(entityInstance, newTransform);
+  //  auto newTransform = currentTransform * filamentMatrix;
+  tm.setTransform(entityInstance, filamentMatrix);
 }
 
 } // namespace margelo

@@ -35,7 +35,7 @@ export default function App() {
   const coinBody = useRigidBody({
     mass: 0.005, // A coin weights ~5g
     origin: [0, 5, 0],
-    shape: [0.1, 0.1, 0.1],
+    shape: [0.01, 0.01, 0.01],
     friction: 1,
     damping: [0.0, 0.5],
     activationState: 'disable_deactivation',
@@ -45,8 +45,8 @@ export default function App() {
   useEffect(() => {
     if (coin.state === 'loaded') {
       world.addRigidBody(coinBody)
-      engine.setEntityPosition(coin.asset.getRoot(), [0, 5, 0], true)
-      engine.setEntityScale(coin.asset.getRoot(), [0.1, 0.1, 0.1], true)
+      // engine.setEntityPosition(coin.asset.getRoot(), [0, 5, 0], false)
+      // engine.setEntityScale(coin.asset.getRoot(), [0.5, 0.5, 0.5], true)
     }
   }, [coin, world, coinBody, engine])
 
@@ -96,6 +96,7 @@ export default function App() {
       world.stepSimulation(1 / 20, 0, 1 / 60)
       if (coinEntity != null) {
         engine.updateTransformByRigidBody(coinEntity, coinBody)
+        engine.setEntityScale(coinEntity, [0.5, 0.5, 0.5], true)
       }
     }
 
