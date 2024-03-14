@@ -2,31 +2,20 @@ import * as React from 'react'
 import { useEffect, useMemo, useRef } from 'react'
 
 import { Button, Platform, ScrollView, StyleSheet, View } from 'react-native'
-import { Filament, useEngine, Float3, useRenderCallback, useAsset, useModel, BulletAPI } from 'react-native-filament'
+import { Filament, useEngine, Float3, useRenderCallback, useAsset, useModel, useWorld, useRigidBody } from 'react-native-filament'
 
-const world = BulletAPI.createDiscreteDynamicWorld(0, -10, 0)
-const origin = [0, 0, 0] as const
-const shape = [1, 1, 1] as const
-const rigidBody = BulletAPI.createRigidBody(1, ...origin, ...shape)
-rigidBody.setDamping(0.0, 0.5)
-rigidBody.friction = 1
-rigidBody.activationState = 'disable_deactivation'
-world.addRigidBody(rigidBody)
-
-const penguModelPath = Platform.select({
-  android: 'custom/pengu.glb',
-  ios: 'pengu.glb',
-})!
-
-const indirectLightPath = Platform.select({
-  android: 'custom/default_env_ibl.ktx',
-  ios: 'default_env_ibl.ktx',
-})!
-
-const pirateHatPath = Platform.select({
-  android: 'custom/pirate.glb',
-  ios: 'pirate.glb',
-})!
+const getPath = (path: string) => {
+  if (Platform.OS === 'android') {
+    // TODO: Right now we bundle the asset using react-native-asset, which on android adds a custom/ prefix
+    // Fix by implementing proper asset loading, see: https://github.com/margelo/react-native-filament/issues/61
+    return `custom/${path}`
+  }
+  return path
+}
+const penguModelPath = getPath('pengu.glb')
+const indirectLightPath = getPath('default_env_ibl.ktx')
+const pirateHatPath = getPath('pirate.glb')
+const coinPath = getPath('coin.glb')
 
 // Camera config:
 const cameraPosition: Float3 = [0, 0, 8]
@@ -40,6 +29,26 @@ const animationInterpolationTime = 5
 
 export default function App() {
   const engine = useEngine()
+  const world = useWorld(0, -0.001, 0)
+
+  const coin = useModel({ engine: engine, path: coinPath })
+  const coinBody = useRigidBody({
+    mass: 0.005, // A coin weights ~5g
+    origin: [0, 5, 0],
+    shape: [0.1, 0.1, 0.1],
+    friction: 1,
+    damping: [0.0, 0.5],
+    activationState: 'disable_deactivation',
+  })
+  // Add the rigid body to the world once the coin is loaded
+  // TODO: Combine with hooks API!
+  useEffect(() => {
+    if (coin.state === 'loaded') {
+      world.addRigidBody(coinBody)
+      engine.setEntityPosition(coin.asset.getRoot(), [0, 5, 0], true)
+      engine.setEntityScale(coin.asset.getRoot(), [0.1, 0.1, 0.1], true)
+    }
+  }, [coin, world, coinBody, engine])
 
   const pengu = useModel({ engine: engine, path: penguModelPath })
   const light = useAsset({ path: indirectLightPath })
@@ -71,6 +80,7 @@ export default function App() {
   }, [engine, light])
 
   const prevAspectRatio = useRef(0)
+  const coinEntity = coin.state === 'loaded' ? coin.asset.getRoot() : undefined
   useRenderCallback(engine, (_timestamp, _startTime, passedSeconds) => {
     const view = engine.getView()
     const aspectRatio = view.aspectRatio
@@ -81,7 +91,13 @@ export default function App() {
       camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
     }
 
-    world.stepSimulation(1 / 20, 0, 1 / 60)
+    // Update physics:
+    if (passedSeconds > 5) {
+      world.stepSimulation(1 / 20, 0, 1 / 60)
+      if (coinEntity != null) {
+        engine.updateTransformByRigidBody(coinEntity, coinBody)
+      }
+    }
 
     engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
 

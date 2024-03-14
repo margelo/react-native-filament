@@ -17,6 +17,7 @@
 #include "SurfaceProvider.h"
 #include "SwapChainWrapper.h"
 #include "ViewWrapper.h"
+#include "bullet/RigidBodyWrapper.h"
 #include "core/utils/EntityWrapper.h"
 #include "core/utils/ManipulatorWrapper.h"
 
@@ -79,6 +80,7 @@ private:
   void setEntityPosition(std::shared_ptr<EntityWrapper> entity, std::vector<double> positionVec, bool multiplyCurrent);
   void setEntityRotation(std::shared_ptr<EntityWrapper> entity, double angleRadians, std::vector<double> axisVec, bool multiplyCurrent);
   void setEntityScale(std::shared_ptr<EntityWrapper> entity, std::vector<double> scaleVec, bool multiplyCurrent);
+  void updateTransformByRigidBody(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<RigidBodyWrapper> rigidBody);
 
 private:
   std::shared_ptr<JSDispatchQueue> _jsDispatchQueue;

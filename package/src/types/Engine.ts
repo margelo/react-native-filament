@@ -8,6 +8,7 @@ import { FilamentBuffer } from '../native/FilamentBuffer'
 import { Entity } from './Entity'
 import { FilamentAsset } from './FilamentAsset'
 import { Float3 } from './float3'
+import { RigidBody } from '../bullet'
 
 export type RenderCallback = (timestamp: number, startTime: number, passedSeconds: number) => void
 
@@ -71,4 +72,6 @@ export interface Engine {
    * @param isPaused whether the rendering will be paused or not. Default: false
    */
   setIsPaused(isPaused: boolean): void
+
+  updateTransformByRigidBody(entity: Entity, rigidBody: RigidBody): void
 }

@@ -1,3 +1,7 @@
-import { FilamentProxy } from '../native/FilamentProxy'
+// Hooks
+export * from './hooks/useWorld'
+export * from './hooks/useRigidBody'
 
-export const BulletAPI = FilamentProxy.createBullet()
+// Types
+export * from './types/DiscreteDynamicWorld'
+export * from './types/RigidBody'
