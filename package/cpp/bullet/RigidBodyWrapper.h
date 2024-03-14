@@ -27,7 +27,7 @@ private:
 
 private:
   std::shared_ptr<btRigidBody> _rigidBody;
-  std::unique_ptr<btPolyhedralConvexShape> _shape;
+  std::unique_ptr<btCollisionShape> _shape;
   std::unique_ptr<btMotionState> _motionState;
 };
 

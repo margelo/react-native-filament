@@ -29,13 +29,23 @@ const animationInterpolationTime = 5
 
 export default function App() {
   const engine = useEngine()
-  const world = useWorld(0, -0.001, 0)
+  const world = useWorld(0, -0.1, 0)
+
+  // Create an invisible floor:
+  const floor = useRigidBody({
+    mass: 0,
+    origin: [0, -2, 0],
+    shape: [100, 0.1, 100],
+  })
+  useEffect(() => {
+    world.addRigidBody(floor)
+  }, [world, floor])
 
   const coin = useModel({ engine: engine, path: coinPath })
   const coinBody = useRigidBody({
     mass: 0.005, // A coin weights ~5g
     origin: [0, 5, 0],
-    shape: [0.01, 0.01, 0.01],
+    shape: [0.5, 0.5, 0.5],
     friction: 1,
     damping: [0.0, 0.5],
     activationState: 'disable_deactivation',
@@ -96,7 +106,7 @@ export default function App() {
       world.stepSimulation(1 / 20, 0, 1 / 60)
       if (coinEntity != null) {
         engine.updateTransformByRigidBody(coinEntity, coinBody)
-        engine.setEntityScale(coinEntity, [0.5, 0.5, 0.5], true)
+        engine.setEntityScale(coinEntity, [0.3, 0.3, 0.3], true)
       }
     }
 
