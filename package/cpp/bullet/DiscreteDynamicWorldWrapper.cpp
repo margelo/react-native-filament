@@ -5,17 +5,18 @@
 #include "DiscreteDynamicWorldWrapper.h"
 
 namespace margelo {
-  DiscreteDynamicWorldWrapper::DiscreteDynamicWorldWrapper(double gravityX, double gravityY, double gravityZ) {
-    broadphase = std::make_unique<btDbvtBroadphase>();
+DiscreteDynamicWorldWrapper::DiscreteDynamicWorldWrapper(double gravityX, double gravityY, double gravityZ)
+    : HybridObject("DiscreteDynamicWorldWrapper") {
+  broadphase = std::make_unique<btDbvtBroadphase>();
 
-    collisionConfiguration = std::make_unique<btDefaultCollisionConfiguration>();
-    dispatcher = std::make_unique<btCollisionDispatcher>(collisionConfiguration.get());
+  collisionConfiguration = std::make_unique<btDefaultCollisionConfiguration>();
+  dispatcher = std::make_unique<btCollisionDispatcher>(collisionConfiguration.get());
 
-    solver = std::make_unique<btSequentialImpulseConstraintSolver>();
+  solver = std::make_unique<btSequentialImpulseConstraintSolver>();
 
-    dynamicsWorld = std::make_unique<btDiscreteDynamicsWorld>(dispatcher.get(), broadphase.get(), solver.get(), collisionConfiguration.get());
-    dynamicsWorld->setGravity(btVector3(gravityX, gravityY, gravityZ));
-  }
+  dynamicsWorld = std::make_unique<btDiscreteDynamicsWorld>(dispatcher.get(), broadphase.get(), solver.get(), collisionConfiguration.get());
+  dynamicsWorld->setGravity(btVector3(gravityX, gravityY, gravityZ));
+}
 
 void DiscreteDynamicWorldWrapper::loadHybridMethods() {
   registerHybridMethod("addRigidBody", &DiscreteDynamicWorldWrapper::addRigidBody, this);
@@ -26,7 +27,7 @@ void DiscreteDynamicWorldWrapper::addRigidBody(std::shared_ptr<RigidBodyWrapper>
   if (!rigidBody) {
     throw std::runtime_error("RigidBody is null");
   }
-  btRigidBody *body = rigidBody->getRigidBody().get();
+  btRigidBody* body = rigidBody->getRigidBody().get();
   dynamicsWorld->addRigidBody(body);
 }
 

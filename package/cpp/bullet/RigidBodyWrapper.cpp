@@ -3,11 +3,12 @@
 //
 
 #include "RigidBodyWrapper.h"
-#include "jsi/EnumMapper.h"
 #include "ActivationStateEnum.h"
+#include "jsi/EnumMapper.h"
 
 namespace margelo {
-RigidBodyWrapper::RigidBodyWrapper(double mass, double x, double y, double z, double shapeX, double shapeY, double shapeZ) {
+RigidBodyWrapper::RigidBodyWrapper(double mass, double x, double y, double z, double shapeX, double shapeY, double shapeZ)
+    : HybridObject("RigidBodyWrapper") {
   btTransform transform;
   transform.setIdentity();
   transform.setOrigin(btVector3(x, y, z));
