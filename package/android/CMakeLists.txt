@@ -7,6 +7,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 17)
 
 set(FILAMENT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/filament")
+set(BULLET3_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/bullet3")
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DDEBUG=1)
@@ -73,6 +74,7 @@ target_include_directories(
         "${NODE_MODULES_DIR}/react-native/ReactCommon/callinvoker"
         "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/react/turbomodule" # <-- CallInvokerHolder JNI wrapper
         "${FILAMENT_DIR}/include"
+        "${BULLET3_DIR}/include"
 )
 
 # Link everything together
@@ -92,6 +94,15 @@ message("RN Filament: Adding pre-compiled libraries in ${FILAMENT_DIR}...")
 file(GLOB FILAMENT_LIBRARIES "${FILAMENT_DIR}/lib/${ANDROID_ABI}/*.a")
 
 foreach(file ${FILAMENT_LIBRARIES})
+        message("RN Filament: Linking ${file}...")
+        target_link_libraries(${PACKAGE_NAME} ${file})
+endforeach()
+
+# Bullet3 (local CMake project as a git submodule)
+message("RN Filament: Adding pre-compiled libraries in ${BULLET3_DIR}...")
+file(GLOB BULLET3_LIBRARIES "${BULLET3_DIR}/lib/${ANDROID_ABI}/*.a")
+
+foreach(file ${BULLET3_LIBRARIES})
         message("RN Filament: Linking ${file}...")
         target_link_libraries(${PACKAGE_NAME} ${file})
 endforeach()
