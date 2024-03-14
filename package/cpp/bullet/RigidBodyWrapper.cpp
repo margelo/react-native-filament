@@ -13,15 +13,15 @@ RigidBodyWrapper::RigidBodyWrapper(double mass, double x, double y, double z, do
   transform.setIdentity();
   transform.setOrigin(btVector3(x, y, z));
 
-  btCollisionShape* shape = new btBoxShape(btVector3(shapeX, shapeY, shapeZ));
+  _shape = std::make_unique<btBoxShape>(btVector3(shapeX, shapeY, shapeZ));
 
   btVector3 localInertia(0, 0, 0);
   if (mass != 0.0) {
-    shape->calculateLocalInertia(mass, localInertia);
+    _shape->calculateLocalInertia(mass, localInertia);
   }
 
-  btDefaultMotionState* motionState = new btDefaultMotionState(transform);
-  btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, motionState, shape, localInertia);
+  _motionState = std::make_unique<btDefaultMotionState>(transform);
+  btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, _motionState.get(), _shape.get(), localInertia);
   _rigidBody = std::make_shared<btRigidBody>(rigidBodyCI);
 }
 

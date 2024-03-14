@@ -4,9 +4,9 @@
 
 #pragma once
 
+#include "ActivationStateEnum.h"
 #include "jsi/HybridObject.h"
 #include <btBulletDynamicsCommon.h>
-#include "ActivationStateEnum.h"
 
 namespace margelo {
 
@@ -27,6 +27,8 @@ private:
 
 private:
   std::shared_ptr<btRigidBody> _rigidBody;
+  std::unique_ptr<btPolyhedralConvexShape> _shape;
+  std::unique_ptr<btMotionState> _motionState;
 };
 
 } // namespace margelo
