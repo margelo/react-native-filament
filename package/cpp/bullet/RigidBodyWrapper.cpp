@@ -7,22 +7,33 @@
 #include "jsi/EnumMapper.h"
 
 namespace margelo {
-RigidBodyWrapper::RigidBodyWrapper(double mass, double x, double y, double z, std::shared_ptr<btCollisionShape> shape)
+RigidBodyWrapper::RigidBodyWrapper(double mass, std::shared_ptr<btCollisionShape> shape, std::unique_ptr<btMotionState> motionState)
     : HybridObject("RigidBodyWrapper") {
   _shape = shape;
+  _motionState = std::move(motionState);
 
   btVector3 localInertia(0, 0, 0);
   if (mass != 0.0) {
     _shape->calculateLocalInertia(mass, localInertia);
   }
 
+  btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, _motionState.get(), _shape.get(), localInertia);
+  _rigidBody = std::make_shared<btRigidBody>(rigidBodyCI);
+}
+
+std::shared_ptr<RigidBodyWrapper> RigidBodyWrapper::create(double mass, double x, double y, double z,
+                                                           std::shared_ptr<btCollisionShape> shape) {
   btTransform transform;
   transform.setIdentity();
   transform.setOrigin(btVector3(x, y, z));
-  _motionState = std::make_unique<btDefaultMotionState>(transform);
+  auto motionState = std::make_unique<btDefaultMotionState>(transform);
+  return std::make_shared<RigidBodyWrapper>(mass, shape, std::move(motionState));
+}
 
-  btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, _motionState.get(), _shape.get(), localInertia);
-  _rigidBody = std::make_shared<btRigidBody>(rigidBodyCI);
+std::shared_ptr<RigidBodyWrapper> RigidBodyWrapper::create(double mass, std::unique_ptr<FilamentAssetWrapper> assetWrapper,
+                                                           std::shared_ptr<btCollisionShape> shape) {
+  assetWrapper->getAsset()->getBoundingBox();
+  return std::shared_ptr<RigidBodyWrapper>();
 }
 
 void RigidBodyWrapper::loadHybridMethods() {

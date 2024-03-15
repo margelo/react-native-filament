@@ -5,14 +5,20 @@
 #pragma once
 
 #include "ActivationStateEnum.h"
+#include "core/FilamentAssetWrapper.h"
 #include "jsi/HybridObject.h"
+
 #include <btBulletDynamicsCommon.h>
 
 namespace margelo {
 
 class RigidBodyWrapper : public HybridObject {
 public:
-  explicit RigidBodyWrapper(double mass, double x, double y, double z, std::shared_ptr<btCollisionShape> shape);
+  explicit RigidBodyWrapper(double mass, std::shared_ptr<btCollisionShape> shape, std::unique_ptr<btMotionState> motionState);
+  static std::shared_ptr<RigidBodyWrapper> create(double mass, double x, double y, double z, std::shared_ptr<btCollisionShape> shape);
+  static std::shared_ptr<RigidBodyWrapper> create(double mass, std::unique_ptr<FilamentAssetWrapper> assetWrapper,
+                                                  std::shared_ptr<btCollisionShape> shape);
+
   void loadHybridMethods() override;
   std::shared_ptr<btRigidBody> getRigidBody() {
     return _rigidBody;

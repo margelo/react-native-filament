@@ -24,7 +24,7 @@ std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBody(double mass, do
     throw std::runtime_error("Shape is null");
   }
 
-  return std::make_shared<RigidBodyWrapper>(mass, x, y, z, shapePtr);
+  return RigidBodyWrapper::create(mass, x, y, z, shapePtr);
 }
 std::shared_ptr<BoxShapeWrapper> BulletWrapper::createBoxShape(double x, double y, double z) {
   return std::make_shared<BoxShapeWrapper>(x, y, z);
