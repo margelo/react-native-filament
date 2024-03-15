@@ -18,15 +18,12 @@ export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Flo
 
   // Add the rigid body to the world once the coin is loaded
   // TODO: Combine with hooks API!
+  const isLoaded = coin.state === 'loaded'
   useEffect(() => {
-    if (coin.state === 'loaded') {
+    if (isLoaded) {
       world.addRigidBody(coinBody)
-
-      const entity = coin.asset.getRoot()
-      const result = engine.transformManager.getTransform(entity)
-      console.log('Transform:', result)
     }
-  }, [coin, world, coinBody])
+  }, [coinBody, isLoaded, world])
 
   return coin.state === 'loaded' ? ([coinBody, coin.asset.getRoot()] as const) : []
 }
