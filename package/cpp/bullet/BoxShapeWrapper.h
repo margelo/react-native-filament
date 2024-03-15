@@ -12,8 +12,6 @@ class BoxShapeWrapper : public ShapeWrapper {
 public:
   explicit BoxShapeWrapper(double x, double y, double z)
       : ShapeWrapper("BoxShapeWrapper", std::make_shared<btBoxShape>(btVector3(x, y, z))) {}
-
-  void loadHybridMethods() override {}
 };
 
 } // namespace margelo
