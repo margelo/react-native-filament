@@ -18,7 +18,6 @@ export function useRigidBody({ mass, origin, shape, friction, activationState, d
   const [x, y, z] = origin
 
   const body = useMemo(() => {
-    console.log(shape)
     return BulletAPI.createRigidBody(mass, x, y, z, shape)
   }, [mass, shape, x, y, z])
 

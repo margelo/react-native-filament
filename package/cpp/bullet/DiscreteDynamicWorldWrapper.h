@@ -9,6 +9,8 @@
 
 #include <btBulletDynamicsCommon.h>
 
+#include <list>
+
 namespace margelo {
 class DiscreteDynamicWorldWrapper : public HybridObject {
 public:
@@ -26,5 +28,9 @@ private:
   std::unique_ptr<btCollisionDispatcher> dispatcher;
   std::unique_ptr<btSequentialImpulseConstraintSolver> solver;
   std::unique_ptr<btDiscreteDynamicsWorld> dynamicsWorld;
+
+  // Keep track of all bodies added to the world
+  std::shared_ptr<std::list<std::shared_ptr<RigidBodyWrapper>>> rigidBodies =
+      std::make_shared<std::list<std::shared_ptr<RigidBodyWrapper>>>();
 };
 } // namespace margelo

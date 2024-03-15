@@ -29,6 +29,7 @@ void DiscreteDynamicWorldWrapper::addRigidBody(std::shared_ptr<RigidBodyWrapper>
   }
   btRigidBody* body = rigidBody->getRigidBody().get();
   dynamicsWorld->addRigidBody(body);
+  rigidBodies->push_back(rigidBody);
 }
 
 void DiscreteDynamicWorldWrapper::stepSimulation(double timeStep, double maxSubSteps, double fixedTimeStep) {
