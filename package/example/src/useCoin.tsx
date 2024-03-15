@@ -24,5 +24,5 @@ export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Flo
     }
   }, [coin, world, coinBody])
 
-  return coin.state === 'loaded' ? [coinBody, coin.asset.getRoot()] : []
+  return coin.state === 'loaded' ? ([coinBody, coin.asset.getRoot()] as const) : []
 }
