@@ -4,14 +4,28 @@
 
 #pragma once
 
-//#include <filament/TransformManager.h>
+#include "core/utils/EntityWrapper.h"
+#include <filament/TransformManager.h>
+#include <jsi/HybridObject.h>
 
 namespace margelo {
 
-class TransformManager : public HybridObject {
+class TransformManagerWrapper : public HybridObject {
+public:
+  explicit TransformManagerWrapper(filament::TransformManager& transformManager)
+      : HybridObject("TransformManagerWrapper"), _transformManager(transformManager) {}
+
+  void loadHybridMethods() override;
+
+  const filament::TransformManager& getTransformManager() {
+    return _transformManager;
+  }
 
 private:
+  int getTransform(std::shared_ptr<EntityWrapper> entity);
 
+private:
+  filament::TransformManager& _transformManager;
 };
 
 } // namespace margelo

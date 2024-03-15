@@ -21,6 +21,10 @@ export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Flo
   useEffect(() => {
     if (coin.state === 'loaded') {
       world.addRigidBody(coinBody)
+
+      const entity = coin.asset.getRoot()
+      const result = engine.transformManager.getTransform(entity)
+      console.log('Transform:', result)
     }
   }, [coin, world, coinBody])
 

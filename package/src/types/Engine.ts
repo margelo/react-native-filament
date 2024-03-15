@@ -9,6 +9,7 @@ import { Entity } from './Entity'
 import { FilamentAsset } from './FilamentAsset'
 import { Float3 } from './float3'
 import { RigidBody } from '../bullet'
+import { TransformManager } from './TransformManager'
 
 export type RenderCallback = (timestamp: number, startTime: number, passedSeconds: number) => void
 
@@ -74,4 +75,6 @@ export interface Engine {
   setIsPaused(isPaused: boolean): void
 
   updateTransformByRigidBody(entity: Entity, rigidBody: RigidBody): void
+
+  readonly transformManager: TransformManager
 }

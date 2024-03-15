@@ -34,6 +34,7 @@
 #include "RendererWrapper.h"
 #include "SceneWrapper.h"
 #include "SwapChainWrapper.h"
+#include "TransformManagerWrapper.h"
 #include "ViewWrapper.h"
 #include "jsi/HybridObject.h"
 #include <Choreographer.h>
@@ -110,6 +111,7 @@ private:
   std::shared_ptr<ViewWrapper> _view;
   std::shared_ptr<CameraWrapper> _camera;
   std::shared_ptr<ManipulatorWrapper> _cameraManipulator;
+  std::shared_ptr<TransformManagerWrapper> _transformManager;
 
 private:
   std::shared_ptr<RendererWrapper> createRenderer();
@@ -118,6 +120,7 @@ private:
   std::shared_ptr<ViewWrapper> createView();
   std::shared_ptr<CameraWrapper> createCamera();
   std::shared_ptr<ManipulatorWrapper> createCameraManipulator(int windowWidth, int windowHeight);
+  std::shared_ptr<TransformManagerWrapper> createTransformManager();
 
 private:
   // Getters for shared objects
@@ -138,6 +141,9 @@ private:
   }
   std::shared_ptr<ManipulatorWrapper> getCameraManipulator() {
     return _cameraManipulator;
+  }
+  std::shared_ptr<TransformManagerWrapper> getTransformManager() {
+    return _transformManager;
   }
 
 private:

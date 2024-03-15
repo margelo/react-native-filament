@@ -90,6 +90,7 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
   _view->getView()->setCamera(_camera->getCamera().get());
 
   _choreographer = choreographer;
+  _transformManager = createTransformManager();
 }
 
 void EngineWrapper::loadHybridMethods() {
@@ -111,6 +112,7 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setEntityRotation", &EngineWrapper::setEntityRotation, this);
   registerHybridMethod("setEntityScale", &EngineWrapper::setEntityScale, this);
   registerHybridMethod("setIsPaused", &EngineWrapper::setIsPaused, this);
+  registerHybridGetter("transformManager", &EngineWrapper::getTransformManager, this);
 
   // Combined Physics API:
   registerHybridMethod("updateTransformByRigidBody", &EngineWrapper::updateTransformByRigidBody, this);
@@ -397,6 +399,10 @@ std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator(int w
   builder.viewport(width, height);
   std::shared_ptr<Manipulator<float>> manipulator = std::shared_ptr<Manipulator<float>>(builder.build(Mode::ORBIT));
   return std::make_shared<ManipulatorWrapper>(manipulator);
+}
+
+std::shared_ptr<TransformManagerWrapper> EngineWrapper::createTransformManager() {
+  return std::make_shared<TransformManagerWrapper>(_engine->getTransformManager());
 }
 
 /**
