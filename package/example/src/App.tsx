@@ -1,21 +1,14 @@
 import * as React from 'react'
 import { useEffect, useMemo, useRef } from 'react'
 
-import { Button, Platform, ScrollView, StyleSheet, View } from 'react-native'
+import { Button, ScrollView, StyleSheet, View } from 'react-native'
 import { Filament, useEngine, Float3, useRenderCallback, useAsset, useModel, useWorld, useRigidBody } from 'react-native-filament'
+import { getPath } from './getPath'
+import { useCoin } from './useCoin'
 
-const getPath = (path: string) => {
-  if (Platform.OS === 'android') {
-    // TODO: Right now we bundle the asset using react-native-asset, which on android adds a custom/ prefix
-    // Fix by implementing proper asset loading, see: https://github.com/margelo/react-native-filament/issues/61
-    return `custom/${path}`
-  }
-  return path
-}
 const penguModelPath = getPath('pengu.glb')
 const indirectLightPath = getPath('default_env_ibl.ktx')
 const pirateHatPath = getPath('pirate.glb')
-const coinPath = getPath('coin.glb')
 
 // Camera config:
 const cameraPosition: Float3 = [0, 0, 8]
@@ -34,31 +27,16 @@ export default function App() {
   // Create an invisible floor:
   const floor = useRigidBody({
     mass: 0,
-    origin: [0, -2, 0],
+    origin: [0, -1.9, 0],
     shape: [100, 0.1, 100],
   })
   useEffect(() => {
     world.addRigidBody(floor)
   }, [world, floor])
 
-  const coin = useModel({ engine: engine, path: coinPath })
-  const coinBody = useRigidBody({
-    mass: 0.005, // A coin weights ~5g
-    origin: [0, 5, 0],
-    shape: [0.5, 0.5, 0.5],
-    friction: 1,
-    damping: [0.0, 0.5],
-    activationState: 'disable_deactivation',
-  })
-  // Add the rigid body to the world once the coin is loaded
-  // TODO: Combine with hooks API!
-  useEffect(() => {
-    if (coin.state === 'loaded') {
-      world.addRigidBody(coinBody)
-      // engine.setEntityPosition(coin.asset.getRoot(), [0, 5, 0], false)
-      // engine.setEntityScale(coin.asset.getRoot(), [0.5, 0.5, 0.5], true)
-    }
-  }, [coin, world, coinBody, engine])
+  const [coinA, coinAEntity] = useCoin(engine, world, [1.3, 5, 0.0])
+  const [coinB, coinBEntity] = useCoin(engine, world, [-1.3, 4, -0.4])
+  const [coinC, coinCEntity] = useCoin(engine, world, [0.1, 4.5, 0.7])
 
   const pengu = useModel({ engine: engine, path: penguModelPath })
   const light = useAsset({ path: indirectLightPath })
@@ -90,7 +68,6 @@ export default function App() {
   }, [engine, light])
 
   const prevAspectRatio = useRef(0)
-  const coinEntity = coin.state === 'loaded' ? coin.asset.getRoot() : undefined
   useRenderCallback(engine, (_timestamp, _startTime, passedSeconds) => {
     const view = engine.getView()
     const aspectRatio = view.aspectRatio
@@ -104,9 +81,17 @@ export default function App() {
     // Update physics:
     if (passedSeconds > 5) {
       world.stepSimulation(1 / 20, 0, 1 / 60)
-      if (coinEntity != null) {
-        engine.updateTransformByRigidBody(coinEntity, coinBody)
-        engine.setEntityScale(coinEntity, [0.3, 0.3, 0.3], true)
+      if (coinAEntity != null) {
+        engine.updateTransformByRigidBody(coinAEntity, coinA)
+        engine.setEntityScale(coinAEntity, [0.3, 0.3, 0.3], true)
+      }
+      if (coinBEntity != null) {
+        engine.updateTransformByRigidBody(coinBEntity, coinB)
+        engine.setEntityScale(coinBEntity, [0.3, 0.3, 0.3], true)
+      }
+      if (coinCEntity != null) {
+        engine.updateTransformByRigidBody(coinCEntity, coinC)
+        engine.setEntityScale(coinCEntity, [0.3, 0.3, 0.3], true)
       }
     }
 
