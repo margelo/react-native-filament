@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "BoxShapeWrapper.h"
 #include "DiscreteDynamicWorldWrapper.h"
 #include "RigidBodyWrapper.h"
 #include "jsi/HybridObject.h"
@@ -18,7 +19,9 @@ public:
 
 private:
   std::shared_ptr<DiscreteDynamicWorldWrapper> createDiscreteDynamicWorld(double gravityX, double gravityY, double gravityZ);
-  std::shared_ptr<RigidBodyWrapper> createRigidBody(double mass, double x, double y, double z, double shapeX, double shapeY, double shapeZ);
+  std::shared_ptr<RigidBodyWrapper> createRigidBody(double mass, double x, double y, double z,
+                                                    std::shared_ptr<ShapeWrapper<btCollisionShape>> shape);
+  std::shared_ptr<BoxShapeWrapper> createBoxShape(double x, double y, double z);
 };
 
 } // namespace margelo

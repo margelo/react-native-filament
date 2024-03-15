@@ -12,7 +12,7 @@ namespace margelo {
 
 class RigidBodyWrapper : public HybridObject {
 public:
-  explicit RigidBodyWrapper(double mass, double x, double y, double z, double shapeX, double shapeY, double shapeZ);
+  explicit RigidBodyWrapper(double mass, double x, double y, double z, std::shared_ptr<btCollisionShape> shape);
   void loadHybridMethods() override;
   std::shared_ptr<btRigidBody> getRigidBody() {
     return _rigidBody;
@@ -27,7 +27,7 @@ private:
 
 private:
   std::shared_ptr<btRigidBody> _rigidBody;
-  std::unique_ptr<btCollisionShape> _shape;
+  std::shared_ptr<btCollisionShape> _shape;
   std::unique_ptr<btMotionState> _motionState;
 };
 

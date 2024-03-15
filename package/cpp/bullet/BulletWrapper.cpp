@@ -9,16 +9,24 @@ namespace margelo {
 void BulletWrapper::loadHybridMethods() {
   registerHybridMethod("createDiscreteDynamicWorld", &BulletWrapper::createDiscreteDynamicWorld, this);
   registerHybridMethod("createRigidBody", &BulletWrapper::createRigidBody, this);
+  registerHybridMethod("createBoxShape", &BulletWrapper::createBoxShape, this);
 }
 
 std::shared_ptr<DiscreteDynamicWorldWrapper> BulletWrapper::createDiscreteDynamicWorld(double gravityX, double gravityY, double gravityZ) {
-  Logger::log("BulletWrapper", "createDiscreteDynamicWorld %f %f %f", gravityX, gravityY, gravityZ);
   return std::make_shared<DiscreteDynamicWorldWrapper>(gravityX, gravityY, gravityZ);
 }
 
-std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBody(double mass, double x, double y, double z, double shapeX, double shapeY,
-                                                                 double shapeZ) {
-  Logger::log("BulletWrapper", "createRigidBody m:%f x:%f y:%f z:%f shapeX:%f shapeY:%f shapeZ:%f", mass, x, y, z, shapeX, shapeY, shapeZ);
-  return std::make_shared<RigidBodyWrapper>(mass, x, y, z, shapeX, shapeY, shapeZ);
+std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBody(double mass, double x, double y, double z,
+                                                                 std::shared_ptr<ShapeWrapper<btCollisionShape>> shape) {
+  // Don't pass the shape wrapper, but the shape itself
+  std::shared_ptr<btCollisionShape> shapePtr = shape->getShape();
+  if (shapePtr == nullptr) {
+    throw std::runtime_error("Shape is null");
+  }
+
+  return std::make_shared<RigidBodyWrapper>(mass, x, y, z, shapePtr);
+}
+std::shared_ptr<BoxShapeWrapper> BulletWrapper::createBoxShape(double x, double y, double z) {
+  return std::make_shared<BoxShapeWrapper>(x, y, z);
 }
 } // namespace margelo

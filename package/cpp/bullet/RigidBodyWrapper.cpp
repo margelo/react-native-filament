@@ -7,20 +7,20 @@
 #include "jsi/EnumMapper.h"
 
 namespace margelo {
-RigidBodyWrapper::RigidBodyWrapper(double mass, double x, double y, double z, double shapeX, double shapeY, double shapeZ)
+RigidBodyWrapper::RigidBodyWrapper(double mass, double x, double y, double z, std::shared_ptr<btCollisionShape> shape)
     : HybridObject("RigidBodyWrapper") {
-  btTransform transform;
-  transform.setIdentity();
-  transform.setOrigin(btVector3(x, y, z));
-
-  _shape = std::make_unique<btBoxShape>(btVector3(shapeX, shapeY, shapeZ));
+  _shape = shape;
 
   btVector3 localInertia(0, 0, 0);
   if (mass != 0.0) {
     _shape->calculateLocalInertia(mass, localInertia);
   }
 
+  btTransform transform;
+  transform.setIdentity();
+  transform.setOrigin(btVector3(x, y, z));
   _motionState = std::make_unique<btDefaultMotionState>(transform);
+
   btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, _motionState.get(), _shape.get(), localInertia);
   _rigidBody = std::make_shared<btRigidBody>(rigidBodyCI);
 }

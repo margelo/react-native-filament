@@ -5,6 +5,7 @@ import { Button, ScrollView, StyleSheet, View } from 'react-native'
 import { Filament, useEngine, Float3, useRenderCallback, useAsset, useModel, useWorld, useRigidBody } from 'react-native-filament'
 import { getPath } from './getPath'
 import { useCoin } from './useCoin'
+import { BoxShape } from '../../src/bullet/types/Shapes'
 
 const penguModelPath = getPath('pengu.glb')
 const indirectLightPath = getPath('default_env_ibl.ktx')
@@ -28,7 +29,7 @@ export default function App() {
   const floor = useRigidBody({
     mass: 0,
     origin: [0, -1.9, 0],
-    shape: [100, 0.1, 100],
+    shape: BoxShape(100, 0.1, 100),
   })
   useEffect(() => {
     world.addRigidBody(floor)
