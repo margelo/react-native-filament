@@ -8,15 +8,15 @@
 #include <btBulletDynamicsCommon.h>
 
 namespace margelo {
-template <typename T> class ShapeWrapper : public HybridObject {
+class ShapeWrapper : public HybridObject {
 public:
-  explicit ShapeWrapper(const char* name, std::shared_ptr<T> shape) : HybridObject(name), _shape(shape){};
+  explicit ShapeWrapper(const char* name, std::shared_ptr<btCollisionShape> shape) : HybridObject(name), _shape(shape){};
 
-  std::shared_ptr<T> getShape() {
+  std::shared_ptr<btCollisionShape> getShape() {
     return _shape;
   }
 
 private:
-  std::shared_ptr<T> _shape;
+  std::shared_ptr<btCollisionShape> _shape;
 };
 } // namespace margelo

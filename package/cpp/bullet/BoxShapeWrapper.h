@@ -8,10 +8,10 @@
 
 namespace margelo {
 
-class BoxShapeWrapper : public ShapeWrapper<btBoxShape> {
+class BoxShapeWrapper : public ShapeWrapper {
 public:
   explicit BoxShapeWrapper(double x, double y, double z)
-      : ShapeWrapper<btBoxShape>("BoxShapeWrapper", std::make_shared<btBoxShape>(btVector3(x, y, z))) {}
+      : ShapeWrapper("BoxShapeWrapper", std::make_shared<btBoxShape>(btVector3(x, y, z))) {}
 
   void loadHybridMethods() override {}
 };

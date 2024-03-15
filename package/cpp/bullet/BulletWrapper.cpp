@@ -17,7 +17,7 @@ std::shared_ptr<DiscreteDynamicWorldWrapper> BulletWrapper::createDiscreteDynami
 }
 
 std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBody(double mass, double x, double y, double z,
-                                                                 std::shared_ptr<ShapeWrapper<btCollisionShape>> shape) {
+                                                                 std::shared_ptr<ShapeWrapper> shape) {
   // Don't pass the shape wrapper, but the shape itself
   std::shared_ptr<btCollisionShape> shapePtr = shape->getShape();
   if (shapePtr == nullptr) {

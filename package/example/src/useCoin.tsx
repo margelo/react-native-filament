@@ -1,16 +1,16 @@
-import { DiscreteDynamicWorld, Engine, Float3, useModel, useRigidBody } from 'react-native-filament'
+import { DiscreteDynamicWorld, Engine, Float3, useBoxShape, useModel, useRigidBody } from 'react-native-filament'
 import { getPath } from './getPath'
 import { useEffect } from 'react'
-import { BoxShape } from '../../src/bullet/types/Shapes'
 
 const coinPath = getPath('coin.glb')
 
 export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Float3) {
   const coin = useModel({ engine: engine, path: coinPath })
+  const coinShape = useBoxShape(0.3, 0.3, 0.3)
   const coinBody = useRigidBody({
     mass: 0.2,
     origin: origin,
-    shape: BoxShape(0.3, 0.3, 0.3),
+    shape: coinShape,
     friction: 1,
     damping: [0.0, 0.5],
     activationState: 'disable_deactivation',
