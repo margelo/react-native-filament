@@ -488,7 +488,7 @@ void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> en
   Entity entity = entityWrapper->getEntity();
   EntityInstance<TransformManager> entityInstance = tm.getInstance(entity);
   auto currentTransform = tm.getTransform(entityInstance);
-  //  auto newTransform = filamentMatrix * currentTransform;
+  auto newTransform = filamentMatrix * currentTransform;
   tm.setTransform(entityInstance, filamentMatrix);
 }
 

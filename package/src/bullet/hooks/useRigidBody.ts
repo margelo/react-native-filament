@@ -3,23 +3,39 @@ import { BulletAPI } from '../bulletApi'
 import { ActivationState } from '../types/RigidBody'
 import { useEffect, useMemo } from 'react'
 import { BaseShape } from '../types/Shapes'
+import { Mat4f } from '../../types/TransformManager'
 
 export type RigidBodyProps = {
   mass: number
-  origin: Float3
   shape: BaseShape
   friction?: number
   activationState?: ActivationState
   /** [linearDumping, angularDumping] */
   damping?: [number, number]
-}
+} & (
+  | {
+      origin: Float3
+    }
+  | {
+      transform: Mat4f
+    }
+)
 
-export function useRigidBody({ mass, origin, shape, friction, activationState, damping }: RigidBodyProps) {
-  const [x, y, z] = origin
+export function useRigidBody({ mass, shape, friction, activationState, damping, ...props }: RigidBodyProps) {
+  const originVec = 'origin' in props ? props.origin : undefined
+  const transform = 'transform' in props ? props.transform : undefined
 
   const body = useMemo(() => {
-    return BulletAPI.createRigidBody(mass, x, y, z, shape)
-  }, [mass, shape, x, y, z])
+    if (originVec) {
+      return BulletAPI.createRigidBody(mass, originVec[0], originVec[1], originVec[2], shape)
+    }
+    if (transform) {
+      return BulletAPI.createRigidBodyFromTransform(mass, transform, shape)
+    }
+
+    throw new Error('Either origin or transform must be provided')
+    // TODO: shape, origin and transform are not stable!
+  }, [mass])
 
   useEffect(() => {
     if (friction != null) {

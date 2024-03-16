@@ -32,20 +32,20 @@ const animationInterpolationTime = 5
 
 export default function App() {
   const engine = useEngine()
-  const world = useWorld(0, -0.1, 0)
+  const world = useWorld(0, -9, 0)
 
   // Create an invisible floor:
   const floorShape = useBoxShape(100, 0.1, 100)
   const floor = useRigidBody({
     mass: 0,
-    origin: [0, -1.9, 0],
+    origin: [0, -1.5, 0],
     shape: floorShape,
   })
   useEffect(() => {
     world.addRigidBody(floor)
   }, [world, floor])
 
-  const [coinA, coinAEntity] = useCoin(engine, world, [1.3, 1, 0.0])
+  const [coinABody, coinAEntity] = useCoin(engine, world, [1.3, 3, 0.0])
   // const [coinB, coinBEntity] = useCoin(engine, world, [-1.3, 1, -0.4])
   // const [coinC, coinCEntity] = useCoin(engine, world, [0.1, 1, 0.7])
 
@@ -99,21 +99,20 @@ export default function App() {
     }
 
     // Update physics:
-    // if (passedSeconds > 5) {
-    //   world.stepSimulation(1 / 20, 0, 1 / 60)
-    //   if (coinAEntity != null) {
-    //     engine.updateTransformByRigidBody(coinAEntity, coinA)
-    //     engine.setEntityScale(coinAEntity, [0.3, 0.3, 0.3], true)
-    //   }
-    //   if (coinBEntity != null) {
-    //     engine.updateTransformByRigidBody(coinBEntity, coinB)
-    //     engine.setEntityScale(coinBEntity, [0.3, 0.3, 0.3], true)
-    //   }
-    //   if (coinCEntity != null) {
-    //     engine.updateTransformByRigidBody(coinCEntity, coinC)
-    //     engine.setEntityScale(coinCEntity, [0.3, 0.3, 0.3], true)
-    //   }
-    // }
+    if (passedSeconds > 5) {
+      world.stepSimulation(1 / 20, 0, 1 / 60)
+      if (coinAEntity != null) {
+        engine.updateTransformByRigidBody(coinAEntity, coinABody)
+      }
+      // if (coinBEntity != null) {
+      //   engine.updateTransformByRigidBody(coinBEntity, coinB)
+      //   engine.setEntityScale(coinBEntity, [0.3, 0.3, 0.3], true)
+      // }
+      // if (coinCEntity != null) {
+      //   engine.updateTransformByRigidBody(coinCEntity, coinC)
+      //   engine.setEntityScale(coinCEntity, [0.3, 0.3, 0.3], true)
+      // }
+    }
 
     engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
 
