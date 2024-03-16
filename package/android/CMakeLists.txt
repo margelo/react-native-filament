@@ -50,6 +50,9 @@ add_library(
         ../cpp/core/utils/EntityWrapper.cpp
         ../cpp/core/utils/ManipulatorWrapper.cpp
 
+        # Filament math
+        ../cpp/core/math/TMat44Wrapper.cpp
+
         # Bullet Physics Engine
         ../cpp/bullet/BulletWrapper.cpp
         ../cpp/bullet/DiscreteDynamicWorldWrapper.cpp

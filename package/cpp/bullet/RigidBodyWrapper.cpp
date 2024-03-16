@@ -30,10 +30,14 @@ std::shared_ptr<RigidBodyWrapper> RigidBodyWrapper::create(double mass, double x
   return std::make_shared<RigidBodyWrapper>(mass, shape, std::move(motionState));
 }
 
-std::shared_ptr<RigidBodyWrapper> RigidBodyWrapper::create(double mass, std::unique_ptr<FilamentAssetWrapper> assetWrapper,
+std::shared_ptr<RigidBodyWrapper> RigidBodyWrapper::create(double mass, std::shared_ptr<TMat44Wrapper> entityTransform,
                                                            std::shared_ptr<btCollisionShape> shape) {
-  assetWrapper->getAsset()->getBoundingBox();
-  return std::shared_ptr<RigidBodyWrapper>();
+  // EntityTransform to openGL matrix:
+  const filament::math::mat4f& mat = entityTransform->getMat();
+  btTransform transform;
+  transform.setFromOpenGLMatrix(mat.asArray());
+  auto motionState = std::make_unique<btDefaultMotionState>(transform);
+  return std::make_shared<RigidBodyWrapper>(mass, shape, std::move(motionState));
 }
 
 void RigidBodyWrapper::loadHybridMethods() {

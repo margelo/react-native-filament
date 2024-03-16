@@ -12,6 +12,10 @@ void FilamentAssetWrapper::loadHybridMethods() {
   registerHybridMethod("releaseSourceData", &FilamentAssetWrapper::releaseSourceData, this);
   registerHybridMethod("getAnimator", &FilamentAssetWrapper::getAnimator, this);
   registerHybridMethod("createAnimatorWithAnimationsFrom", &FilamentAssetWrapper::createAnimatorWithAnimationsFrom, this);
+  registerHybridGetter("entityCount", &FilamentAssetWrapper::getEntityCount, this);
+  registerHybridGetter("entities", &FilamentAssetWrapper::getEntities, this);
+  registerHybridGetter("renderableEntityCount", &FilamentAssetWrapper::getRenderableEntityCount, this);
+  registerHybridGetter("renderableEntities", &FilamentAssetWrapper::getRenderableEntities, this);
 }
 
 /**
@@ -50,6 +54,23 @@ std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::createAnimatorWithAnimati
 #else
   return getAnimator();
 #endif
+}
+
+std::vector<std::shared_ptr<EntityWrapper>> FilamentAssetWrapper::getEntities() {
+  std::vector<std::shared_ptr<EntityWrapper>> entities;
+  const Entity* entityArray = _asset->getEntities();
+  for (int i = 0; i < _asset->getEntityCount(); i++) {
+    entities.push_back(std::make_shared<EntityWrapper>(entityArray[i]));
+  }
+  return entities;
+}
+std::vector<std::shared_ptr<EntityWrapper>> FilamentAssetWrapper::getRenderableEntities() {
+  std::vector<std::shared_ptr<EntityWrapper>> entities;
+  const Entity* entityArray = _asset->getRenderableEntities();
+  for (int i = 0; i < _asset->getRenderableEntityCount(); i++) {
+    entities.push_back(std::make_shared<EntityWrapper>(entityArray[i]));
+  }
+  return entities;
 }
 
 } // namespace margelo

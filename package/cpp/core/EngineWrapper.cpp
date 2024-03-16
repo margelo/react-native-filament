@@ -439,7 +439,17 @@ void EngineWrapper::updateTransform(math::mat4 transform, std::shared_ptr<Entity
   TransformManager& tm = _engine->getTransformManager();
   EntityInstance<TransformManager> entityInstance = tm.getInstance(entity->getEntity());
   auto currentTransform = tm.getTransform(entityInstance);
-  auto newTransform = multiplyCurrent ? (currentTransform * transform) : transform;
+  auto scaleX = currentTransform[0][0];
+  auto scaleY = currentTransform[1][1];
+  auto scaleZ = currentTransform[2][2];
+  Logger::log(TAG, "Current scale: " + std::to_string(scaleX) + ", " + std::to_string(scaleY) + ", " + std::to_string(scaleZ));
+
+  auto newTransform = multiplyCurrent ? (transform * currentTransform) : transform;
+  auto newScaleX = newTransform[0][0];
+  auto newScaleY = newTransform[1][1];
+  auto newScaleZ = newTransform[2][2];
+  Logger::log(TAG, "New scale: " + std::to_string(newScaleX) + ", " + std::to_string(newScaleY) + ", " + std::to_string(newScaleZ));
+
   tm.setTransform(entityInstance, newTransform);
 }
 
@@ -453,6 +463,10 @@ void EngineWrapper::setEntityPosition(std::shared_ptr<EntityWrapper> entity, std
 void EngineWrapper::setEntityRotation(std::shared_ptr<EntityWrapper> entity, double angleRadians, std::vector<double> axisVec,
                                       bool multiplyCurrent) {
   math::float3 axis = Converter::VecToFloat3(axisVec);
+  if (axis.x == 0 && axis.y == 0 && axis.z == 0) {
+    throw std::invalid_argument("Axis cannot be zero");
+  }
+
   auto rotationMatrix = math::mat4::rotation(angleRadians, axis);
   updateTransform(rotationMatrix, entity, multiplyCurrent);
 }
@@ -484,7 +498,7 @@ void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> en
   Entity entity = entityWrapper->getEntity();
   EntityInstance<TransformManager> entityInstance = tm.getInstance(entity);
   auto currentTransform = tm.getTransform(entityInstance);
-  //  auto newTransform = currentTransform * filamentMatrix;
+  //  auto newTransform = filamentMatrix * currentTransform;
   tm.setTransform(entityInstance, filamentMatrix);
 }
 

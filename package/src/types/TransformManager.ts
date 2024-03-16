@@ -7,4 +7,5 @@ export interface Mat4f {
 
 export interface TransformManager {
   getTransform(entity: Entity): Mat4f
+  getWorldTransform(entity: Entity): Mat4f
 }

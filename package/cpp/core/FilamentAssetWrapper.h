@@ -22,13 +22,21 @@ public:
     return _asset;
   }
 
-private:
+private: // Public API functions:
   std::shared_ptr<EntityWrapper> getRoot();
   void releaseSourceData();
   std::shared_ptr<AnimatorWrapper> getAnimator();
   std::shared_ptr<AnimatorWrapper> createAnimatorWithAnimationsFrom(std::shared_ptr<FilamentAssetWrapper> otherAsset);
+  int getEntityCount() {
+    return _asset->getEntityCount();
+  }
+  std::vector<std::shared_ptr<EntityWrapper>> getEntities();
+  int getRenderableEntityCount() {
+    return _asset->getRenderableEntityCount();
+  }
+  std::vector<std::shared_ptr<EntityWrapper>> getRenderableEntities();
 
-private:
+private: // Internal state:
   std::shared_ptr<gltfio::FilamentAsset> _asset;
 };
 

@@ -6,6 +6,7 @@
 
 #include "ActivationStateEnum.h"
 #include "core/FilamentAssetWrapper.h"
+#include "core/math/TMat44Wrapper.h"
 #include "jsi/HybridObject.h"
 
 #include <btBulletDynamicsCommon.h>
@@ -16,7 +17,7 @@ class RigidBodyWrapper : public HybridObject {
 public:
   explicit RigidBodyWrapper(double mass, std::shared_ptr<btCollisionShape> shape, std::unique_ptr<btMotionState> motionState);
   static std::shared_ptr<RigidBodyWrapper> create(double mass, double x, double y, double z, std::shared_ptr<btCollisionShape> shape);
-  static std::shared_ptr<RigidBodyWrapper> create(double mass, std::unique_ptr<FilamentAssetWrapper> assetWrapper,
+  static std::shared_ptr<RigidBodyWrapper> create(double mass, std::shared_ptr<TMat44Wrapper> entityTransform,
                                                   std::shared_ptr<btCollisionShape> shape);
 
   void loadHybridMethods() override;

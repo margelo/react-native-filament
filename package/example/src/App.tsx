@@ -45,9 +45,9 @@ export default function App() {
     world.addRigidBody(floor)
   }, [world, floor])
 
-  const [coinA, coinAEntity] = useCoin(engine, world, [1.3, 5, 0.0])
-  const [coinB, coinBEntity] = useCoin(engine, world, [-1.3, 4, -0.4])
-  const [coinC, coinCEntity] = useCoin(engine, world, [0.1, 4.5, 0.7])
+  const [coinA, coinAEntity] = useCoin(engine, world, [1.3, 1, 0.0])
+  // const [coinB, coinBEntity] = useCoin(engine, world, [-1.3, 1, -0.4])
+  // const [coinC, coinCEntity] = useCoin(engine, world, [0.1, 1, 0.7])
 
   const pengu = useModel({ engine: engine, path: penguModelPath })
   const light = useAsset({ path: indirectLightPath })
@@ -59,6 +59,15 @@ export default function App() {
     return pirateHat.asset.createAnimatorWithAnimationsFrom(pengu.asset)
   }, [pengu, pirateHat])
   const isPirateHatAdded = useRef(true) // assets are added by default to the scene
+
+  useEffect(() => {
+    if (pengu.state === 'loaded') {
+      engine.getScene().removeAssetEntities(pengu.asset)
+    }
+    if (pirateHat.state === 'loaded') {
+      engine.getScene().removeAssetEntities(pirateHat.asset)
+    }
+  }, [engine, pengu, pirateHat])
 
   const prevAnimationIndex = useRef<number>()
   const prevAnimationStarted = useRef<number>()
@@ -90,21 +99,21 @@ export default function App() {
     }
 
     // Update physics:
-    if (passedSeconds > 5) {
-      world.stepSimulation(1 / 20, 0, 1 / 60)
-      if (coinAEntity != null) {
-        engine.updateTransformByRigidBody(coinAEntity, coinA)
-        engine.setEntityScale(coinAEntity, [0.3, 0.3, 0.3], true)
-      }
-      if (coinBEntity != null) {
-        engine.updateTransformByRigidBody(coinBEntity, coinB)
-        engine.setEntityScale(coinBEntity, [0.3, 0.3, 0.3], true)
-      }
-      if (coinCEntity != null) {
-        engine.updateTransformByRigidBody(coinCEntity, coinC)
-        engine.setEntityScale(coinCEntity, [0.3, 0.3, 0.3], true)
-      }
-    }
+    // if (passedSeconds > 5) {
+    //   world.stepSimulation(1 / 20, 0, 1 / 60)
+    //   if (coinAEntity != null) {
+    //     engine.updateTransformByRigidBody(coinAEntity, coinA)
+    //     engine.setEntityScale(coinAEntity, [0.3, 0.3, 0.3], true)
+    //   }
+    //   if (coinBEntity != null) {
+    //     engine.updateTransformByRigidBody(coinBEntity, coinB)
+    //     engine.setEntityScale(coinBEntity, [0.3, 0.3, 0.3], true)
+    //   }
+    //   if (coinCEntity != null) {
+    //     engine.updateTransformByRigidBody(coinCEntity, coinC)
+    //     engine.setEntityScale(coinCEntity, [0.3, 0.3, 0.3], true)
+    //   }
+    // }
 
     engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
 
