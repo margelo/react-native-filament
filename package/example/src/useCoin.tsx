@@ -28,7 +28,6 @@ export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Flo
     }
   }, [coinBody, isLoaded, world])
 
-  const rootEntity = coin.state === 'loaded' ? coin.asset.getRoot() : undefined
   // TODO(Marc): The mesh entity returned isn't stable, ie it changes between renders, why is that?
   const meshEntity = useMemo(() => {
     return coin.state === 'loaded' ? coin.asset.renderableEntities[0] : undefined
@@ -38,7 +37,6 @@ export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Flo
   const originX = origin[0]
   const originY = origin[1]
   const originZ = origin[2]
-  console.log('ORIGIN', originX, originY, originZ)
 
   // Set the initial transform of the coin
   useEffect(() => {
@@ -51,14 +49,15 @@ export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Flo
       const newScaleY = originalScale[1] * scale
       const newScaleZ = originalScale[2] * scale
 
-      // For the coins we want to reset the rotation, for that we set a new transform (false will cause the transform to be set as the new local transform).
+      // For the coins we want to reset the rotation, for that we set a new transform
+      // (false will cause the transform to be set as the new local transform).
       engine.setEntityScale(meshEntity, [newScaleX, newScaleY, newScaleZ], false)
-
-      engine.setEntityPosition(meshEntity, [originX, originY, originZ], true)
 
       // 90deg to radians
       const angle = 90 * (Math.PI / 180)
       engine.setEntityRotation(meshEntity, angle, [1, 0, 0], true)
+
+      engine.setEntityPosition(meshEntity, [originX, originY, originZ], true)
     }
   }, [engine, hasMeshEntity, originX, originY, originZ])
 

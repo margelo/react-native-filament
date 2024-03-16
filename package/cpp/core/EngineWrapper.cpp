@@ -457,7 +457,7 @@ void EngineWrapper::setEntityRotation(std::shared_ptr<EntityWrapper> entity, dou
     throw std::invalid_argument("Axis cannot be zero");
   }
 
-  auto rotationMatrix = math::quatf::fromAxisAngle(axis, angleRadians); // math::mat4::rotation(angleRadians, axis);
+  auto rotationMatrix = math::mat4::rotation(angleRadians, axis);
   updateTransform(rotationMatrix, entity, multiplyCurrent);
 }
 
