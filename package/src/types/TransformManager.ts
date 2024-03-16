@@ -1,8 +1,10 @@
 import { Entity } from './Entity'
+import { Float3 } from './float3'
 
 export interface Mat4f {
-  _type: 'mat4f'
   readonly data: number[]
+  readonly scale: Float3
+  scaling(scale: Float3): Mat4f
 }
 
 export interface TransformManager {

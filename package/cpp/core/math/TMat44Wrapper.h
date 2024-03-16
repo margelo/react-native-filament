@@ -23,6 +23,7 @@ public:
 private:
   std::vector<double> getMatrixData();
   std::shared_ptr<TMat44Wrapper> scaling(double x, double y, double z);
+  std::vector<double> getScale();
 
 private:
   const math::mat4f& _mat;

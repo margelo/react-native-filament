@@ -439,17 +439,7 @@ void EngineWrapper::updateTransform(math::mat4 transform, std::shared_ptr<Entity
   TransformManager& tm = _engine->getTransformManager();
   EntityInstance<TransformManager> entityInstance = tm.getInstance(entity->getEntity());
   auto currentTransform = tm.getTransform(entityInstance);
-  auto scaleX = currentTransform[0][0];
-  auto scaleY = currentTransform[1][1];
-  auto scaleZ = currentTransform[2][2];
-  Logger::log(TAG, "Current scale: " + std::to_string(scaleX) + ", " + std::to_string(scaleY) + ", " + std::to_string(scaleZ));
-
   auto newTransform = multiplyCurrent ? (transform * currentTransform) : transform;
-  auto newScaleX = newTransform[0][0];
-  auto newScaleY = newTransform[1][1];
-  auto newScaleZ = newTransform[2][2];
-  Logger::log(TAG, "New scale: " + std::to_string(newScaleX) + ", " + std::to_string(newScaleY) + ", " + std::to_string(newScaleZ));
-
   tm.setTransform(entityInstance, newTransform);
 }
 
@@ -467,7 +457,7 @@ void EngineWrapper::setEntityRotation(std::shared_ptr<EntityWrapper> entity, dou
     throw std::invalid_argument("Axis cannot be zero");
   }
 
-  auto rotationMatrix = math::mat4::rotation(angleRadians, axis);
+  auto rotationMatrix = math::quatf::fromAxisAngle(axis, angleRadians); // math::mat4::rotation(angleRadians, axis);
   updateTransform(rotationMatrix, entity, multiplyCurrent);
 }
 

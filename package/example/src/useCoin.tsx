@@ -38,16 +38,27 @@ export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Flo
   const originX = origin[0]
   const originY = origin[1]
   const originZ = origin[2]
+  console.log('ORIGIN', originX, originY, originZ)
 
   // Set the initial transform of the coin
   useEffect(() => {
     if (hasMeshEntity) {
       console.log('APPLY TRANSFORM')
-      // engine.setEntityRotation(meshEntity, initialRotation, [0, 1, 0], false)
-      // engine.setEntityPosition(meshEntity, [0, 0, 0], true)
-      engine.setEntityScale(meshEntity, [scale, scale, scale], true)
-      engine.setEntityRotation(meshEntity, initialRotation, [0, 0, 0], true)
-      // engine.setEntityPosition(meshEntity, [originX, originY, originZ], true)
+      const originalTransform = engine.transformManager.getTransform(meshEntity)
+      const originalScale = originalTransform.scale
+
+      const newScaleX = originalScale[0] * scale
+      const newScaleY = originalScale[1] * scale
+      const newScaleZ = originalScale[2] * scale
+
+      // For the coins we want to reset the rotation, for that we set a new transform (false will cause the transform to be set as the new local transform).
+      engine.setEntityScale(meshEntity, [newScaleX, newScaleY, newScaleZ], false)
+
+      engine.setEntityPosition(meshEntity, [originX, originY, originZ], true)
+
+      // 90deg to radians
+      const angle = 90 * (Math.PI / 180)
+      engine.setEntityRotation(meshEntity, angle, [1, 0, 0], true)
     }
   }, [engine, hasMeshEntity, originX, originY, originZ])
 
