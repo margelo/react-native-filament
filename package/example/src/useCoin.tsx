@@ -4,8 +4,7 @@ import { useEffect, useMemo } from 'react'
 
 const coinPath = getPath('coin.glb')
 
-const scale = 0.5
-const initialRotation = 0
+const scale = 0.3
 
 export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Float3) {
   const coin = useModel({ engine: engine, path: coinPath })
@@ -53,9 +52,10 @@ export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Flo
       // (false will cause the transform to be set as the new local transform).
       engine.setEntityScale(meshEntity, [newScaleX, newScaleY, newScaleZ], false)
 
-      // 90deg to radians
-      const angle = 90 * (Math.PI / 180)
-      engine.setEntityRotation(meshEntity, angle, [1, 0, 0], true)
+      // Set a random rotation
+      const angleRad = Math.random() * Math.PI * 2
+      const axis = [Math.random(), Math.random(), Math.random()]
+      engine.setEntityRotation(meshEntity, angleRad, axis, true)
 
       engine.setEntityPosition(meshEntity, [originX, originY, originZ], true)
     }
