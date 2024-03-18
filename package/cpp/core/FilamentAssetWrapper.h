@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AABBWrapper.h"
 #include "AnimatorWrapper.h"
 #include "core/utils/EntityWrapper.h"
 #include "jsi/HybridObject.h"
@@ -35,6 +36,10 @@ private: // Public API functions:
     return _asset->getRenderableEntityCount();
   }
   std::vector<std::shared_ptr<EntityWrapper>> getRenderableEntities();
+  std::shared_ptr<AABBWrapper> getBoundingBox() {
+    Aabb aabb = _asset->getBoundingBox();
+    return std::make_shared<AABBWrapper>(aabb);
+  }
 
 private: // Internal state:
   std::shared_ptr<gltfio::FilamentAsset> _asset;

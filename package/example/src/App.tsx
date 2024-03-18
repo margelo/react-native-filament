@@ -12,6 +12,7 @@ import {
   useWorld,
   useRigidBody,
   useBoxShape,
+  useStaticPlaneShape,
 } from 'react-native-filament'
 import { getPath } from './getPath'
 import { useCoin } from './useCoin'
@@ -35,7 +36,7 @@ export default function App() {
   const world = useWorld(0, -9, 0)
 
   // Create an invisible floor:
-  const floorShape = useBoxShape(100, 0.1, 100)
+  const floorShape = useStaticPlaneShape(0, 1, 0, 0)
   const floor = useRigidBody({
     mass: 0,
     origin: [0, -1.5, 0],
@@ -45,7 +46,7 @@ export default function App() {
     world.addRigidBody(floor)
   }, [world, floor])
 
-  const [coinABody, coinAEntity] = useCoin(engine, world, [1.3, 3, 0.0])
+  const [coinABody, coinAEntity] = useCoin(engine, world, [0, 3, 0.0])
   // const [coinB, coinBEntity] = useCoin(engine, world, [-1.3, 1, -0.4])
   // const [coinC, coinCEntity] = useCoin(engine, world, [0.1, 1, 0.7])
 

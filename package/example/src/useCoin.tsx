@@ -64,8 +64,11 @@ export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Flo
       const transform = engine.transformManager.getTransform(meshEntity)
 
       // Create RigidBody
-      const coinShape = BulletAPI.createBoxShape(...originalScale)
-      const body = BulletAPI.createRigidBodyFromTransform(1, transform, coinShape)
+      const asset = (coin.state === 'loaded' ? coin.asset : undefined)!
+      const halfExtent = asset.boundingBox.halfExtent
+      const coinShape = BulletAPI.createCylinderShape(...halfExtent)
+      coinShape.localScaling = [scale, scale, scale]
+      const body = BulletAPI.createRigidBodyFromTransform(10, transform, coinShape)
       body.friction = 1
       body.setDamping(0.0, 0.5)
       body.activationState = 'disable_deactivation'

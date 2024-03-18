@@ -9,11 +9,12 @@ namespace margelo {
 void BulletWrapper::loadHybridMethods() {
   registerHybridMethod("createDiscreteDynamicWorld", &BulletWrapper::createDiscreteDynamicWorld, this);
   registerHybridMethod("createRigidBody", &BulletWrapper::createRigidBody, this);
-  registerHybridMethod("createRigidBodyFromTransform", &BulletWrapper::createRigidBodyFromTransform, this);
   registerHybridMethod("createBoxShape", &BulletWrapper::createBoxShape, this);
   registerHybridMethod("createCylinderShape", &BulletWrapper::createCylinderShape, this);
   registerHybridMethod("createCylinderShapeX", &BulletWrapper::createCylinderShapeX, this);
   registerHybridMethod("createCylinderShapeZ", &BulletWrapper::createCylinderShapeZ, this);
+  registerHybridMethod("createStaticPlaneShape", &BulletWrapper::createStaticPlaneShape, this);
+  registerHybridMethod("createRigidBodyFromTransform", &BulletWrapper::createRigidBodyFromTransform, this);
 }
 
 std::shared_ptr<DiscreteDynamicWorldWrapper> BulletWrapper::createDiscreteDynamicWorld(double gravityX, double gravityY, double gravityZ) {
@@ -41,6 +42,10 @@ std::shared_ptr<CylinderShapeWrapperX> BulletWrapper::createCylinderShapeX(doubl
 }
 std::shared_ptr<CylinderShapeWrapperZ> BulletWrapper::createCylinderShapeZ(double x, double y, double z) {
   return std::make_shared<CylinderShapeWrapperZ>(x, y, z);
+}
+std::shared_ptr<StaticPlaneShapeWrapper> BulletWrapper::createStaticPlaneShape(double normalX, double normalY, double normalZ,
+                                                                               double planeConstant) {
+  return std::make_shared<StaticPlaneShapeWrapper>(normalX, normalY, normalZ, planeConstant);
 }
 std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBodyFromTransform(double mass, std::shared_ptr<TMat44Wrapper> entityTransform,
                                                                               std::shared_ptr<ShapeWrapper> shape) {

@@ -10,6 +10,7 @@
 #include "CylinderShapeWrapperZ.h"
 #include "DiscreteDynamicWorldWrapper.h"
 #include "RigidBodyWrapper.h"
+#include "StaticPlaneShapeWrapper.h"
 #include "jsi/HybridObject.h"
 
 namespace margelo {
@@ -29,6 +30,7 @@ private:
   std::shared_ptr<CylinderShapeWrapper> createCylinderShape(double x, double y, double z);
   std::shared_ptr<CylinderShapeWrapperX> createCylinderShapeX(double x, double y, double z);
   std::shared_ptr<CylinderShapeWrapperZ> createCylinderShapeZ(double x, double y, double z);
+  std::shared_ptr<StaticPlaneShapeWrapper> createStaticPlaneShape(double normalX, double normalY, double normalZ, double planeConstant);
 };
 
 } // namespace margelo

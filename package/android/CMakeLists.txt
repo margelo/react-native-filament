@@ -45,6 +45,7 @@ add_library(
         ../cpp/core/FilamentAssetWrapper.cpp
         ../cpp/core/AnimatorWrapper.cpp
         ../cpp/core/TransformManagerWrapper.cpp
+        ../cpp/core/AABBWrapper.cpp
 
         # Filament Utils
         ../cpp/core/utils/EntityWrapper.cpp
@@ -57,6 +58,7 @@ add_library(
         ../cpp/bullet/BulletWrapper.cpp
         ../cpp/bullet/DiscreteDynamicWorldWrapper.cpp
         ../cpp/bullet/RigidBodyWrapper.cpp
+        ../cpp/bullet/ShapeWrapper.cpp
 
         # Java JNI
         src/main/cpp/AndroidFilamentProxy.cpp

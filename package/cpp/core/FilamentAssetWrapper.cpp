@@ -16,6 +16,7 @@ void FilamentAssetWrapper::loadHybridMethods() {
   registerHybridGetter("entities", &FilamentAssetWrapper::getEntities, this);
   registerHybridGetter("renderableEntityCount", &FilamentAssetWrapper::getRenderableEntityCount, this);
   registerHybridGetter("renderableEntities", &FilamentAssetWrapper::getRenderableEntities, this);
+  registerHybridGetter("boundingBox", &FilamentAssetWrapper::getBoundingBox, this);
 }
 
 /**

@@ -17,11 +17,17 @@ class ShapeWrapper : public HybridObject {
 public:
   explicit ShapeWrapper(const char* name, std::shared_ptr<btCollisionShape> shape) : HybridObject(name), _shape(shape){};
 
-  void loadHybridMethods() override {}
+  void loadHybridMethods() override;
 
   std::shared_ptr<btCollisionShape> getShape() {
     return _shape;
   }
+
+private: // Public API
+  std::vector<double> getLocalScaling();
+  void setLocalScaling(const std::vector<double>& scaling);
+  double getMargin();
+  void setMargin(double margin);
 
 private:
   std::shared_ptr<btCollisionShape> _shape;

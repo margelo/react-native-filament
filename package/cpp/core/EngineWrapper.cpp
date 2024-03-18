@@ -476,7 +476,9 @@ void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> en
 
   // get rotation & position from the rigid body (it's not containing any scale information)
   std::shared_ptr<btRigidBody> collisionObject = rigidBody->getRigidBody();
-  btTransform& bodyTransform = collisionObject->getWorldTransform();
+  btMotionState* motionState = collisionObject->getMotionState();
+  btTransform bodyTransform;
+  motionState->getWorldTransform(bodyTransform);
   btQuaternion rotation = bodyTransform.getRotation();
   btVector3 position = bodyTransform.getOrigin();
 
@@ -505,7 +507,7 @@ void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> en
   math::vec3<float> scaleVec = {scaleX, scaleY, scaleZ};
   auto filamentScale = math::mat4f::scaling(scaleVec);
 
-  // Create a new transform from the position and rotation
+  // Create a new transform from the position, rotation and scale
   auto newTransform = filamentTranslation * filamentRotation * filamentScale;
 
   // Set the new transform
