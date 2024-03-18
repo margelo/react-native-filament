@@ -503,7 +503,7 @@ void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> en
                            currentTransform[1][2] * currentTransform[1][2]);
   float scaleZ = std::sqrt(currentTransform[2][0] * currentTransform[2][0] + currentTransform[2][1] * currentTransform[2][1] +
                            currentTransform[2][2] * currentTransform[2][2]);
-  Logger::log("EngineWrapper", "scaleX: %f, scaleY: %f, scaleZ: %f", scaleX, scaleY, scaleZ);
+  //  Logger::log("EngineWrapper", "scaleX: %f, scaleY: %f, scaleZ: %f", scaleX, scaleY, scaleZ);
   math::vec3<float> scaleVec = {scaleX, scaleY, scaleZ};
   auto filamentScale = math::mat4f::scaling(scaleVec);
 

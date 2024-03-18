@@ -11,7 +11,6 @@ import {
   useModel,
   useWorld,
   useRigidBody,
-  useBoxShape,
   useStaticPlaneShape,
 } from 'react-native-filament'
 import { getPath } from './getPath'
@@ -47,8 +46,8 @@ export default function App() {
   }, [world, floor])
 
   const [coinABody, coinAEntity] = useCoin(engine, world, [0, 3, 0.0])
-  // const [coinB, coinBEntity] = useCoin(engine, world, [-1.3, 1, -0.4])
-  // const [coinC, coinCEntity] = useCoin(engine, world, [0.1, 1, 0.7])
+  const [coinB, coinBEntity] = useCoin(engine, world, [-1.3, 3.2, -0.4])
+  const [coinC, coinCEntity] = useCoin(engine, world, [0.1, 2.9, 0.7])
 
   const pengu = useModel({ engine: engine, path: penguModelPath })
   const light = useAsset({ path: indirectLightPath })
@@ -101,18 +100,16 @@ export default function App() {
 
     // Update physics:
     if (passedSeconds > 5) {
-      world.stepSimulation(1 / 20, 0, 1 / 60)
+      world.stepSimulation(1 / 60, 1, 1 / 60)
       if (coinAEntity != null) {
         engine.updateTransformByRigidBody(coinAEntity, coinABody)
       }
-      // if (coinBEntity != null) {
-      //   engine.updateTransformByRigidBody(coinBEntity, coinB)
-      //   engine.setEntityScale(coinBEntity, [0.3, 0.3, 0.3], true)
-      // }
-      // if (coinCEntity != null) {
-      //   engine.updateTransformByRigidBody(coinCEntity, coinC)
-      //   engine.setEntityScale(coinCEntity, [0.3, 0.3, 0.3], true)
-      // }
+      if (coinBEntity != null) {
+        engine.updateTransformByRigidBody(coinBEntity, coinB)
+      }
+      if (coinCEntity != null) {
+        engine.updateTransformByRigidBody(coinCEntity, coinC)
+      }
     }
 
     engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
