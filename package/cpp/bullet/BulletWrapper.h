@@ -5,6 +5,9 @@
 #pragma once
 
 #include "BoxShapeWrapper.h"
+#include "CylinderShapeWrapper.h"
+#include "CylinderShapeWrapperX.h"
+#include "CylinderShapeWrapperZ.h"
 #include "DiscreteDynamicWorldWrapper.h"
 #include "RigidBodyWrapper.h"
 #include "jsi/HybridObject.h"
@@ -23,6 +26,9 @@ private:
   std::shared_ptr<RigidBodyWrapper> createRigidBodyFromTransform(double mass, std::shared_ptr<TMat44Wrapper> entityTransform,
                                                                  std::shared_ptr<ShapeWrapper> shape);
   std::shared_ptr<BoxShapeWrapper> createBoxShape(double x, double y, double z);
+  std::shared_ptr<CylinderShapeWrapper> createCylinderShape(double x, double y, double z);
+  std::shared_ptr<CylinderShapeWrapperX> createCylinderShapeX(double x, double y, double z);
+  std::shared_ptr<CylinderShapeWrapperZ> createCylinderShapeZ(double x, double y, double z);
 };
 
 } // namespace margelo

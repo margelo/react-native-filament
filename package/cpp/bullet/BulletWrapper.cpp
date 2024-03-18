@@ -11,6 +11,9 @@ void BulletWrapper::loadHybridMethods() {
   registerHybridMethod("createRigidBody", &BulletWrapper::createRigidBody, this);
   registerHybridMethod("createRigidBodyFromTransform", &BulletWrapper::createRigidBodyFromTransform, this);
   registerHybridMethod("createBoxShape", &BulletWrapper::createBoxShape, this);
+  registerHybridMethod("createCylinderShape", &BulletWrapper::createCylinderShape, this);
+  registerHybridMethod("createCylinderShapeX", &BulletWrapper::createCylinderShapeX, this);
+  registerHybridMethod("createCylinderShapeZ", &BulletWrapper::createCylinderShapeZ, this);
 }
 
 std::shared_ptr<DiscreteDynamicWorldWrapper> BulletWrapper::createDiscreteDynamicWorld(double gravityX, double gravityY, double gravityZ) {
@@ -29,6 +32,15 @@ std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBody(double mass, do
 }
 std::shared_ptr<BoxShapeWrapper> BulletWrapper::createBoxShape(double x, double y, double z) {
   return std::make_shared<BoxShapeWrapper>(x, y, z);
+}
+std::shared_ptr<CylinderShapeWrapper> BulletWrapper::createCylinderShape(double x, double y, double z) {
+  return std::make_shared<CylinderShapeWrapper>(x, y, z);
+}
+std::shared_ptr<CylinderShapeWrapperX> BulletWrapper::createCylinderShapeX(double x, double y, double z) {
+  return std::make_shared<CylinderShapeWrapperX>(x, y, z);
+}
+std::shared_ptr<CylinderShapeWrapperZ> BulletWrapper::createCylinderShapeZ(double x, double y, double z) {
+  return std::make_shared<CylinderShapeWrapperZ>(x, y, z);
 }
 std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBodyFromTransform(double mass, std::shared_ptr<TMat44Wrapper> entityTransform,
                                                                               std::shared_ptr<ShapeWrapper> shape) {
