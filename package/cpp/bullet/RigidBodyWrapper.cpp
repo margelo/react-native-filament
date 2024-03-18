@@ -35,26 +35,30 @@ std::shared_ptr<RigidBodyWrapper> RigidBodyWrapper::create(double mass, std::sha
   // EntityTransform to openGL matrix:
   const filament::math::mat4f& mat = entityTransform->getMat();
 
-  //  btTransform& bodyTransform = rigidBody->getRigidBody()->getWorldTransform();
-  //  btScalar bodyTransformMatrix[16];
-  //  bodyTransform.getOpenGLMatrix(bodyTransformMatrix);
-  //
-  //  filament::math::mat4f filamentMatrix(bodyTransformMatrix[0], bodyTransformMatrix[1], bodyTransformMatrix[2], bodyTransformMatrix[3],
-  //                                       bodyTransformMatrix[4], bodyTransformMatrix[5], bodyTransformMatrix[6], bodyTransformMatrix[7],
-  //                                       bodyTransformMatrix[8], bodyTransformMatrix[9], bodyTransformMatrix[10], bodyTransformMatrix[11],
-  //                                       bodyTransformMatrix[12], bodyTransformMatrix[13], bodyTransformMatrix[14],
-  //                                       bodyTransformMatrix[15]);
+  //  Convert the filament column-major matrix to a row-major matrix:
+  btScalar openGlMatrix[16];
+  openGlMatrix[0] = mat[0][0];
+  openGlMatrix[1] = mat[0][1];
+  openGlMatrix[2] = mat[0][2];
+  openGlMatrix[3] = mat[0][3];
+  openGlMatrix[4] = mat[1][0];
+  openGlMatrix[5] = mat[1][1];
+  openGlMatrix[6] = mat[1][2];
+  openGlMatrix[7] = mat[1][3];
+  openGlMatrix[8] = mat[2][0];
+  openGlMatrix[9] = mat[2][1];
+  openGlMatrix[10] = mat[2][2];
+  openGlMatrix[11] = mat[2][3];
+  openGlMatrix[12] = mat[3][0];
+  openGlMatrix[13] = mat[3][1];
+  openGlMatrix[14] = mat[3][2];
+  openGlMatrix[15] = mat[3][3];
 
-  // convert filament matrix to row-major
-  auto matArray = mat.asArray();
-  btMatrix3x3 basis;
-  //  basis.setValue(matArray[0], matArray[1], matArray[2], matArray[4], matArray[5], matArray[6], matArray[8], matArray[9], matArray[10]);
-  basis.setValue(mat[0][0], mat[0][1], mat[0][2], mat[1][0], mat[1][1], mat[1][2], mat[2][0], mat[2][1], mat[2][2]);
-
+  // Create the transform from the openGL matrix:
   btTransform transform;
-  transform.setBasis(basis);
-  transform.setOrigin(btVector3(matArray[12], matArray[13], matArray[14]));
+  transform.setFromOpenGLMatrix(openGlMatrix);
 
+  // Set the transform to the motion state and make a new RigidBodyWrapper:
   auto motionState = std::make_unique<btDefaultMotionState>(transform);
   return std::make_shared<RigidBodyWrapper>(mass, shape, std::move(motionState));
 }

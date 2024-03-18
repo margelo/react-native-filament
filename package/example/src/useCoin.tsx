@@ -9,7 +9,7 @@ const scale = 0.3
 
 export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Float3) {
   const coin = useModel({ engine: engine, path: coinPath })
-  const coinShape = useBoxShape(scale, scale, scale)
+  // const coinShape = useBoxShape(scale, scale, scale)
   // const coinBody = useRigidBody({
   //   mass: 0.2,
   //   origin: origin,
@@ -64,6 +64,7 @@ export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Flo
       const transform = engine.transformManager.getTransform(meshEntity)
 
       // Create RigidBody
+      const coinShape = BulletAPI.createBoxShape(...originalScale)
       const body = BulletAPI.createRigidBodyFromTransform(1, transform, coinShape)
       body.friction = 1
       body.setDamping(0.0, 0.5)
