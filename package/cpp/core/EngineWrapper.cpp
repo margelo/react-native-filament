@@ -474,22 +474,42 @@ void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> en
     throw std::invalid_argument("EntityWrapper is null");
   }
 
-  btTransform& bodyTransform = rigidBody->getRigidBody()->getWorldTransform();
-  btScalar bodyTransformMatrix[16];
-  bodyTransform.getOpenGLMatrix(bodyTransformMatrix);
+  // get rotation & position from the rigid body (it's not containing any scale information)
+  std::shared_ptr<btRigidBody> collisionObject = rigidBody->getRigidBody();
+  btTransform& bodyTransform = collisionObject->getWorldTransform();
+  btQuaternion rotation = bodyTransform.getRotation();
+  btVector3 position = bodyTransform.getOrigin();
 
-  filament::math::mat4f filamentMatrix(bodyTransformMatrix[0], bodyTransformMatrix[1], bodyTransformMatrix[2], bodyTransformMatrix[3],
-                                       bodyTransformMatrix[4], bodyTransformMatrix[5], bodyTransformMatrix[6], bodyTransformMatrix[7],
-                                       bodyTransformMatrix[8], bodyTransformMatrix[9], bodyTransformMatrix[10], bodyTransformMatrix[11],
-                                       bodyTransformMatrix[12], bodyTransformMatrix[13], bodyTransformMatrix[14], bodyTransformMatrix[15]);
+  // Create a filament rotation from the bullet rotation
+  math::quatf filamentQuat = math::quatf(rotation.getW(), rotation.getX(), rotation.getY(), rotation.getZ());
+  math::mat4f filamentRotation = math::mat4f(filamentQuat);
 
+  // Create a filament position from the bullet position
+  math::float3 filamentPosition = math::float3(position.getX(), position.getY(), position.getZ());
+  math::mat4f filamentTranslation = math::mat4f::translation(filamentPosition);
+
+  // Get the current transform of the filament entity
   TransformManager& tm = _engine->getTransformManager();
-
   Entity entity = entityWrapper->getEntity();
   EntityInstance<TransformManager> entityInstance = tm.getInstance(entity);
-  auto currentTransform = tm.getTransform(entityInstance);
-  auto newTransform = filamentMatrix * currentTransform;
-  tm.setTransform(entityInstance, filamentMatrix);
+  math::mat4f currentTransform = tm.getTransform(entityInstance);
+
+  // Get the current scale of the filament entity
+  float scaleX = std::sqrt(currentTransform[0][0] * currentTransform[0][0] + currentTransform[0][1] * currentTransform[0][1] +
+                           currentTransform[0][2] * currentTransform[0][2]);
+  float scaleY = std::sqrt(currentTransform[1][0] * currentTransform[1][0] + currentTransform[1][1] * currentTransform[1][1] +
+                           currentTransform[1][2] * currentTransform[1][2]);
+  float scaleZ = std::sqrt(currentTransform[2][0] * currentTransform[2][0] + currentTransform[2][1] * currentTransform[2][1] +
+                           currentTransform[2][2] * currentTransform[2][2]);
+  Logger::log("EngineWrapper", "scaleX: %f, scaleY: %f, scaleZ: %f", scaleX, scaleY, scaleZ);
+  math::vec3<float> scaleVec = {scaleX, scaleY, scaleZ};
+  auto filamentScale = math::mat4f::scaling(scaleVec);
+
+  // Create a new transform from the position and rotation
+  auto newTransform = filamentTranslation * filamentRotation * filamentScale;
+
+  // Set the new transform
+  tm.setTransform(entityInstance, newTransform);
 }
 
 } // namespace margelo
