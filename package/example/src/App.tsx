@@ -46,8 +46,8 @@ export default function App() {
   }, [world, floor])
 
   const [coinABody, coinAEntity] = useCoin(engine, world, [0, 3, 0.0])
-  const [coinB, coinBEntity] = useCoin(engine, world, [-1.3, 3.2, -0.4])
-  const [coinC, coinCEntity] = useCoin(engine, world, [0.1, 2.9, 0.7])
+  // const [coinB, coinBEntity] = useCoin(engine, world, [-1.3, 3.5, -0.4])
+  // const [coinC, coinCEntity] = useCoin(engine, world, [0.1, 3.5, 0.7])
 
   const pengu = useModel({ engine: engine, path: penguModelPath })
   const light = useAsset({ path: indirectLightPath })
@@ -104,12 +104,12 @@ export default function App() {
       if (coinAEntity != null) {
         engine.updateTransformByRigidBody(coinAEntity, coinABody)
       }
-      if (coinBEntity != null) {
-        engine.updateTransformByRigidBody(coinBEntity, coinB)
-      }
-      if (coinCEntity != null) {
-        engine.updateTransformByRigidBody(coinCEntity, coinC)
-      }
+      // if (coinBEntity != null) {
+      //   engine.updateTransformByRigidBody(coinBEntity, coinB)
+      // }
+      // if (coinCEntity != null) {
+      //   engine.updateTransformByRigidBody(coinCEntity, coinC)
+      // }
     }
 
     engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)

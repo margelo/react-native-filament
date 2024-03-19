@@ -34,5 +34,27 @@ void DiscreteDynamicWorldWrapper::addRigidBody(std::shared_ptr<RigidBodyWrapper>
 
 void DiscreteDynamicWorldWrapper::stepSimulation(double timeStep, double maxSubSteps, double fixedTimeStep) {
   dynamicsWorld->stepSimulation(timeStep, maxSubSteps, fixedTimeStep);
+
+  // Check for collisions
+  int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
+  bool isColliding = false;
+  for (int i = 0; i < numManifolds; i++) {
+    btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+    const btCollisionObject* obA = contactManifold->getBody0();
+    const btCollisionObject* obB = contactManifold->getBody1();
+
+    int numContacts = contactManifold->getNumContacts();
+    for (int j = 0; j < numContacts; j++) {
+      btManifoldPoint& pt = contactManifold->getContactPoint(j);
+      if (pt.getDistance() < 0.f) {
+        isColliding = true;
+        break;
+      }
+    }
+  }
+
+  if (!isColliding) {
+    return;
+  }
 }
 } // namespace margelo

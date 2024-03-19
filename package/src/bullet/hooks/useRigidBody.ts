@@ -4,6 +4,7 @@ import { ActivationState } from '../types/RigidBody'
 import { useEffect, useMemo } from 'react'
 import { BaseShape } from '../types/Shapes'
 import { Mat4f } from '../../types/TransformManager'
+import { DiscreteDynamicWorld } from '../types/DiscreteDynamicWorld'
 
 export type RigidBodyProps = {
   mass: number
@@ -12,6 +13,10 @@ export type RigidBodyProps = {
   activationState?: ActivationState
   /** [linearDumping, angularDumping] */
   damping?: [number, number]
+  /**
+   * If you supply world the rigid body will be added to the world on mount and removed on unmount.
+   */
+  world?: DiscreteDynamicWorld
 } & (
   | {
       origin: Float3
@@ -21,11 +26,19 @@ export type RigidBodyProps = {
     }
 )
 
-export function useRigidBody({ mass, shape, friction, activationState, damping, ...props }: RigidBodyProps) {
-  const originVec = 'origin' in props ? props.origin : undefined
-  const transform = 'transform' in props ? props.transform : undefined
+export function useRigidBody(props: RigidBodyProps | undefined) {
+  const originVec = props != null && 'origin' in props ? props.origin : undefined
+  const transform = props != null && 'transform' in props ? props.transform : undefined
+  const { mass, shape, friction, activationState, damping, world } = props ?? {}
 
   const body = useMemo(() => {
+    if (mass == null || shape == null) {
+      return undefined
+    }
+    if (originVec == null && transform == null) {
+      return undefined
+    }
+
     if (originVec) {
       return BulletAPI.createRigidBody(mass, originVec[0], originVec[1], originVec[2], shape)
     }
@@ -34,26 +47,39 @@ export function useRigidBody({ mass, shape, friction, activationState, damping, 
     }
 
     throw new Error('Either origin or transform must be provided')
-    // TODO: shape, origin and transform are not stable!
-  }, [mass])
+  }, [mass, originVec, shape, transform])
 
   useEffect(() => {
-    if (friction != null) {
-      body.friction = friction
+    if (friction == null || body == null) {
+      return
     }
+    body.friction = friction
   }, [body, friction])
 
   useEffect(() => {
-    if (activationState != null) {
-      body.activationState = activationState
+    if (activationState == null || body == null) {
+      return
     }
+    body.activationState = activationState
   }, [body, activationState])
 
   useEffect(() => {
-    if (damping != null) {
-      body.setDamping(damping[0], damping[1])
+    if (damping == null || body == null) {
+      return
     }
+    body.setDamping(damping[0], damping[1])
   }, [body, damping])
+
+  useEffect(() => {
+    if (world == null || body == null) {
+      return
+    }
+    console.log('TODO: world.addRigidBody(body)')
+    world.addRigidBody(body)
+    return () => {
+      // TODO: world.removeRigidBody(body)
+    }
+  }, [body, world])
 
   return body
 }

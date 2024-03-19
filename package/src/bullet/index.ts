@@ -1,6 +1,7 @@
 // Hooks
 export * from './hooks/useWorld'
 export * from './hooks/useRigidBody'
+export * from './hooks/useCylinderShape'
 export * from './hooks/useBoxShape'
 export * from './hooks/useStaticPlaneShape'
 

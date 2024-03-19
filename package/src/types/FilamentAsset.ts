@@ -27,7 +27,7 @@ export interface FilamentAsset {
    * Gets the list of entities, one for each glTF node. All of these have a Transform component.
    * Some of the returned entities may also have a Renderable component and/or a Light component.
    */
-  readonly entities: Entity[]
+  getEntities: () => Entity[]
 
   /**
    * Gets the number of entities returned by entities.
@@ -37,7 +37,7 @@ export interface FilamentAsset {
   /**
    * Gets the list of entities in the asset that have renderable components.
    */
-  readonly renderableEntities: Entity[]
+  getRenderableEntities: () => Entity[]
 
   /**
    * Gets the number of entities returned by renderableEntities.
