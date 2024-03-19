@@ -36,21 +36,19 @@ export default function App() {
 
   // Create an invisible floor:
   const floorShape = useStaticPlaneShape(0, 1, 0, 0)
-  const floor = useRigidBody({
+  useRigidBody({
     mass: 0,
     origin: [0, -1.5, 0],
     shape: floorShape,
+    world,
   })
-  useEffect(() => {
-    world.addRigidBody(floor)
-  }, [world, floor])
 
   const [coinABody, coinAEntity] = useCoin(engine, world, [0, 3, 0.0])
   // const [coinB, coinBEntity] = useCoin(engine, world, [-1.3, 3.5, -0.4])
   // const [coinC, coinCEntity] = useCoin(engine, world, [0.1, 3.5, 0.7])
 
-  const pengu = useModel({ engine: engine, path: penguModelPath })
   const light = useAsset({ path: indirectLightPath })
+  const pengu = useModel({ engine: engine, path: penguModelPath })
   const pirateHat = useModel({ engine: engine, path: pirateHatPath })
   const pirateHatAnimator = useMemo(() => {
     if (pirateHat.state !== 'loaded' || pengu.state !== 'loaded') {
