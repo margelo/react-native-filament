@@ -37,8 +37,8 @@ export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Flo
     engine.setEntityScale(entity, [newScaleX, newScaleY, newScaleZ], false)
 
     // Set a random rotation
-    const angleRad = 45 * (Math.PI / 180)
-    const axis: Float3 = [1, 0, 1]
+    const angleRad = Math.random() * Math.PI * 2
+    const axis: Float3 = [Math.random(), Math.random(), Math.random()]
     engine.setEntityRotation(entity, angleRad, axis, true)
 
     engine.setEntityPosition(entity, [originX, originY, originZ], true)
