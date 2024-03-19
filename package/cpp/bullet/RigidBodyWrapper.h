@@ -34,6 +34,7 @@ public:
 
   void setId(std::string id);
   std::string getId();
+  void setCollisionCallback(std::optional<CollisionCallback> callback);
   std::optional<CollisionCallback> getCollisionCallback();
 
 private:

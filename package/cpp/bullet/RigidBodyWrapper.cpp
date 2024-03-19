@@ -77,6 +77,7 @@ void RigidBodyWrapper::loadHybridMethods() {
   registerHybridGetter("activationState", &RigidBodyWrapper::getActivationState, this);
   registerHybridGetter("id", &RigidBodyWrapper::getId, this);
   registerHybridSetter("id", &RigidBodyWrapper::setId, this);
+  registerHybridMethod("setCollisionCallback", &RigidBodyWrapper::setCollisionCallback, this);
 }
 
 void RigidBodyWrapper::setDamping(double linearDamping, double angularDamping) {
@@ -113,6 +114,9 @@ std::string RigidBodyWrapper::getId() {
   return _id;
 }
 
+void RigidBodyWrapper::setCollisionCallback(std::optional<CollisionCallback> callback) {
+  _collisionCallback = std::move(callback);
+}
 std::optional<CollisionCallback> RigidBodyWrapper::getCollisionCallback() {
   return _collisionCallback;
 }

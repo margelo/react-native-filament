@@ -1,11 +1,10 @@
 import { Float3 } from '../../types/float3'
 import { BulletAPI } from '../bulletApi'
-import { ActivationState } from '../types/RigidBody'
+import { ActivationState, CollisionCallback } from '../types/RigidBody'
 import { useEffect, useMemo } from 'react'
 import { BaseShape } from '../types/Shapes'
 import { Mat4f } from '../../types/TransformManager'
 import { DiscreteDynamicWorld } from '../types/DiscreteDynamicWorld'
-import { CollisionCallback } from '../types/api'
 
 export type RigidBodyProps = {
   mass: number

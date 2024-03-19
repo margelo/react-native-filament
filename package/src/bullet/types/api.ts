@@ -1,9 +1,7 @@
 import { Mat4f } from '../../types/TransformManager'
 import { DiscreteDynamicWorld } from './DiscreteDynamicWorld'
-import { RigidBody } from './RigidBody'
+import { CollisionCallback, RigidBody } from './RigidBody'
 import { BaseShape, Box } from './Shapes'
-
-export type CollisionCallback = (id: string) => void
 
 export interface BulletAPI {
   createDiscreteDynamicWorld(gravityX: number, gravityY: number, gravityZ: number): DiscreteDynamicWorld
