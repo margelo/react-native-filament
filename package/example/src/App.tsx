@@ -48,24 +48,15 @@ export default function App() {
   // const [coinC, coinCEntity] = useCoin(engine, world, [0.1, 3.5, 0.7])
 
   const light = useAsset({ path: indirectLightPath })
-  const pengu = useModel({ engine: engine, path: penguModelPath })
-  const pirateHat = useModel({ engine: engine, path: pirateHatPath })
-  const pirateHatAnimator = useMemo(() => {
-    if (pirateHat.state !== 'loaded' || pengu.state !== 'loaded') {
-      return undefined
-    }
-    return pirateHat.asset.createAnimatorWithAnimationsFrom(pengu.asset)
-  }, [pengu, pirateHat])
-  const isPirateHatAdded = useRef(true) // assets are added by default to the scene
-
-  useEffect(() => {
-    if (pengu.state === 'loaded') {
-      engine.getScene().removeAssetEntities(pengu.asset)
-    }
-    if (pirateHat.state === 'loaded') {
-      engine.getScene().removeAssetEntities(pirateHat.asset)
-    }
-  }, [engine, pengu, pirateHat])
+  // const pengu = useModel({ engine: engine, path: penguModelPath })
+  // const pirateHat = useModel({ engine: engine, path: pirateHatPath })
+  // const pirateHatAnimator = useMemo(() => {
+  //   if (pirateHat.state !== 'loaded' || pengu.state !== 'loaded') {
+  //     return undefined
+  //   }
+  //   return pirateHat.asset.createAnimatorWithAnimationsFrom(pengu.asset)
+  // }, [pengu, pirateHat])
+  // const isPirateHatAdded = useRef(true) // assets are added by default to the scene
 
   const prevAnimationIndex = useRef<number>()
   const prevAnimationStarted = useRef<number>()
@@ -112,52 +103,52 @@ export default function App() {
 
     engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
 
-    if (pengu.state !== 'loaded' || pirateHatAnimator == null) {
-      return
-    }
+    // if (pengu.state !== 'loaded' || pirateHatAnimator == null) {
+    //   return
+    // }
 
-    // Update the animators to play the current animation
-    pengu.animator.applyAnimation(currentAnimationIndex.current, passedSeconds)
-    pirateHatAnimator.applyAnimation(currentAnimationIndex.current, passedSeconds)
+    // // Update the animators to play the current animation
+    // pengu.animator.applyAnimation(currentAnimationIndex.current, passedSeconds)
+    // pirateHatAnimator.applyAnimation(currentAnimationIndex.current, passedSeconds)
 
-    // Eventually apply a cross fade
-    if (prevAnimationIndex.current != null) {
-      if (prevAnimationStarted.current == null) {
-        prevAnimationStarted.current = passedSeconds
-      }
-      animationInterpolation.current += passedSeconds - prevAnimationStarted.current
-      const alpha = animationInterpolation.current / animationInterpolationTime
+    // // Eventually apply a cross fade
+    // if (prevAnimationIndex.current != null) {
+    //   if (prevAnimationStarted.current == null) {
+    //     prevAnimationStarted.current = passedSeconds
+    //   }
+    //   animationInterpolation.current += passedSeconds - prevAnimationStarted.current
+    //   const alpha = animationInterpolation.current / animationInterpolationTime
 
-      // Blend animations using a cross fade
-      pengu.animator.applyCrossFade(prevAnimationIndex.current, prevAnimationStarted.current!, alpha)
-      pirateHatAnimator.applyCrossFade(prevAnimationIndex.current, prevAnimationStarted.current!, alpha)
+    //   // Blend animations using a cross fade
+    //   pengu.animator.applyCrossFade(prevAnimationIndex.current, prevAnimationStarted.current!, alpha)
+    //   pirateHatAnimator.applyCrossFade(prevAnimationIndex.current, prevAnimationStarted.current!, alpha)
 
-      // Reset the prev animation once the transition is completed
-      if (alpha >= 1) {
-        prevAnimationIndex.current = undefined
-        prevAnimationStarted.current = undefined
-        animationInterpolation.current = 0
-      }
-    }
+    //   // Reset the prev animation once the transition is completed
+    //   if (alpha >= 1) {
+    //     prevAnimationIndex.current = undefined
+    //     prevAnimationStarted.current = undefined
+    //     animationInterpolation.current = 0
+    //   }
+    // }
 
-    pengu.animator.updateBoneMatrices()
-    pirateHatAnimator.updateBoneMatrices()
+    // pengu.animator.updateBoneMatrices()
+    // pirateHatAnimator.updateBoneMatrices()
   })
 
-  const animations = useMemo(() => {
-    if (pengu.state !== 'loaded') return []
-    const count = pengu.animator.getAnimationCount()
-    const names = []
-    for (let i = 0; i < count; i++) {
-      names.push(pengu.animator.getAnimationName(i))
-    }
-    return names
-  }, [pengu])
+  // const animations = useMemo(() => {
+  //   if (pengu.state !== 'loaded') return []
+  //   const count = pengu.animator.getAnimationCount()
+  //   const names = []
+  //   for (let i = 0; i < count; i++) {
+  //     names.push(pengu.animator.getAnimationName(i))
+  //   }
+  //   return names
+  // }, [pengu])
 
   return (
     <View style={styles.container}>
       <Filament style={styles.filamentView} engine={engine} />
-      <ScrollView style={styles.btnContainer}>
+      {/* <ScrollView style={styles.btnContainer}>
         <Button
           title="Toggle Pirate Hat"
           onPress={() => {
@@ -184,7 +175,7 @@ export default function App() {
             }}
           />
         ))}
-      </ScrollView>
+      </ScrollView> */}
     </View>
   )
 }
