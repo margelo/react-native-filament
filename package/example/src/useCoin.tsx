@@ -1,13 +1,22 @@
-import { DiscreteDynamicWorld, Engine, Float3, useCylinderShape, useModel, useRigidBody, useTransformManager } from 'react-native-filament'
+import {
+  CollisionCallback,
+  DiscreteDynamicWorld,
+  Engine,
+  Float3,
+  useCylinderShape,
+  useModel,
+  useRigidBody,
+  useTransformManager,
+} from 'react-native-filament'
 import { getPath } from './getPath'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo } from 'react'
 
 const coinPath = getPath('coin.glb')
 
 const scale = 0.3
 
 // A coin with a random rotation, that will be added to the physics world
-export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Float3) {
+export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Float3, collisionCallback: CollisionCallback) {
   const coin = useModel({ engine: engine, path: coinPath })
   const transformManager = useTransformManager(engine)
 
@@ -49,19 +58,6 @@ export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Flo
     return [entity, transform] as const
   }, [engine, originX, originY, originZ, renderableEntities, transformManager])
 
-  const [removeCoin, setRemoveCoin] = useState<boolean>()
-
-  const collisionCallback = useCallback(
-    (collidingWithId: string) => {
-      if (collidingWithId !== 'floor') {
-        return
-      }
-
-      setRemoveCoin(collidingWithId === 'floor')
-    },
-    [setRemoveCoin]
-  )
-
   const circleShape = useCylinderShape(
     coinAsset == null
       ? undefined
@@ -85,20 +81,6 @@ export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Flo
           collisionCallback: collisionCallback,
         }
   )
-
-  const timeoutRef = useRef<NodeJS.Timeout>()
-  useEffect(() => {
-    if (rigidBody == null) return
-    if (coinAsset == null) return
-    if (!removeCoin) return
-    if (timeoutRef.current != null) return
-
-    timeoutRef.current = setTimeout(() => {
-      console.log('remove coin')
-      world.removeRigidBody(rigidBody)
-      engine.getScene().removeAssetEntities(coinAsset)
-    }, 1000)
-  }, [coinAsset, engine, removeCoin, rigidBody, world])
 
   return meshEntity && rigidBody ? ([rigidBody, meshEntity] as const) : []
 }

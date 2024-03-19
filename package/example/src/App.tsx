@@ -1,14 +1,13 @@
 import * as React from 'react'
-import { useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 
-import { Button, ScrollView, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import {
   Filament,
   useEngine,
   Float3,
   useRenderCallback,
   useAsset,
-  useModel,
   useWorld,
   useRigidBody,
   useStaticPlaneShape,
@@ -44,7 +43,26 @@ export default function App() {
     id: 'floor',
   })
 
-  const [coinABody, coinAEntity] = useCoin(engine, world, [0, 3, 0.0])
+  const hasNotifiedTouchedFloor = useRef(false)
+
+  const [coinABody, coinAEntity] = useCoin(
+    engine,
+    world,
+    [0, 3, 0.0],
+    useCallback((_thisBody, collidedWith) => {
+      if (hasNotifiedTouchedFloor.current) {
+        return
+      }
+
+      if (collidedWith.id !== 'floor') {
+        return
+      }
+
+      hasNotifiedTouchedFloor.current = true
+      console.log('Coin touched the floor!')
+    }, [])
+  )
+
   // const [coinB, coinBEntity] = useCoin(engine, world, [-1.3, 3.5, -0.4])
   // const [coinC, coinCEntity] = useCoin(engine, world, [0.1, 3.5, 0.7])
 

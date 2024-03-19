@@ -94,15 +94,14 @@ void DiscreteDynamicWorldWrapper::stepSimulation(double timeStep, double maxSubS
     std::optional<CollisionCallback> collisionCallbackA = rigidBodyA->getCollisionCallback();
     if (collisionCallbackA.has_value()) {
       CollisionCallback callback = collisionCallbackA.value();
-      std::string id = rigidBodyB->getId();
-      callback(id);
+      callback(rigidBodyA, rigidBodyB);
     }
 
     std::optional<CollisionCallback> collisionCallbackB = rigidBodyB->getCollisionCallback();
     if (collisionCallbackB.has_value()) {
       CollisionCallback callback = collisionCallbackB.value();
       std::string id = rigidBodyA->getId();
-      callback(id);
+      callback(rigidBodyB, rigidBodyA);
     }
   }
 }

@@ -13,7 +13,13 @@
 
 namespace margelo {
 
-using CollisionCallback = std::function<void(std::string)>; // ID of the object it collided with
+class RigidBodyWrapper;
+
+/**
+ * first arg: "this" rigid body
+ * second arg: the rigid body "this" is colliding with
+ */
+using CollisionCallback = std::function<void(std::shared_ptr<RigidBodyWrapper>, std::shared_ptr<RigidBodyWrapper>)>;
 
 class RigidBodyWrapper : public HybridObject {
 public:
