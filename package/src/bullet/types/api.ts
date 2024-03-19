@@ -1,7 +1,7 @@
 import { Mat4f } from '../../types/TransformManager'
 import { DiscreteDynamicWorld } from './DiscreteDynamicWorld'
 import { CollisionCallback, RigidBody } from './RigidBody'
-import { BaseShape, Box } from './Shapes'
+import { BaseShape, Box, Cylinder, Sphere, StaticPlane } from './Shapes'
 
 export interface BulletAPI {
   createDiscreteDynamicWorld(gravityX: number, gravityY: number, gravityZ: number): DiscreteDynamicWorld
@@ -21,10 +21,11 @@ export interface BulletAPI {
    * @param halfY
    * @param halfZ
    */
-  createCylinderShape(halfX: number, halfY: number, halfZ: number): BaseShape
-  createCylinderShapeX(halfX: number, halfY: number, halfZ: number): BaseShape
-  createCylinderShapeZ(halfX: number, halfY: number, halfZ: number): BaseShape
-  createStaticPlaneShape(normalX: number, normalY: number, normalZ: number, constant: number): BaseShape
+  createCylinderShape(halfX: number, halfY: number, halfZ: number): Cylinder
+  createCylinderShapeX(halfX: number, halfY: number, halfZ: number): Cylinder
+  createCylinderShapeZ(halfX: number, halfY: number, halfZ: number): Cylinder
+  createStaticPlaneShape(normalX: number, normalY: number, normalZ: number, constant: number): StaticPlane
+  createSphereShape(radius: number): Sphere
   createRigidBody(
     mass: number,
     x: number,

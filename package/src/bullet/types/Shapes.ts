@@ -9,4 +9,6 @@ export interface Box extends BaseShape {}
 
 export interface Cylinder extends BaseShape {}
 
-export interface StaticPlaneShape extends BaseShape {}
+export interface StaticPlane extends BaseShape {}
+
+export interface Sphere extends BaseShape {}

@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
-import { StaticPlaneShape } from '../types/Shapes'
+import { StaticPlane } from '../types/Shapes'
 import { BulletAPI } from '../bulletApi'
 
-export function useStaticPlaneShape(normalX: number, normalY: number, normalZ: number, constant: number): StaticPlaneShape {
+export function useStaticPlaneShape(normalX: number, normalY: number, normalZ: number, constant: number): StaticPlane {
   return useMemo(() => BulletAPI.createStaticPlaneShape(normalX, normalY, normalZ, constant), [normalX, normalY, normalZ, constant])
 }
