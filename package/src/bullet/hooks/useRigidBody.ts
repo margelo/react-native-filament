@@ -77,10 +77,11 @@ export function useRigidBody(props: RigidBodyProps | undefined) {
     if (world == null || body == null) {
       return
     }
-    console.log('world.addRigidBody(body)')
+    console.log('world.addRigidBody')
     world.addRigidBody(body)
     return () => {
-      // TODO: world.removeRigidBody(body)
+      console.log('world.removeRigidBody')
+      world.removeRigidBody(body)
     }
   }, [body, world])
 

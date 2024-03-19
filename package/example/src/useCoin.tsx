@@ -1,6 +1,6 @@
 import { DiscreteDynamicWorld, Engine, Float3, useCylinderShape, useModel, useRigidBody, useTransformManager } from 'react-native-filament'
 import { getPath } from './getPath'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 const coinPath = getPath('coin.glb')
 
@@ -49,9 +49,18 @@ export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Flo
     return [entity, transform] as const
   }, [engine, originX, originY, originZ, renderableEntities, transformManager])
 
-  const collisionCallback = useCallback((collidingWithId: string) => {
-    console.log('Coin collided with', collidingWithId)
-  }, [])
+  const [removeCoin, setRemoveCoin] = useState<boolean>()
+
+  const collisionCallback = useCallback(
+    (collidingWithId: string) => {
+      if (collidingWithId !== 'floor') {
+        return
+      }
+
+      setRemoveCoin(collidingWithId === 'floor')
+    },
+    [setRemoveCoin]
+  )
 
   const circleShape = useCylinderShape(
     coinAsset == null
@@ -76,6 +85,20 @@ export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Flo
           collisionCallback: collisionCallback,
         }
   )
+
+  const timeoutRef = useRef<NodeJS.Timeout>()
+  useEffect(() => {
+    if (rigidBody == null) return
+    if (coinAsset == null) return
+    if (!removeCoin) return
+    if (timeoutRef.current != null) return
+
+    timeoutRef.current = setTimeout(() => {
+      console.log('remove coin')
+      world.removeRigidBody(rigidBody)
+      engine.getScene().removeAssetEntities(coinAsset)
+    }, 1000)
+  }, [coinAsset, engine, removeCoin, rigidBody, world])
 
   return meshEntity && rigidBody ? ([rigidBody, meshEntity] as const) : []
 }

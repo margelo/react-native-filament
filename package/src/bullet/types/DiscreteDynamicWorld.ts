@@ -2,6 +2,7 @@ import { RigidBody } from './RigidBody'
 
 export interface DiscreteDynamicWorld {
   addRigidBody(rigidBody: RigidBody): void
+  removeRigidBody(rigidBody: RigidBody): void
   /**
    * Update the simulation each frame.
    * @param timeStep The time passed

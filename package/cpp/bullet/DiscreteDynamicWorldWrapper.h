@@ -20,6 +20,7 @@ public:
 
 private:
   void addRigidBody(std::shared_ptr<RigidBodyWrapper> rigidBody);
+  void removeRigidBody(std::shared_ptr<RigidBodyWrapper> rigidBody);
   void stepSimulation(double timeStep, double maxSubSteps, double fixedTimeStep);
 
 private:

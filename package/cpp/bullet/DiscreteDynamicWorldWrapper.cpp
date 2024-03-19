@@ -20,6 +20,7 @@ DiscreteDynamicWorldWrapper::DiscreteDynamicWorldWrapper(double gravityX, double
 
 void DiscreteDynamicWorldWrapper::loadHybridMethods() {
   registerHybridMethod("addRigidBody", &DiscreteDynamicWorldWrapper::addRigidBody, this);
+  registerHybridMethod("removeRigidBody", &DiscreteDynamicWorldWrapper::removeRigidBody, this);
   registerHybridMethod("stepSimulation", &DiscreteDynamicWorldWrapper::stepSimulation, this);
 }
 
@@ -30,6 +31,15 @@ void DiscreteDynamicWorldWrapper::addRigidBody(std::shared_ptr<RigidBodyWrapper>
   btRigidBody* body = rigidBody->getRigidBody().get();
   dynamicsWorld->addRigidBody(body);
   rigidBodies->push_back(rigidBody);
+}
+
+void DiscreteDynamicWorldWrapper::removeRigidBody(std::shared_ptr<RigidBodyWrapper> rigidBody) {
+  if (!rigidBody) {
+    throw std::runtime_error("RigidBody is null");
+  }
+  btRigidBody* body = rigidBody->getRigidBody().get();
+  dynamicsWorld->removeRigidBody(body);
+  rigidBodies->erase(std::remove(rigidBodies->begin(), rigidBodies->end(), rigidBody), rigidBodies->end());
 }
 
 void DiscreteDynamicWorldWrapper::stepSimulation(double timeStep, double maxSubSteps, double fixedTimeStep) {
