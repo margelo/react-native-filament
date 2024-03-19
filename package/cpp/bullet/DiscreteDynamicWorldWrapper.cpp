@@ -53,7 +53,7 @@ void DiscreteDynamicWorldWrapper::stepSimulation(double timeStep, double maxSubS
     }
 
     if (!isColliding) {
-      return;
+      continue;
     }
 
     // Upcast to rigid bodies
