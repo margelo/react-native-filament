@@ -7,10 +7,14 @@
 #include "jsi/EnumMapper.h"
 
 namespace margelo {
-RigidBodyWrapper::RigidBodyWrapper(double mass, std::shared_ptr<btCollisionShape> shape, std::unique_ptr<btMotionState> motionState)
+RigidBodyWrapper::RigidBodyWrapper(double mass, std::shared_ptr<btCollisionShape> shape, std::unique_ptr<btMotionState> motionState,
+                                   std::string id, std::optional<CollisionCallback> collisionCallback)
     : HybridObject("RigidBodyWrapper") {
   _shape = shape;
   _motionState = std::move(motionState);
+  _id = id;
+  // The collision callback is coming from JS , thus we move it to the class member
+  _collisionCallback = std::move(collisionCallback);
 
   btVector3 localInertia(0, 0, 0);
   if (mass != 0.0) {
@@ -22,16 +26,18 @@ RigidBodyWrapper::RigidBodyWrapper(double mass, std::shared_ptr<btCollisionShape
 }
 
 std::shared_ptr<RigidBodyWrapper> RigidBodyWrapper::create(double mass, double x, double y, double z,
-                                                           std::shared_ptr<btCollisionShape> shape) {
+                                                           std::shared_ptr<btCollisionShape> shape, std::string id,
+                                                           std::optional<CollisionCallback> collisionCallback) {
   btTransform transform;
   transform.setIdentity();
   transform.setOrigin(btVector3(x, y, z));
   auto motionState = std::make_unique<btDefaultMotionState>(transform);
-  return std::make_shared<RigidBodyWrapper>(mass, shape, std::move(motionState));
+  return std::make_shared<RigidBodyWrapper>(mass, shape, std::move(motionState), id, collisionCallback);
 }
 
 std::shared_ptr<RigidBodyWrapper> RigidBodyWrapper::create(double mass, std::shared_ptr<TMat44Wrapper> entityTransform,
-                                                           std::shared_ptr<btCollisionShape> shape) {
+                                                           std::shared_ptr<btCollisionShape> shape, std::string id,
+                                                           std::optional<CollisionCallback> collisionCallback) {
   // EntityTransform to openGL matrix:
   const filament::math::mat4f& mat = entityTransform->getMat();
 
@@ -60,7 +66,7 @@ std::shared_ptr<RigidBodyWrapper> RigidBodyWrapper::create(double mass, std::sha
 
   // Set the transform to the motion state and make a new RigidBodyWrapper:
   auto motionState = std::make_unique<btDefaultMotionState>(transform);
-  return std::make_shared<RigidBodyWrapper>(mass, shape, std::move(motionState));
+  return std::make_shared<RigidBodyWrapper>(mass, shape, std::move(motionState), id, collisionCallback);
 }
 
 void RigidBodyWrapper::loadHybridMethods() {
@@ -69,6 +75,8 @@ void RigidBodyWrapper::loadHybridMethods() {
   registerHybridGetter("friction", &RigidBodyWrapper::getFriction, this);
   registerHybridSetter("activationState", &RigidBodyWrapper::setActivationState, this);
   registerHybridGetter("activationState", &RigidBodyWrapper::getActivationState, this);
+  registerHybridGetter("id", &RigidBodyWrapper::getId, this);
+  registerHybridSetter("id", &RigidBodyWrapper::setId, this);
 }
 
 void RigidBodyWrapper::setDamping(double linearDamping, double angularDamping) {
@@ -96,6 +104,17 @@ std::string RigidBodyWrapper::getActivationState() {
   EnumMapper::convertEnumToJSUnion(state, &stateString);
 
   return stateString;
+}
+void RigidBodyWrapper::setId(std::string id) {
+  _id = id;
+}
+
+std::string RigidBodyWrapper::getId() {
+  return _id;
+}
+
+std::optional<CollisionCallback> RigidBodyWrapper::getCollisionCallback() {
+  return _collisionCallback;
 }
 
 } // namespace margelo

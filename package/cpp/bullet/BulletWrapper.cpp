@@ -22,15 +22,29 @@ std::shared_ptr<DiscreteDynamicWorldWrapper> BulletWrapper::createDiscreteDynami
 }
 
 std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBody(double mass, double x, double y, double z,
-                                                                 std::shared_ptr<ShapeWrapper> shape) {
+                                                                 std::shared_ptr<ShapeWrapper> shape, std::string id,
+                                                                 std::optional<CollisionCallback> collisionCallback) {
   // Don't pass the shape wrapper, but the shape itself
   std::shared_ptr<btCollisionShape> shapePtr = shape->getShape();
   if (shapePtr == nullptr) {
     throw std::runtime_error("Shape is null");
   }
 
-  return RigidBodyWrapper::create(mass, x, y, z, shapePtr);
+  std::shared_ptr<RigidBodyWrapper> rigidBodyWrapper = RigidBodyWrapper::create(mass, x, y, z, shapePtr, id, collisionCallback);
+  return rigidBodyWrapper;
 }
+
+std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBodyFromTransform(double mass, std::shared_ptr<TMat44Wrapper> entityTransform,
+                                                                              std::shared_ptr<ShapeWrapper> shape, std::string id,
+                                                                              std::optional<CollisionCallback> collisionCallback) {
+  std::shared_ptr<btCollisionShape> shapePtr = shape->getShape();
+  if (shapePtr == nullptr) {
+    throw std::runtime_error("Shape is null");
+  }
+
+  return RigidBodyWrapper::create(mass, entityTransform, shapePtr, id, collisionCallback);
+}
+
 std::shared_ptr<BoxShapeWrapper> BulletWrapper::createBoxShape(double x, double y, double z) {
   return std::make_shared<BoxShapeWrapper>(x, y, z);
 }
@@ -46,14 +60,5 @@ std::shared_ptr<CylinderShapeWrapperZ> BulletWrapper::createCylinderShapeZ(doubl
 std::shared_ptr<StaticPlaneShapeWrapper> BulletWrapper::createStaticPlaneShape(double normalX, double normalY, double normalZ,
                                                                                double planeConstant) {
   return std::make_shared<StaticPlaneShapeWrapper>(normalX, normalY, normalZ, planeConstant);
-}
-std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBodyFromTransform(double mass, std::shared_ptr<TMat44Wrapper> entityTransform,
-                                                                              std::shared_ptr<ShapeWrapper> shape) {
-  std::shared_ptr<btCollisionShape> shapePtr = shape->getShape();
-  if (shapePtr == nullptr) {
-    throw std::runtime_error("Shape is null");
-  }
-
-  return RigidBodyWrapper::create(mass, entityTransform, shapePtr);
 }
 } // namespace margelo

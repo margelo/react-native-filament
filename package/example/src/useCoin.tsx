@@ -1,11 +1,12 @@
 import { DiscreteDynamicWorld, Engine, Float3, useCylinderShape, useModel, useRigidBody, useTransformManager } from 'react-native-filament'
 import { getPath } from './getPath'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
 const coinPath = getPath('coin.glb')
 
 const scale = 0.3
 
+// A coin with a random rotation, that will be added to the physics world
 export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Float3) {
   const coin = useModel({ engine: engine, path: coinPath })
   const transformManager = useTransformManager(engine)
@@ -48,6 +49,10 @@ export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Flo
     return [entity, transform] as const
   }, [engine, originX, originY, originZ, renderableEntities, transformManager])
 
+  const collisionCallback = useCallback((collidingWithId: string) => {
+    console.log('Coin collided with', collidingWithId)
+  }, [])
+
   const circleShape = useCylinderShape(
     coinAsset == null
       ? undefined
@@ -67,6 +72,8 @@ export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Flo
           damping: [0.0, 0.5],
           activationState: 'disable_deactivation',
           world: world,
+          id: 'coin',
+          collisionCallback: collisionCallback,
         }
   )
 

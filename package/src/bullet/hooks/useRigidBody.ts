@@ -5,6 +5,7 @@ import { useEffect, useMemo } from 'react'
 import { BaseShape } from '../types/Shapes'
 import { Mat4f } from '../../types/TransformManager'
 import { DiscreteDynamicWorld } from '../types/DiscreteDynamicWorld'
+import { CollisionCallback } from '../types/api'
 
 export type RigidBodyProps = {
   mass: number
@@ -17,6 +18,8 @@ export type RigidBodyProps = {
    * If you supply world the rigid body will be added to the world on mount and removed on unmount.
    */
   world?: DiscreteDynamicWorld
+  id: string
+  collisionCallback?: CollisionCallback
 } & (
   | {
       origin: Float3
@@ -29,26 +32,26 @@ export type RigidBodyProps = {
 export function useRigidBody(props: RigidBodyProps | undefined) {
   const originVec = props != null && 'origin' in props ? props.origin : undefined
   const transform = props != null && 'transform' in props ? props.transform : undefined
-  const { mass, shape, friction, activationState, damping, world, id } = props ?? {}
+  const { mass, shape, friction, activationState, damping, world, id, collisionCallback } = props ?? {}
 
   const originX = originVec?.[0]
   const originY = originVec?.[1]
   const originZ = originVec?.[2]
 
   const body = useMemo(() => {
-    if (mass == null || shape == null) {
+    if (mass == null || shape == null || id == null) {
       return undefined
     }
 
     if (originX != null && originY != null && originZ != null) {
-      return BulletAPI.createRigidBody(mass, originX, originY, originZ, shape)
+      return BulletAPI.createRigidBody(mass, originX, originY, originZ, shape, id, collisionCallback)
     }
     if (transform) {
-      return BulletAPI.createRigidBodyFromTransform(mass, transform, shape)
+      return BulletAPI.createRigidBodyFromTransform(mass, transform, shape, id, collisionCallback)
     }
 
     throw new Error('Either origin or transform must be provided')
-  }, [mass, originX, originY, originZ, shape, transform])
+  }, [id, mass, originX, originY, originZ, collisionCallback, shape, transform])
 
   useEffect(() => {
     if (friction == null || body == null) {

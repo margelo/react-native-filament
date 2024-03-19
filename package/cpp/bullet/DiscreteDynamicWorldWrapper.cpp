@@ -37,12 +37,12 @@ void DiscreteDynamicWorldWrapper::stepSimulation(double timeStep, double maxSubS
 
   // Check for collisions
   int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
-  bool isColliding = false;
   for (int i = 0; i < numManifolds; i++) {
     btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
     const btCollisionObject* obA = contactManifold->getBody0();
     const btCollisionObject* obB = contactManifold->getBody1();
 
+    bool isColliding = false;
     int numContacts = contactManifold->getNumContacts();
     for (int j = 0; j < numContacts; j++) {
       btManifoldPoint& pt = contactManifold->getContactPoint(j);
@@ -51,10 +51,49 @@ void DiscreteDynamicWorldWrapper::stepSimulation(double timeStep, double maxSubS
         break;
       }
     }
-  }
 
-  if (!isColliding) {
-    return;
+    if (!isColliding) {
+      return;
+    }
+
+    // Upcast to rigid bodies
+    const btRigidBody* bodyA = btRigidBody::upcast(obA);
+    const btRigidBody* bodyB = btRigidBody::upcast(obB);
+    if (!bodyA || !bodyB) {
+      Logger::log("DiscreteDynamicWorldWrapper", "Collision object is not a rigid body");
+      continue;
+    }
+    // Find the RigidBodyWrapper ptrs from the list of rigid bodies
+    std::shared_ptr<RigidBodyWrapper> rigidBodyA = nullptr;
+    std::shared_ptr<RigidBodyWrapper> rigidBodyB = nullptr;
+    for (auto& rb : *rigidBodies) {
+      if (rb->getRigidBody().get() == bodyA) {
+        rigidBodyA = rb;
+      }
+      if (rb->getRigidBody().get() == bodyB) {
+        rigidBodyB = rb;
+      }
+    }
+
+    if (!rigidBodyA || !rigidBodyB) {
+      Logger::log("DiscreteDynamicWorldWrapper", "RigidBodyWrapper not found for collision object");
+      continue;
+    }
+
+    // Call the collision callback
+    std::optional<CollisionCallback> collisionCallbackA = rigidBodyA->getCollisionCallback();
+    if (collisionCallbackA.has_value()) {
+      CollisionCallback callback = collisionCallbackA.value();
+      std::string id = rigidBodyB->getId();
+      callback(id);
+    }
+
+    std::optional<CollisionCallback> collisionCallbackB = rigidBodyB->getCollisionCallback();
+    if (collisionCallbackB.has_value()) {
+      CollisionCallback callback = collisionCallbackB.value();
+      std::string id = rigidBodyA->getId();
+      callback(id);
+    }
   }
 }
 } // namespace margelo

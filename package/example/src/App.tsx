@@ -41,6 +41,7 @@ export default function App() {
     origin: [0, -1.5, 0],
     shape: floorShape,
     world,
+    id: 'floor',
   })
 
   const [coinABody, coinAEntity] = useCoin(engine, world, [0, 3, 0.0])
