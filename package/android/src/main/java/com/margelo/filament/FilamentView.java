@@ -71,7 +71,6 @@ public class FilamentView extends FrameLayout implements TextureView.SurfaceText
     super.onAttachedToWindow();
     if (!isMounted) {
       isMounted = true;
-      onViewReady();
     }
   }
 
@@ -93,6 +92,7 @@ public class FilamentView extends FrameLayout implements TextureView.SurfaceText
   public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surfaceTexture, int width, int height) {
     surface = new Surface(surfaceTexture);
     surfaceProvider.onSurfaceCreated(surface);
+    onViewReady();
   }
 
   @Override
