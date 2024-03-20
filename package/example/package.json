@@ -22,7 +22,11 @@
     "@react-native/babel-preset": "0.73.21",
     "@react-native/metro-config": "0.73.5",
     "@react-native/typescript-config": "0.73.1",
-    "babel-plugin-module-resolver": "^5.0.0"
+    "babel-plugin-module-resolver": "^5.0.0",
+    "@react-navigation/native": "^6.1.17",
+    "@react-navigation/native-stack": "^6.9.26",
+    "react-native-safe-area-context": "^4.9.0",
+    "react-native-screens": "^3.29.0"
   },
   "engines": {
     "node": ">=18"
