@@ -34,7 +34,6 @@ public class FilamentView extends FrameLayout implements TextureView.SurfaceText
   private final TextureView textureView;
   private final SurfaceProvider surfaceProvider = new SurfaceProvider();
   private Surface surface = null;
-  private boolean isMounted = false;
 
   public FilamentView(Context context) {
     super(context);
@@ -64,14 +63,6 @@ public class FilamentView extends FrameLayout implements TextureView.SurfaceText
     textureView.setSurfaceTextureListener(this);
     textureView.setOpaque(false);
     addView(textureView);
-  }
-
-  @Override
-  protected void onAttachedToWindow() {
-    super.onAttachedToWindow();
-    if (!isMounted) {
-      isMounted = true;
-    }
   }
 
   private void onViewReady() {
