@@ -220,9 +220,7 @@ void EngineWrapper::destroySurface() {
   Logger::log(TAG, "Destroying surface...");
   _choreographer->stop();
   _choreographerListener->remove();
-  _renderCallback = std::nullopt;
   _swapChain = nullptr;
-  _surfaceListener->remove();
 }
 
 void EngineWrapper::setRenderCallback(std::optional<RenderCallback> callback) {
