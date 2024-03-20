@@ -44,6 +44,8 @@ add_library(
         ../cpp/core/SwapChainWrapper.cpp
         ../cpp/core/FilamentAssetWrapper.cpp
         ../cpp/core/AnimatorWrapper.cpp
+        ../cpp/core/MaterialInstanceWrapper.cpp
+        ../cpp/core/RenderableManagerWrapper.cpp
 
         # Filament Utils
         ../cpp/core/utils/EntityWrapper.cpp
@@ -93,16 +95,16 @@ target_link_libraries(
 message("RN Filament: Adding pre-compiled libraries in ${FILAMENT_DIR}...")
 file(GLOB FILAMENT_LIBRARIES "${FILAMENT_DIR}/lib/${ANDROID_ABI}/*.a")
 
-foreach(file ${FILAMENT_LIBRARIES})
-        message("RN Filament: Linking ${file}...")
-        target_link_libraries(${PACKAGE_NAME} ${file})
-endforeach()
+foreach (file ${FILAMENT_LIBRARIES})
+    message("RN Filament: Linking ${file}...")
+    target_link_libraries(${PACKAGE_NAME} ${file})
+endforeach ()
 
 # Bullet3 (local CMake project as a git submodule)
 message("RN Filament: Adding pre-compiled libraries in ${BULLET3_DIR}...")
 file(GLOB BULLET3_LIBRARIES "${BULLET3_DIR}/lib/${ANDROID_ABI}/*.a")
 
-foreach(file ${BULLET3_LIBRARIES})
-        message("RN Filament: Linking ${file}...")
-        target_link_libraries(${PACKAGE_NAME} ${file})
-endforeach()
+foreach (file ${BULLET3_LIBRARIES})
+    message("RN Filament: Linking ${file}...")
+    target_link_libraries(${PACKAGE_NAME} ${file})
+endforeach ()

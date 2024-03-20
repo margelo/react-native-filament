@@ -11,6 +11,7 @@
 #include "FilamentAssetWrapper.h"
 #include "FilamentBuffer.h"
 #include "JSDispatchQueue.h"
+#include "RenderableManagerWrapper.h"
 #include "RendererWrapper.h"
 #include "SceneWrapper.h"
 #include "Surface.h"
@@ -79,6 +80,8 @@ private:
   void setEntityPosition(std::shared_ptr<EntityWrapper> entity, std::vector<double> positionVec, bool multiplyCurrent);
   void setEntityRotation(std::shared_ptr<EntityWrapper> entity, double angleRadians, std::vector<double> axisVec, bool multiplyCurrent);
   void setEntityScale(std::shared_ptr<EntityWrapper> entity, std::vector<double> scaleVec, bool multiplyCurrent);
+
+  std::shared_ptr<RenderableManagerWrapper> getRendererableManager();
 
 private:
   std::shared_ptr<JSDispatchQueue> _jsDispatchQueue;

@@ -111,6 +111,7 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setEntityRotation", &EngineWrapper::setEntityRotation, this);
   registerHybridMethod("setEntityScale", &EngineWrapper::setEntityScale, this);
   registerHybridMethod("setIsPaused", &EngineWrapper::setIsPaused, this);
+  registerHybridMethod("getRenderableManager", &EngineWrapper::getRendererableManager, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
@@ -332,35 +333,33 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<F
   //    const size_t resourceUriCount = asset->getResourceUriCount();
   _resourceLoader->loadResources(asset.get());
 
-  // Test opacity:
-  auto& renderableManager = _engine->getRenderableManager();
-
-  // Get the number of entities
-  size_t entityCount = asset->getEntityCount();
-
-  // Get the pointer to the first entity
-  const Entity* entities = asset->getEntities();
-
-  for (size_t i = 0; i < entityCount; ++i) {
-    Entity entity = entities[i];
-    if (renderableManager.hasComponent(entity)) {
-      auto renderable = renderableManager.getInstance(entity);
-
-      size_t primitiveCount = renderableManager.getPrimitiveCount(renderable);
-      for (size_t j = 0; j < primitiveCount; ++j) {
-        // Obtain the material instance for this primitive
-        MaterialInstance* materialInstance = renderableManager.getMaterialInstanceAt(renderable, j);
-
-        // You can now work with the materialInstance as needed
-        materialInstance->setTransparencyMode(Material::TransparencyMode::TWO_PASSES_ONE_SIDE);
-        //        materialInstance->getMaterial()->
-        //        materialInstance->
-
-        //        materialInstance->
-        materialInstance->setParameter("alpha", 0.5f);
-      }
-    }
-  }
+  //  // Test opacity:
+  //  auto& renderableManager = _engine->getRenderableManager();
+  //
+  //  // Get the number of entities
+  //  size_t entityCount = asset->getEntityCount();
+  //
+  //  // Get the pointer to the first entity
+  //  const Entity* entities = asset->getEntities();
+  //
+  //  for (size_t i = 0; i < entityCount; ++i) {
+  //    Entity entity = entities[i];
+  //    if (renderableManager.hasComponent(entity)) {
+  //      auto renderable = renderableManager.getInstance(entity);
+  //      //      renderableManager.setCastShadows(renderable, true);
+  //      //      renderableManager.setBlendOrderAt(renderable, 0, 0);
+  //
+  //      size_t primitiveCount = renderableManager.getPrimitiveCount(renderable);
+  //      for (size_t j = 0; j < primitiveCount; ++j) {
+  //        // Obtain the material instance for this primitive
+  //        MaterialInstance* materialInstance = renderableManager.getMaterialInstanceAt(renderable, j);
+  //        math::float4 rgba = materialInstance->getParameter<math::float4>("baseColorFactor");
+  //        materialInstance->setTransparencyMode(Material::TransparencyMode::TWO_PASSES_ONE_SIDE);
+  //        materialInstance->setCullingMode(filament::backend::CullingMode::BACK);
+  //        materialInstance->setParameter("baseColorFactor", math::float4({rgba.r, rgba.g, rgba.b, 1}));
+  //      }
+  //    }
+  //  }
 
   return std::make_shared<FilamentAssetWrapper>(asset);
 }
@@ -480,6 +479,11 @@ void EngineWrapper::setEntityScale(std::shared_ptr<EntityWrapper> entity, std::v
   math::float3 scale = Converter::VecToFloat3(scaleVec);
   auto scaleMatrix = math::mat4::scaling(scale);
   updateTransform(scaleMatrix, entity, multiplyCurrent);
+}
+
+std::shared_ptr<RenderableManagerWrapper> EngineWrapper::getRendererableManager() {
+  RenderableManager& rm = _engine->getRenderableManager();
+  return std::make_shared<RenderableManagerWrapper>(rm);
 }
 
 } // namespace margelo
