@@ -332,6 +332,36 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<F
   //    const size_t resourceUriCount = asset->getResourceUriCount();
   _resourceLoader->loadResources(asset.get());
 
+  // Test opacity:
+  auto& renderableManager = _engine->getRenderableManager();
+
+  // Get the number of entities
+  size_t entityCount = asset->getEntityCount();
+
+  // Get the pointer to the first entity
+  const Entity* entities = asset->getEntities();
+
+  for (size_t i = 0; i < entityCount; ++i) {
+    Entity entity = entities[i];
+    if (renderableManager.hasComponent(entity)) {
+      auto renderable = renderableManager.getInstance(entity);
+
+      size_t primitiveCount = renderableManager.getPrimitiveCount(renderable);
+      for (size_t j = 0; j < primitiveCount; ++j) {
+        // Obtain the material instance for this primitive
+        MaterialInstance* materialInstance = renderableManager.getMaterialInstanceAt(renderable, j);
+
+        // You can now work with the materialInstance as needed
+        materialInstance->setTransparencyMode(Material::TransparencyMode::TWO_PASSES_ONE_SIDE);
+        //        materialInstance->getMaterial()->
+        //        materialInstance->
+
+        //        materialInstance->
+        materialInstance->setParameter("alpha", 0.5f);
+      }
+    }
+  }
+
   return std::make_shared<FilamentAssetWrapper>(asset);
 }
 

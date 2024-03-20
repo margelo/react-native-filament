@@ -2,6 +2,10 @@
   "migIndex": 1,
   "data": [
     {
+      "path": "assets/coin_alpha.glb",
+      "sha1": "acc2eaae7344bbe71bd4f00baad2ff6a1ae795f6"
+    },
+    {
       "path": "assets/default_env_ibl.ktx",
       "sha1": "432ab7515c66e2fc88bed2766e4972bbf36bb361"
     },
