@@ -115,6 +115,7 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setEntityRotation", &EngineWrapper::setEntityRotation, this);
   registerHybridMethod("setEntityScale", &EngineWrapper::setEntityScale, this);
   registerHybridMethod("setIsPaused", &EngineWrapper::setIsPaused, this);
+  registerHybridMethod("getRenderableManager", &EngineWrapper::getRendererableManager, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
@@ -455,6 +456,11 @@ void EngineWrapper::setEntityScale(std::shared_ptr<EntityWrapper> entity, std::v
   math::float3 scale = Converter::VecToFloat3(scaleVec);
   auto scaleMatrix = math::mat4::scaling(scale);
   updateTransform(scaleMatrix, entity, multiplyCurrent);
+}
+
+std::shared_ptr<RenderableManagerWrapper> EngineWrapper::getRendererableManager() {
+  RenderableManager& rm = _engine->getRenderableManager();
+  return std::make_shared<RenderableManagerWrapper>(rm);
 }
 
 } // namespace margelo
