@@ -10,8 +10,8 @@ const indirectLightPath = Platform.select({
 })!
 
 const assetPath = Platform.select({
-  android: 'custom/chair.glb',
-  ios: 'chair.glb',
+  android: 'custom/coin_alpha.glb',
+  ios: 'coin_alpha.glb',
 })!
 
 // Camera config:
