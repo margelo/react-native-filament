@@ -11,7 +11,7 @@ export * from './hooks/useRenderCallback'
 export * from './hooks/useAsset'
 export * from './hooks/useModel'
 export * from './hooks/useTransformManager'
+export * from './hooks/useRenderableManager'
 
 // Bullet 3
 export * from './bullet'
-export * from './hooks/useRenderableManager'
