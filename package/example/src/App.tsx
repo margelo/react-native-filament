@@ -27,8 +27,6 @@ const focalLengthInMillimeters = 28
 const near = 0.1
 const far = 1000
 
-const animationInterpolationTime = 5
-
 export default function App() {
   const engine = useEngine()
   const world = useWorld(0, -9, 0)
@@ -77,10 +75,12 @@ export default function App() {
   // }, [pengu, pirateHat])
   // const isPirateHatAdded = useRef(true) // assets are added by default to the scene
 
-  const prevAnimationIndex = useRef<number>()
-  const prevAnimationStarted = useRef<number>()
-  const animationInterpolation = useRef(0)
-  const currentAnimationIndex = useRef(0)
+  useEffect(() => {
+    if (asset.state !== 'loaded') return
+    engine.transformToUnitCube(asset.asset)
+    // Applies default opacity modes
+    renderableManager.setAssetEntitiesOpacity(asset.asset, 1)
+  }, [asset, engine, renderableManager])
 
   useEffect(() => {
     if (light == null) return
@@ -199,18 +199,32 @@ export default function App() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  filamentView: {
-    flex: 1,
-    backgroundColor: 'lightblue',
-  },
-  btnContainer: {
-    height: 200,
-    width: '100%',
-    position: 'absolute',
-    bottom: 0,
-  },
-})
+function TestScreen() {
+  return (
+    <View style={{ flex: 1 }}>
+      <Text>Test Screen</Text>
+    </View>
+  )
+}
+
+const Stack = createNativeStackNavigator()
+
+function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Scene">
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen
+          name="Scene"
+          component={Scene}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen name="Test" component={TestScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  )
+}
+
+export default App

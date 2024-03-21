@@ -19,6 +19,8 @@
 		7699B88040F8A987B510C191 /* libPods-FilamentExample-FilamentExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-FilamentExample-FilamentExampleTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		94671BF6DAD54DF8A7B842C3 /* pirate.glb in Resources */ = {isa = PBXBuildFile; fileRef = 034C2E5BF6EE449290528E8D /* pirate.glb */; };
+		FB6EB495362843928953B887 /* coin.glb in Resources */ = {isa = PBXBuildFile; fileRef = CE7EC55D9D25492D8D6083D3 /* coin.glb */; };
+		9D9B37A8229643988DE97B73 /* chair.glb in Resources */ = {isa = PBXBuildFile; fileRef = C4E5AB69D2B94D53A2EE3F93 /* chair.glb */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,7 +55,8 @@
 		89C6BE57DB24E9ADA2F236DE /* Pods-FilamentExample-FilamentExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FilamentExample-FilamentExampleTests.release.xcconfig"; path = "Target Support Files/Pods-FilamentExample-FilamentExampleTests/Pods-FilamentExample-FilamentExampleTests.release.xcconfig"; sourceTree = "<group>"; };
 		BE173E0B3B23427D84C92C91 /* pijamas.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = pijamas.glb; path = ../assets/pijamas.glb; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		F43778A9F42D40A08F11D195 /* coin.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = coin.glb; path = ../assets/coin.glb; sourceTree = "<group>"; };
+		CE7EC55D9D25492D8D6083D3 /* coin.glb */ = {isa = PBXFileReference; name = "coin.glb"; path = "../assets/coin.glb"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		C4E5AB69D2B94D53A2EE3F93 /* chair.glb */ = {isa = PBXFileReference; name = "chair.glb"; path = "../assets/chair.glb"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -155,7 +158,8 @@
 				3E2439B417DA497E83EB1F05 /* pengu.glb */,
 				BE173E0B3B23427D84C92C91 /* pijamas.glb */,
 				034C2E5BF6EE449290528E8D /* pirate.glb */,
-				F43778A9F42D40A08F11D195 /* coin.glb */,
+				CE7EC55D9D25492D8D6083D3 /* coin.glb */,
+				C4E5AB69D2B94D53A2EE3F93 /* chair.glb */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -270,7 +274,8 @@
 				59249653BB174593BEDB9F3D /* pengu.glb in Resources */,
 				0BF3FBAC90C441EAA712EE28 /* pijamas.glb in Resources */,
 				94671BF6DAD54DF8A7B842C3 /* pirate.glb in Resources */,
-				17023E1AC1A04AE0B6C140AC /* coin.glb in Resources */,
+				FB6EB495362843928953B887 /* coin.glb in Resources */,
+				9D9B37A8229643988DE97B73 /* chair.glb in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

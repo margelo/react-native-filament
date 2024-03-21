@@ -2,6 +2,10 @@
   "migIndex": 1,
   "data": [
     {
+      "path": "assets/chair.glb",
+      "sha1": "3d844a9a2de52d1622cd4f85e21b9366c118c898"
+    },
+    {
       "path": "assets/coin.glb",
       "sha1": "afb8a61af2561fbc6ae8021ff36b7af5499d8510"
     },

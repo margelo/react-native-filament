@@ -37,9 +37,13 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
     : HybridObject("EngineWrapper") {
   // TODO: make the enum for the backend for the engine configurable
   _jsDispatchQueue = jsDispatchQueue;
-  _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) {
-    Logger::log(TAG, "Destroying engine...");
-    Engine::destroy(&engine);
+  _engine = References<Engine>::adoptRef(Engine::create(), [jsDispatchQueue](Engine* engine) {
+    // Make sure that the engine gets destroyed on the thread that it was created on (JS thread).
+    // It can happen that the engine gets cleaned up by Hardes (hermes GC) on a different thread.
+    jsDispatchQueue->runOnJS([engine]() {
+      Logger::log(TAG, "Destroying engine...");
+      Engine::destroy(engine);
+    });
   });
 
   gltfio::MaterialProvider* _materialProviderPtr =
@@ -116,6 +120,7 @@ void EngineWrapper::loadHybridMethods() {
 
   // Combined Physics API:
   registerHybridMethod("updateTransformByRigidBody", &EngineWrapper::updateTransformByRigidBody, this);
+  registerHybridMethod("getRenderableManager", &EngineWrapper::getRendererableManager, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
@@ -154,14 +159,12 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
                                          },
                                      .onSurfaceDestroyed =
                                          [queue, weakSelf](std::shared_ptr<Surface> surface) {
-                                           // TODO(Marc): When compiling in debug mode we get an assertion error here, because we are
-                                           // destroying the surface from the wrong thread.
-                                           queue->runOnJSAndWait([=]() {
-                                             auto sharedThis = weakSelf.lock();
-                                             if (sharedThis != nullptr) {
-                                               sharedThis->destroySurface();
-                                             }
-                                           });
+                                           // Note: When the surface gets destroyed we immediately need to destroy the swapchain
+                                           // and flush to avoid flickering issues.
+                                           auto sharedThis = weakSelf.lock();
+                                           if (sharedThis != nullptr) {
+                                             sharedThis->destroySurface();
+                                           }
                                          }};
   _surfaceListener = surfaceProvider->addOnSurfaceChangedListener(callback);
 }
@@ -225,9 +228,7 @@ void EngineWrapper::destroySurface() {
   Logger::log(TAG, "Destroying surface...");
   _choreographer->stop();
   _choreographerListener->remove();
-  _renderCallback = std::nullopt;
   _swapChain = nullptr;
-  _surfaceListener->remove();
 }
 
 void EngineWrapper::setRenderCallback(std::optional<RenderCallback> callback) {
@@ -294,9 +295,12 @@ std::shared_ptr<ViewWrapper> EngineWrapper::createView() {
 }
 
 std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChain(std::shared_ptr<Surface> surface) {
-  auto swapChain = References<SwapChain>::adoptEngineRef(
-      _engine, _engine->createSwapChain(surface->getSurface(), SwapChain::CONFIG_TRANSPARENT),
-      [](const std::shared_ptr<Engine>& engine, SwapChain* swapChain) { engine->destroy(swapChain); });
+  auto swapChain =
+      References<SwapChain>::adoptEngineRef(_engine, _engine->createSwapChain(surface->getSurface(), SwapChain::CONFIG_TRANSPARENT),
+                                            [](const std::shared_ptr<Engine>& engine, SwapChain* swapChain) {
+                                              engine->destroy(swapChain);
+                                              engine->flushAndWait();
+                                            });
 
   return std::make_shared<SwapChainWrapper>(swapChain);
 }
@@ -512,6 +516,11 @@ void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> en
 
   // Set the new transform
   tm.setTransform(entityInstance, newTransform);
+}
+
+std::shared_ptr<RenderableManagerWrapper> EngineWrapper::getRendererableManager() {
+  RenderableManager& rm = _engine->getRenderableManager();
+  return std::make_shared<RenderableManagerWrapper>(rm);
 }
 
 } // namespace margelo

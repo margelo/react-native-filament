@@ -10,6 +10,7 @@ import { FilamentAsset } from './FilamentAsset'
 import { Float3 } from './float3'
 import { RigidBody } from '../bullet'
 import { TransformManager } from './TransformManager'
+import { RenderableManager } from './RenderableManager'
 
 export type RenderCallback = (timestamp: number, startTime: number, passedSeconds: number) => void
 
@@ -77,4 +78,5 @@ export interface Engine {
   updateTransformByRigidBody(entity: Entity, rigidBody: RigidBody): void
 
   readonly transformManager: TransformManager
+  getRenderableManager(): RenderableManager
 }

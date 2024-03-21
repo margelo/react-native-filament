@@ -14,3 +14,4 @@ export * from './hooks/useTransformManager'
 
 // Bullet 3
 export * from './bullet'
+export * from './hooks/useRenderableManager'
