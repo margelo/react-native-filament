@@ -21,6 +21,7 @@
 		94671BF6DAD54DF8A7B842C3 /* pirate.glb in Resources */ = {isa = PBXBuildFile; fileRef = 034C2E5BF6EE449290528E8D /* pirate.glb */; };
 		FB6EB495362843928953B887 /* coin.glb in Resources */ = {isa = PBXBuildFile; fileRef = CE7EC55D9D25492D8D6083D3 /* coin.glb */; };
 		9D9B37A8229643988DE97B73 /* chair.glb in Resources */ = {isa = PBXBuildFile; fileRef = C4E5AB69D2B94D53A2EE3F93 /* chair.glb */; };
+		9536532B97CA43669EE27CEC /* coin_alpha.glb in Resources */ = {isa = PBXBuildFile; fileRef = 12D4AF0DC82949E498A73CBE /* coin_alpha.glb */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,7 @@
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		CE7EC55D9D25492D8D6083D3 /* coin.glb */ = {isa = PBXFileReference; name = "coin.glb"; path = "../assets/coin.glb"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		C4E5AB69D2B94D53A2EE3F93 /* chair.glb */ = {isa = PBXFileReference; name = "chair.glb"; path = "../assets/chair.glb"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		12D4AF0DC82949E498A73CBE /* coin_alpha.glb */ = {isa = PBXFileReference; name = "coin_alpha.glb"; path = "../assets/coin_alpha.glb"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -160,6 +162,7 @@
 				034C2E5BF6EE449290528E8D /* pirate.glb */,
 				CE7EC55D9D25492D8D6083D3 /* coin.glb */,
 				C4E5AB69D2B94D53A2EE3F93 /* chair.glb */,
+				12D4AF0DC82949E498A73CBE /* coin_alpha.glb */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -276,6 +279,7 @@
 				94671BF6DAD54DF8A7B842C3 /* pirate.glb in Resources */,
 				FB6EB495362843928953B887 /* coin.glb in Resources */,
 				9D9B37A8229643988DE97B73 /* chair.glb in Resources */,
+				9536532B97CA43669EE27CEC /* coin_alpha.glb in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
