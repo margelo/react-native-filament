@@ -77,6 +77,15 @@ export interface Engine {
 
   updateTransformByRigidBody(entity: Entity, rigidBody: RigidBody): void
 
-  readonly transformManager: TransformManager
+  /**
+   * Note: the reference returned isn't stable, and each call will return a new reference.
+   * Prefer using the hook `useTransformManager` to get a stable reference.
+   */
+  getTransformManager(): TransformManager
+
+  /**
+   * Note: the reference returned isn't stable, and each call will return a new reference.
+   * Prefer using the hook `useRenderableManager` to get a stable reference.
+   */
   getRenderableManager(): RenderableManager
 }

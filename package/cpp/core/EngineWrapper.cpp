@@ -116,11 +116,11 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setEntityRotation", &EngineWrapper::setEntityRotation, this);
   registerHybridMethod("setEntityScale", &EngineWrapper::setEntityScale, this);
   registerHybridMethod("setIsPaused", &EngineWrapper::setIsPaused, this);
-  registerHybridGetter("transformManager", &EngineWrapper::getTransformManager, this);
+  registerHybridMethod("getTransformManager", &EngineWrapper::getTransformManager, this);
+  registerHybridMethod("getRenderableManager", &EngineWrapper::getRendererableManager, this);
 
   // Combined Physics API:
   registerHybridMethod("updateTransformByRigidBody", &EngineWrapper::updateTransformByRigidBody, this);
-  registerHybridMethod("getRenderableManager", &EngineWrapper::getRendererableManager, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
