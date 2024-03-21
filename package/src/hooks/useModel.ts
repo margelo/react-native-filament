@@ -13,6 +13,12 @@ interface ModelProps extends AssetProps {
    * @default true
    */
   shouldReleaseSourceData?: boolean
+
+  /**
+   * Whether the model should be automatically added to the scene after loading.
+   * @default true
+   */
+  autoAddToScene?: boolean
 }
 
 /**
@@ -38,7 +44,7 @@ export type FilamentModel =
  * const pengu = useModel({ engine: engine, path: PENGU_PATH })
  * ```
  */
-export function useModel({ path, engine, shouldReleaseSourceData }: ModelProps): FilamentModel {
+export function useModel({ path, engine, shouldReleaseSourceData, autoAddToScene = true }: ModelProps): FilamentModel {
   const asset = useAsset({ path: path })
 
   const engineAsset = useMemo(() => {
@@ -64,6 +70,14 @@ export function useModel({ path, engine, shouldReleaseSourceData }: ModelProps):
       engineAsset?.releaseSourceData()
     }
   }, [engineAsset, shouldReleaseSourceData])
+
+  useEffect(() => {
+    if (!autoAddToScene) {
+      return
+    }
+    if (engineAsset == null) return
+    engine.getScene().addAssetEntities(engineAsset)
+  }, [autoAddToScene, engine, engineAsset, entities])
 
   if (asset == null || engineAsset == null || animator == null || entities == null || renderableEntities == null) {
     return {
