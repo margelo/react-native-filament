@@ -68,6 +68,7 @@ private:
 
   void transformToUnitCube(std::shared_ptr<FilamentAssetWrapper> asset);
   std::shared_ptr<FilamentAssetWrapper> loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
+  std::vector<std::shared_ptr<FilamentAssetWrapper>> loadInstancedAsset(std::shared_ptr<FilamentBuffer> modelBuffer, int numberOfInstances);
   void setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer);
 
   void synchronizePendingFrames();

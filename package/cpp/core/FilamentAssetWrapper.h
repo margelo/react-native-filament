@@ -12,7 +12,14 @@ using namespace filament;
 
 class FilamentAssetWrapper : public HybridObject {
 public:
-  explicit FilamentAssetWrapper(std::shared_ptr<gltfio::FilamentAsset> asset) : HybridObject("FilamentAssetWrapper"), _asset(asset) {}
+  /**
+   * Wraps a FilamentAsset and optionally its instances.
+   * @param asset The asset to wrap
+   * @param instances You can create an asset with multiple instances. In this case provide the instances here, so they get memory managed
+   * by this wrapper.
+   */
+  explicit FilamentAssetWrapper(std::shared_ptr<gltfio::FilamentAsset> asset, FilamentInstance** instances)
+      : HybridObject("FilamentAssetWrapper"), _asset(asset), _instances(instances) {}
 
   void loadHybridMethods() override;
 
@@ -30,6 +37,8 @@ private:
 
 private:
   std::shared_ptr<gltfio::FilamentAsset> _asset;
+  // Optional instances that are managed by this wrapper
+  FilamentInstance** _instances = nullptr;
 };
 
 } // namespace margelo
