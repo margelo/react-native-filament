@@ -37,9 +37,13 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
     : HybridObject("EngineWrapper") {
   // TODO: make the enum for the backend for the engine configurable
   _jsDispatchQueue = jsDispatchQueue;
-  _engine = References<Engine>::adoptRef(Engine::create(), [](Engine* engine) {
-    Logger::log(TAG, "Destroying engine...");
-    Engine::destroy(&engine);
+  _engine = References<Engine>::adoptRef(Engine::create(), [jsDispatchQueue](Engine* engine) {
+    // Make sure that the engine gets destroyed on the thread that it was created on (JS thread).
+    // It can happen that the engine gets cleaned up by Hardes (hermes GC) on a different thread.
+    jsDispatchQueue->runOnJS([engine]() {
+      Logger::log(TAG, "Destroying engine...");
+      Engine::destroy(engine);
+    });
   });
 
   gltfio::MaterialProvider* _materialProviderPtr =
