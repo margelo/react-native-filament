@@ -153,14 +153,12 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
                                          },
                                      .onSurfaceDestroyed =
                                          [queue, weakSelf](std::shared_ptr<Surface> surface) {
-                                           // TODO(Marc): When compiling in debug mode we get an assertion error here, because we are
-                                           // destroying the surface from the wrong thread.
-                                           queue->runOnJSAndWait([=]() {
-                                             auto sharedThis = weakSelf.lock();
-                                             if (sharedThis != nullptr) {
-                                               sharedThis->destroySurface();
-                                             }
-                                           });
+                                           // Note: When the surface gets destroyed we immediately need to destroy the swapchain
+                                           // and flush to avoid flickering issues.
+                                           auto sharedThis = weakSelf.lock();
+                                           if (sharedThis != nullptr) {
+                                             sharedThis->destroySurface();
+                                           }
                                          }};
   _surfaceListener = surfaceProvider->addOnSurfaceChangedListener(callback);
 }
@@ -291,9 +289,12 @@ std::shared_ptr<ViewWrapper> EngineWrapper::createView() {
 }
 
 std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChain(std::shared_ptr<Surface> surface) {
-  auto swapChain = References<SwapChain>::adoptEngineRef(
-      _engine, _engine->createSwapChain(surface->getSurface(), SwapChain::CONFIG_TRANSPARENT),
-      [](const std::shared_ptr<Engine>& engine, SwapChain* swapChain) { engine->destroy(swapChain); });
+  auto swapChain =
+      References<SwapChain>::adoptEngineRef(_engine, _engine->createSwapChain(surface->getSurface(), SwapChain::CONFIG_TRANSPARENT),
+                                            [](const std::shared_ptr<Engine>& engine, SwapChain* swapChain) {
+                                              engine->destroy(swapChain);
+                                              engine->flushAndWait();
+                                            });
 
   return std::make_shared<SwapChainWrapper>(swapChain);
 }
