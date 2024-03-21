@@ -332,7 +332,25 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<F
   //    const size_t resourceUriCount = asset->getResourceUriCount();
   _resourceLoader->loadResources(asset.get());
 
-  return std::make_shared<FilamentAssetWrapper>(asset);
+  return std::make_shared<FilamentAssetWrapper>(asset, nullptr);
+}
+
+std::vector<std::shared_ptr<FilamentAssetWrapper>> EngineWrapper::loadInstancedAsset(std::shared_ptr<FilamentBuffer> modelBuffer,
+                                                                                     int numberOfInstances) {
+  std::shared_ptr<ManagedBuffer> buffer = modelBuffer->getBuffer();
+  FilamentInstance** instances;
+  gltfio::FilamentAsset* assetPtr = _assetLoader->createInstancedAsset(buffer->getData(), buffer->getSize(), instances, numberOfInstances);
+
+  // TODO: code dupe with loadAsset
+  if (assetPtr == nullptr) {
+    throw std::runtime_error("Failed to load asset");
+  }
+  auto assetLoader = _assetLoader;
+  auto asset = References<gltfio::FilamentAsset>::adoptRef(assetPtr, [assetLoader](gltfio::FilamentAsset* asset) {
+    // The deletion of the assets is handled automatically when the scene gets deleted (which usually happens when the engine gets deleted).
+  });
+
+  _resourceLoader->loadResources(asset.get());
 }
 
 // Default light is a directional light for shadows + a default IBL
