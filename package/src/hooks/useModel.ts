@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { AssetProps, useAsset } from './useAsset'
-import { Animator, Engine } from '../types'
+import { Animator, Engine, Entity } from '../types'
 import { FilamentAsset } from '../types/FilamentAsset'
 
 interface ModelProps extends AssetProps {
@@ -23,6 +23,8 @@ export type FilamentModel =
       state: 'loaded'
       animator: Animator
       asset: FilamentAsset
+      entities: Entity[]
+      renderableEntities: Entity[]
     }
   | {
       state: 'loading'
@@ -46,6 +48,16 @@ export function useModel({ path, engine, shouldReleaseSourceData }: ModelProps):
 
   const animator = useMemo(() => engineAsset?.getAnimator(), [engineAsset])
 
+  const entities = useMemo(() => {
+    if (engineAsset == null) return undefined
+    return engineAsset.getEntities()
+  }, [engineAsset])
+
+  const renderableEntities = useMemo(() => {
+    if (engineAsset == null) return undefined
+    return engineAsset.getRenderableEntities()
+  }, [engineAsset])
+
   useEffect(() => {
     if (shouldReleaseSourceData) {
       // releases CPU memory for bindings
@@ -53,7 +65,7 @@ export function useModel({ path, engine, shouldReleaseSourceData }: ModelProps):
     }
   }, [engineAsset, shouldReleaseSourceData])
 
-  if (asset == null || engineAsset == null || animator == null) {
+  if (asset == null || engineAsset == null || animator == null || entities == null || renderableEntities == null) {
     return {
       state: 'loading',
     }
@@ -62,5 +74,7 @@ export function useModel({ path, engine, shouldReleaseSourceData }: ModelProps):
     state: 'loaded',
     asset: engineAsset,
     animator: animator,
+    entities: entities,
+    renderableEntities: renderableEntities,
   }
 }

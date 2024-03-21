@@ -8,6 +8,8 @@ import { FilamentBuffer } from '../native/FilamentBuffer'
 import { Entity } from './Entity'
 import { FilamentAsset } from './FilamentAsset'
 import { Float3 } from './float3'
+import { RigidBody } from '../bullet'
+import { TransformManager } from './TransformManager'
 import { RenderableManager } from './RenderableManager'
 
 export type RenderCallback = (timestamp: number, startTime: number, passedSeconds: number) => void
@@ -73,5 +75,17 @@ export interface Engine {
    */
   setIsPaused(isPaused: boolean): void
 
+  updateTransformByRigidBody(entity: Entity, rigidBody: RigidBody): void
+
+  /**
+   * Note: the reference returned isn't stable, and each call will return a new reference.
+   * Prefer using the hook `useTransformManager` to get a stable reference.
+   */
+  getTransformManager(): TransformManager
+
+  /**
+   * Note: the reference returned isn't stable, and each call will return a new reference.
+   * Prefer using the hook `useRenderableManager` to get a stable reference.
+   */
   getRenderableManager(): RenderableManager
 }
