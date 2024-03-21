@@ -27,7 +27,7 @@ cd ios && pod install
 
 ```tsx
 function App() {
-  const model = useFilamentModel('duck.gltf')
+  const model = useModel('duck.gltf')
 
   return (
     <Filament
@@ -49,4 +49,4 @@ If you need help with integrating react-native-filament in your app or have addi
 ### Socials
 
 * 🐦 [**Follow us on Twitter**](https://twitter.com/margelo) for updates
-* 💬 [**Join the Margelo Community Discord**](https://discord.gg/6CSHz2qAvA) for chatting about VisionCamera
+* 💬 [**Join the Margelo Community Discord**](https://discord.gg/6CSHz2qAvA) for chatting about react-native-filament

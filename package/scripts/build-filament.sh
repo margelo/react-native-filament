@@ -26,7 +26,7 @@ echo "Building Filament for iOS ($target)..."
 echo "Copying Filament iOS libraries to react-native-filament..."
 rm -rf ../package/ios/libs/filament
 mkdir -p ../package/ios/libs/filament
-cp -rf out/ios-release/filament ../package/ios/libs
+cp -rf out/ios-$target/filament ../package/ios/libs
 # Rename math.h file to avoid conflicts with <math.h> system header (the header doesn't seem to be used anywhere).
 mv ../package/ios/libs/filament/include/gltfio/math.h ../package/ios/libs/filament/include/gltfio/gltfio-math.h
 

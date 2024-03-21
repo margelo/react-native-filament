@@ -18,6 +18,7 @@
 #include "SurfaceProvider.h"
 #include "SwapChainWrapper.h"
 #include "ViewWrapper.h"
+#include "bullet/RigidBodyWrapper.h"
 #include "core/utils/EntityWrapper.h"
 #include "core/utils/ManipulatorWrapper.h"
 
@@ -34,6 +35,7 @@
 #include "RendererWrapper.h"
 #include "SceneWrapper.h"
 #include "SwapChainWrapper.h"
+#include "TransformManagerWrapper.h"
 #include "ViewWrapper.h"
 #include "jsi/HybridObject.h"
 #include <Choreographer.h>
@@ -80,6 +82,7 @@ private:
   void setEntityPosition(std::shared_ptr<EntityWrapper> entity, std::vector<double> positionVec, bool multiplyCurrent);
   void setEntityRotation(std::shared_ptr<EntityWrapper> entity, double angleRadians, std::vector<double> axisVec, bool multiplyCurrent);
   void setEntityScale(std::shared_ptr<EntityWrapper> entity, std::vector<double> scaleVec, bool multiplyCurrent);
+  void updateTransformByRigidBody(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<RigidBodyWrapper> rigidBody);
 
   std::shared_ptr<RenderableManagerWrapper> getRendererableManager();
 
@@ -111,6 +114,7 @@ private:
   std::shared_ptr<ViewWrapper> _view;
   std::shared_ptr<CameraWrapper> _camera;
   std::shared_ptr<ManipulatorWrapper> _cameraManipulator;
+  std::shared_ptr<TransformManagerWrapper> _transformManager;
 
 private:
   std::shared_ptr<RendererWrapper> createRenderer();
@@ -119,6 +123,7 @@ private:
   std::shared_ptr<ViewWrapper> createView();
   std::shared_ptr<CameraWrapper> createCamera();
   std::shared_ptr<ManipulatorWrapper> createCameraManipulator(int windowWidth, int windowHeight);
+  std::shared_ptr<TransformManagerWrapper> createTransformManager();
 
 private:
   // Getters for shared objects
@@ -139,6 +144,9 @@ private:
   }
   std::shared_ptr<ManipulatorWrapper> getCameraManipulator() {
     return _cameraManipulator;
+  }
+  std::shared_ptr<TransformManagerWrapper> getTransformManager() {
+    return _transformManager;
   }
 
 private:
