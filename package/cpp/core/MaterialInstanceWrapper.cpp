@@ -27,13 +27,6 @@ void MaterialInstanceWrapper::setTransparencyMode(std::string mode) {
 }
 
 void MaterialInstanceWrapper::changeAlpha(MaterialInstance* materialInstance, double alpha) {
-  // Check if blend mode supports alpha
-  const Material* material = materialInstance->getMaterial();
-  BlendingMode blendMode = material->getBlendingMode();
-  if (blendMode == BlendingMode::OPAQUE) {
-    [[unlikely]];
-    throw new std::runtime_error("Trying to change alpha on an opaque material. Set the material to a transparent mode first.");
-  }
   // Clip alpha to 0-1
   alpha = std::clamp(alpha, 0.0, 1.0);
 
