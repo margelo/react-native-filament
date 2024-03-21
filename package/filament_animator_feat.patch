@@ -46,24 +46,3 @@ index 99a4269d0..dd8825d28 100644
  void Animator::applyCrossFade(size_t previousAnimIndex, float previousAnimTime, float alpha) {
      mImpl->stashCrossFade();
      applyAnimation(previousAnimIndex, previousAnimTime);
-@@ -368,7 +371,8 @@ void AnimatorImpl::stashCrossFade() {
-         return index;
-     };
- 
--    const Instance root = tm.getInstance(asset->mRoot);
-+    const Entity rootEntity = instance ? instance->getRoot() : asset->mRoot;
-+    const Instance root = tm.getInstance(rootEntity);
-     const size_t count = recursiveCount(root, 0, recursiveCount);
-     crossFade.reserve(count);
-     crossFade.resize(count);
-@@ -394,7 +398,9 @@ void AnimatorImpl::applyCrossFade(float alpha) {
-         }
-         return index;
-     };
--    recursiveFn(tm.getInstance(asset->mRoot), 0, recursiveFn);
-+    const Entity rootEntity = instance ? instance->getRoot() : asset->mRoot;
-+    const Instance root = tm.getInstance(rootEntity);
-+    recursiveFn(root, 0, recursiveFn);
- }
- 
- void AnimatorImpl::addChannels(const FixedCapacityVector<Entity>& nodeMap,

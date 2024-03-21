@@ -10,6 +10,10 @@
       "sha1": "afb8a61af2561fbc6ae8021ff36b7af5499d8510"
     },
     {
+      "path": "assets/coin_alpha.glb",
+      "sha1": "bb7d6c79e40c3eaeeaaaff4426490b2fb50e0a55"
+    },
+    {
       "path": "assets/default_env_ibl.ktx",
       "sha1": "432ab7515c66e2fc88bed2766e4972bbf36bb361"
     },
