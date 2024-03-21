@@ -336,8 +336,6 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<F
     throw std::runtime_error("Scene not initialized");
   }
 
-  scene->addAsset(asset);
-
   // TODO: When supporting loading glTF files with external resources, we need to load the resources here
   //    const char* const* const resourceUris = asset->getResourceUris();
   //    const size_t resourceUriCount = asset->getResourceUriCount();
