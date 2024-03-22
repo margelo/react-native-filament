@@ -61,11 +61,6 @@ public:
 
   void loadHybridMethods() override;
 
-  // Only for internal use
-  std::shared_ptr<Engine> getEngine() {
-    return _engine;
-  }
-
 private:
   void setSurface(std::shared_ptr<Surface> surface);
   void destroySurface();

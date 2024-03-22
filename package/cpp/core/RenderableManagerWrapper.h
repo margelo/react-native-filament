@@ -11,16 +11,18 @@
 #include "jsi/HybridObject.h"
 
 #include <filament/RenderableManager.h>
+#include <gltfio/TextureProvider.h>
 
 namespace margelo {
 using namespace filament;
+using namespace gltfio;
 
 class EngineWrapper;
 
 class RenderableManagerWrapper : public HybridObject {
 public:
-  explicit RenderableManagerWrapper(RenderableManager& renderableManager)
-      : HybridObject("RenderableManagerWrapper"), _renderableManager(renderableManager) {}
+  explicit RenderableManagerWrapper(RenderableManager& renderableManager, std::shared_ptr<TextureProvider> textureProvider)
+      : HybridObject("RenderableManagerWrapper"), _renderableManager(renderableManager), _textureProvider(textureProvider) {}
   void loadHybridMethods() override;
 
 public: // Public API
@@ -37,11 +39,12 @@ public: // Public API
   /**
    * Will select the first material instance from the entity. Will set the baseColorMap parameter to the given textureBuffer.
    */
-  void changeMaterialTextureMap(std::shared_ptr<EngineWrapper> engineWrapper, std::shared_ptr<EntityWrapper> entityWrapper,
-                                const std::string& materialName, std::shared_ptr<FilamentBuffer> textureBuffer);
+  void changeMaterialTextureMap(std::shared_ptr<EntityWrapper> entityWrapper, const std::string& materialName,
+                                std::shared_ptr<FilamentBuffer> textureBuffer);
 
 private:
   RenderableManager& _renderableManager;
+  std::shared_ptr<TextureProvider> _textureProvider;
 
 private:
   constexpr static const char* TAG = "RenderableManagerWrapper";

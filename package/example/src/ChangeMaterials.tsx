@@ -41,7 +41,7 @@ export function ChangeMaterials() {
 
   const penguAsset = pengu.state === 'loaded' ? pengu.asset : undefined
   useEffect(() => {
-    if (penguAsset == null || blueLeftEyeBuffer == null) return
+    if (penguAsset == null || blueLeftEyeBuffer == null || blueRightEyeBuffer == null) return
 
     const leftEye = penguAsset.getFirstEntityByName('Brown Dark Stylised.003')
     if (leftEye == null) {
@@ -54,8 +54,8 @@ export function ChangeMaterials() {
       return
     }
 
-    renderableManager.changeMaterialTextureMap(engine, leftEye, 'Eye_Left.001', blueLeftEyeBuffer)
-    renderableManager.changeMaterialTextureMap(engine, rightEye, 'Eye_Right.002', blueRightEyeBuffer)
+    renderableManager.changeMaterialTextureMap(leftEye, 'Eye_Left.001', blueLeftEyeBuffer)
+    renderableManager.changeMaterialTextureMap(rightEye, 'Eye_Right.002', blueRightEyeBuffer)
   }, [blueLeftEyeBuffer, blueRightEyeBuffer, engine, penguAsset, renderableManager])
 
   const light = useAsset({ path: indirectLightPath })

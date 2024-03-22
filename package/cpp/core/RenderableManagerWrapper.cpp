@@ -59,13 +59,9 @@ void RenderableManagerWrapper::setMaterialInstanceAt(std::shared_ptr<EntityWrapp
   _renderableManager.setMaterialInstanceAt(renderable, index, materialInstance->getMaterialInstance());
 }
 
-void RenderableManagerWrapper::changeMaterialTextureMap(std::shared_ptr<EngineWrapper> engineWrapper,
-                                                        std::shared_ptr<EntityWrapper> entityWrapper, const std::string& materialName,
+void RenderableManagerWrapper::changeMaterialTextureMap(std::shared_ptr<EntityWrapper> entityWrapper, const std::string& materialName,
                                                         std::shared_ptr<FilamentBuffer> textureBuffer) {
   // Input validation:
-  if (engineWrapper == nullptr) {
-    throw new std::invalid_argument("Engine is null!");
-  }
   if (entityWrapper == nullptr) {
     throw new std::invalid_argument("Entity is null!");
   }
@@ -73,18 +69,14 @@ void RenderableManagerWrapper::changeMaterialTextureMap(std::shared_ptr<EngineWr
     throw new std::invalid_argument("texture is null!");
   }
 
-  // Create a new texture provider
-  std::shared_ptr<Engine> engine = engineWrapper->getEngine();
-  TextureProvider* stbTextureProvider = filament::gltfio::createStbProvider(engine.get());
-
   // The mimeType isn't actually used in the stb provider, so we can leave it out!
   const char* mimeType = nullptr;
   auto buffer = textureBuffer->getBuffer();
-  Texture* texture = stbTextureProvider->pushTexture(buffer->getData(), buffer->getSize(), mimeType,
-                                                     // TODO: Texture flags should be configurable
-                                                     filament::gltfio::TextureProvider::TextureFlags::NONE);
+  Texture* texture = _textureProvider->pushTexture(buffer->getData(), buffer->getSize(), mimeType,
+                                                   // TODO: Texture flags should be configurable
+                                                   filament::gltfio::TextureProvider::TextureFlags::NONE);
   if (texture == nullptr) {
-    std::string error = stbTextureProvider->getPushMessage();
+    std::string error = _textureProvider->getPushMessage();
     Logger::log(TAG, "Error loading texture: %s", error.c_str());
     throw new std::runtime_error("Error loading texture: " + error);
   }
@@ -115,13 +107,13 @@ void RenderableManagerWrapper::changeMaterialTextureMap(std::shared_ptr<EngineWr
   _renderableManager.setMaterialInstanceAt(instance, primitiveIndex, newInstance);
 
   // Load the texture
-  while (stbTextureProvider->getPoppedCount() < stbTextureProvider->getPushedCount()) {
+  while (_textureProvider->getPoppedCount() < _textureProvider->getPushedCount()) {
     // The following call gives the provider an opportunity to reap the results of any
     // background decoder work that has been completed
-    stbTextureProvider->updateQueue();
+    _textureProvider->updateQueue();
 
     // Check for textures that now have all their miplevels initialized.
-    while (Texture* _texture = stbTextureProvider->popTexture()) {
+    while (Texture* _texture = _textureProvider->popTexture()) {
       Logger::log(TAG, "%p has all its miplevels ready.", _texture);
     }
   }

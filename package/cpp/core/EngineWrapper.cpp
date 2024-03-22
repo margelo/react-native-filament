@@ -535,8 +535,13 @@ void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> en
 
 std::shared_ptr<RenderableManagerWrapper> EngineWrapper::getRendererableManager() {
   RenderableManager& rm = _engine->getRenderableManager();
-  return std::make_shared<RenderableManagerWrapper>(rm);
+
+  // Create a new texture provider
+  auto stbTextureProvider = std::shared_ptr<TextureProvider>(filament::gltfio::createStbProvider(_engine.get()));
+
+  return std::make_shared<RenderableManagerWrapper>(rm, stbTextureProvider);
 }
+
 void EngineWrapper::testTextureReplacing(std::shared_ptr<FilamentAssetWrapper> assetWrapper,
                                          std::shared_ptr<FilamentBuffer> textureBuffer) {
   std::shared_ptr<FilamentAsset> asset = assetWrapper->getAsset();
