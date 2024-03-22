@@ -17,6 +17,7 @@ void FilamentAssetWrapper::loadHybridMethods() {
   registerHybridGetter("renderableEntityCount", &FilamentAssetWrapper::getRenderableEntityCount, this);
   registerHybridMethod("getRenderableEntities", &FilamentAssetWrapper::getRenderableEntities, this);
   registerHybridGetter("boundingBox", &FilamentAssetWrapper::getBoundingBox, this);
+  registerHybridMethod("getFirstEntityByName", &FilamentAssetWrapper::getFirstEntityByName, this);
 }
 
 /**
@@ -65,6 +66,7 @@ std::vector<std::shared_ptr<EntityWrapper>> FilamentAssetWrapper::getEntities() 
   }
   return entities;
 }
+
 std::vector<std::shared_ptr<EntityWrapper>> FilamentAssetWrapper::getRenderableEntities() {
   std::vector<std::shared_ptr<EntityWrapper>> entities;
   const Entity* entityArray = _asset->getRenderableEntities();
@@ -72,6 +74,16 @@ std::vector<std::shared_ptr<EntityWrapper>> FilamentAssetWrapper::getRenderableE
     entities.push_back(std::make_shared<EntityWrapper>(entityArray[i]));
   }
   return entities;
+}
+
+std::optional<std::shared_ptr<EntityWrapper>> FilamentAssetWrapper::getFirstEntityByName(const std::string& name) {
+  Entity entity = _asset->getFirstEntityByName(name.c_str());
+  if (entity.isNull()) {
+    Logger::log("FilamentAssetWrapper", "Entity with name %s not found!", name.c_str());
+    return std::nullopt;
+  }
+
+  return std::make_shared<EntityWrapper>(entity);
 }
 
 } // namespace margelo

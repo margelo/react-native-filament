@@ -29,6 +29,7 @@
 #include <utils/Entity.h>
 #include <utils/EntityManager.h>
 
+#include <unistd.h>
 #include <utility>
 
 namespace margelo {
@@ -56,12 +57,13 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
         delete provider;
       });
 
-  gltfio::AssetConfiguration assetConfig{.engine = _engine.get(), .materials = _materialProvider.get()};
+  EntityManager& entityManager = _engine->getEntityManager();
+  NameComponentManager* ncm = new NameComponentManager(entityManager);
+  gltfio::AssetConfiguration assetConfig{.engine = _engine.get(), .materials = _materialProvider.get(), .names = ncm};
   gltfio::AssetLoader* assetLoaderPtr = gltfio::AssetLoader::create(assetConfig);
   _assetLoader = References<gltfio::AssetLoader>::adoptEngineRef(
-      _engine, assetLoaderPtr, [](const std::shared_ptr<Engine>& engine, gltfio::AssetLoader* assetLoader) {
+      _engine, assetLoaderPtr, [ncm](const std::shared_ptr<Engine>& engine, gltfio::AssetLoader* assetLoader) {
         Logger::log(TAG, "Destroying asset loader...");
-        auto* ncm = assetLoader->getNames();
         delete ncm;
         gltfio::AssetLoader::destroy(&assetLoader);
       });
@@ -74,6 +76,7 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
   resourceLoaderPtr->addTextureProvider("image/jpeg", stbProvider);
   resourceLoaderPtr->addTextureProvider("image/png", stbProvider);
   resourceLoaderPtr->addTextureProvider("image/ktx2", ktx2Provider);
+
   _resourceLoader = References<gltfio::ResourceLoader>::adoptEngineRef(
       _engine, resourceLoaderPtr,
       [stbProvider, ktx2Provider](const std::shared_ptr<Engine>& engine, gltfio::ResourceLoader* resourceLoader) {
@@ -518,7 +521,11 @@ void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> en
 
 std::shared_ptr<RenderableManagerWrapper> EngineWrapper::getRendererableManager() {
   RenderableManager& rm = _engine->getRenderableManager();
-  return std::make_shared<RenderableManagerWrapper>(rm);
+
+  // Create a new texture provider
+  auto stbTextureProvider = std::shared_ptr<TextureProvider>(filament::gltfio::createStbProvider(_engine.get()));
+
+  return std::make_shared<RenderableManagerWrapper>(rm, stbTextureProvider);
 }
 
 } // namespace margelo
