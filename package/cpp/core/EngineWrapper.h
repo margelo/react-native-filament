@@ -102,7 +102,6 @@ private:
   std::shared_ptr<gltfio::MaterialProvider> _materialProvider;
   std::shared_ptr<gltfio::AssetLoader> _assetLoader;
   std::shared_ptr<gltfio::ResourceLoader> _resourceLoader;
-  TextureProvider* _stbTextureProvider = nullptr;
 
   const math::float3 defaultObjectPosition = {0.0f, 0.0f, 0.0f};
   const math::float3 defaultCameraPosition = {0.0f, 0.0f, 0.0f};

@@ -71,13 +71,12 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
   filament::gltfio::ResourceConfiguration resourceConfig{.engine = _engine.get(), .normalizeSkinningWeights = true};
   auto* resourceLoaderPtr = new filament::gltfio::ResourceLoader(resourceConfig);
   // Add texture providers to the resource loader
-  _stbTextureProvider = filament::gltfio::createStbProvider(_engine.get());
+  auto* stbProvider = filament::gltfio::createStbProvider(_engine.get());
   auto* ktx2Provider = filament::gltfio::createKtx2Provider(_engine.get());
-  resourceLoaderPtr->addTextureProvider("image/jpeg", _stbTextureProvider);
-  resourceLoaderPtr->addTextureProvider("image/png", _stbTextureProvider);
+  resourceLoaderPtr->addTextureProvider("image/jpeg", stbProvider);
+  resourceLoaderPtr->addTextureProvider("image/png", stbProvider);
   resourceLoaderPtr->addTextureProvider("image/ktx2", ktx2Provider);
 
-  TextureProvider* stbProvider = _stbTextureProvider;
   _resourceLoader = References<gltfio::ResourceLoader>::adoptEngineRef(
       _engine, resourceLoaderPtr,
       [stbProvider, ktx2Provider](const std::shared_ptr<Engine>& engine, gltfio::ResourceLoader* resourceLoader) {
@@ -125,9 +124,6 @@ void EngineWrapper::loadHybridMethods() {
 
   // Combined Physics API:
   registerHybridMethod("updateTransformByRigidBody", &EngineWrapper::updateTransformByRigidBody, this);
-
-  // TESTING
-  registerHybridMethod("testTextureReplacing", &EngineWrapper::testTextureReplacing, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
