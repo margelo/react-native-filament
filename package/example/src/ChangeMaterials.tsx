@@ -54,6 +54,8 @@ export function ChangeMaterials() {
       return
     }
 
+    renderableManager.setAssetEntitiesOpacity(penguAsset, 1.0)
+
     renderableManager.changeMaterialTextureMap(leftEye, 'Eye_Left.001', blueLeftEyeBuffer, 'sRGB')
     renderableManager.changeMaterialTextureMap(rightEye, 'Eye_Right.002', blueRightEyeBuffer, 'sRGB')
   }, [blueLeftEyeBuffer, blueRightEyeBuffer, engine, penguAsset, renderableManager])
