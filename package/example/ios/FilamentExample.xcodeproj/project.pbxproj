@@ -22,6 +22,7 @@
 		FB6EB495362843928953B887 /* coin.glb in Resources */ = {isa = PBXBuildFile; fileRef = CE7EC55D9D25492D8D6083D3 /* coin.glb */; };
 		9D9B37A8229643988DE97B73 /* chair.glb in Resources */ = {isa = PBXBuildFile; fileRef = C4E5AB69D2B94D53A2EE3F93 /* chair.glb */; };
 		9536532B97CA43669EE27CEC /* coin_alpha.glb in Resources */ = {isa = PBXBuildFile; fileRef = 12D4AF0DC82949E498A73CBE /* coin_alpha.glb */; };
+		4F84B0412C634799AEFB1D85 /* eye_full_texture_left_blue.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 134904F01F7041DFA331FD27 /* eye_full_texture_left_blue.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +60,7 @@
 		CE7EC55D9D25492D8D6083D3 /* coin.glb */ = {isa = PBXFileReference; name = "coin.glb"; path = "../assets/coin.glb"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		C4E5AB69D2B94D53A2EE3F93 /* chair.glb */ = {isa = PBXFileReference; name = "chair.glb"; path = "../assets/chair.glb"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		12D4AF0DC82949E498A73CBE /* coin_alpha.glb */ = {isa = PBXFileReference; name = "coin_alpha.glb"; path = "../assets/coin_alpha.glb"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		134904F01F7041DFA331FD27 /* eye_full_texture_left_blue.jpg */ = {isa = PBXFileReference; name = "eye_full_texture_left_blue.jpg"; path = "../assets/eye_full_texture_left_blue.jpg"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -163,6 +165,7 @@
 				CE7EC55D9D25492D8D6083D3 /* coin.glb */,
 				C4E5AB69D2B94D53A2EE3F93 /* chair.glb */,
 				12D4AF0DC82949E498A73CBE /* coin_alpha.glb */,
+				134904F01F7041DFA331FD27 /* eye_full_texture_left_blue.jpg */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -280,6 +283,7 @@
 				FB6EB495362843928953B887 /* coin.glb in Resources */,
 				9D9B37A8229643988DE97B73 /* chair.glb in Resources */,
 				9536532B97CA43669EE27CEC /* coin_alpha.glb in Resources */,
+				4F84B0412C634799AEFB1D85 /* eye_full_texture_left_blue.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

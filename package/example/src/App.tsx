@@ -38,7 +38,7 @@ function HomeScreen() {
     <View style={{ flex: 1 }}>
       <NavigationItem name="▶️ Animation Transitions" route="AnimationTransitions" />
       <NavigationItem name="💰 Physics Coin" route="PhysicsCoin" />
-      <NavigationItem name="😶‍🌫️  Fade Out" route="FadeOut" />
+      <NavigationItem name="😶‍🌫️ Fade Out" route="FadeOut" />
       <NavigationItem name="🎨 Change Materials" route="ChangeMaterials" />
     </View>
   )

@@ -29,6 +29,7 @@
 #include <utils/Entity.h>
 #include <utils/EntityManager.h>
 
+#include <unistd.h>
 #include <utility>
 
 namespace margelo {
@@ -56,12 +57,13 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
         delete provider;
       });
 
-  gltfio::AssetConfiguration assetConfig{.engine = _engine.get(), .materials = _materialProvider.get()};
+  EntityManager& entityManager = _engine->getEntityManager();
+  NameComponentManager* ncm = new NameComponentManager(entityManager);
+  gltfio::AssetConfiguration assetConfig{.engine = _engine.get(), .materials = _materialProvider.get(), .names = ncm};
   gltfio::AssetLoader* assetLoaderPtr = gltfio::AssetLoader::create(assetConfig);
   _assetLoader = References<gltfio::AssetLoader>::adoptEngineRef(
-      _engine, assetLoaderPtr, [](const std::shared_ptr<Engine>& engine, gltfio::AssetLoader* assetLoader) {
+      _engine, assetLoaderPtr, [ncm](const std::shared_ptr<Engine>& engine, gltfio::AssetLoader* assetLoader) {
         Logger::log(TAG, "Destroying asset loader...");
-        auto* ncm = assetLoader->getNames();
         delete ncm;
         gltfio::AssetLoader::destroy(&assetLoader);
       });
@@ -69,11 +71,13 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
   filament::gltfio::ResourceConfiguration resourceConfig{.engine = _engine.get(), .normalizeSkinningWeights = true};
   auto* resourceLoaderPtr = new filament::gltfio::ResourceLoader(resourceConfig);
   // Add texture providers to the resource loader
-  auto* stbProvider = filament::gltfio::createStbProvider(_engine.get());
+  _stbTextureProvider = filament::gltfio::createStbProvider(_engine.get());
   auto* ktx2Provider = filament::gltfio::createKtx2Provider(_engine.get());
-  resourceLoaderPtr->addTextureProvider("image/jpeg", stbProvider);
-  resourceLoaderPtr->addTextureProvider("image/png", stbProvider);
+  resourceLoaderPtr->addTextureProvider("image/jpeg", _stbTextureProvider);
+  resourceLoaderPtr->addTextureProvider("image/png", _stbTextureProvider);
   resourceLoaderPtr->addTextureProvider("image/ktx2", ktx2Provider);
+
+  TextureProvider* stbProvider = _stbTextureProvider;
   _resourceLoader = References<gltfio::ResourceLoader>::adoptEngineRef(
       _engine, resourceLoaderPtr,
       [stbProvider, ktx2Provider](const std::shared_ptr<Engine>& engine, gltfio::ResourceLoader* resourceLoader) {
@@ -121,6 +125,9 @@ void EngineWrapper::loadHybridMethods() {
 
   // Combined Physics API:
   registerHybridMethod("updateTransformByRigidBody", &EngineWrapper::updateTransformByRigidBody, this);
+
+  // TESTING
+  registerHybridMethod("testTextureReplacing", &EngineWrapper::testTextureReplacing, this);
 }
 
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
@@ -519,6 +526,80 @@ void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> en
 std::shared_ptr<RenderableManagerWrapper> EngineWrapper::getRendererableManager() {
   RenderableManager& rm = _engine->getRenderableManager();
   return std::make_shared<RenderableManagerWrapper>(rm);
+}
+void EngineWrapper::testTextureReplacing(std::shared_ptr<FilamentAssetWrapper> assetWrapper,
+                                         std::shared_ptr<FilamentBuffer> textureBuffer) {
+  std::shared_ptr<FilamentAsset> asset = assetWrapper->getAsset();
+
+  // Loop over all materials of the asset and get the parameter names
+  RenderableManager& renderableManager = _engine->getRenderableManager();
+  size_t renderableEntitiesCount = asset->getRenderableEntityCount();
+  const Entity* entities = asset->getRenderableEntities();
+
+  // Get the material instance we are interested in
+  MaterialInstance* materialInstance = nullptr;
+  size_t primitiveIndex = 0;
+  RenderableManager::Instance instance;
+  bool found = false;
+  for (size_t i = 0; !found && i < renderableEntitiesCount; i++) {
+    Entity entity = entities[i];
+    const char* entityName = asset->getName(entity);
+    Logger::log(TAG, "Entity: %s", entityName);
+
+    instance = renderableManager.getInstance(entity);
+    size_t primitiveCount = renderableManager.getPrimitiveCount(instance);
+
+    for (size_t j = 0; j < primitiveCount; j++) {
+      materialInstance = renderableManager.getMaterialInstanceAt(instance, j);
+      primitiveIndex = j;
+      std::string name = materialInstance->getName();
+      if (name == "Eye_Left.001") {
+        found = true;
+        break;
+      }
+    }
+  }
+
+  if (materialInstance == nullptr) {
+    return;
+  }
+
+  // Load the texture using the stbProvider
+  auto buffer = textureBuffer->getBuffer();
+
+  // Create a new texture provider here which we control to load the texture completely
+  TextureProvider* stbTextureProvider = filament::gltfio::createStbProvider(_engine.get());
+
+  // TODO: how to "automate" the mime type and flags?
+  Texture* texture = stbTextureProvider->pushTexture(buffer->getData(), buffer->getSize(), "image/jpeg",
+                                                     filament::gltfio::TextureProvider::TextureFlags::NONE);
+  if (texture == nullptr) {
+    std::string error = stbTextureProvider->getPushMessage();
+    Logger::log(TAG, "Error loading texture: %s", error.c_str());
+    throw new std::runtime_error("Error loading texture: " + error);
+  }
+
+  // Load the texture
+  while (stbTextureProvider->getPoppedCount() < stbTextureProvider->getPushedCount()) {
+    //    sleep(200);
+
+    // The following call gives the provider an opportunity to reap the results of any
+    // background decoder work that has been completed (e.g. by calling Texture::setImage).
+    stbTextureProvider->updateQueue();
+
+    // Check for textures that now have all their miplevels initialized.
+    while (Texture* _texture = stbTextureProvider->popTexture()) {
+      Logger::log(TAG, "%p has all its miplevels ready.", _texture);
+    }
+  }
+
+  // We want to change the baseColorMap of the material
+  auto sampler = TextureSampler(TextureSampler::MinFilter::LINEAR, TextureSampler::MagFilter::LINEAR, TextureSampler::WrapMode::REPEAT);
+
+  //  auto newInstance = materialInstance->getMaterial()->createInstance();
+  MaterialInstance* newInstance = MaterialInstance::duplicate(materialInstance);
+  newInstance->setParameter("baseColorMap", texture, sampler);
+  renderableManager.setMaterialInstanceAt(instance, primitiveIndex, newInstance);
 }
 
 } // namespace margelo

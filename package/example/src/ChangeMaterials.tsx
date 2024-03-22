@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useEffect, useRef } from 'react'
 
 import { Platform, StyleSheet, View } from 'react-native'
-import { Filament, useEngine, Float3, useRenderCallback, useAsset, useModel } from 'react-native-filament'
+import { Filament, useEngine, Float3, useRenderCallback, useAsset, useModel, useRenderableManager } from 'react-native-filament'
 
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',
@@ -12,6 +12,11 @@ const penguModelPath = Platform.select({
 const indirectLightPath = Platform.select({
   android: 'custom/default_env_ibl.ktx',
   ios: 'default_env_ibl.ktx',
+})!
+
+const eyeTexturePath = Platform.select({
+  android: 'custom/eye_full_texture_left_blue.jpg',
+  ios: 'eye_full_texture_left_blue.jpg',
 })!
 
 // Camera config:
@@ -24,10 +29,19 @@ const far = 1000
 
 export function ChangeMaterials() {
   const engine = useEngine()
+  const renderableManager = useRenderableManager(engine)
 
-  const _pengu = useModel({ engine: engine, path: penguModelPath })
+  const pengu = useModel({ engine: engine, path: penguModelPath })
+  const blueLeftEyeBuffer = useAsset({ path: eyeTexturePath })
+
+  const penguAsset = pengu.state === 'loaded' ? pengu.asset : undefined
+  useEffect(() => {
+    if (penguAsset == null || blueLeftEyeBuffer == null) return
+
+    engine.testTextureReplacing(penguAsset, blueLeftEyeBuffer)
+  }, [blueLeftEyeBuffer, engine, penguAsset])
+
   const light = useAsset({ path: indirectLightPath })
-
   useEffect(() => {
     if (light == null) return
     // create a default light
