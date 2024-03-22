@@ -1,5 +1,4 @@
 import { FilamentBuffer } from '../native/FilamentBuffer'
-import { Engine } from './Engine'
 import { Entity } from './Entity'
 import { FilamentAsset } from './FilamentAsset'
 import { MaterialInstance } from './MaterialInstance'
