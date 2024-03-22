@@ -3,6 +3,8 @@ import { Entity } from './Entity'
 import { FilamentAsset } from './FilamentAsset'
 import { MaterialInstance } from './MaterialInstance'
 
+export type TextureFlags = 'none' | 'sRGB'
+
 /**
  * Factory and manager for \em renderables, which are entities that can be drawn.
  *
@@ -48,5 +50,5 @@ export interface RenderableManager {
   /**
    * Sets the baseColorMap parameter to the given textureBuffer.
    */
-  changeMaterialTextureMap(renderable: Entity, materialName: string, textureBuffer: FilamentBuffer): void
+  changeMaterialTextureMap(renderable: Entity, materialName: string, textureBuffer: FilamentBuffer, textureFlags: TextureFlags): void
 }

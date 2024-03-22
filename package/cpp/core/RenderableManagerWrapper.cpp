@@ -4,6 +4,7 @@
 
 #include "RenderableManagerWrapper.h"
 #include "EngineWrapper.h"
+#include "TextureFlagsEnum.h"
 
 #include <gltfio/TextureProvider.h>
 
@@ -60,7 +61,7 @@ void RenderableManagerWrapper::setMaterialInstanceAt(std::shared_ptr<EntityWrapp
 }
 
 void RenderableManagerWrapper::changeMaterialTextureMap(std::shared_ptr<EntityWrapper> entityWrapper, const std::string& materialName,
-                                                        std::shared_ptr<FilamentBuffer> textureBuffer) {
+                                                        std::shared_ptr<FilamentBuffer> textureBuffer, std::string textureFlags) {
   // Input validation:
   if (entityWrapper == nullptr) {
     throw new std::invalid_argument("Entity is null!");
@@ -69,12 +70,13 @@ void RenderableManagerWrapper::changeMaterialTextureMap(std::shared_ptr<EntityWr
     throw new std::invalid_argument("texture is null!");
   }
 
+  TextureProvider::TextureFlags textureFlagsEnum;
+  EnumMapper::convertJSUnionToEnum(textureFlags, &textureFlagsEnum);
+
   // The mimeType isn't actually used in the stb provider, so we can leave it out!
   const char* mimeType = nullptr;
   auto buffer = textureBuffer->getBuffer();
-  Texture* texture = _textureProvider->pushTexture(buffer->getData(), buffer->getSize(), mimeType,
-                                                   // TODO: Texture flags should be configurable
-                                                   filament::gltfio::TextureProvider::TextureFlags::NONE);
+  Texture* texture = _textureProvider->pushTexture(buffer->getData(), buffer->getSize(), mimeType, textureFlagsEnum);
   if (texture == nullptr) {
     std::string error = _textureProvider->getPushMessage();
     Logger::log(TAG, "Error loading texture: %s", error.c_str());

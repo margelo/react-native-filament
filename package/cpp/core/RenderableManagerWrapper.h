@@ -40,7 +40,7 @@ public: // Public API
    * Will select the first material instance from the entity. Will set the baseColorMap parameter to the given textureBuffer.
    */
   void changeMaterialTextureMap(std::shared_ptr<EntityWrapper> entityWrapper, const std::string& materialName,
-                                std::shared_ptr<FilamentBuffer> textureBuffer);
+                                std::shared_ptr<FilamentBuffer> textureBuffer, std::string textureFlags = "none");
 
 private:
   // Calls the TextureProvider to start loading the resource
