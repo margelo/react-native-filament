@@ -85,7 +85,6 @@ private:
   void updateTransformByRigidBody(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<RigidBodyWrapper> rigidBody);
 
   std::shared_ptr<RenderableManagerWrapper> getRendererableManager();
-  void testTextureReplacing(std::shared_ptr<FilamentAssetWrapper> assetWrapper, std::shared_ptr<FilamentBuffer> textureBuffer);
 
 private:
   std::shared_ptr<JSDispatchQueue> _jsDispatchQueue;
