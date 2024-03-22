@@ -41,6 +41,8 @@ private: // Public API functions:
     return std::make_shared<AABBWrapper>(aabb);
   }
 
+  std::optional<std::shared_ptr<EntityWrapper>> getFirstEntityByName(const std::string& name);
+
 private: // Internal state:
   std::shared_ptr<gltfio::FilamentAsset> _asset;
 };

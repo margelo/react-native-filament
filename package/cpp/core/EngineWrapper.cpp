@@ -348,6 +348,16 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<F
   //    const size_t resourceUriCount = asset->getResourceUriCount();
   _resourceLoader->loadResources(asset.get());
 
+  // log all entity names:
+  const Entity* entities = asset->getRenderableEntities();
+  for (size_t i = 0; i < asset->getRenderableEntityCount(); i++) {
+    Entity entity = entities[i];
+    NameComponentManager* ncm = assetLoader->getNames();
+    NameComponentManager::Instance instance = ncm->getInstance(entity);
+    const char* name = ncm->getName(instance);
+    Logger::log(TAG, "Entity %zu: %s", i, name);
+  }
+
   return std::make_shared<FilamentAssetWrapper>(asset);
 }
 
@@ -553,7 +563,14 @@ void EngineWrapper::testTextureReplacing(std::shared_ptr<FilamentAssetWrapper> a
       materialInstance = renderableManager.getMaterialInstanceAt(instance, j);
       primitiveIndex = j;
       std::string name = materialInstance->getName();
-      if (name == "Eye_Left.001") {
+      Logger::log(TAG, "Material Name: %s", name.c_str());
+      if (name == "Eye_Right.002") {
+        // Get entity name
+        NameComponentManager* ncm = _assetLoader->getNames();
+        NameComponentManager::Instance nameInstance = ncm->getInstance(entity);
+        const char* sentity = ncm->getName(nameInstance);
+        Logger::log(TAG, "Found material instance for entity: %s", sentity);
+
         found = true;
         break;
       }
@@ -571,7 +588,10 @@ void EngineWrapper::testTextureReplacing(std::shared_ptr<FilamentAssetWrapper> a
   TextureProvider* stbTextureProvider = filament::gltfio::createStbProvider(_engine.get());
 
   // TODO: how to "automate" the mime type and flags?
-  Texture* texture = stbTextureProvider->pushTexture(buffer->getData(), buffer->getSize(), "image/jpeg",
+
+  // The mimeType isn't actually used in the stb provider, so we can leave it out!
+  const char* mimeType = nullptr;
+  Texture* texture = stbTextureProvider->pushTexture(buffer->getData(), buffer->getSize(), mimeType,
                                                      filament::gltfio::TextureProvider::TextureFlags::NONE);
   if (texture == nullptr) {
     std::string error = stbTextureProvider->getPushMessage();
@@ -579,12 +599,16 @@ void EngineWrapper::testTextureReplacing(std::shared_ptr<FilamentAssetWrapper> a
     throw new std::runtime_error("Error loading texture: " + error);
   }
 
+  // The texture might not be loaded yet, but we can already set it on the material instance
+  MaterialInstance* newInstance = MaterialInstance::duplicate(materialInstance);
+  auto sampler = TextureSampler(TextureSampler::MinFilter::LINEAR, TextureSampler::MagFilter::LINEAR, TextureSampler::WrapMode::REPEAT);
+  newInstance->setParameter("baseColorMap", texture, sampler);
+  renderableManager.setMaterialInstanceAt(instance, primitiveIndex, newInstance);
+
   // Load the texture
   while (stbTextureProvider->getPoppedCount() < stbTextureProvider->getPushedCount()) {
-    //    sleep(200);
-
     // The following call gives the provider an opportunity to reap the results of any
-    // background decoder work that has been completed (e.g. by calling Texture::setImage).
+    // background decoder work that has been completed
     stbTextureProvider->updateQueue();
 
     // Check for textures that now have all their miplevels initialized.
@@ -592,14 +616,6 @@ void EngineWrapper::testTextureReplacing(std::shared_ptr<FilamentAssetWrapper> a
       Logger::log(TAG, "%p has all its miplevels ready.", _texture);
     }
   }
-
-  // We want to change the baseColorMap of the material
-  auto sampler = TextureSampler(TextureSampler::MinFilter::LINEAR, TextureSampler::MagFilter::LINEAR, TextureSampler::WrapMode::REPEAT);
-
-  //  auto newInstance = materialInstance->getMaterial()->createInstance();
-  MaterialInstance* newInstance = MaterialInstance::duplicate(materialInstance);
-  newInstance->setParameter("baseColorMap", texture, sampler);
-  renderableManager.setMaterialInstanceAt(instance, primitiveIndex, newInstance);
 }
 
 } // namespace margelo

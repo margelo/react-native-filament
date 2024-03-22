@@ -38,8 +38,20 @@ export function ChangeMaterials() {
   useEffect(() => {
     if (penguAsset == null || blueLeftEyeBuffer == null) return
 
-    engine.testTextureReplacing(penguAsset, blueLeftEyeBuffer)
-  }, [blueLeftEyeBuffer, engine, penguAsset])
+    const leftEye = penguAsset.getFirstEntityByName('Brown Dark Stylised.003')
+    if (leftEye == null) {
+      console.warn('Could not find left eye entity')
+      return
+    }
+    const rightEye = penguAsset.getFirstEntityByName('Brown Dark Stylised.004')
+    if (rightEye == null) {
+      console.warn('Could not find right eye entity')
+      return
+    }
+
+    renderableManager.changeMaterialTextureMap(engine, leftEye, 'Eye_Left.001', blueLeftEyeBuffer)
+    renderableManager.changeMaterialTextureMap(engine, rightEye, 'Eye_Right.002', blueLeftEyeBuffer)
+  }, [blueLeftEyeBuffer, engine, penguAsset, renderableManager])
 
   const light = useAsset({ path: indirectLightPath })
   useEffect(() => {

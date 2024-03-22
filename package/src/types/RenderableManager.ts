@@ -1,3 +1,5 @@
+import { FilamentBuffer } from '../native/FilamentBuffer'
+import { Engine } from './Engine'
 import { Entity } from './Entity'
 import { FilamentAsset } from './FilamentAsset'
 import { MaterialInstance } from './MaterialInstance'
@@ -43,4 +45,9 @@ export interface RenderableManager {
    * Prefer to use this method over `getMaterialInstanceAt` and `setOpacity` for performance reasons.
    */
   setAssetEntitiesOpacity(asset: FilamentAsset, opacity: number): void
+
+  /**
+   * Sets the baseColorMap parameter to the given textureBuffer.
+   */
+  changeMaterialTextureMap(engine: Engine, renderable: Entity, materialName: string, textureBuffer: FilamentBuffer): void
 }
