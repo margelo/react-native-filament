@@ -348,16 +348,6 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<F
   //    const size_t resourceUriCount = asset->getResourceUriCount();
   _resourceLoader->loadResources(asset.get());
 
-  // log all entity names:
-  const Entity* entities = asset->getRenderableEntities();
-  for (size_t i = 0; i < asset->getRenderableEntityCount(); i++) {
-    Entity entity = entities[i];
-    NameComponentManager* ncm = assetLoader->getNames();
-    NameComponentManager::Instance instance = ncm->getInstance(entity);
-    const char* name = ncm->getName(instance);
-    Logger::log(TAG, "Entity %zu: %s", i, name);
-  }
-
   return std::make_shared<FilamentAssetWrapper>(asset);
 }
 
