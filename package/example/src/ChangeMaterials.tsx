@@ -14,9 +14,13 @@ const indirectLightPath = Platform.select({
   ios: 'default_env_ibl.ktx',
 })!
 
-const eyeTexturePath = Platform.select({
+const leftEyeTexturePath = Platform.select({
   android: 'custom/eye_full_texture_left_blue.jpg',
   ios: 'eye_full_texture_left_blue.jpg',
+})!
+const rightEyeTexturePath = Platform.select({
+  android: 'custom/eye_full_texture_right_blue.jpg',
+  ios: 'eye_full_texture_right_blue.jpg',
 })!
 
 // Camera config:
@@ -32,7 +36,8 @@ export function ChangeMaterials() {
   const renderableManager = useRenderableManager(engine)
 
   const pengu = useModel({ engine: engine, path: penguModelPath })
-  const blueLeftEyeBuffer = useAsset({ path: eyeTexturePath })
+  const blueLeftEyeBuffer = useAsset({ path: leftEyeTexturePath })
+  const blueRightEyeBuffer = useAsset({ path: rightEyeTexturePath })
 
   const penguAsset = pengu.state === 'loaded' ? pengu.asset : undefined
   useEffect(() => {
@@ -50,8 +55,8 @@ export function ChangeMaterials() {
     }
 
     renderableManager.changeMaterialTextureMap(engine, leftEye, 'Eye_Left.001', blueLeftEyeBuffer)
-    renderableManager.changeMaterialTextureMap(engine, rightEye, 'Eye_Right.002', blueLeftEyeBuffer)
-  }, [blueLeftEyeBuffer, engine, penguAsset, renderableManager])
+    renderableManager.changeMaterialTextureMap(engine, rightEye, 'Eye_Right.002', blueRightEyeBuffer)
+  }, [blueLeftEyeBuffer, blueRightEyeBuffer, engine, penguAsset, renderableManager])
 
   const light = useAsset({ path: indirectLightPath })
   useEffect(() => {
