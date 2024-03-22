@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { AnimationTransitions } from './AnimationTransitions'
 import { PhysicsCoin } from './PhysicsCoin'
 import { FadeOut } from './FadeOut'
+import { ChangeMaterials } from './ChangeMaterials'
 
 function NavigationItem(props: { name: string; route: string }) {
   const navigation = useNavigation()
@@ -37,7 +38,8 @@ function HomeScreen() {
     <View style={{ flex: 1 }}>
       <NavigationItem name="▶️ Animation Transitions" route="AnimationTransitions" />
       <NavigationItem name="💰 Physics Coin" route="PhysicsCoin" />
-      <NavigationItem name="😶‍🌫️  Fade Out" route="FadeOut" />
+      <NavigationItem name="😶‍🌫️ Fade Out" route="FadeOut" />
+      <NavigationItem name="🎨 Change Materials" route="ChangeMaterials" />
     </View>
   )
 }
@@ -66,6 +68,7 @@ function App() {
         />
         <Stack.Screen name="PhysicsCoin" component={PhysicsCoin} />
         <Stack.Screen name="FadeOut" component={FadeOut} />
+        <Stack.Screen name="ChangeMaterials" component={ChangeMaterials} />
         <Stack.Screen name="Test" component={TestScreen} />
       </Stack.Navigator>
     </NavigationContainer>

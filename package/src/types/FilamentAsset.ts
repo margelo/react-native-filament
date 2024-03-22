@@ -51,4 +51,6 @@ export interface FilamentAsset {
    * AAAB that can be determined at load time from the asset data.
    */
   readonly boundingBox: AABB
+
+  getFirstEntityByName(name: string): Entity | undefined
 }
