@@ -107,6 +107,10 @@ void RenderableManagerWrapper::changeMaterialTextureMap(std::shared_ptr<EntityWr
   _renderableManager.setMaterialInstanceAt(instance, primitiveIndex, newInstance);
 
   // Load the texture
+  startUpdateResourceLoading();
+}
+
+void RenderableManagerWrapper::startUpdateResourceLoading() {
   while (_textureProvider->getPoppedCount() < _textureProvider->getPushedCount()) {
     // The following call gives the provider an opportunity to reap the results of any
     // background decoder work that has been completed

@@ -43,6 +43,10 @@ public: // Public API
                                 std::shared_ptr<FilamentBuffer> textureBuffer);
 
 private:
+  // Calls the TextureProvider to start loading the resource
+  void startUpdateResourceLoading();
+
+private:
   RenderableManager& _renderableManager;
   std::shared_ptr<TextureProvider> _textureProvider;
 

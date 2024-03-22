@@ -49,5 +49,5 @@ export interface RenderableManager {
   /**
    * Sets the baseColorMap parameter to the given textureBuffer.
    */
-  changeMaterialTextureMap(renderable: Entity, materialName: string, textureBuffer: FilamentBuffer): void
+  changeMaterialTextureMap(renderable: Entity, materialName: string, textureBuffer: FilamentBuffer): Promise<void>
 }
