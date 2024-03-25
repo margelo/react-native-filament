@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useEffect, useRef } from 'react'
 
-import { Platform, StyleSheet, View } from 'react-native'
+import { Button, Platform, StyleSheet, View } from 'react-native'
 import { Filament, useEngine, Float3, useRenderCallback, useAsset, useModel, useRenderableManager } from 'react-native-filament'
 
 const penguModelPath = Platform.select({
@@ -40,7 +40,7 @@ export function ChangeMaterials() {
   const blueRightEyeBuffer = useAsset({ path: rightEyeTexturePath })
 
   const penguAsset = pengu.state === 'loaded' ? pengu.asset : undefined
-  useEffect(() => {
+  const changeEyes = React.useCallback(() => {
     if (penguAsset == null || blueLeftEyeBuffer == null || blueRightEyeBuffer == null) return
 
     const leftEye = penguAsset.getFirstEntityByName('Brown Dark Stylised.003')
@@ -58,7 +58,7 @@ export function ChangeMaterials() {
 
     renderableManager.changeMaterialTextureMap(leftEye, 'Eye_Left.001', blueLeftEyeBuffer, 'sRGB')
     renderableManager.changeMaterialTextureMap(rightEye, 'Eye_Right.002', blueRightEyeBuffer, 'sRGB')
-  }, [blueLeftEyeBuffer, blueRightEyeBuffer, engine, penguAsset, renderableManager])
+  }, [blueLeftEyeBuffer, blueRightEyeBuffer, penguAsset, renderableManager])
 
   const light = useAsset({ path: indirectLightPath })
   useEffect(() => {
@@ -91,6 +91,7 @@ export function ChangeMaterials() {
   return (
     <View style={styles.container}>
       <Filament style={styles.filamentView} engine={engine} />
+      <Button title="Change Eyes" onPress={changeEyes} />
     </View>
   )
 }
@@ -102,11 +103,5 @@ const styles = StyleSheet.create({
   filamentView: {
     flex: 1,
     backgroundColor: 'lightblue',
-  },
-  btnContainer: {
-    height: 200,
-    width: '100%',
-    position: 'absolute',
-    bottom: 0,
   },
 })
