@@ -17,6 +17,8 @@ void RenderableManagerWrapper::loadHybridMethods() {
   registerHybridMethod("setMaterialInstanceAt", &RenderableManagerWrapper::setMaterialInstanceAt, this);
   registerHybridMethod("setAssetEntitiesOpacity", &RenderableManagerWrapper::setAssetEntitiesOpacity, this);
   registerHybridMethod("changeMaterialTextureMap", &RenderableManagerWrapper::changeMaterialTextureMap, this);
+  registerHybridMethod("setCastShadow", &RenderableManagerWrapper::setCastShadow, this);
+  registerHybridMethod("setReceiveShadow", &RenderableManagerWrapper::setReceiveShadow, this);
 }
 
 int RenderableManagerWrapper::getPrimitiveCount(std::shared_ptr<EntityWrapper> entity) {
@@ -123,6 +125,18 @@ void RenderableManagerWrapper::startUpdateResourceLoading() {
       Logger::log(TAG, "%p has all its miplevels ready.", _texture);
     }
   }
+}
+
+void RenderableManagerWrapper::setCastShadow(bool castShadow, std::shared_ptr<EntityWrapper> entityWrapper) {
+  Entity entity = entityWrapper->getEntity();
+  RenderableManager::Instance renderable = _renderableManager.getInstance(entity);
+  _renderableManager.setCastShadows(renderable, castShadow);
+}
+
+void RenderableManagerWrapper::setReceiveShadow(bool receiveShadow, std::shared_ptr<EntityWrapper> entityWrapper) {
+  Entity entity = entityWrapper->getEntity();
+  RenderableManager::Instance renderable = _renderableManager.getInstance(entity);
+  _renderableManager.setReceiveShadows(renderable, receiveShadow);
 }
 
 } // namespace margelo

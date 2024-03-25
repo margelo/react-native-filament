@@ -51,4 +51,16 @@ export interface RenderableManager {
    * Sets the baseColorMap parameter to the given textureBuffer.
    */
   changeMaterialTextureMap(renderable: Entity, materialName: string, textureBuffer: FilamentBuffer, textureFlags: TextureFlags): void
+
+  /**
+   * Changes whether or not the renderable casts shadows.
+   * @default false
+   **/
+  setCastShadow(castShadow: boolean, renderable: Entity): void
+
+  /**
+   * Changes whether or not the renderable can receive shadows.
+   * @default false
+   **/
+  setReceiveShadow(receiveShadow: boolean, renderable: Entity): void
 }

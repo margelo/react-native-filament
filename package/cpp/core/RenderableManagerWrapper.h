@@ -42,6 +42,10 @@ public: // Public API
   void changeMaterialTextureMap(std::shared_ptr<EntityWrapper> entityWrapper, const std::string& materialName,
                                 std::shared_ptr<FilamentBuffer> textureBuffer, std::string textureFlags = "none");
 
+  void setCastShadow(bool castShadow, std::shared_ptr<EntityWrapper> entityWrapper);
+
+  void setReceiveShadow(bool receiveShadow, std::shared_ptr<EntityWrapper> entityWrapper);
+
 private:
   // Calls the TextureProvider to start loading the resource
   void startUpdateResourceLoading();
