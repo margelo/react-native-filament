@@ -4,15 +4,6 @@
 
 namespace margelo {
 
-SceneWrapper::~SceneWrapper() {
-  // Remove all assets from the scene and then destroy them
-  Logger::log("SceneWrapper", "Removing all assets from scene and destroying them");
-  for (auto& asset : _assets) {
-    removeAsset(asset);
-    _assetLoader->destroyAsset(asset.get());
-  }
-}
-
 void margelo::SceneWrapper::loadHybridMethods() {
   registerHybridMethod("addEntity", &SceneWrapper::addEntity, this);
   registerHybridMethod("addAssetEntities", &SceneWrapper::addAssetEntities, this);
