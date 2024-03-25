@@ -46,6 +46,8 @@ public: // Public API
 
   void setReceiveShadow(bool receiveShadow, std::shared_ptr<EntityWrapper> entityWrapper);
 
+  void createShadowPlane(std::shared_ptr<FilamentBuffer> shadowMaterialBuffer);
+
 private:
   // Calls the TextureProvider to start loading the resource
   void startUpdateResourceLoading();

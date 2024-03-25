@@ -139,4 +139,9 @@ void RenderableManagerWrapper::setReceiveShadow(bool receiveShadow, std::shared_
   _renderableManager.setReceiveShadows(renderable, receiveShadow);
 }
 
+void RenderableManagerWrapper::createShadowPlane(std::shared_ptr<FilamentBuffer> shadowMaterialBuffer) {
+  std::shared_ptr<ManagedBuffer> buffer = shadowMaterialBuffer->getBuffer();
+  Material* material = Material::Builder().package(buffer->getData(), buffer->getSize()).build(*EngineWrapper::getEngine());
+}
+
 } // namespace margelo

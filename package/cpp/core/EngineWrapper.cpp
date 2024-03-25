@@ -526,4 +526,16 @@ std::shared_ptr<RenderableManagerWrapper> EngineWrapper::getRendererableManager(
   return std::make_shared<RenderableManagerWrapper>(rm, stbTextureProvider);
 }
 
+std::shared_ptr<MaterialWrapper> EngineWrapper::createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer) {
+  auto buffer = materialBuffer->getBuffer();
+  if (buffer->getSize() == 0) {
+    throw std::runtime_error("Material buffer is empty");
+  }
+
+  Material::Builder builder = Material::Builder().package(buffer->getData(), buffer->getSize());
+  std::shared_ptr<Material> material = References<Material>::adoptEngineRef(
+      _engine, builder.build(*_engine), [](const std::shared_ptr<Engine>& engine, Material* material) { engine->destroy(material); });
+  return std::make_shared<MaterialWrapper>(material);
+}
+
 } // namespace margelo

@@ -2,6 +2,14 @@
   "migIndex": 1,
   "data": [
     {
+      "path": "assets/TransparentShadowMaterial.mat",
+      "sha1": "ebe0507a54231bba7150bcdfc326faa95b73481c"
+    },
+    {
+      "path": "assets/TransparentShadowMaterial.matc",
+      "sha1": "710574459ac5311be09bbfc9fb807f1b430e6b62"
+    },
+    {
       "path": "assets/chair.glb",
       "sha1": "3d844a9a2de52d1622cd4f85e21b9366c118c898"
     },
