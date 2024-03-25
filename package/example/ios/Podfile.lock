@@ -886,75 +886,77 @@ PODS:
   - React-Mapbuffer (0.73.4):
     - glog
     - React-debug
-  - react-native-filament (0.8.0):
+  - react-native-filament (0.11.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-    - react-native-filament/camutils (= 0.8.0)
-    - react-native-filament/filamat (= 0.8.0)
-    - react-native-filament/filament (= 0.8.0)
-    - react-native-filament/gltfio_core (= 0.8.0)
-    - react-native-filament/image (= 0.8.0)
-    - react-native-filament/ktxreader (= 0.8.0)
-    - react-native-filament/math (= 0.8.0)
-    - react-native-filament/tsl (= 0.8.0)
-    - react-native-filament/uberz (= 0.8.0)
-    - react-native-filament/utils (= 0.8.0)
-  - react-native-filament/camutils (0.8.0):
-    - glog
-    - RCT-Folly (= 2022.05.16.00)
-    - React-Core
-    - react-native-filament/math
-  - react-native-filament/filamat (0.8.0):
+    - react-native-filament/camutils (= 0.11.0)
+    - react-native-filament/filamat (= 0.11.0)
+    - react-native-filament/filament (= 0.11.0)
+    - react-native-filament/gltfio_core (= 0.11.0)
+    - react-native-filament/image (= 0.11.0)
+    - react-native-filament/ktxreader (= 0.11.0)
+    - react-native-filament/math (= 0.11.0)
+    - react-native-filament/tsl (= 0.11.0)
+    - react-native-filament/uberz (= 0.11.0)
+    - react-native-filament/utils (= 0.11.0)
+  - react-native-filament/camutils (0.11.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - react-native-filament/math
-    - react-native-filament/utils
-  - react-native-filament/filament (0.8.0):
+  - react-native-filament/filamat (0.11.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - react-native-filament/math
     - react-native-filament/utils
-  - react-native-filament/gltfio_core (0.8.0):
+  - react-native-filament/filament (0.11.0):
+    - glog
+    - RCT-Folly (= 2022.05.16.00)
+    - React-Core
+    - react-native-filament/math
+    - react-native-filament/utils
+  - react-native-filament/gltfio_core (0.11.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - react-native-filament/filament
     - react-native-filament/ktxreader
     - react-native-filament/uberz
-  - react-native-filament/image (0.8.0):
+  - react-native-filament/image (0.11.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - react-native-filament/filament
-  - react-native-filament/ktxreader (0.8.0):
+  - react-native-filament/ktxreader (0.11.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - react-native-filament/filament
     - react-native-filament/image
-  - react-native-filament/math (0.8.0):
+  - react-native-filament/math (0.11.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-  - react-native-filament/tsl (0.8.0):
+  - react-native-filament/tsl (0.11.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-  - react-native-filament/uberz (0.8.0):
+  - react-native-filament/uberz (0.11.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - react-native-filament/filamat
     - react-native-filament/tsl
     - react-native-filament/utils
-  - react-native-filament/utils (0.8.0):
+  - react-native-filament/utils (0.11.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - react-native-filament/tsl
+  - react-native-safe-area-context (4.9.0):
+    - React-Core
   - React-nativeconfig (0.73.4)
   - React-NativeModulesApple (0.73.4):
     - glog
@@ -1122,6 +1124,10 @@ PODS:
     - React-jsi (= 0.73.4)
     - React-logger (= 0.73.4)
     - React-perflogger (= 0.73.4)
+  - RNScreens (3.29.0):
+    - glog
+    - RCT-Folly (= 2022.05.16.00)
+    - React-Core
   - SocketRocket (0.6.1)
   - Yoga (1.14.0)
 
@@ -1157,6 +1163,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - react-native-filament (from `../..`)
+  - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -1177,6 +1184,7 @@ DEPENDENCIES:
   - React-runtimescheduler (from `../node_modules/react-native/ReactCommon/react/renderer/runtimescheduler`)
   - React-utils (from `../node_modules/react-native/ReactCommon/react/utils`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - RNScreens (from `../node_modules/react-native-screens`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -1243,6 +1251,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   react-native-filament:
     :path: "../.."
+  react-native-safe-area-context:
+    :path: "../node_modules/react-native-safe-area-context"
   React-nativeconfig:
     :path: "../node_modules/react-native/ReactCommon"
   React-NativeModulesApple:
@@ -1283,6 +1293,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/react/utils"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  RNScreens:
+    :path: "../node_modules/react-native-screens"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -1316,7 +1328,8 @@ SPEC CHECKSUMS:
   React-jsinspector: 9ac353eccf6ab54d1e0a33862ba91221d1e88460
   React-logger: 0a57b68dd2aec7ff738195f081f0520724b35dab
   React-Mapbuffer: 63913773ed7f96b814a2521e13e6d010282096ad
-  react-native-filament: c69afb4f5e2ec86b4773aa03b2ee19ec08a46015
+  react-native-filament: 3342867c90546663d3c2f8c8b2566d21e5100684
+  react-native-safe-area-context: b97eb6f9e3b7f437806c2ce5983f479f8eb5de4b
   React-nativeconfig: d7af5bae6da70fa15ce44f045621cf99ed24087c
   React-NativeModulesApple: 0123905d5699853ac68519607555a9a4f5c7b3ac
   React-perflogger: 8a1e1af5733004bdd91258dcefbde21e0d1faccd
@@ -1337,6 +1350,7 @@ SPEC CHECKSUMS:
   React-runtimescheduler: ed48e5faac6751e66ee1261c4bd01643b436f112
   React-utils: 6e5ad394416482ae21831050928ae27348f83487
   ReactCommon: 840a955d37b7f3358554d819446bffcf624b2522
+  RNScreens: b582cb834dc4133307562e930e8fa914b8c04ef2
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: 64cd2a583ead952b0315d5135bf39e053ae9be70
 
