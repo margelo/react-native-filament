@@ -329,10 +329,8 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<F
     throw std::runtime_error("Failed to load asset");
   }
   auto assetLoader = _assetLoader;
-  auto asset = References<gltfio::FilamentAsset>::adoptRef(assetPtr, [assetLoader](gltfio::FilamentAsset* asset) {
-    // The deletion of the assets is handled automatically when the scene gets deleted (which usually happens when the engine gets deleted).
-    // TODO(Hanno): Add user API to manually remove an asset from the scene while the scene/engine is still alive.
-  });
+  auto asset = References<gltfio::FilamentAsset>::adoptRef(
+      assetPtr, [assetLoader](gltfio::FilamentAsset* asset) { assetLoader->destroyAsset(asset); });
 
   auto scene = _scene;
   if (!scene) {

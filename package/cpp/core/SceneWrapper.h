@@ -16,7 +16,6 @@ class SceneWrapper : public HybridObject {
 public:
   explicit SceneWrapper(const std::shared_ptr<Scene>& scene, std::shared_ptr<gltfio::AssetLoader> assetLoader)
       : HybridObject("SceneWrapper"), _scene(scene), _assetLoader(assetLoader) {}
-  ~SceneWrapper() override;
 
   void loadHybridMethods() override;
 
