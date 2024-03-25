@@ -36,20 +36,20 @@ Pod::Spec.new do |s|
         "ios/libs/filament/include/ibl/*.h",
         "ios/libs/filament/include/geometry/*.h"
     ss.header_mappings_dir = "ios/libs/filament/include"
-    ss.vendored_libraries =
-        "ios/libs/filament/lib/universal/libfilament.a",
-        "ios/libs/filament/lib/universal/libbackend.a",
-        "ios/libs/filament/lib/universal/libfilabridge.a",
-        "ios/libs/filament/lib/universal/libfilaflat.a",
-        "ios/libs/filament/lib/universal/libibl.a",
-        "ios/libs/filament/lib/universal/libgeometry.a"
+    ss.vendored_frameworks =
+        "ios/libs/filament/lib/libfilament.xcframework",
+        "ios/libs/filament/lib/libbackend.xcframework",
+        "ios/libs/filament/lib/libfilabridge.xcframework",
+        "ios/libs/filament/lib/libfilaflat.xcframework",
+        "ios/libs/filament/lib/libibl.xcframework",
+        "ios/libs/filament/lib/libgeometry.xcframework"
     ss.dependency "react-native-filament/utils"
     ss.dependency "react-native-filament/math"
   end
 
   s.subspec "camutils" do |ss|
     ss.source_files = "ios/libs/filament/include/camutils/*.h"
-    ss.vendored_libraries = "ios/libs/filament/lib/universal/libcamutils.a"
+    ss.vendored_frameworks = "ios/libs/filament/lib/libcamutils.xcframework"
     ss.header_dir = "camutils"
     ss.dependency "react-native-filament/math"
   end
@@ -57,7 +57,7 @@ Pod::Spec.new do |s|
   s.subspec "utils" do |ss|
     ss.source_files = "ios/libs/filament/include/utils/**/*.h"
     ss.header_mappings_dir = "ios/libs/filament/include"
-    ss.vendored_libraries = "ios/libs/filament/lib/universal/libutils.a"
+    ss.vendored_frameworks = "ios/libs/filament/lib/libutils.xcframework"
     ss.dependency "react-native-filament/tsl"
   end
 
@@ -77,18 +77,18 @@ Pod::Spec.new do |s|
         "ios/libs/filament/include/filament/MaterialChunkType.h",
         "ios/libs/filament/include/filament/MaterialEnums.h"
     ss.header_mappings_dir = "ios/libs/filament/include"
-    ss.vendored_libraries =
-      "ios/libs/filament/lib/universal/libfilamat.a",
-      "ios/libs/filament/lib/universal/libshaders.a",
-      "ios/libs/filament/lib/universal/libsmol-v.a",
-      "ios/libs/filament/lib/universal/libfilabridge.a"
+    ss.vendored_frameworks =
+      "ios/libs/filament/lib/libfilamat.xcframework",
+      "ios/libs/filament/lib/libshaders.xcframework",
+      "ios/libs/filament/lib/libsmol-v.xcframework",
+      "ios/libs/filament/lib/libfilabridge.xcframework"
     ss.dependency "react-native-filament/utils"
     ss.dependency "react-native-filament/math"
   end
 
   s.subspec "image" do |ss|
     ss.source_files = "ios/libs/filament/include/image/*.h"
-    ss.vendored_libraries = "ios/libs/filament/lib/universal/libimage.a"
+    ss.vendored_frameworks = "ios/libs/filament/lib/libimage.xcframework"
     ss.header_dir = "image"
     ss.dependency "react-native-filament/filament"
   end
@@ -96,9 +96,9 @@ Pod::Spec.new do |s|
   s.subspec "ktxreader" do |ss|
     ss.source_files = "ios/libs/filament/include/ktxreader/*.h"
     ss.header_mappings_dir = "ios/libs/filament/include"
-    ss.vendored_libraries =
-        "ios/libs/filament/lib/universal/libktxreader.a",
-        "ios/libs/filament/lib/universal/libbasis_transcoder.a"
+    ss.vendored_frameworks =
+        "ios/libs/filament/lib/libktxreader.xcframework",
+        "ios/libs/filament/lib/libbasis_transcoder.xcframework"
     ss.dependency "react-native-filament/image"
     ss.dependency "react-native-filament/filament"
   end
@@ -106,9 +106,9 @@ Pod::Spec.new do |s|
   s.subspec "uberz" do |ss|
     ss.source_files = "ios/libs/filament/include/uberz/*.h"
     ss.header_mappings_dir = "ios/libs/filament/include"
-    ss.vendored_libraries =
-        "ios/libs/filament/lib/universal/libuberzlib.a",
-        "ios/libs/filament/lib/universal/libzstd.a"
+    ss.vendored_frameworks =
+        "ios/libs/filament/lib/libuberzlib.xcframework",
+        "ios/libs/filament/lib/libzstd.xcframework"
     ss.header_dir = "uberz"
     ss.dependency "react-native-filament/filamat"
     ss.dependency "react-native-filament/tsl"
@@ -118,11 +118,11 @@ Pod::Spec.new do |s|
   s.subspec "gltfio_core" do |ss|
     ss.source_files = "ios/libs/filament/include/gltfio/**/*.h"
     ss.header_mappings_dir = "ios/libs/filament/include"
-    ss.vendored_libraries =
-      "ios/libs/filament/lib/universal/libgltfio_core.a",
-      "ios/libs/filament/lib/universal/libdracodec.a",
-      "ios/libs/filament/lib/universal/libuberarchive.a",
-      "ios/libs/filament/lib/universal/libstb.a"
+    ss.vendored_frameworks =
+      "ios/libs/filament/lib/libgltfio_core.xcframework",
+      "ios/libs/filament/lib/libdracodec.xcframework",
+      "ios/libs/filament/lib/libuberarchive.xcframework",
+      "ios/libs/filament/lib/libstb.xcframework"
     ss.dependency "react-native-filament/filament"
     ss.dependency "react-native-filament/ktxreader"
     ss.dependency "react-native-filament/uberz"
