@@ -52,6 +52,8 @@ public: // Public API
 
   std::shared_ptr<EntityWrapper> createPlane(std::shared_ptr<MaterialWrapper> materialWrapper);
 
+  void test(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<FilamentAssetWrapper> assetWrapper);
+
 private:
   // Calls the TextureProvider to start loading the resource
   void startUpdateResourceLoading();

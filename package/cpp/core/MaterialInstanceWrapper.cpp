@@ -12,6 +12,7 @@ void MaterialInstanceWrapper::loadHybridMethods() {
   registerHybridMethod("setCullingMode", &MaterialInstanceWrapper::setCullingMode, this);
   registerHybridMethod("setTransparencyMode", &MaterialInstanceWrapper::setTransparencyMode, this);
   registerHybridMethod("changeAlpha", &MaterialInstanceWrapper::changeAlpha, this);
+  registerHybridMethod("setParameter", &MaterialInstanceWrapper::setParameter, this);
 }
 
 void MaterialInstanceWrapper::setCullingMode(std::string mode) {
@@ -39,6 +40,16 @@ void MaterialInstanceWrapper::changeAlpha(MaterialInstance* materialInstance, do
 
 void MaterialInstanceWrapper::changeAlpha(double alpha) {
   changeAlpha(_materialInstance, alpha);
+}
+
+void MaterialInstanceWrapper::setParameter(std::string name, double value) {
+  const Material* material = _materialInstance->getMaterial();
+
+  if (!material->hasParameter(name.c_str())) {
+    throw std::runtime_error("MaterialInstanceWrapper::setParameter: Material does not have parameter \"" + name + "\"!");
+  }
+
+  _materialInstance->setParameter(name.c_str(), (float)value);
 }
 
 } // namespace margelo

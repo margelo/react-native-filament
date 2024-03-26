@@ -19,11 +19,6 @@ const shadowMaterialPath = Platform.select({
   ios: 'TransparentShadowMaterial.matc',
 })!
 
-const boxPath = Platform.select({
-  android: 'custom/box.glb',
-  ios: 'box.glb',
-})!
-
 // Camera config:
 const cameraPosition: Float3 = [0, 1, 10]
 const cameraTarget: Float3 = [0, 0, 0]
@@ -39,18 +34,6 @@ export function CastShadow() {
   const pengu = useModel({ engine: engine, path: penguModelPath, castShadow: true, receiveShadow: true })
   const light = useAsset({ path: indirectLightPath })
   const shadowMaterialBuffer = useAsset({ path: shadowMaterialPath })
-  //   const box = useModel({ engine: engine, path: boxPath, castShadow: true, receiveShadow: true })
-  const groundShape = useModel({ engine: engine, path: boxPath, castShadow: true, receiveShadow: true })
-
-  useEffect(() => {
-    if (pengu.state === 'loading') return
-    if (groundShape.state === 'loading') return
-
-    // engine.setEntityPosition(pengu.asset.getRoot(), [0, 2, 0], false)
-    engine.setEntityPosition(groundShape.asset.getRoot(), [0, -2, 0], false)
-    // engine.getScene().removeAssetEntities(groundShape.asset)
-    engine.setEntityScale(groundShape.asset.getRoot(), [10, 1, 10], true)
-  }, [pengu, groundShape, engine])
 
   useEffect(() => {
     if (light == null) return
@@ -65,38 +48,29 @@ export function CastShadow() {
     }
   }, [engine, light])
 
+  const shadowMaterial = React.useMemo(() => {
+    if (shadowMaterialBuffer == null) return undefined
+
+    const material = engine.createMaterial(shadowMaterialBuffer)
+    material.setDefaultParameter('strength', 0.2)
+    return material
+  }, [engine, shadowMaterialBuffer])
+
+  //   Create Shadow plane
+  const shadowPlane = React.useMemo(() => {
+    if (shadowMaterial == null) return undefined
+
+    const entity = renderableManager.createPlane(shadowMaterial)
+    return entity
+  }, [renderableManager, shadowMaterial])
   useEffect(() => {
-    if (shadowMaterialBuffer == null) return
-    if (groundShape.state === 'loading') return
+    if (shadowPlane == null) return
 
-    // Create a shadow material
-    const shadowMaterial = engine.createMaterial(shadowMaterialBuffer)
-    const shadowMaterialInstance = shadowMaterial.createInstance()
-    const cube = groundShape.asset.getFirstEntityByName('Cube')
-    if (cube == null) {
-      console.warn('Cube not found')
-      return
-    }
+    // Transform it
+    engine.setEntityPosition(shadowPlane, [0, -1, 0], true)
 
-    renderableManager.setMaterialInstanceAt(cube, 0, shadowMaterialInstance)
-  }, [engine, groundShape, renderableManager, shadowMaterialBuffer])
-
-  // Create Shadow plane
-  //   const shadowPlane = React.useMemo(() => {
-  //     if (shadowMaterialBuffer == null) return undefined
-
-  //     const shadowMaterial = engine.createMaterial(shadowMaterialBuffer)
-  //     const entity = renderableManager.createPlane(shadowMaterial)
-  //     return entity
-  //   }, [engine, renderableManager, shadowMaterialBuffer])
-  //   useEffect(() => {
-  //     if (shadowPlane == null) return
-
-  //     // Transform it
-  //     engine.setEntityPosition(shadowPlane, [0, -1, 0], true)
-
-  //     engine.getScene().addEntity(shadowPlane)
-  //   }, [engine, renderableManager, shadowMaterialBuffer, shadowPlane])
+    engine.getScene().addEntity(shadowPlane)
+  }, [engine, renderableManager, shadowMaterialBuffer, shadowPlane])
 
   const prevAspectRatio = useRef(0)
   const penguAnimator = pengu.state === 'loaded' ? pengu.animator : undefined
@@ -113,12 +87,20 @@ export function CastShadow() {
 
     penguAnimator?.applyAnimation(0, passedSeconds)
     penguAnimator?.updateBoneMatrices()
-    if (penguEntity) {
+    if (penguEntity != null) {
       engine.setEntityPosition(penguEntity, [0, 0.45, 0], false)
     }
 
     engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
   })
+
+  const penguAsset = pengu.state === 'loaded' ? pengu.asset : undefined
+  useEffect(() => {
+    if (penguEntity == null || penguAsset == null) return
+    setTimeout(() => {
+      renderableManager.test(penguEntity, penguAsset)
+    }, 1000)
+  }, [penguAsset, penguEntity, renderableManager])
 
   return (
     <View style={styles.container}>

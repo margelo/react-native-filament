@@ -23,6 +23,7 @@ void RenderableManagerWrapper::loadHybridMethods() {
   registerHybridMethod("setCastShadow", &RenderableManagerWrapper::setCastShadow, this);
   registerHybridMethod("setReceiveShadow", &RenderableManagerWrapper::setReceiveShadow, this);
   registerHybridMethod("createPlane", &RenderableManagerWrapper::createPlane, this);
+  registerHybridMethod("test", &RenderableManagerWrapper::test, this);
 }
 
 int RenderableManagerWrapper::getPrimitiveCount(std::shared_ptr<EntityWrapper> entity) {
@@ -146,14 +147,16 @@ void RenderableManagerWrapper::setReceiveShadow(bool receiveShadow, std::shared_
 std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(std::shared_ptr<MaterialWrapper> materialWrapper) {
   const static uint32_t indices[]{0, 1, 2, 2, 3, 0};
   const static float3 vertices[]{
+      //    x   y    z
       {-10, 0, -10},
       {-10, 0, 10},
       {10, 0, 10},
       {10, 0, -10},
   };
-  short4 tbn = packSnorm16(
-      normalize(positive(mat3f{float3{1.0f, 0.0f, 0.0f}, float3{0.0f, 0.0f, 1.0f}, float3{0.0f, 1.0f, 0.0f}}.toQuaternion())).xyzw);
-  const static short4 normals[]{tbn, tbn, tbn, tbn};
+
+  // All normals are pointing up
+  const static short4 normals[]{{0, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 0, 0}};
+
   VertexBuffer* vertexBuffer = VertexBuffer::Builder()
                                    .vertexCount(4)
                                    .bufferCount(2)
@@ -174,16 +177,39 @@ std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(std::shared
       .boundingBox({{0, 0, 0}, {10, 1e-4f, 10}})
       .material(0, test)
       .geometry(0, RenderableManager::PrimitiveType::TRIANGLES, vertexBuffer, indexBuffer, 0, 6)
-      .culling(false)
       .receiveShadows(true)
-      .castShadows(false)
       .build(*_engine, renderable);
 
-  // I think we can delete all the buffers now ? Oh, i think engine is destroying that
-  //  _engine->destroy(vertexBuffer);
-  //  _engine->destroy(indexBuffer);
+  // TODO: cleanup resources
 
   return std::make_shared<EntityWrapper>(renderable);
+}
+void RenderableManagerWrapper::test(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<FilamentAssetWrapper> assetWrapper) {
+
+  // get bounding box from asset
+  FilamentAsset* asset = assetWrapper->getAsset().get();
+  size_t entityCount = asset->getRenderableEntityCount();
+  const Entity* entities = asset->getRenderableEntities();
+  for (size_t i = 0; i < entityCount; ++i) {
+    Entity entity = entities[i];
+    RenderableManager::Instance renderable = _renderableManager.getInstance(entity);
+    auto boundingBox = _renderableManager.getAxisAlignedBoundingBox(renderable);
+    Logger::log(TAG, "#%d Bounding box: min: %f %f %f, max: %f %f %f", i, boundingBox.getMin().x, boundingBox.getMin().y,
+                boundingBox.getMin().z, boundingBox.getMax().x, boundingBox.getMax().y, boundingBox.getMax().z);
+    // Create a new box that is twice the size
+    Box box = Box().set(boundingBox.getMin() * 1.2f, boundingBox.getMax() * 1.2f);
+    _renderableManager.setAxisAlignedBoundingBox(renderable, box);
+  }
+
+  // Get asstes aabb
+  Aabb aabb = asset->getBoundingBox();
+  math::details::TVec3<float> center = aabb.center();
+  math::details::TVec3<float> halfExtent = aabb.extent();
+  Logger::log(TAG, "AABB: center: %f %f %f, halfExtent: %f %f %f", center.x, center.y, center.z, halfExtent.x, halfExtent.y, halfExtent.z);
+
+  // set bounding box
+  //  Box box = Box().set({1, 2, 1}, {1, 2, 1});
+  //  _renderableManager.setAxisAlignedBoundingBox(renderable, box);
 }
 
 } // namespace margelo

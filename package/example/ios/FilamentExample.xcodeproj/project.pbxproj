@@ -25,8 +25,8 @@
 		FB6EB495362843928953B887 /* coin.glb in Resources */ = {isa = PBXBuildFile; fileRef = CE7EC55D9D25492D8D6083D3 /* coin.glb */; };
 		FFD6B311C32A4A2580B289D7 /* default_env_skybox.ktx in Resources */ = {isa = PBXBuildFile; fileRef = A947E59D16164B19982D8EC8 /* default_env_skybox.ktx */; };
 		279D0EC5EF2A4391BD041C64 /* box.glb in Resources */ = {isa = PBXBuildFile; fileRef = 9241FD2E35834E6CBD6537B9 /* box.glb */; };
-		8C1E3C1C6E914AC99EFA230D /* TransparentShadowMaterial.mat in Resources */ = {isa = PBXBuildFile; fileRef = 3534FF510E6F4AFBB98AA6C6 /* TransparentShadowMaterial.mat */; };
-		6E7ABD9C2CF24844A7BD49EE /* TransparentShadowMaterial.matc in Resources */ = {isa = PBXBuildFile; fileRef = C7FAA35C225B4CB5910D1A70 /* TransparentShadowMaterial.matc */; };
+		110E79106D01479997CC6BA9 /* TransparentShadowMaterial.mat in Resources */ = {isa = PBXBuildFile; fileRef = 3BB2032A44844768B124B936 /* TransparentShadowMaterial.mat */; };
+		802C0BA55C0C4E1FA3D6DDCB /* TransparentShadowMaterial.matc in Resources */ = {isa = PBXBuildFile; fileRef = 4C1D7A7E4C1C44709BABC727 /* TransparentShadowMaterial.matc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,8 +68,8 @@
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		A947E59D16164B19982D8EC8 /* default_env_skybox.ktx */ = {isa = PBXFileReference; name = "default_env_skybox.ktx"; path = "../assets/default_env_skybox.ktx"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		9241FD2E35834E6CBD6537B9 /* box.glb */ = {isa = PBXFileReference; name = "box.glb"; path = "../assets/box.glb"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		3534FF510E6F4AFBB98AA6C6 /* TransparentShadowMaterial.mat */ = {isa = PBXFileReference; name = "TransparentShadowMaterial.mat"; path = "../assets/TransparentShadowMaterial.mat"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		C7FAA35C225B4CB5910D1A70 /* TransparentShadowMaterial.matc */ = {isa = PBXFileReference; name = "TransparentShadowMaterial.matc"; path = "../assets/TransparentShadowMaterial.matc"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		3BB2032A44844768B124B936 /* TransparentShadowMaterial.mat */ = {isa = PBXFileReference; name = "TransparentShadowMaterial.mat"; path = "../assets/TransparentShadowMaterial.mat"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		4C1D7A7E4C1C44709BABC727 /* TransparentShadowMaterial.matc */ = {isa = PBXFileReference; name = "TransparentShadowMaterial.matc"; path = "../assets/TransparentShadowMaterial.matc"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -178,8 +178,8 @@
 				70AE03ED5F1844C6832C78BC /* eye_full_texture_right_blue.jpg */,
 				A947E59D16164B19982D8EC8 /* default_env_skybox.ktx */,
 				9241FD2E35834E6CBD6537B9 /* box.glb */,
-				3534FF510E6F4AFBB98AA6C6 /* TransparentShadowMaterial.mat */,
-				C7FAA35C225B4CB5910D1A70 /* TransparentShadowMaterial.matc */,
+				3BB2032A44844768B124B936 /* TransparentShadowMaterial.mat */,
+				4C1D7A7E4C1C44709BABC727 /* TransparentShadowMaterial.matc */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -301,8 +301,8 @@
 				BDF34253C8964E78A0DCEAD2 /* eye_full_texture_right_blue.jpg in Resources */,
 				FFD6B311C32A4A2580B289D7 /* default_env_skybox.ktx in Resources */,
 				279D0EC5EF2A4391BD041C64 /* box.glb in Resources */,
-				8C1E3C1C6E914AC99EFA230D /* TransparentShadowMaterial.mat in Resources */,
-				6E7ABD9C2CF24844A7BD49EE /* TransparentShadowMaterial.matc in Resources */,
+				110E79106D01479997CC6BA9 /* TransparentShadowMaterial.mat in Resources */,
+				802C0BA55C0C4E1FA3D6DDCB /* TransparentShadowMaterial.matc in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
