@@ -31,6 +31,12 @@ export interface Scene {
    * use {@link addAssetEntities} instead.
    */
   addEntity(entity: Entity): void
+
+  /**
+   * Removes the Renderable from the Scene.
+   **/
+  removeEntity(entity: Entity): void
+
   /**
    * Adds all entities associated with the given asset to the scene.
    */

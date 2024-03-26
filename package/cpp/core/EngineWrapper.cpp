@@ -536,7 +536,17 @@ std::shared_ptr<MaterialWrapper> EngineWrapper::createMaterial(std::shared_ptr<F
   Material::Builder builder = Material::Builder().package(buffer->getData(), buffer->getSize());
   std::shared_ptr<Material> material = References<Material>::adoptEngineRef(
       _engine, builder.build(*_engine), [](const std::shared_ptr<Engine>& engine, Material* material) { engine->destroy(material); });
-  return std::make_shared<MaterialWrapper>(material);
+
+  return References<MaterialWrapper>::adoptEngineRef(_engine, new MaterialWrapper(material),
+                                                     [](const std::shared_ptr<Engine>& engine, MaterialWrapper* materialWrapper) {
+                                                       // Iterate over materialWrapper.getInstances() vector and destroy all instances
+                                                       for (auto& materialInstanceWrapper : materialWrapper->getInstances()) {
+                                                         auto materialInstance = materialInstanceWrapper->getMaterialInstance();
+                                                         engine->destroy(materialInstance);
+                                                       }
+
+                                                       delete materialWrapper;
+                                                     });
 }
 
 } // namespace margelo

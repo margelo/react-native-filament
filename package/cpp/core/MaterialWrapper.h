@@ -23,6 +23,10 @@ public:
     return _material;
   }
 
+  std::vector<std::shared_ptr<MaterialInstanceWrapper>> getInstances() {
+    return _instances;
+  }
+
 private:
   std::shared_ptr<MaterialInstanceWrapper> createInstance();
   std::shared_ptr<MaterialInstanceWrapper> getDefaultInstance();
@@ -30,5 +34,7 @@ private:
 
 private:
   std::shared_ptr<Material> _material;
+  // Keep track of all instances
+  std::vector<std::shared_ptr<MaterialInstanceWrapper>> _instances;
 };
 } // namespace margelo

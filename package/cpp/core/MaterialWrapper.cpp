@@ -11,7 +11,16 @@ void MaterialWrapper::loadHybridMethods() {
 std::shared_ptr<MaterialInstanceWrapper> MaterialWrapper::createInstance() {
   MaterialInstance* materialInstance = _material->createInstance();
   // TODO: Who managed the memory of the material instance and cleans it up?
-  return std::make_shared<MaterialInstanceWrapper>(materialInstance);
+  auto instance = std::make_shared<MaterialInstanceWrapper>(materialInstance);
+  _instances.push_back(instance);
+  return instance;
+}
+
+std::shared_ptr<MaterialInstanceWrapper> MaterialWrapper::getDefaultInstance() {
+  MaterialInstance* materialInstance = _material->getDefaultInstance();
+  auto instance = std::make_shared<MaterialInstanceWrapper>(materialInstance);
+  _instances.push_back(instance);
+  return instance;
 }
 
 void MaterialWrapper::setDefaultParameter(std::string name, double value) {
@@ -20,11 +29,6 @@ void MaterialWrapper::setDefaultParameter(std::string name, double value) {
   }
 
   _material->setDefaultParameter(name.c_str(), (float)value);
-}
-
-std::shared_ptr<MaterialInstanceWrapper> MaterialWrapper::getDefaultInstance() {
-  MaterialInstance* materialInstance = _material->getDefaultInstance();
-  return std::make_shared<MaterialInstanceWrapper>(materialInstance);
 }
 
 } // namespace margelo
