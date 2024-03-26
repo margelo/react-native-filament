@@ -21,9 +21,14 @@ export interface Engine {
 
   /**
    * Given a @see FilamentBuffer (e.g. from a .glb file), load the asset into the engine.
-   * This will by default add all entities from the asset to the attached default scene.
    */
   loadAsset(buffer: FilamentBuffer): FilamentAsset
+
+  /**
+   * Given a @see FilamentBuffer (e.g. from a .glb file), load the asset into the engine.
+   * It will create multiple instances of the asset.
+   */
+  loadInstancedAsset(buffer: FilamentBuffer, instanceCount: number): FilamentAsset
 
   /**
    * Set the indirect light for the scene.
