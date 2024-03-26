@@ -32,6 +32,7 @@
 #include <gltfio/TextureProvider.h>
 
 #include "CameraWrapper.h"
+#include "MaterialWrapper.h"
 #include "RendererWrapper.h"
 #include "SceneWrapper.h"
 #include "SwapChainWrapper.h"
@@ -85,6 +86,8 @@ private:
   void updateTransformByRigidBody(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<RigidBodyWrapper> rigidBody);
 
   std::shared_ptr<RenderableManagerWrapper> getRendererableManager();
+
+  std::shared_ptr<MaterialWrapper> createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer);
 
 private:
   std::shared_ptr<JSDispatchQueue> _jsDispatchQueue;

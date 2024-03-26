@@ -6,10 +6,13 @@
 #include "EngineWrapper.h"
 #include "TextureFlagsEnum.h"
 
+#include <filament/IndexBuffer.h>
 #include <gltfio/TextureProvider.h>
+#include <math/norm.h>
 
 namespace margelo {
 using namespace gltfio;
+using namespace math;
 
 void RenderableManagerWrapper::loadHybridMethods() {
   registerHybridMethod("getPrimitiveCount", &RenderableManagerWrapper::getPrimitiveCount, this);
@@ -17,6 +20,10 @@ void RenderableManagerWrapper::loadHybridMethods() {
   registerHybridMethod("setMaterialInstanceAt", &RenderableManagerWrapper::setMaterialInstanceAt, this);
   registerHybridMethod("setAssetEntitiesOpacity", &RenderableManagerWrapper::setAssetEntitiesOpacity, this);
   registerHybridMethod("changeMaterialTextureMap", &RenderableManagerWrapper::changeMaterialTextureMap, this);
+  registerHybridMethod("setCastShadow", &RenderableManagerWrapper::setCastShadow, this);
+  registerHybridMethod("setReceiveShadow", &RenderableManagerWrapper::setReceiveShadow, this);
+  registerHybridMethod("createPlane", &RenderableManagerWrapper::createPlane, this);
+  registerHybridMethod("scaleBoundingBox", &RenderableManagerWrapper::scaleBoundingBox, this);
 }
 
 int RenderableManagerWrapper::getPrimitiveCount(std::shared_ptr<EntityWrapper> entity) {
@@ -122,6 +129,88 @@ void RenderableManagerWrapper::startUpdateResourceLoading() {
     while (Texture* _texture = _textureProvider->popTexture()) {
       Logger::log(TAG, "%p has all its miplevels ready.", _texture);
     }
+  }
+}
+
+void RenderableManagerWrapper::setCastShadow(std::shared_ptr<EntityWrapper> entityWrapper, bool castShadow) {
+  if (entityWrapper == nullptr) {
+    throw new std::invalid_argument("Entity is null");
+  }
+
+  Entity entity = entityWrapper->getEntity();
+  RenderableManager::Instance renderable = _renderableManager.getInstance(entity);
+  _renderableManager.setCastShadows(renderable, castShadow);
+}
+
+void RenderableManagerWrapper::setReceiveShadow(std::shared_ptr<EntityWrapper> entityWrapper, bool receiveShadow) {
+  if (entityWrapper == nullptr) {
+    throw new std::invalid_argument("Entity is null");
+  }
+
+  Entity entity = entityWrapper->getEntity();
+  RenderableManager::Instance renderable = _renderableManager.getInstance(entity);
+  _renderableManager.setReceiveShadows(renderable, receiveShadow);
+}
+
+std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(std::shared_ptr<MaterialWrapper> materialWrapper, double halfExtendX,
+                                                                     double halfExtendY, double halfExtendZ) {
+  if (materialWrapper == nullptr) {
+    throw new std::invalid_argument("Material is null");
+  }
+
+  const static uint32_t indices[]{0, 1, 2, 2, 3, 0};
+  const static float3 vertices[]{//       x        y       z
+                                 {-halfExtendX, 0, -halfExtendZ},
+                                 {-halfExtendX, 0, halfExtendZ},
+                                 {halfExtendX, 0, halfExtendZ},
+                                 {halfExtendX, 0, -halfExtendZ}};
+
+  // All normals are pointing up
+  const static short4 normals[]{{0, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 0, 0}};
+
+  VertexBuffer* vertexBuffer = VertexBuffer::Builder()
+                                   .vertexCount(4)
+                                   .bufferCount(2)
+                                   .attribute(VertexAttribute::POSITION, 0, VertexBuffer::AttributeType::FLOAT3)
+                                   .attribute(VertexAttribute::TANGENTS, 1, VertexBuffer::AttributeType::SHORT4)
+                                   .normalized(VertexAttribute::TANGENTS)
+                                   .build(*_engine);
+  vertexBuffer->setBufferAt(*_engine, 0, VertexBuffer::BufferDescriptor(vertices, vertexBuffer->getVertexCount() * sizeof(vertices[0])));
+  vertexBuffer->setBufferAt(*_engine, 1, VertexBuffer::BufferDescriptor(normals, vertexBuffer->getVertexCount() * sizeof(normals[0])));
+  IndexBuffer* indexBuffer = IndexBuffer::Builder().indexCount(6).build(*_engine);
+  indexBuffer->setBuffer(*_engine, IndexBuffer::BufferDescriptor(indices, indexBuffer->getIndexCount() * sizeof(uint32_t)));
+
+  auto& em = utils::EntityManager::get();
+  utils::Entity renderable = em.create();
+  std::shared_ptr<Material> material = materialWrapper->getMaterial();
+  auto test = material->createInstance();
+  RenderableManager::Builder(1)
+      .boundingBox({{0, 0, 0}, {halfExtendX, halfExtendY, halfExtendZ}})
+      .material(0, test)
+      .geometry(0, RenderableManager::PrimitiveType::TRIANGLES, vertexBuffer, indexBuffer, 0, 6)
+      .build(*_engine, renderable);
+
+  return std::make_shared<EntityWrapper>(renderable);
+}
+
+void RenderableManagerWrapper::scaleBoundingBox(std::shared_ptr<FilamentAssetWrapper> assetWrapper, double scaleFactor) {
+  if (assetWrapper == nullptr) {
+    throw new std::invalid_argument("Asset is null");
+  }
+
+  // Get bounding box from asset
+  FilamentAsset* asset = assetWrapper->getAsset().get();
+  size_t entityCount = asset->getRenderableEntityCount();
+  const Entity* entities = asset->getRenderableEntities();
+  for (size_t i = 0; i < entityCount; ++i) {
+    Entity entity = entities[i];
+    RenderableManager::Instance renderable = _renderableManager.getInstance(entity);
+    Box boundingBox = _renderableManager.getAxisAlignedBoundingBox(renderable);
+    Logger::log(TAG, "#%d Bounding box: min: %f %f %f, max: %f %f %f", i, boundingBox.getMin().x, boundingBox.getMin().y,
+                boundingBox.getMin().z, boundingBox.getMax().x, boundingBox.getMax().y, boundingBox.getMax().z);
+    // Create a new box that is twice the size
+    Box box = Box().set(boundingBox.getMin() * scaleFactor, boundingBox.getMax() * scaleFactor);
+    _renderableManager.setAxisAlignedBoundingBox(renderable, box);
   }
 }
 

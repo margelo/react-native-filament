@@ -11,6 +11,7 @@ import { Float3 } from './float3'
 import { RigidBody } from '../bullet'
 import { TransformManager } from './TransformManager'
 import { RenderableManager } from './RenderableManager'
+import { Material } from './Material'
 
 export type RenderCallback = (timestamp: number, startTime: number, passedSeconds: number) => void
 
@@ -88,4 +89,9 @@ export interface Engine {
    * Prefer using the hook `useRenderableManager` to get a stable reference.
    */
   getRenderableManager(): RenderableManager
+
+  /**
+   * Creates a new material from the given FilamentBuffer.
+   */
+  createMaterial(matcBuffer: FilamentBuffer): Material
 }
