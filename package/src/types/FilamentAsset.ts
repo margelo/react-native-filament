@@ -1,6 +1,7 @@
 import { AABB } from './AABB'
 import type { Animator } from './Animator'
 import type { Entity } from './Entity'
+import { FilamentInstance } from './FilamentInstance'
 
 export interface FilamentAsset {
   /**
@@ -53,4 +54,15 @@ export interface FilamentAsset {
   readonly boundingBox: AABB
 
   getFirstEntityByName(name: string): Entity | undefined
+
+  /**
+   * Convenience method to get the first instance.
+   */
+  getInstance(): FilamentInstance
+
+  /**
+   * Gets all instances associated with the asset.
+   * List will only be greater than 1 if the asset was loaded with loadInstancedAsset.
+   */
+  getAssetInstances(): FilamentInstance[]
 }

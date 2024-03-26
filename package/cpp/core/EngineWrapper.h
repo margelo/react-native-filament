@@ -72,6 +72,7 @@ private:
 
   void transformToUnitCube(std::shared_ptr<FilamentAssetWrapper> asset);
   std::shared_ptr<FilamentAssetWrapper> loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
+  std::shared_ptr<FilamentAssetWrapper> loadInstancedAsset(std::shared_ptr<FilamentBuffer> modelBuffer, int instanceCount);
   void setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer);
 
   void synchronizePendingFrames();
@@ -88,6 +89,9 @@ private:
   std::shared_ptr<RenderableManagerWrapper> getRendererableManager();
 
   std::shared_ptr<MaterialWrapper> createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer);
+
+  // Internal helper method to turn an FilamentAsset ptr into a FilamentAssetWrapper
+  std::shared_ptr<FilamentAssetWrapper> makeAssetWrapper(FilamentAsset* assetPtr);
 
 private:
   std::shared_ptr<JSDispatchQueue> _jsDispatchQueue;

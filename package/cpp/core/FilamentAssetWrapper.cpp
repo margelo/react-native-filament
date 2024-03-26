@@ -1,4 +1,5 @@
 #include "FilamentAssetWrapper.h"
+#include "FilamentInstanceWrapper.h"
 
 #include <utils/Entity.h>
 #include <utils/EntityInstance.h>
@@ -18,6 +19,8 @@ void FilamentAssetWrapper::loadHybridMethods() {
   registerHybridMethod("getRenderableEntities", &FilamentAssetWrapper::getRenderableEntities, this);
   registerHybridGetter("boundingBox", &FilamentAssetWrapper::getBoundingBox, this);
   registerHybridMethod("getFirstEntityByName", &FilamentAssetWrapper::getFirstEntityByName, this);
+  registerHybridMethod("getInstance", &FilamentAssetWrapper::getInstance, this);
+  registerHybridMethod("getAssetInstances", &FilamentAssetWrapper::getAssetInstances, this);
 }
 
 /**
@@ -84,6 +87,21 @@ std::optional<std::shared_ptr<EntityWrapper>> FilamentAssetWrapper::getFirstEnti
   }
 
   return std::make_shared<EntityWrapper>(entity);
+}
+
+std::shared_ptr<FilamentInstanceWrapper> FilamentAssetWrapper::getInstance() {
+  FilamentInstance* instance = _asset->getInstance();
+  return std::make_shared<FilamentInstanceWrapper>(instance);
+}
+
+std::vector<std::shared_ptr<FilamentInstanceWrapper>> FilamentAssetWrapper::getAssetInstances() {
+  std::vector<std::shared_ptr<FilamentInstanceWrapper>> instances;
+  FilamentInstance** instanceArray = _asset->getAssetInstances();
+  size_t instanceCount = _asset->getAssetInstanceCount();
+  for (int i = 0; i < instanceCount; i++) {
+    instances.push_back(std::make_shared<FilamentInstanceWrapper>(instanceArray[i]));
+  }
+  return instances;
 }
 
 } // namespace margelo

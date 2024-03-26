@@ -106,6 +106,7 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setIndirectLight", &EngineWrapper::setIndirectLight, this);
 
   registerHybridMethod("loadAsset", &EngineWrapper::loadAsset, this);
+  registerHybridMethod("loadInstancedAsset", &EngineWrapper::loadInstancedAsset, this);
 
   // Filament API:
   registerHybridMethod("getRenderer", &EngineWrapper::getRenderer, this);
@@ -326,9 +327,23 @@ std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
 std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
   std::shared_ptr<ManagedBuffer> buffer = modelBuffer->getBuffer();
   gltfio::FilamentAsset* assetPtr = _assetLoader->createAsset(buffer->getData(), buffer->getSize());
+
+  return makeAssetWrapper(assetPtr);
+}
+
+std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadInstancedAsset(std::shared_ptr<FilamentBuffer> modelBuffer, int instanceCount) {
+  std::shared_ptr<ManagedBuffer> buffer = modelBuffer->getBuffer();
+  FilamentInstance* instances[instanceCount]; // Memory managed by the FilamentAsset
+  gltfio::FilamentAsset* assetPtr = _assetLoader->createInstancedAsset(buffer->getData(), buffer->getSize(), instances, instanceCount);
+
+  return makeAssetWrapper(assetPtr);
+}
+
+std::shared_ptr<FilamentAssetWrapper> EngineWrapper::makeAssetWrapper(FilamentAsset* assetPtr) {
   if (assetPtr == nullptr) {
     throw std::runtime_error("Failed to load asset");
   }
+
   auto assetLoader = _assetLoader;
   auto asset = References<gltfio::FilamentAsset>::adoptRef(
       assetPtr, [assetLoader](gltfio::FilamentAsset* asset) { assetLoader->destroyAsset(asset); });
