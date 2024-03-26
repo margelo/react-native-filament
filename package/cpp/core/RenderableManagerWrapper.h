@@ -52,7 +52,11 @@ public: // Public API
 
   std::shared_ptr<EntityWrapper> createPlane(std::shared_ptr<MaterialWrapper> materialWrapper);
 
-  void test(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<FilamentAssetWrapper> assetWrapper);
+  /**
+   * Takes an asset, gets the bounding box of all renderable entities and updates the bounding box to be multiplied by the given scale
+   * factor.
+   */
+  void scaleBoundingBox(std::shared_ptr<FilamentAssetWrapper> assetWrapper, double scaleFactor);
 
 private:
   // Calls the TextureProvider to start loading the resource

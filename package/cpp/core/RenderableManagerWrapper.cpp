@@ -23,7 +23,7 @@ void RenderableManagerWrapper::loadHybridMethods() {
   registerHybridMethod("setCastShadow", &RenderableManagerWrapper::setCastShadow, this);
   registerHybridMethod("setReceiveShadow", &RenderableManagerWrapper::setReceiveShadow, this);
   registerHybridMethod("createPlane", &RenderableManagerWrapper::createPlane, this);
-  registerHybridMethod("test", &RenderableManagerWrapper::test, this);
+  registerHybridMethod("scaleBoundingBox", &RenderableManagerWrapper::scaleBoundingBox, this);
 }
 
 int RenderableManagerWrapper::getPrimitiveCount(std::shared_ptr<EntityWrapper> entity) {
@@ -133,18 +133,30 @@ void RenderableManagerWrapper::startUpdateResourceLoading() {
 }
 
 void RenderableManagerWrapper::setCastShadow(bool castShadow, std::shared_ptr<EntityWrapper> entityWrapper) {
+  if (entityWrapper == nullptr) {
+    throw new std::invalid_argument("Entity is null");
+  }
+
   Entity entity = entityWrapper->getEntity();
   RenderableManager::Instance renderable = _renderableManager.getInstance(entity);
   _renderableManager.setCastShadows(renderable, castShadow);
 }
 
 void RenderableManagerWrapper::setReceiveShadow(bool receiveShadow, std::shared_ptr<EntityWrapper> entityWrapper) {
+  if (entityWrapper == nullptr) {
+    throw new std::invalid_argument("Entity is null");
+  }
+
   Entity entity = entityWrapper->getEntity();
   RenderableManager::Instance renderable = _renderableManager.getInstance(entity);
   _renderableManager.setReceiveShadows(renderable, receiveShadow);
 }
 
 std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(std::shared_ptr<MaterialWrapper> materialWrapper) {
+  if (materialWrapper == nullptr) {
+    throw new std::invalid_argument("Material is null");
+  }
+
   const static uint32_t indices[]{0, 1, 2, 2, 3, 0};
   const static float3 vertices[]{
       //    x   y    z
@@ -180,36 +192,28 @@ std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(std::shared
       .receiveShadows(true)
       .build(*_engine, renderable);
 
-  // TODO: cleanup resources
-
   return std::make_shared<EntityWrapper>(renderable);
 }
-void RenderableManagerWrapper::test(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<FilamentAssetWrapper> assetWrapper) {
 
-  // get bounding box from asset
+void RenderableManagerWrapper::scaleBoundingBox(std::shared_ptr<FilamentAssetWrapper> assetWrapper, double scaleFactor) {
+  if (assetWrapper == nullptr) {
+    throw new std::invalid_argument("Asset is null");
+  }
+
+  // Get bounding box from asset
   FilamentAsset* asset = assetWrapper->getAsset().get();
   size_t entityCount = asset->getRenderableEntityCount();
   const Entity* entities = asset->getRenderableEntities();
   for (size_t i = 0; i < entityCount; ++i) {
     Entity entity = entities[i];
     RenderableManager::Instance renderable = _renderableManager.getInstance(entity);
-    auto boundingBox = _renderableManager.getAxisAlignedBoundingBox(renderable);
+    Box boundingBox = _renderableManager.getAxisAlignedBoundingBox(renderable);
     Logger::log(TAG, "#%d Bounding box: min: %f %f %f, max: %f %f %f", i, boundingBox.getMin().x, boundingBox.getMin().y,
                 boundingBox.getMin().z, boundingBox.getMax().x, boundingBox.getMax().y, boundingBox.getMax().z);
     // Create a new box that is twice the size
-    Box box = Box().set(boundingBox.getMin() * 1.2f, boundingBox.getMax() * 1.2f);
+    Box box = Box().set(boundingBox.getMin() * scaleFactor, boundingBox.getMax() * scaleFactor);
     _renderableManager.setAxisAlignedBoundingBox(renderable, box);
   }
-
-  // Get asstes aabb
-  Aabb aabb = asset->getBoundingBox();
-  math::details::TVec3<float> center = aabb.center();
-  math::details::TVec3<float> halfExtent = aabb.extent();
-  Logger::log(TAG, "AABB: center: %f %f %f, halfExtent: %f %f %f", center.x, center.y, center.z, halfExtent.x, halfExtent.y, halfExtent.z);
-
-  // set bounding box
-  //  Box box = Box().set({1, 2, 1}, {1, 2, 1});
-  //  _renderableManager.setAxisAlignedBoundingBox(renderable, box);
 }
 
 } // namespace margelo

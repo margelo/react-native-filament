@@ -70,4 +70,12 @@ export interface RenderableManager {
    * @param shadowMaterial See {@link Engine.createMaterial}
    */
   createPlane(shadowMaterial: Material): Entity
+
+  /**
+   * Takes an asset, gets the bounding box of all renderable entities and updates the bounding box to be multiplied by the given scale
+   * factor.
+   * Note: This was added as a workaround as there seems to be a bug in filament. When using an animator the asset for some reason is slightly transformed.
+   * The bounding box doesn't seem to be updated to reflect this transformation. And the shadow is calculated the bounding box, which causes the shadow to appear clipped.
+   */
+  scaleBoundingBox(asset: FilamentAsset, scale: number): void
 }

@@ -32,9 +32,15 @@ export function CastShadow() {
   const renderableManager = useRenderableManager(engine)
 
   const pengu = useModel({ engine: engine, path: penguModelPath, castShadow: true, receiveShadow: true })
-  const light = useAsset({ path: indirectLightPath })
-  const shadowMaterialBuffer = useAsset({ path: shadowMaterialPath })
+  const penguAsset = pengu.state === 'loaded' ? pengu.asset : undefined
+  useEffect(() => {
+    if (penguAsset == null) return
+    // Update the bounding box of the asset to be a little bigger to avoid shadow clipping
+    renderableManager.scaleBoundingBox(penguAsset, 1.5)
+  }, [penguAsset, renderableManager])
 
+  //#region Setup lights
+  const light = useAsset({ path: indirectLightPath })
   useEffect(() => {
     if (light == null) return
     // create a default light
@@ -47,7 +53,10 @@ export function CastShadow() {
       // TODO: Remove directionalLight from scene
     }
   }, [engine, light])
+  //#endregion
 
+  //#region Setup shadow plane
+  const shadowMaterialBuffer = useAsset({ path: shadowMaterialPath })
   const shadowMaterial = React.useMemo(() => {
     if (shadowMaterialBuffer == null) return undefined
 
@@ -71,6 +80,7 @@ export function CastShadow() {
 
     engine.getScene().addEntity(shadowPlane)
   }, [engine, renderableManager, shadowMaterialBuffer, shadowPlane])
+  //#endregion
 
   const prevAspectRatio = useRef(0)
   const penguAnimator = pengu.state === 'loaded' ? pengu.animator : undefined
@@ -93,14 +103,6 @@ export function CastShadow() {
 
     engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
   })
-
-  const penguAsset = pengu.state === 'loaded' ? pengu.asset : undefined
-  useEffect(() => {
-    if (penguEntity == null || penguAsset == null) return
-    setTimeout(() => {
-      renderableManager.test(penguEntity, penguAsset)
-    }, 1000)
-  }, [penguAsset, penguEntity, renderableManager])
 
   return (
     <View style={styles.container}>
