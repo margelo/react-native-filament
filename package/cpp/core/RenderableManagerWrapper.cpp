@@ -152,19 +152,18 @@ void RenderableManagerWrapper::setReceiveShadow(bool receiveShadow, std::shared_
   _renderableManager.setReceiveShadows(renderable, receiveShadow);
 }
 
-std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(std::shared_ptr<MaterialWrapper> materialWrapper) {
+std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(std::shared_ptr<MaterialWrapper> materialWrapper, double halfExtendX,
+                                                                     double halfExtendY, double halfExtendZ) {
   if (materialWrapper == nullptr) {
     throw new std::invalid_argument("Material is null");
   }
 
   const static uint32_t indices[]{0, 1, 2, 2, 3, 0};
-  const static float3 vertices[]{
-      //    x   y    z
-      {-10, 0, -10},
-      {-10, 0, 10},
-      {10, 0, 10},
-      {10, 0, -10},
-  };
+  const static float3 vertices[]{//       x        y       z
+                                 {-halfExtendX, 0, -halfExtendZ},
+                                 {-halfExtendX, 0, halfExtendZ},
+                                 {halfExtendX, 0, halfExtendZ},
+                                 {halfExtendX, 0, -halfExtendZ}};
 
   // All normals are pointing up
   const static short4 normals[]{{0, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 0, 0}};
@@ -186,7 +185,7 @@ std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(std::shared
   std::shared_ptr<Material> material = materialWrapper->getMaterial();
   auto test = material->createInstance();
   RenderableManager::Builder(1)
-      .boundingBox({{0, 0, 0}, {10, 1e-4f, 10}})
+      .boundingBox({{0, 0, 0}, {halfExtendX, halfExtendY, halfExtendZ}})
       .material(0, test)
       .geometry(0, RenderableManager::PrimitiveType::TRIANGLES, vertexBuffer, indexBuffer, 0, 6)
       .receiveShadows(true)

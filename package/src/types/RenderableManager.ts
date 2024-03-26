@@ -66,10 +66,10 @@ export interface RenderableManager {
   setReceiveShadow(receiveShadow: boolean, renderable: Entity): void
 
   /**
-   * Creates a plane with the material provided.
+   * Creates a plane with the material provided. Creates it at the 0,0,0 origin.
    * @param shadowMaterial See {@link Engine.createMaterial}
    */
-  createPlane(shadowMaterial: Material): Entity
+  createPlane(shadowMaterial: Material, halfExtendX: number, halfExtendY: number, halfExtendZ: number): Entity
 
   /**
    * Takes an asset, gets the bounding box of all renderable entities and updates the bounding box to be multiplied by the given scale

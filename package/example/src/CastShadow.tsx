@@ -69,7 +69,7 @@ export function CastShadow() {
   const shadowPlane = React.useMemo(() => {
     if (shadowMaterial == null) return undefined
 
-    const entity = renderableManager.createPlane(shadowMaterial)
+    const entity = renderableManager.createPlane(shadowMaterial, 10, 0.0001, 10)
     return entity
   }, [renderableManager, shadowMaterial])
   useEffect(() => {
