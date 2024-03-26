@@ -1,6 +1,7 @@
 import { FilamentBuffer } from '../native/FilamentBuffer'
 import { Entity } from './Entity'
 import { FilamentAsset } from './FilamentAsset'
+import { Material } from './Material'
 import { MaterialInstance } from './MaterialInstance'
 
 export type TextureFlags = 'none' | 'sRGB'
@@ -63,4 +64,10 @@ export interface RenderableManager {
    * @default false
    **/
   setReceiveShadow(receiveShadow: boolean, renderable: Entity): void
+
+  /**
+   * Creates a plane with the material provided.
+   * @param shadowMaterial See {@link Engine.createMaterial}
+   */
+  createPlane(shadowMaterial: Material): Entity
 }

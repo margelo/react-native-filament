@@ -6,10 +6,13 @@
 #include "EngineWrapper.h"
 #include "TextureFlagsEnum.h"
 
+#include <filament/IndexBuffer.h>
 #include <gltfio/TextureProvider.h>
+#include <math/norm.h>
 
 namespace margelo {
 using namespace gltfio;
+using namespace math;
 
 void RenderableManagerWrapper::loadHybridMethods() {
   registerHybridMethod("getPrimitiveCount", &RenderableManagerWrapper::getPrimitiveCount, this);
@@ -19,6 +22,7 @@ void RenderableManagerWrapper::loadHybridMethods() {
   registerHybridMethod("changeMaterialTextureMap", &RenderableManagerWrapper::changeMaterialTextureMap, this);
   registerHybridMethod("setCastShadow", &RenderableManagerWrapper::setCastShadow, this);
   registerHybridMethod("setReceiveShadow", &RenderableManagerWrapper::setReceiveShadow, this);
+  registerHybridMethod("createPlane", &RenderableManagerWrapper::createPlane, this);
 }
 
 int RenderableManagerWrapper::getPrimitiveCount(std::shared_ptr<EntityWrapper> entity) {
@@ -139,9 +143,47 @@ void RenderableManagerWrapper::setReceiveShadow(bool receiveShadow, std::shared_
   _renderableManager.setReceiveShadows(renderable, receiveShadow);
 }
 
-void RenderableManagerWrapper::createShadowPlane(std::shared_ptr<FilamentBuffer> shadowMaterialBuffer) {
-  std::shared_ptr<ManagedBuffer> buffer = shadowMaterialBuffer->getBuffer();
-  Material* material = Material::Builder().package(buffer->getData(), buffer->getSize()).build(*EngineWrapper::getEngine());
+std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(std::shared_ptr<MaterialWrapper> materialWrapper) {
+  const static uint32_t indices[]{0, 1, 2, 2, 3, 0};
+  const static float3 vertices[]{
+      {-10, 0, -10},
+      {-10, 0, 10},
+      {10, 0, 10},
+      {10, 0, -10},
+  };
+  short4 tbn = packSnorm16(
+      normalize(positive(mat3f{float3{1.0f, 0.0f, 0.0f}, float3{0.0f, 0.0f, 1.0f}, float3{0.0f, 1.0f, 0.0f}}.toQuaternion())).xyzw);
+  const static short4 normals[]{tbn, tbn, tbn, tbn};
+  VertexBuffer* vertexBuffer = VertexBuffer::Builder()
+                                   .vertexCount(4)
+                                   .bufferCount(2)
+                                   .attribute(VertexAttribute::POSITION, 0, VertexBuffer::AttributeType::FLOAT3)
+                                   .attribute(VertexAttribute::TANGENTS, 1, VertexBuffer::AttributeType::SHORT4)
+                                   .normalized(VertexAttribute::TANGENTS)
+                                   .build(*_engine);
+  vertexBuffer->setBufferAt(*_engine, 0, VertexBuffer::BufferDescriptor(vertices, vertexBuffer->getVertexCount() * sizeof(vertices[0])));
+  vertexBuffer->setBufferAt(*_engine, 1, VertexBuffer::BufferDescriptor(normals, vertexBuffer->getVertexCount() * sizeof(normals[0])));
+  IndexBuffer* indexBuffer = IndexBuffer::Builder().indexCount(6).build(*_engine);
+  indexBuffer->setBuffer(*_engine, IndexBuffer::BufferDescriptor(indices, indexBuffer->getIndexCount() * sizeof(uint32_t)));
+
+  auto& em = utils::EntityManager::get();
+  utils::Entity renderable = em.create();
+  std::shared_ptr<Material> material = materialWrapper->getMaterial();
+  auto test = material->createInstance();
+  RenderableManager::Builder(1)
+      .boundingBox({{0, 0, 0}, {10, 1e-4f, 10}})
+      .material(0, test)
+      .geometry(0, RenderableManager::PrimitiveType::TRIANGLES, vertexBuffer, indexBuffer, 0, 6)
+      .culling(false)
+      .receiveShadows(true)
+      .castShadows(false)
+      .build(*_engine, renderable);
+
+  // I think we can delete all the buffers now ? Oh, i think engine is destroying that
+  //  _engine->destroy(vertexBuffer);
+  //  _engine->destroy(indexBuffer);
+
+  return std::make_shared<EntityWrapper>(renderable);
 }
 
 } // namespace margelo

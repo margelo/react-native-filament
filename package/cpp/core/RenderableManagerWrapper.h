@@ -7,6 +7,7 @@
 #include "FilamentAssetWrapper.h"
 #include "FilamentBuffer.h"
 #include "MaterialInstanceWrapper.h"
+#include "MaterialWrapper.h"
 #include "core/utils/EntityWrapper.h"
 #include "jsi/HybridObject.h"
 
@@ -21,8 +22,11 @@ class EngineWrapper;
 
 class RenderableManagerWrapper : public HybridObject {
 public:
-  explicit RenderableManagerWrapper(RenderableManager& renderableManager, std::shared_ptr<TextureProvider> textureProvider)
-      : HybridObject("RenderableManagerWrapper"), _renderableManager(renderableManager), _textureProvider(textureProvider) {}
+  explicit RenderableManagerWrapper(RenderableManager& renderableManager, std::shared_ptr<TextureProvider> textureProvider,
+                                    std::shared_ptr<Engine> engine)
+      : HybridObject("RenderableManagerWrapper"), _renderableManager(renderableManager), _textureProvider(textureProvider),
+        _engine(engine) {}
+
   void loadHybridMethods() override;
 
 public: // Public API
@@ -46,7 +50,7 @@ public: // Public API
 
   void setReceiveShadow(bool receiveShadow, std::shared_ptr<EntityWrapper> entityWrapper);
 
-  void createShadowPlane(std::shared_ptr<FilamentBuffer> shadowMaterialBuffer);
+  std::shared_ptr<EntityWrapper> createPlane(std::shared_ptr<MaterialWrapper> materialWrapper);
 
 private:
   // Calls the TextureProvider to start loading the resource
@@ -55,6 +59,7 @@ private:
 private:
   RenderableManager& _renderableManager;
   std::shared_ptr<TextureProvider> _textureProvider;
+  std::shared_ptr<Engine> _engine;
 
 private:
   constexpr static const char* TAG = "RenderableManagerWrapper";

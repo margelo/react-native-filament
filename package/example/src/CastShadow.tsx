@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useEffect, useRef } from 'react'
 
 import { Platform, StyleSheet, View } from 'react-native'
-import { Filament, useEngine, Float3, useRenderCallback, useAsset, useModel } from 'react-native-filament'
+import { Filament, useEngine, Float3, useRenderCallback, useAsset, useModel, useRenderableManager } from 'react-native-filament'
 
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',
@@ -12,6 +12,11 @@ const penguModelPath = Platform.select({
 const indirectLightPath = Platform.select({
   android: 'custom/default_env_ibl.ktx',
   ios: 'default_env_ibl.ktx',
+})!
+
+const shadowMaterialPath = Platform.select({
+  android: 'custom/TransparentShadowMaterial.matc',
+  ios: 'TransparentShadowMaterial.matc',
 })!
 
 // Camera config:
@@ -24,9 +29,11 @@ const far = 1000
 
 export function CastShadow() {
   const engine = useEngine()
+  const renderableManager = useRenderableManager(engine)
 
   const pengu = useModel({ engine: engine, path: penguModelPath, castShadow: true })
   const light = useAsset({ path: indirectLightPath })
+  const shadowMaterialBuffer = useAsset({ path: shadowMaterialPath })
 
   // Transform Pengu to unit cube
   useEffect(() => {
@@ -46,6 +53,23 @@ export function CastShadow() {
       // TODO: Remove directionalLight from scene
     }
   }, [engine, light])
+
+  // Create Shadow plane
+  const shadowPlane = React.useMemo(() => {
+    if (shadowMaterialBuffer == null) return undefined
+
+    const shadowMaterial = engine.createMaterial(shadowMaterialBuffer)
+    const entity = renderableManager.createPlane(shadowMaterial)
+    return entity
+  }, [engine, renderableManager, shadowMaterialBuffer])
+  useEffect(() => {
+    if (shadowPlane == null) return
+
+    // Transform it
+    engine.setEntityPosition(shadowPlane, [0, -1, 0], false)
+
+    engine.getScene().addEntity(shadowPlane)
+  }, [engine, renderableManager, shadowMaterialBuffer, shadowPlane])
 
   const prevAspectRatio = useRef(0)
   useRenderCallback(engine, (_timestamp, _startTime, _passedSeconds) => {

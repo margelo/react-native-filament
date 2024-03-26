@@ -524,7 +524,7 @@ std::shared_ptr<RenderableManagerWrapper> EngineWrapper::getRendererableManager(
   // Create a new texture provider
   auto stbTextureProvider = std::shared_ptr<TextureProvider>(filament::gltfio::createStbProvider(_engine.get()));
 
-  return std::make_shared<RenderableManagerWrapper>(rm, stbTextureProvider);
+  return std::make_shared<RenderableManagerWrapper>(rm, stbTextureProvider, _engine);
 }
 
 std::shared_ptr<MaterialWrapper> EngineWrapper::createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer) {
