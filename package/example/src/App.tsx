@@ -7,6 +7,7 @@ import { PhysicsCoin } from './PhysicsCoin'
 import { FadeOut } from './FadeOut'
 import { ChangeMaterials } from './ChangeMaterials'
 import { CastShadow } from './CastShadow'
+import { MultipleInstances } from './MultipleInstances'
 
 function NavigationItem(props: { name: string; route: string }) {
   const navigation = useNavigation()
@@ -42,6 +43,7 @@ function HomeScreen() {
       <NavigationItem name="😶‍🌫️ Fade Out" route="FadeOut" />
       <NavigationItem name="🎨 Change Materials" route="ChangeMaterials" />
       <NavigationItem name="🌑 Cast Shadow" route="CastShadow" />
+      <NavigationItem name="🤖 Multiple Instances" route="MultipleInstances" />
     </View>
   )
 }
@@ -72,6 +74,7 @@ function App() {
         <Stack.Screen name="FadeOut" component={FadeOut} />
         <Stack.Screen name="ChangeMaterials" component={ChangeMaterials} />
         <Stack.Screen name="CastShadow" component={CastShadow} />
+        <Stack.Screen name="MultipleInstances" component={MultipleInstances} />
         <Stack.Screen name="Test" component={TestScreen} />
       </Stack.Navigator>
     </NavigationContainer>

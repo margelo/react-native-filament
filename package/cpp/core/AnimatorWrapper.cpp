@@ -20,12 +20,7 @@ Animator* AnimatorWrapper::getAnimator() {
     return _optionalAnimator;
   }
 
-  FilamentInstance* instance = _asset->getInstance();
-  if (instance == nullptr) {
-    [[unlikely]];
-    throw std::runtime_error("Filament Asset does not contain a valid FilamentInstance!");
-  }
-  return instance->getAnimator();
+  return _instance->getAnimator();
 }
 
 // TODO(copy-animations): We currently copy animations from an asset onto another instance (different model than the original asset), we

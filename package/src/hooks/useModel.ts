@@ -30,6 +30,12 @@ interface ModelProps extends AssetProps {
    * @default false
    */
   receiveShadow?: boolean
+
+  /**
+   * Number of instances to create.
+   * @default 1
+   */
+  instanceCount?: number
 }
 
 /**
@@ -62,14 +68,19 @@ export function useModel({
   autoAddToScene = true,
   castShadow,
   receiveShadow,
+  instanceCount,
 }: ModelProps): FilamentModel {
   const asset = useAsset({ path: path })
   const renderableManager = useRenderableManager(engine)
 
   const engineAsset = useMemo(() => {
     if (asset == null) return undefined
-    return engine.loadAsset(asset)
-  }, [asset, engine])
+    if (instanceCount == null || instanceCount == 1) {
+      return engine.loadAsset(asset)
+    } else {
+      return engine.loadInstancedAsset(asset, instanceCount)
+    }
+  }, [asset, engine, instanceCount])
 
   const animator = useMemo(() => engineAsset?.getAnimator(), [engineAsset])
 

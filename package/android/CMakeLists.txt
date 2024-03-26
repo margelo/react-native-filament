@@ -49,6 +49,7 @@ add_library(
         ../cpp/core/MaterialInstanceWrapper.cpp
         ../cpp/core/RenderableManagerWrapper.cpp
         ../cpp/core/MaterialWrapper.cpp
+        ../cpp/core/FilamentInstanceWrapper.cpp
 
         # Filament Utils
         ../cpp/core/utils/EntityWrapper.cpp
