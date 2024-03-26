@@ -10,6 +10,10 @@
       "sha1": "5384f6ca7da1ad8152e1bbae2cbc07ec952abe25"
     },
     {
+      "path": "assets/box.glb",
+      "sha1": "1d474e6c9461f720ca4a5c02edf58b04b7fc8ac8"
+    },
+    {
       "path": "assets/chair.glb",
       "sha1": "3d844a9a2de52d1622cd4f85e21b9366c118c898"
     },
@@ -24,6 +28,10 @@
     {
       "path": "assets/default_env_ibl.ktx",
       "sha1": "432ab7515c66e2fc88bed2766e4972bbf36bb361"
+    },
+    {
+      "path": "assets/default_env_skybox.ktx",
+      "sha1": "007c946259de94bc86269797b1f2d13fb437576d"
     },
     {
       "path": "assets/eye_full_texture_left_blue.jpg",

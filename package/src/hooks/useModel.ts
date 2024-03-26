@@ -105,9 +105,12 @@ export function useModel({
 
     const root = engineAsset.getRoot()
     if (castShadow || prevCastShadowRef.current !== castShadow) {
-      renderableManager.setCastShadow(true, root)
+      // renderableManager.setCastShadow(true, root)
+      // entities?.forEach((entity) => {
+      //   renderableManager.setCastShadow(true, entity)
+      // })
     }
-  }, [castShadow, engineAsset, renderableManager])
+  }, [castShadow, engineAsset, entities, renderableManager])
 
   const prevReceiveShadowRef = useRef(receiveShadow)
   useEffect(() => {

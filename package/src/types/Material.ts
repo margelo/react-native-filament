@@ -1,3 +1,5 @@
+import { MaterialInstance } from './MaterialInstance'
+
 export interface Material {
-  _type: 'Material'
+  createInstance(): MaterialInstance
 }

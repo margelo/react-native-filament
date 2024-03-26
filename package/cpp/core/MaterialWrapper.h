@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "MaterialInstanceWrapper.h"
 #include "jsi/HybridObject.h"
 
 #include <filament/Material.h>
@@ -16,11 +17,14 @@ class MaterialWrapper : public HybridObject {
 public:
   explicit MaterialWrapper(std::shared_ptr<Material> material) : HybridObject("MaterialWrapper"), _material(material) {}
 
-  void loadHybridMethods() override{};
+  void loadHybridMethods() override;
 
   std::shared_ptr<Material> getMaterial() {
     return _material;
   }
+
+private:
+  std::shared_ptr<MaterialInstanceWrapper> createInstance();
 
 private:
   std::shared_ptr<Material> _material;

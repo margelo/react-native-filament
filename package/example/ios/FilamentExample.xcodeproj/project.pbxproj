@@ -23,8 +23,10 @@
 		9D9B37A8229643988DE97B73 /* chair.glb in Resources */ = {isa = PBXBuildFile; fileRef = C4E5AB69D2B94D53A2EE3F93 /* chair.glb */; };
 		BDF34253C8964E78A0DCEAD2 /* eye_full_texture_right_blue.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 70AE03ED5F1844C6832C78BC /* eye_full_texture_right_blue.jpg */; };
 		FB6EB495362843928953B887 /* coin.glb in Resources */ = {isa = PBXBuildFile; fileRef = CE7EC55D9D25492D8D6083D3 /* coin.glb */; };
-		FDA3FDD338414E1F8F1F8E30 /* TransparentShadowMaterial.mat in Resources */ = {isa = PBXBuildFile; fileRef = 2CE3F549386D49FDA7AD6F59 /* TransparentShadowMaterial.mat */; };
-		E8F89AB6A34E43FC9B27ED61 /* TransparentShadowMaterial.matc in Resources */ = {isa = PBXBuildFile; fileRef = 20402044E3084DC3878E80C7 /* TransparentShadowMaterial.matc */; };
+		FFD6B311C32A4A2580B289D7 /* default_env_skybox.ktx in Resources */ = {isa = PBXBuildFile; fileRef = A947E59D16164B19982D8EC8 /* default_env_skybox.ktx */; };
+		279D0EC5EF2A4391BD041C64 /* box.glb in Resources */ = {isa = PBXBuildFile; fileRef = 9241FD2E35834E6CBD6537B9 /* box.glb */; };
+		8C1E3C1C6E914AC99EFA230D /* TransparentShadowMaterial.mat in Resources */ = {isa = PBXBuildFile; fileRef = 3534FF510E6F4AFBB98AA6C6 /* TransparentShadowMaterial.mat */; };
+		6E7ABD9C2CF24844A7BD49EE /* TransparentShadowMaterial.matc in Resources */ = {isa = PBXBuildFile; fileRef = C7FAA35C225B4CB5910D1A70 /* TransparentShadowMaterial.matc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,8 +66,10 @@
 		C4E5AB69D2B94D53A2EE3F93 /* chair.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = chair.glb; path = ../assets/chair.glb; sourceTree = "<group>"; };
 		CE7EC55D9D25492D8D6083D3 /* coin.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = coin.glb; path = ../assets/coin.glb; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		2CE3F549386D49FDA7AD6F59 /* TransparentShadowMaterial.mat */ = {isa = PBXFileReference; name = "TransparentShadowMaterial.mat"; path = "../assets/TransparentShadowMaterial.mat"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		20402044E3084DC3878E80C7 /* TransparentShadowMaterial.matc */ = {isa = PBXFileReference; name = "TransparentShadowMaterial.matc"; path = "../assets/TransparentShadowMaterial.matc"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		A947E59D16164B19982D8EC8 /* default_env_skybox.ktx */ = {isa = PBXFileReference; name = "default_env_skybox.ktx"; path = "../assets/default_env_skybox.ktx"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		9241FD2E35834E6CBD6537B9 /* box.glb */ = {isa = PBXFileReference; name = "box.glb"; path = "../assets/box.glb"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		3534FF510E6F4AFBB98AA6C6 /* TransparentShadowMaterial.mat */ = {isa = PBXFileReference; name = "TransparentShadowMaterial.mat"; path = "../assets/TransparentShadowMaterial.mat"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		C7FAA35C225B4CB5910D1A70 /* TransparentShadowMaterial.matc */ = {isa = PBXFileReference; name = "TransparentShadowMaterial.matc"; path = "../assets/TransparentShadowMaterial.matc"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -172,8 +176,10 @@
 				12D4AF0DC82949E498A73CBE /* coin_alpha.glb */,
 				134904F01F7041DFA331FD27 /* eye_full_texture_left_blue.jpg */,
 				70AE03ED5F1844C6832C78BC /* eye_full_texture_right_blue.jpg */,
-				2CE3F549386D49FDA7AD6F59 /* TransparentShadowMaterial.mat */,
-				20402044E3084DC3878E80C7 /* TransparentShadowMaterial.matc */,
+				A947E59D16164B19982D8EC8 /* default_env_skybox.ktx */,
+				9241FD2E35834E6CBD6537B9 /* box.glb */,
+				3534FF510E6F4AFBB98AA6C6 /* TransparentShadowMaterial.mat */,
+				C7FAA35C225B4CB5910D1A70 /* TransparentShadowMaterial.matc */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -293,8 +299,10 @@
 				9536532B97CA43669EE27CEC /* coin_alpha.glb in Resources */,
 				4F84B0412C634799AEFB1D85 /* eye_full_texture_left_blue.jpg in Resources */,
 				BDF34253C8964E78A0DCEAD2 /* eye_full_texture_right_blue.jpg in Resources */,
-				FDA3FDD338414E1F8F1F8E30 /* TransparentShadowMaterial.mat in Resources */,
-				E8F89AB6A34E43FC9B27ED61 /* TransparentShadowMaterial.matc in Resources */,
+				FFD6B311C32A4A2580B289D7 /* default_env_skybox.ktx in Resources */,
+				279D0EC5EF2A4391BD041C64 /* box.glb in Resources */,
+				8C1E3C1C6E914AC99EFA230D /* TransparentShadowMaterial.mat in Resources */,
+				6E7ABD9C2CF24844A7BD49EE /* TransparentShadowMaterial.matc in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
