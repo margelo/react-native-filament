@@ -28,6 +28,7 @@ public: // Public API
   void setTransparencyMode(std::string mode);
   // Convenience method for updating baseColorFactor parameter
   void changeAlpha(double alpha);
+  void setParameter(std::string name, double value);
 
 public: // Internal API
   MaterialInstance* getMaterialInstance() {

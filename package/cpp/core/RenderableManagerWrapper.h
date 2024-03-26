@@ -7,6 +7,7 @@
 #include "FilamentAssetWrapper.h"
 #include "FilamentBuffer.h"
 #include "MaterialInstanceWrapper.h"
+#include "MaterialWrapper.h"
 #include "core/utils/EntityWrapper.h"
 #include "jsi/HybridObject.h"
 
@@ -21,8 +22,11 @@ class EngineWrapper;
 
 class RenderableManagerWrapper : public HybridObject {
 public:
-  explicit RenderableManagerWrapper(RenderableManager& renderableManager, std::shared_ptr<TextureProvider> textureProvider)
-      : HybridObject("RenderableManagerWrapper"), _renderableManager(renderableManager), _textureProvider(textureProvider) {}
+  explicit RenderableManagerWrapper(RenderableManager& renderableManager, std::shared_ptr<TextureProvider> textureProvider,
+                                    std::shared_ptr<Engine> engine)
+      : HybridObject("RenderableManagerWrapper"), _renderableManager(renderableManager), _textureProvider(textureProvider),
+        _engine(engine) {}
+
   void loadHybridMethods() override;
 
 public: // Public API
@@ -42,6 +46,19 @@ public: // Public API
   void changeMaterialTextureMap(std::shared_ptr<EntityWrapper> entityWrapper, const std::string& materialName,
                                 std::shared_ptr<FilamentBuffer> textureBuffer, std::string textureFlags = "none");
 
+  void setCastShadow(std::shared_ptr<EntityWrapper> entityWrapper, bool castShadow);
+
+  void setReceiveShadow(std::shared_ptr<EntityWrapper> entityWrapper, bool receiveShadow);
+
+  std::shared_ptr<EntityWrapper> createPlane(std::shared_ptr<MaterialWrapper> materialWrapper, double halfExtendX, double halfExtendY,
+                                             double halfExtendZ);
+
+  /**
+   * Takes an asset, gets the bounding box of all renderable entities and updates the bounding box to be multiplied by the given scale
+   * factor.
+   */
+  void scaleBoundingBox(std::shared_ptr<FilamentAssetWrapper> assetWrapper, double scaleFactor);
+
 private:
   // Calls the TextureProvider to start loading the resource
   void startUpdateResourceLoading();
@@ -49,6 +66,7 @@ private:
 private:
   RenderableManager& _renderableManager;
   std::shared_ptr<TextureProvider> _textureProvider;
+  std::shared_ptr<Engine> _engine;
 
 private:
   constexpr static const char* TAG = "RenderableManagerWrapper";

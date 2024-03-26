@@ -29,9 +29,11 @@ public:
 private:
   std::vector<std::shared_ptr<gltfio::FilamentAsset>> _assets;
   std::shared_ptr<Scene> _scene;
+  std::shared_ptr<gltfio::AssetLoader> _assetLoader;
 
-private:
+private: // Public JS API
   void addEntity(std::shared_ptr<EntityWrapper> entity);
+  void removeEntity(std::shared_ptr<EntityWrapper> entity);
   /**
    * Removed all entities associated with the provided asset from the scene.
    */
@@ -40,6 +42,5 @@ private:
    * Adds all entities associated with the provided asset to the scene.
    */
   void addAssetEntities(std::shared_ptr<FilamentAssetWrapper> asset);
-  std::shared_ptr<gltfio::AssetLoader> _assetLoader;
 };
 } // namespace margelo

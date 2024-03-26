@@ -1,6 +1,7 @@
 import { FilamentBuffer } from '../native/FilamentBuffer'
 import { Entity } from './Entity'
 import { FilamentAsset } from './FilamentAsset'
+import { Material } from './Material'
 import { MaterialInstance } from './MaterialInstance'
 
 export type TextureFlags = 'none' | 'sRGB'
@@ -51,4 +52,30 @@ export interface RenderableManager {
    * Sets the baseColorMap parameter to the given textureBuffer.
    */
   changeMaterialTextureMap(renderable: Entity, materialName: string, textureBuffer: FilamentBuffer, textureFlags: TextureFlags): void
+
+  /**
+   * Changes whether or not the renderable casts shadows.
+   * @default false
+   **/
+  setCastShadow(renderable: Entity, castShadow: boolean): void
+
+  /**
+   * Changes whether or not the renderable can receive shadows.
+   * @default false
+   **/
+  setReceiveShadow(renderable: Entity, receiveShadow: boolean): void
+
+  /**
+   * Creates a plane with the material provided. Creates it at the 0,0,0 origin.
+   * @param shadowMaterial See {@link Engine.createMaterial}
+   */
+  createPlane(shadowMaterial: Material, halfExtendX: number, halfExtendY: number, halfExtendZ: number): Entity
+
+  /**
+   * Takes an asset, gets the bounding box of all renderable entities and updates the bounding box to be multiplied by the given scale
+   * factor.
+   * Note: This was added as a workaround as there seems to be a bug in filament. When using an animator the asset for some reason is slightly transformed.
+   * The bounding box doesn't seem to be updated to reflect this transformation. And the shadow is calculated the bounding box, which causes the shadow to appear clipped.
+   */
+  scaleBoundingBox(asset: FilamentAsset, scale: number): void
 }

@@ -121,6 +121,7 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setIsPaused", &EngineWrapper::setIsPaused, this);
   registerHybridMethod("getTransformManager", &EngineWrapper::getTransformManager, this);
   registerHybridMethod("getRenderableManager", &EngineWrapper::getRendererableManager, this);
+  registerHybridMethod("createMaterial", &EngineWrapper::createMaterial, this);
 
   // Combined Physics API:
   registerHybridMethod("updateTransformByRigidBody", &EngineWrapper::updateTransformByRigidBody, this);
@@ -523,7 +524,29 @@ std::shared_ptr<RenderableManagerWrapper> EngineWrapper::getRendererableManager(
   // Create a new texture provider
   auto stbTextureProvider = std::shared_ptr<TextureProvider>(filament::gltfio::createStbProvider(_engine.get()));
 
-  return std::make_shared<RenderableManagerWrapper>(rm, stbTextureProvider);
+  return std::make_shared<RenderableManagerWrapper>(rm, stbTextureProvider, _engine);
+}
+
+std::shared_ptr<MaterialWrapper> EngineWrapper::createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer) {
+  auto buffer = materialBuffer->getBuffer();
+  if (buffer->getSize() == 0) {
+    throw std::runtime_error("Material buffer is empty");
+  }
+
+  Material::Builder builder = Material::Builder().package(buffer->getData(), buffer->getSize());
+  std::shared_ptr<Material> material = References<Material>::adoptEngineRef(
+      _engine, builder.build(*_engine), [](const std::shared_ptr<Engine>& engine, Material* material) { engine->destroy(material); });
+
+  return References<MaterialWrapper>::adoptEngineRef(_engine, new MaterialWrapper(material),
+                                                     [](const std::shared_ptr<Engine>& engine, MaterialWrapper* materialWrapper) {
+                                                       // Iterate over materialWrapper.getInstances() vector and destroy all instances
+                                                       for (auto& materialInstanceWrapper : materialWrapper->getInstances()) {
+                                                         auto materialInstance = materialInstanceWrapper->getMaterialInstance();
+                                                         engine->destroy(materialInstance);
+                                                       }
+
+                                                       delete materialWrapper;
+                                                     });
 }
 
 } // namespace margelo

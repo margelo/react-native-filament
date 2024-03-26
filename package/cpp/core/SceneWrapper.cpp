@@ -6,6 +6,7 @@ namespace margelo {
 
 void margelo::SceneWrapper::loadHybridMethods() {
   registerHybridMethod("addEntity", &SceneWrapper::addEntity, this);
+  registerHybridMethod("removeEntity", &SceneWrapper::removeEntity, this);
   registerHybridMethod("addAssetEntities", &SceneWrapper::addAssetEntities, this);
   registerHybridMethod("removeAssetEntities", &SceneWrapper::removeAssetEntities, this);
 }
@@ -16,6 +17,14 @@ void margelo::SceneWrapper::addEntity(std::shared_ptr<EntityWrapper> entity) {
   }
 
   _scene->addEntity(entity->getEntity());
+}
+
+void SceneWrapper::removeEntity(std::shared_ptr<EntityWrapper> entity) {
+  if (!entity) {
+    throw std::invalid_argument("Entity is null");
+  }
+
+  _scene->remove(entity->getEntity());
 }
 
 void SceneWrapper::addAsset(std::shared_ptr<gltfio::FilamentAsset> asset) {
