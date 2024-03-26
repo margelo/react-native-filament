@@ -2,6 +2,7 @@
 
 #include "AABBWrapper.h"
 #include "AnimatorWrapper.h"
+#include "FilamentInstanceWrapper.h"
 #include "core/utils/EntityWrapper.h"
 #include "jsi/HybridObject.h"
 #include <filament/TransformManager.h>
@@ -42,6 +43,10 @@ private: // Public API functions:
   }
 
   std::optional<std::shared_ptr<EntityWrapper>> getFirstEntityByName(const std::string& name);
+
+  // Convenience method to get the first instance
+  std::shared_ptr<FilamentInstanceWrapper> getInstance();
+  std::vector<std::shared_ptr<FilamentInstanceWrapper>> getAssetInstances();
 
 private: // Internal state:
   std::shared_ptr<gltfio::FilamentAsset> _asset;
