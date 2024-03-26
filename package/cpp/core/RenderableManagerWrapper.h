@@ -46,9 +46,9 @@ public: // Public API
   void changeMaterialTextureMap(std::shared_ptr<EntityWrapper> entityWrapper, const std::string& materialName,
                                 std::shared_ptr<FilamentBuffer> textureBuffer, std::string textureFlags = "none");
 
-  void setCastShadow(bool castShadow, std::shared_ptr<EntityWrapper> entityWrapper);
+  void setCastShadow(std::shared_ptr<EntityWrapper> entityWrapper, bool castShadow);
 
-  void setReceiveShadow(bool receiveShadow, std::shared_ptr<EntityWrapper> entityWrapper);
+  void setReceiveShadow(std::shared_ptr<EntityWrapper> entityWrapper, bool receiveShadow);
 
   std::shared_ptr<EntityWrapper> createPlane(std::shared_ptr<MaterialWrapper> materialWrapper, double halfExtendX, double halfExtendY,
                                              double halfExtendZ);

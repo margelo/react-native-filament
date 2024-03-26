@@ -105,7 +105,7 @@ export function useModel({
 
     const root = engineAsset.getRoot()
     if (castShadow || prevCastShadowRef.current !== castShadow) {
-      renderableManager.setCastShadow(true, root)
+      renderableManager.setCastShadow(root, true)
     }
   }, [castShadow, engineAsset, entities, renderableManager])
 
@@ -116,7 +116,7 @@ export function useModel({
 
     const root = engineAsset.getRoot()
     if (receiveShadow || prevReceiveShadowRef.current !== receiveShadow) {
-      renderableManager.setReceiveShadow(true, root)
+      renderableManager.setReceiveShadow(root, true)
     }
   }, [receiveShadow, engineAsset, renderableManager])
 

@@ -57,13 +57,13 @@ export interface RenderableManager {
    * Changes whether or not the renderable casts shadows.
    * @default false
    **/
-  setCastShadow(castShadow: boolean, renderable: Entity): void
+  setCastShadow(renderable: Entity, castShadow: boolean): void
 
   /**
    * Changes whether or not the renderable can receive shadows.
    * @default false
    **/
-  setReceiveShadow(receiveShadow: boolean, renderable: Entity): void
+  setReceiveShadow(renderable: Entity, receiveShadow: boolean): void
 
   /**
    * Creates a plane with the material provided. Creates it at the 0,0,0 origin.

@@ -132,7 +132,7 @@ void RenderableManagerWrapper::startUpdateResourceLoading() {
   }
 }
 
-void RenderableManagerWrapper::setCastShadow(bool castShadow, std::shared_ptr<EntityWrapper> entityWrapper) {
+void RenderableManagerWrapper::setCastShadow(std::shared_ptr<EntityWrapper> entityWrapper, bool castShadow) {
   if (entityWrapper == nullptr) {
     throw new std::invalid_argument("Entity is null");
   }
@@ -142,7 +142,7 @@ void RenderableManagerWrapper::setCastShadow(bool castShadow, std::shared_ptr<En
   _renderableManager.setCastShadows(renderable, castShadow);
 }
 
-void RenderableManagerWrapper::setReceiveShadow(bool receiveShadow, std::shared_ptr<EntityWrapper> entityWrapper) {
+void RenderableManagerWrapper::setReceiveShadow(std::shared_ptr<EntityWrapper> entityWrapper, bool receiveShadow) {
   if (entityWrapper == nullptr) {
     throw new std::invalid_argument("Entity is null");
   }
@@ -188,7 +188,6 @@ std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(std::shared
       .boundingBox({{0, 0, 0}, {halfExtendX, halfExtendY, halfExtendZ}})
       .material(0, test)
       .geometry(0, RenderableManager::PrimitiveType::TRIANGLES, vertexBuffer, indexBuffer, 0, 6)
-      .receiveShadows(true)
       .build(*_engine, renderable);
 
   return std::make_shared<EntityWrapper>(renderable);
