@@ -34,6 +34,14 @@ HybridObject::~HybridObject() {
   _functionCache.clear();
 }
 
+std::string HybridObject::toString(jsi::Runtime& runtime) {
+  std::string result = std::string(_name) + " { ";
+  for (jsi::PropNameID& propNameId : getPropertyNames(runtime)) {
+    result += "\"" + propNameId.utf8(runtime) + "\", ";
+  }
+  return result + " }";
+}
+
 std::vector<jsi::PropNameID> HybridObject::getPropertyNames(facebook::jsi::Runtime& runtime) {
   std::unique_lock lock(_mutex);
   ensureInitialized();
@@ -79,6 +87,15 @@ jsi::Value HybridObject::get(facebook::jsi::Runtime& runtime, const facebook::js
                                                                    hybridFunction.parameterCount, hybridFunction.function);
     functionCache[name] = std::make_shared<jsi::Function>(std::move(function));
     return jsi::Value(runtime, *functionCache[name]);
+  }
+
+  if (name == "toString") {
+    return jsi::Function::createFromHostFunction(
+        runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0,
+        [=](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* args, size_t count) -> jsi::Value {
+          std::string stringRepresentation = this->toString(runtime);
+          return jsi::String::createFromUtf8(runtime, stringRepresentation);
+        });
   }
 
   return jsi::HostObject::get(runtime, propName);
