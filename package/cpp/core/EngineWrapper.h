@@ -38,12 +38,12 @@
 #include "TransformManagerWrapper.h"
 #include "ViewWrapper.h"
 #include "jsi/HybridObject.h"
+#include "threading/Dispatcher.h"
 #include <Choreographer.h>
 #include <FilamentBuffer.h>
 #include <camutils/Manipulator.h>
 #include <core/utils/ManipulatorWrapper.h>
 #include <utils/NameComponentManager.h>
-#include "Dispatcher.h"
 
 namespace margelo {
 

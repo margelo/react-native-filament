@@ -12,12 +12,12 @@
 #include <vector>
 
 #include "Choreographer.h"
-#include "Dispatcher.h"
 #include "FilamentBuffer.h"
 #include "FilamentView.h"
 #include "bullet/BulletWrapper.h"
 #include "jsi/HybridObject.h"
 #include "test/TestHybridObject.h"
+#include "threading/Dispatcher.h"
 #include <ReactCommon/CallInvoker.h>
 #include <jsi/jsi.h>
 
@@ -31,7 +31,7 @@ using namespace facebook;
 
 class FilamentProxy : public HybridObject {
 public:
-  explicit FilamentProxy(): HybridObject("FilamentProxy") { }
+  explicit FilamentProxy() : HybridObject("FilamentProxy") {}
 
 private:
   // Platform-specific implementations
@@ -58,7 +58,7 @@ public:
   virtual jsi::Runtime& getRuntime() = 0;
   virtual std::shared_ptr<react::CallInvoker> getCallInvoker() = 0;
 
- private:
+private:
   static constexpr auto TAG = "FilamentProxy";
 
 public:

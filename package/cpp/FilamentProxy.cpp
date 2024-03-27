@@ -3,20 +3,18 @@
 //
 
 #include "FilamentProxy.h"
-#include "JSDispatchQueue.h"
 #include <jsi/jsi.h>
 
 #include "jsi/Promise.h"
+#include "threading/WorkletContextDispatcher.h"
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
-#include "WorkletContextDispatcher.h"
 
 namespace margelo {
 
 using namespace facebook;
-
 
 void FilamentProxy::loadHybridMethods() {
   registerHybridMethod("loadAsset", &FilamentProxy::loadAssetAsync, this);
@@ -74,8 +72,9 @@ std::shared_ptr<TestHybridObject> FilamentProxy::createTestObject() {
 std::shared_ptr<EngineWrapper> FilamentProxy::createEngine() {
   Logger::log(TAG, "Creating Engine...");
   std::shared_ptr<Choreographer> choreographer = createChoreographer();
+  auto dispatcher = getUIDispatcher();
 
-  return std::make_shared<EngineWrapper>(choreographer, jsDispatchQueue);
+  return std::make_shared<EngineWrapper>(choreographer, dispatcher);
 }
 
 std::shared_ptr<BulletWrapper> FilamentProxy::createBullet() {
