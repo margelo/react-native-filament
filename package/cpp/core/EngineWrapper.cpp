@@ -40,7 +40,7 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
   _jsDispatchQueue = jsDispatchQueue;
   _engine = References<Engine>::adoptRef(Engine::create(), [jsDispatchQueue](Engine* engine) {
     // Make sure that the engine gets destroyed on the thread that it was created on (JS thread).
-    // It can happen that the engine gets cleaned up by Hardes (hermes GC) on a different thread.
+    // It can happen that the engine gets cleaned up by Hades (hermes GC) on a different thread.
     jsDispatchQueue->runOnJS([engine]() {
       Logger::log(TAG, "Destroying engine...");
       Engine::destroy(engine);

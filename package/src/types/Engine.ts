@@ -20,7 +20,7 @@ export interface Engine {
   setRenderCallback(callback: RenderCallback | undefined): void
 
   /**
-   * Given a @see FilamentBuffer (e.g. from a .glb file), load the asset into the engine.
+   * Given a {@linkcode FilamentBuffer} (e.g. from a .glb file), load the asset into the engine.
    */
   loadAsset(buffer: FilamentBuffer): FilamentAsset
 
