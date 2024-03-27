@@ -283,6 +283,7 @@ template <typename T> struct is_shared_ptr_to_host_object<std::shared_ptr<T>> : 
 template <typename T> struct JSIConverter<T, std::enable_if_t<is_shared_ptr_to_host_object<T>::value>> {
   using TPointee = typename T::element_type;
 
+#if DEBUG
   inline static std::string getFriendlyTypename() {
     std::string name = std::string(typeid(TPointee).name());
 #if __has_include(<cxxabi.h>)
@@ -299,8 +300,10 @@ template <typename T> struct JSIConverter<T, std::enable_if_t<is_shared_ptr_to_h
   inline static std::string invalidTypeErrorMessage(const std::string& typeDescription, const std::string& reason) {
     return "Cannot convert \"" + typeDescription + "\" to HostObject<" + getFriendlyTypename() + ">! " + reason;
   }
+#endif
 
   static T fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
+#if DEBUG
     if (arg.isUndefined()) {
       [[unlikely]];
       throw jsi::JSError(runtime, invalidTypeErrorMessage("undefined", "It is undefined!"));
@@ -310,19 +313,24 @@ template <typename T> struct JSIConverter<T, std::enable_if_t<is_shared_ptr_to_h
       std::string stringRepresentation = arg.toString(runtime).utf8(runtime);
       throw jsi::JSError(runtime, invalidTypeErrorMessage(stringRepresentation, "It is not an object!"));
     }
-    jsi::Object object = arg.asObject(runtime);
+#endif
+    jsi::Object object = arg.getObject(runtime);
+#if DEBUG
     if (!object.isHostObject<TPointee>(runtime)) {
       [[unlikely]];
       std::string stringRepresentation = arg.toString(runtime).utf8(runtime);
       throw jsi::JSError(runtime, invalidTypeErrorMessage(stringRepresentation, "It is a different HostObject<T>!"));
     }
+#endif
     return object.getHostObject<TPointee>(runtime);
   }
   static jsi::Value toJSI(jsi::Runtime& runtime, const T& arg) {
+#if DEBUG
     if (arg == nullptr) {
       [[unlikely]];
-      return jsi::Value::undefined();
+      throw jsi::JSError(runtime, "Cannot convert nullptr to HostObject<" + getFriendlyTypename() + ">!");
     }
+#endif
     return jsi::Object::createFromHostObject(runtime, arg);
   }
 };
