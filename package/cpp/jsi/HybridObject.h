@@ -56,6 +56,11 @@ public:
    */
   virtual void loadHybridMethods() = 0;
 
+  /**
+   * Get a string representation of this HostObject, useful for logging or debugging.
+   */
+  virtual std::string toString(jsi::Runtime& runtime);
+
 private:
   static constexpr auto TAG = "HybridObject";
   const char* _name = TAG;

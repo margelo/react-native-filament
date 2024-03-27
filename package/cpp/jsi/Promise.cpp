@@ -36,7 +36,7 @@ void Promise::resolve(jsi::Value&& result) {
 
 void Promise::reject(std::string message) {
   jsi::JSError error(runtime, message);
-  _resolver.call(runtime, error.value());
+  _rejecter.call(runtime, error.value());
 }
 
 } // namespace margelo

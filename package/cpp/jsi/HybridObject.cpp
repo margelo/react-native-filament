@@ -5,6 +5,7 @@
 #include "HybridObject.h"
 #include "JSIConverter.h"
 #include "Logger.h"
+#include <numeric>
 
 namespace margelo {
 
@@ -32,6 +33,16 @@ HybridObject::~HybridObject() {
   Logger::log(TAG, "(MEMORY) Deleting %s (#%i)... ❌", _name, _instanceId);
 #endif
   _functionCache.clear();
+}
+
+std::string HybridObject::toString(jsi::Runtime& runtime) {
+  std::string result = std::string(_name) + " { ";
+  std::vector<jsi::PropNameID> props = getPropertyNames(runtime);
+  for (size_t i = 0; i < props.size(); i++) {
+    auto suffix = i < props.size() - 1 ? ", " : " ";
+    result += "\"" + props[i].utf8(runtime) + "\"" + suffix;
+  }
+  return result + "}";
 }
 
 std::vector<jsi::PropNameID> HybridObject::getPropertyNames(facebook::jsi::Runtime& runtime) {
@@ -79,6 +90,15 @@ jsi::Value HybridObject::get(facebook::jsi::Runtime& runtime, const facebook::js
                                                                    hybridFunction.parameterCount, hybridFunction.function);
     functionCache[name] = std::make_shared<jsi::Function>(std::move(function));
     return jsi::Value(runtime, *functionCache[name]);
+  }
+
+  if (name == "toString") {
+    return jsi::Function::createFromHostFunction(
+        runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0,
+        [=](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* args, size_t count) -> jsi::Value {
+          std::string stringRepresentation = this->toString(runtime);
+          return jsi::String::createFromUtf8(runtime, stringRepresentation);
+        });
   }
 
   return jsi::HostObject::get(runtime, propName);
