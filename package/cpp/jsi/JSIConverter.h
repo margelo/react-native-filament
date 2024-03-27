@@ -165,7 +165,7 @@ template <typename TResult> struct JSIConverter<std::future<TResult>> {
                 std::string what = exception.what();
                 promise->reject(what);
               } catch (...) {
-                // the async function threw a non-std error, try getting it
+            // the async function threw a non-std error, try getting it
 #if __has_include(<cxxabi.h>)
                 std::string name = __cxxabiv1::__cxa_current_exception_type()->name();
 #else
