@@ -315,6 +315,7 @@ template <typename T> struct JSIConverter<T, std::enable_if_t<is_shared_ptr_to_h
   }
   static jsi::Value toJSI(jsi::Runtime& runtime, const T& arg) {
     if (arg == nullptr) {
+      [[unlikely]];
       return jsi::Value::undefined();
     }
     return jsi::Object::createFromHostObject(runtime, arg);
