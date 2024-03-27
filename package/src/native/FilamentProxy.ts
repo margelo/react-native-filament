@@ -3,6 +3,7 @@ import { FilamentNativeModule } from './FilamentNativeModule'
 import type { Engine } from '../types/Engine'
 import { FilamentView } from './FilamentViewTypes'
 import type { BulletAPI } from '../bullet/types/api'
+import type { IWorkletContext } from 'react-native-worklets-core'
 
 interface TestHybridObject {
   int: number
@@ -43,6 +44,25 @@ export interface TFilamentProxy {
    * @private
    */
   createBullet(): BulletAPI
+  /**
+   * Register the given Worklet Context so the Filament Runtime is prepared to use it.
+   * @param context An instance of a Worklet Context.
+   * @example
+   * ```ts
+   * // 1. Create Worklet Context
+   * export const WorkletRuntime = Worklets.createContext('FilamentRenderer')
+   *
+   * // 2. Register it to Filament
+   * FilamentProxy.registerWorkletContext(WorkletRuntime)
+   *
+   * // 3. From now on, perform all Filament calls and operations in WorkletRuntime
+   * Worklets.createRunInContextFn(() => {
+   *   const engine = FilamentProxy.createEngine()
+   *   // render...
+   * })()
+   * ```
+   */
+  registerWorkletContext: (context: IWorkletContext) => void
 }
 
 // Check if we are running on-device (JSI)
