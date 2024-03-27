@@ -11,9 +11,11 @@
 		0B65F1CE0E1D4DBB9E25D0BD /* default_env_ibl.ktx in Resources */ = {isa = PBXBuildFile; fileRef = 7A69823713B34897AF31CAF0 /* default_env_ibl.ktx */; };
 		0BF3FBAC90C441EAA712EE28 /* pijamas.glb in Resources */ = {isa = PBXBuildFile; fileRef = BE173E0B3B23427D84C92C91 /* pijamas.glb */; };
 		0C80B921A6F3F58F76C31292 /* libPods-FilamentExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-FilamentExample.a */; };
+		110E79106D01479997CC6BA9 /* TransparentShadowMaterial.mat in Resources */ = {isa = PBXBuildFile; fileRef = 3BB2032A44844768B124B936 /* TransparentShadowMaterial.mat */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		279D0EC5EF2A4391BD041C64 /* box.glb in Resources */ = {isa = PBXBuildFile; fileRef = 9241FD2E35834E6CBD6537B9 /* box.glb */; };
 		4F84B0412C634799AEFB1D85 /* eye_full_texture_left_blue.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 134904F01F7041DFA331FD27 /* eye_full_texture_left_blue.jpg */; };
 		59249653BB174593BEDB9F3D /* pengu.glb in Resources */ = {isa = PBXBuildFile; fileRef = 3E2439B417DA497E83EB1F05 /* pengu.glb */; };
 		7699B88040F8A987B510C191 /* libPods-FilamentExample-FilamentExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-FilamentExample-FilamentExampleTests.a */; };
@@ -24,9 +26,7 @@
 		BDF34253C8964E78A0DCEAD2 /* eye_full_texture_right_blue.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 70AE03ED5F1844C6832C78BC /* eye_full_texture_right_blue.jpg */; };
 		FB6EB495362843928953B887 /* coin.glb in Resources */ = {isa = PBXBuildFile; fileRef = CE7EC55D9D25492D8D6083D3 /* coin.glb */; };
 		FFD6B311C32A4A2580B289D7 /* default_env_skybox.ktx in Resources */ = {isa = PBXBuildFile; fileRef = A947E59D16164B19982D8EC8 /* default_env_skybox.ktx */; };
-		279D0EC5EF2A4391BD041C64 /* box.glb in Resources */ = {isa = PBXBuildFile; fileRef = 9241FD2E35834E6CBD6537B9 /* box.glb */; };
-		110E79106D01479997CC6BA9 /* TransparentShadowMaterial.mat in Resources */ = {isa = PBXBuildFile; fileRef = 3BB2032A44844768B124B936 /* TransparentShadowMaterial.mat */; };
-		802C0BA55C0C4E1FA3D6DDCB /* TransparentShadowMaterial.matc in Resources */ = {isa = PBXBuildFile; fileRef = 4C1D7A7E4C1C44709BABC727 /* TransparentShadowMaterial.matc */; };
+		C9D96BF6335F42C0A265B183 /* TransparentShadowMaterial.matc in Resources */ = {isa = PBXBuildFile; fileRef = 0409EC28377B45A494FCD7A6 /* TransparentShadowMaterial.matc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +54,7 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = FilamentExample/main.m; sourceTree = "<group>"; };
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-FilamentExample-FilamentExampleTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FilamentExample-FilamentExampleTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B4392A12AC88292D35C810B /* Pods-FilamentExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FilamentExample.debug.xcconfig"; path = "Target Support Files/Pods-FilamentExample/Pods-FilamentExample.debug.xcconfig"; sourceTree = "<group>"; };
+		3BB2032A44844768B124B936 /* TransparentShadowMaterial.mat */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = TransparentShadowMaterial.mat; path = ../assets/TransparentShadowMaterial.mat; sourceTree = "<group>"; };
 		3E2439B417DA497E83EB1F05 /* pengu.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = pengu.glb; path = ../assets/pengu.glb; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-FilamentExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FilamentExample.release.xcconfig"; path = "Target Support Files/Pods-FilamentExample/Pods-FilamentExample.release.xcconfig"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-FilamentExample-FilamentExampleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FilamentExample-FilamentExampleTests.debug.xcconfig"; path = "Target Support Files/Pods-FilamentExample-FilamentExampleTests/Pods-FilamentExample-FilamentExampleTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -62,14 +63,13 @@
 		7A69823713B34897AF31CAF0 /* default_env_ibl.ktx */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = default_env_ibl.ktx; path = ../assets/default_env_ibl.ktx; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = FilamentExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-FilamentExample-FilamentExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FilamentExample-FilamentExampleTests.release.xcconfig"; path = "Target Support Files/Pods-FilamentExample-FilamentExampleTests/Pods-FilamentExample-FilamentExampleTests.release.xcconfig"; sourceTree = "<group>"; };
+		9241FD2E35834E6CBD6537B9 /* box.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = box.glb; path = ../assets/box.glb; sourceTree = "<group>"; };
+		A947E59D16164B19982D8EC8 /* default_env_skybox.ktx */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = default_env_skybox.ktx; path = ../assets/default_env_skybox.ktx; sourceTree = "<group>"; };
 		BE173E0B3B23427D84C92C91 /* pijamas.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = pijamas.glb; path = ../assets/pijamas.glb; sourceTree = "<group>"; };
 		C4E5AB69D2B94D53A2EE3F93 /* chair.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = chair.glb; path = ../assets/chair.glb; sourceTree = "<group>"; };
 		CE7EC55D9D25492D8D6083D3 /* coin.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = coin.glb; path = ../assets/coin.glb; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		A947E59D16164B19982D8EC8 /* default_env_skybox.ktx */ = {isa = PBXFileReference; name = "default_env_skybox.ktx"; path = "../assets/default_env_skybox.ktx"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		9241FD2E35834E6CBD6537B9 /* box.glb */ = {isa = PBXFileReference; name = "box.glb"; path = "../assets/box.glb"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		3BB2032A44844768B124B936 /* TransparentShadowMaterial.mat */ = {isa = PBXFileReference; name = "TransparentShadowMaterial.mat"; path = "../assets/TransparentShadowMaterial.mat"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		4C1D7A7E4C1C44709BABC727 /* TransparentShadowMaterial.matc */ = {isa = PBXFileReference; name = "TransparentShadowMaterial.matc"; path = "../assets/TransparentShadowMaterial.matc"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		0409EC28377B45A494FCD7A6 /* TransparentShadowMaterial.matc */ = {isa = PBXFileReference; name = "TransparentShadowMaterial.matc"; path = "../assets/TransparentShadowMaterial.matc"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -179,7 +179,7 @@
 				A947E59D16164B19982D8EC8 /* default_env_skybox.ktx */,
 				9241FD2E35834E6CBD6537B9 /* box.glb */,
 				3BB2032A44844768B124B936 /* TransparentShadowMaterial.mat */,
-				4C1D7A7E4C1C44709BABC727 /* TransparentShadowMaterial.matc */,
+				0409EC28377B45A494FCD7A6 /* TransparentShadowMaterial.matc */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -302,7 +302,7 @@
 				FFD6B311C32A4A2580B289D7 /* default_env_skybox.ktx in Resources */,
 				279D0EC5EF2A4391BD041C64 /* box.glb in Resources */,
 				110E79106D01479997CC6BA9 /* TransparentShadowMaterial.mat in Resources */,
-				802C0BA55C0C4E1FA3D6DDCB /* TransparentShadowMaterial.matc in Resources */,
+				C9D96BF6335F42C0A265B183 /* TransparentShadowMaterial.matc in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
