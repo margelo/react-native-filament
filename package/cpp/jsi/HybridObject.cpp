@@ -5,6 +5,7 @@
 #include "HybridObject.h"
 #include "JSIConverter.h"
 #include "Logger.h"
+#include <numeric>
 
 namespace margelo {
 
@@ -36,10 +37,12 @@ HybridObject::~HybridObject() {
 
 std::string HybridObject::toString(jsi::Runtime& runtime) {
   std::string result = std::string(_name) + " { ";
-  for (jsi::PropNameID& propNameId : getPropertyNames(runtime)) {
-    result += "\"" + propNameId.utf8(runtime) + "\", ";
+  std::vector<jsi::PropNameID> props = getPropertyNames(runtime);
+  for (size_t i = 0; i < props.size(); i++) {
+    auto suffix = i < props.size() - 1 ? ", " : " ";
+    result += "\"" + props[i].utf8(runtime) + "\"" + suffix;
   }
-  return result + " }";
+  return result + "}";
 }
 
 std::vector<jsi::PropNameID> HybridObject::getPropertyNames(facebook::jsi::Runtime& runtime) {
