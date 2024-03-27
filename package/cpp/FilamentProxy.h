@@ -58,6 +58,9 @@ public:
   virtual jsi::Runtime& getRuntime() = 0;
   virtual std::shared_ptr<react::CallInvoker> getCallInvoker() = 0;
 
+ private:
+  static constexpr auto TAG = "FilamentProxy";
+
 public:
   void loadHybridMethods() override;
 };

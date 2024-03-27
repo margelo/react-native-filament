@@ -31,9 +31,11 @@ void FilamentProxy::loadHybridMethods() {
 
 #if HAS_WORKLETS
 void FilamentProxy::registerWorkletContext(std::shared_ptr<RNWorklet::JsiWorkletContext> context) {
+  Logger::log(TAG, "Registering WorkletContext " + context->getName() + "...");
   context->invokeOnWorkletThread([context](RNWorklet::JsiWorkletContext*, jsi::Runtime& contextRuntime) {
     std::shared_ptr<Dispatcher> dispatcher = std::make_shared<WorkletContextDispatcher>(context);
     PromiseFactory::install(contextRuntime, dispatcher);
+    Logger::log(TAG, "Successfully registered WorkletContext " + context->getName() + "!");
   });
 }
 #endif

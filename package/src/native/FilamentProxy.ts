@@ -46,6 +46,8 @@ export interface TFilamentProxy {
   createBullet(): BulletAPI
   /**
    * Register the given Worklet Context so the Filament Runtime is prepared to use it.
+   *
+   * Note: This function will not be available if react-native-worklets-core is not properly installed/linked.
    * @param context An instance of a Worklet Context.
    * @example
    * ```ts

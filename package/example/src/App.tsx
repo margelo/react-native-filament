@@ -8,6 +8,11 @@ import { FadeOut } from './FadeOut'
 import { ChangeMaterials } from './ChangeMaterials'
 import { CastShadow } from './CastShadow'
 import { MultipleInstances } from './MultipleInstances'
+import { Worklets } from 'react-native-worklets-core'
+import { FilamentProxy } from '../../src/native/FilamentProxy'
+
+const runtime = Worklets.createContext('FilamentRenderer')
+FilamentProxy.registerWorkletContext(runtime)
 
 function NavigationItem(props: { name: string; route: string }) {
   const navigation = useNavigation()
