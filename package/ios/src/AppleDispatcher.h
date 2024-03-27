@@ -17,9 +17,15 @@ public:
   explicit AppleDispatcher(dispatch_queue_t dispatchQueue) : _dispatchQueue(dispatchQueue) {}
 
 public:
-  void scheduleTrigger() override {
+  void runSync(std::function<void ()>&& function) override {
+    dispatch_sync(_dispatchQueue, ^{
+      function();
+    });
+  }
+
+  void runAsync(std::function<void ()>&& function) override {
     dispatch_async(_dispatchQueue, ^{
-      trigger();
+      function();
     });
   }
 

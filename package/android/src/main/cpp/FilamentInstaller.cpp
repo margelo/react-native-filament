@@ -3,6 +3,7 @@
 #include <fbjni/fbjni.h>
 #include <jni.h>
 #include <jsi/jsi.h>
+#include "CallInvokerDispatcher.h"
 
 namespace margelo {
 
@@ -15,7 +16,8 @@ void FilamentInstaller::install(jni::alias_ref<jni::JClass> clazz, jni::alias_re
   runtime.global().setProperty(runtime, "FilamentProxy", jsi::Object::createFromHostObject(runtime, filamentProxy));
 
   // PromiseFactory
-  margelo::PromiseFactory::install(runtime, callInvoker);
+  std::shared_ptr<Dispatcher> jsDispatcher = std::make_shared<CallInvokerDispatcher>(callInvoker);
+  margelo::PromiseFactory::install(runtime, jsDispatcher);
 }
 
 void FilamentInstaller::registerNatives() {

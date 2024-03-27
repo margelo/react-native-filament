@@ -20,8 +20,10 @@
 #include "test/TestHybridObject.h"
 #include <ReactCommon/CallInvoker.h>
 #include <jsi/jsi.h>
+
+#ifdef HAS_WORKLETS
 #include <react-native-worklets-core/WKTJsiWorkletContext.h>
-#include <react-native-worklets-core/WKTJsiWorklet.h>
+#endif
 
 namespace margelo {
 
@@ -29,7 +31,7 @@ using namespace facebook;
 
 class FilamentProxy : public HybridObject {
 public:
-  explicit FilamentProxy();
+  explicit FilamentProxy(): HybridObject("FilamentProxy") { }
 
 private:
   // Platform-specific implementations
@@ -48,14 +50,14 @@ private:
   std::future<std::shared_ptr<FilamentView>> findFilamentViewAsync(int id);
   std::shared_ptr<EngineWrapper> createEngine();
   std::shared_ptr<BulletWrapper> createBullet();
-  std::shared_ptr<RNWorklet::JsiWorkletContext> getWorkletContext();
+
+#if HAS_WORKLETS
+  void registerWorkletContext(std::shared_ptr<RNWorklet::JsiWorkletContext> context);
+#endif
 
 public:
   virtual jsi::Runtime& getRuntime() = 0;
   virtual std::shared_ptr<react::CallInvoker> getCallInvoker() = 0;
-
- private:
-  std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;
 
 public:
   void loadHybridMethods() override;

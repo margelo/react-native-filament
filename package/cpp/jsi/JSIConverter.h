@@ -141,14 +141,14 @@ template <typename TResult> struct JSIConverter<std::future<TResult>> {
     auto sharedFuture = std::make_shared<std::future<TResult>>(std::move(arg));
     return PromiseFactory::createPromise(
         runtime, [sharedFuture = std::move(sharedFuture)](jsi::Runtime& runtime, const std::shared_ptr<Promise>& promise,
-                                                          const std::shared_ptr<react::CallInvoker>& callInvoker) {
+                                                          const std::shared_ptr<Dispatcher>& dispatcher) {
           // Spawn new async thread to wait for the result
-          std::thread waiterThread([promise, &runtime, callInvoker, sharedFuture = std::move(sharedFuture)]() {
+          std::thread waiterThread([promise, &runtime, dispatcher, sharedFuture = std::move(sharedFuture)]() {
             // wait until the future completes. we are running on a background task here.
             sharedFuture->wait();
 
             // the async function completed successfully, resolve the promise on JS Thread
-            callInvoker->invokeAsync([&runtime, promise, sharedFuture]() {
+            dispatcher->runAsync([&runtime, promise, sharedFuture]() {
               try {
                 if constexpr (std::is_same_v<TResult, void>) {
                   // it's returning void, just return undefined to JS
