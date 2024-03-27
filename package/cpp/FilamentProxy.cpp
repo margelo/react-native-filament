@@ -72,9 +72,7 @@ std::shared_ptr<TestHybridObject> FilamentProxy::createTestObject() {
 std::shared_ptr<EngineWrapper> FilamentProxy::createEngine() {
   Logger::log(TAG, "Creating Engine...");
   std::shared_ptr<Choreographer> choreographer = createChoreographer();
-  auto dispatcher = getUIDispatcher();
-
-  return std::make_shared<EngineWrapper>(choreographer, dispatcher);
+  return std::make_shared<EngineWrapper>(choreographer, jsDispatchQueue);
 }
 
 std::shared_ptr<BulletWrapper> FilamentProxy::createBullet() {
