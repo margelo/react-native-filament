@@ -20,6 +20,8 @@
 #include "test/TestHybridObject.h"
 #include <ReactCommon/CallInvoker.h>
 #include <jsi/jsi.h>
+#include <react-native-worklets-core/WKTJsiWorkletContext.h>
+#include <react-native-worklets-core/WKTJsiWorklet.h>
 
 namespace margelo {
 
@@ -27,13 +29,14 @@ using namespace facebook;
 
 class FilamentProxy : public HybridObject {
 public:
-  explicit FilamentProxy() : HybridObject("FilamentProxy") {}
+  explicit FilamentProxy();
 
 private:
   // Platform-specific implementations
   virtual std::shared_ptr<FilamentBuffer> loadAsset(std::string path) = 0;
   virtual std::shared_ptr<FilamentView> findFilamentView(int id) = 0;
   virtual std::shared_ptr<Choreographer> createChoreographer() = 0;
+  virtual std::shared_ptr<Dispatcher> getFilamentRendererDispatcher() = 0;
   virtual std::shared_ptr<Dispatcher> getUIDispatcher() = 0;
   virtual std::shared_ptr<Dispatcher> getBackgroundDispatcher() = 0;
 
@@ -45,10 +48,14 @@ private:
   std::future<std::shared_ptr<FilamentView>> findFilamentViewAsync(int id);
   std::shared_ptr<EngineWrapper> createEngine();
   std::shared_ptr<BulletWrapper> createBullet();
+  std::shared_ptr<RNWorklet::JsiWorkletContext> getWorkletContext();
 
 public:
   virtual jsi::Runtime& getRuntime() = 0;
   virtual std::shared_ptr<react::CallInvoker> getCallInvoker() = 0;
+
+ private:
+  std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;
 
 public:
   void loadHybridMethods() override;

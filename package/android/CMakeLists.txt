@@ -17,6 +17,7 @@ endif ()
 find_package(ReactAndroid REQUIRED CONFIG)
 find_package(fbjni REQUIRED CONFIG)
 find_library(LOG_LIB log)
+find_package(react-native-worklets-core REQUIRED CONFIG)
 
 # Add react-native-filament sources
 add_library(
@@ -102,6 +103,7 @@ target_link_libraries(
         fbjni::fbjni # <-- fbjni
         GLESv3 # <-- OpenGL (Core)
         EGL # <-- OpenGL (EGL)
+        react-native-worklets-core::rnworklets # <-- react-native-worklets-core
 )
 
 # Filament (local CMake project as a git submodule)

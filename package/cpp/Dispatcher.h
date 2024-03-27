@@ -29,6 +29,14 @@ protected:
   }
 
 public:
+  void runAsyncNoAwait(std::function<void()>&& function) {
+    std::unique_lock lock(_mutex);
+    _jobs.push([function = std::move(function)]() {
+      function();
+    });
+    scheduleTrigger();
+  }
+
   template <typename T> std::future<T> runAsync(std::function<T()>&& function) {
     // 1. Create Promise that can be shared between this and dispatcher thread
     auto promise = std::make_shared<std::promise<T>>();

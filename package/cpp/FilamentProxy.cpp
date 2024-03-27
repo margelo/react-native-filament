@@ -16,12 +16,38 @@ namespace margelo {
 
 using namespace facebook;
 
+FilamentProxy::FilamentProxy(): HybridObject("FilamentProxy") {
+  std::weak_ptr<FilamentProxy> weakSelf = shared<FilamentProxy>();
+  auto runOnJS = [weakSelf](std::function<void()>&& f) {
+    // Run on React JS Runtime
+    auto self = weakSelf.lock();
+    if (self) {
+      self->getCallInvoker()->invokeAsync(std::move(f));
+    }
+  };
+  auto runOnWorklet = [weakSelf](std::function<void()>&& f) {
+    // Run on Filament Worklet Runtime
+    auto self = weakSelf.lock();
+    if (self) {
+      self->getFilamentRendererDispatcher()->runAsyncNoAwait(std::move(f));
+    }
+  };
+  // TODO: Get jsi::Runtime here!
+  jsi::Runtime* runtime = nullptr;
+  this->_workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("Filament", runtime, runOnJS, runOnWorklet);
+}
+
 void FilamentProxy::loadHybridMethods() {
   registerHybridMethod("loadAsset", &FilamentProxy::loadAssetAsync, this);
   registerHybridMethod("findFilamentView", &FilamentProxy::findFilamentViewAsync, this);
   registerHybridMethod("createTestObject", &FilamentProxy::createTestObject, this);
   registerHybridMethod("createEngine", &FilamentProxy::createEngine, this);
   registerHybridMethod("createBullet", &FilamentProxy::createBullet, this);
+  registerHybridGetter("workletContext", &FilamentProxy::getWorkletContext, this);
+}
+
+std::shared_ptr<RNWorklet::JsiWorkletContext> FilamentProxy::getWorkletContext() {
+  return _workletContext;
 }
 
 std::future<std::shared_ptr<FilamentBuffer>> FilamentProxy::loadAssetAsync(std::string path) {
