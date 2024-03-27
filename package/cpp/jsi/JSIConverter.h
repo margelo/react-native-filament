@@ -268,10 +268,18 @@ template <typename T> struct is_shared_ptr_to_host_object<std::shared_ptr<T>> : 
 
 template <typename T> struct JSIConverter<T, std::enable_if_t<is_shared_ptr_to_host_object<T>::value>> {
   static T fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
-    return arg.asObject(runtime).asHostObject<typename T::element_type>(runtime);
+    if (arg.isUndefined() || arg.isNull()) {
+      return nullptr;
+    } else {
+      return arg.asObject(runtime).asHostObject<typename T::element_type>(runtime);
+    }
   }
   static jsi::Value toJSI(jsi::Runtime& runtime, const T& arg) {
-    return jsi::Object::createFromHostObject(runtime, arg);
+    if (arg == nullptr) {
+      return jsi::Value::undefined();
+    } else {
+      return jsi::Object::createFromHostObject(runtime, arg);
+    }
   }
 };
 
