@@ -10,7 +10,6 @@
 #include "Choreographer.h"
 #include "FilamentAssetWrapper.h"
 #include "FilamentBuffer.h"
-#include "JSDispatchQueue.h"
 #include "RenderableManagerWrapper.h"
 #include "RendererWrapper.h"
 #include "SceneWrapper.h"
@@ -44,6 +43,7 @@
 #include <camutils/Manipulator.h>
 #include <core/utils/ManipulatorWrapper.h>
 #include <utils/NameComponentManager.h>
+#include "Dispatcher.h"
 
 namespace margelo {
 
@@ -56,7 +56,7 @@ using RenderCallback = std::function<void(double, double, double)>;
 
 class EngineWrapper : public HybridObject {
 public:
-  explicit EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<JSDispatchQueue> jsDispatchQueue);
+  explicit EngineWrapper(const std::shared_ptr<Choreographer>& choreographer, const std::shared_ptr<Dispatcher>& dispatcher);
 
   void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
 
@@ -94,7 +94,7 @@ private:
   std::shared_ptr<FilamentAssetWrapper> makeAssetWrapper(FilamentAsset* assetPtr);
 
 private:
-  std::shared_ptr<JSDispatchQueue> _jsDispatchQueue;
+  std::shared_ptr<Dispatcher> _dispatcher;
   std::shared_ptr<Engine> _engine;
   std::shared_ptr<SurfaceProvider> _surfaceProvider;
   std::shared_ptr<Listener> _surfaceListener;

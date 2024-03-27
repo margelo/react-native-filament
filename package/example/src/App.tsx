@@ -13,6 +13,13 @@ import { FilamentProxy } from '../../src/native/FilamentProxy'
 
 const runtime = Worklets.createContext('FilamentRenderer')
 FilamentProxy.registerWorkletContext(runtime)
+Worklets.createRunInContextFn(() => {
+  'worklet'
+  console.log('creating engine...')
+  const engine = FilamentProxy.createEngine()
+  console.log('created engine!')
+  console.log('engine: ' + engine)
+}, runtime)()
 
 function NavigationItem(props: { name: string; route: string }) {
   const navigation = useNavigation()

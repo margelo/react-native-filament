@@ -67,16 +67,19 @@ std::future<std::shared_ptr<FilamentView>> FilamentProxy::findFilamentViewAsync(
 }
 
 std::shared_ptr<TestHybridObject> FilamentProxy::createTestObject() {
+  Logger::log(TAG, "Creating TestObject...");
   return std::make_shared<TestHybridObject>();
 }
 
 std::shared_ptr<EngineWrapper> FilamentProxy::createEngine() {
+  Logger::log(TAG, "Creating Engine...");
   std::shared_ptr<Choreographer> choreographer = createChoreographer();
-  auto jsDispatchQueue = std::make_shared<JSDispatchQueue>(getCallInvoker());
+
   return std::make_shared<EngineWrapper>(choreographer, jsDispatchQueue);
 }
 
 std::shared_ptr<BulletWrapper> FilamentProxy::createBullet() {
+  Logger::log(TAG, "Creating Bullet...");
   return std::make_shared<BulletWrapper>();
 }
 

@@ -34,14 +34,14 @@
 
 namespace margelo {
 
-EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<JSDispatchQueue> jsDispatchQueue)
+EngineWrapper::EngineWrapper(const std::shared_ptr<Choreographer>& choreographer, const std::shared_ptr<Dispatcher>& dispatcher)
     : HybridObject("EngineWrapper") {
   // TODO: make the enum for the backend for the engine configurable
-  _jsDispatchQueue = jsDispatchQueue;
-  _engine = References<Engine>::adoptRef(Engine::create(), [jsDispatchQueue](Engine* engine) {
+  _dispatcher = dispatcher;
+  _engine = References<Engine>::adoptRef(Engine::create(), [dispatcher](Engine* engine) {
     // Make sure that the engine gets destroyed on the thread that it was created on (JS thread).
     // It can happen that the engine gets cleaned up by Hades (hermes GC) on a different thread.
-    jsDispatchQueue->runOnJS([engine]() {
+    dispatcher->runAsync([engine]() {
       Logger::log(TAG, "Destroying engine...");
       Engine::destroy(engine);
     });
@@ -139,11 +139,11 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
     setSurface(surface);
   }
 
-  auto queue = _jsDispatchQueue;
+  auto dispatcher = _dispatcher;
   std::weak_ptr<EngineWrapper> weakSelf = shared<EngineWrapper>();
   SurfaceProvider::Callback callback{.onSurfaceCreated =
-                                         [queue, weakSelf](std::shared_ptr<Surface> surface) {
-                                           queue->runOnJS([=]() {
+                                         [dispatcher, weakSelf](std::shared_ptr<Surface> surface) {
+                                           dispatcher->runAsync([=]() {
                                              auto sharedThis = weakSelf.lock();
                                              if (sharedThis != nullptr) {
                                                Logger::log(TAG, "Initializing surface...");
@@ -152,8 +152,8 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
                                            });
                                          },
                                      .onSurfaceSizeChanged =
-                                         [queue, weakSelf](std::shared_ptr<Surface> surface, int width, int height) {
-                                           queue->runOnJS([=]() {
+                                         [dispatcher, weakSelf](std::shared_ptr<Surface> surface, int width, int height) {
+                                           dispatcher->runAsync([=]() {
                                              auto sharedThis = weakSelf.lock();
                                              if (sharedThis != nullptr) {
                                                Logger::log(TAG, "Updating Surface size...");
@@ -163,7 +163,7 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
                                            });
                                          },
                                      .onSurfaceDestroyed =
-                                         [queue, weakSelf](std::shared_ptr<Surface> surface) {
+                                         [dispatcher, weakSelf](std::shared_ptr<Surface> surface) {
                                            // Note: When the surface gets destroyed we immediately need to destroy the swapchain
                                            // and flush to avoid flickering issues.
                                            auto sharedThis = weakSelf.lock();
