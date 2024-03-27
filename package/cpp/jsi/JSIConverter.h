@@ -16,6 +16,10 @@
 #include <type_traits>
 #include <unordered_map>
 
+#if __has_include(<cxxabi.h>)
+#include <cxxabi.h>
+#endif
+
 namespace margelo {
 
 using namespace facebook;
@@ -140,14 +144,15 @@ template <typename TResult> struct JSIConverter<std::future<TResult>> {
                                                           const std::shared_ptr<react::CallInvoker>& callInvoker) {
           // Spawn new async thread to wait for the result
           std::thread waiterThread([promise, &runtime, callInvoker, sharedFuture = std::move(sharedFuture)]() {
-            try {
-              // wait until the future completes. we are running on a background task here.
-              sharedFuture->wait();
+            // wait until the future completes. we are running on a background task here.
+            sharedFuture->wait();
 
-              // the async function completed successfully, resolve the promise on JS Thread
-              callInvoker->invokeAsync([&runtime, promise, sharedFuture]() {
+            // the async function completed successfully, resolve the promise on JS Thread
+            callInvoker->invokeAsync([&runtime, promise, sharedFuture]() {
+              try {
                 if constexpr (std::is_same_v<TResult, void>) {
                   // it's returning void, just return undefined to JS
+                  sharedFuture->get();
                   promise->resolve(jsi::Value::undefined());
                 } else {
                   // it's returning a custom type, convert it to a jsi::Value
@@ -155,11 +160,15 @@ template <typename TResult> struct JSIConverter<std::future<TResult>> {
                   jsi::Value jsResult = JSIConverter<TResult>::toJSI(runtime, result);
                   promise->resolve(std::move(jsResult));
                 }
-              });
-            } catch (std::exception& exception) {
-              // the async function threw an error, reject the promise on JS Thread
-              callInvoker->invokeAsync([promise, exception = std::move(exception)]() { promise->reject(exception.what()); });
-            }
+              } catch (const std::exception& exception) {
+                // the async function threw an error, reject the promise on JS Thread
+                std::string what = exception.what();
+                promise->reject(what);
+              } catch (...) {
+                // the async function threw a non-std error, try getting it
+                promise->reject("Unknown non-std exception!");
+              }
+            });
           });
           waiterThread.detach();
         });
@@ -267,10 +276,47 @@ template <typename T> struct is_shared_ptr_to_host_object : std::false_type {};
 template <typename T> struct is_shared_ptr_to_host_object<std::shared_ptr<T>> : std::is_base_of<jsi::HostObject, T> {};
 
 template <typename T> struct JSIConverter<T, std::enable_if_t<is_shared_ptr_to_host_object<T>::value>> {
+  using TPointee = typename T::element_type;
+
+  inline static std::string getFriendlyTypename() {
+    std::string name = std::string(typeid(TPointee).name());
+#if __has_include(<cxxabi.h>)
+    int status = 0;
+    char* demangled_name = abi::__cxa_demangle(name.c_str(), NULL, NULL, &status);
+    if (status == 0) {
+      name = demangled_name;
+      std::free(demangled_name);
+    }
+#endif
+    return name;
+  }
+
+  inline static std::string invalidTypeErrorMessage(const std::string& typeDescription, const std::string& reason) {
+    return "Cannot convert \"" + typeDescription + "\" to HostObject<" + getFriendlyTypename() + ">! " + reason;
+  }
+
   static T fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
-    return arg.asObject(runtime).asHostObject<typename T::element_type>(runtime);
+    if (arg.isUndefined()) {
+      [[unlikely]];
+      throw jsi::JSError(runtime, invalidTypeErrorMessage("undefined", "It is undefined!"));
+    }
+    if (!arg.isObject()) {
+      [[unlikely]];
+      std::string stringRepresentation = arg.toString(runtime).utf8(runtime);
+      throw jsi::JSError(runtime, invalidTypeErrorMessage(stringRepresentation, "It is not an object!"));
+    }
+    jsi::Object object = arg.asObject(runtime);
+    if (!object.isHostObject<TPointee>(runtime)) {
+      [[unlikely]];
+      std::string stringRepresentation = arg.toString(runtime).utf8(runtime);
+      throw jsi::JSError(runtime, invalidTypeErrorMessage(stringRepresentation, "It is a different HostObject<T>!"));
+    }
+    return object.getHostObject<TPointee>(runtime);
   }
   static jsi::Value toJSI(jsi::Runtime& runtime, const T& arg) {
+    if (arg == nullptr) {
+      return jsi::Value::undefined();
+    }
     return jsi::Object::createFromHostObject(runtime, arg);
   }
 };
