@@ -5,7 +5,6 @@
 #include "HybridObject.h"
 #include "JSIConverter.h"
 #include "Logger.h"
-#include <numeric>
 
 namespace margelo {
 
