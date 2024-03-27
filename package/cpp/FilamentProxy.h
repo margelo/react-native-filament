@@ -38,7 +38,6 @@ private:
   virtual std::shared_ptr<FilamentBuffer> loadAsset(std::string path) = 0;
   virtual std::shared_ptr<FilamentView> findFilamentView(int id) = 0;
   virtual std::shared_ptr<Choreographer> createChoreographer() = 0;
-  virtual std::shared_ptr<Dispatcher> getFilamentRendererDispatcher() = 0;
   virtual std::shared_ptr<Dispatcher> getUIDispatcher() = 0;
   virtual std::shared_ptr<Dispatcher> getBackgroundDispatcher() = 0;
 
