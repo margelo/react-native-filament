@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Dispatcher.h"
+#include "threading/Dispatcher.h"
 #include <fbjni/fbjni.h>
 
 namespace margelo {
@@ -18,8 +18,8 @@ public:
 
 public:
   void scheduleTrigger();
-  void runAsync(std::function<void ()>&& function) override;
-  void runSync(std::function<void ()>&& function) override;
+  void runAsync(std::function<void()> &&function) override;
+  void runSync(std::function<void()> &&function) override;
 
 private:
   void trigger();
@@ -28,7 +28,7 @@ private:
   friend HybridBase;
   jni::global_ref<JDispatcher::javaobject> _javaPart;
 
- private:
+private:
   std::queue<std::function<void()>> _jobs;
   std::recursive_mutex _mutex;
 
@@ -37,8 +37,9 @@ private:
   static auto constexpr kJavaDescriptor = "Lcom/margelo/filament/Dispatcher;";
 
 private:
-  explicit JDispatcher(const jni::alias_ref<jhybridobject>& javaThis);
-  static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> javaThis);
+  explicit JDispatcher(const jni::alias_ref<jhybridobject> &javaThis);
+  static jni::local_ref<jhybriddata>
+  initHybrid(jni::alias_ref<jhybridobject> javaThis);
 };
 
 } // namespace margelo
