@@ -2,7 +2,18 @@ import * as React from 'react'
 import { useEffect, useRef } from 'react'
 
 import { Platform, StyleSheet, View } from 'react-native'
-import { Filament, useEngine, Float3, useRenderCallback, useAsset, useModel, useRenderableManager } from 'react-native-filament'
+import {
+  Filament,
+  useEngine,
+  Float3,
+  useRenderCallback,
+  useAsset,
+  useModel,
+  useRenderableManager,
+  useView,
+  useCamera,
+  useScene,
+} from 'react-native-filament'
 
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',
@@ -30,6 +41,9 @@ const far = 1000
 export function CastShadow() {
   const engine = useEngine()
   const renderableManager = useRenderableManager(engine)
+  const view = useView(engine)
+  const camera = useCamera(engine)
+  const scene = useScene(engine)
 
   const pengu = useModel({ engine: engine, path: penguModelPath, castShadow: true, receiveShadow: true })
 
@@ -42,11 +56,11 @@ export function CastShadow() {
 
     // Create a directional light for supporting shadows
     const directionalLight = engine.createLightEntity('directional', 6500, 10000, 0, -1, 0, true)
-    engine.getScene().addEntity(directionalLight)
+    scene.addEntity(directionalLight)
     return () => {
       // TODO: Remove directionalLight from scene
     }
-  }, [engine, light])
+  }, [engine, light, scene])
   //#endregion
 
   //#region Setup shadow plane
@@ -79,20 +93,18 @@ export function CastShadow() {
     // Transform it
     engine.setEntityPosition(shadowPlane, [0, -1, 0], true)
 
-    engine.getScene().addEntity(shadowPlane)
-  }, [engine, renderableManager, shadowMaterialBuffer, shadowPlane])
+    scene.addEntity(shadowPlane)
+  }, [engine, renderableManager, scene, shadowMaterialBuffer, shadowPlane])
   //#endregion
 
   const prevAspectRatio = useRef(0)
   const penguAnimator = pengu.state === 'loaded' ? pengu.animator : undefined
   const penguEntity = pengu.state === 'loaded' ? pengu.asset.getRoot() : undefined
   useRenderCallback(engine, (_timestamp, _startTime, passedSeconds) => {
-    const view = engine.getView()
     const aspectRatio = view.aspectRatio
     if (prevAspectRatio.current !== aspectRatio) {
       prevAspectRatio.current = aspectRatio
       // Setup camera lens:
-      const camera = engine.getCamera()
       camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
     }
 
@@ -102,7 +114,7 @@ export function CastShadow() {
       engine.setEntityPosition(penguEntity, [0, 0.45, 0], false)
     }
 
-    engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
+    camera.lookAt(cameraPosition, cameraTarget, cameraUp)
   })
 
   return (
