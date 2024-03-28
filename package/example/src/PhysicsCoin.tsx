@@ -11,6 +11,9 @@ import {
   useWorld,
   useRigidBody,
   useStaticPlaneShape,
+  useView,
+  useCamera,
+  useScene,
 } from 'react-native-filament'
 import { getPath } from './getPath'
 import { useCoin } from './useCoin'
@@ -28,6 +31,9 @@ const far = 1000
 export function PhysicsCoin() {
   const engine = useEngine()
   const world = useWorld(0, -9, 0)
+  const view = useView(engine)
+  const camera = useCamera(engine)
+  const scene = useScene(engine)
 
   // Create an invisible floor:
   const floorShape = useStaticPlaneShape(0, 1, 0, 0)
@@ -71,20 +77,18 @@ export function PhysicsCoin() {
 
     // Create a directional light for supporting shadows
     const directionalLight = engine.createLightEntity('directional', 6500, 10000, 0, -1, 0, true)
-    engine.getScene().addEntity(directionalLight)
+    scene.addEntity(directionalLight)
     return () => {
       // TODO: Remove directionalLight from scene
     }
-  }, [engine, light])
+  }, [engine, light, scene])
 
   const prevAspectRatio = useRef(0)
   useRenderCallback(engine, (_timestamp, _startTime, passedSeconds) => {
-    const view = engine.getView()
     const aspectRatio = view.aspectRatio
     if (prevAspectRatio.current !== aspectRatio) {
       prevAspectRatio.current = aspectRatio
       // Setup camera lens:
-      const camera = engine.getCamera()
       camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
     }
 
@@ -102,7 +106,7 @@ export function PhysicsCoin() {
       // }
     }
 
-    engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
+    camera.lookAt(cameraPosition, cameraTarget, cameraUp)
   })
 
   return (

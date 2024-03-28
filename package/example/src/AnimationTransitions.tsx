@@ -3,7 +3,7 @@ import * as React from 'react'
 import { useEffect, useMemo, useRef } from 'react'
 
 import { Button, Platform, ScrollView, StyleSheet, View } from 'react-native'
-import { Filament, useEngine, Float3, useRenderCallback, useAsset, useModel } from 'react-native-filament'
+import { Filament, useEngine, Float3, useRenderCallback, useAsset, useModel, useView, useCamera, useScene } from 'react-native-filament'
 
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',
@@ -32,6 +32,9 @@ const animationInterpolationTime = 5
 
 export function AnimationTransitions() {
   const engine = useEngine()
+  const view = useView(engine)
+  const camera = useCamera(engine)
+  const scene = useScene(engine)
 
   const pengu = useModel({ engine: engine, path: penguModelPath })
   const light = useAsset({ path: indirectLightPath })
@@ -56,24 +59,22 @@ export function AnimationTransitions() {
 
     // Create a directional light for supporting shadows
     const directionalLight = engine.createLightEntity('directional', 6500, 10000, 0, -1, 0, true)
-    engine.getScene().addEntity(directionalLight)
+    scene.addEntity(directionalLight)
     return () => {
       // TODO: Remove directionalLight from scene
     }
-  }, [engine, light])
+  }, [engine, light, scene])
 
   const prevAspectRatio = useRef(0)
   useRenderCallback(engine, (_timestamp, _startTime, passedSeconds) => {
-    const view = engine.getView()
     const aspectRatio = view.aspectRatio
     if (prevAspectRatio.current !== aspectRatio) {
       prevAspectRatio.current = aspectRatio
       // Setup camera lens:
-      const camera = engine.getCamera()
       camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
     }
 
-    engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
+    camera.lookAt(cameraPosition, cameraTarget, cameraUp)
 
     if (pengu.state !== 'loaded' || pirateHatAnimator == null) {
       return
