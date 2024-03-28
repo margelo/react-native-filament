@@ -21,6 +21,11 @@ public:
 
   void loadHybridMethods() override;
 
+  // Internal only
+  FilamentInstance* getInstance() {
+    return _instance;
+  }
+
 private: // Public JS API
   std::vector<std::shared_ptr<EntityWrapper>> getEntities();
   std::shared_ptr<EntityWrapper> getRoot();

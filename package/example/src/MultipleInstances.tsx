@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef } from 'react'
 import { Platform, StyleSheet, View } from 'react-native'
-import { Filament, useAsset, useEngine, useModel, useRenderCallback } from 'react-native-filament'
+import { Filament, Float3, useAsset, useEngine, useModel, useRenderCallback } from 'react-native-filament'
 
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',
