@@ -40,6 +40,10 @@ public: // Public API
    */
   void setAssetEntitiesOpacity(std::shared_ptr<FilamentAssetWrapper> asset, double opacity);
 
+  void setInstanceWrapperEntitiesOpacity(std::shared_ptr<FilamentInstanceWrapper> instanceWrapper, double opacity);
+
+  void setInstanceEntitiesOpacity(FilamentInstance* instance, double opacity);
+
   /**
    * Will select the first material instance from the entity. Will set the baseColorMap parameter to the given textureBuffer.
    */
