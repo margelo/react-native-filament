@@ -19,6 +19,7 @@ void RenderableManagerWrapper::loadHybridMethods() {
   registerHybridMethod("getMaterialInstanceAt", &RenderableManagerWrapper::getMaterialInstanceAt, this);
   registerHybridMethod("setMaterialInstanceAt", &RenderableManagerWrapper::setMaterialInstanceAt, this);
   registerHybridMethod("setAssetEntitiesOpacity", &RenderableManagerWrapper::setAssetEntitiesOpacity, this);
+  registerHybridMethod("setInstanceEntitiesOpacity", &RenderableManagerWrapper::setInstanceWrapperEntitiesOpacity, this);
   registerHybridMethod("changeMaterialTextureMap", &RenderableManagerWrapper::changeMaterialTextureMap, this);
   registerHybridMethod("setCastShadow", &RenderableManagerWrapper::setCastShadow, this);
   registerHybridMethod("setReceiveShadow", &RenderableManagerWrapper::setReceiveShadow, this);
@@ -42,13 +43,31 @@ std::shared_ptr<MaterialInstanceWrapper> RenderableManagerWrapper::getMaterialIn
 
 void RenderableManagerWrapper::setAssetEntitiesOpacity(std::shared_ptr<FilamentAssetWrapper> asset, double opacity) {
   std::shared_ptr<FilamentAsset> fAsset = asset->getAsset();
-  size_t entityCount = fAsset->getEntityCount();
+  size_t instanceCount = fAsset->getAssetInstanceCount();
+  FilamentInstance** instances = fAsset->getAssetInstances();
+  for (size_t i = 0; i < instanceCount; ++i) {
+    FilamentInstance* instance = instances[i];
+    setInstanceEntitiesOpacity(instance, opacity);
+  }
+}
+
+void RenderableManagerWrapper::setInstanceWrapperEntitiesOpacity(std::shared_ptr<FilamentInstanceWrapper> instanceWrapper, double opacity) {
+  FilamentInstance* filamentInstance = instanceWrapper->getInstance();
+  setInstanceEntitiesOpacity(filamentInstance, opacity);
+}
+
+void RenderableManagerWrapper::setInstanceEntitiesOpacity(FilamentInstance* instance, double opacity) {
+  size_t entityCount = instance->getEntityCount();
 
   // Get the pointer to the first entity
-  const Entity* entities = fAsset->getRenderableEntities();
+  const Entity* entities = instance->getEntities();
 
   for (size_t i = 0; i < entityCount; ++i) {
     Entity entity = entities[i];
+    if (!_renderableManager.hasComponent(entity)) {
+      continue;
+    }
+
     RenderableManager::Instance renderable = _renderableManager.getInstance(entity);
     size_t primitiveCount = _renderableManager.getPrimitiveCount(renderable);
     for (size_t j = 0; j < primitiveCount; ++j) {

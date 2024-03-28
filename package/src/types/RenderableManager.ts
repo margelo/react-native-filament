@@ -1,6 +1,7 @@
 import { FilamentBuffer } from '../native/FilamentBuffer'
 import { Entity } from './Entity'
 import { FilamentAsset } from './FilamentAsset'
+import { FilamentInstance } from './FilamentInstance'
 import { Material } from './Material'
 import { MaterialInstance } from './MaterialInstance'
 
@@ -45,8 +46,16 @@ export interface RenderableManager {
   /**
    * Convenience method to apply the given opacity to every material of all the asset's entities.
    * Prefer to use this method over `getMaterialInstanceAt` and `setOpacity` for performance reasons.
+   * Note: This will be applied to all instances of the asset in case its an instanced asset.
+   * If you need to control the opacity of each instance separately, see {@linkcode setInstanceEntitiesOpacity}
    */
   setAssetEntitiesOpacity(asset: FilamentAsset, opacity: number): void
+
+  /**
+   * Convenience method to apply the given opacity to every material of all the instances's entities.
+   * Prefer to use this method over `getMaterialInstanceAt` and `setOpacity` for performance reasons.
+   */
+  setInstanceEntitiesOpacity(instance: FilamentInstance, opacity: number): void
 
   /**
    * Sets the baseColorMap parameter to the given textureBuffer.
