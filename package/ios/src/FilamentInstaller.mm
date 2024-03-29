@@ -14,7 +14,11 @@
 #import <React/RCTBridge+Private.h>
 #import <React/RCTBridge.h>
 
+#import "threading/Dispatcher.h"
+#import "threading/CallInvokerDispatcher.h"
+
 using namespace facebook;
+using namespace margelo;
 
 // This is defined in RCTCxxBridge.mm, and we are technically using a private API here.
 @interface RCTCxxBridge (CallInvoker)
