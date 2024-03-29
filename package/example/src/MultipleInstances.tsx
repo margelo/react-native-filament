@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef } from 'react'
 import { Platform, StyleSheet, View } from 'react-native'
-import { Filament, useAsset, useEngine, useModel, useRenderCallback } from 'react-native-filament'
+import { Filament, Float3, useAsset, useCamera, useEngine, useModel, useRenderCallback, useScene, useView } from 'react-native-filament'
 
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',
@@ -22,6 +22,9 @@ const far = 1000
 
 export function MultipleInstances() {
   const engine = useEngine()
+  const view = useView(engine)
+  const camera = useCamera(engine)
+  const scene = useScene(engine)
 
   //#region Setup lights
   const light = useAsset({ path: indirectLightPath })
@@ -63,9 +66,9 @@ export function MultipleInstances() {
       // Move the instance
       engine.setEntityPosition(root!, [x, y, z], true)
 
-      engine.getScene().addEntity(root!)
+      scene.addEntity(root!)
     }
-  }, [engine, penguAsset])
+  }, [engine, penguAsset, scene])
 
   const allAnimators = useMemo(() => {
     if (penguAsset == null) return undefined
@@ -75,13 +78,12 @@ export function MultipleInstances() {
   }, [penguAsset])
 
   const prevAspectRatio = useRef(0)
+
   useRenderCallback(engine, (_timestamp, _startTime, passedSeconds) => {
-    const view = engine.getView()
     const aspectRatio = view.aspectRatio
     if (prevAspectRatio.current !== aspectRatio) {
       prevAspectRatio.current = aspectRatio
       // Setup camera lens:
-      const camera = engine.getCamera()
       camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
     }
 
@@ -91,7 +93,7 @@ export function MultipleInstances() {
       animator?.updateBoneMatrices()
     })
 
-    engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
+    camera.lookAt(cameraPosition, cameraTarget, cameraUp)
   })
 
   return (

@@ -75,7 +75,7 @@ export function useModel({
 
   const engineAsset = useMemo(() => {
     if (asset == null) return undefined
-    if (instanceCount == null || instanceCount == 1) {
+    if (instanceCount == null || instanceCount === 1) {
       return engine.loadAsset(asset)
     } else {
       return engine.loadInstancedAsset(asset, instanceCount)

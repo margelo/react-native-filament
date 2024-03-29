@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "AABBWrapper.h"
 #include "AnimatorWrapper.h"
 #include "jsi/HybridObject.h"
 #include "utils/EntityWrapper.h"
@@ -21,6 +22,11 @@ public:
 
   void loadHybridMethods() override;
 
+  // Internal only
+  FilamentInstance* getInstance() {
+    return _instance;
+  }
+
 private: // Public JS API
   std::vector<std::shared_ptr<EntityWrapper>> getEntities();
   std::shared_ptr<EntityWrapper> getRoot();
@@ -33,6 +39,7 @@ private: // Public JS API
    * individual instances.
    */
   std::shared_ptr<AnimatorWrapper> getAnimator();
+  std::shared_ptr<AABBWrapper> getBoundingBox();
 
 private:
   FilamentInstance* _instance;
