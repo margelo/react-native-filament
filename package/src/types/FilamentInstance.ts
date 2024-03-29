@@ -1,3 +1,4 @@
+import { AABB } from './AABB'
 import { Animator } from './Animator'
 import { Entity } from './Entity'
 
@@ -12,4 +13,5 @@ export interface FilamentInstance {
   getEntities(): Entity[]
   getRoot(): Entity
   getAnimator(): Animator
+  getBoundingBox(): AABB
 }
