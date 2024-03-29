@@ -21,8 +21,8 @@ import {
 } from 'react-native-filament'
 
 const modelPath = Platform.select({
-  android: 'custom/pengu.glb',
-  ios: 'pengu.glb',
+  android: 'custom/coin.glb',
+  ios: 'coin.glb',
 })!
 
 const indirectLightPath = Platform.select({
