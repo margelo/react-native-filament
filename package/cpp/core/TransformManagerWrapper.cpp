@@ -14,6 +14,7 @@ void TransformManagerWrapper::loadHybridMethods() {
   registerHybridMethod("openLocalTransformTransaction", &TransformManagerWrapper::openLocalTransformTransaction, this);
   registerHybridMethod("commitLocalTransformTransaction", &TransformManagerWrapper::commitLocalTransformTransaction, this);
   registerHybridMethod("setTransform", &TransformManagerWrapper::setTransform, this);
+  registerHybridMethod("createIdentityMatrix", &TransformManagerWrapper::createIdentityMatrix, this);
 }
 
 std::shared_ptr<TMat44Wrapper> TransformManagerWrapper::getTransform(std::shared_ptr<EntityWrapper> entity) {
@@ -57,6 +58,10 @@ void TransformManagerWrapper::setTransform(std::shared_ptr<EntityWrapper> entity
   const math::mat4f& mat = transform->getMat();
   EntityInstance<filament::TransformManager> entityInstance = _transformManager.getInstance(entity);
   _transformManager.setTransform(entityInstance, mat);
+}
+
+std::shared_ptr<TMat44Wrapper> TransformManagerWrapper::createIdentityMatrix() {
+  return std::make_shared<TMat44Wrapper>(math::mat4f::scaling(1));
 }
 
 } // namespace margelo

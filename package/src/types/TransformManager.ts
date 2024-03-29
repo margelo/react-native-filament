@@ -89,4 +89,9 @@ export interface TransformManager {
    *            consider using openLocalTransformTransaction() / commitLocalTransformTransaction().
    */
   setTransform(entity: Entity, transform: Mat4): void
+
+  /**
+   * Creates a new identity matrix.
+   */
+  createIdentityMatrix(): Mat4
 }

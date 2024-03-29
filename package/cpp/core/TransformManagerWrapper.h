@@ -26,6 +26,7 @@ private:
   void openLocalTransformTransaction();
   void commitLocalTransformTransaction();
   void setTransform(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<TMat44Wrapper> transform);
+  std::shared_ptr<TMat44Wrapper> createIdentityMatrix();
 
 private:
   filament::TransformManager& _transformManager;
