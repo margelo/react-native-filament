@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 /** @noinspection JavaJniMissingFunction*/
@@ -45,9 +46,10 @@ class FilamentProxy {
         mHybridData = initHybrid(runtimePointer, (CallInvokerHolderImpl) callInvokerHolder);
         reactContext = context;
 
+        Executor renderThread = new LooperExecutor("FilamentRenderer");
+        renderThreadDispatcher = new Dispatcher(renderThread);
         uiThreadDispatcher = new Dispatcher(ContextCompat.getMainExecutor(context));
         backgroundThreadDispatcher = new Dispatcher(Executors.newCachedThreadPool());
-        renderThreadDispatcher = new Dispatcher(Executors.newSingleThreadExecutor());
     }
 
     /** @noinspection unused*/
