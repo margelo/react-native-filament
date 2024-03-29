@@ -23,6 +23,9 @@ public:
 private:
   std::shared_ptr<TMat44Wrapper> getTransform(std::shared_ptr<EntityWrapper> entity);
   std::shared_ptr<TMat44Wrapper> getWorldTransform(std::shared_ptr<EntityWrapper> entity);
+  void openLocalTransformTransaction();
+  void commitLocalTransformTransaction();
+  void setTransform(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<TMat44Wrapper> transform);
 
 private:
   filament::TransformManager& _transformManager;
