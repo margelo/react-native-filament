@@ -45,26 +45,21 @@ export interface TFilamentProxy {
    */
   createBullet(): BulletAPI
   /**
-   * Register the given Worklet Context so the Filament Runtime is prepared to use it.
+   * Get the Worklet context used for Rendering to Filament.
    *
-   * Note: This function will not be available if react-native-worklets-core is not properly installed/linked.
-   * @param context An instance of a Worklet Context.
    * @example
    * ```ts
-   * // 1. Create Worklet Context
-   * export const WorkletRuntime = Worklets.createContext('FilamentRenderer')
+   * // 1. Get Render-Thread Worklet Context
+   * const context = FilamentProxy.getWorkletContext()
    *
-   * // 2. Register it to Filament
-   * FilamentProxy.registerWorkletContext(WorkletRuntime)
-   *
-   * // 3. From now on, perform all Filament calls and operations in WorkletRuntime
+   * // 2. From now on, perform all Filament calls and operations in `context`
    * Worklets.createRunInContextFn(() => {
    *   const engine = FilamentProxy.createEngine()
    *   // render...
-   * })()
+   * }, context)()
    * ```
    */
-  registerWorkletContext: (context: IWorkletContext) => void
+  getWorkletContext: () => IWorkletContext
 }
 
 // Check if we are running on-device (JSI)

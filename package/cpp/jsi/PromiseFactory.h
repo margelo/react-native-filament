@@ -11,7 +11,7 @@
 #include <ReactCommon/CallInvoker.h>
 #include <jsi/jsi.h>
 #include <memory>
-#include "Dispatcher.h"
+#include "threading/Dispatcher.h"
 
 namespace margelo {
 

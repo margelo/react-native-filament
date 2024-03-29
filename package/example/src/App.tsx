@@ -11,15 +11,19 @@ import { MultipleInstances } from './MultipleInstances'
 import { Worklets } from 'react-native-worklets-core'
 import { FilamentProxy } from '../../src/native/FilamentProxy'
 
-const runtime = Worklets.createContext('FilamentRenderer')
-FilamentProxy.registerWorkletContext(runtime)
+const context = FilamentProxy.getWorkletContext()
+
 Worklets.createRunInContextFn(() => {
   'worklet'
-  console.log('creating engine...')
-  const engine = FilamentProxy.createEngine()
-  console.log('created engine!')
-  console.log('engine: ' + engine)
-}, runtime)()
+  try {
+    console.log('creating engine...')
+    const engine = FilamentProxy.createEngine()
+    console.log('created engine!')
+    console.log('engine: ' + engine)
+  } catch (e) {
+    console.error(`Error! ${e}`, e)
+  }
+}, context)()
 
 function NavigationItem(props: { name: string; route: string }) {
   const navigation = useNavigation()

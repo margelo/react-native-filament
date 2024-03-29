@@ -34,8 +34,12 @@ std::shared_ptr<react::CallInvoker> AndroidFilamentProxy::getCallInvoker() {
   return _proxy->cthis()->getCallInvoker();
 }
 
+std::shared_ptr<Dispatcher> AndroidFilamentProxy::getRenderThreadDispatcher() {
+    return _proxy->cthis()->getRenderThreadDispatcher();
+}
+
 std::shared_ptr<Dispatcher> AndroidFilamentProxy::getUIDispatcher() {
-  return _proxy->cthis()->getUIDispatcher();
+    return _proxy->cthis()->getUIDispatcher();
 }
 
 std::shared_ptr<Dispatcher> AndroidFilamentProxy::getBackgroundDispatcher() {

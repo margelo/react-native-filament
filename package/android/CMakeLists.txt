@@ -83,7 +83,6 @@ target_include_directories(
         ${PACKAGE_NAME}
         PRIVATE
         "../cpp"
-        "../cpp/threading"
         "src/main/cpp"
         "src/main/cpp/java-bindings"
         "${NODE_MODULES_DIR}/react-native/ReactCommon"

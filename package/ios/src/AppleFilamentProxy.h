@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "Dispatcher.h"
+#include "threading/Dispatcher.h"
 #include "FilamentBuffer.h"
 #include "FilamentProxy.h"
 #include "FilamentView.h"

@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "Dispatcher.h"
+#include "threading/Dispatcher.h"
 #include <Foundation/Foundation.h>
 
 namespace margelo {

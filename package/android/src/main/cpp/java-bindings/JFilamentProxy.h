@@ -5,7 +5,7 @@
 #pragma once
 
 #include "Choreographer.h"
-#include "Dispatcher.h"
+#include "threading/Dispatcher.h"
 #include "FilamentBuffer.h"
 #include "FilamentView.h"
 #include <ReactCommon/CallInvokerHolder.h>
@@ -28,6 +28,7 @@ public:
   std::shared_ptr<FilamentBuffer> loadAsset(const std::string& path);
   std::shared_ptr<FilamentView> findFilamentView(int id);
   std::shared_ptr<Choreographer> createChoreographer();
+  std::shared_ptr<Dispatcher> getRenderThreadDispatcher();
   std::shared_ptr<Dispatcher> getUIDispatcher();
   std::shared_ptr<Dispatcher> getBackgroundDispatcher();
 

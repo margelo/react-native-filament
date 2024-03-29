@@ -38,7 +38,17 @@ private:
   virtual std::shared_ptr<FilamentBuffer> loadAsset(std::string path) = 0;
   virtual std::shared_ptr<FilamentView> findFilamentView(int id) = 0;
   virtual std::shared_ptr<Choreographer> createChoreographer() = 0;
+  /**
+   * Get the Dispatcher that is responsible for rendering to Filament.
+   */
+  virtual std::shared_ptr<Dispatcher> getRenderThreadDispatcher() = 0;
+  /**
+   * Get the Dispatcher for the platform-default UI Thread.
+   */
   virtual std::shared_ptr<Dispatcher> getUIDispatcher() = 0;
+  /**
+   * Get a Dispatcher that uses a Thread-pool for background operations such as File I/O.
+   */
   virtual std::shared_ptr<Dispatcher> getBackgroundDispatcher() = 0;
 
   // For testing
@@ -51,7 +61,7 @@ private:
   std::shared_ptr<BulletWrapper> createBullet();
 
 #if HAS_WORKLETS
-  void registerWorkletContext(std::shared_ptr<RNWorklet::JsiWorkletContext> context);
+  std::shared_ptr<RNWorklet::JsiWorkletContext> getWorkletContext();
 #endif
 
 public:
@@ -60,6 +70,11 @@ public:
 
 private:
   static constexpr auto TAG = "FilamentProxy";
+
+private:
+#if HAS_WORKLETS
+    std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;
+#endif
 
 public:
   void loadHybridMethods() override;

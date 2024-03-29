@@ -30,6 +30,7 @@ class FilamentProxy {
     private final ReactApplicationContext reactContext;
     private final Dispatcher uiThreadDispatcher;
     private final Dispatcher backgroundThreadDispatcher;
+    private final Dispatcher renderThreadDispatcher;
 
     FilamentProxy(@NonNull ReactApplicationContext context) {
         JavaScriptContextHolder jsRuntimeHolder = context.getJavaScriptContextHolder();
@@ -46,6 +47,7 @@ class FilamentProxy {
 
         uiThreadDispatcher = new Dispatcher(ContextCompat.getMainExecutor(context));
         backgroundThreadDispatcher = new Dispatcher(Executors.newCachedThreadPool());
+        renderThreadDispatcher = new Dispatcher(Executors.newSingleThreadExecutor());
     }
 
     /** @noinspection unused*/
@@ -96,6 +98,13 @@ class FilamentProxy {
             throw new RuntimeException("Filament View with id " + id + " cannot be found!");
         }
         return (FilamentView) view;
+    }
+
+    /** @noinspection unused*/
+    @DoNotStrip
+    @Keep
+    Dispatcher getRenderThreadDispatcher() {
+        return renderThreadDispatcher;
     }
 
     /** @noinspection unused*/

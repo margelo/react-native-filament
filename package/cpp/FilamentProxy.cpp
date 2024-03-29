@@ -23,18 +23,33 @@ void FilamentProxy::loadHybridMethods() {
   registerHybridMethod("createEngine", &FilamentProxy::createEngine, this);
   registerHybridMethod("createBullet", &FilamentProxy::createBullet, this);
 #if HAS_WORKLETS
-  registerHybridMethod("registerWorkletContext", &FilamentProxy::registerWorkletContext, this);
+  registerHybridMethod("getWorkletContext", &FilamentProxy::getWorkletContext, this);
 #endif
 }
 
 #if HAS_WORKLETS
-void FilamentProxy::registerWorkletContext(std::shared_ptr<RNWorklet::JsiWorkletContext> context) {
-  Logger::log(TAG, "Registering WorkletContext " + context->getName() + "...");
-  context->invokeOnWorkletThread([context](RNWorklet::JsiWorkletContext*, jsi::Runtime& contextRuntime) {
-    std::shared_ptr<Dispatcher> dispatcher = std::make_shared<WorkletContextDispatcher>(context);
-    PromiseFactory::install(contextRuntime, dispatcher);
-    Logger::log(TAG, "Successfully registered WorkletContext " + context->getName() + "!");
-  });
+
+std::shared_ptr<RNWorklet::JsiWorkletContext> FilamentProxy::getWorkletContext() {
+    if (_workletContext == nullptr) {
+        Logger::log(TAG, "Creating Worklet Context...");
+        auto callInvoker = getCallInvoker();
+        auto runOnJS = [=](std::function<void()>&& function) {
+            callInvoker->invokeAsync(std::move(function));
+        };
+        auto renderThreadDispatcher = getRenderThreadDispatcher();
+        auto runOnWorklet = [=](std::function<void()>&& function) {
+            renderThreadDispatcher->runAsync(std::move(function));
+        };
+        auto& runtime = getRuntime();
+        _workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("FilamentRenderer", &runtime, runOnJS, runOnWorklet);
+        Logger::log(TAG, "Successfully created WorkletContext! Installing global Dispatcher...");
+
+        _workletContext->invokeOnWorkletThread([=](RNWorklet::JsiWorkletContext*, jsi::Runtime& runtime) {
+            PromiseFactory::install(runtime, renderThreadDispatcher);
+            Logger::log(TAG, "Successfully installed global Dispatcher in WorkletContext!");
+        });
+    }
+    return _workletContext;
 }
 #endif
 
@@ -72,7 +87,8 @@ std::shared_ptr<TestHybridObject> FilamentProxy::createTestObject() {
 std::shared_ptr<EngineWrapper> FilamentProxy::createEngine() {
   Logger::log(TAG, "Creating Engine...");
   std::shared_ptr<Choreographer> choreographer = createChoreographer();
-  return std::make_shared<EngineWrapper>(choreographer, jsDispatchQueue);
+  std::shared_ptr<Dispatcher> renderThread = getRenderThreadDispatcher();
+  return std::make_shared<EngineWrapper>(choreographer, renderThread);
 }
 
 std::shared_ptr<BulletWrapper> FilamentProxy::createBullet() {

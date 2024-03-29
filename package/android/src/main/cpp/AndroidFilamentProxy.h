@@ -25,6 +25,7 @@ private:
   std::shared_ptr<FilamentBuffer> loadAsset(std::string path) override;
   std::shared_ptr<FilamentView> findFilamentView(int id) override;
   std::shared_ptr<Choreographer> createChoreographer() override;
+  std::shared_ptr<Dispatcher> getRenderThreadDispatcher() override;
   std::shared_ptr<Dispatcher> getUIDispatcher() override;
   std::shared_ptr<Dispatcher> getBackgroundDispatcher() override;
 
