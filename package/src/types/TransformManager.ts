@@ -7,8 +7,30 @@ export interface Mat4f {
   scaling(scale: Float3): Mat4f
 }
 
+/**
+ * TransformManager is used to add transform components to entities.
+ *
+ * A Transform component gives an entity a position and orientation in space in the coordinate
+ * space of its parent transform. The TransformManager takes care of computing the world-space
+ * transform of each component (i.e. its transform relative to the root).
+ */
 export interface TransformManager {
+  /**
+   * Returns the local transform of a transform component.
+   * @param ci The instance of the transform component to query the local transform from.
+   * @return The local transform of the component (i.e. relative to the parent). This always
+   *         returns the value set by setTransform().
+   * {@linkcode setTransform()}
+   */
   getTransform(entity: Entity): Mat4f
+
+  /**
+   * Return the world transform of a transform component.
+   * @param ci The instance of the transform component to query the world transform from.
+   * @return The world transform of the component (i.e. relative to the root). This is the
+   *         composition of this component's local transform with its parent's world transform.
+   * {@linkcode setTransform()}
+   */
   getWorldTransform(entity: Entity): Mat4f
 
   /**
