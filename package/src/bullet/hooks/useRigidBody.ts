@@ -3,7 +3,7 @@ import { BulletAPI } from '../bulletApi'
 import { ActivationState, CollisionCallback } from '../types/RigidBody'
 import { useEffect, useMemo } from 'react'
 import { BaseShape } from '../types/Shapes'
-import { Mat4f } from '../../types/TransformManager'
+import { Mat4 } from '../../types/TransformManager'
 import { DiscreteDynamicWorld } from '../types/DiscreteDynamicWorld'
 
 export type RigidBodyProps = {
@@ -24,7 +24,7 @@ export type RigidBodyProps = {
       origin: Float3
     }
   | {
-      transform: Mat4f
+      transform: Mat4
     }
 )
 

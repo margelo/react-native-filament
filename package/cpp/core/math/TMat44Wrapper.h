@@ -12,20 +12,28 @@ using namespace filament;
 
 class TMat44Wrapper : public HybridObject {
 public:
-  explicit TMat44Wrapper(const filament::math::mat4f& mat) : HybridObject("TMat44Wrapper"), _mat(mat) {}
+  explicit TMat44Wrapper(const math::mat4f& matrix) : HybridObject("TMat44Wrapper"), _matrix(matrix) {}
 
   void loadHybridMethods() override;
 
   const filament::math::mat4f& getMat() {
-    return _mat;
+    return _matrix;
   }
 
 private:
   std::vector<double> getMatrixData();
-  std::shared_ptr<TMat44Wrapper> scaling(double x, double y, double z);
+  // Multiplies the matrix with the provided scale vector
+  std::shared_ptr<TMat44Wrapper> scaling(std::vector<double> scale);
+  // Translates the matrix by the provided translation vector
+  std::shared_ptr<TMat44Wrapper> translate(std::vector<double> translation);
+  // Rotates the matrix by the provided angle in radians around the provided axis
+  std::shared_ptr<TMat44Wrapper> rotate(double angleRadians, std::vector<double> axisVec);
+  // Returns the scale of the matrix
   std::vector<double> getScale();
+  // Returns the translation of the matrix
+  std::vector<double> getTranslation();
 
 private:
-  const math::mat4f& _mat;
+  math::mat4f _matrix;
 };
 } // namespace margelo
