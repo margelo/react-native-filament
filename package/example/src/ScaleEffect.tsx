@@ -5,7 +5,7 @@
 import * as React from 'react'
 import { useEffect, useRef } from 'react'
 
-import { Animated, Button, Easing, Platform, StyleSheet, View } from 'react-native'
+import { Animated, Button, Platform, StyleSheet, View } from 'react-native'
 import {
   Filament,
   useEngine,
@@ -71,11 +71,12 @@ export function ScaleEffect() {
       transformManager.commitLocalTransformTransaction()
     })
 
-    Animated.timing(animatedScale, {
+    Animated.spring(animatedScale, {
       toValue: 1,
-      duration: 3000,
+      mass: 3,
+      stiffness: 1000,
+      damping: 500,
       useNativeDriver: false,
-      easing: Easing.ease,
     }).start()
   }
 
