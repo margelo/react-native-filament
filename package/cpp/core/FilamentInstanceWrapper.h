@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "AABBWrapper.h"
 #include "AnimatorWrapper.h"
 #include "jsi/HybridObject.h"
 #include "utils/EntityWrapper.h"
@@ -38,6 +39,7 @@ private: // Public JS API
    * individual instances.
    */
   std::shared_ptr<AnimatorWrapper> getAnimator();
+  std::shared_ptr<AABBWrapper> getBoundingBox();
 
 private:
   FilamentInstance* _instance;

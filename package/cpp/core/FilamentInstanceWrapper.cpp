@@ -10,6 +10,7 @@ void FilamentInstanceWrapper::loadHybridMethods() {
   registerHybridMethod("getEntities", &FilamentInstanceWrapper::getEntities, this);
   registerHybridMethod("getRoot", &FilamentInstanceWrapper::getRoot, this);
   registerHybridMethod("getAnimator", &FilamentInstanceWrapper::getAnimator, this);
+  registerHybridMethod("getBoundingBox", &FilamentInstanceWrapper::getBoundingBox, this);
 }
 
 std::vector<std::shared_ptr<EntityWrapper>> FilamentInstanceWrapper::getEntities() {
@@ -29,6 +30,10 @@ std::shared_ptr<EntityWrapper> FilamentInstanceWrapper::getRoot() {
 
 std::shared_ptr<AnimatorWrapper> FilamentInstanceWrapper::getAnimator() {
   return std::make_shared<AnimatorWrapper>(_instance);
+}
+std::shared_ptr<AABBWrapper> FilamentInstanceWrapper::getBoundingBox() {
+  auto box = _instance->getBoundingBox();
+  return std::make_shared<AABBWrapper>(box);
 }
 
 } // namespace margelo
