@@ -28,7 +28,6 @@ void FilamentProxy::loadHybridMethods() {
 }
 
 #if HAS_WORKLETS
-
 std::shared_ptr<RNWorklet::JsiWorkletContext> FilamentProxy::getWorkletContext() {
     if (_workletContext == nullptr) {
         Logger::log(TAG, "Creating Worklet Context...");
