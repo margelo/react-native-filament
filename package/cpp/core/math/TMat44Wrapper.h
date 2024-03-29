@@ -22,9 +22,16 @@ public:
 
 private:
   std::vector<double> getMatrixData();
+  // Multiplies the matrix with the provided scale vector
   std::shared_ptr<TMat44Wrapper> scaling(std::vector<double> scale);
+  // Translates the matrix by the provided translation vector
+  std::shared_ptr<TMat44Wrapper> translate(std::vector<double> translation);
+  // Rotates the matrix by the provided angle in radians around the provided axis
+  std::shared_ptr<TMat44Wrapper> rotate(double angleRadians, std::vector<double> axisVec);
+  // Returns the scale of the matrix
   std::vector<double> getScale();
-  std::shared_ptr<TMat44Wrapper> copy();
+  // Returns the translation of the matrix
+  std::vector<double> getTranslation();
 
 private:
   math::mat4f _matrix;

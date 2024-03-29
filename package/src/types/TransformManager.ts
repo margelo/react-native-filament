@@ -1,10 +1,28 @@
 import { Entity } from './Entity'
 import { Float3 } from './float3'
 
-export interface Mat4f {
+/**
+ * A 4x4 column-major matrix.
+ */
+export interface Mat4 {
   readonly data: number[]
   readonly scale: Float3
-  scaling(scale: Float3): Mat4f
+  readonly translation: Float3
+
+  /**
+   * Returns a new matrix that is the result of multiplying the provided scale matrix with this matrix.
+   */
+  scaling(scale: Float3): Mat4
+
+  /**
+   * Returns a new matrix that is the result of multiplying the provided translation matrix with this matrix.
+   */
+  translate(translation: Float3): Mat4
+
+  /**
+   * Returns a new matrix that is the result of multiplying the provided rotation matrix with this matrix.
+   */
+  rotateX(angleRadians: number, axis: Float3): Mat4
 }
 
 /**
@@ -22,7 +40,7 @@ export interface TransformManager {
    *         returns the value set by setTransform().
    * {@linkcode setTransform()}
    */
-  getTransform(entity: Entity): Mat4f
+  getTransform(entity: Entity): Mat4
 
   /**
    * Return the world transform of a transform component.
@@ -31,7 +49,7 @@ export interface TransformManager {
    *         composition of this component's local transform with its parent's world transform.
    * {@linkcode setTransform()}
    */
-  getWorldTransform(entity: Entity): Mat4f
+  getWorldTransform(entity: Entity): Mat4
 
   /**
    * Opens a local transform transaction. During a transaction, getWorldTransform() can
@@ -70,5 +88,5 @@ export interface TransformManager {
    *            will be particularly bad when updating a lot of transforms. In that case,
    *            consider using openLocalTransformTransaction() / commitLocalTransformTransaction().
    */
-  setTransform(entity: Entity, transform: Mat4f): void
+  setTransform(entity: Entity, transform: Mat4): void
 }

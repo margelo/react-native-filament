@@ -17,7 +17,7 @@ import {
   useCamera,
   useScene,
   useTransformManager,
-  Mat4f,
+  Mat4,
 } from 'react-native-filament'
 
 const modelPath = Platform.select({
@@ -47,7 +47,7 @@ export function ScaleEffect() {
 
   const model = useModel({ engine: engine, path: modelPath, autoAddToScene: false })
   const modelAsset = model.state === 'loaded' ? model.asset : null
-  const originalTransformRef = useRef<Mat4f | null>(null)
+  const originalTransformRef = useRef<Mat4 | null>(null)
 
   useEffect(() => {
     if (modelAsset == null) return
