@@ -3,23 +3,20 @@ import { useSharedValue } from 'react-native-worklets-core'
 import { Button, Platform, SafeAreaView, StyleSheet } from 'react-native'
 import { Engine, Filament, Float3, useEngine, useModel, useRenderCallback } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
+import { Config } from './config'
 
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',
   ios: 'pengu.glb',
 })!
 
-function blockJS(): void {
+function blockJS(): number {
   let sum = 0
   for (let i = 0; i < 1000000000; i++) {
     sum += i
   }
+  return sum
 }
-
-// Camera config:
-const focalLengthInMillimeters = 28
-const near = 0.1
-const far = 1000
 
 function Renderer({ engine }: { engine: Engine }) {
   useDefaultLight(engine)
@@ -40,6 +37,7 @@ function Renderer({ engine }: { engine: Engine }) {
         if (prevAspectRatio.value !== aspectRatio) {
           prevAspectRatio.value = aspectRatio
           // Setup camera lens:
+          const { focalLengthInMillimeters, near, far } = Config.camera
           camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
         }
 
