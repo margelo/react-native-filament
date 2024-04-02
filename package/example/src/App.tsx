@@ -9,6 +9,7 @@ import { ChangeMaterials } from './ChangeMaterials'
 import { CastShadow } from './CastShadow'
 import { MultipleInstances } from './MultipleInstances'
 import { WorkletExample } from './WorkletExample'
+import { ScaleEffect } from './ScaleEffect'
 
 function NavigationItem(props: { name: string; route: string }) {
   const navigation = useNavigation()
@@ -45,6 +46,7 @@ function HomeScreen() {
       <NavigationItem name="🎨 Change Materials" route="ChangeMaterials" />
       <NavigationItem name="🌑 Cast Shadow" route="CastShadow" />
       <NavigationItem name="🤖 Multiple Instances" route="MultipleInstances" />
+      <NavigationItem name="↕️ Scale Effect" route="ScaleEffect" />
       <NavigationItem name="🧠 Worklet Example" route="WorkletExample" />
     </View>
   )
@@ -78,6 +80,7 @@ function App() {
         <Stack.Screen name="CastShadow" component={CastShadow} />
         <Stack.Screen name="MultipleInstances" component={MultipleInstances} />
         <Stack.Screen name="WorkletExample" component={WorkletExample} />
+        <Stack.Screen name="ScaleEffect" component={ScaleEffect} />
         <Stack.Screen name="Test" component={TestScreen} />
       </Stack.Navigator>
     </NavigationContainer>

@@ -245,9 +245,11 @@ void EngineWrapper::setRenderCallback(std::optional<RenderCallback> callback) {
 // once we have a surface.
 void EngineWrapper::renderFrame(double timestamp) {
   if (!_swapChain) {
+    [[unlikely]];
     return;
   }
   if (!_view) {
+    [[unlikely]];
     return;
   }
 
@@ -258,6 +260,7 @@ void EngineWrapper::renderFrame(double timestamp) {
   }
 
   if (_renderCallback.has_value()) {
+    [[likely]];
     const auto& renderCallback = _renderCallback.value();
     // Call JS callback with scene information
     double passedSeconds = (timestamp - _startTime) / 1e9;
@@ -336,7 +339,8 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(const std::shared
   return makeAssetWrapper(assetPtr);
 }
 
-std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadInstancedAsset(const std::shared_ptr<FilamentBuffer>& modelBuffer, int instanceCount) {
+std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadInstancedAsset(const std::shared_ptr<FilamentBuffer>& modelBuffer,
+                                                                        int instanceCount) {
   const std::shared_ptr<ManagedBuffer>& buffer = modelBuffer->getBuffer();
   FilamentInstance* instances[instanceCount]; // Memory managed by the FilamentAsset
   gltfio::FilamentAsset* assetPtr = _assetLoader->createInstancedAsset(buffer->getData(), buffer->getSize(), instances, instanceCount);
@@ -491,7 +495,8 @@ void EngineWrapper::setEntityScale(const std::shared_ptr<EntityWrapper>& entity,
   updateTransform(scaleMatrix, entity, multiplyCurrent);
 }
 
-void EngineWrapper::updateTransformByRigidBody(const std::shared_ptr<EntityWrapper>& entityWrapper, const std::shared_ptr<RigidBodyWrapper>& rigidBody) {
+void EngineWrapper::updateTransformByRigidBody(const std::shared_ptr<EntityWrapper>& entityWrapper,
+                                               const std::shared_ptr<RigidBodyWrapper>& rigidBody) {
   if (!rigidBody) {
     throw std::invalid_argument("RigidBody is null");
   }

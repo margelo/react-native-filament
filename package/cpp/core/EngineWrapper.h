@@ -67,7 +67,7 @@ private:
   void destroySurface();
   void surfaceSizeChanged(int width, int height);
   void setRenderCallback(std::optional<RenderCallback> callback);
-  void renderFrame(double timestamp);
+  __attribute__((hot)) void renderFrame(double timestamp);
   void setIsPaused(bool isPaused);
 
   void transformToUnitCube(const std::shared_ptr<FilamentAssetWrapper>& asset);

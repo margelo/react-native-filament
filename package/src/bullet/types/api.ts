@@ -1,4 +1,4 @@
-import { Mat4f } from '../../types/TransformManager'
+import { Mat4 } from '../../types/TransformManager'
 import { DiscreteDynamicWorld } from './DiscreteDynamicWorld'
 import { CollisionCallback, RigidBody } from './RigidBody'
 import { BaseShape, Box, Cylinder, Sphere, StaticPlane } from './Shapes'
@@ -37,7 +37,7 @@ export interface BulletAPI {
   ): RigidBody
   createRigidBodyFromTransform(
     mass: number,
-    transform: Mat4f,
+    transform: Mat4,
     shape: BaseShape,
     id: string,
     collisionCallback: CollisionCallback | undefined
