@@ -122,6 +122,7 @@ export function useModel({
       'worklet'
 
       if (asset.value == null) return
+      console.log('added asset entities')
       engine.getScene().addAssetEntities(asset.value)
     }, context)()
 
@@ -130,6 +131,7 @@ export function useModel({
         'worklet'
 
         if (asset.value == null) return
+        console.log('removed asset entities')
         engine.getScene().removeAssetEntities(asset.value)
       }, context)()
     }
