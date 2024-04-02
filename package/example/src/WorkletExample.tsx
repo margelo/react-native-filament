@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Worklets, useSharedValue, useWorklet } from 'react-native-worklets-core'
 import { FilamentProxy } from '../../src/native/FilamentProxy'
 import { useEffect } from 'react'
-import { Button, Platform, StyleSheet, View } from 'react-native'
+import { Button, Platform, SafeAreaView, StyleSheet, View } from 'react-native'
 import { Animator, Engine, Filament, Float3, useAsset } from 'react-native-filament'
 import { FilamentBuffer } from '../../src/native/FilamentBuffer'
 import { reportWorkletError } from '../../src/ErrorUtils'
@@ -135,7 +135,7 @@ function Renderer({ engine }: { engine: Engine }) {
   }, [assetAnimator, engine, prevAspectRatio])
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Filament style={styles.filamentView} engine={engine} />
       <Button
         title="Block JS thread temporarily"
@@ -147,7 +147,7 @@ function Renderer({ engine }: { engine: Engine }) {
           }, 0)
         }}
       />
-    </View>
+    </SafeAreaView>
   )
 }
 

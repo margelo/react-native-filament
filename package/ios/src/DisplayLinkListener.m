@@ -18,7 +18,7 @@
     _callback = callback;
     _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(onFrame:)];
     _displayLink.paused = YES;
-    [_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
   }
   return self;
 }

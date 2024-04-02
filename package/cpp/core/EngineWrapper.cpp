@@ -99,10 +99,6 @@ EngineWrapper::EngineWrapper(const std::shared_ptr<Choreographer>& choreographer
 
   _choreographer = choreographer;
   _transformManager = createTransformManager();
-        
-  auto threadId = std::this_thread::get_id();
-  Logger::log(TAG, "Engine created on thread %d", threadId);
-        
 }
 
 void EngineWrapper::loadHybridMethods() {
@@ -196,7 +192,8 @@ void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
   _choreographerListener = _choreographer->addOnFrameListener([weakSelf](double timestamp) {
     auto sharedThis = weakSelf.lock();
     if (sharedThis != nullptr) {
-      sharedThis->renderFrame(timestamp);
+      std::shared_ptr<Dispatcher> dispatcher = sharedThis->_dispatcher;
+      dispatcher->runSync([=]() { sharedThis->renderFrame(timestamp); });
     }
   });
 
@@ -333,9 +330,6 @@ std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
 }
 
 std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
-    auto threadId = std::this_thread::get_id();
-    Logger::log(TAG, "Trying to create asset on thread %d", threadId);
-    
   std::shared_ptr<ManagedBuffer> buffer = modelBuffer->getBuffer();
   gltfio::FilamentAsset* assetPtr = _assetLoader->createAsset(buffer->getData(), buffer->getSize());
 
