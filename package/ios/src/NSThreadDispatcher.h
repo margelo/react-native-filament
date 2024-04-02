@@ -9,15 +9,7 @@
 
 #include "threading/Dispatcher.h"
 #include <Foundation/Foundation.h>
-
-/**
- Objective-C Part of the [NSThreadDispatcher].
- */
-@interface NSThreadDispatcherObjC : NSObject
-- (void)runLoop;
-- (void)runSync:(std::function<void()>&&)function;
-- (void)runAsync:(std::function<void()>&&)function;
-@end
+#include <string>
 
 namespace margelo {
 
@@ -26,14 +18,17 @@ namespace margelo {
  */
 class NSThreadDispatcher : public Dispatcher {
 public:
-  explicit NSThreadDispatcher();
+  explicit NSThreadDispatcher(const std::string& name);
 
 public:
   void runSync(std::function<void()>&& function) override;
   void runAsync(std::function<void()>&& function) override;
+  
+private:
+  void run(std::function<void()>&& function, bool waitUntilDone);
 
 private:
-  NSThreadDispatcherObjC* _objcPart;
+  NSThread* _thread;
 };
 
 } // namespace margelo

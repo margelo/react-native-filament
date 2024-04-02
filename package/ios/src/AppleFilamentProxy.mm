@@ -60,7 +60,7 @@ std::shared_ptr<Dispatcher> AppleFilamentProxy::getRenderThreadDispatcher() {
     // Filament has a strong requirement that you can only render from one single Thread.
     // iOS dispatch_queues may use multiple Threads, so we need to use NSThreadDispatcher instead of
     // AppleDispatcher.
-    _renderThreadDispatcher = std::make_shared<NSThreadDispatcher>();
+    _renderThreadDispatcher = std::make_shared<NSThreadDispatcher>("filament.render.queue");
   }
   return _renderThreadDispatcher;
 }
