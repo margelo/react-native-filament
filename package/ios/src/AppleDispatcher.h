@@ -18,13 +18,13 @@ public:
 
 public:
   void runSync(std::function<void ()>&& function) override {
-    dispatch_sync(_dispatchQueue, ^{
+    dispatch_sync(_dispatchQueue, [function = std::move(function)]() {
       function();
     });
   }
 
   void runAsync(std::function<void ()>&& function) override {
-    dispatch_async(_dispatchQueue, ^{
+    dispatch_async(_dispatchQueue, [function = std::move(function)]() {
       function();
     });
   }
