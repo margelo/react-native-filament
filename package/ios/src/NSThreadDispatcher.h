@@ -15,8 +15,8 @@
  */
 @interface NSThreadDispatcherObjC : NSObject
 - (void)runLoop;
-- (void)runSync:(std::function<void()>&& function)function;
-- (void)runAsync:(std::function<void()>&& function)function;
+- (void)runSync:(std::function<void()>&&)function;
+- (void)runAsync:(std::function<void()>&&)function;
 @end
 
 namespace margelo {
