@@ -1,20 +1,12 @@
 import React, { useCallback } from 'react'
-import { useSharedValue, useWorklet } from 'react-native-worklets-core'
-import { FilamentProxy } from '../../src/native/FilamentProxy'
-import { useEffect } from 'react'
+import { useSharedValue } from 'react-native-worklets-core'
 import { Button, Platform, SafeAreaView, StyleSheet } from 'react-native'
-import { Engine, Filament, Float3, useAsset, useEngine, useModel, useRenderCallback } from 'react-native-filament'
-
-const context = FilamentProxy.getWorkletContext()
+import { Engine, Filament, Float3, useEngine, useModel, useRenderCallback } from 'react-native-filament'
+import { useDefaultLight } from './hooks/useDefaultLight'
 
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',
   ios: 'pengu.glb',
-})!
-
-const indirectLightPath = Platform.select({
-  android: 'custom/default_env_ibl.ktx',
-  ios: 'default_env_ibl.ktx',
 })!
 
 function blockJS(): void {
@@ -30,29 +22,11 @@ const near = 0.1
 const far = 1000
 
 function Renderer({ engine }: { engine: Engine }) {
+  useDefaultLight(engine)
   const asset = useModel({
     engine,
     path: penguModelPath,
   })
-
-  // Add light:
-  const lightBuffer = useAsset({ path: indirectLightPath })
-
-  const addLight = useWorklet(
-    context,
-    () => {
-      'worklet'
-      if (lightBuffer == null) return
-      engine.setIndirectLight(lightBuffer)
-      const directionalLight = engine.createLightEntity('directional', 6500, 10000, 0, -1, 0, true)
-      engine.getScene().addEntity(directionalLight)
-    },
-    [lightBuffer]
-  )
-
-  useEffect(() => {
-    addLight()
-  }, [addLight])
 
   const prevAspectRatio = useSharedValue(0)
   useRenderCallback(
