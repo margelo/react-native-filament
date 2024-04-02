@@ -23,7 +23,7 @@ public:
   ~AppleFilamentProxy();
 
 public:
-  std::shared_ptr<FilamentBuffer> loadAsset(std::string path) override;
+  std::shared_ptr<FilamentBuffer> loadAsset(const std::string& path) override;
   std::shared_ptr<FilamentView> findFilamentView(int modelId) override;
   std::shared_ptr<Choreographer> createChoreographer() override;
   const std::shared_ptr<Dispatcher>& getRenderThreadDispatcher() override;

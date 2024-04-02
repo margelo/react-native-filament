@@ -34,8 +34,8 @@ public:
     [_layer removeObserver:_observer forKeyPath:@"drawableSize"];
   }
 
-  const std::shared_ptr<Surface>& getSurfaceOrNull() override {
-    return _surface;
+  std::shared_ptr<Surface> getSurfaceOrNull() override {
+    return std::static_pointer_cast<Surface>(_surface);
   }
 
 private:
