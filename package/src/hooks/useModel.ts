@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { AssetProps, useAsset } from './useAsset'
 import { Animator, Engine, Entity } from '../types'
 import { FilamentAsset } from '../types/FilamentAsset'
 import { useRenderableManager } from './useRenderableManager'
 import { FilamentProxy } from '../native/FilamentProxy'
+import { ISharedValue, useSharedValue } from 'react-native-worklets-core'
 
 interface ModelProps extends AssetProps {
   /**
@@ -54,6 +55,8 @@ export type FilamentModel =
       state: 'loading'
     }
 
+const context = FilamentProxy.getWorkletContext()
+
 /**
  * Use a Filament Model that gets asynchronously loaded into the given Engine.
  * @worklet
@@ -74,83 +77,102 @@ export function useModel({
 }: ModelProps): FilamentModel {
   const assetBuffer = useAsset({ path: path })
   const renderableManager = useRenderableManager(engine)
-  const [asset, setAsset] = useState<FilamentAsset | null>(null)
-  const [animator, setAnimator] = useState<Animator | null>(null)
+  const asset = useSharedValue<FilamentAsset | undefined>(undefined)
 
   useEffect(() => {
     Worklets.createRunInContextFn(() => {
       'worklet'
       if (assetBuffer == null) return
 
-      let _asset: FilamentAsset
       if (!instanceCount || instanceCount === 1) {
-        _asset = engine.loadAsset(assetBuffer)
+        asset.value = engine.loadAsset(assetBuffer)
       } else {
-        _asset = engine.loadInstancedAsset(assetBuffer, instanceCount)
+        asset.value = engine.loadInstancedAsset(assetBuffer, instanceCount)
       }
+    }, context)()
+  }, [asset, assetBuffer, engine, instanceCount])
 
-      setAsset(_asset)
-      const _animator = _asset.getAnimator()
-      setAnimator(_animator)
-      const _entities = _asset.getEntities()
-    }, FilamentProxy.getWorkletContext())()
-  }, [assetBuffer, engine, instanceCount])
+  const animator = useMemo(() => {
+    if (asset.value == null) return undefined
+    return asset.value.getAnimator()
+  }, [asset.value])
 
   const entities = useMemo(() => {
-    if (engineAsset == null) return undefined
-    return engineAsset.getEntities()
-  }, [engineAsset])
+    if (asset.value == null) return undefined
+    return asset.value.getEntities()
+  }, [asset.value])
 
   const renderableEntities = useMemo(() => {
-    if (engineAsset == null) return undefined
-    return engineAsset.getRenderableEntities()
-  }, [engineAsset])
+    if (asset.value == null) return undefined
+    return asset.value.getRenderableEntities()
+  }, [asset.value])
 
   useEffect(() => {
     if (shouldReleaseSourceData) {
       // releases CPU memory for bindings
-      engineAsset?.releaseSourceData()
+      asset.value?.releaseSourceData()
     }
-  }, [engineAsset, shouldReleaseSourceData])
+  }, [asset.value, shouldReleaseSourceData])
 
   useEffect(() => {
-    if (!autoAddToScene) {
+    if (!autoAddToScene || asset.value == null) {
       return
     }
-    if (engineAsset == null) return
-    engine.getScene().addAssetEntities(engineAsset)
-  }, [autoAddToScene, engine, engineAsset, entities])
+    Worklets.createRunInContextFn(() => {
+      'worklet'
+
+      if (asset.value == null) return
+      engine.getScene().addAssetEntities(asset.value)
+    }, context)()
+
+    return () => {
+      Worklets.createRunInContextFn(() => {
+        'worklet'
+
+        if (asset.value == null) return
+        engine.getScene().removeAssetEntities(asset.value)
+      }, context)()
+    }
+  }, [autoAddToScene, engine, asset.value, entities])
 
   const prevCastShadowRef = useRef(castShadow)
   useEffect(() => {
-    if (engineAsset == null) return
     prevCastShadowRef.current = castShadow
 
-    const root = engineAsset.getRoot()
-    if (castShadow || prevCastShadowRef.current !== castShadow) {
-      renderableManager.setCastShadow(root, true)
-    }
-  }, [castShadow, engineAsset, entities, renderableManager])
+    Worklets.createRunInContextFn(() => {
+      'worklet'
+
+      if (asset.value == null) return
+      const root = asset.value.getRoot()
+      if (castShadow || prevCastShadowRef.current !== castShadow) {
+        renderableManager.setCastShadow(root, true)
+      }
+    }, context)()
+  }, [castShadow, asset.value, entities, renderableManager])
 
   const prevReceiveShadowRef = useRef(receiveShadow)
   useEffect(() => {
-    if (engineAsset == null) return
     prevReceiveShadowRef.current = receiveShadow
 
-    const root = engineAsset.getRoot()
-    if (receiveShadow || prevReceiveShadowRef.current !== receiveShadow) {
-      renderableManager.setReceiveShadow(root, true)
-    }
-  }, [receiveShadow, engineAsset, renderableManager])
+    Worklets.createRunInContextFn(() => {
+      'worklet'
 
-  if (assetBuffer == null || engineAsset == null || animator == null || entities == null || renderableEntities == null) {
+      if (asset.value == null) return
+      const root = asset.value.getRoot()
+      if (receiveShadow || prevReceiveShadowRef.current !== receiveShadow) {
+        renderableManager.setReceiveShadow(root, true)
+      }
+    }, context)()
+  }, [receiveShadow, asset.value, renderableManager])
+
+  if (assetBuffer == null || asset.value == null || animator == null || entities == null || renderableEntities == null) {
     return {
       state: 'loading',
     }
   }
   return {
     state: 'loaded',
-    asset: engineAsset,
+    asset: asset.value,
     animator: animator,
     entities: entities,
     renderableEntities: renderableEntities,

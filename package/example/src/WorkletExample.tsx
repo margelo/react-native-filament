@@ -3,7 +3,7 @@ import { useSharedValue, useWorklet } from 'react-native-worklets-core'
 import { FilamentProxy } from '../../src/native/FilamentProxy'
 import { useEffect } from 'react'
 import { Button, Platform, SafeAreaView, StyleSheet, View } from 'react-native'
-import { Animator, Engine, Filament, Float3, useAsset, useRenderCallback } from 'react-native-filament'
+import { Animator, Engine, Filament, Float3, useAsset, useModel, useRenderCallback } from 'react-native-filament'
 import { FilamentBuffer } from '../../src/native/FilamentBuffer'
 
 const context = FilamentProxy.getWorkletContext()
@@ -49,28 +49,10 @@ function useEngine() {
 }
 
 function Renderer({ engine }: { engine: Engine }) {
-  const assetBuffer = useAsset({ path: penguModelPath })
-
-  // Adding asset to the scene
-  const assetAnimator = useSharedValue<Animator | undefined>(undefined)
-  const addAsset = useWorklet(
-    context,
-    () => {
-      'worklet'
-      if (assetBuffer == null) return
-
-      const asset = engine.loadAsset(assetBuffer)
-      assetAnimator.value = asset.getAnimator()
-      engine.getScene().addAssetEntities(asset)
-
-      console.log('Asset added to the scene!')
-    },
-    [assetBuffer]
-  )
-
-  useEffect(() => {
-    addAsset()
-  }, [addAsset])
+  const asset = useModel({
+    engine,
+    path: penguModelPath,
+  })
 
   // Add light:
   const [lightBuffer, setLightBuffer] = useState<FilamentBuffer>()
@@ -121,14 +103,15 @@ function Renderer({ engine }: { engine: Engine }) {
 
         camera.lookAt(cameraPosition, cameraTarget, cameraUp)
 
-        if (assetAnimator.value == null) {
+        if (asset.state === 'loading') {
           return
         }
+        const animator = asset.animator
 
-        assetAnimator.value.applyAnimation(0, passedSeconds)
-        assetAnimator.value.updateBoneMatrices()
+        animator.applyAnimation(0, passedSeconds)
+        animator.updateBoneMatrices()
       },
-      [assetAnimator, engine, prevAspectRatio]
+      [asset, engine, prevAspectRatio]
     )
   )
 
