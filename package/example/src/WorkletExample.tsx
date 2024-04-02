@@ -20,11 +20,6 @@ import { reportWorkletError } from '../../src/ErrorUtils'
 
 const context = FilamentProxy.getWorkletContext()
 
-function useEngine() {
-  const sharedEngine = useSharedValue(FilamentProxy.createEngine())
-  return sharedEngine
-}
-
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',
   ios: 'pengu.glb',
@@ -40,6 +35,29 @@ function blockJS(): void {
   for (let i = 0; i < 1000000000; i++) {
     sum += i
   }
+}
+
+function useEngine() {
+  const asyncEngine = useWorklet(
+    context,
+    () => {
+      'worklet'
+      return FilamentProxy.createEngine()
+    },
+    []
+  )
+
+  const [engine, setEngine] = useState<Engine | null>(null)
+
+  useEffect(() => {
+    const asyncEffect = async () => {
+      const _engine = await asyncEngine()
+      setEngine(_engine)
+    }
+    asyncEffect()
+  }, [asyncEngine])
+
+  return engine
 }
 
 function Renderer({ engine }: { engine: Engine }) {
@@ -150,75 +168,10 @@ function Renderer({ engine }: { engine: Engine }) {
 }
 
 export function WorkletExample() {
-  const asyncEngine = useWorklet(
-    context,
-    () => {
-      'worklet'
-      return FilamentProxy.createEngine()
-    },
-    []
-  )
-
-  const [engine, setEngine] = React.useState<Engine | null>(null)
-
-  useEffect(() => {
-    const asyncEffect = async () => {
-      const _engine = await asyncEngine()
-      setEngine(_engine)
-    }
-    asyncEffect()
-  }, [asyncEngine])
+  const engine = useEngine()
 
   if (engine == null) return null
   return <Renderer engine={engine} />
-}
-
-export function WorkletExample2() {
-  const sharedEngine = useEngine()
-  const engine = sharedEngine.value
-  //   const scene = useScene(engine)
-  //   const view = useView(engine)
-  //   const camera = useCamera(engine)
-  const light = useAsset({ path: indirectLightPath })
-  const asset = useModel({ engine: engine, path: penguModelPath })
-
-  useEffect(() => {
-    if (light == null) return
-    // create a default light
-    engine.setIndirectLight(light)
-
-    // Create a directional light for supporting shadows
-    const directionalLight = engine.createLightEntity('directional', 6500, 10000, 0, -1, 0, true)
-    engine.getScene().addEntity(directionalLight)
-    return () => {
-      engine.getScene().removeEntity(directionalLight)
-    }
-  }, [engine, light])
-
-  const prevAspectRatio = useSharedValue(0)
-  useRenderCallback(engine, (_timestamp, _startTime, passedSeconds) => {
-    'worklet'
-
-    const camera = sharedEngine.value.getCamera()
-    const aspectRatio = sharedEngine.value.getView().aspectRatio
-    if (prevAspectRatio.value !== aspectRatio) {
-      prevAspectRatio.value = aspectRatio
-      // Setup camera lens:
-      camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
-    }
-
-    camera.lookAt(cameraPosition, cameraTarget, cameraUp)
-
-    if (asset.state === 'loading') {
-      return
-    }
-  })
-
-  return (
-    <View style={styles.container}>
-      <Filament style={styles.filamentView} engine={engine} />
-    </View>
-  )
 }
 
 const styles = StyleSheet.create({
