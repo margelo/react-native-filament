@@ -11,8 +11,9 @@ void ViewWrapper::loadHybridMethods() {
   registerHybridGetter("aspectRatio", &ViewWrapper::getAspectRatio, this);
 }
 
-void ViewWrapper::setScene(std::shared_ptr<SceneWrapper> scene) {
+void ViewWrapper::setScene(const std::shared_ptr<SceneWrapper>& scene) {
   if (!scene) {
+    [[unlikely]];
     throw std::invalid_argument("Scene is null");
   }
 
@@ -20,12 +21,13 @@ void ViewWrapper::setScene(std::shared_ptr<SceneWrapper> scene) {
   _view->setScene(scene->getScene().get());
 }
 
-std::shared_ptr<SceneWrapper> ViewWrapper::getScene() {
+const std::shared_ptr<SceneWrapper>& ViewWrapper::getScene() {
   return _scene;
 }
 
-void ViewWrapper::setCamera(std::shared_ptr<CameraWrapper> camera) {
+void ViewWrapper::setCamera(const std::shared_ptr<CameraWrapper>& camera) {
   if (!camera) {
+    [[unlikely]];
     throw std::invalid_argument("Camera is null");
   }
 
@@ -33,7 +35,7 @@ void ViewWrapper::setCamera(std::shared_ptr<CameraWrapper> camera) {
   _view->setCamera(camera->getCamera().get());
 }
 
-std::shared_ptr<CameraWrapper> ViewWrapper::getCamera() {
+const std::shared_ptr<CameraWrapper>& ViewWrapper::getCamera() {
   return _camera;
 }
 

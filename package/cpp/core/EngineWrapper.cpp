@@ -129,13 +129,13 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("updateTransformByRigidBody", &EngineWrapper::updateTransformByRigidBody, this);
 }
 
-void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
+void EngineWrapper::setSurfaceProvider(const std::shared_ptr<SurfaceProvider>& surfaceProvider) {
   if (surfaceProvider == nullptr) {
     [[unlikely]];
     throw std::runtime_error("SurfaceProvider cannot be null!");
   }
   _surfaceProvider = surfaceProvider;
-  std::shared_ptr<Surface> surface = surfaceProvider->getSurfaceOrNull();
+  const std::shared_ptr<Surface>& surface = surfaceProvider->getSurfaceOrNull();
   if (surface != nullptr) {
     setSurface(surface);
   }
@@ -143,17 +143,18 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
   auto dispatcher = _dispatcher;
   std::weak_ptr<EngineWrapper> weakSelf = shared<EngineWrapper>();
   SurfaceProvider::Callback callback{.onSurfaceCreated =
-                                         [dispatcher, weakSelf](std::shared_ptr<Surface> surface) {
+                                         [dispatcher, weakSelf](const std::shared_ptr<Surface>& surface) {
+      std::shared_ptr<Surface> s = surface;
                                            dispatcher->runAsync([=]() {
                                              auto sharedThis = weakSelf.lock();
                                              if (sharedThis != nullptr) {
                                                Logger::log(TAG, "Initializing surface...");
-                                               sharedThis->setSurface(surface);
+                                               sharedThis->setSurface(s);
                                              }
                                            });
                                          },
                                      .onSurfaceSizeChanged =
-                                         [dispatcher, weakSelf](std::shared_ptr<Surface> surface, int width, int height) {
+                                         [dispatcher, weakSelf](const std::shared_ptr<Surface>& surface, int width, int height) {
                                            dispatcher->runAsync([=]() {
                                              auto sharedThis = weakSelf.lock();
                                              if (sharedThis != nullptr) {
@@ -164,7 +165,7 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
                                            });
                                          },
                                      .onSurfaceDestroyed =
-                                         [dispatcher, weakSelf](std::shared_ptr<Surface> surface) {
+                                         [dispatcher, weakSelf](const std::shared_ptr<Surface>& surface) {
                                            // Note: When the surface gets destroyed we immediately need to destroy the swapchain
                                            // and flush to avoid flickering issues.
                                            auto sharedThis = weakSelf.lock();
@@ -172,10 +173,10 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
                                              sharedThis->destroySurface();
                                            }
                                          }};
-  _surfaceListener = surfaceProvider->addOnSurfaceChangedListener(callback);
+  _surfaceListener = surfaceProvider->addOnSurfaceChangedListener(std::move(callback));
 }
 
-void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
+void EngineWrapper::setSurface(const std::shared_ptr<Surface>& surface) {
   Logger::log(TAG, "Initializing SwapChain...");
 
   // Setup swapchain
@@ -264,10 +265,11 @@ void EngineWrapper::renderFrame(double timestamp) {
     renderCallback(timestamp, _startTime, passedSeconds);
   }
 
-  std::shared_ptr<Renderer> renderer = _renderer->getRenderer();
-  std::shared_ptr<SwapChain> swapChain = _swapChain->getSwapChain();
+  const std::shared_ptr<Renderer>& renderer = _renderer->getRenderer();
+  const std::shared_ptr<SwapChain>& swapChain = _swapChain->getSwapChain();
   if (renderer->beginFrame(swapChain.get(), timestamp)) {
-    std::shared_ptr<View> view = _view->getView();
+    [[likely]];
+    const std::shared_ptr<View>& view = _view->getView();
     renderer->render(view.get());
     renderer->endFrame();
   }
@@ -300,7 +302,7 @@ std::shared_ptr<ViewWrapper> EngineWrapper::createView() {
   return std::make_shared<ViewWrapper>(view);
 }
 
-std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChain(std::shared_ptr<Surface> surface) {
+std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChain(const std::shared_ptr<Surface>& surface) {
   auto dispatcher = _dispatcher;
   auto swapChain =
       References<SwapChain>::adoptEngineRef(_engine, _engine->createSwapChain(surface->getSurface(), SwapChain::CONFIG_TRANSPARENT),
@@ -328,15 +330,15 @@ std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
   return std::make_shared<CameraWrapper>(camera);
 }
 
-std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
-  std::shared_ptr<ManagedBuffer> buffer = modelBuffer->getBuffer();
+std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(const std::shared_ptr<FilamentBuffer>& modelBuffer) {
+  const std::shared_ptr<ManagedBuffer>& buffer = modelBuffer->getBuffer();
   gltfio::FilamentAsset* assetPtr = _assetLoader->createAsset(buffer->getData(), buffer->getSize());
 
   return makeAssetWrapper(assetPtr);
 }
 
-std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadInstancedAsset(std::shared_ptr<FilamentBuffer> modelBuffer, int instanceCount) {
-  std::shared_ptr<ManagedBuffer> buffer = modelBuffer->getBuffer();
+std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadInstancedAsset(const std::shared_ptr<FilamentBuffer>& modelBuffer, int instanceCount) {
+  const std::shared_ptr<ManagedBuffer>& buffer = modelBuffer->getBuffer();
   FilamentInstance* instances[instanceCount]; // Memory managed by the FilamentAsset
   gltfio::FilamentAsset* assetPtr = _assetLoader->createInstancedAsset(buffer->getData(), buffer->getSize(), instances, instanceCount);
 
@@ -366,7 +368,7 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::makeAssetWrapper(FilamentAs
 }
 
 // Default light is a directional light for shadows + a default IBL
-void EngineWrapper::setIndirectLight(std::shared_ptr<FilamentBuffer> iblBuffer) {
+void EngineWrapper::setIndirectLight(const std::shared_ptr<FilamentBuffer>& iblBuffer) {
   if (!_scene) {
     throw std::runtime_error("Scene not initialized");
   }
@@ -431,7 +433,7 @@ std::shared_ptr<TransformManagerWrapper> EngineWrapper::createTransformManager()
 /**
  * Sets up a root transform on the current model to make it fit into a unit cube.
  */
-void EngineWrapper::transformToUnitCube(std::shared_ptr<FilamentAssetWrapper> asset) {
+void EngineWrapper::transformToUnitCube(const std::shared_ptr<FilamentAssetWrapper>& asset) {
   TransformManager& tm = _engine->getTransformManager();
   asset->transformToUnitCube(tm);
 }
@@ -454,7 +456,7 @@ void EngineWrapper::synchronizePendingFrames() {
  * @param entity The entity to apply the transform to
  * @param multiplyCurrent If true, the current transform will be multiplied with the new transform, otherwise it will be replaced
  */
-void EngineWrapper::updateTransform(math::mat4 transform, std::shared_ptr<EntityWrapper> entity, bool multiplyCurrent) {
+void EngineWrapper::updateTransform(math::mat4 transform, const std::shared_ptr<EntityWrapper>& entity, bool multiplyCurrent) {
   if (!entity) {
     throw std::invalid_argument("Entity is null");
   }
@@ -467,13 +469,13 @@ void EngineWrapper::updateTransform(math::mat4 transform, std::shared_ptr<Entity
 }
 
 // TODO(Marc): Ideally i want to do this in the entity wrapper, but i dont have access to the transform manager there
-void EngineWrapper::setEntityPosition(std::shared_ptr<EntityWrapper> entity, std::vector<double> positionVec, bool multiplyCurrent) {
+void EngineWrapper::setEntityPosition(const std::shared_ptr<EntityWrapper>& entity, std::vector<double> positionVec, bool multiplyCurrent) {
   math::float3 position = Converter::VecToFloat3(positionVec);
   auto translationMatrix = math::mat4::translation(position);
   updateTransform(translationMatrix, entity, multiplyCurrent);
 }
 
-void EngineWrapper::setEntityRotation(std::shared_ptr<EntityWrapper> entity, double angleRadians, std::vector<double> axisVec,
+void EngineWrapper::setEntityRotation(const std::shared_ptr<EntityWrapper>& entity, double angleRadians, std::vector<double> axisVec,
                                       bool multiplyCurrent) {
   math::float3 axis = Converter::VecToFloat3(axisVec);
   if (axis.x == 0 && axis.y == 0 && axis.z == 0) {
@@ -484,13 +486,13 @@ void EngineWrapper::setEntityRotation(std::shared_ptr<EntityWrapper> entity, dou
   updateTransform(rotationMatrix, entity, multiplyCurrent);
 }
 
-void EngineWrapper::setEntityScale(std::shared_ptr<EntityWrapper> entity, std::vector<double> scaleVec, bool multiplyCurrent) {
+void EngineWrapper::setEntityScale(const std::shared_ptr<EntityWrapper>& entity, std::vector<double> scaleVec, bool multiplyCurrent) {
   math::float3 scale = Converter::VecToFloat3(scaleVec);
   auto scaleMatrix = math::mat4::scaling(scale);
   updateTransform(scaleMatrix, entity, multiplyCurrent);
 }
 
-void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<RigidBodyWrapper> rigidBody) {
+void EngineWrapper::updateTransformByRigidBody(const std::shared_ptr<EntityWrapper>& entityWrapper, const std::shared_ptr<RigidBodyWrapper>& rigidBody) {
   if (!rigidBody) {
     throw std::invalid_argument("RigidBody is null");
   }
@@ -499,7 +501,7 @@ void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> en
   }
 
   // get rotation & position from the rigid body (it's not containing any scale information)
-  std::shared_ptr<btRigidBody> collisionObject = rigidBody->getRigidBody();
+  const std::shared_ptr<btRigidBody>& collisionObject = rigidBody->getRigidBody();
   btMotionState* motionState = collisionObject->getMotionState();
   btTransform bodyTransform;
   motionState->getWorldTransform(bodyTransform);
@@ -547,7 +549,7 @@ std::shared_ptr<RenderableManagerWrapper> EngineWrapper::getRendererableManager(
   return std::make_shared<RenderableManagerWrapper>(rm, stbTextureProvider, _engine);
 }
 
-std::shared_ptr<MaterialWrapper> EngineWrapper::createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer) {
+std::shared_ptr<MaterialWrapper> EngineWrapper::createMaterial(const std::shared_ptr<FilamentBuffer>& materialBuffer) {
   auto buffer = materialBuffer->getBuffer();
   if (buffer->getSize() == 0) {
     throw std::runtime_error("Material buffer is empty");

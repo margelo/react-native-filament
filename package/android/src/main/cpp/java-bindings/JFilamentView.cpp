@@ -9,7 +9,10 @@
 namespace margelo {
 
 JFilamentView::JFilamentView(const jni::alias_ref<jhybridobject>& javaThis, jni::alias_ref<JSurfaceProvider::javaobject> surfaceProvider)
-    : _javaPart(make_global(javaThis)), _surfaceProvider(jni::make_global(surfaceProvider)) {}
+    : _javaPart(make_global(javaThis)) {
+    jni::global_ref<JSurfaceProvider::javaobject> globalSurfaceProvider = jni::make_global(surfaceProvider);
+    _surfaceProvider = JNISharedPtr::make_shared_from_jni<JSurfaceProvider>(globalSurfaceProvider);
+}
 
 JFilamentView::~JFilamentView() {
   // TODO(marc): Cleanup?
@@ -28,7 +31,7 @@ jni::local_ref<JFilamentView::jhybriddata> JFilamentView::initHybrid(jni::alias_
 }
 
 std::shared_ptr<SurfaceProvider> JFilamentView::getSurfaceProvider() {
-  return JNISharedPtr::make_shared_from_jni<JSurfaceProvider>(_surfaceProvider);
+  return _surfaceProvider;
 }
 
 } // namespace margelo

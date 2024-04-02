@@ -28,7 +28,7 @@ void FilamentProxy::loadHybridMethods() {
 }
 
 #if HAS_WORKLETS
-std::shared_ptr<RNWorklet::JsiWorkletContext> FilamentProxy::getWorkletContext() {
+const std::shared_ptr<RNWorklet::JsiWorkletContext>& FilamentProxy::getWorkletContext() {
   if (_workletContext == nullptr) {
     Logger::log(TAG, "Creating Worklet Context...");
     auto callInvoker = getCallInvoker();
@@ -48,7 +48,8 @@ std::shared_ptr<RNWorklet::JsiWorkletContext> FilamentProxy::getWorkletContext()
 }
 #endif
 
-std::future<std::shared_ptr<FilamentBuffer>> FilamentProxy::loadAssetAsync(std::string path) {
+std::future<std::shared_ptr<FilamentBuffer>> FilamentProxy::loadAssetAsync(const std::string& path) {
+  Logger::log(TAG, "Loading asset %s...", path.c_str());
   auto weakThis = std::weak_ptr<FilamentProxy>(shared<FilamentProxy>());
   auto dispatcher = getBackgroundDispatcher();
   return dispatcher->runAsync<std::shared_ptr<FilamentBuffer>>([=]() {
@@ -62,6 +63,7 @@ std::future<std::shared_ptr<FilamentBuffer>> FilamentProxy::loadAssetAsync(std::
 }
 
 std::future<std::shared_ptr<FilamentView>> FilamentProxy::findFilamentViewAsync(int id) {
+  Logger::log(TAG, "Finding FilamentView #%i...", id);
   auto weakThis = std::weak_ptr<FilamentProxy>(shared<FilamentProxy>());
   auto dispatcher = getUIDispatcher();
   return dispatcher->runAsync<std::shared_ptr<FilamentView>>([=]() {

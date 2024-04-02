@@ -58,37 +58,37 @@ class EngineWrapper : public HybridObject {
 public:
   explicit EngineWrapper(const std::shared_ptr<Choreographer>& choreographer, const std::shared_ptr<Dispatcher>& dispatcher);
 
-  void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
+  void setSurfaceProvider(const std::shared_ptr<SurfaceProvider>& surfaceProvider);
 
   void loadHybridMethods() override;
 
 private:
-  void setSurface(std::shared_ptr<Surface> surface);
+  void setSurface(const std::shared_ptr<Surface>& surface);
   void destroySurface();
   void surfaceSizeChanged(int width, int height);
   void setRenderCallback(std::optional<RenderCallback> callback);
   void renderFrame(double timestamp);
   void setIsPaused(bool isPaused);
 
-  void transformToUnitCube(std::shared_ptr<FilamentAssetWrapper> asset);
-  std::shared_ptr<FilamentAssetWrapper> loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
-  std::shared_ptr<FilamentAssetWrapper> loadInstancedAsset(std::shared_ptr<FilamentBuffer> modelBuffer, int instanceCount);
-  void setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer);
+  void transformToUnitCube(const std::shared_ptr<FilamentAssetWrapper>& asset);
+  std::shared_ptr<FilamentAssetWrapper> loadAsset(const std::shared_ptr<FilamentBuffer>& modelBuffer);
+  std::shared_ptr<FilamentAssetWrapper> loadInstancedAsset(const std::shared_ptr<FilamentBuffer>& modelBuffer, int instanceCount);
+  void setIndirectLight(const std::shared_ptr<FilamentBuffer>& modelBuffer);
 
   void synchronizePendingFrames();
 
   std::shared_ptr<EntityWrapper> createLightEntity(std::string lightTypeStr, double colorFahrenheit, double intensity, double directionX,
                                                    double directionY, double directionZ, bool castShadows);
 
-  void updateTransform(math::mat4 transform, std::shared_ptr<EntityWrapper> entity, bool multiplyCurrent);
-  void setEntityPosition(std::shared_ptr<EntityWrapper> entity, std::vector<double> positionVec, bool multiplyCurrent);
-  void setEntityRotation(std::shared_ptr<EntityWrapper> entity, double angleRadians, std::vector<double> axisVec, bool multiplyCurrent);
-  void setEntityScale(std::shared_ptr<EntityWrapper> entity, std::vector<double> scaleVec, bool multiplyCurrent);
-  void updateTransformByRigidBody(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<RigidBodyWrapper> rigidBody);
+  void updateTransform(math::mat4 transform, const std::shared_ptr<EntityWrapper>& entity, bool multiplyCurrent);
+  void setEntityPosition(const std::shared_ptr<EntityWrapper>& entity, std::vector<double> positionVec, bool multiplyCurrent);
+  void setEntityRotation(const std::shared_ptr<EntityWrapper>& entity, double angleRadians, std::vector<double> axisVec, bool multiplyCurrent);
+  void setEntityScale(const std::shared_ptr<EntityWrapper>& entity, std::vector<double> scaleVec, bool multiplyCurrent);
+  void updateTransformByRigidBody(const std::shared_ptr<EntityWrapper>& entityWrapper, const std::shared_ptr<RigidBodyWrapper>& rigidBody);
 
   std::shared_ptr<RenderableManagerWrapper> getRendererableManager();
 
-  std::shared_ptr<MaterialWrapper> createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer);
+  std::shared_ptr<MaterialWrapper> createMaterial(const std::shared_ptr<FilamentBuffer>& materialBuffer);
 
   // Internal helper method to turn an FilamentAsset ptr into a FilamentAssetWrapper
   std::shared_ptr<FilamentAssetWrapper> makeAssetWrapper(FilamentAsset* assetPtr);
@@ -99,7 +99,6 @@ private:
   std::shared_ptr<SurfaceProvider> _surfaceProvider;
   std::shared_ptr<Listener> _surfaceListener;
   std::optional<RenderCallback> _renderCallback;
-  std::function<std::shared_ptr<FilamentBuffer>(std::string)> _getAssetBytes;
   std::shared_ptr<Choreographer> _choreographer;
   std::shared_ptr<Listener> _choreographerListener;
   double _startTime = 0;
@@ -125,7 +124,7 @@ private:
 
 private:
   std::shared_ptr<RendererWrapper> createRenderer();
-  std::shared_ptr<SwapChainWrapper> createSwapChain(std::shared_ptr<Surface> surface);
+  std::shared_ptr<SwapChainWrapper> createSwapChain(const std::shared_ptr<Surface>& surface);
   std::shared_ptr<SceneWrapper> createScene();
   std::shared_ptr<ViewWrapper> createView();
   std::shared_ptr<CameraWrapper> createCamera();
@@ -134,25 +133,25 @@ private:
 
 private:
   // Getters for shared objects
-  std::shared_ptr<RendererWrapper> getRenderer() {
+  const std::shared_ptr<RendererWrapper>& getRenderer() {
     return _renderer;
   }
-  std::shared_ptr<SwapChainWrapper> getSwapChain() {
+  const std::shared_ptr<SwapChainWrapper>& getSwapChain() {
     return _swapChain;
   }
-  std::shared_ptr<SceneWrapper> getScene() {
+  const std::shared_ptr<SceneWrapper>& getScene() {
     return _scene;
   }
-  std::shared_ptr<ViewWrapper> getView() {
+  const std::shared_ptr<ViewWrapper>& getView() {
     return _view;
   }
-  std::shared_ptr<CameraWrapper> getCamera() {
+  const std::shared_ptr<CameraWrapper>& getCamera() {
     return _camera;
   }
-  std::shared_ptr<ManipulatorWrapper> getCameraManipulator() {
+  const std::shared_ptr<ManipulatorWrapper>& getCameraManipulator() {
     return _cameraManipulator;
   }
-  std::shared_ptr<TransformManagerWrapper> getTransformManager() {
+  const std::shared_ptr<TransformManagerWrapper>& getTransformManager() {
     return _transformManager;
   }
 

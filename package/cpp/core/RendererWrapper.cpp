@@ -15,12 +15,12 @@ void RendererWrapper::loadHybridMethods() {
   registerHybridMethod("endFrame", &RendererWrapper::endFrame, this);
 }
 
-bool RendererWrapper::beginFrame(std::shared_ptr<SwapChainWrapper> swapChain, double frameTimeNanos) {
-  SwapChain* swapChainPtr = swapChain->getSwapChain().get();
+bool RendererWrapper::beginFrame(const std::shared_ptr<SwapChainWrapper>& swapChainWrapper, double frameTimeNanos) {
+  SwapChain* swapChainPtr = swapChainWrapper->getSwapChain().get();
   return _renderer->beginFrame(swapChainPtr, frameTimeNanos);
 }
 
-void RendererWrapper::render(std::shared_ptr<ViewWrapper> view) {
+void RendererWrapper::render(const std::shared_ptr<ViewWrapper>& view) {
   View* viewPtr = view->getView().get();
   _renderer->render(viewPtr);
 }
