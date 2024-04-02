@@ -14,7 +14,8 @@ using namespace filament;
 
 class FilamentAssetWrapper : public HybridObject {
 public:
-  explicit FilamentAssetWrapper(const std::shared_ptr<gltfio::FilamentAsset>& asset) : HybridObject("FilamentAssetWrapper"), _asset(asset) {}
+  explicit FilamentAssetWrapper(const std::shared_ptr<gltfio::FilamentAsset>& asset)
+      : HybridObject("FilamentAssetWrapper"), _asset(asset) {}
 
   void loadHybridMethods() override;
 

@@ -23,9 +23,9 @@ private:
   std::shared_ptr<Renderer> _renderer;
 
 private:
-  __attribute__ ((hot)) bool beginFrame(const std::shared_ptr<SwapChainWrapper>& swapChain, double frameTimeNanos);
-  __attribute__ ((hot)) void render(const std::shared_ptr<ViewWrapper>& view);
-  __attribute__ ((hot)) void endFrame();
+  __attribute__((hot)) bool beginFrame(const std::shared_ptr<SwapChainWrapper>& swapChain, double frameTimeNanos);
+  __attribute__((hot)) void render(const std::shared_ptr<ViewWrapper>& view);
+  __attribute__((hot)) void endFrame();
 };
 
 } // namespace margelo

@@ -23,7 +23,7 @@ public:
 public:
   void runSync(std::function<void()>&& function) override;
   void runAsync(std::function<void()>&& function) override;
-  
+
 private:
   __attribute__((hot)) void run(std::function<void()>&& function, bool waitUntilDone);
 

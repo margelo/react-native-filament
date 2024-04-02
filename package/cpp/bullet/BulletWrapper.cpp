@@ -34,7 +34,8 @@ std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBody(double mass, do
   return RigidBodyWrapper::create(mass, x, y, z, shapePtr, id, collisionCallback);
 }
 
-std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBodyFromTransform(double mass, const std::shared_ptr<TMat44Wrapper>& entityTransform,
+std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBodyFromTransform(double mass,
+                                                                              const std::shared_ptr<TMat44Wrapper>& entityTransform,
                                                                               const std::shared_ptr<ShapeWrapper>& shape, std::string id,
                                                                               std::optional<CollisionCallback> collisionCallback) {
   const auto& shapePtr = shape->getShape();

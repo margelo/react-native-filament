@@ -33,7 +33,8 @@ int RenderableManagerWrapper::getPrimitiveCount(const std::shared_ptr<EntityWrap
   return _renderableManager.getPrimitiveCount(renderable);
 }
 
-std::shared_ptr<MaterialInstanceWrapper> RenderableManagerWrapper::getMaterialInstanceAt(const std::shared_ptr<EntityWrapper>& entity, int index) {
+std::shared_ptr<MaterialInstanceWrapper> RenderableManagerWrapper::getMaterialInstanceAt(const std::shared_ptr<EntityWrapper>& entity,
+                                                                                         int index) {
   Entity entityInstance = entity->getEntity();
   RenderableManager::Instance renderable = _renderableManager.getInstance(entityInstance);
   // Note: the material instance pointer is managed by the renderable manager and should not be deleted by the user
@@ -51,7 +52,8 @@ void RenderableManagerWrapper::setAssetEntitiesOpacity(const std::shared_ptr<Fil
   }
 }
 
-void RenderableManagerWrapper::setInstanceWrapperEntitiesOpacity(const std::shared_ptr<FilamentInstanceWrapper>& instanceWrapper, double opacity) {
+void RenderableManagerWrapper::setInstanceWrapperEntitiesOpacity(const std::shared_ptr<FilamentInstanceWrapper>& instanceWrapper,
+                                                                 double opacity) {
   FilamentInstance* filamentInstance = instanceWrapper->getInstance();
   setInstanceEntitiesOpacity(filamentInstance, opacity);
 }
@@ -86,8 +88,10 @@ void RenderableManagerWrapper::setMaterialInstanceAt(const std::shared_ptr<Entit
   _renderableManager.setMaterialInstanceAt(renderable, index, materialInstance->getMaterialInstance());
 }
 
-void RenderableManagerWrapper::changeMaterialTextureMap(const std::shared_ptr<EntityWrapper>& entityWrapper, const std::string& materialName,
-                                                        const std::shared_ptr<FilamentBuffer>& textureBuffer, const std::string& textureFlags) {
+void RenderableManagerWrapper::changeMaterialTextureMap(const std::shared_ptr<EntityWrapper>& entityWrapper,
+                                                        const std::string& materialName,
+                                                        const std::shared_ptr<FilamentBuffer>& textureBuffer,
+                                                        const std::string& textureFlags) {
   // Input validation:
   if (entityWrapper == nullptr) {
     throw new std::invalid_argument("Entity is null!");
@@ -171,8 +175,8 @@ void RenderableManagerWrapper::setReceiveShadow(const std::shared_ptr<EntityWrap
   _renderableManager.setReceiveShadows(renderable, receiveShadow);
 }
 
-std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(const std::shared_ptr<MaterialWrapper>& materialWrapper, double halfExtendX,
-                                                                     double halfExtendY, double halfExtendZ) {
+std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(const std::shared_ptr<MaterialWrapper>& materialWrapper,
+                                                                     double halfExtendX, double halfExtendY, double halfExtendZ) {
   if (materialWrapper == nullptr) {
     throw new std::invalid_argument("Material is null");
   }

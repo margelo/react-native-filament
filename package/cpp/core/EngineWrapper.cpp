@@ -354,8 +354,10 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::makeAssetWrapper(FilamentAs
   }
 
   auto assetLoader = _assetLoader;
-  auto asset = References<gltfio::FilamentAsset>::adoptRef(
-      assetPtr, [assetLoader](gltfio::FilamentAsset* asset) { assetLoader->destroyAsset(asset); });
+  auto dispatcher = _dispatcher;
+  auto asset = References<gltfio::FilamentAsset>::adoptRef(assetPtr, [dispatcher, assetLoader](gltfio::FilamentAsset* asset) {
+    dispatcher->runSync([assetLoader, asset]() { assetLoader->destroyAsset(asset); });
+  });
 
   auto scene = _scene;
   if (!scene) {

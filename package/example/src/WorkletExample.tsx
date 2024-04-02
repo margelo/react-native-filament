@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import { useSharedValue } from 'react-native-worklets-core'
 import { Button, Platform, SafeAreaView, StyleSheet } from 'react-native'
-import { Engine, Filament, Float3, useEngine, useModel, useRenderCallback } from 'react-native-filament'
+import { Engine, Filament, Float3, useCamera, useEngine, useModel, useRenderCallback, useView } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { Config } from './config'
 
@@ -25,6 +25,9 @@ function Renderer({ engine }: { engine: Engine }) {
     path: penguModelPath,
   })
 
+  const view = useView(engine)
+  const camera = useCamera(engine)
+
   const prevAspectRatio = useSharedValue(0)
   useRenderCallback(
     engine,
@@ -32,8 +35,7 @@ function Renderer({ engine }: { engine: Engine }) {
       (_timestamp: number, _startTime: number, passedSeconds: number) => {
         'worklet'
 
-        const camera = engine.getCamera()
-        const aspectRatio = engine.getView().aspectRatio
+        const aspectRatio = view.aspectRatio
         if (prevAspectRatio.value !== aspectRatio) {
           prevAspectRatio.value = aspectRatio
           // Setup camera lens:
@@ -56,7 +58,7 @@ function Renderer({ engine }: { engine: Engine }) {
         animator.applyAnimation(0, passedSeconds)
         animator.updateBoneMatrices()
       },
-      [asset, engine, prevAspectRatio]
+      [asset, camera, prevAspectRatio, view]
     )
   )
 

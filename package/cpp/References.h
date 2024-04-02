@@ -44,9 +44,7 @@ public:
    * This is used to clean up children of `Engine`, e.g. via `Engine::destroy(Renderer)`.
    */
   static std::shared_ptr<T> adoptEngineRef(const std::shared_ptr<filament::Engine>& engine, T* value, CleanupEngineRefFunction&& cleanup) {
-    return adoptRef(value, [engine = engine, cleanup = std::move(cleanup)](T* ref) {
-        cleanup(engine, ref);
-    });
+    return adoptRef(value, [engine = engine, cleanup = std::move(cleanup)](T* ref) { cleanup(engine, ref); });
   }
 };
 

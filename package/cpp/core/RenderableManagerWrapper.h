@@ -32,7 +32,8 @@ public:
 public: // Public API
   int getPrimitiveCount(const std::shared_ptr<EntityWrapper>& entity);
   std::shared_ptr<MaterialInstanceWrapper> getMaterialInstanceAt(const std::shared_ptr<EntityWrapper>& entity, int index);
-  void setMaterialInstanceAt(const std::shared_ptr<EntityWrapper>& entity, int index, const std::shared_ptr<MaterialInstanceWrapper>& materialInstance);
+  void setMaterialInstanceAt(const std::shared_ptr<EntityWrapper>& entity, int index,
+                             const std::shared_ptr<MaterialInstanceWrapper>& materialInstance);
 
   /**
    * Convenience method to apply the given opacity to every material of all the asset's entities.
@@ -54,8 +55,8 @@ public: // Public API
 
   void setReceiveShadow(const std::shared_ptr<EntityWrapper>& entityWrapper, bool receiveShadow);
 
-  std::shared_ptr<EntityWrapper> createPlane(const std::shared_ptr<MaterialWrapper>& materialWrapper, double halfExtendX, double halfExtendY,
-                                             double halfExtendZ);
+  std::shared_ptr<EntityWrapper> createPlane(const std::shared_ptr<MaterialWrapper>& materialWrapper, double halfExtendX,
+                                             double halfExtendY, double halfExtendZ);
 
   /**
    * Takes an asset, gets the bounding box of all renderable entities and updates the bounding box to be multiplied by the given scale
