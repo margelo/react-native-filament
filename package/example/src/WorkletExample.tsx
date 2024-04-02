@@ -24,6 +24,11 @@ function blockJS(): void {
   }
 }
 
+// Camera config:
+const focalLengthInMillimeters = 28
+const near = 0.1
+const far = 1000
+
 function Renderer({ engine }: { engine: Engine }) {
   const asset = useModel({
     engine,
@@ -56,14 +61,6 @@ function Renderer({ engine }: { engine: Engine }) {
       (_timestamp: number, _startTime: number, passedSeconds: number) => {
         'worklet'
 
-        // Camera config:
-        const cameraPosition: Float3 = [0, 0, 8]
-        const cameraTarget: Float3 = [0, 0, 0]
-        const cameraUp: Float3 = [0, 1, 0]
-        const focalLengthInMillimeters = 28
-        const near = 0.1
-        const far = 1000
-
         const camera = engine.getCamera()
         const aspectRatio = engine.getView().aspectRatio
         if (prevAspectRatio.value !== aspectRatio) {
@@ -72,6 +69,11 @@ function Renderer({ engine }: { engine: Engine }) {
           camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
         }
 
+        // Arrays aren't currently copied to the worklet correctly, see:
+        // https://github.com/margelo/react-native-worklets-core/pull/147
+        const cameraPosition: Float3 = [0, 0, 8]
+        const cameraTarget: Float3 = [0, 0, 0]
+        const cameraUp: Float3 = [0, 1, 0]
         camera.lookAt(cameraPosition, cameraTarget, cameraUp)
 
         if (asset.state === 'loading') {
