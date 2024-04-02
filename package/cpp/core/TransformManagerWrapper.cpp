@@ -46,7 +46,8 @@ void TransformManagerWrapper::commitLocalTransformTransaction() {
   _transformManager.commitLocalTransformTransaction();
 }
 
-void TransformManagerWrapper::setTransform(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<TMat44Wrapper> transform) {
+void TransformManagerWrapper::setTransform(const std::shared_ptr<EntityWrapper>& entityWrapper,
+                                           const std::shared_ptr<TMat44Wrapper>& transform) {
   if (!entityWrapper) {
     throw std::invalid_argument("Entity is null");
   }
