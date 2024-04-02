@@ -23,14 +23,14 @@ JFilamentProxy::~JFilamentProxy() {
   // TODO(hanno): Cleanup?
 }
 
-const std::shared_ptr<FilamentBuffer>& JFilamentProxy::loadAsset(const std::string& path) {
+std::shared_ptr<FilamentBuffer> JFilamentProxy::loadAsset(const std::string& path) {
   static const auto method = javaClassLocal()->getMethod<jni::alias_ref<jni::JByteBuffer>(jni::alias_ref<jstring>)>("loadAsset");
   jni::local_ref<jni::JByteBuffer> buffer = method(_javaPart, jni::make_jstring(path));
   auto managedBuffer = std::make_shared<AndroidManagedBuffer>(buffer);
   return std::make_shared<FilamentBuffer>(managedBuffer);
 }
 
-const std::shared_ptr<FilamentView>& JFilamentProxy::findFilamentView(int id) {
+std::shared_ptr<FilamentView> JFilamentProxy::findFilamentView(int id) {
   static const auto method = javaClassLocal()->getMethod<jni::alias_ref<JFilamentView::javaobject>(jint)>("findFilamentView");
   jni::local_ref<JFilamentView::javaobject> view = method(_javaPart, id);
   jni::global_ref<JFilamentView::javaobject> globalRef = jni::make_global(view);
@@ -38,7 +38,7 @@ const std::shared_ptr<FilamentView>& JFilamentProxy::findFilamentView(int id) {
   return std::static_pointer_cast<FilamentView>(sharedRef);
 }
 
-const std::shared_ptr<Choreographer>& JFilamentProxy::createChoreographer() {
+std::shared_ptr<Choreographer> JFilamentProxy::createChoreographer() {
   static const auto method = javaClassLocal()->getMethod<jni::alias_ref<JChoreographer::javaobject>()>("createChoreographer");
   jni::local_ref<JChoreographer::javaobject> choreographer = method(_javaPart);
   jni::global_ref<JChoreographer::javaobject> globalRef = jni::make_global(choreographer);
