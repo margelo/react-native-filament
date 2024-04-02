@@ -30,7 +30,7 @@ jni::local_ref<JFilamentView::jhybriddata> JFilamentView::initHybrid(jni::alias_
   return makeCxxInstance(jThis, surfaceProvider);
 }
 
-const std::shared_ptr<SurfaceProvider>& JFilamentView::getSurfaceProvider() {
+std::shared_ptr<SurfaceProvider> JFilamentView::getSurfaceProvider() {
   return _surfaceProvider;
 }
 

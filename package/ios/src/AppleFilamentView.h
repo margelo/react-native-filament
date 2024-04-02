@@ -18,7 +18,7 @@ class AppleFilamentView : public FilamentView {
 public:
   explicit AppleFilamentView(FilamentMetalView* view);
 
-  const std::shared_ptr<SurfaceProvider>& getSurfaceProvider() override;
+  std::shared_ptr<SurfaceProvider> getSurfaceProvider() override;
 
 private:
   FilamentMetalView* _view;

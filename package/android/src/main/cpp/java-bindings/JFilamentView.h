@@ -19,7 +19,7 @@ public:
   ~JFilamentView();
   static void registerNatives();
 
-  const std::shared_ptr<SurfaceProvider>& getSurfaceProvider() override;
+  std::shared_ptr<SurfaceProvider> getSurfaceProvider() override;
 
 private:
   friend HybridBase;

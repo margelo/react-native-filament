@@ -20,7 +20,7 @@ public:
   explicit FilamentView() : HybridObject("FilamentView") {}
 
 public:
-  virtual const std::shared_ptr<SurfaceProvider>& getSurfaceProvider() = 0;
+  virtual std::shared_ptr<SurfaceProvider> getSurfaceProvider() = 0;
 
   void loadHybridMethods() override;
 };
