@@ -144,12 +144,11 @@ void EngineWrapper::setSurfaceProvider(const std::shared_ptr<SurfaceProvider>& s
   std::weak_ptr<EngineWrapper> weakSelf = shared<EngineWrapper>();
   SurfaceProvider::Callback callback{.onSurfaceCreated =
                                          [dispatcher, weakSelf](const std::shared_ptr<Surface>& surface) {
-      std::shared_ptr<Surface> s = surface;
                                            dispatcher->runAsync([=]() {
                                              auto sharedThis = weakSelf.lock();
                                              if (sharedThis != nullptr) {
                                                Logger::log(TAG, "Initializing surface...");
-                                               sharedThis->setSurface(s);
+                                               sharedThis->setSurface(surface);
                                              }
                                            });
                                          },
