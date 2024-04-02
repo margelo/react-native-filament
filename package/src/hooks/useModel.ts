@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AssetProps, useAsset } from './useAsset'
 import { Animator, Engine, Entity } from '../types'
 import { FilamentAsset } from '../types/FilamentAsset'
 import { useRenderableManager } from './useRenderableManager'
 import { FilamentProxy } from '../native/FilamentProxy'
-import { ISharedValue, useSharedValue } from 'react-native-worklets-core'
 
 interface ModelProps extends AssetProps {
   /**
@@ -77,65 +76,72 @@ export function useModel({
 }: ModelProps): FilamentModel {
   const assetBuffer = useAsset({ path: path })
   const renderableManager = useRenderableManager(engine)
-  const asset = useSharedValue<FilamentAsset | undefined>(undefined)
+  const [asset, setAsset] = useState<FilamentAsset | undefined>(undefined)
 
   useEffect(() => {
+    const setAssetWorklet = Worklets.createRunInJsFn(setAsset)
     Worklets.createRunInContextFn(() => {
       'worklet'
       if (assetBuffer == null) return
-
-      if (!instanceCount || instanceCount === 1) {
-        asset.value = engine.loadAsset(assetBuffer)
-      } else {
-        asset.value = engine.loadInstancedAsset(assetBuffer, instanceCount)
+      if (instanceCount === 0) {
+        throw new Error('instanceCount must be greater than 0')
       }
+
+      let loadedAsset: FilamentAsset
+      if (instanceCount == null || instanceCount === 1) {
+        loadedAsset = engine.loadAsset(assetBuffer)
+      } else {
+        loadedAsset = engine.loadInstancedAsset(assetBuffer, instanceCount)
+      }
+
+      setAssetWorklet(loadedAsset)
     }, context)()
-  }, [asset, assetBuffer, engine, instanceCount])
+  }, [assetBuffer, engine, instanceCount])
 
   const animator = useMemo(() => {
-    if (asset.value == null) return undefined
-    return asset.value.getAnimator()
-  }, [asset.value])
+    if (asset == null) return undefined
+    return asset.getAnimator()
+  }, [asset])
 
   const entities = useMemo(() => {
-    if (asset.value == null) return undefined
-    return asset.value.getEntities()
-  }, [asset.value])
+    if (asset == null) return undefined
+    return asset.getEntities()
+  }, [asset])
 
   const renderableEntities = useMemo(() => {
-    if (asset.value == null) return undefined
-    return asset.value.getRenderableEntities()
-  }, [asset.value])
+    if (asset == null) return undefined
+    return asset.getRenderableEntities()
+  }, [asset])
 
   useEffect(() => {
     if (shouldReleaseSourceData) {
       // releases CPU memory for bindings
-      asset.value?.releaseSourceData()
+      asset?.releaseSourceData()
     }
-  }, [asset.value, shouldReleaseSourceData])
+  }, [asset, shouldReleaseSourceData])
 
   useEffect(() => {
-    if (!autoAddToScene || asset.value == null) {
+    if (!autoAddToScene || asset == null) {
       return
     }
     Worklets.createRunInContextFn(() => {
       'worklet'
 
-      if (asset.value == null) return
+      if (asset == null) return
       console.log('added asset entities')
-      engine.getScene().addAssetEntities(asset.value)
+      engine.getScene().addAssetEntities(asset)
     }, context)()
 
     return () => {
       Worklets.createRunInContextFn(() => {
         'worklet'
 
-        if (asset.value == null) return
+        if (asset == null) return
         console.log('removed asset entities')
-        engine.getScene().removeAssetEntities(asset.value)
+        engine.getScene().removeAssetEntities(asset)
       }, context)()
     }
-  }, [autoAddToScene, engine, asset.value, entities])
+  }, [autoAddToScene, engine, asset])
 
   const prevCastShadowRef = useRef(castShadow)
   useEffect(() => {
@@ -144,13 +150,13 @@ export function useModel({
     Worklets.createRunInContextFn(() => {
       'worklet'
 
-      if (asset.value == null) return
-      const root = asset.value.getRoot()
+      if (asset == null) return
+      const root = asset.getRoot()
       if (castShadow || prevCastShadowRef.current !== castShadow) {
         renderableManager.setCastShadow(root, true)
       }
     }, context)()
-  }, [castShadow, asset.value, entities, renderableManager])
+  }, [castShadow, asset, entities, renderableManager])
 
   const prevReceiveShadowRef = useRef(receiveShadow)
   useEffect(() => {
@@ -159,22 +165,22 @@ export function useModel({
     Worklets.createRunInContextFn(() => {
       'worklet'
 
-      if (asset.value == null) return
-      const root = asset.value.getRoot()
+      if (asset == null) return
+      const root = asset.getRoot()
       if (receiveShadow || prevReceiveShadowRef.current !== receiveShadow) {
         renderableManager.setReceiveShadow(root, true)
       }
     }, context)()
-  }, [receiveShadow, asset.value, renderableManager])
+  }, [receiveShadow, asset, renderableManager])
 
-  if (assetBuffer == null || asset.value == null || animator == null || entities == null || renderableEntities == null) {
+  if (assetBuffer == null || asset == null || animator == null || entities == null || renderableEntities == null) {
     return {
       state: 'loading',
     }
   }
   return {
     state: 'loaded',
-    asset: asset.value,
+    asset: asset,
     animator: animator,
     entities: entities,
     renderableEntities: renderableEntities,

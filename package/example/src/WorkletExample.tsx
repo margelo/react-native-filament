@@ -49,28 +49,10 @@ function useEngine() {
 }
 
 function Renderer({ engine }: { engine: Engine }) {
-  const assetBuffer = useAsset({ path: penguModelPath })
-
-  // Adding asset to the scene
-  const assetAnimator = useSharedValue<Animator | undefined>(undefined)
-  const addAsset = useWorklet(
-    context,
-    () => {
-      'worklet'
-      if (assetBuffer == null) return
-
-      const asset = engine.loadAsset(assetBuffer)
-      assetAnimator.value = asset.getAnimator()
-      engine.getScene().addAssetEntities(asset)
-
-      console.log('Asset added to the scene!')
-    },
-    [assetBuffer]
-  )
-
-  useEffect(() => {
-    addAsset()
-  }, [addAsset])
+  const asset = useModel({
+    engine,
+    path: penguModelPath,
+  })
 
   // Add light:
   const [lightBuffer, setLightBuffer] = useState<FilamentBuffer>()
@@ -86,8 +68,8 @@ function Renderer({ engine }: { engine: Engine }) {
       'worklet'
       if (lightBuffer == null) return
       engine.setIndirectLight(lightBuffer)
-      // const directionalLight = engine.createLightEntity('directional', 6500, 10000, 0, -1, 0, true)
-      // engine.getScene().addEntity(directionalLight)
+      const directionalLight = engine.createLightEntity('directional', 6500, 10000, 0, -1, 0, true)
+      engine.getScene().addEntity(directionalLight)
     },
     [lightBuffer]
   )
@@ -121,14 +103,15 @@ function Renderer({ engine }: { engine: Engine }) {
 
         camera.lookAt(cameraPosition, cameraTarget, cameraUp)
 
-        if (assetAnimator.value == null) {
+        if (asset.state === 'loading') {
           return
         }
+        const animator = asset.animator
 
-        assetAnimator.value.applyAnimation(0, passedSeconds)
-        assetAnimator.value.updateBoneMatrices()
+        animator.applyAnimation(0, passedSeconds)
+        animator.updateBoneMatrices()
       },
-      [assetAnimator, engine, prevAspectRatio]
+      [asset, engine, prevAspectRatio]
     )
   )
 
