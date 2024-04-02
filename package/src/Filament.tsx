@@ -5,6 +5,7 @@ import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 import { Engine } from './types'
 import { FilamentView } from './native/FilamentViewTypes'
 import { reportError } from './ErrorUtils'
+import { Worklets } from 'react-native-worklets-core'
 
 export interface FilamentProps extends NativeProps {
   engine: Engine
@@ -41,7 +42,16 @@ export class Filament extends React.PureComponent<FilamentProps> {
       }
       const surfaceProvider = this.view.getSurfaceProvider()
       // Link the surface with the engine:
-      this.props.engine.setSurfaceProvider(surfaceProvider)
+      // this.props.engine.setSurfaceProvider(surfaceProvider)
+
+      // Call engine on worklet thread
+      const context = FilamentProxy.getWorkletContext()
+      const engine = this.props.engine
+      Worklets.createRunInContextFn(() => {
+        'worklet'
+        engine.setSurfaceProvider(surfaceProvider)
+        console.log('Engine set surface provider!')
+      }, context)()
     } catch (e) {
       reportError(e)
     }

@@ -8,22 +8,7 @@ import { FadeOut } from './FadeOut'
 import { ChangeMaterials } from './ChangeMaterials'
 import { CastShadow } from './CastShadow'
 import { MultipleInstances } from './MultipleInstances'
-import { Worklets } from 'react-native-worklets-core'
-import { FilamentProxy } from '../../src/native/FilamentProxy'
-
-const context = FilamentProxy.getWorkletContext()
-
-Worklets.createRunInContextFn(() => {
-  'worklet'
-  try {
-    console.log('creating engine...')
-    const engine = FilamentProxy.createEngine()
-    console.log('created engine!')
-    console.log('engine: ' + engine)
-  } catch (e) {
-    console.error(`Error! ${e}`, e)
-  }
-}, context)()
+import { WorkletExample } from './WorkletExample'
 
 function NavigationItem(props: { name: string; route: string }) {
   const navigation = useNavigation()
@@ -60,6 +45,7 @@ function HomeScreen() {
       <NavigationItem name="🎨 Change Materials" route="ChangeMaterials" />
       <NavigationItem name="🌑 Cast Shadow" route="CastShadow" />
       <NavigationItem name="🤖 Multiple Instances" route="MultipleInstances" />
+      <NavigationItem name="🧠 Worklet Example" route="WorkletExample" />
     </View>
   )
 }
@@ -91,6 +77,7 @@ function App() {
         <Stack.Screen name="ChangeMaterials" component={ChangeMaterials} />
         <Stack.Screen name="CastShadow" component={CastShadow} />
         <Stack.Screen name="MultipleInstances" component={MultipleInstances} />
+        <Stack.Screen name="WorkletExample" component={WorkletExample} />
         <Stack.Screen name="Test" component={TestScreen} />
       </Stack.Navigator>
     </NavigationContainer>
