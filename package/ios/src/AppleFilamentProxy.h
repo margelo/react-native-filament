@@ -8,10 +8,10 @@
 
 #pragma once
 
-#include "threading/Dispatcher.h"
 #include "FilamentBuffer.h"
 #include "FilamentProxy.h"
 #include "FilamentView.h"
+#include "threading/Dispatcher.h"
 #include <ReactCommon/CallInvoker.h>
 #include <jsi/jsi.h>
 

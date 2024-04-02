@@ -5,9 +5,9 @@
 #pragma once
 
 #include "Choreographer.h"
-#include "threading/Dispatcher.h"
 #include "FilamentBuffer.h"
 #include "FilamentView.h"
+#include "threading/Dispatcher.h"
 #include <ReactCommon/CallInvokerHolder.h>
 #include <fbjni/fbjni.h>
 #include <jni.h>

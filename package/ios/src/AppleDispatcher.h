@@ -17,16 +17,12 @@ public:
   explicit AppleDispatcher(dispatch_queue_t dispatchQueue) : _dispatchQueue(dispatchQueue) {}
 
 public:
-  void runSync(std::function<void ()>&& function) override {
-    dispatch_sync(_dispatchQueue, [function = std::move(function)]() {
-      function();
-    });
+  void runSync(std::function<void()>&& function) override {
+    dispatch_sync(_dispatchQueue, [function = std::move(function)]() { function(); });
   }
 
-  void runAsync(std::function<void ()>&& function) override {
-    dispatch_async(_dispatchQueue, [function = std::move(function)]() {
-      function();
-    });
+  void runAsync(std::function<void()>&& function) override {
+    dispatch_async(_dispatchQueue, [function = std::move(function)]() { function(); });
   }
 
 private:

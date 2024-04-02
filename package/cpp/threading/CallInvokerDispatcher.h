@@ -15,19 +15,19 @@ using namespace facebook;
  * A Dispatcher that uses react::CallInvoker for it's implementation
  */
 class CallInvokerDispatcher : public Dispatcher {
- public:
-  explicit CallInvokerDispatcher(const std::shared_ptr<react::CallInvoker>& callInvoker): _callInvoker(callInvoker) {}
+public:
+  explicit CallInvokerDispatcher(const std::shared_ptr<react::CallInvoker>& callInvoker) : _callInvoker(callInvoker) {}
 
-  void runAsync(std::function<void ()>&& function) override {
+  void runAsync(std::function<void()>&& function) override {
     _callInvoker->invokeAsync(std::move(function));
   }
 
-  void runSync(std::function<void ()>&& function) override {
+  void runSync(std::function<void()>&& function) override {
     _callInvoker->invokeSync(std::move(function));
   }
 
- private:
+private:
   std::shared_ptr<react::CallInvoker> _callInvoker;
 };
 
-}
+} // namespace margelo

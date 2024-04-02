@@ -1,9 +1,9 @@
 #include "FilamentInstaller.h"
 #include "AndroidFilamentProxy.h"
+#include "threading/CallInvokerDispatcher.h"
 #include <fbjni/fbjni.h>
 #include <jni.h>
 #include <jsi/jsi.h>
-#include "threading/CallInvokerDispatcher.h"
 
 namespace margelo {
 

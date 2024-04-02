@@ -12,6 +12,7 @@
 #import "AppleManagedBuffer.h"
 #import "FilamentMetalView.h"
 #import "FilamentView.h"
+#import "threading/ThreadDispatcher.h"
 #import <Foundation/Foundation.h>
 #import <React/RCTBridge+Private.h>
 #import <React/RCTBridge.h>
@@ -56,9 +57,10 @@ std::shared_ptr<FilamentBuffer> AppleFilamentProxy::loadAsset(std::string path) 
 
 std::shared_ptr<Dispatcher> AppleFilamentProxy::getRenderThreadDispatcher() {
   if (_renderThreadDispatcher == nullptr) {
-    dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, -1);
-    dispatch_queue_t queue = dispatch_queue_create("filament.render.queue", qos);
-    _renderThreadDispatcher = std::make_shared<AppleDispatcher>(queue);
+    // Filament has a strong requirement that you can only render from one single Thread.
+    // iOS dispatch_queues may use multiple Threads, so we need to use ThreadDispatcher instead of
+    // AppleDispatcher.
+    _renderThreadDispatcher = std::make_shared<ThreadDispatcher>();
   }
   return _renderThreadDispatcher;
 }
