@@ -1,10 +1,9 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
 import { useSharedValue, useWorklet } from 'react-native-worklets-core'
 import { FilamentProxy } from '../../src/native/FilamentProxy'
 import { useEffect } from 'react'
-import { Button, Platform, SafeAreaView, StyleSheet, View } from 'react-native'
-import { Animator, Engine, Filament, Float3, useAsset, useModel, useRenderCallback } from 'react-native-filament'
-import { FilamentBuffer } from '../../src/native/FilamentBuffer'
+import { Button, Platform, SafeAreaView, StyleSheet } from 'react-native'
+import { Engine, Filament, Float3, useAsset, useEngine, useModel, useRenderCallback } from 'react-native-filament'
 
 const context = FilamentProxy.getWorkletContext()
 
@@ -25,29 +24,6 @@ function blockJS(): void {
   }
 }
 
-function useEngine() {
-  const asyncEngine = useWorklet(
-    context,
-    () => {
-      'worklet'
-      return FilamentProxy.createEngine()
-    },
-    []
-  )
-
-  const [engine, setEngine] = useState<Engine | null>(null)
-
-  useEffect(() => {
-    const asyncEffect = async () => {
-      const _engine = await asyncEngine()
-      setEngine(_engine)
-    }
-    asyncEffect()
-  }, [asyncEngine])
-
-  return engine
-}
-
 function Renderer({ engine }: { engine: Engine }) {
   const asset = useModel({
     engine,
@@ -55,12 +31,7 @@ function Renderer({ engine }: { engine: Engine }) {
   })
 
   // Add light:
-  const [lightBuffer, setLightBuffer] = useState<FilamentBuffer>()
-  useEffect(() => {
-    FilamentProxy.loadAsset(indirectLightPath).then((buffer) => {
-      setLightBuffer(buffer)
-    })
-  }, [])
+  const lightBuffer = useAsset({ path: indirectLightPath })
 
   const addLight = useWorklet(
     context,
