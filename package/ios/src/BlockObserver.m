@@ -17,9 +17,6 @@
 - (instancetype)initWithBlock:(ObservationBlock)block {
   if (self = [super init]) {
     _block = [block copy];
-
-    NSRunLoop* runLoop = [NSRunLoop currentRunLoop];
-    [runLoop runMode:<#(nonnull NSRunLoopMode) #> beforeDate:<#(nonnull NSDate*)#>]
   }
   return self;
 }
