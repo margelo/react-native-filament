@@ -73,7 +73,7 @@ private:
 
 private:
 #if HAS_WORKLETS
-    std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;
+  std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;
 #endif
 
 public:

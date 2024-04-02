@@ -47,13 +47,13 @@ std::shared_ptr<Choreographer> JFilamentProxy::createChoreographer() {
 }
 
 std::shared_ptr<Dispatcher> JFilamentProxy::getRenderThreadDispatcher() {
-    if (_uiDispatcher == nullptr) {
-        static const auto method = javaClassLocal()->getMethod<jni::alias_ref<JDispatcher::javaobject>()>("getRenderThreadDispatcher");
-        jni::local_ref<JDispatcher::javaobject> dispatcher = method(_javaPart);
-        jni::global_ref<JDispatcher::javaobject> globalRef = jni::make_global(dispatcher);
-        _uiDispatcher = JNISharedPtr::make_shared_from_jni<JDispatcher>(globalRef);
-    }
-    return _uiDispatcher;
+  if (_uiDispatcher == nullptr) {
+    static const auto method = javaClassLocal()->getMethod<jni::alias_ref<JDispatcher::javaobject>()>("getRenderThreadDispatcher");
+    jni::local_ref<JDispatcher::javaobject> dispatcher = method(_javaPart);
+    jni::global_ref<JDispatcher::javaobject> globalRef = jni::make_global(dispatcher);
+    _uiDispatcher = JNISharedPtr::make_shared_from_jni<JDispatcher>(globalRef);
+  }
+  return _uiDispatcher;
 }
 
 std::shared_ptr<Dispatcher> JFilamentProxy::getUIDispatcher() {

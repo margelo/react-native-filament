@@ -14,8 +14,8 @@
 #import <React/RCTBridge+Private.h>
 #import <React/RCTBridge.h>
 
-#import "threading/Dispatcher.h"
 #import "threading/CallInvokerDispatcher.h"
+#import "threading/Dispatcher.h"
 
 using namespace facebook;
 using namespace margelo;

@@ -29,26 +29,22 @@ void FilamentProxy::loadHybridMethods() {
 
 #if HAS_WORKLETS
 std::shared_ptr<RNWorklet::JsiWorkletContext> FilamentProxy::getWorkletContext() {
-    if (_workletContext == nullptr) {
-        Logger::log(TAG, "Creating Worklet Context...");
-        auto callInvoker = getCallInvoker();
-        auto runOnJS = [=](std::function<void()>&& function) {
-            callInvoker->invokeAsync(std::move(function));
-        };
-        auto renderThreadDispatcher = getRenderThreadDispatcher();
-        auto runOnWorklet = [=](std::function<void()>&& function) {
-            renderThreadDispatcher->runAsync(std::move(function));
-        };
-        auto& runtime = getRuntime();
-        _workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("FilamentRenderer", &runtime, runOnJS, runOnWorklet);
-        Logger::log(TAG, "Successfully created WorkletContext! Installing global Dispatcher...");
+  if (_workletContext == nullptr) {
+    Logger::log(TAG, "Creating Worklet Context...");
+    auto callInvoker = getCallInvoker();
+    auto runOnJS = [=](std::function<void()>&& function) { callInvoker->invokeAsync(std::move(function)); };
+    auto renderThreadDispatcher = getRenderThreadDispatcher();
+    auto runOnWorklet = [=](std::function<void()>&& function) { renderThreadDispatcher->runAsync(std::move(function)); };
+    auto& runtime = getRuntime();
+    _workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("FilamentRenderer", &runtime, runOnJS, runOnWorklet);
+    Logger::log(TAG, "Successfully created WorkletContext! Installing global Dispatcher...");
 
-        _workletContext->invokeOnWorkletThread([=](RNWorklet::JsiWorkletContext*, jsi::Runtime& runtime) {
-            PromiseFactory::install(runtime, renderThreadDispatcher);
-            Logger::log(TAG, "Successfully installed global Dispatcher in WorkletContext!");
-        });
-    }
-    return _workletContext;
+    _workletContext->invokeOnWorkletThread([=](RNWorklet::JsiWorkletContext*, jsi::Runtime& runtime) {
+      PromiseFactory::install(runtime, renderThreadDispatcher);
+      Logger::log(TAG, "Successfully installed global Dispatcher in WorkletContext!");
+    });
+  }
+  return _workletContext;
 }
 #endif
 

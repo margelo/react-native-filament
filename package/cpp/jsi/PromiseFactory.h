@@ -8,10 +8,10 @@
 #pragma once
 
 #include "Promise.h"
+#include "threading/Dispatcher.h"
 #include <ReactCommon/CallInvoker.h>
 #include <jsi/jsi.h>
 #include <memory>
-#include "threading/Dispatcher.h"
 
 namespace margelo {
 
@@ -28,8 +28,8 @@ private:
 
 class PromiseFactory {
 public:
-  using RunPromise = std::function<void(jsi::Runtime& runtime, const std::shared_ptr<Promise>& promise,
-                                        const std::shared_ptr<Dispatcher>& dispatcher)>;
+  using RunPromise =
+      std::function<void(jsi::Runtime& runtime, const std::shared_ptr<Promise>& promise, const std::shared_ptr<Dispatcher>& dispatcher)>;
 
   /**
    Install the Promise Factory into the given Runtime.

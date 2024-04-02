@@ -1,20 +1,9 @@
 import React, { useState } from 'react'
-import { Worklets, useRunInJS, useSharedValue, useWorklet } from 'react-native-worklets-core'
+import { Worklets, useSharedValue, useWorklet } from 'react-native-worklets-core'
 import { FilamentProxy } from '../../src/native/FilamentProxy'
 import { useEffect } from 'react'
 import { Button, Platform, StyleSheet, View } from 'react-native'
-import {
-  Animator,
-  Engine,
-  Filament,
-  Float3,
-  useAsset,
-  useCamera,
-  useModel,
-  useRenderCallback,
-  useScene,
-  useView,
-} from 'react-native-filament'
+import { Animator, Engine, Filament, Float3, useAsset } from 'react-native-filament'
 import { FilamentBuffer } from '../../src/native/FilamentBuffer'
 import { reportWorkletError } from '../../src/ErrorUtils'
 
@@ -61,12 +50,7 @@ function useEngine() {
 }
 
 function Renderer({ engine }: { engine: Engine }) {
-  const [assetBuffer, setAssetBuffer] = useState<FilamentBuffer>()
-  useEffect(() => {
-    FilamentProxy.loadAsset(penguModelPath).then((buffer) => {
-      setAssetBuffer(buffer)
-    })
-  }, [])
+  const assetBuffer = useAsset({ path: penguModelPath })
 
   // Adding asset to the scene
   const assetAnimator = useSharedValue<Animator | undefined>(undefined)

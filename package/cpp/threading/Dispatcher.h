@@ -11,7 +11,7 @@
 namespace margelo {
 
 class Dispatcher {
- public:
+public:
   /**
    * Run the given void function synchronously on the Thread this Dispatcher is managing.
    * @param function

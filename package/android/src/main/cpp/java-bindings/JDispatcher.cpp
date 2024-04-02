@@ -30,13 +30,13 @@ void JDispatcher::trigger() {
   _jobs.pop();
 }
 
-void JDispatcher::runAsync(std::function<void ()>&& function) {
+void JDispatcher::runAsync(std::function<void()>&& function) {
   std::unique_lock lock(_mutex);
   _jobs.push(std::move(function));
   scheduleTrigger();
 }
 
-void JDispatcher::runSync(std::function<void ()>&& function) {
+void JDispatcher::runSync(std::function<void()>&& function) {
   _mutex.lock();
   runAsync([this, function = std::move(function)]() {
     function();
