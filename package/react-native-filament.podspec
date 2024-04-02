@@ -3,6 +3,11 @@ require "json"
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
 
+nodeModules = File.join(File.dirname(`cd "#{Pod::Config.instance.installation_root.to_s}" && node --print "require.resolve('react-native/package.json')"`), '..')
+workletsPath = File.join(nodeModules, "react-native-worklets-core")
+hasWorklets = File.exist?(workletsPath)
+Pod::UI.puts("[react-native-filament] react-native-worklets-core #{hasWorklets ? "found" : "not found"}!")
+
 Pod::Spec.new do |s|
   s.name         = "react-native-filament"
   s.version      = package["version"]
@@ -15,8 +20,8 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/margelo/react-native-filament.git", :tag => "#{s.version}" }
 
   s.pod_target_xcconfig = {
-    'GCC_PREPROCESSOR_DEFINITIONS' => 'FILAMENT_APP_USE_METAL=1 $(inherited)',
-    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+    "GCC_PREPROCESSOR_DEFINITIONS" => "FILAMENT_APP_USE_METAL=1 HAS_WORKLETS=#{hasWorklets} $(inherited)",
+    "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
     "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/**\" \"$(PODS_TARGET_SRCROOT)/ios/libs/bullet3/**\""
   }
 
