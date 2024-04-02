@@ -99,7 +99,6 @@ private:
   std::shared_ptr<SurfaceProvider> _surfaceProvider;
   std::shared_ptr<Listener> _surfaceListener;
   std::optional<RenderCallback> _renderCallback;
-  std::function<std::shared_ptr<FilamentBuffer>(std::string)> _getAssetBytes;
   std::shared_ptr<Choreographer> _choreographer;
   std::shared_ptr<Listener> _choreographerListener;
   double _startTime = 0;
