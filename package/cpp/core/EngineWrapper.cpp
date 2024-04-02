@@ -244,9 +244,11 @@ void EngineWrapper::setRenderCallback(std::optional<RenderCallback> callback) {
 // once we have a surface.
 void EngineWrapper::renderFrame(double timestamp) {
   if (!_swapChain) {
+    [[unlikely]];
     return;
   }
   if (!_view) {
+    [[unlikely]];
     return;
   }
 
@@ -257,6 +259,7 @@ void EngineWrapper::renderFrame(double timestamp) {
   }
 
   if (_renderCallback.has_value()) {
+    [[likely]];
     const auto& renderCallback = _renderCallback.value();
     // Call JS callback with scene information
     double passedSeconds = (timestamp - _startTime) / 1e9;
@@ -266,6 +269,7 @@ void EngineWrapper::renderFrame(double timestamp) {
   std::shared_ptr<Renderer> renderer = _renderer->getRenderer();
   std::shared_ptr<SwapChain> swapChain = _swapChain->getSwapChain();
   if (renderer->beginFrame(swapChain.get(), timestamp)) {
+    [[likely]];
     std::shared_ptr<View> view = _view->getView();
     renderer->render(view.get());
     renderer->endFrame();
