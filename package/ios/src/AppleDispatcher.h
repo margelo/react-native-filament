@@ -12,6 +12,9 @@
 
 namespace margelo {
 
+/**
+ A [Dispatcher] implementation that uses iOS dispatch_queues to schedule calls.
+ */
 class AppleDispatcher : public Dispatcher {
 public:
   explicit AppleDispatcher(dispatch_queue_t dispatchQueue) : _dispatchQueue(dispatchQueue) {}
