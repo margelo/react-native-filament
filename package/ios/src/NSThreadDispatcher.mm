@@ -30,7 +30,10 @@ void NSThreadDispatcher::run(std::function<void()>&& function, bool waitUntilDon
   if ([_thread isEqual:[NSThread currentThread]]) {
     function();
   } else {
-    dispatch_block_t block = [function = std::move(function)]() { function(); };
+    dispatch_block_t block = [function = std::move(function)]() {
+      // we move the C++ func inside the ObjC block
+      function();
+    };
     [(id)block performSelector:@selector(invoke) onThread:_thread withObject:nil waitUntilDone:waitUntilDone];
   }
 }
