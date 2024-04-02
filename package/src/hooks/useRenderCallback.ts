@@ -2,20 +2,20 @@ import { useEffect } from 'react'
 import type { Engine, RenderCallback } from '../types'
 import { reportWorkletError } from '../ErrorUtils'
 import { FilamentProxy } from '../native/FilamentProxy'
-import { useSharedValue } from 'react-native-worklets-core'
+import { useWorklet } from 'react-native-worklets-core'
+
+const context = FilamentProxy.getWorkletContext()
 
 export function useRenderCallback(engine: Engine, onFrame: RenderCallback) {
-  const renderCallback = useSharedValue(onFrame)
-  renderCallback.value = onFrame
+  const renderCallback: RenderCallback = useWorklet(context, onFrame, [onFrame])
 
   useEffect(() => {
-    const context = FilamentProxy.getWorkletContext()
     // configure a render callback when this hook mounts
     Worklets.createRunInContextFn(() => {
       'worklet'
       engine.setRenderCallback((...args) => {
         try {
-          renderCallback.value(...args)
+          renderCallback(...args)
         } catch (e) {
           reportWorkletError(e)
         }

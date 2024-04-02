@@ -1,11 +1,10 @@
-import React, { useState } from 'react'
-import { Worklets, useSharedValue, useWorklet } from 'react-native-worklets-core'
+import React, { useCallback, useState } from 'react'
+import { useSharedValue, useWorklet } from 'react-native-worklets-core'
 import { FilamentProxy } from '../../src/native/FilamentProxy'
 import { useEffect } from 'react'
 import { Button, Platform, SafeAreaView, StyleSheet, View } from 'react-native'
-import { Animator, Engine, Filament, Float3, useAsset } from 'react-native-filament'
+import { Animator, Engine, Filament, Float3, useAsset, useRenderCallback } from 'react-native-filament'
 import { FilamentBuffer } from '../../src/native/FilamentBuffer'
-import { reportWorkletError } from '../../src/ErrorUtils'
 
 const context = FilamentProxy.getWorkletContext()
 
@@ -98,41 +97,40 @@ function Renderer({ engine }: { engine: Engine }) {
   }, [addLight])
 
   const prevAspectRatio = useSharedValue(0)
-  useEffect(() => {
-    Worklets.createRunInContextFn(() => {
-      'worklet'
-      engine.setRenderCallback((_timestamp, _startTime, passedSeconds) => {
-        try {
-          // Camera config:
-          const cameraPosition: Float3 = [0, 0, 8]
-          const cameraTarget: Float3 = [0, 0, 0]
-          const cameraUp: Float3 = [0, 1, 0]
-          const focalLengthInMillimeters = 28
-          const near = 0.1
-          const far = 1000
+  useRenderCallback(
+    engine,
+    useCallback(
+      (_timestamp: number, _startTime: number, passedSeconds: number) => {
+        'worklet'
 
-          const camera = engine.getCamera()
-          const aspectRatio = engine.getView().aspectRatio
-          if (prevAspectRatio.value !== aspectRatio) {
-            prevAspectRatio.value = aspectRatio
-            // Setup camera lens:
-            camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
-          }
+        // Camera config:
+        const cameraPosition: Float3 = [0, 0, 8]
+        const cameraTarget: Float3 = [0, 0, 0]
+        const cameraUp: Float3 = [0, 1, 0]
+        const focalLengthInMillimeters = 28
+        const near = 0.1
+        const far = 1000
 
-          camera.lookAt(cameraPosition, cameraTarget, cameraUp)
-
-          if (assetAnimator.value == null) {
-            return
-          }
-
-          assetAnimator.value.applyAnimation(0, passedSeconds)
-          assetAnimator.value.updateBoneMatrices()
-        } catch (e) {
-          reportWorkletError(e)
+        const camera = engine.getCamera()
+        const aspectRatio = engine.getView().aspectRatio
+        if (prevAspectRatio.value !== aspectRatio) {
+          prevAspectRatio.value = aspectRatio
+          // Setup camera lens:
+          camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
         }
-      })
-    }, context)()
-  }, [assetAnimator, engine, prevAspectRatio])
+
+        camera.lookAt(cameraPosition, cameraTarget, cameraUp)
+
+        if (assetAnimator.value == null) {
+          return
+        }
+
+        assetAnimator.value.applyAnimation(0, passedSeconds)
+        assetAnimator.value.updateBoneMatrices()
+      },
+      [assetAnimator, engine, prevAspectRatio]
+    )
+  )
 
   return (
     <SafeAreaView style={styles.container}>

@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AssetProps, useAsset } from './useAsset'
 import { Animator, Engine, Entity } from '../types'
 import { FilamentAsset } from '../types/FilamentAsset'
 import { useRenderableManager } from './useRenderableManager'
+import { FilamentProxy } from '../native/FilamentProxy'
 
 interface ModelProps extends AssetProps {
   /**
@@ -55,6 +56,7 @@ export type FilamentModel =
 
 /**
  * Use a Filament Model that gets asynchronously loaded into the given Engine.
+ * @worklet
  * @example
  * ```ts
  * const engine = useEngine()
@@ -70,19 +72,29 @@ export function useModel({
   receiveShadow,
   instanceCount,
 }: ModelProps): FilamentModel {
-  const asset = useAsset({ path: path })
+  const assetBuffer = useAsset({ path: path })
   const renderableManager = useRenderableManager(engine)
+  const [asset, setAsset] = useState<FilamentAsset | null>(null)
+  const [animator, setAnimator] = useState<Animator | null>(null)
 
-  const engineAsset = useMemo(() => {
-    if (asset == null) return undefined
-    if (instanceCount == null || instanceCount === 1) {
-      return engine.loadAsset(asset)
-    } else {
-      return engine.loadInstancedAsset(asset, instanceCount)
-    }
-  }, [asset, engine, instanceCount])
+  useEffect(() => {
+    Worklets.createRunInContextFn(() => {
+      'worklet'
+      if (assetBuffer == null) return
 
-  const animator = useMemo(() => engineAsset?.getAnimator(), [engineAsset])
+      let _asset: FilamentAsset
+      if (!instanceCount || instanceCount === 1) {
+        _asset = engine.loadAsset(assetBuffer)
+      } else {
+        _asset = engine.loadInstancedAsset(assetBuffer, instanceCount)
+      }
+
+      setAsset(_asset)
+      const _animator = _asset.getAnimator()
+      setAnimator(_animator)
+      const _entities = _asset.getEntities()
+    }, FilamentProxy.getWorkletContext())()
+  }, [assetBuffer, engine, instanceCount])
 
   const entities = useMemo(() => {
     if (engineAsset == null) return undefined
@@ -131,7 +143,7 @@ export function useModel({
     }
   }, [receiveShadow, engineAsset, renderableManager])
 
-  if (asset == null || engineAsset == null || animator == null || entities == null || renderableEntities == null) {
+  if (assetBuffer == null || engineAsset == null || animator == null || entities == null || renderableEntities == null) {
     return {
       state: 'loading',
     }
