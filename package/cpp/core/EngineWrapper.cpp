@@ -46,6 +46,7 @@ EngineWrapper::EngineWrapper(const std::shared_ptr<Choreographer>& choreographer
       Engine::destroy(engine);
     });
   });
+  //  _engine->getJobSystem().adopt();
 
   gltfio::MaterialProvider* _materialProviderPtr =
       gltfio::createUbershaderProvider(_engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
@@ -98,6 +99,10 @@ EngineWrapper::EngineWrapper(const std::shared_ptr<Choreographer>& choreographer
 
   _choreographer = choreographer;
   _transformManager = createTransformManager();
+        
+  auto threadId = std::this_thread::get_id();
+  Logger::log(TAG, "Engine created on thread %d", threadId);
+        
 }
 
 void EngineWrapper::loadHybridMethods() {
@@ -300,11 +305,14 @@ std::shared_ptr<ViewWrapper> EngineWrapper::createView() {
 }
 
 std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChain(std::shared_ptr<Surface> surface) {
+  auto dispatcher = _dispatcher;
   auto swapChain =
       References<SwapChain>::adoptEngineRef(_engine, _engine->createSwapChain(surface->getSurface(), SwapChain::CONFIG_TRANSPARENT),
-                                            [](const std::shared_ptr<Engine>& engine, SwapChain* swapChain) {
-                                              engine->destroy(swapChain);
-                                              engine->flushAndWait();
+                                            [dispatcher](const std::shared_ptr<Engine>& engine, SwapChain* swapChain) {
+                                              dispatcher->runSync([engine, swapChain]() {
+                                                engine->destroy(swapChain);
+                                                engine->flushAndWait();
+                                              });
                                             });
 
   return std::make_shared<SwapChainWrapper>(swapChain);
@@ -325,6 +333,9 @@ std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
 }
 
 std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
+    auto threadId = std::this_thread::get_id();
+    Logger::log(TAG, "Trying to create asset on thread %d", threadId);
+    
   std::shared_ptr<ManagedBuffer> buffer = modelBuffer->getBuffer();
   gltfio::FilamentAsset* assetPtr = _assetLoader->createAsset(buffer->getData(), buffer->getSize());
 
@@ -485,6 +496,7 @@ void EngineWrapper::setEntityScale(std::shared_ptr<EntityWrapper> entity, std::v
   auto scaleMatrix = math::mat4::scaling(scale);
   updateTransform(scaleMatrix, entity, multiplyCurrent);
 }
+
 void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<RigidBodyWrapper> rigidBody) {
   if (!rigidBody) {
     throw std::invalid_argument("RigidBody is null");
