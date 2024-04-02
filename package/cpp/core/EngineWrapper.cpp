@@ -192,8 +192,7 @@ void EngineWrapper::setSurface(std::shared_ptr<Surface> surface) {
   _choreographerListener = _choreographer->addOnFrameListener([weakSelf](double timestamp) {
     auto sharedThis = weakSelf.lock();
     if (sharedThis != nullptr) {
-      std::shared_ptr<Dispatcher> dispatcher = sharedThis->_dispatcher;
-      dispatcher->runSync([=]() { sharedThis->renderFrame(timestamp); });
+      sharedThis->renderFrame(timestamp);
     }
   });
 
