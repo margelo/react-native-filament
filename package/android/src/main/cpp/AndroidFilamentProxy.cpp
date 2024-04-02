@@ -18,31 +18,31 @@ AndroidFilamentProxy::~AndroidFilamentProxy() {
   jni::ThreadScope::WithClassLoader([&] { _proxy.reset(); });
 }
 
-std::shared_ptr<FilamentBuffer> AndroidFilamentProxy::loadAsset(std::string path) {
+const std::shared_ptr<FilamentBuffer>& AndroidFilamentProxy::loadAsset(const std::string& path) {
   return _proxy->cthis()->loadAsset(path);
 }
 
-std::shared_ptr<FilamentView> AndroidFilamentProxy::findFilamentView(int id) {
+const std::shared_ptr<FilamentView>& AndroidFilamentProxy::findFilamentView(int id) {
   return _proxy->cthis()->findFilamentView(id);
 }
 
-std::shared_ptr<Choreographer> AndroidFilamentProxy::createChoreographer() {
+const std::shared_ptr<Choreographer>& AndroidFilamentProxy::createChoreographer() {
   return _proxy->cthis()->createChoreographer();
 }
 
-std::shared_ptr<react::CallInvoker> AndroidFilamentProxy::getCallInvoker() {
+const std::shared_ptr<react::&CallInvoker> AndroidFilamentProxy::getCallInvoker() {
   return _proxy->cthis()->getCallInvoker();
 }
 
-std::shared_ptr<Dispatcher> AndroidFilamentProxy::getRenderThreadDispatcher() {
+const std::shared_ptr<Dispatcher>& AndroidFilamentProxy::getRenderThreadDispatcher() {
   return _proxy->cthis()->getRenderThreadDispatcher();
 }
 
-std::shared_ptr<Dispatcher> AndroidFilamentProxy::getUIDispatcher() {
+const std::shared_ptr<Dispatcher>& AndroidFilamentProxy::getUIDispatcher() {
   return _proxy->cthis()->getUIDispatcher();
 }
 
-std::shared_ptr<Dispatcher> AndroidFilamentProxy::getBackgroundDispatcher() {
+const std::shared_ptr<Dispatcher>& AndroidFilamentProxy::getBackgroundDispatcher() {
   return _proxy->cthis()->getBackgroundDispatcher();
 }
 

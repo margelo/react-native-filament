@@ -24,10 +24,10 @@ public:
 
 private:
   std::shared_ptr<DiscreteDynamicWorldWrapper> createDiscreteDynamicWorld(double gravityX, double gravityY, double gravityZ);
-  std::shared_ptr<RigidBodyWrapper> createRigidBody(double mass, double x, double y, double z, std::shared_ptr<ShapeWrapper> shape,
+  std::shared_ptr<RigidBodyWrapper> createRigidBody(double mass, double x, double y, double z, const std::shared_ptr<ShapeWrapper>& shape,
                                                     std::string id, std::optional<CollisionCallback> collisionCallback);
-  std::shared_ptr<RigidBodyWrapper> createRigidBodyFromTransform(double mass, std::shared_ptr<TMat44Wrapper> entityTransform,
-                                                                 std::shared_ptr<ShapeWrapper> shape, std::string id,
+  std::shared_ptr<RigidBodyWrapper> createRigidBodyFromTransform(double mass, const std::shared_ptr<TMat44Wrapper>& entityTransform,
+                                                                 const std::shared_ptr<ShapeWrapper>& shape, std::string id,
                                                                  std::optional<CollisionCallback> collisionCallback);
   std::shared_ptr<BoxShapeWrapper> createBoxShape(double x, double y, double z);
   std::shared_ptr<CylinderShapeWrapper> createCylinderShape(double x, double y, double z);

@@ -7,7 +7,7 @@
 #include "jsi/EnumMapper.h"
 
 namespace margelo {
-RigidBodyWrapper::RigidBodyWrapper(double mass, std::shared_ptr<btCollisionShape> shape, std::unique_ptr<btMotionState> motionState,
+RigidBodyWrapper::RigidBodyWrapper(double mass, const std::shared_ptr<btCollisionShape>& shape, std::unique_ptr<btMotionState> motionState,
                                    std::string id, std::optional<CollisionCallback> collisionCallback)
     : HybridObject("RigidBodyWrapper") {
   _shape = shape;
@@ -26,7 +26,7 @@ RigidBodyWrapper::RigidBodyWrapper(double mass, std::shared_ptr<btCollisionShape
 }
 
 std::shared_ptr<RigidBodyWrapper> RigidBodyWrapper::create(double mass, double x, double y, double z,
-                                                           std::shared_ptr<btCollisionShape> shape, std::string id,
+                                                           const std::shared_ptr<btCollisionShape>& shape, std::string id,
                                                            std::optional<CollisionCallback> collisionCallback) {
   btTransform transform;
   transform.setIdentity();
@@ -35,8 +35,8 @@ std::shared_ptr<RigidBodyWrapper> RigidBodyWrapper::create(double mass, double x
   return std::make_shared<RigidBodyWrapper>(mass, shape, std::move(motionState), id, collisionCallback);
 }
 
-std::shared_ptr<RigidBodyWrapper> RigidBodyWrapper::create(double mass, std::shared_ptr<TMat44Wrapper> entityTransform,
-                                                           std::shared_ptr<btCollisionShape> shape, std::string id,
+std::shared_ptr<RigidBodyWrapper> RigidBodyWrapper::create(double mass, const std::shared_ptr<TMat44Wrapper>& entityTransform,
+                                                           const std::shared_ptr<btCollisionShape>& shape, std::string id,
                                                            std::optional<CollisionCallback> collisionCallback) {
   // EntityTransform to openGL matrix:
   const filament::math::mat4f& mat = entityTransform->getMat();

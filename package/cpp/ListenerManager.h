@@ -37,7 +37,7 @@ public:
 private:
   explicit ListenerManager() {}
 
-  std::shared_ptr<ListenerManager<Callback>> shared() {
+  const std::shared_ptr<ListenerManager<Callback>>& shared() {
     return this->shared_from_this();
   }
 

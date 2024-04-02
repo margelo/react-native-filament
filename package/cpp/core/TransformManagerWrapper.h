@@ -21,8 +21,8 @@ public:
   void loadHybridMethods() override;
 
 private:
-  std::shared_ptr<TMat44Wrapper> getTransform(std::shared_ptr<EntityWrapper> entity);
-  std::shared_ptr<TMat44Wrapper> getWorldTransform(std::shared_ptr<EntityWrapper> entity);
+  std::shared_ptr<TMat44Wrapper> getTransform(const std::shared_ptr<EntityWrapper>& entity);
+  std::shared_ptr<TMat44Wrapper> getWorldTransform(const std::shared_ptr<EntityWrapper>& entity);
 
 private:
   filament::TransformManager& _transformManager;

@@ -19,8 +19,8 @@ public:
   void loadHybridMethods() override;
 
 private:
-  void addRigidBody(std::shared_ptr<RigidBodyWrapper> rigidBody);
-  void removeRigidBody(std::shared_ptr<RigidBodyWrapper> rigidBody);
+  void addRigidBody(const std::shared_ptr<RigidBodyWrapper>& rigidBody);
+  void removeRigidBody(const std::shared_ptr<RigidBodyWrapper>& rigidBody);
   void stepSimulation(double timeStep, double maxSubSteps, double fixedTimeStep);
 
 private:

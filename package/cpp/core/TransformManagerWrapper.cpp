@@ -13,8 +13,9 @@ void TransformManagerWrapper::loadHybridMethods() {
   registerHybridMethod("getWorldTransform", &TransformManagerWrapper::getWorldTransform, this);
 }
 
-std::shared_ptr<TMat44Wrapper> TransformManagerWrapper::getTransform(std::shared_ptr<EntityWrapper> entity) {
+std::shared_ptr<TMat44Wrapper> TransformManagerWrapper::getTransform(const std::shared_ptr<EntityWrapper>& entity) {
   if (!entity) {
+    [[unlikely]];
     throw std::invalid_argument("Entity is null");
   }
 
@@ -22,8 +23,9 @@ std::shared_ptr<TMat44Wrapper> TransformManagerWrapper::getTransform(std::shared
   const math::mat4f& transform = _transformManager.getTransform(entityInstance);
   return std::make_shared<TMat44Wrapper>(transform);
 }
-std::shared_ptr<TMat44Wrapper> TransformManagerWrapper::getWorldTransform(std::shared_ptr<EntityWrapper> entity) {
+std::shared_ptr<TMat44Wrapper> TransformManagerWrapper::getWorldTransform(const std::shared_ptr<EntityWrapper>& entity) {
   if (!entity) {
+    [[unlikely]];
     throw std::invalid_argument("Entity is null");
   }
 

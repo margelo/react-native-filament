@@ -23,14 +23,14 @@ JFilamentProxy::~JFilamentProxy() {
   // TODO(hanno): Cleanup?
 }
 
-std::shared_ptr<FilamentBuffer> JFilamentProxy::loadAsset(const std::string& path) {
+const std::shared_ptr<FilamentBuffer>& JFilamentProxy::loadAsset(const std::string& path) {
   static const auto method = javaClassLocal()->getMethod<jni::alias_ref<jni::JByteBuffer>(jni::alias_ref<jstring>)>("loadAsset");
   jni::local_ref<jni::JByteBuffer> buffer = method(_javaPart, jni::make_jstring(path));
   auto managedBuffer = std::make_shared<AndroidManagedBuffer>(buffer);
   return std::make_shared<FilamentBuffer>(managedBuffer);
 }
 
-std::shared_ptr<FilamentView> JFilamentProxy::findFilamentView(int id) {
+const std::shared_ptr<FilamentView>& JFilamentProxy::findFilamentView(int id) {
   static const auto method = javaClassLocal()->getMethod<jni::alias_ref<JFilamentView::javaobject>(jint)>("findFilamentView");
   jni::local_ref<JFilamentView::javaobject> view = method(_javaPart, id);
   jni::global_ref<JFilamentView::javaobject> globalRef = jni::make_global(view);
@@ -38,7 +38,7 @@ std::shared_ptr<FilamentView> JFilamentProxy::findFilamentView(int id) {
   return std::static_pointer_cast<FilamentView>(sharedRef);
 }
 
-std::shared_ptr<Choreographer> JFilamentProxy::createChoreographer() {
+const std::shared_ptr<Choreographer>& JFilamentProxy::createChoreographer() {
   static const auto method = javaClassLocal()->getMethod<jni::alias_ref<JChoreographer::javaobject>()>("createChoreographer");
   jni::local_ref<JChoreographer::javaobject> choreographer = method(_javaPart);
   jni::global_ref<JChoreographer::javaobject> globalRef = jni::make_global(choreographer);
@@ -46,7 +46,7 @@ std::shared_ptr<Choreographer> JFilamentProxy::createChoreographer() {
   return std::static_pointer_cast<Choreographer>(sharedRef);
 }
 
-std::shared_ptr<Dispatcher> JFilamentProxy::getRenderThreadDispatcher() {
+const std::shared_ptr<Dispatcher>& JFilamentProxy::getRenderThreadDispatcher() {
   if (_uiDispatcher == nullptr) {
     static const auto method = javaClassLocal()->getMethod<jni::alias_ref<JDispatcher::javaobject>()>("getRenderThreadDispatcher");
     jni::local_ref<JDispatcher::javaobject> dispatcher = method(_javaPart);
@@ -56,7 +56,7 @@ std::shared_ptr<Dispatcher> JFilamentProxy::getRenderThreadDispatcher() {
   return _uiDispatcher;
 }
 
-std::shared_ptr<Dispatcher> JFilamentProxy::getUIDispatcher() {
+const std::shared_ptr<Dispatcher>& JFilamentProxy::getUIDispatcher() {
   if (_uiDispatcher == nullptr) {
     static const auto method = javaClassLocal()->getMethod<jni::alias_ref<JDispatcher::javaobject>()>("getUIDispatcher");
     jni::local_ref<JDispatcher::javaobject> dispatcher = method(_javaPart);
@@ -66,7 +66,7 @@ std::shared_ptr<Dispatcher> JFilamentProxy::getUIDispatcher() {
   return _uiDispatcher;
 }
 
-std::shared_ptr<Dispatcher> JFilamentProxy::getBackgroundDispatcher() {
+const std::shared_ptr<Dispatcher>& JFilamentProxy::getBackgroundDispatcher() {
   if (_backgroundDispatcher == nullptr) {
     static const auto method = javaClassLocal()->getMethod<jni::alias_ref<JDispatcher::javaobject>()>("getBackgroundDispatcher");
     jni::local_ref<JDispatcher::javaobject> dispatcher = method(_javaPart);
@@ -84,7 +84,7 @@ jsi::Runtime& JFilamentProxy::getRuntime() {
   return *_runtime;
 }
 
-std::shared_ptr<react::CallInvoker> JFilamentProxy::getCallInvoker() {
+const std::shared_ptr<react::CallInvoker>& JFilamentProxy::getCallInvoker() {
   return _callInvoker;
 }
 

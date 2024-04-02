@@ -17,7 +17,7 @@ std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceChangedListener(SurfacePr
   return _listeners->add(std::move(callback));
 }
 
-void SurfaceProvider::onSurfaceCreated(std::shared_ptr<Surface> surface) {
+void SurfaceProvider::onSurfaceCreated(const std::shared_ptr<Surface>& surface) {
   Logger::log(TAG, "Surface created!");
   std::unique_lock lock(_mutex);
   for (const auto& listener : _listeners->getListeners()) {
@@ -25,7 +25,7 @@ void SurfaceProvider::onSurfaceCreated(std::shared_ptr<Surface> surface) {
   }
 }
 
-void SurfaceProvider::onSurfaceChanged(std::shared_ptr<Surface> surface, int width, int height) {
+void SurfaceProvider::onSurfaceChanged(const std::shared_ptr<Surface>& surface, int width, int height) {
   Logger::log(TAG, "Surface resized to %i x %i!", width, height);
   std::unique_lock lock(_mutex);
   for (const auto& listener : _listeners->getListeners()) {
@@ -33,7 +33,7 @@ void SurfaceProvider::onSurfaceChanged(std::shared_ptr<Surface> surface, int wid
   }
 }
 
-void SurfaceProvider::onSurfaceDestroyed(std::shared_ptr<Surface> surface) {
+void SurfaceProvider::onSurfaceDestroyed(const std::shared_ptr<Surface>& surface) {
   Logger::log(TAG, "Surface destroyed!");
   std::unique_lock lock(_mutex);
   for (const auto& listener : _listeners->getListeners()) {

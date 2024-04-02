@@ -27,13 +27,13 @@ void RenderableManagerWrapper::loadHybridMethods() {
   registerHybridMethod("scaleBoundingBox", &RenderableManagerWrapper::scaleBoundingBox, this);
 }
 
-int RenderableManagerWrapper::getPrimitiveCount(std::shared_ptr<EntityWrapper> entity) {
+int RenderableManagerWrapper::getPrimitiveCount(const std::shared_ptr<EntityWrapper>& entity) {
   Entity entityInstance = entity->getEntity();
   RenderableManager::Instance renderable = _renderableManager.getInstance(entityInstance);
   return _renderableManager.getPrimitiveCount(renderable);
 }
 
-std::shared_ptr<MaterialInstanceWrapper> RenderableManagerWrapper::getMaterialInstanceAt(std::shared_ptr<EntityWrapper> entity, int index) {
+std::shared_ptr<MaterialInstanceWrapper> RenderableManagerWrapper::getMaterialInstanceAt(const std::shared_ptr<EntityWrapper>& entity, int index) {
   Entity entityInstance = entity->getEntity();
   RenderableManager::Instance renderable = _renderableManager.getInstance(entityInstance);
   // Note: the material instance pointer is managed by the renderable manager and should not be deleted by the user
@@ -41,7 +41,7 @@ std::shared_ptr<MaterialInstanceWrapper> RenderableManagerWrapper::getMaterialIn
   return std::make_shared<MaterialInstanceWrapper>(materialInstance);
 }
 
-void RenderableManagerWrapper::setAssetEntitiesOpacity(std::shared_ptr<FilamentAssetWrapper> asset, double opacity) {
+void RenderableManagerWrapper::setAssetEntitiesOpacity(const std::shared_ptr<FilamentAssetWrapper>& asset, double opacity) {
   std::shared_ptr<FilamentAsset> fAsset = asset->getAsset();
   size_t instanceCount = fAsset->getAssetInstanceCount();
   FilamentInstance** instances = fAsset->getAssetInstances();
@@ -51,7 +51,7 @@ void RenderableManagerWrapper::setAssetEntitiesOpacity(std::shared_ptr<FilamentA
   }
 }
 
-void RenderableManagerWrapper::setInstanceWrapperEntitiesOpacity(std::shared_ptr<FilamentInstanceWrapper> instanceWrapper, double opacity) {
+void RenderableManagerWrapper::setInstanceWrapperEntitiesOpacity(const std::shared_ptr<FilamentInstanceWrapper>& instanceWrapper, double opacity) {
   FilamentInstance* filamentInstance = instanceWrapper->getInstance();
   setInstanceEntitiesOpacity(filamentInstance, opacity);
 }
@@ -79,15 +79,15 @@ void RenderableManagerWrapper::setInstanceEntitiesOpacity(FilamentInstance* inst
   }
 }
 
-void RenderableManagerWrapper::setMaterialInstanceAt(std::shared_ptr<EntityWrapper> entity, int index,
-                                                     std::shared_ptr<MaterialInstanceWrapper> materialInstance) {
+void RenderableManagerWrapper::setMaterialInstanceAt(const std::shared_ptr<EntityWrapper>& entity, int index,
+                                                     const std::shared_ptr<MaterialInstanceWrapper>& materialInstance) {
   Entity entityInstance = entity->getEntity();
   RenderableManager::Instance renderable = _renderableManager.getInstance(entityInstance);
   _renderableManager.setMaterialInstanceAt(renderable, index, materialInstance->getMaterialInstance());
 }
 
-void RenderableManagerWrapper::changeMaterialTextureMap(std::shared_ptr<EntityWrapper> entityWrapper, const std::string& materialName,
-                                                        std::shared_ptr<FilamentBuffer> textureBuffer, std::string textureFlags) {
+void RenderableManagerWrapper::changeMaterialTextureMap(const std::shared_ptr<EntityWrapper>& entityWrapper, const std::string& materialName,
+                                                        const std::shared_ptr<FilamentBuffer>& textureBuffer, const std::string& textureFlags) {
   // Input validation:
   if (entityWrapper == nullptr) {
     throw new std::invalid_argument("Entity is null!");
@@ -151,7 +151,7 @@ void RenderableManagerWrapper::startUpdateResourceLoading() {
   }
 }
 
-void RenderableManagerWrapper::setCastShadow(std::shared_ptr<EntityWrapper> entityWrapper, bool castShadow) {
+void RenderableManagerWrapper::setCastShadow(const std::shared_ptr<EntityWrapper>& entityWrapper, bool castShadow) {
   if (entityWrapper == nullptr) {
     throw new std::invalid_argument("Entity is null");
   }
@@ -161,7 +161,7 @@ void RenderableManagerWrapper::setCastShadow(std::shared_ptr<EntityWrapper> enti
   _renderableManager.setCastShadows(renderable, castShadow);
 }
 
-void RenderableManagerWrapper::setReceiveShadow(std::shared_ptr<EntityWrapper> entityWrapper, bool receiveShadow) {
+void RenderableManagerWrapper::setReceiveShadow(const std::shared_ptr<EntityWrapper>& entityWrapper, bool receiveShadow) {
   if (entityWrapper == nullptr) {
     throw new std::invalid_argument("Entity is null");
   }
@@ -171,7 +171,7 @@ void RenderableManagerWrapper::setReceiveShadow(std::shared_ptr<EntityWrapper> e
   _renderableManager.setReceiveShadows(renderable, receiveShadow);
 }
 
-std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(std::shared_ptr<MaterialWrapper> materialWrapper, double halfExtendX,
+std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(const std::shared_ptr<MaterialWrapper>& materialWrapper, double halfExtendX,
                                                                      double halfExtendY, double halfExtendZ) {
   if (materialWrapper == nullptr) {
     throw new std::invalid_argument("Material is null");
@@ -212,7 +212,7 @@ std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(std::shared
   return std::make_shared<EntityWrapper>(renderable);
 }
 
-void RenderableManagerWrapper::scaleBoundingBox(std::shared_ptr<FilamentAssetWrapper> assetWrapper, double scaleFactor) {
+void RenderableManagerWrapper::scaleBoundingBox(const std::shared_ptr<FilamentAssetWrapper>& assetWrapper, double scaleFactor) {
   if (assetWrapper == nullptr) {
     throw new std::invalid_argument("Asset is null");
   }

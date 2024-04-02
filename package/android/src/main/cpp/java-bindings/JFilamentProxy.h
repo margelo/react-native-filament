@@ -25,15 +25,15 @@ public:
   ~JFilamentProxy();
   static void registerNatives();
 
-  std::shared_ptr<FilamentBuffer> loadAsset(const std::string& path);
-  std::shared_ptr<FilamentView> findFilamentView(int id);
-  std::shared_ptr<Choreographer> createChoreographer();
-  std::shared_ptr<Dispatcher> getRenderThreadDispatcher();
-  std::shared_ptr<Dispatcher> getUIDispatcher();
-  std::shared_ptr<Dispatcher> getBackgroundDispatcher();
+  const std::shared_ptr<FilamentBuffer>& loadAsset(const std::string& path);
+  const std::shared_ptr<FilamentView>& findFilamentView(int id);
+  const std::shared_ptr<Choreographer>& createChoreographer();
+  const std::shared_ptr<Dispatcher>& getRenderThreadDispatcher();
+  const std::shared_ptr<Dispatcher>& getUIDispatcher();
+  const std::shared_ptr<Dispatcher>& getBackgroundDispatcher();
 
   jsi::Runtime& getRuntime();
-  std::shared_ptr<react::CallInvoker> getCallInvoker();
+  const std::shared_ptr<react::CallInvoker>& getCallInvoker();
 
 private:
   friend HybridBase;

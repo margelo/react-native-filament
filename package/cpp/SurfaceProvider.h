@@ -17,9 +17,9 @@ namespace margelo {
 
 class SurfaceProvider : public HybridObject {
 public:
-  using TOnCreate = std::function<void(std::shared_ptr<Surface> surface)>;
-  using TOnResize = std::function<void(std::shared_ptr<Surface> surface, int width, int height)>;
-  using TOnDestroy = std::function<void(std::shared_ptr<Surface>)>;
+  using TOnCreate = std::function<void(const std::shared_ptr<Surface>& surface)>;
+  using TOnResize = std::function<void(const std::shared_ptr<Surface>& surface, int width, int height)>;
+  using TOnDestroy = std::function<void(const std::shared_ptr<Surface>&)>;
 
   struct Callback {
     TOnCreate onSurfaceCreated;
@@ -33,14 +33,14 @@ public:
 public:
   std::shared_ptr<Listener> addOnSurfaceChangedListener(Callback callback);
 
-  virtual std::shared_ptr<Surface> getSurfaceOrNull() = 0;
+  virtual const std::shared_ptr<Surface>& getSurfaceOrNull() = 0;
 
   void loadHybridMethods() override;
 
 protected:
-  void onSurfaceCreated(std::shared_ptr<Surface> surface);
-  void onSurfaceChanged(std::shared_ptr<Surface> surface, int width, int height);
-  void onSurfaceDestroyed(std::shared_ptr<Surface> surface);
+  void onSurfaceCreated(const std::shared_ptr<Surface>& surface);
+  void onSurfaceChanged(const std::shared_ptr<Surface>& surface, int width, int height);
+  void onSurfaceDestroyed(const std::shared_ptr<Surface>& surface);
 
 private:
   std::shared_ptr<ListenerManager<Callback>> _listeners = ListenerManager<Callback>::create();

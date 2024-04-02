@@ -42,17 +42,17 @@ private:
    * Get the Dispatcher that is responsible for rendering to Filament.
    * This is guaranteed to only use a single Thread, as opposed to a Thread-pool.
    */
-  virtual std::shared_ptr<Dispatcher> getRenderThreadDispatcher() = 0;
+  virtual const std::shared_ptr<Dispatcher>& getRenderThreadDispatcher() = 0;
   /**
    * Get the Dispatcher for the platform-default UI Thread.
    * This is guaranteed to only use a single Thread, as opposed to a Thread-pool.
    */
-  virtual std::shared_ptr<Dispatcher> getUIDispatcher() = 0;
+  virtual const std::shared_ptr<Dispatcher>& getUIDispatcher() = 0;
   /**
    * Get a Dispatcher that uses a Thread-pool for background operations such as File I/O.
    * This Dispatcher may use multiple Threads to run code.
    */
-  virtual std::shared_ptr<Dispatcher> getBackgroundDispatcher() = 0;
+  virtual const std::shared_ptr<Dispatcher>& getBackgroundDispatcher() = 0;
 
   // For testing
   std::shared_ptr<TestHybridObject> createTestObject();
@@ -64,12 +64,12 @@ private:
   std::shared_ptr<BulletWrapper> createBullet();
 
 #if HAS_WORKLETS
-  std::shared_ptr<RNWorklet::JsiWorkletContext> getWorkletContext();
+  const std::shared_ptr<RNWorklet::JsiWorkletContext>& getWorkletContext();
 #endif
 
 public:
   virtual jsi::Runtime& getRuntime() = 0;
-  virtual std::shared_ptr<react::CallInvoker> getCallInvoker() = 0;
+  virtual const std::shared_ptr<react::CallInvoker>& getCallInvoker() = 0;
 
 private:
   static constexpr auto TAG = "FilamentProxy";
