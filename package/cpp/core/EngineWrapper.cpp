@@ -540,7 +540,7 @@ void EngineWrapper::updateTransformByRigidBody(const std::shared_ptr<EntityWrapp
   tm.setTransform(entityInstance, newTransform);
 }
 
-const std::shared_ptr<RenderableManagerWrapper>& EngineWrapper::getRendererableManager() {
+std::shared_ptr<RenderableManagerWrapper> EngineWrapper::getRendererableManager() {
   RenderableManager& rm = _engine->getRenderableManager();
 
   // Create a new texture provider
