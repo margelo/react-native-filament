@@ -18,19 +18,19 @@ AndroidFilamentProxy::~AndroidFilamentProxy() {
   jni::ThreadScope::WithClassLoader([&] { _proxy.reset(); });
 }
 
-const std::shared_ptr<FilamentBuffer>& AndroidFilamentProxy::loadAsset(const std::string& path) {
+std::shared_ptr<FilamentBuffer> AndroidFilamentProxy::loadAsset(const std::string& path) {
   return _proxy->cthis()->loadAsset(path);
 }
 
-const std::shared_ptr<FilamentView>& AndroidFilamentProxy::findFilamentView(int id) {
+std::shared_ptr<FilamentView> AndroidFilamentProxy::findFilamentView(int id) {
   return _proxy->cthis()->findFilamentView(id);
 }
 
-const std::shared_ptr<Choreographer>& AndroidFilamentProxy::createChoreographer() {
+std::shared_ptr<Choreographer> AndroidFilamentProxy::createChoreographer() {
   return _proxy->cthis()->createChoreographer();
 }
 
-const std::shared_ptr<react::&CallInvoker> AndroidFilamentProxy::getCallInvoker() {
+const std::shared_ptr<react::CallInvoker>& AndroidFilamentProxy::getCallInvoker() {
   return _proxy->cthis()->getCallInvoker();
 }
 

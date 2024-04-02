@@ -48,7 +48,7 @@ const std::shared_ptr<RNWorklet::JsiWorkletContext>& FilamentProxy::getWorkletCo
 }
 #endif
 
-std::future<std::shared_ptr<FilamentBuffer>> FilamentProxy::loadAssetAsync(std::string path) {
+std::future<std::shared_ptr<FilamentBuffer>> FilamentProxy::loadAssetAsync(const std::string& path) {
   auto weakThis = std::weak_ptr<FilamentProxy>(shared<FilamentProxy>());
   auto dispatcher = getBackgroundDispatcher();
   return dispatcher->runAsync<std::shared_ptr<FilamentBuffer>>([=]() {

@@ -22,9 +22,9 @@ public:
   ~AndroidFilamentProxy();
 
 private:
-  const std::shared_ptr<FilamentBuffer>& loadAsset(const std::string& path) override;
-  const std::shared_ptr<FilamentView>& findFilamentView(int id) override;
-  const std::shared_ptr<Choreographer>& createChoreographer() override;
+  std::shared_ptr<FilamentBuffer> loadAsset(const std::string& path) override;
+  std::shared_ptr<FilamentView> findFilamentView(int id) override;
+  std::shared_ptr<Choreographer> createChoreographer() override;
   const std::shared_ptr<Dispatcher>& getRenderThreadDispatcher() override;
   const std::shared_ptr<Dispatcher>& getUIDispatcher() override;
   const std::shared_ptr<Dispatcher>& getBackgroundDispatcher() override;

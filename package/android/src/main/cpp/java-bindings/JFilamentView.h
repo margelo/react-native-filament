@@ -19,12 +19,12 @@ public:
   ~JFilamentView();
   static void registerNatives();
 
-  std::shared_ptr<SurfaceProvider> getSurfaceProvider() override;
+  const std::shared_ptr<SurfaceProvider>& getSurfaceProvider() override;
 
 private:
   friend HybridBase;
   jni::global_ref<JFilamentView::javaobject> _javaPart;
-  jni::global_ref<JSurfaceProvider::javaobject> _surfaceProvider;
+  std::shared_ptr<SurfaceProvider> _surfaceProvider;
 
 private:
   static auto constexpr TAG = "JFilamentView";

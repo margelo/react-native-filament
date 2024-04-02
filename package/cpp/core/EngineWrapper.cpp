@@ -455,7 +455,7 @@ void EngineWrapper::synchronizePendingFrames() {
  * @param entity The entity to apply the transform to
  * @param multiplyCurrent If true, the current transform will be multiplied with the new transform, otherwise it will be replaced
  */
-void EngineWrapper::updateTransform(math::mat4 transform, std::shared_ptr<EntityWrapper> entity, bool multiplyCurrent) {
+void EngineWrapper::updateTransform(math::mat4 transform, const std::shared_ptr<EntityWrapper>& entity, bool multiplyCurrent) {
   if (!entity) {
     throw std::invalid_argument("Entity is null");
   }

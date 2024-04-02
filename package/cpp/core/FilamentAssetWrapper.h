@@ -28,7 +28,7 @@ private: // Public API functions:
   std::shared_ptr<EntityWrapper> getRoot();
   void releaseSourceData();
   std::shared_ptr<AnimatorWrapper> getAnimator();
-  std::shared_ptr<AnimatorWrapper> createAnimatorWithAnimationsFrom(std::shared_ptr<FilamentAssetWrapper> otherAsset);
+  std::shared_ptr<AnimatorWrapper> createAnimatorWithAnimationsFrom(const std::shared_ptr<FilamentAssetWrapper>& otherAsset);
   int getEntityCount() {
     return _asset->getEntityCount();
   }
