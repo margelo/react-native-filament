@@ -25,7 +25,7 @@ public:
   void runAsync(std::function<void()>&& function) override;
   
 private:
-  void run(std::function<void()>&& function, bool waitUntilDone);
+  __attribute__((hot)) void run(std::function<void()>&& function, bool waitUntilDone);
 
 private:
   NSThread* _thread;
