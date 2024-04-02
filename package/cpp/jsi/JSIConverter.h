@@ -186,7 +186,7 @@ template <typename ReturnType, typename... Args> struct JSIConverter<std::functi
     jsi::Function function = arg.asObject(runtime).asFunction(runtime);
     std::shared_ptr<jsi::Function> sharedFunction = std::make_shared<jsi::Function>(std::move(function));
     return [&runtime, sharedFunction](Args... args) -> ReturnType {
-      jsi::Value result = sharedFunction->call(runtime, JSIConverter<Args>::toJSI(runtime, args)...);
+      jsi::Value result = sharedFunction->call(runtime, JSIConverter<std::decay_t<Args>>::toJSI(runtime, args)...);
       if constexpr (std::is_same_v<ReturnType, void>) {
         // it is a void function (returns undefined)
         return;
@@ -202,11 +202,11 @@ template <typename ReturnType, typename... Args> struct JSIConverter<std::functi
                                        std::index_sequence<Is...>) {
     if constexpr (std::is_same_v<ReturnType, void>) {
       // it is a void function (will return undefined in JS)
-      function(JSIConverter<Args>::fromJSI(runtime, args[Is])...);
+      function(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
       return jsi::Value::undefined();
     } else {
       // it is a custom type, parse it to a JS value
-      ReturnType result = function(JSIConverter<Args>::fromJSI(runtime, args[Is])...);
+      ReturnType result = function(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
       return JSIConverter<ReturnType>::toJSI(runtime, result);
     }
   }
