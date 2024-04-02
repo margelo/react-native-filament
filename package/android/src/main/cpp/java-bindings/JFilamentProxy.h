@@ -40,6 +40,7 @@ private:
   jni::global_ref<JFilamentProxy::javaobject> _javaPart;
   jsi::Runtime* _runtime;
   std::shared_ptr<facebook::react::CallInvoker> _callInvoker;
+  std::shared_ptr<Dispatcher> _renderThreadDispatcher;
   std::shared_ptr<Dispatcher> _uiDispatcher;
   std::shared_ptr<Dispatcher> _backgroundDispatcher;
 
