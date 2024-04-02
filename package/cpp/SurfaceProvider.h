@@ -31,9 +31,9 @@ public:
   explicit SurfaceProvider() : HybridObject("SurfaceProvider") {}
 
 public:
-  std::shared_ptr<Listener> addOnSurfaceChangedListener(Callback callback);
+  std::shared_ptr<Listener> addOnSurfaceChangedListener(Callback&& callback);
 
-  virtual const std::shared_ptr<Surface>& getSurfaceOrNull() = 0;
+  virtual std::shared_ptr<Surface> getSurfaceOrNull() = 0;
 
   void loadHybridMethods() override;
 

@@ -47,7 +47,7 @@ void JSurfaceProvider::onSurfaceDestroyed(jni::alias_ref<jobject> surface) {
   }
 }
 
-const std::shared_ptr<Surface>& JSurfaceProvider::getSurfaceOrNull() {
+std::shared_ptr<Surface> JSurfaceProvider::getSurfaceOrNull() {
   return _surface;
 }
 

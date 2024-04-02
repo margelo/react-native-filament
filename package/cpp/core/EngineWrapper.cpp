@@ -144,11 +144,12 @@ void EngineWrapper::setSurfaceProvider(const std::shared_ptr<SurfaceProvider>& s
   std::weak_ptr<EngineWrapper> weakSelf = shared<EngineWrapper>();
   SurfaceProvider::Callback callback{.onSurfaceCreated =
                                          [dispatcher, weakSelf](const std::shared_ptr<Surface>& surface) {
+      std::shared_ptr<Surface> s = surface;
                                            dispatcher->runAsync([=]() {
                                              auto sharedThis = weakSelf.lock();
                                              if (sharedThis != nullptr) {
                                                Logger::log(TAG, "Initializing surface...");
-                                               sharedThis->setSurface(surface);
+                                               sharedThis->setSurface(s);
                                              }
                                            });
                                          },
@@ -172,7 +173,7 @@ void EngineWrapper::setSurfaceProvider(const std::shared_ptr<SurfaceProvider>& s
                                              sharedThis->destroySurface();
                                            }
                                          }};
-  _surfaceListener = surfaceProvider->addOnSurfaceChangedListener(callback);
+  _surfaceListener = surfaceProvider->addOnSurfaceChangedListener(std::move(callback));
 }
 
 void EngineWrapper::setSurface(const std::shared_ptr<Surface>& surface) {
@@ -301,7 +302,7 @@ std::shared_ptr<ViewWrapper> EngineWrapper::createView() {
   return std::make_shared<ViewWrapper>(view);
 }
 
-std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChain(std::shared_ptr<Surface> surface) {
+std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChain(const std::shared_ptr<Surface>& surface) {
   auto dispatcher = _dispatcher;
   auto swapChain =
       References<SwapChain>::adoptEngineRef(_engine, _engine->createSwapChain(surface->getSurface(), SwapChain::CONFIG_TRANSPARENT),

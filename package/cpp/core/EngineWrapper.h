@@ -125,7 +125,7 @@ private:
 
 private:
   std::shared_ptr<RendererWrapper> createRenderer();
-  std::shared_ptr<SwapChainWrapper> createSwapChain(std::shared_ptr<Surface> surface);
+  std::shared_ptr<SwapChainWrapper> createSwapChain(const std::shared_ptr<Surface>& surface);
   std::shared_ptr<SceneWrapper> createScene();
   std::shared_ptr<ViewWrapper> createView();
   std::shared_ptr<CameraWrapper> createCamera();

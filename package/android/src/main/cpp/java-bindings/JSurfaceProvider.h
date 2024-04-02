@@ -22,7 +22,7 @@ public:
   void onSurfaceChanged(jni::alias_ref<jobject> surface, int width, int height);
   void onSurfaceDestroyed(jni::alias_ref<jobject> surface);
 
-  const std::shared_ptr<Surface>& getSurfaceOrNull() override;
+  std::shared_ptr<Surface> getSurfaceOrNull() override;
 
 private:
   friend HybridBase;

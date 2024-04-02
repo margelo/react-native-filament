@@ -11,7 +11,7 @@ void SurfaceProvider::loadHybridMethods() {
   registerHybridMethod("getSurface", &SurfaceProvider::getSurfaceOrNull, this);
 }
 
-std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceChangedListener(SurfaceProvider::Callback callback) {
+std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceChangedListener(SurfaceProvider::Callback&& callback) {
   std::unique_lock lock(_mutex);
 
   return _listeners->add(std::move(callback));
