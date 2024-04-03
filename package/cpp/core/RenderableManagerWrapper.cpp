@@ -94,10 +94,10 @@ void RenderableManagerWrapper::changeMaterialTextureMap(const std::shared_ptr<En
                                                         const std::string& textureFlags) {
   // Input validation:
   if (entityWrapper == nullptr) {
-    throw new std::invalid_argument("Entity is null!");
+    throw std::invalid_argument("Entity is null!");
   }
   if (textureBuffer == nullptr) {
-    throw new std::invalid_argument("texture is null!");
+    throw std::invalid_argument("texture is null!");
   }
 
   TextureProvider::TextureFlags textureFlagsEnum;
@@ -110,7 +110,7 @@ void RenderableManagerWrapper::changeMaterialTextureMap(const std::shared_ptr<En
   if (texture == nullptr) {
     std::string error = _textureProvider->getPushMessage();
     Logger::log(TAG, "Error loading texture: %s", error.c_str());
-    throw new std::runtime_error("Error loading texture: " + error);
+    throw std::runtime_error("Error loading texture: " + error);
   }
 
   // Select the first material instance from the entity
@@ -127,7 +127,7 @@ void RenderableManagerWrapper::changeMaterialTextureMap(const std::shared_ptr<En
     }
   }
   if (primitiveIndex == -1) {
-    throw new std::invalid_argument("Material not found!");
+    throw std::invalid_argument("Material not found!");
   }
 
   MaterialInstance* materialInstance = _renderableManager.getMaterialInstanceAt(instance, primitiveIndex);
@@ -157,7 +157,7 @@ void RenderableManagerWrapper::startUpdateResourceLoading() {
 
 void RenderableManagerWrapper::setCastShadow(const std::shared_ptr<EntityWrapper>& entityWrapper, bool castShadow) {
   if (entityWrapper == nullptr) {
-    throw new std::invalid_argument("Entity is null");
+    throw std::invalid_argument("Entity is null");
   }
 
   Entity entity = entityWrapper->getEntity();
@@ -167,7 +167,7 @@ void RenderableManagerWrapper::setCastShadow(const std::shared_ptr<EntityWrapper
 
 void RenderableManagerWrapper::setReceiveShadow(const std::shared_ptr<EntityWrapper>& entityWrapper, bool receiveShadow) {
   if (entityWrapper == nullptr) {
-    throw new std::invalid_argument("Entity is null");
+    throw std::invalid_argument("Entity is null");
   }
 
   Entity entity = entityWrapper->getEntity();
@@ -178,7 +178,7 @@ void RenderableManagerWrapper::setReceiveShadow(const std::shared_ptr<EntityWrap
 std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(const std::shared_ptr<MaterialWrapper>& materialWrapper,
                                                                      double halfExtendX, double halfExtendY, double halfExtendZ) {
   if (materialWrapper == nullptr) {
-    throw new std::invalid_argument("Material is null");
+    throw std::invalid_argument("Material is null");
   }
 
   const static uint32_t indices[]{0, 1, 2, 2, 3, 0};
@@ -218,7 +218,7 @@ std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(const std::
 
 void RenderableManagerWrapper::scaleBoundingBox(const std::shared_ptr<FilamentAssetWrapper>& assetWrapper, double scaleFactor) {
   if (assetWrapper == nullptr) {
-    throw new std::invalid_argument("Asset is null");
+    throw std::invalid_argument("Asset is null");
   }
 
   // Get bounding box from asset

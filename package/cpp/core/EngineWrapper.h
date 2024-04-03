@@ -77,8 +77,8 @@ private:
 
   void synchronizePendingFrames();
 
-  std::shared_ptr<EntityWrapper> createLightEntity(std::string lightTypeStr, double colorFahrenheit, double intensity, double directionX,
-                                                   double directionY, double directionZ, bool castShadows);
+  std::shared_ptr<EntityWrapper> createLightEntity(const std::string& lightTypeStr, double colorFahrenheit, double intensity,
+                                                   double directionX, double directionY, double directionZ, bool castShadows);
 
   void updateTransform(math::mat4 transform, const std::shared_ptr<EntityWrapper>& entity, bool multiplyCurrent);
   void setEntityPosition(const std::shared_ptr<EntityWrapper>& entity, std::vector<double> positionVec, bool multiplyCurrent);
@@ -97,7 +97,7 @@ private:
 private:
   std::shared_ptr<Dispatcher> _dispatcher;
   std::shared_ptr<Engine> _engine;
-  std::shared_ptr<SurfaceProvider> _surfaceProvider;
+  //  std::shared_ptr<SurfaceProvider> _surfaceProvider;
   std::shared_ptr<Listener> _surfaceListener;
   std::optional<RenderCallback> _renderCallback;
   std::shared_ptr<Choreographer> _choreographer;

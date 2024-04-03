@@ -19,9 +19,7 @@ JFilamentProxy::JFilamentProxy(const jni::alias_ref<JFilamentProxy::jhybridobjec
                                const std::shared_ptr<facebook::react::CallInvoker>& callInvoker)
     : _javaPart(make_global(javaThis)), _runtime(runtime), _callInvoker(callInvoker) {}
 
-JFilamentProxy::~JFilamentProxy() {
-  // TODO(hanno): Cleanup?
-}
+JFilamentProxy::~JFilamentProxy() = default;
 
 std::shared_ptr<FilamentBuffer> JFilamentProxy::loadAsset(const std::string& path) {
   static const auto method = javaClassLocal()->getMethod<jni::alias_ref<jni::JByteBuffer>(jni::alias_ref<jstring>)>("loadAsset");

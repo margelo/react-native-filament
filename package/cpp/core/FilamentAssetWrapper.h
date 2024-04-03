@@ -10,12 +10,15 @@
 
 namespace margelo {
 
+class SceneWrapper;
+
 using namespace filament;
 
 class FilamentAssetWrapper : public HybridObject {
 public:
-  explicit FilamentAssetWrapper(const std::shared_ptr<gltfio::FilamentAsset>& asset)
-      : HybridObject("FilamentAssetWrapper"), _asset(asset) {}
+  explicit FilamentAssetWrapper(const std::shared_ptr<gltfio::FilamentAsset>& asset, const std::shared_ptr<SceneWrapper>& scene)
+      : HybridObject("FilamentAssetWrapper"), _asset(asset), _scene(scene) {}
+  ~FilamentAssetWrapper() override;
 
   void loadHybridMethods() override;
 
@@ -51,6 +54,7 @@ private: // Public API functions:
 
 private: // Internal state:
   std::shared_ptr<gltfio::FilamentAsset> _asset;
+  std::shared_ptr<SceneWrapper> _scene; // The scene the asset is currently attached to
 };
 
 } // namespace margelo

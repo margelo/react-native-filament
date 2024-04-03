@@ -14,7 +14,7 @@ using namespace facebook;
 template <typename T> struct GlobalRefDeleter {
   explicit GlobalRefDeleter(jni::global_ref<typename T::javaobject> ref) : _ref(ref) {}
 
-  void operator()(T* _) {
+  void operator()(T* ptr) {
     if (_ref) {
       _ref.release();
     }

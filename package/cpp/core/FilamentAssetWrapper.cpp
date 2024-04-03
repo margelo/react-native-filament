@@ -1,5 +1,6 @@
 #include "FilamentAssetWrapper.h"
 #include "FilamentInstanceWrapper.h"
+#include "SceneWrapper.h"
 
 #include <utils/Entity.h>
 #include <utils/EntityInstance.h>
@@ -7,6 +8,10 @@
 namespace margelo {
 
 using namespace utils;
+
+FilamentAssetWrapper::~FilamentAssetWrapper() {
+  _scene->removeAsset(_asset);
+}
 
 void FilamentAssetWrapper::loadHybridMethods() {
   registerHybridMethod("getRoot", &FilamentAssetWrapper::getRoot, this);

@@ -3,10 +3,13 @@
 //
 
 #include "JDispatcher.h"
+#include <android/log.h>
 
 namespace margelo {
 
-JDispatcher::~JDispatcher() {}
+JDispatcher::~JDispatcher() {
+  __android_log_print(ANDROID_LOG_INFO, "JDispatcher", "Destructor called");
+}
 
 JDispatcher::JDispatcher(const jni::alias_ref<jhybridobject>& javaThis) : _javaPart(jni::make_global(javaThis)) {}
 
@@ -37,13 +40,14 @@ void JDispatcher::runAsync(std::function<void()>&& function) {
 }
 
 void JDispatcher::runSync(std::function<void()>&& function) {
-  _mutex.lock();
+  // TODO: Don't use a mutex here, use a condition variable instead
+  _syncMutex.lock();
   runAsync([this, function = std::move(function)]() {
     function();
-    _mutex.unlock();
+    _syncMutex.unlock();
   });
-  _mutex.lock();
-  _mutex.unlock();
+  _syncMutex.lock();
+  _syncMutex.unlock();
 }
 
 } // namespace margelo

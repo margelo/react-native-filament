@@ -3,13 +3,14 @@
 //
 
 #include "JSurfaceProvider.h"
+#include <android/log.h>
 
 namespace margelo {
 
 JSurfaceProvider::JSurfaceProvider(const jni::alias_ref<jhybridobject>& javaThis) : _javaPart(make_global(javaThis)) {}
 
 JSurfaceProvider::~JSurfaceProvider() {
-  // TODO(hanno): Cleanup?
+  __android_log_write(ANDROID_LOG_INFO, TAG, "Destroying JSurfaceProvider...");
 }
 
 void JSurfaceProvider::registerNatives() {

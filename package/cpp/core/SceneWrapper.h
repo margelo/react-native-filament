@@ -27,7 +27,6 @@ public:
   void removeAsset(const std::shared_ptr<gltfio::FilamentAsset>& asset);
 
 private:
-  std::vector<std::shared_ptr<gltfio::FilamentAsset>> _assets;
   std::shared_ptr<Scene> _scene;
   std::shared_ptr<gltfio::AssetLoader> _assetLoader;
 

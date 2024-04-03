@@ -42,9 +42,6 @@ export class Filament extends React.PureComponent<FilamentProps> {
       }
       const surfaceProvider = this.view.getSurfaceProvider()
       // Link the surface with the engine:
-      // this.props.engine.setSurfaceProvider(surfaceProvider)
-
-      // Call engine on worklet thread
       const context = FilamentProxy.getWorkletContext()
       const engine = this.props.engine
       Worklets.createRunInContextFn(() => {
