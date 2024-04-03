@@ -54,8 +54,6 @@ export type FilamentModel =
       state: 'loading'
     }
 
-const context = FilamentProxy.getWorkletContext()
-
 /**
  * Use a Filament Model that gets asynchronously loaded into the given Engine.
  * @worklet
@@ -77,6 +75,7 @@ export function useModel({
   const assetBuffer = useAsset({ path: path })
   const renderableManager = useRenderableManager(engine)
   const [asset, setAsset] = useState<FilamentAsset | undefined>(undefined)
+  const context = useMemo(() => FilamentProxy.getWorkletContext(), [])
 
   useEffect(() => {
     const setAssetWorklet = Worklets.createRunInJsFn(setAsset)
@@ -96,7 +95,7 @@ export function useModel({
 
       setAssetWorklet(loadedAsset)
     }, context)()
-  }, [assetBuffer, engine, instanceCount])
+  }, [assetBuffer, context, engine, instanceCount])
 
   const animator = useMemo(() => {
     if (asset == null) return undefined
@@ -141,7 +140,7 @@ export function useModel({
         engine.getScene().removeAssetEntities(asset)
       }, context)()
     }
-  }, [autoAddToScene, engine, asset])
+  }, [autoAddToScene, engine, asset, context])
 
   const prevCastShadowRef = useRef(castShadow)
   useEffect(() => {
@@ -156,7 +155,7 @@ export function useModel({
         renderableManager.setCastShadow(root, true)
       }
     }, context)()
-  }, [castShadow, asset, entities, renderableManager])
+  }, [castShadow, asset, entities, renderableManager, context])
 
   const prevReceiveShadowRef = useRef(receiveShadow)
   useEffect(() => {
@@ -171,7 +170,7 @@ export function useModel({
         renderableManager.setReceiveShadow(root, true)
       }
     }, context)()
-  }, [receiveShadow, asset, renderableManager])
+  }, [receiveShadow, asset, renderableManager, context])
 
   if (assetBuffer == null || asset == null || animator == null || entities == null || renderableEntities == null) {
     return {

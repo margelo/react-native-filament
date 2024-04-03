@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { Engine } from '../types'
 import { FilamentProxy } from '../native/FilamentProxy'
 import { useWorklet } from 'react-native-worklets-core'
@@ -11,10 +11,9 @@ interface EngineProps {
   isPaused?: boolean
 }
 
-const context = FilamentProxy.getWorkletContext()
-
 export function useEngine({ isPaused = false }: EngineProps = {}): Engine | undefined {
   const [engine, setEngine] = useState<Engine | undefined>(undefined)
+  const context = useMemo(() => FilamentProxy.getWorkletContext(), [])
 
   const createEngine: () => Promise<Engine> = useWorklet(
     context,

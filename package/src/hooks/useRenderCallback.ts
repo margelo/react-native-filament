@@ -2,20 +2,20 @@ import { useEffect } from 'react'
 import type { Engine, RenderCallback } from '../types'
 import { reportWorkletError } from '../ErrorUtils'
 import { FilamentProxy } from '../native/FilamentProxy'
-import { useWorklet } from 'react-native-worklets-core'
+import { Worklets } from 'react-native-worklets-core'
 
 const context = FilamentProxy.getWorkletContext()
 
 export function useRenderCallback(engine: Engine, onFrame: RenderCallback) {
-  const renderCallback: RenderCallback = useWorklet(context, onFrame, [onFrame])
-
   useEffect(() => {
-    // configure a render callback when this hook mounts
     Worklets.createRunInContextFn(() => {
       'worklet'
       engine.setRenderCallback((...args) => {
+        // TODO: Right now the worklet context isn't deallocated when we reload the app.
+        // If you remove all the code below (so just pass an empty worklet function to setRenderCallback),
+        // everything gets cleaned up properly.
         try {
-          renderCallback(...args)
+          onFrame(...args)
         } catch (e) {
           reportWorkletError(e)
         }
@@ -25,5 +25,5 @@ export function useRenderCallback(engine: Engine, onFrame: RenderCallback) {
       // remove render callback on unmount
       engine.setRenderCallback(undefined)
     }
-  }, [engine, renderCallback])
+  }, [engine, onFrame])
 }

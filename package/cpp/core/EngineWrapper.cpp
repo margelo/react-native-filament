@@ -136,7 +136,6 @@ void EngineWrapper::setSurfaceProvider(const std::shared_ptr<SurfaceProvider>& s
     [[unlikely]];
     throw std::runtime_error("SurfaceProvider cannot be null!");
   }
-  //  _surfaceProvider = surfaceProvider;
   const std::shared_ptr<Surface>& surface = surfaceProvider->getSurfaceOrNull();
   if (surface != nullptr) {
     setSurface(surface);
@@ -240,7 +239,13 @@ void EngineWrapper::destroySurface() {
 }
 
 void EngineWrapper::setRenderCallback(std::optional<RenderCallback> callback) {
-  _renderCallback = std::move(callback);
+  if (callback.has_value()) {
+    Logger::log(TAG, "Setting render callback");
+  } else {
+    Logger::log(TAG, "Removing render callback");
+  }
+
+  _renderCallback = callback;
 }
 
 // This method is connected to the choreographer and gets called every frame,
