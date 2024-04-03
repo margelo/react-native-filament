@@ -19,11 +19,11 @@ function blockJS(): number {
 }
 
 function Renderer({ engine }: { engine: Engine }) {
-  // useDefaultLight(engine)
-  const asset = useModel({
-    engine,
-    path: penguModelPath,
-  })
+  useDefaultLight(engine)
+  // const asset = useModel({
+  //   engine,
+  //   path: penguModelPath,
+  // })
 
   // const view = useView(engine)
   // const camera = useCamera(engine)

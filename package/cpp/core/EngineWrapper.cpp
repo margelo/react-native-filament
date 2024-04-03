@@ -64,7 +64,7 @@ EngineWrapper::EngineWrapper(const std::shared_ptr<Choreographer>& choreographer
   auto disatcher = _dispatcher;
   _assetLoader = References<gltfio::AssetLoader>::adoptEngineRef(
       _engine, assetLoaderPtr, [ncm, dispatcher](const std::shared_ptr<Engine>& engine, gltfio::AssetLoader* assetLoader) {
-        dispatcher->runAsync([ncm, engine, &assetLoader]() {
+        dispatcher->runSync([ncm, engine, &assetLoader]() {
           Logger::log(TAG, "Destroying asset loader...");
           delete ncm;
           gltfio::AssetLoader::destroy(&assetLoader);
