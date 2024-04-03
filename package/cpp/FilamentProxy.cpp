@@ -22,8 +22,17 @@ void FilamentProxy::loadHybridMethods() {
   registerHybridMethod("createTestObject", &FilamentProxy::createTestObject, this);
   registerHybridMethod("createEngine", &FilamentProxy::createEngine, this);
   registerHybridMethod("createBullet", &FilamentProxy::createBullet, this);
+  registerHybridGetter("hasWorklets", &FilamentProxy::getHasWorklets, this);
 #if HAS_WORKLETS
   registerHybridMethod("getWorkletContext", &FilamentProxy::getWorkletContext, this);
+#endif
+}
+
+bool FilamentProxy::getHasWorklets() {
+#if HAS_WORKLETS
+  return true;
+#else
+  return false;
 #endif
 }
 

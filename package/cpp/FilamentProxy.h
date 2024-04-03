@@ -62,6 +62,7 @@ private:
   std::future<std::shared_ptr<FilamentView>> findFilamentViewAsync(int id);
   std::shared_ptr<EngineWrapper> createEngine();
   std::shared_ptr<BulletWrapper> createBullet();
+  bool getHasWorklets();
 
 #if HAS_WORKLETS
   const std::shared_ptr<RNWorklet::JsiWorkletContext>& getWorkletContext();

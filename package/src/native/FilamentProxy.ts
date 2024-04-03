@@ -45,6 +45,10 @@ export interface TFilamentProxy {
    */
   createBullet(): BulletAPI
   /**
+   * Whether Worklets are installed, or not.
+   */
+  readonly hasWorklets: boolean
+  /**
    * Get the Worklet context used for Rendering to Filament.
    *
    * @example
@@ -86,6 +90,12 @@ const proxy = global.FilamentProxy as TFilamentProxy
 if (proxy == null) {
   throw new Error(
     'Failed to initialize react-native-filament. The global proxy instance (global.FilamentProxy) is null. Check the native logs (adb logcat or Xcode logs) for more information.'
+  )
+}
+
+if (!proxy.hasWorklets) {
+  throw new Error(
+    'Failed to initialize react-native-filament - Worklets are not available (HAS_WORKLETS=false), did you install react-native-worklets-core?'
   )
 }
 
