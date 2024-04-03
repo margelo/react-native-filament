@@ -14,7 +14,11 @@
 #import <React/RCTBridge+Private.h>
 #import <React/RCTBridge.h>
 
+#import "threading/CallInvokerDispatcher.h"
+#import "threading/Dispatcher.h"
+
 using namespace facebook;
+using namespace margelo;
 
 // This is defined in RCTCxxBridge.mm, and we are technically using a private API here.
 @interface RCTCxxBridge (CallInvoker)
@@ -46,7 +50,8 @@ using namespace facebook;
   runtime->global().setProperty(*runtime, "FilamentProxy", jsi::Object::createFromHostObject(*runtime, filamentProxy));
 
   // PromiseFactory
-  margelo::PromiseFactory::install(*runtime, callInvoker);
+  std::shared_ptr<Dispatcher> jsDispatcher = std::make_shared<CallInvokerDispatcher>(callInvoker);
+  margelo::PromiseFactory::install(*runtime, jsDispatcher);
 
   return YES;
 }

@@ -35,7 +35,7 @@ public:
   }
 
   std::shared_ptr<Surface> getSurfaceOrNull() override {
-    return _surface;
+    return std::static_pointer_cast<Surface>(_surface);
   }
 
 private:

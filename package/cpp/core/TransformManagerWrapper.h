@@ -21,11 +21,11 @@ public:
   void loadHybridMethods() override;
 
 private:
-  std::shared_ptr<TMat44Wrapper> getTransform(std::shared_ptr<EntityWrapper> entity);
-  std::shared_ptr<TMat44Wrapper> getWorldTransform(std::shared_ptr<EntityWrapper> entity);
+  std::shared_ptr<TMat44Wrapper> getTransform(const std::shared_ptr<EntityWrapper>& entity);
+  std::shared_ptr<TMat44Wrapper> getWorldTransform(const std::shared_ptr<EntityWrapper>& entity);
   void openLocalTransformTransaction();
   void commitLocalTransformTransaction();
-  void setTransform(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<TMat44Wrapper> transform);
+  void setTransform(const std::shared_ptr<EntityWrapper>& entityWrapper, const std::shared_ptr<TMat44Wrapper>& transform);
   std::shared_ptr<TMat44Wrapper> createIdentityMatrix();
 
 private:

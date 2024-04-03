@@ -14,7 +14,7 @@ AppleFilamentView::AppleFilamentView(FilamentMetalView* view)
     : _view(view), _surfaceProvider(std::make_shared<MetalSurfaceProvider>(view.metalLayer)) {}
 
 std::shared_ptr<SurfaceProvider> AppleFilamentView::getSurfaceProvider() {
-  return std::static_pointer_cast<SurfaceProvider>(_surfaceProvider);
+  return _surfaceProvider;
 }
 
 } // namespace margelo

@@ -104,6 +104,19 @@ target_link_libraries(
         EGL # <-- OpenGL (EGL)
 )
 
+# Try to find react-native-worklets-core
+find_package(react-native-worklets-core REQUIRED CONFIG)
+if (react-native-worklets-core_FOUND)
+    message("RN Filament: react-native-worklets core found! Enabling Worklets support...")
+    target_link_libraries(
+        ${PACKAGE_NAME}
+        react-native-worklets-core::rnworklets # <-- react-native-worklets-core
+    )
+    add_definitions(-DHAS_WORKLETS=1)
+else()
+    message("RN Filament: react-native-worklets core not found! Worklets support is disabled.")
+endif()
+
 # Filament (local CMake project as a git submodule)
 message("RN Filament: Adding pre-compiled libraries in ${FILAMENT_DIR}...")
 file(GLOB FILAMENT_LIBRARIES "${FILAMENT_DIR}/lib/${ANDROID_ABI}/*.a")

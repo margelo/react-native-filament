@@ -11,31 +11,27 @@
 namespace margelo {
 
 class Dispatcher {
-private:
-  std::queue<std::function<void()>> _jobs;
-  std::mutex _mutex;
-
-private:
-  // Schedule trigger will be implemented by Android/iOS to schedule a call to `trigger()` on the target Thread.
-  virtual void scheduleTrigger() = 0;
-
-protected:
-  // Trigger will run the latest job that has been added to the queue.
-  void trigger() {
-    std::unique_lock lock(_mutex);
-    auto job = _jobs.front();
-    job();
-    _jobs.pop();
-  }
-
 public:
+  /**
+   * Run the given void function synchronously on the Thread this Dispatcher is managing.
+   */
+  virtual void runSync(std::function<void()>&& function) = 0;
+
+  /**
+   * Run the given void function asynchronously on the Thread this Dispatcher is managing.
+   */
+  virtual void runAsync(std::function<void()>&& function) = 0;
+
+  /**
+   * Run the given function asynchronously on the Thread this Dispatcher is managing,
+   * and return a future that will hold the result of the function.
+   */
   template <typename T> std::future<T> runAsync(std::function<T()>&& function) {
     // 1. Create Promise that can be shared between this and dispatcher thread
     auto promise = std::make_shared<std::promise<T>>();
     std::future<T> future = promise->get_future();
 
-    std::unique_lock lock(_mutex);
-    _jobs.push([function = std::move(function), promise]() {
+    runAsync([function = std::move(function), promise]() {
       try {
         // 4. Call the actual function on the new Thread
         T result = function();
@@ -46,7 +42,6 @@ public:
         promise->set_exception(std::current_exception());
       }
     });
-    scheduleTrigger();
 
     // 3. Return an open future that gets resolved later by the dispatcher Thread
     return future;

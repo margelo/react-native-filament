@@ -1,5 +1,6 @@
 #include "FilamentAssetWrapper.h"
 #include "FilamentInstanceWrapper.h"
+#include "SceneWrapper.h"
 
 #include <utils/Entity.h>
 #include <utils/EntityInstance.h>
@@ -7,6 +8,10 @@
 namespace margelo {
 
 using namespace utils;
+
+FilamentAssetWrapper::~FilamentAssetWrapper() {
+  _scene->removeAsset(_asset);
+}
 
 void FilamentAssetWrapper::loadHybridMethods() {
   registerHybridMethod("getRoot", &FilamentAssetWrapper::getRoot, this);
@@ -50,7 +55,8 @@ std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::getAnimator() {
   return std::make_shared<AnimatorWrapper>(_asset);
 }
 
-std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::createAnimatorWithAnimationsFrom(std::shared_ptr<FilamentAssetWrapper> otherAsset) {
+std::shared_ptr<AnimatorWrapper>
+FilamentAssetWrapper::createAnimatorWithAnimationsFrom(const std::shared_ptr<FilamentAssetWrapper>& otherAsset) {
 #ifdef HAS_FILAMENT_ANIMATOR_PATCH
   // TODO(copy-animations): We currently copy animations from an asset onto another instance (different model than the original asset), we
   // should replace this with once we found a good solution discussed here: https://github.com/google/filament/issues/7622

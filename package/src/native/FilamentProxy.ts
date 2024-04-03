@@ -3,6 +3,7 @@ import { FilamentNativeModule } from './FilamentNativeModule'
 import type { Engine } from '../types/Engine'
 import { FilamentView } from './FilamentViewTypes'
 import type { BulletAPI } from '../bullet/types/api'
+import type { IWorkletContext } from 'react-native-worklets-core'
 
 interface TestHybridObject {
   int: number
@@ -43,6 +44,26 @@ export interface TFilamentProxy {
    * @private
    */
   createBullet(): BulletAPI
+  /**
+   * Whether Worklets are installed, or not.
+   */
+  readonly hasWorklets: boolean
+  /**
+   * Get the Worklet context used for Rendering to Filament.
+   *
+   * @example
+   * ```ts
+   * // 1. Get Render-Thread Worklet Context
+   * const context = FilamentProxy.getWorkletContext()
+   *
+   * // 2. From now on, perform all Filament calls and operations in `context`
+   * Worklets.createRunInContextFn(() => {
+   *   const engine = FilamentProxy.createEngine()
+   *   // render...
+   * }, context)()
+   * ```
+   */
+  getWorkletContext: () => IWorkletContext
 }
 
 // Check if we are running on-device (JSI)
@@ -69,6 +90,12 @@ const proxy = global.FilamentProxy as TFilamentProxy
 if (proxy == null) {
   throw new Error(
     'Failed to initialize react-native-filament. The global proxy instance (global.FilamentProxy) is null. Check the native logs (adb logcat or Xcode logs) for more information.'
+  )
+}
+
+if (!proxy.hasWorklets) {
+  throw new Error(
+    'Failed to initialize react-native-filament - Worklets are not available (HAS_WORKLETS=false), did you install react-native-worklets-core?'
   )
 }
 

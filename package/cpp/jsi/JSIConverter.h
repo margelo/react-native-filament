@@ -139,44 +139,44 @@ template <typename TResult> struct JSIConverter<std::future<TResult>> {
   }
   static jsi::Value toJSI(jsi::Runtime& runtime, std::future<TResult>&& arg) {
     auto sharedFuture = std::make_shared<std::future<TResult>>(std::move(arg));
-    return PromiseFactory::createPromise(
-        runtime, [sharedFuture = std::move(sharedFuture)](jsi::Runtime& runtime, const std::shared_ptr<Promise>& promise,
-                                                          const std::shared_ptr<react::CallInvoker>& callInvoker) {
-          // Spawn new async thread to wait for the result
-          std::thread waiterThread([promise, &runtime, callInvoker, sharedFuture = std::move(sharedFuture)]() {
-            // wait until the future completes. we are running on a background task here.
-            sharedFuture->wait();
+    return PromiseFactory::createPromise(runtime, [sharedFuture = std::move(sharedFuture)](jsi::Runtime& runtime,
+                                                                                           const std::shared_ptr<Promise>& promise,
+                                                                                           const std::shared_ptr<Dispatcher>& dispatcher) {
+      // Spawn new async thread to wait for the result
+      std::thread waiterThread([promise, &runtime, dispatcher, sharedFuture = std::move(sharedFuture)]() {
+        // wait until the future completes. we are running on a background task here.
+        sharedFuture->wait();
 
-            // the async function completed successfully, resolve the promise on JS Thread
-            callInvoker->invokeAsync([&runtime, promise, sharedFuture]() {
-              try {
-                if constexpr (std::is_same_v<TResult, void>) {
-                  // it's returning void, just return undefined to JS
-                  sharedFuture->get();
-                  promise->resolve(jsi::Value::undefined());
-                } else {
-                  // it's returning a custom type, convert it to a jsi::Value
-                  TResult result = sharedFuture->get();
-                  jsi::Value jsResult = JSIConverter<TResult>::toJSI(runtime, result);
-                  promise->resolve(std::move(jsResult));
-                }
-              } catch (const std::exception& exception) {
-                // the async function threw an error, reject the promise on JS Thread
-                std::string what = exception.what();
-                promise->reject(what);
-              } catch (...) {
+        // the async function completed successfully, resolve the promise on JS Thread
+        dispatcher->runAsync([&runtime, promise, sharedFuture]() {
+          try {
+            if constexpr (std::is_same_v<TResult, void>) {
+              // it's returning void, just return undefined to JS
+              sharedFuture->get();
+              promise->resolve(jsi::Value::undefined());
+            } else {
+              // it's returning a custom type, convert it to a jsi::Value
+              TResult result = sharedFuture->get();
+              jsi::Value jsResult = JSIConverter<TResult>::toJSI(runtime, result);
+              promise->resolve(std::move(jsResult));
+            }
+          } catch (const std::exception& exception) {
+            // the async function threw an error, reject the promise on JS Thread
+            std::string what = exception.what();
+            promise->reject(what);
+          } catch (...) {
             // the async function threw a non-std error, try getting it
 #if __has_include(<cxxabi.h>)
-                std::string name = __cxxabiv1::__cxa_current_exception_type()->name();
+            std::string name = __cxxabiv1::__cxa_current_exception_type()->name();
 #else
                 std::string name = "<unknown>";
 #endif
-                promise->reject("Unknown non-std exception: " + name);
-              }
-            });
-          });
-          waiterThread.detach();
+            promise->reject("Unknown non-std exception: " + name);
+          }
         });
+      });
+      waiterThread.detach();
+    });
   }
 };
 
@@ -186,7 +186,7 @@ template <typename ReturnType, typename... Args> struct JSIConverter<std::functi
     jsi::Function function = arg.asObject(runtime).asFunction(runtime);
     std::shared_ptr<jsi::Function> sharedFunction = std::make_shared<jsi::Function>(std::move(function));
     return [&runtime, sharedFunction](Args... args) -> ReturnType {
-      jsi::Value result = sharedFunction->call(runtime, JSIConverter<Args>::toJSI(runtime, args)...);
+      jsi::Value result = sharedFunction->call(runtime, JSIConverter<std::decay_t<Args>>::toJSI(runtime, args)...);
       if constexpr (std::is_same_v<ReturnType, void>) {
         // it is a void function (returns undefined)
         return;
@@ -202,11 +202,11 @@ template <typename ReturnType, typename... Args> struct JSIConverter<std::functi
                                        std::index_sequence<Is...>) {
     if constexpr (std::is_same_v<ReturnType, void>) {
       // it is a void function (will return undefined in JS)
-      function(JSIConverter<Args>::fromJSI(runtime, args[Is])...);
+      function(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
       return jsi::Value::undefined();
     } else {
       // it is a custom type, parse it to a JS value
-      ReturnType result = function(JSIConverter<Args>::fromJSI(runtime, args[Is])...);
+      ReturnType result = function(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
       return JSIConverter<ReturnType>::toJSI(runtime, result);
     }
   }

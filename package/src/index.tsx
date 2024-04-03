@@ -6,6 +6,7 @@ export * from './types'
 export * from './Filament'
 
 // hooks
+export * from './hooks/useWorkletEffect'
 export * from './hooks/useEngine'
 export * from './hooks/useRenderCallback'
 export * from './hooks/useAsset'

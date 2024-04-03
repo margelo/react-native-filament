@@ -27,6 +27,6 @@ private:
   // TODO(Hanno): Add directionStr , Camera::Fov directionStr = Camera::Fov::VERTICAL
   void setProjection(double fovInDegrees, double aspect, double near, double far, std::string directionStr);
   // Convenience methods
-  void lookAtCameraManipulator(std::shared_ptr<ManipulatorWrapper> cameraManipulator);
+  void lookAtCameraManipulator(const std::shared_ptr<ManipulatorWrapper>& cameraManipulator);
 };
 } // namespace margelo
