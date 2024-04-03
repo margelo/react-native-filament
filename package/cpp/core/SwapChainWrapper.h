@@ -13,7 +13,7 @@ public:
 
   void loadHybridMethods() override {}
 
-  std::shared_ptr<SwapChain> getSwapChain() {
+  const std::shared_ptr<SwapChain>& getSwapChain() {
     return _swapChain;
   }
 

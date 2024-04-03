@@ -7,20 +7,25 @@
 
 #pragma once
 
-#include "Dispatcher.h"
+#include "threading/Dispatcher.h"
 #include <Foundation/Foundation.h>
 
 namespace margelo {
 
+/**
+ A [Dispatcher] implementation that uses iOS dispatch_queues to schedule calls.
+ */
 class AppleDispatcher : public Dispatcher {
 public:
   explicit AppleDispatcher(dispatch_queue_t dispatchQueue) : _dispatchQueue(dispatchQueue) {}
 
 public:
-  void scheduleTrigger() override {
-    dispatch_async(_dispatchQueue, ^{
-      trigger();
-    });
+  void runSync(std::function<void()>&& function) override {
+    dispatch_sync(_dispatchQueue, [function = std::move(function)]() { function(); });
+  }
+
+  void runAsync(std::function<void()>&& function) override {
+    dispatch_async(_dispatchQueue, [function = std::move(function)]() { function(); });
   }
 
 private:

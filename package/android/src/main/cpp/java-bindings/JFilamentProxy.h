@@ -5,9 +5,9 @@
 #pragma once
 
 #include "Choreographer.h"
-#include "Dispatcher.h"
 #include "FilamentBuffer.h"
 #include "FilamentView.h"
+#include "threading/Dispatcher.h"
 #include <ReactCommon/CallInvokerHolder.h>
 #include <fbjni/fbjni.h>
 #include <jni.h>
@@ -28,17 +28,19 @@ public:
   std::shared_ptr<FilamentBuffer> loadAsset(const std::string& path);
   std::shared_ptr<FilamentView> findFilamentView(int id);
   std::shared_ptr<Choreographer> createChoreographer();
-  std::shared_ptr<Dispatcher> getUIDispatcher();
-  std::shared_ptr<Dispatcher> getBackgroundDispatcher();
+  const std::shared_ptr<Dispatcher>& getRenderThreadDispatcher();
+  const std::shared_ptr<Dispatcher>& getUIDispatcher();
+  const std::shared_ptr<Dispatcher>& getBackgroundDispatcher();
 
   jsi::Runtime& getRuntime();
-  std::shared_ptr<react::CallInvoker> getCallInvoker();
+  const std::shared_ptr<react::CallInvoker>& getCallInvoker();
 
 private:
   friend HybridBase;
   jni::global_ref<JFilamentProxy::javaobject> _javaPart;
   jsi::Runtime* _runtime;
   std::shared_ptr<facebook::react::CallInvoker> _callInvoker;
+  std::shared_ptr<Dispatcher> _renderThreadDispatcher;
   std::shared_ptr<Dispatcher> _uiDispatcher;
   std::shared_ptr<Dispatcher> _backgroundDispatcher;
 

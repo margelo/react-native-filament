@@ -8,6 +8,7 @@ import { FadeOut } from './FadeOut'
 import { ChangeMaterials } from './ChangeMaterials'
 import { CastShadow } from './CastShadow'
 import { MultipleInstances } from './MultipleInstances'
+import { WorkletExample } from './WorkletExample'
 import { ScaleEffect } from './ScaleEffect'
 
 function NavigationItem(props: { name: string; route: string }) {
@@ -46,6 +47,7 @@ function HomeScreen() {
       <NavigationItem name="🌑 Cast Shadow" route="CastShadow" />
       <NavigationItem name="🤖 Multiple Instances" route="MultipleInstances" />
       <NavigationItem name="↕️ Scale Effect" route="ScaleEffect" />
+      <NavigationItem name="🧠 Worklet Example" route="WorkletExample" />
     </View>
   )
 }
@@ -63,7 +65,7 @@ const Stack = createNativeStackNavigator()
 function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator initialRouteName="WorkletExample">
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen
           name="AnimationTransitions"
@@ -77,6 +79,7 @@ function App() {
         <Stack.Screen name="ChangeMaterials" component={ChangeMaterials} />
         <Stack.Screen name="CastShadow" component={CastShadow} />
         <Stack.Screen name="MultipleInstances" component={MultipleInstances} />
+        <Stack.Screen name="WorkletExample" component={WorkletExample} />
         <Stack.Screen name="ScaleEffect" component={ScaleEffect} />
         <Stack.Screen name="Test" component={TestScreen} />
       </Stack.Navigator>

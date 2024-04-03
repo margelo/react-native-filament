@@ -3,8 +3,8 @@ import { findNodeHandle, NativeMethods } from 'react-native'
 import { FilamentProxy } from './native/FilamentProxy'
 import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 import { Engine } from './types'
-import { FilamentView } from './native/FilamentViewTypes'
 import { reportError } from './ErrorUtils'
+import { Worklets } from 'react-native-worklets-core'
 
 export interface FilamentProps extends NativeProps {
   engine: Engine
@@ -14,12 +14,10 @@ type RefType = React.Component<NativeProps> & Readonly<NativeMethods>
 
 export class Filament extends React.PureComponent<FilamentProps> {
   private readonly ref: React.RefObject<RefType>
-  private view: FilamentView | undefined = undefined
 
   constructor(props: FilamentProps) {
     super(props)
     this.ref = React.createRef<RefType>()
-    this.view = undefined
   }
 
   // TODO: Does this also work for Fabric?
@@ -35,13 +33,19 @@ export class Filament extends React.PureComponent<FilamentProps> {
   onViewReady = async () => {
     try {
       const handle = this.handle
-      this.view = await FilamentProxy.findFilamentView(handle)
-      if (this.view == null) {
+      const view = await FilamentProxy.findFilamentView(handle)
+      if (view == null) {
         throw new Error(`Failed to find FilamentView #${handle}!`)
       }
-      const surfaceProvider = this.view.getSurfaceProvider()
+      const surfaceProvider = view.getSurfaceProvider()
       // Link the surface with the engine:
-      this.props.engine.setSurfaceProvider(surfaceProvider)
+      const context = FilamentProxy.getWorkletContext()
+      const engine = this.props.engine
+      Worklets.createRunInContextFn(() => {
+        'worklet'
+        engine.setSurfaceProvider(surfaceProvider)
+        console.log('Engine set surface provider!')
+      }, context)()
     } catch (e) {
       reportError(e)
     }

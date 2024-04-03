@@ -19,11 +19,11 @@ public:
 
   void loadHybridMethods() override;
 
-  std::shared_ptr<Material> getMaterial() {
+  const std::shared_ptr<Material>& getMaterial() {
     return _material;
   }
 
-  std::vector<std::shared_ptr<MaterialInstanceWrapper>> getInstances() {
+  const std::vector<std::shared_ptr<MaterialInstanceWrapper>>& getInstances() {
     return _instances;
   }
 

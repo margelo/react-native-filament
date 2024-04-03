@@ -8,11 +8,15 @@
 
 namespace margelo {
 
-JFilamentView::JFilamentView(const jni::alias_ref<jhybridobject>& javaThis, jni::alias_ref<JSurfaceProvider::javaobject> surfaceProvider)
-    : _javaPart(make_global(javaThis)), _surfaceProvider(jni::make_global(surfaceProvider)) {}
+JFilamentView::JFilamentView(const jni::alias_ref<jhybridobject>& javaThis,
+                             const jni::alias_ref<JSurfaceProvider::javaobject>& surfaceProvider)
+    : _javaPart(make_global(javaThis)) {
+  jni::global_ref<JSurfaceProvider::javaobject> globalSurfaceProvider = jni::make_global(surfaceProvider);
+  _surfaceProvider = JNISharedPtr::make_shared_from_jni<JSurfaceProvider>(globalSurfaceProvider);
+}
 
 JFilamentView::~JFilamentView() {
-  // TODO(marc): Cleanup?
+  __android_log_write(ANDROID_LOG_INFO, TAG, "Destroying JFilamentView...");
 }
 
 void JFilamentView::registerNatives() {
@@ -22,13 +26,13 @@ void JFilamentView::registerNatives() {
 }
 
 jni::local_ref<JFilamentView::jhybriddata> JFilamentView::initHybrid(jni::alias_ref<jhybridobject> jThis,
-                                                                     jni::alias_ref<JSurfaceProvider::javaobject> surfaceProvider) {
+                                                                     const jni::alias_ref<JSurfaceProvider::javaobject>& surfaceProvider) {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Initializing JFilamentView...");
   return makeCxxInstance(jThis, surfaceProvider);
 }
 
 std::shared_ptr<SurfaceProvider> JFilamentView::getSurfaceProvider() {
-  return JNISharedPtr::make_shared_from_jni<JSurfaceProvider>(_surfaceProvider);
+  return _surfaceProvider;
 }
 
 } // namespace margelo

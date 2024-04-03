@@ -24,16 +24,17 @@ public:
 private:
   friend HybridBase;
   jni::global_ref<JFilamentView::javaobject> _javaPart;
-  jni::global_ref<JSurfaceProvider::javaobject> _surfaceProvider;
+  std::shared_ptr<SurfaceProvider> _surfaceProvider;
 
 private:
   static auto constexpr TAG = "JFilamentView";
   static auto constexpr kJavaDescriptor = "Lcom/margelo/filament/FilamentView;";
 
 private:
-  explicit JFilamentView(const jni::alias_ref<jhybridobject>& javaThis, jni::alias_ref<JSurfaceProvider::javaobject> surfaceProvider);
+  explicit JFilamentView(const jni::alias_ref<jhybridobject>& javaThis,
+                         const jni::alias_ref<JSurfaceProvider::javaobject>& surfaceProvider);
   static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> javaThis,
-                                                jni::alias_ref<JSurfaceProvider::javaobject> surfaceProvider);
+                                                const jni::alias_ref<JSurfaceProvider::javaobject>& surfaceProvider);
 };
 
 } // namespace margelo

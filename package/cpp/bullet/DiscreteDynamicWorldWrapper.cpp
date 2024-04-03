@@ -24,7 +24,7 @@ void DiscreteDynamicWorldWrapper::loadHybridMethods() {
   registerHybridMethod("stepSimulation", &DiscreteDynamicWorldWrapper::stepSimulation, this);
 }
 
-void DiscreteDynamicWorldWrapper::addRigidBody(std::shared_ptr<RigidBodyWrapper> rigidBody) {
+void DiscreteDynamicWorldWrapper::addRigidBody(const std::shared_ptr<RigidBodyWrapper>& rigidBody) {
   if (!rigidBody) {
     throw std::runtime_error("RigidBody is null");
   }
@@ -33,7 +33,7 @@ void DiscreteDynamicWorldWrapper::addRigidBody(std::shared_ptr<RigidBodyWrapper>
   rigidBodies->push_back(rigidBody);
 }
 
-void DiscreteDynamicWorldWrapper::removeRigidBody(std::shared_ptr<RigidBodyWrapper> rigidBody) {
+void DiscreteDynamicWorldWrapper::removeRigidBody(const std::shared_ptr<RigidBodyWrapper>& rigidBody) {
   if (!rigidBody) {
     throw std::runtime_error("RigidBody is null");
   }

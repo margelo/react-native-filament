@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 /** @noinspection JavaJniMissingFunction*/
@@ -30,6 +31,7 @@ class FilamentProxy {
     private final ReactApplicationContext reactContext;
     private final Dispatcher uiThreadDispatcher;
     private final Dispatcher backgroundThreadDispatcher;
+    private final Dispatcher renderThreadDispatcher;
 
     FilamentProxy(@NonNull ReactApplicationContext context) {
         JavaScriptContextHolder jsRuntimeHolder = context.getJavaScriptContextHolder();
@@ -44,6 +46,8 @@ class FilamentProxy {
         mHybridData = initHybrid(runtimePointer, (CallInvokerHolderImpl) callInvokerHolder);
         reactContext = context;
 
+        Executor renderThread = new LooperExecutor("FilamentRenderer");
+        renderThreadDispatcher = new Dispatcher(renderThread);
         uiThreadDispatcher = new Dispatcher(ContextCompat.getMainExecutor(context));
         backgroundThreadDispatcher = new Dispatcher(Executors.newCachedThreadPool());
     }
@@ -96,6 +100,13 @@ class FilamentProxy {
             throw new RuntimeException("Filament View with id " + id + " cannot be found!");
         }
         return (FilamentView) view;
+    }
+
+    /** @noinspection unused*/
+    @DoNotStrip
+    @Keep
+    Dispatcher getRenderThreadDispatcher() {
+        return renderThreadDispatcher;
     }
 
     /** @noinspection unused*/

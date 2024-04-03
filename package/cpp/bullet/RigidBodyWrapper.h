@@ -19,22 +19,22 @@ class RigidBodyWrapper;
  * first arg: "this" rigid body
  * second arg: the rigid body "this" is colliding with
  */
-using CollisionCallback = std::function<void(std::shared_ptr<RigidBodyWrapper>, std::shared_ptr<RigidBodyWrapper>)>;
+using CollisionCallback = std::function<void(const std::shared_ptr<RigidBodyWrapper>&, const std::shared_ptr<RigidBodyWrapper>&)>;
 
 class RigidBodyWrapper : public HybridObject {
 public:
-  explicit RigidBodyWrapper(double mass, std::shared_ptr<btCollisionShape> shape, std::unique_ptr<btMotionState> motionState,
+  explicit RigidBodyWrapper(double mass, const std::shared_ptr<btCollisionShape>& shape, std::unique_ptr<btMotionState> motionState,
                             std::string id, std::optional<CollisionCallback> collisionCallback);
 
   // These create functions are wrapper around the constructor and will create the motion state and then construct the RigidBodyWrapper
-  static std::shared_ptr<RigidBodyWrapper> create(double mass, double x, double y, double z, std::shared_ptr<btCollisionShape> shape,
+  static std::shared_ptr<RigidBodyWrapper> create(double mass, double x, double y, double z, const std::shared_ptr<btCollisionShape>& shape,
                                                   std::string id, std::optional<CollisionCallback> collisionCallback);
-  static std::shared_ptr<RigidBodyWrapper> create(double mass, std::shared_ptr<TMat44Wrapper> entityTransform,
-                                                  std::shared_ptr<btCollisionShape> shape, std::string id,
+  static std::shared_ptr<RigidBodyWrapper> create(double mass, const std::shared_ptr<TMat44Wrapper>& entityTransform,
+                                                  const std::shared_ptr<btCollisionShape>& shape, std::string id,
                                                   std::optional<CollisionCallback> collisionCallback);
 
   void loadHybridMethods() override;
-  std::shared_ptr<btRigidBody> getRigidBody() {
+  const std::shared_ptr<btRigidBody>& getRigidBody() {
     return _rigidBody;
   }
 

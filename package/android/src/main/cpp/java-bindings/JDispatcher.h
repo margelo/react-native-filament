@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Dispatcher.h"
+#include "threading/Dispatcher.h"
 #include <fbjni/fbjni.h>
 
 namespace margelo {
@@ -17,14 +17,21 @@ public:
   static void registerNatives();
 
 public:
-  void scheduleTrigger() override;
+  void scheduleTrigger();
+  void runAsync(std::function<void()>&& function) override;
+  void runSync(std::function<void()>&& function) override;
 
 private:
-  void triggerParent();
+  void trigger();
 
 private:
   friend HybridBase;
   jni::global_ref<JDispatcher::javaobject> _javaPart;
+
+private:
+  std::queue<std::function<void()>> _jobs;
+  std::recursive_mutex _mutex;
+  std::mutex _syncMutex;
 
 private:
   static auto constexpr TAG = "JDispatcher";
