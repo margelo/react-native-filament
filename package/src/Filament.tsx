@@ -3,7 +3,6 @@ import { findNodeHandle, NativeMethods } from 'react-native'
 import { FilamentProxy } from './native/FilamentProxy'
 import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 import { Engine } from './types'
-import { FilamentView } from './native/FilamentViewTypes'
 import { reportError } from './ErrorUtils'
 import { Worklets } from 'react-native-worklets-core'
 
