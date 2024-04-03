@@ -15,12 +15,10 @@ type RefType = React.Component<NativeProps> & Readonly<NativeMethods>
 
 export class Filament extends React.PureComponent<FilamentProps> {
   private readonly ref: React.RefObject<RefType>
-  private view: FilamentView | undefined = undefined
 
   constructor(props: FilamentProps) {
     super(props)
     this.ref = React.createRef<RefType>()
-    this.view = undefined
   }
 
   // TODO: Does this also work for Fabric?
@@ -36,11 +34,11 @@ export class Filament extends React.PureComponent<FilamentProps> {
   onViewReady = async () => {
     try {
       const handle = this.handle
-      this.view = await FilamentProxy.findFilamentView(handle)
-      if (this.view == null) {
+      const view = await FilamentProxy.findFilamentView(handle)
+      if (view == null) {
         throw new Error(`Failed to find FilamentView #${handle}!`)
       }
-      const surfaceProvider = this.view.getSurfaceProvider()
+      const surfaceProvider = view.getSurfaceProvider()
       // Link the surface with the engine:
       const context = FilamentProxy.getWorkletContext()
       const engine = this.props.engine
