@@ -16,5 +16,9 @@ export * from './hooks/useView'
 export * from './hooks/useTransformManager'
 export * from './hooks/useRenderableManager'
 
+// utilities
+export * from './utilities/runOnJS'
+export * from './utilities/runOnWorklet'
+
 // Bullet 3
 export * from './bullet'
