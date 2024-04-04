@@ -27,8 +27,8 @@
 		C9D96BF6335F42C0A265B183 /* TransparentShadowMaterial.matc in Resources */ = {isa = PBXBuildFile; fileRef = 0409EC28377B45A494FCD7A6 /* TransparentShadowMaterial.matc */; };
 		FB6EB495362843928953B887 /* coin.glb in Resources */ = {isa = PBXBuildFile; fileRef = CE7EC55D9D25492D8D6083D3 /* coin.glb */; };
 		FFD6B311C32A4A2580B289D7 /* default_env_skybox.ktx in Resources */ = {isa = PBXBuildFile; fileRef = A947E59D16164B19982D8EC8 /* default_env_skybox.ktx */; };
-		E5D6D29DAC48402D801C555E /* rocket.glb in Resources */ = {isa = PBXBuildFile; fileRef = ABF897B8CB7F4BAB96FD05D5 /* rocket.glb */; };
 		884DCBCCF9704FDBAC6F659B /* mars.glb in Resources */ = {isa = PBXBuildFile; fileRef = CF555483BC0C424D9371B002 /* mars.glb */; };
+		20B088CC1B174D28B6AA2391 /* rocket.glb in Resources */ = {isa = PBXBuildFile; fileRef = EDFD437EE70D45D5ABD69DDD /* rocket.glb */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,8 +72,8 @@
 		C4E5AB69D2B94D53A2EE3F93 /* chair.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = chair.glb; path = ../assets/chair.glb; sourceTree = "<group>"; };
 		CE7EC55D9D25492D8D6083D3 /* coin.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = coin.glb; path = ../assets/coin.glb; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		ABF897B8CB7F4BAB96FD05D5 /* rocket.glb */ = {isa = PBXFileReference; name = "rocket.glb"; path = "../assets/rocket.glb"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		CF555483BC0C424D9371B002 /* mars.glb */ = {isa = PBXFileReference; name = "mars.glb"; path = "../assets/mars.glb"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		EDFD437EE70D45D5ABD69DDD /* rocket.glb */ = {isa = PBXFileReference; name = "rocket.glb"; path = "../assets/rocket.glb"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -184,8 +184,8 @@
 				9241FD2E35834E6CBD6537B9 /* box.glb */,
 				3BB2032A44844768B124B936 /* TransparentShadowMaterial.mat */,
 				0409EC28377B45A494FCD7A6 /* TransparentShadowMaterial.matc */,
-				ABF897B8CB7F4BAB96FD05D5 /* rocket.glb */,
 				CF555483BC0C424D9371B002 /* mars.glb */,
+				EDFD437EE70D45D5ABD69DDD /* rocket.glb */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -309,8 +309,8 @@
 				279D0EC5EF2A4391BD041C64 /* box.glb in Resources */,
 				110E79106D01479997CC6BA9 /* TransparentShadowMaterial.mat in Resources */,
 				C9D96BF6335F42C0A265B183 /* TransparentShadowMaterial.matc in Resources */,
-				E5D6D29DAC48402D801C555E /* rocket.glb in Resources */,
 				884DCBCCF9704FDBAC6F659B /* mars.glb in Resources */,
+				20B088CC1B174D28B6AA2391 /* rocket.glb in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

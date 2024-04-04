@@ -1,17 +1,7 @@
 import React, { useCallback } from 'react'
 import { useSharedValue } from 'react-native-worklets-core'
-import { Button, Platform, SafeAreaView, StyleSheet, View } from 'react-native'
-import {
-  Engine,
-  Filament,
-  Float3,
-  useCamera,
-  useEngine,
-  useModel,
-  useRenderCallback,
-  useTransformManager,
-  useView,
-} from 'react-native-filament'
+import { Platform, StyleSheet, View } from 'react-native'
+import { Engine, Filament, Float3, useCamera, useEngine, useModel, useRenderCallback, useView } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { Config } from './config'
 
@@ -24,21 +14,13 @@ const rocketModelPath = Platform.select({
   ios: 'rocket.glb',
 })!
 
-function blockJS(): number {
-  let sum = 0
-  for (let i = 0; i < 1000000000; i++) {
-    sum += i
-  }
-  return sum
-}
-
 function Renderer({ engine }: { engine: Engine }) {
   useDefaultLight(engine)
   useModel({
     engine,
     path: marsModelPath,
   })
-  useModel({
+  const rocket = useModel({
     engine,
     path: rocketModelPath,
   })
@@ -47,25 +29,20 @@ function Renderer({ engine }: { engine: Engine }) {
   const camera = useCamera(engine)
 
   const prevAspectRatio = useSharedValue(0)
+
+  const rocketAsset = rocket.state === 'loaded' ? rocket.asset : undefined
   useRenderCallback(
     engine,
     useCallback(
-      (_timestamp: number, startTime: number, passedSeconds: number) => {
+      (_timestamp: number, _startTime: number, passedSeconds: number) => {
         'worklet'
 
         const aspectRatio = view.aspectRatio
         if (prevAspectRatio.value !== aspectRatio) {
           prevAspectRatio.value = aspectRatio
           // Setup camera lens:
-          const config = {
-            focalLengthInMillimeters: 28,
-            near: 0.1,
-            far: 1000,
-            cameraPosition: [0, 0, 8] as Float3,
-            cameraTarget: [0, 0, 0] as Float3,
-            cameraUp: [0, 1, 0] as Float3,
-          }
-          camera.setLensProjection(config.focalLengthInMillimeters, aspectRatio, config.near, config.far)
+          const { focalLengthInMillimeters, near, far } = Config.camera
+          camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
         }
 
         const radius = 5
@@ -78,8 +55,12 @@ function Renderer({ engine }: { engine: Engine }) {
         ]
 
         camera.lookAt(cameraPosition, [0, 1, 0] as Float3, [0, 1, 0] as Float3)
+
+        if (rocketAsset != null) {
+          engine.setEntityPosition(rocketAsset.getRoot(), [0, 1, 0], false)
+        }
       },
-      [camera, prevAspectRatio, view.aspectRatio]
+      [camera, engine, prevAspectRatio, rocketAsset, view.aspectRatio]
     )
   )
 
