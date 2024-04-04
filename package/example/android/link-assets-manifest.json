@@ -42,6 +42,10 @@
       "sha1": "5622d0fbb94aeeda0539d64d4f5b87c20149e8ec"
     },
     {
+      "path": "assets/mars.glb",
+      "sha1": "26fafa70f1ca11fab6420899603cf0b7130d3592"
+    },
+    {
       "path": "assets/pengu.glb",
       "sha1": "9c3aa64101b6af758735eeaafb48d482526d2c69"
     },
@@ -52,6 +56,10 @@
     {
       "path": "assets/pirate.glb",
       "sha1": "d4290fad8455ae940baa90e59d70659c021590f7"
+    },
+    {
+      "path": "assets/rocket.glb",
+      "sha1": "8eaa0556206541745a807fd2720e505ddac33206"
     }
   ]
 }

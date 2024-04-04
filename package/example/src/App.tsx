@@ -79,7 +79,7 @@ function App() {
         <Stack.Screen name="ChangeMaterials" component={ChangeMaterials} />
         <Stack.Screen name="CastShadow" component={CastShadow} />
         <Stack.Screen name="MultipleInstances" component={MultipleInstances} />
-        <Stack.Screen name="WorkletExample" component={WorkletExample} />
+        <Stack.Screen name="WorkletExample" component={WorkletExample} options={{ headerShown: false }} />
         <Stack.Screen name="ScaleEffect" component={ScaleEffect} />
         <Stack.Screen name="Test" component={TestScreen} />
       </Stack.Navigator>
