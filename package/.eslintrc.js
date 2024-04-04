@@ -12,5 +12,13 @@ module.exports = {
         useTabs: false,
       },
     ],
+
+    // react hooks
+    'react-hooks/exhaustive-deps': [
+      'error',
+      {
+        additionalHooks: '(useWorkletEffect|useWorklet)',
+      },
+    ],
   },
 }
