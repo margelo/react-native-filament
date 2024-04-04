@@ -19,10 +19,12 @@ function Renderer({ engine }: { engine: Engine }) {
   useModel({
     engine,
     path: marsModelPath,
+    receiveShadow: true,
   })
   const rocket = useModel({
     engine,
     path: rocketModelPath,
+    castShadow: true,
   })
 
   const view = useView(engine)
