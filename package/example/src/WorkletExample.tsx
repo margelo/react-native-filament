@@ -58,7 +58,7 @@ function Renderer({ engine }: { engine: Engine }) {
         assetAnimator.applyAnimation(0, passedSeconds)
         assetAnimator.updateBoneMatrices()
       },
-      [assetAnimator, camera, prevAspectRatio, view.aspectRatio]
+      [assetAnimator, camera, prevAspectRatio, view]
     )
   )
 
