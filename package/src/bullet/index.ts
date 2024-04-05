@@ -9,3 +9,6 @@ export * from './hooks/useSphereShape'
 // Types
 export * from './types/DiscreteDynamicWorld'
 export * from './types/RigidBody'
+
+// Bullet API
+export { BulletAPI } from './bulletApi'
