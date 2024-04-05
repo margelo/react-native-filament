@@ -136,6 +136,7 @@ void EngineWrapper::setSurfaceProvider(const std::shared_ptr<SurfaceProvider>& s
     [[unlikely]];
     throw std::runtime_error("SurfaceProvider cannot be null!");
   }
+  _surfaceProvider = surfaceProvider; // Hold a reference to avoid it getting destroyed
   const std::shared_ptr<Surface>& surface = surfaceProvider->getSurfaceOrNull();
   if (surface != nullptr) {
     setSurface(surface);
