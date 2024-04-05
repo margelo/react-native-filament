@@ -9,6 +9,7 @@ void margelo::SceneWrapper::loadHybridMethods() {
   registerHybridMethod("removeEntity", &SceneWrapper::removeEntity, this);
   registerHybridMethod("addAssetEntities", &SceneWrapper::addAssetEntities, this);
   registerHybridMethod("removeAssetEntities", &SceneWrapper::removeAssetEntities, this);
+  registerHybridGetter("entityCount", &SceneWrapper::getEntityCount, this);
 }
 
 void margelo::SceneWrapper::addEntity(const std::shared_ptr<EntityWrapper>& entity) {
@@ -72,6 +73,10 @@ void SceneWrapper::addAssetEntities(const std::shared_ptr<FilamentAssetWrapper>&
   }
 
   addAsset(filamentAsset);
+}
+
+int SceneWrapper::getEntityCount() {
+  return _scene->getEntityCount();
 }
 
 } // namespace margelo

@@ -45,4 +45,9 @@ export interface Scene {
    * Removes all entities associated with the given asset from the scene.
    */
   removeAssetEntities(asset: FilamentAsset): void
+
+  /**
+   * Returns the number of entities in the scene.
+   */
+  readonly entityCount: number
 }
