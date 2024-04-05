@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useSharedValue } from 'react-native-worklets-core'
 import { Button, Platform, SafeAreaView, StyleSheet } from 'react-native'
 import { Engine, Filament, Float3, useCamera, useEngine, useModel, useRenderCallback, useView } from 'react-native-filament'
