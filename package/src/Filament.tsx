@@ -44,7 +44,6 @@ export class Filament extends React.PureComponent<FilamentProps> {
       Worklets.createRunInContextFn(() => {
         'worklet'
         engine.setSurfaceProvider(surfaceProvider)
-        console.log('Engine set surface provider!')
       }, context)()
     } catch (e) {
       reportError(e)
