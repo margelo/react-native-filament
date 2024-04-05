@@ -16,6 +16,7 @@ import {
 } from 'react-native-filament'
 import { useCoin } from './useCoin'
 import { useDefaultLight } from './hooks/useDefaultLight'
+import { useSharedValue } from 'react-native-worklets-core'
 
 // Camera config:
 const focalLengthInMillimeters = 28
@@ -42,24 +43,29 @@ function PhysicsCoinRenderer({ engine }: RendererProps) {
     id: 'floor',
   })
 
-  const hasNotifiedTouchedFloor = useRef(false)
-
+  const hasNotifiedTouchedFloor = useSharedValue(false)
   const [coinABody, coinAEntity] = useCoin(
     engine,
     world,
     [0, 3, 0.0],
-    useCallback((_thisBody, collidedWith) => {
-      if (hasNotifiedTouchedFloor.current) {
-        return
-      }
+    useCallback(
+      (_thisBody, collidedWith) => {
+        'worklet'
 
-      if (collidedWith.id !== 'floor') {
-        return
-      }
+        if (hasNotifiedTouchedFloor.value) {
+          // TODO: This keeps getting called. Maybe we want to add a unsubscribe mechanism?
+          return
+        }
 
-      hasNotifiedTouchedFloor.current = true
-      console.log('Coin touched the floor!')
-    }, [])
+        if (collidedWith.id !== 'floor') {
+          return
+        }
+
+        hasNotifiedTouchedFloor.value = true
+        console.log('Coin touched the floor!')
+      },
+      [hasNotifiedTouchedFloor]
+    )
   )
 
   const prevAspectRatio = useRef(0)
