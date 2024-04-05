@@ -97,6 +97,7 @@ private:
 private:
   std::shared_ptr<Dispatcher> _dispatcher;
   std::shared_ptr<Engine> _engine;
+  std::shared_ptr<SurfaceProvider> _surfaceProvider;
   std::shared_ptr<Listener> _surfaceListener;
   std::optional<RenderCallback> _renderCallback;
   std::shared_ptr<Choreographer> _choreographer;
