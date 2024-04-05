@@ -79,7 +79,6 @@ export function useModel({
   const context = useMemo(() => FilamentProxy.getWorkletContext(), [])
 
   useEffect(() => {
-    const setAssetWorklet = Worklets.createRunInJsFn(setAsset)
     Worklets.createRunInContextFn(() => {
       'worklet'
       if (assetBuffer == null) return
@@ -94,8 +93,8 @@ export function useModel({
         loadedAsset = engine.loadInstancedAsset(assetBuffer, instanceCount)
       }
 
-      setAssetWorklet(loadedAsset)
-    }, context)()
+      return loadedAsset
+    }, context)().then(setAsset)
   }, [assetBuffer, context, engine, instanceCount])
 
   const animator = useMemo(() => {
