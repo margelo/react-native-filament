@@ -41,5 +41,7 @@ private: // Public JS API
    * Adds all entities associated with the provided asset to the scene.
    */
   void addAssetEntities(const std::shared_ptr<FilamentAssetWrapper>& asset);
+
+  int getEntityCount();
 };
 } // namespace margelo
