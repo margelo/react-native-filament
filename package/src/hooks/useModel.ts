@@ -4,6 +4,7 @@ import { Animator, Engine, Entity } from '../types'
 import { FilamentAsset } from '../types/FilamentAsset'
 import { useRenderableManager } from './useRenderableManager'
 import { FilamentProxy } from '../native/FilamentProxy'
+import { useScene } from './useScene'
 
 interface ModelProps extends AssetProps {
   /**
@@ -119,16 +120,18 @@ export function useModel({
     }
   }, [asset, shouldReleaseSourceData])
 
+  // Auto add asset to scene:
+  const scene = useScene(engine)
   useEffect(() => {
     if (!autoAddToScene || asset == null) {
       return
     }
+
     Worklets.createRunInContextFn(() => {
       'worklet'
 
       if (asset == null) return
-      console.log('added asset entities')
-      engine.getScene().addAssetEntities(asset)
+      scene.addAssetEntities(asset)
     }, context)()
 
     return () => {
@@ -136,11 +139,10 @@ export function useModel({
         'worklet'
 
         if (asset == null) return
-        console.log('removed asset entities')
-        engine.getScene().removeAssetEntities(asset)
+        scene.removeAssetEntities(asset)
       }, context)()
     }
-  }, [autoAddToScene, engine, asset, context])
+  }, [autoAddToScene, asset, context, scene])
 
   const prevCastShadowRef = useRef(castShadow)
   useEffect(() => {

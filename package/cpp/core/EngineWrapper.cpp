@@ -189,6 +189,10 @@ void EngineWrapper::setSurface(const std::shared_ptr<Surface>& surface) {
   surfaceSizeChanged(surface->getWidth(), surface->getHeight());
 
   // Install our render function into the choreographer
+  if (_choreographerListener) {
+    // If a previous listener was attached, remove it
+    _choreographerListener->remove();
+  }
   std::weak_ptr<EngineWrapper> weakSelf = shared<EngineWrapper>();
   _choreographerListener = _choreographer->addOnFrameListener([weakSelf](double timestamp) {
     auto sharedThis = weakSelf.lock();

@@ -25,8 +25,12 @@ export function useEngine({ isPaused = false }: EngineProps = {}): Engine | unde
   )
 
   useEffect(() => {
+    // Once the engine is created we don't need to create another one
+    // This is especially important for fast refresh not to break.
+    if (engine != null) return
+
     createEngine().then(setEngine)
-  }, [createEngine])
+  }, [createEngine, engine])
 
   useEffect(() => {
     if (engine == null) return
