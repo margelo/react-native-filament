@@ -39,6 +39,7 @@ export interface Engine {
   /**
    * Given a @see FilamentBuffer (e.g. from a .glb file), load the asset into the engine.
    * This will by default add all entities from the asset to the attached default scene.
+   * @worklet
    */
   loadAsset(buffer: FilamentBuffer): FilamentAsset
 
@@ -97,6 +98,7 @@ export interface Engine {
 
   /**
    * Creates a new material from the given FilamentBuffer.
+   * @worklet
    */
   createMaterial(matcBuffer: FilamentBuffer): Material
 }
