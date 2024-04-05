@@ -19,11 +19,7 @@
     },
     {
       "path": "assets/coin.glb",
-      "sha1": "afb8a61af2561fbc6ae8021ff36b7af5499d8510"
-    },
-    {
-      "path": "assets/coin_alpha.glb",
-      "sha1": "bb7d6c79e40c3eaeeaaaff4426490b2fb50e0a55"
+      "sha1": "419d939c6a5c154fb12a7b7d1b063b956810bdac"
     },
     {
       "path": "assets/default_env_ibl.ktx",
