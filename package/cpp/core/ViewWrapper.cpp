@@ -48,7 +48,16 @@ void ViewWrapper::setViewport(int x, int y, int width, int height) {
 }
 
 double ViewWrapper::getAspectRatio() {
-  return (double)_view->getViewport().width / _view->getViewport().height;
+  uint32_t height = _view->getViewport().height;
+  if (height == 0) {
+    return 0;
+  }
+  uint32_t width = _view->getViewport().width;
+  if (width == 0) {
+    return 0;
+  }
+
+  return (double)width / height;
 }
 
 } // namespace margelo
