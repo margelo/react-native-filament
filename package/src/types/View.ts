@@ -23,6 +23,6 @@ import { Scene } from './Scene'
 export interface View {
   camera: Camera
   scene: Scene
-  aspectRatio: number
+  getAspectRatio(): number
   setViewport(x: number, y: number, width: number, height: number): void
 }

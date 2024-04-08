@@ -13,10 +13,11 @@ import {
   useView,
   useCamera,
   Engine,
+  useWorkletCallback,
 } from 'react-native-filament'
 import { useCoin } from './useCoin'
 import { useDefaultLight } from './hooks/useDefaultLight'
-import { useSharedValue } from 'react-native-worklets-core'
+import { useSharedValue, useWorklet } from 'react-native-worklets-core'
 
 // Camera config:
 const focalLengthInMillimeters = 28
@@ -48,7 +49,7 @@ function PhysicsCoinRenderer({ engine }: RendererProps) {
     engine,
     world,
     [0, 3, 0.0],
-    useCallback(
+    useWorkletCallback(
       (_thisBody, collidedWith) => {
         'worklet'
 
@@ -72,7 +73,7 @@ function PhysicsCoinRenderer({ engine }: RendererProps) {
   useRenderCallback(engine, (_timestamp, _startTime, passedSeconds) => {
     'worklet'
 
-    const aspectRatio = view.aspectRatio
+    const aspectRatio = view.getAspectRatio()
     if (prevAspectRatio.current !== aspectRatio) {
       prevAspectRatio.current = aspectRatio
       // Setup camera lens:

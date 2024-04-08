@@ -8,7 +8,7 @@ void ViewWrapper::loadHybridMethods() {
   registerHybridSetter("camera", &ViewWrapper::setCamera, this);
   registerHybridGetter("camera", &ViewWrapper::getCamera, this);
   registerHybridMethod("setViewport", &ViewWrapper::setViewport, this);
-  registerHybridGetter("aspectRatio", &ViewWrapper::getAspectRatio, this);
+  registerHybridMethod("getAspectRatio", &ViewWrapper::getAspectRatio, this);
 }
 
 void ViewWrapper::setScene(const std::shared_ptr<SceneWrapper>& scene) {
