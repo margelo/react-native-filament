@@ -10,6 +10,8 @@
 #include <jsi/jsi.h>
 #include <memory>
 #include <mutex>
+#include <react-native-worklets-core/WKTRuntimeAwareCache.h>
+#include <react-native-worklets-core/WKTRuntimeLifecycleMonitor.h>
 #include <type_traits>
 #include <unordered_map>
 
@@ -17,7 +19,10 @@ namespace margelo {
 
 using namespace facebook;
 
-class HybridObject : public jsi::HostObject, public std::enable_shared_from_this<HybridObject> {
+class HybridObject : public jsi::HostObject,
+                     public std::enable_shared_from_this<HybridObject>,
+                     public RNWorklet::RuntimeLifecycleListener,
+                     public RNWorklet::BaseRuntimeAwareCache {
 public:
   struct HybridFunction {
     jsi::HostFunctionType function;
@@ -73,7 +78,8 @@ private:
   std::unordered_map<jsi::Runtime*, std::unordered_map<std::string, std::shared_ptr<jsi::Function>>> _functionCache;
 
 private:
-  inline void ensureInitialized();
+  inline void ensureInitialized(facebook::jsi::Runtime& runtime);
+  void onRuntimeDestroyed(jsi::Runtime* runtime) override;
 
 private:
   template <typename Derived, typename ReturnType, typename... Args, size_t... Is>

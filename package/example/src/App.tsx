@@ -65,7 +65,7 @@ const Stack = createNativeStackNavigator()
 function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator initialRouteName="WorkletExample">
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen
           name="AnimationTransitions"
