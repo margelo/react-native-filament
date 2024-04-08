@@ -1,7 +1,17 @@
 import React, { useCallback, useEffect } from 'react'
 import { useSharedValue } from 'react-native-worklets-core'
 import { Button, Platform, SafeAreaView, StyleSheet } from 'react-native'
-import { Engine, Filament, Float3, useCamera, useEngine, useModel, useRenderCallback, useView } from 'react-native-filament'
+import {
+  Engine,
+  Filament,
+  Float3,
+  useCamera,
+  useEngine,
+  useModel,
+  useRenderCallback,
+  useView,
+  useWorkletCallback,
+} from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { Config } from './config'
 
@@ -23,6 +33,7 @@ function Renderer({ engine }: { engine: Engine }) {
   const asset = useModel({
     engine,
     path: penguModelPath,
+    autoAddToScene: true,
   })
 
   const view = useView(engine)
@@ -32,16 +43,17 @@ function Renderer({ engine }: { engine: Engine }) {
   const assetAnimator = asset.state === 'loaded' ? asset.animator : undefined
   useRenderCallback(
     engine,
-    useCallback(
+    useWorkletCallback(
       (_timestamp: number, _startTime: number, passedSeconds: number) => {
         'worklet'
 
-        const aspectRatio = view.aspectRatio
+        const aspectRatio = view.getAspectRatio()
         if (prevAspectRatio.value !== aspectRatio) {
           prevAspectRatio.value = aspectRatio
           // Setup camera lens:
           const { focalLengthInMillimeters, near, far } = Config.camera
           camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
+          console.log('Updated camera lens!')
         }
 
         // Arrays aren't currently copied to the worklet correctly, see:
