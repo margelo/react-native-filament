@@ -5,6 +5,7 @@ import { FilamentAsset } from '../types/FilamentAsset'
 import { useRenderableManager } from './useRenderableManager'
 import { FilamentProxy } from '../native/FilamentProxy'
 import { useScene } from './useScene'
+import { Worklets } from 'react-native-worklets-core'
 
 interface ModelProps extends AssetProps {
   /**
@@ -126,10 +127,13 @@ export function useModel({
       return
     }
 
+    const id = Date.now()
+
     Worklets.createRunInContextFn(() => {
       'worklet'
 
       if (asset == null) return
+      console.log(id, 'Adding asset to scene')
       scene.addAssetEntities(asset)
     }, context)()
 
@@ -138,6 +142,7 @@ export function useModel({
         'worklet'
 
         if (asset == null) return
+        console.log(id, 'Removing asset from scene:')
         scene.removeAssetEntities(asset)
       }, context)()
     }

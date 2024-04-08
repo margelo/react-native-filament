@@ -6677,10 +6677,9 @@ react-native-builder-bob@^0.20.0:
   optionalDependencies:
     jetifier "^2.0.0"
 
-react-native-worklets-core@^0.4.0:
+"react-native-worklets-core@git+https://github.com/margelo/react-native-worklets-core.git#main":
   version "0.4.0"
-  resolved "https://registry.yarnpkg.com/react-native-worklets-core/-/react-native-worklets-core-0.4.0.tgz#708f204d89327d88e155cccb5fc23421ca764b6f"
-  integrity sha512-0rYCwxnG6L85mih+3xe1r2RhhwKqjgVN9jikVh0iMPKDf9L4OZMJnl6Kh4zjXiW9rkyI5lBghfM4XIcLMfeU6w==
+  resolved "git+https://github.com/margelo/react-native-worklets-core.git#10d9e57d2c61be911281b488e0572c61548b1418"
   dependencies:
     string-hash-64 "^1.0.3"
 

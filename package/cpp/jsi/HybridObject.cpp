@@ -31,7 +31,20 @@ HybridObject::~HybridObject() {
 #if DEBUG
   Logger::log(TAG, "(MEMORY) Deleting %s (#%i)... ❌", _name, _instanceId);
 #endif
+  auto firstFunctionCache = _functionCache.begin();
+  if (firstFunctionCache != _functionCache.end()) {
+    auto runtime = firstFunctionCache->first;
+    RNWorklet::RuntimeLifecycleMonitor::removeListener(*runtime, this);
+  }
   _functionCache.clear();
+}
+
+void HybridObject::onRuntimeDestroyed(jsi::Runtime* runtime) {
+  if (getMainJsRuntime() == runtime) {
+    return;
+  }
+  std::unique_lock lock(_mutex);
+  _functionCache.erase(runtime);
 }
 
 std::string HybridObject::toString(jsi::Runtime& runtime) {
@@ -46,7 +59,7 @@ std::string HybridObject::toString(jsi::Runtime& runtime) {
 
 std::vector<jsi::PropNameID> HybridObject::getPropertyNames(facebook::jsi::Runtime& runtime) {
   std::unique_lock lock(_mutex);
-  ensureInitialized();
+  ensureInitialized(runtime);
 
   std::vector<jsi::PropNameID> result;
   size_t totalSize = _methods.size() + _getters.size() + _setters.size();
@@ -66,7 +79,7 @@ std::vector<jsi::PropNameID> HybridObject::getPropertyNames(facebook::jsi::Runti
 
 jsi::Value HybridObject::get(facebook::jsi::Runtime& runtime, const facebook::jsi::PropNameID& propName) {
   std::unique_lock lock(_mutex);
-  ensureInitialized();
+  ensureInitialized(runtime);
 
   std::string name = propName.utf8(runtime);
   auto& functionCache = _functionCache[&runtime];
@@ -105,7 +118,7 @@ jsi::Value HybridObject::get(facebook::jsi::Runtime& runtime, const facebook::js
 
 void HybridObject::set(facebook::jsi::Runtime& runtime, const facebook::jsi::PropNameID& propName, const facebook::jsi::Value& value) {
   std::unique_lock lock(_mutex);
-  ensureInitialized();
+  ensureInitialized(runtime);
 
   std::string name = propName.utf8(runtime);
 
@@ -118,11 +131,12 @@ void HybridObject::set(facebook::jsi::Runtime& runtime, const facebook::jsi::Pro
   HostObject::set(runtime, propName, value);
 }
 
-void HybridObject::ensureInitialized() {
+void HybridObject::ensureInitialized(facebook::jsi::Runtime& runtime) {
   if (!_didLoadMethods) {
     [[unlikely]];
     // lazy-load all exposed methods
     loadHybridMethods();
+    RNWorklet::RuntimeLifecycleMonitor::addListener(runtime, this);
     _didLoadMethods = true;
   }
 }

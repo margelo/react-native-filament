@@ -19,7 +19,9 @@ export function useEngine({ isPaused = false }: EngineProps = {}): Engine | unde
     context,
     () => {
       'worklet'
-      return FilamentProxy.createEngine()
+      const localEngine = FilamentProxy.createEngine()
+      localEngine.getView() // Calls a method to init the WorkletWatcher on the right thread
+      return localEngine
     },
     []
   )
