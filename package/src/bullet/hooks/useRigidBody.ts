@@ -1,10 +1,11 @@
 import { Float3 } from '../../types/float3'
 import { BulletAPI } from '../bulletApi'
-import { ActivationState, CollisionCallback } from '../types/RigidBody'
-import { useEffect, useMemo } from 'react'
+import { ActivationState, CollisionCallback, RigidBody } from '../types/RigidBody'
+import { useEffect, useMemo, useState } from 'react'
 import { BaseShape } from '../types/Shapes'
 import { Mat4 } from '../../types/TransformManager'
 import { DiscreteDynamicWorld } from '../types/DiscreteDynamicWorld'
+import { FilamentProxy } from '../../native/FilamentProxy'
 
 export type RigidBodyProps = {
   mass: number
@@ -37,20 +38,27 @@ export function useRigidBody(props: RigidBodyProps | undefined) {
   const originY = originVec?.[1]
   const originZ = originVec?.[2]
 
-  const body = useMemo(() => {
+  const [body, setBody] = useState<RigidBody>()
+
+  const context = useMemo(() => FilamentProxy.getWorkletContext(), [])
+  useEffect(() => {
     if (mass == null || shape == null || id == null) {
-      return undefined
+      return
     }
+    const getBody = Worklets.createRunInContextFn(() => {
+      'worklet'
 
-    if (originX != null && originY != null && originZ != null) {
-      return BulletAPI.createRigidBody(mass, originX, originY, originZ, shape, id, collisionCallback)
-    }
-    if (transform) {
-      return BulletAPI.createRigidBodyFromTransform(mass, transform, shape, id, collisionCallback)
-    }
+      if (originX != null && originY != null && originZ != null) {
+        return BulletAPI.createRigidBody(mass, originX, originY, originZ, shape, id, collisionCallback)
+      }
+      if (transform) {
+        return BulletAPI.createRigidBodyFromTransform(mass, transform, shape, id, collisionCallback)
+      }
+      throw new Error('Either origin or transform must be provided')
+    }, context)()
 
-    throw new Error('Either origin or transform must be provided')
-  }, [id, mass, originX, originY, originZ, collisionCallback, shape, transform])
+    getBody.then(setBody)
+  }, [id, mass, originX, originY, originZ, collisionCallback, shape, transform, context])
 
   useEffect(() => {
     if (friction == null || body == null) {
