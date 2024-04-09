@@ -16,8 +16,8 @@ import { useDefaultLight } from './hooks/useDefaultLight'
 import { Config } from './config'
 
 const penguModelPath = Platform.select({
-  android: 'custom/igloo.glb',
-  ios: 'igloo.glb',
+  android: 'custom/pengu.glb',
+  ios: 'pengu.glb',
 })!
 
 function blockJS(): number {
