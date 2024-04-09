@@ -152,7 +152,7 @@ export function useModel({
 
       if (asset == null) return
       const root = asset.getRoot()
-      if (castShadow || prevCastShadowRef.current !== castShadow) {
+      if (castShadow != null && prevCastShadowRef.current !== castShadow) {
         renderableManager.setCastShadow(root, true)
       }
     }, context)()
@@ -167,8 +167,8 @@ export function useModel({
 
       if (asset == null) return
       const root = asset.getRoot()
-      if (receiveShadow || prevReceiveShadowRef.current !== receiveShadow) {
-        renderableManager.setReceiveShadow(root, true)
+      if (receiveShadow != null && prevReceiveShadowRef.current !== receiveShadow) {
+        renderableManager.setReceiveShadow(root, receiveShadow)
       }
     }, context)()
   }, [receiveShadow, asset, renderableManager, context])

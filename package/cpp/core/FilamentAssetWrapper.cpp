@@ -9,10 +9,6 @@ namespace margelo {
 
 using namespace utils;
 
-FilamentAssetWrapper::~FilamentAssetWrapper() {
-  _scene->removeAsset(_asset);
-}
-
 void FilamentAssetWrapper::loadHybridMethods() {
   registerHybridMethod("getRoot", &FilamentAssetWrapper::getRoot, this);
   registerHybridMethod("releaseSourceData", &FilamentAssetWrapper::releaseSourceData, this);
