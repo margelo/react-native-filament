@@ -10,8 +10,10 @@ namespace margelo {
 
 #if DEBUG
 static std::unordered_map<const char*, int> _instanceIds;
+static std::mutex _mutex;
 
 static int getId(const char* name) {
+  std::unique_lock lock(_mutex);
   if (_instanceIds.find(name) == _instanceIds.end()) {
     _instanceIds.insert({name, 1});
   }
