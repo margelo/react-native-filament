@@ -18,7 +18,6 @@ class FilamentAssetWrapper : public HybridObject {
 public:
   explicit FilamentAssetWrapper(const std::shared_ptr<gltfio::FilamentAsset>& asset, const std::shared_ptr<SceneWrapper>& scene)
       : HybridObject("FilamentAssetWrapper"), _asset(asset), _scene(scene) {}
-  ~FilamentAssetWrapper() override;
 
   void loadHybridMethods() override;
 

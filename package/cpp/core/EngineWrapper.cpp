@@ -398,7 +398,16 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::makeAssetWrapper(FilamentAs
   //    const size_t resourceUriCount = asset->getResourceUriCount();
   _resourceLoader->loadResources(asset.get());
 
-  return std::make_shared<FilamentAssetWrapper>(asset, _scene);
+  auto scene = _scene;
+  FilamentAssetWrapper* assetWrapper = new FilamentAssetWrapper(asset, scene);
+  return References<FilamentAssetWrapper>::adoptRef(assetWrapper, [dispatcher, scene](FilamentAssetWrapper* assetWrapper) {
+    dispatcher->runAsync([assetWrapper, scene]() {
+      // Making sure to call removeAsset from the worklet thread, as it could be called by hades which can cause a crash
+      Logger::log(TAG, "Destroying asset wrapper...");
+      scene->removeAsset(assetWrapper->getAsset());
+      delete assetWrapper;
+    });
+  });
 }
 
 // Default light is a directional light for shadows + a default IBL
