@@ -21,7 +21,7 @@ void FilamentInstaller::install(jni::alias_ref<jni::JClass> clazz, jni::alias_re
   margelo::PromiseFactory::install(runtime, jsDispatcher);
 
   // Register main runtime
-  BaseRuntimeAwareCache::setMainJsRuntime(runtime);
+  BaseRuntimeAwareCache::setMainJsRuntime(&runtime);
 }
 
 void FilamentInstaller::registerNatives() {
