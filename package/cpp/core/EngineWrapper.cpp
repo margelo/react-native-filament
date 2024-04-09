@@ -224,6 +224,7 @@ void EngineWrapper::setIsPaused(bool isPaused) {
 
 void EngineWrapper::surfaceSizeChanged(int width, int height) {
   if (_cameraManipulator) {
+    Logger::log(TAG, "Updating viewport size to %d x %d", width, height);
     _cameraManipulator->getManipulator()->setViewport(width, height);
   }
   if (_view) {
