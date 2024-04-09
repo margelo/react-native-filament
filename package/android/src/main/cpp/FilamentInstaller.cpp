@@ -4,7 +4,7 @@
 #include <fbjni/fbjni.h>
 #include <jni.h>
 #include <jsi/jsi.h>
-#include "RuntimeCache.h"
+#include "jsi/RuntimeCache.h"
 
 namespace margelo {
 
