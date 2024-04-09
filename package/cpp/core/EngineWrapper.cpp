@@ -167,12 +167,12 @@ void EngineWrapper::setSurfaceProvider(const std::shared_ptr<SurfaceProvider>& s
                                          },
                                      .onSurfaceDestroyed =
                                          [dispatcher, weakSelf](const std::shared_ptr<Surface>& surface) {
-                                           // Note: When the surface gets destroyed we immediately need to destroy the swapchain
-                                           // and flush to avoid flickering issues.
-                                           auto sharedThis = weakSelf.lock();
-                                           if (sharedThis != nullptr) {
-                                             sharedThis->destroySurface();
-                                           }
+                                           dispatcher->runAsync([=]() {
+                                             auto sharedThis = weakSelf.lock();
+                                             if (sharedThis != nullptr) {
+                                               sharedThis->destroySurface();
+                                             }
+                                           });
                                          }};
   _surfaceListener = surfaceProvider->addOnSurfaceChangedListener(std::move(callback));
 }
@@ -335,7 +335,7 @@ std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChain(const std::shar
   void* nativeWindow = surface->getSurface();
   auto swapChain = References<SwapChain>::adoptEngineRef(_engine, _engine->createSwapChain(nativeWindow, SwapChain::CONFIG_TRANSPARENT),
                                                          [dispatcher](const std::shared_ptr<Engine>& engine, SwapChain* swapChain) {
-                                                           dispatcher->runSync([engine, swapChain]() {
+                                                           dispatcher->runAsync([engine, swapChain]() {
                                                              Logger::log(TAG, "Destroying swapchain...");
                                                              engine->destroy(swapChain);
                                                              engine->flushAndWait();
