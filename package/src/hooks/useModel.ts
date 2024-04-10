@@ -13,7 +13,7 @@ interface ModelProps extends AssetProps {
   engine: Engine
   /**
    * Whether source data of the model should be released after loading, or not.
-   * @default true
+   * @default false
    */
   shouldReleaseSourceData?: boolean
 
