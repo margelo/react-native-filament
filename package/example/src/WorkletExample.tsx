@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React from 'react'
 import { useSharedValue } from 'react-native-worklets-core'
 import { Button, Platform, SafeAreaView, StyleSheet } from 'react-native'
 import {
@@ -98,7 +98,10 @@ function Renderer({ engine }: { engine: Engine }) {
       <Button
         title="Toggle item"
         onPress={() => {
-          setShowItem((prev) => !prev)
+          // setShowItem((prev) => !prev)
+          setInterval(() => {
+            setShowItem((prev) => !prev)
+          }, 16)
         }}
       />
     </SafeAreaView>
