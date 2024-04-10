@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AssetProps, useAsset } from './useAsset'
-import { Animator, Engine, Entity } from '../types'
+import { Animator, Engine } from '../types'
 import { FilamentAsset } from '../types/FilamentAsset'
 import { useRenderableManager } from './useRenderableManager'
 import { FilamentProxy } from '../native/FilamentProxy'
@@ -48,8 +48,6 @@ export type FilamentModel =
       state: 'loaded'
       animator: Animator
       asset: FilamentAsset
-      entities: Entity[]
-      renderableEntities: Entity[]
     }
   | {
       state: 'loading'
@@ -102,16 +100,6 @@ export function useModel({
     return asset.getAnimator()
   }, [asset])
 
-  const entities = useMemo(() => {
-    if (asset == null) return undefined
-    return asset.getEntities()
-  }, [asset])
-
-  const renderableEntities = useMemo(() => {
-    if (asset == null) return undefined
-    return asset.getRenderableEntities()
-  }, [asset])
-
   useEffect(() => {
     if (shouldReleaseSourceData) {
       // releases CPU memory for bindings
@@ -146,34 +134,36 @@ export function useModel({
   const prevCastShadowRef = useRef(castShadow)
   useEffect(() => {
     prevCastShadowRef.current = castShadow
+    if (asset == null || castShadow == null || prevCastShadowRef.current === castShadow) {
+      return
+    }
 
     Worklets.createRunInContextFn(() => {
       'worklet'
 
       if (asset == null) return
       const root = asset.getRoot()
-      if (castShadow != null && prevCastShadowRef.current !== castShadow) {
-        renderableManager.setCastShadow(root, true)
-      }
+      renderableManager.setCastShadow(root, true)
     }, context)()
-  }, [castShadow, asset, entities, renderableManager, context])
+  }, [castShadow, asset, renderableManager, context])
 
   const prevReceiveShadowRef = useRef(receiveShadow)
   useEffect(() => {
     prevReceiveShadowRef.current = receiveShadow
+    if (asset == null || receiveShadow == null || prevReceiveShadowRef.current === receiveShadow) {
+      return
+    }
 
     Worklets.createRunInContextFn(() => {
       'worklet'
 
       if (asset == null) return
       const root = asset.getRoot()
-      if (receiveShadow != null && prevReceiveShadowRef.current !== receiveShadow) {
-        renderableManager.setReceiveShadow(root, receiveShadow)
-      }
+      renderableManager.setReceiveShadow(root, receiveShadow)
     }, context)()
   }, [receiveShadow, asset, renderableManager, context])
 
-  if (assetBuffer == null || asset == null || animator == null || entities == null || renderableEntities == null) {
+  if (assetBuffer == null || asset == null || animator == null) {
     return {
       state: 'loading',
     }
@@ -182,7 +172,5 @@ export function useModel({
     state: 'loaded',
     asset: asset,
     animator: animator,
-    entities: entities,
-    renderableEntities: renderableEntities,
   }
 }
