@@ -5,6 +5,7 @@
 #pragma once
 
 #include "JSIConverter.h"
+#include "RuntimeCache.h"
 #include "Logger.h"
 #include <functional>
 #include <jsi/jsi.h>
@@ -70,7 +71,7 @@ private:
   std::unordered_map<std::string, HybridFunction> _methods;
   std::unordered_map<std::string, jsi::HostFunctionType> _getters;
   std::unordered_map<std::string, jsi::HostFunctionType> _setters;
-  std::unordered_map<jsi::Runtime*, std::unordered_map<std::string, std::shared_ptr<jsi::Function>>> _functionCache;
+  RuntimeAwareCache<std::unordered_map<std::string, std::shared_ptr<jsi::Function>>> _functionCache;
 
 private:
   inline void ensureInitialized();

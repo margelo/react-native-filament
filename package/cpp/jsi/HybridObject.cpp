@@ -33,7 +33,6 @@ HybridObject::~HybridObject() {
 #if DEBUG
   Logger::log(TAG, "(MEMORY) Deleting %s (#%i)... ❌", _name, _instanceId);
 #endif
-  _functionCache.clear();
 }
 
 std::string HybridObject::toString(jsi::Runtime& runtime) {
@@ -71,7 +70,7 @@ jsi::Value HybridObject::get(facebook::jsi::Runtime& runtime, const facebook::js
   ensureInitialized();
 
   std::string name = propName.utf8(runtime);
-  auto& functionCache = _functionCache[&runtime];
+  auto& functionCache = _functionCache.get(runtime);
 
   if (_getters.count(name) > 0) {
     // it's a property getter
