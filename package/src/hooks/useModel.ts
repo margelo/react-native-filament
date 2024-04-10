@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AssetProps, useAsset } from './useAsset'
 import { Animator, Engine } from '../types'
 import { FilamentAsset } from '../types/FilamentAsset'
-import { useRenderableManager } from './useRenderableManager'
 import { FilamentProxy } from '../native/FilamentProxy'
 import { useScene } from './useScene'
 
@@ -22,16 +21,6 @@ interface ModelProps extends AssetProps {
    * @default true
    */
   autoAddToScene?: boolean
-
-  /**
-   * @default false
-   */
-  castShadow?: boolean
-
-  /**
-   * @default false
-   */
-  receiveShadow?: boolean
 
   /**
    * Number of instances to create.
@@ -62,17 +51,8 @@ export type FilamentModel =
  * const pengu = useModel({ engine: engine, path: PENGU_PATH })
  * ```
  */
-export function useModel({
-  path,
-  engine,
-  shouldReleaseSourceData,
-  autoAddToScene = true,
-  castShadow,
-  receiveShadow,
-  instanceCount,
-}: ModelProps): FilamentModel {
+export function useModel({ path, engine, shouldReleaseSourceData, autoAddToScene = true, instanceCount }: ModelProps): FilamentModel {
   const assetBuffer = useAsset({ path: path })
-  const renderableManager = useRenderableManager(engine)
   const [asset, setAsset] = useState<FilamentAsset | undefined>(undefined)
   const context = useMemo(() => FilamentProxy.getWorkletContext(), [])
 
@@ -101,11 +81,16 @@ export function useModel({
   }, [asset])
 
   useEffect(() => {
-    if (shouldReleaseSourceData) {
+    if (asset == null || !shouldReleaseSourceData) {
+      return
+    }
+    Worklets.createRunInContextFn(() => {
+      'worklet'
+
       // releases CPU memory for bindings
       asset?.releaseSourceData()
-    }
-  }, [asset, shouldReleaseSourceData])
+    }, context)()
+  }, [asset, context, shouldReleaseSourceData])
 
   // Auto add asset to scene:
   const scene = useScene(engine)
@@ -129,39 +114,7 @@ export function useModel({
         scene.removeAssetEntities(asset)
       }, context)()
     }
-  }, [autoAddToScene, asset, context, scene])
-
-  const prevCastShadowRef = useRef(castShadow)
-  useEffect(() => {
-    prevCastShadowRef.current = castShadow
-    if (asset == null || castShadow == null || prevCastShadowRef.current === castShadow) {
-      return
-    }
-
-    Worklets.createRunInContextFn(() => {
-      'worklet'
-
-      if (asset == null) return
-      const root = asset.getRoot()
-      renderableManager.setCastShadow(root, true)
-    }, context)()
-  }, [castShadow, asset, renderableManager, context])
-
-  const prevReceiveShadowRef = useRef(receiveShadow)
-  useEffect(() => {
-    prevReceiveShadowRef.current = receiveShadow
-    if (asset == null || receiveShadow == null || prevReceiveShadowRef.current === receiveShadow) {
-      return
-    }
-
-    Worklets.createRunInContextFn(() => {
-      'worklet'
-
-      if (asset == null) return
-      const root = asset.getRoot()
-      renderableManager.setReceiveShadow(root, receiveShadow)
-    }, context)()
-  }, [receiveShadow, asset, renderableManager, context])
+  }, [autoAddToScene, asset, scene, context])
 
   if (assetBuffer == null || asset == null || animator == null) {
     return {
