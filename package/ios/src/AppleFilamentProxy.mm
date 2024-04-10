@@ -12,6 +12,7 @@
 #import "AppleManagedBuffer.h"
 #import "FilamentMetalView.h"
 #import "FilamentView.h"
+#import "RuntimeCache.h"
 #import "NSThreadDispatcher.h"
 #import <Foundation/Foundation.h>
 #import <React/RCTBridge+Private.h>
@@ -22,7 +23,10 @@
 namespace margelo {
 
 AppleFilamentProxy::AppleFilamentProxy(jsi::Runtime* runtime, const std::shared_ptr<react::CallInvoker>& callInvoker)
-    : _runtime(runtime), _callInvoker(callInvoker) {}
+    : _runtime(runtime), _callInvoker(callInvoker) {
+  // Register main runtime
+  BaseRuntimeAwareCache::setMainJsRuntime(runtime);
+}
 
 AppleFilamentProxy::~AppleFilamentProxy() {
   // TODO(hanno): cleanup here?
