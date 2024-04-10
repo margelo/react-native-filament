@@ -9,9 +9,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(FILAMENT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/filament")
 set(BULLET3_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/bullet3")
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DDEBUG=1)
-endif ()
+endif()
 
 # Third party libraries (Prefabs)
 find_package(ReactAndroid REQUIRED CONFIG)
@@ -20,94 +20,97 @@ find_library(LOG_LIB log)
 
 # Add react-native-filament sources
 add_library(
-        ${PACKAGE_NAME}
-        SHARED
+    ${PACKAGE_NAME}
+    SHARED
 
-        # Shared C++
-        ../cpp/FilamentView.cpp
-        ../cpp/FilamentProxy.cpp
-        ../cpp/Surface.cpp
-        ../cpp/SurfaceProvider.cpp
-        ../cpp/Choreographer.cpp
-        ../cpp/Listener.cpp
-        ../cpp/jsi/HybridObject.cpp
-        ../cpp/jsi/Promise.cpp
-        ../cpp/jsi/PromiseFactory.cpp
-        ../cpp/test/TestHybridObject.cpp
+    # Shared C++
+    ../cpp/FilamentView.cpp
+    ../cpp/FilamentProxy.cpp
+    ../cpp/Surface.cpp
+    ../cpp/SurfaceProvider.cpp
+    ../cpp/Choreographer.cpp
+    ../cpp/Listener.cpp
+    ../cpp/jsi/HybridObject.cpp
+    ../cpp/jsi/Promise.cpp
+    ../cpp/jsi/PromiseFactory.cpp
+    ../cpp/test/TestHybridObject.cpp
 
-        # Filament Core
-        ../cpp/core/EngineWrapper.cpp
-        ../cpp/core/RendererWrapper.cpp
-        ../cpp/core/SceneWrapper.cpp
-        ../cpp/core/CameraWrapper.cpp
-        ../cpp/core/ViewWrapper.cpp
-        ../cpp/core/SwapChainWrapper.cpp
-        ../cpp/core/FilamentAssetWrapper.cpp
-        ../cpp/core/AnimatorWrapper.cpp
-        ../cpp/core/TransformManagerWrapper.cpp
-        ../cpp/core/AABBWrapper.cpp
-        ../cpp/core/MaterialInstanceWrapper.cpp
-        ../cpp/core/RenderableManagerWrapper.cpp
-        ../cpp/core/MaterialWrapper.cpp
-        ../cpp/core/FilamentInstanceWrapper.cpp
+    # Filament Core
+    ../cpp/core/EngineWrapper.cpp
+    ../cpp/core/RendererWrapper.cpp
+    ../cpp/core/SceneWrapper.cpp
+    ../cpp/core/CameraWrapper.cpp
+    ../cpp/core/ViewWrapper.cpp
+    ../cpp/core/SwapChainWrapper.cpp
+    ../cpp/core/FilamentAssetWrapper.cpp
+    ../cpp/core/AnimatorWrapper.cpp
+    ../cpp/core/TransformManagerWrapper.cpp
+    ../cpp/core/AABBWrapper.cpp
+    ../cpp/core/MaterialInstanceWrapper.cpp
+    ../cpp/core/RenderableManagerWrapper.cpp
+    ../cpp/core/MaterialWrapper.cpp
+    ../cpp/core/FilamentInstanceWrapper.cpp
 
-        # Filament Utils
-        ../cpp/core/utils/EntityWrapper.cpp
-        ../cpp/core/utils/ManipulatorWrapper.cpp
+    # Filament Utils
+    ../cpp/core/utils/EntityWrapper.cpp
+    ../cpp/core/utils/ManipulatorWrapper.cpp
 
-        # Filament math
-        ../cpp/core/math/TMat44Wrapper.cpp
+    # Filament math
+    ../cpp/core/math/TMat44Wrapper.cpp
 
-        # Bullet Physics Engine
-        ../cpp/bullet/BulletWrapper.cpp
-        ../cpp/bullet/DiscreteDynamicWorldWrapper.cpp
-        ../cpp/bullet/RigidBodyWrapper.cpp
-        ../cpp/bullet/ShapeWrapper.cpp
+    # Bullet Physics Engine
+    ../cpp/bullet/BulletWrapper.cpp
+    ../cpp/bullet/DiscreteDynamicWorldWrapper.cpp
+    ../cpp/bullet/RigidBodyWrapper.cpp
+    ../cpp/bullet/ShapeWrapper.cpp
 
-        # Java JNI
-        src/main/cpp/AndroidFilamentProxy.cpp
-        src/main/cpp/AndroidSurface.cpp
-        src/main/cpp/Filament.cpp
-        src/main/cpp/AndroidLogger.cpp
-        src/main/cpp/JNISharedPtr.cpp
-        src/main/cpp/FilamentInstaller.cpp
-        src/main/cpp/java-bindings/JFilamentProxy.cpp
-        src/main/cpp/java-bindings/JChoreographer.cpp
-        src/main/cpp/java-bindings/JFilamentView.cpp
-        src/main/cpp/java-bindings/JDispatcher.cpp
-        src/main/cpp/java-bindings/JSurfaceProvider.cpp
+    # Java JNI
+    src/main/cpp/AndroidFilamentProxy.cpp
+    src/main/cpp/AndroidSurface.cpp
+    src/main/cpp/Filament.cpp
+    src/main/cpp/AndroidLogger.cpp
+    src/main/cpp/JNISharedPtr.cpp
+    src/main/cpp/FilamentInstaller.cpp
+    src/main/cpp/java-bindings/JFilamentProxy.cpp
+    src/main/cpp/java-bindings/JChoreographer.cpp
+    src/main/cpp/java-bindings/JFilamentView.cpp
+    src/main/cpp/java-bindings/JDispatcher.cpp
+    src/main/cpp/java-bindings/JSurfaceProvider.cpp
 )
 
 # Header Search Paths (includes)
 target_include_directories(
-        ${PACKAGE_NAME}
-        PRIVATE
-        "../cpp"
-        "src/main/cpp"
-        "src/main/cpp/java-bindings"
-        "${NODE_MODULES_DIR}/react-native/ReactCommon"
-        "${NODE_MODULES_DIR}/react-native/ReactCommon/callinvoker"
-        "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/react/turbomodule" # <-- CallInvokerHolder JNI wrapper
-        "${FILAMENT_DIR}/include"
-        "${BULLET3_DIR}/include"
+    ${PACKAGE_NAME}
+    PRIVATE
+    "../cpp"
+    "src/main/cpp"
+    "src/main/cpp/java-bindings"
+    "${NODE_MODULES_DIR}/react-native/ReactCommon"
+    "${NODE_MODULES_DIR}/react-native/ReactCommon/callinvoker"
+    "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/react/turbomodule" # <-- CallInvokerHolder JNI wrapper
+    "${FILAMENT_DIR}/include"
+    "${BULLET3_DIR}/include"
 )
 
 # Link everything together
 target_link_libraries(
-        ${PACKAGE_NAME}
-        ${LOG_LIB} # <-- Logcat logger
-        android # <-- Android JNI core
-        ReactAndroid::jsi # <-- RN: JSI
-        ReactAndroid::reactnativejni # <-- RN: React Native JNI bindings
-        fbjni::fbjni # <-- fbjni
-        GLESv3 # <-- OpenGL (Core)
-        EGL # <-- OpenGL (EGL)
+    ${PACKAGE_NAME}
+    ${LOG_LIB} # <-- Logcat logger
+    android # <-- Android JNI core
+    ReactAndroid::jsi # <-- RN: JSI
+    ReactAndroid::reactnativejni # <-- RN: React Native JNI bindings
+    fbjni::fbjni # <-- fbjni
+    GLESv3 # <-- OpenGL (Core)
+    EGL # <-- OpenGL (EGL)
 )
 
 # Try to find react-native-worklets-core
 find_package(react-native-worklets-core REQUIRED CONFIG)
-if (react-native-worklets-core_FOUND)
+
+if(react-native-worklets-core_FOUND)
     message("RN Filament: react-native-worklets core found! Enabling Worklets support...")
+    message("RN Filament: react-native-worklets-core found in ${react-native-worklets-core_DIR}")
+
     target_link_libraries(
         ${PACKAGE_NAME}
         react-native-worklets-core::rnworklets # <-- react-native-worklets-core
@@ -121,16 +124,16 @@ endif()
 message("RN Filament: Adding pre-compiled libraries in ${FILAMENT_DIR}...")
 file(GLOB FILAMENT_LIBRARIES "${FILAMENT_DIR}/lib/${ANDROID_ABI}/*.a")
 
-foreach (file ${FILAMENT_LIBRARIES})
+foreach(file ${FILAMENT_LIBRARIES})
     message("RN Filament: Linking ${file}...")
     target_link_libraries(${PACKAGE_NAME} ${file})
-endforeach ()
+endforeach()
 
 # Bullet3 (local CMake project as a git submodule)
 message("RN Filament: Adding pre-compiled libraries in ${BULLET3_DIR}...")
 file(GLOB BULLET3_LIBRARIES "${BULLET3_DIR}/lib/${ANDROID_ABI}/*.a")
 
-foreach (file ${BULLET3_LIBRARIES})
+foreach(file ${BULLET3_LIBRARIES})
     message("RN Filament: Linking ${file}...")
     target_link_libraries(${PACKAGE_NAME} ${file})
-endforeach ()
+endforeach()
