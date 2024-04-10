@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React from 'react'
 import { useSharedValue } from 'react-native-worklets-core'
 import { Button, Platform, SafeAreaView, StyleSheet } from 'react-native'
 import {
@@ -20,12 +20,27 @@ const penguModelPath = Platform.select({
   ios: 'pengu.glb',
 })!
 
+const coinPath = Platform.select({
+  android: 'custom/coin.glb',
+  ios: 'coin.glb',
+})!
+
 function blockJS(): number {
   let sum = 0
   for (let i = 0; i < 1000000000; i++) {
     sum += i
   }
   return sum
+}
+
+function Model({ engine }: { engine: Engine }) {
+  useModel({
+    engine,
+    path: coinPath,
+    autoAddToScene: true,
+  })
+
+  return null
 }
 
 function Renderer({ engine }: { engine: Engine }) {
@@ -74,17 +89,19 @@ function Renderer({ engine }: { engine: Engine }) {
     )
   )
 
+  const [showItem, setShowItem] = React.useState(true)
+
   return (
     <SafeAreaView style={styles.container}>
       <Filament style={styles.filamentView} engine={engine} />
+      {showItem && <Model engine={engine} />}
       <Button
-        title="Block JS thread temporarily"
+        title="Toggle item"
         onPress={() => {
-          console.log('Blocking JS thread...')
-          setTimeout(() => {
-            blockJS()
-            console.log('JS thread unblocked!')
-          }, 0)
+          // setShowItem((prev) => !prev)
+          setInterval(() => {
+            setShowItem((prev) => !prev)
+          }, 16)
         }}
       />
     </SafeAreaView>
