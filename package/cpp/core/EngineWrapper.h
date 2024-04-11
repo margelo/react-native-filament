@@ -56,7 +56,8 @@ using RenderCallback = std::function<void(double, double, double)>;
 
 class EngineWrapper : public HybridObject {
 public:
-  explicit EngineWrapper(const std::shared_ptr<Choreographer>& choreographer, const std::shared_ptr<Dispatcher>& dispatcher);
+  explicit EngineWrapper(const std::shared_ptr<Choreographer>& choreographer, const std::shared_ptr<Dispatcher>& dispatcher,
+                         const Engine::Config& config);
 
   void setSurfaceProvider(const std::shared_ptr<SurfaceProvider>& surfaceProvider);
 
@@ -96,6 +97,7 @@ private:
 
 private:
   std::mutex _mutex;
+  Engine::Config _config;
   std::shared_ptr<Dispatcher> _dispatcher;
   std::shared_ptr<Engine> _engine;
   std::shared_ptr<SurfaceProvider> _surfaceProvider;

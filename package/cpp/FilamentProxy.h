@@ -61,7 +61,8 @@ private:
   // Public API
   std::future<std::shared_ptr<FilamentBuffer>> loadAssetAsync(const std::string& path);
   std::future<std::shared_ptr<FilamentView>> findFilamentViewAsync(int id);
-  std::shared_ptr<EngineWrapper> createEngine();
+  std::shared_ptr<EngineWrapper> createEngine(std::optional<std::string> backend = std::nullopt,
+                                              std::optional<std::unordered_map<std::string, ing>> arguments = std::nullopt);
   std::shared_ptr<BulletWrapper> createBullet();
   bool getHasWorklets();
 
