@@ -94,7 +94,7 @@ export interface Engine {
    * Note: the reference returned isn't stable, and each call will return a new reference.
    * Prefer using the hook `useRenderableManager` to get a stable reference.
    */
-  getRenderableManager(): RenderableManager
+  createRenderableManager(): RenderableManager
 
   /**
    * Creates a new material from the given FilamentBuffer.

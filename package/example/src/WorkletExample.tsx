@@ -5,6 +5,8 @@ import {
   Engine,
   Filament,
   Float3,
+  getAssetFromModel,
+  useAssetAnimator,
   useCamera,
   useEngine,
   useModel,
@@ -55,7 +57,7 @@ function Renderer({ engine }: { engine: Engine }) {
   const camera = useCamera(engine)
 
   const prevAspectRatio = useSharedValue(0)
-  const assetAnimator = asset.state === 'loaded' ? asset.animator : undefined
+  const assetAnimator = useAssetAnimator(getAssetFromModel(asset))
   useRenderCallback(
     engine,
     useWorkletCallback(

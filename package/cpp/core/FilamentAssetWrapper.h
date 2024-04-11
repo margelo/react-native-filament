@@ -52,6 +52,7 @@ private: // Public API functions:
   std::vector<std::shared_ptr<FilamentInstanceWrapper>> getAssetInstances();
 
 private: // Internal state:
+  std::mutex _mutex;
   std::shared_ptr<gltfio::FilamentAsset> _asset;
   std::shared_ptr<SceneWrapper> _scene; // The scene the asset is currently attached to
 };

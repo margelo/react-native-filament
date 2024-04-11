@@ -28,6 +28,7 @@ void FilamentAssetWrapper::loadHybridMethods() {
  * Sets up a root transform on the current model to make it fit into a unit cube.
  */
 void FilamentAssetWrapper::transformToUnitCube(TransformManager& transformManager) {
+  std::unique_lock lock(_mutex);
   Aabb aabb = _asset->getBoundingBox();
   math::details::TVec3<float> center = aabb.center();
   math::details::TVec3<float> halfExtent = aabb.extent();
@@ -44,6 +45,7 @@ std::shared_ptr<EntityWrapper> FilamentAssetWrapper::getRoot() {
 }
 
 void FilamentAssetWrapper::releaseSourceData() {
+  std::unique_lock lock(_mutex);
   _asset->releaseSourceData();
 }
 

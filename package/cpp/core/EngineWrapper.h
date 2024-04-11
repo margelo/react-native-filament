@@ -87,7 +87,7 @@ private:
   void setEntityScale(const std::shared_ptr<EntityWrapper>& entity, std::vector<double> scaleVec, bool multiplyCurrent);
   void updateTransformByRigidBody(const std::shared_ptr<EntityWrapper>& entityWrapper, const std::shared_ptr<RigidBodyWrapper>& rigidBody);
 
-  std::shared_ptr<RenderableManagerWrapper> getRendererableManager();
+  std::shared_ptr<RenderableManagerWrapper> createRenderableManager();
 
   std::shared_ptr<MaterialWrapper> createMaterial(const std::shared_ptr<FilamentBuffer>& materialBuffer);
 
@@ -95,6 +95,7 @@ private:
   std::shared_ptr<FilamentAssetWrapper> makeAssetWrapper(FilamentAsset* assetPtr);
 
 private:
+  std::mutex _mutex;
   std::shared_ptr<Dispatcher> _dispatcher;
   std::shared_ptr<Engine> _engine;
   std::shared_ptr<SurfaceProvider> _surfaceProvider;
