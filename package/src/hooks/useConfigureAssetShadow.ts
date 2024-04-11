@@ -19,32 +19,36 @@ export type UseAssetShadowProps = {
 export function useConfigureAssetShadow({ renderableManager, asset, receiveShadow, castShadow }: UseAssetShadowProps) {
   const context = useMemo(() => FilamentProxy.getWorkletContext(), [])
 
-  const assetRoot = useMemo(() => asset?.getRoot(), [asset])
-  const prevCastShadowRef = useRef(castShadow)
+  const renderableEntities = useMemo(() => asset?.getRenderableEntities(), [asset])
+  const prevCastShadowRef = useRef<boolean>()
   useEffect(() => {
+    if (renderableEntities == null || castShadow == null || prevCastShadowRef.current === castShadow) {
+      return
+    }
     prevCastShadowRef.current = castShadow
-    if (assetRoot == null || castShadow == null || prevCastShadowRef.current === castShadow) {
-      return
-    }
 
     Worklets.createRunInContextFn(() => {
       'worklet'
 
-      renderableManager.setCastShadow(assetRoot, true)
+      renderableEntities.forEach((entity) => {
+        renderableManager.setCastShadow(entity, castShadow)
+      })
     }, context)()
-  }, [castShadow, renderableManager, assetRoot, context])
+  }, [castShadow, renderableManager, renderableEntities, context])
 
-  const prevReceiveShadowRef = useRef(receiveShadow)
+  const prevReceiveShadowRef = useRef<boolean>()
   useEffect(() => {
-    prevReceiveShadowRef.current = receiveShadow
-    if (assetRoot == null || receiveShadow == null || prevReceiveShadowRef.current === receiveShadow) {
+    if (renderableEntities == null || receiveShadow == null || prevReceiveShadowRef.current === receiveShadow) {
       return
     }
+    prevReceiveShadowRef.current = receiveShadow
 
     Worklets.createRunInContextFn(() => {
       'worklet'
 
-      renderableManager.setReceiveShadow(assetRoot, receiveShadow)
+      renderableEntities.forEach((entity) => {
+        renderableManager.setReceiveShadow(entity, receiveShadow)
+      })
     }, context)()
-  }, [receiveShadow, assetRoot, renderableManager, context])
+  }, [receiveShadow, renderableEntities, renderableManager, context])
 }

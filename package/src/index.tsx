@@ -16,6 +16,7 @@ export * from './hooks/useView'
 export * from './hooks/useTransformManager'
 export * from './hooks/useRenderableManager'
 export * from './hooks/useAssetAnimator'
+export * from './hooks/useConfigureAssetShadow'
 
 // utilities
 export * from './utilities/runOnJS'

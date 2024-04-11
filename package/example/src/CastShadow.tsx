@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useEffect, useRef } from 'react'
 
-import { Platform, StyleSheet, View } from 'react-native'
+import { Button, StyleSheet, View } from 'react-native'
 import {
   Filament,
   useEngine,
@@ -16,18 +16,14 @@ import {
   Engine,
   useAssetAnimator,
   getAssetFromModel,
+  useConfigureAssetShadow,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
+import { getAssetPath } from './utils/getAssetPasth'
 
-const penguModelPath = Platform.select({
-  android: 'custom/pengu.glb',
-  ios: 'pengu.glb',
-})!
+const penguModelPath = getAssetPath('pengu.glb')
 
-const shadowMaterialPath = Platform.select({
-  android: 'custom/TransparentShadowMaterial.matc',
-  ios: 'TransparentShadowMaterial.matc',
-})!
+const shadowMaterialPath = getAssetPath('TransparentShadowMaterial.matc')
 
 // Camera config:
 const cameraPosition: Float3 = [0, 1, 10]
@@ -102,9 +98,18 @@ function Renderer({ engine }: { engine: Engine }) {
     camera.lookAt(cameraPosition, cameraTarget, cameraUp)
   })
 
+  const [showShadow, setShowShadow] = React.useState(false)
+  useConfigureAssetShadow({
+    renderableManager,
+    asset: getAssetFromModel(pengu),
+    castShadow: showShadow,
+    receiveShadow: showShadow,
+  })
+
   return (
     <View style={styles.container}>
       <Filament style={styles.filamentView} engine={engine} />
+      <Button title="Toggle Shadow" onPress={() => setShowShadow((prev) => !prev)} />
     </View>
   )
 }
