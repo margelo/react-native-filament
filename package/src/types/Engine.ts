@@ -12,6 +12,7 @@ import { RigidBody } from '../bullet'
 import { TransformManager } from './TransformManager'
 import { RenderableManager } from './RenderableManager'
 import { Material } from './Material'
+import { LightConfig, LightType, SpotLightExtraConfig } from './LightConfig'
 
 export type RenderCallback = (timestamp: number, startTime: number, passedSeconds: number) => void
 
@@ -33,8 +34,10 @@ export interface Engine {
   /**
    * Set the indirect light for the scene.
    * @param iblBuffer A buffer containing the IBL data (e.g. from a .ktx file)
+   * @param intensity The intensity of the indirect light. Default: 30_000
+   * @param irradianceBands Number of spherical harmonics bands. Must be 1, 2 or 3. Default: 3
    */
-  setIndirectLight(iblBuffer: FilamentBuffer): void
+  setIndirectLight(iblBuffer: FilamentBuffer, intensity: number | undefined, irradianceBands: number | undefined): void
 
   /**
    * Given a @see FilamentBuffer (e.g. from a .glb file), load the asset into the engine.
@@ -43,12 +46,6 @@ export interface Engine {
    */
   loadAsset(buffer: FilamentBuffer): FilamentAsset
 
-  /**
-   * Set the indirect light for the scene.
-   * @param iblBuffer A buffer containing the IBL data (e.g. from a .ktx file)
-   */
-  setIndirectLight(iblBuffer: FilamentBuffer): void
-
   getRenderer(): Renderer
   getScene(): Scene
   getCamera(): Camera
@@ -56,13 +53,14 @@ export interface Engine {
   getCameraManipulator(): Manipulator
 
   createLightEntity(
-    type: 'directional' | 'spot' | 'point' | 'focused_point' | 'sun',
-    colorFahrenheit: number,
-    intensity: number,
-    directionX: number,
-    directionY: number,
-    directionZ: number,
-    castShadows: boolean
+    type: LightType,
+    colorKelvin: LightConfig['colorKelvin'],
+    intensity: LightConfig['intensity'],
+    direction: LightConfig['direction'],
+    position: LightConfig['position'],
+    castShadows: LightConfig['castShadows'],
+    falloffRadius: SpotLightExtraConfig['falloffRadius'],
+    spotLightCone: SpotLightExtraConfig['spotLightCone']
   ): Entity
 
   /**
