@@ -40,6 +40,7 @@ const std::shared_ptr<CameraWrapper>& ViewWrapper::getCamera() {
 }
 
 void ViewWrapper::setViewport(int x, int y, int width, int height) {
+  std::unique_lock lock(_mutex);
   if (width < 0 || height < 0) {
     throw std::invalid_argument("Invalid viewport size");
   }

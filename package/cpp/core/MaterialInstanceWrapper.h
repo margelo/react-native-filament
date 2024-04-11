@@ -36,6 +36,7 @@ public: // Internal API
   }
 
 private:
+  std::mutex _mutex;
   MaterialInstance* _materialInstance;
 };
 

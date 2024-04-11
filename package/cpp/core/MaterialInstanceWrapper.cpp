@@ -16,12 +16,16 @@ void MaterialInstanceWrapper::loadHybridMethods() {
 }
 
 void MaterialInstanceWrapper::setCullingMode(std::string mode) {
+  std::unique_lock lock(_mutex);
+
   backend::CullingMode cullingMode;
   EnumMapper::convertJSUnionToEnum(mode, &cullingMode);
   _materialInstance->setCullingMode(cullingMode);
 }
 
 void MaterialInstanceWrapper::setTransparencyMode(std::string mode) {
+  std::unique_lock lock(_mutex);
+
   TransparencyMode transparencyMode;
   EnumMapper::convertJSUnionToEnum(mode, &transparencyMode);
   _materialInstance->setTransparencyMode(transparencyMode);
@@ -39,10 +43,14 @@ void MaterialInstanceWrapper::changeAlpha(MaterialInstance* materialInstance, do
 }
 
 void MaterialInstanceWrapper::changeAlpha(double alpha) {
+  std::unique_lock lock(_mutex);
+
   changeAlpha(_materialInstance, alpha);
 }
 
 void MaterialInstanceWrapper::setParameter(std::string name, double value) {
+  std::unique_lock lock(_mutex);
+  
   const Material* material = _materialInstance->getMaterial();
 
   if (!material->hasParameter(name.c_str())) {

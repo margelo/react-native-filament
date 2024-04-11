@@ -15,10 +15,12 @@ export * from './hooks/useScene'
 export * from './hooks/useView'
 export * from './hooks/useTransformManager'
 export * from './hooks/useRenderableManager'
+export * from './hooks/useAssetAnimator'
 
 // utilities
 export * from './utilities/runOnJS'
 export * from './utilities/runOnWorklet'
+export * from './utilities/getAssetFromModel'
 
 // Bullet 3
 export * from './bullet'

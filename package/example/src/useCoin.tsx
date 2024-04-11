@@ -3,6 +3,7 @@ import {
   DiscreteDynamicWorld,
   Engine,
   Float3,
+  getAssetFromModel,
   useCylinderShape,
   useModel,
   useRigidBody,
@@ -24,8 +25,8 @@ export function useCoin(engine: Engine, world: DiscreteDynamicWorld, origin: Flo
   const originY = origin[1]
   const originZ = origin[2]
 
-  const coinAsset = coin.state === 'loaded' ? coin.asset : undefined
-  const renderableEntities = coin.state === 'loaded' ? coin.renderableEntities : undefined
+  const coinAsset = getAssetFromModel(coin)
+  const renderableEntities = useMemo(() => coinAsset?.getRenderableEntities(), [coinAsset])
 
   // Takes the first entity which is the mesh and applies a random rotation, scale and position.
   // It returns the entity and its transform. The transform is needed to create the rigid body.
