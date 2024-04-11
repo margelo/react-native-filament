@@ -17,7 +17,7 @@ namespace jsi = facebook::jsi;
  */
 struct RuntimeLifecycleListener {
   virtual ~RuntimeLifecycleListener() {}
-  virtual void onRuntimeDestroyed(jsi::Runtime *) = 0;
+  virtual void onRuntimeDestroyed(jsi::Runtime*) = 0;
 };
 
 /**
@@ -27,26 +27,26 @@ struct RuntimeLifecycleListener {
  * destroyed.
  */
 struct RuntimeLifecycleMonitor {
-  static void addListener(jsi::Runtime &rt, RuntimeLifecycleListener *listener);
-  static void removeListener(jsi::Runtime &rt,
-                             RuntimeLifecycleListener *listener);
+  static void addListener(jsi::Runtime& rt, RuntimeLifecycleListener* listener);
+  static void removeListener(jsi::Runtime& rt, RuntimeLifecycleListener* listener);
 };
 
 class BaseRuntimeAwareCache {
 public:
-  static void setMainJsRuntime(jsi::Runtime *rt) { _mainRuntime = rt; }
+  static void setMainJsRuntime(jsi::Runtime* rt) {
+    _mainRuntime = rt;
+  }
 
 protected:
-  static jsi::Runtime *getMainJsRuntime() {
-    assert(_mainRuntime != nullptr &&
-           "Expected main Javascript runtime to be set in the "
-           "BaseRuntimeAwareCache class.");
+  static jsi::Runtime* getMainJsRuntime() {
+    assert(_mainRuntime != nullptr && "Expected main Javascript runtime to be set in the "
+                                      "BaseRuntimeAwareCache class.");
 
     return _mainRuntime;
   }
 
 private:
-  static inline jsi::Runtime *_mainRuntime;
+  static inline jsi::Runtime* _mainRuntime;
 };
 
 /**
@@ -70,12 +70,10 @@ private:
  * runtime is in use. Specifically, we don't perform any additional operations
  * related to tracking runtime lifecycle when only a single runtime is used.
  */
-template <typename T>
-class RuntimeAwareCache : public BaseRuntimeAwareCache,
-                          public RuntimeLifecycleListener {
+template <typename T> class RuntimeAwareCache : public BaseRuntimeAwareCache, public RuntimeLifecycleListener {
 
 public:
-  void onRuntimeDestroyed(jsi::Runtime *rt) override {
+  void onRuntimeDestroyed(jsi::Runtime* rt) override {
     if (getMainJsRuntime() != rt) {
       // We are removing a secondary runtime
       _secondaryRuntimeCaches.erase(rt);
@@ -83,13 +81,12 @@ public:
   }
 
   ~RuntimeAwareCache() {
-    for (auto &cache : _secondaryRuntimeCaches) {
-      RuntimeLifecycleMonitor::removeListener(
-          *static_cast<jsi::Runtime *>(cache.first), this);
+    for (auto& cache : _secondaryRuntimeCaches) {
+      RuntimeLifecycleMonitor::removeListener(*static_cast<jsi::Runtime*>(cache.first), this);
     }
   }
 
-  T &get(jsi::Runtime &rt) {
+  T& get(jsi::Runtime& rt) {
     // We check if we're accessing the main runtime - this is the happy path
     // to avoid us having to lookup by runtime for caches that only has a single
     // runtime
@@ -114,7 +111,7 @@ public:
   }
 
 private:
-  std::unordered_map<void *, T> _secondaryRuntimeCaches;
+  std::unordered_map<void*, T> _secondaryRuntimeCaches;
   T _primaryCache;
 };
 
