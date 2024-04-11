@@ -122,7 +122,7 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setEntityScale", &EngineWrapper::setEntityScale, this);
   registerHybridMethod("setIsPaused", &EngineWrapper::setIsPaused, this);
   registerHybridMethod("getTransformManager", &EngineWrapper::getTransformManager, this);
-  registerHybridMethod("getRenderableManager", &EngineWrapper::getRendererableManager, this);
+  registerHybridMethod("getRenderableManager", &EngineWrapper::createRenderableManager, this);
   registerHybridMethod("createMaterial", &EngineWrapper::createMaterial, this);
 
   // Combined Physics API:
@@ -348,6 +348,7 @@ std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
 }
 
 std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(const std::shared_ptr<FilamentBuffer>& modelBuffer) {
+  std::unique_lock lock(_mutex);
   const std::shared_ptr<ManagedBuffer>& buffer = modelBuffer->getBuffer();
   gltfio::FilamentAsset* assetPtr = _assetLoader->createAsset(buffer->getData(), buffer->getSize());
 
@@ -356,6 +357,7 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(const std::shared
 
 std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadInstancedAsset(const std::shared_ptr<FilamentBuffer>& modelBuffer,
                                                                         int instanceCount) {
+  std::unique_lock lock(_mutex);
   const std::shared_ptr<ManagedBuffer>& buffer = modelBuffer->getBuffer();
   FilamentInstance* instances[instanceCount]; // Memory managed by the FilamentAsset
   gltfio::FilamentAsset* assetPtr = _assetLoader->createInstancedAsset(buffer->getData(), buffer->getSize(), instances, instanceCount);
@@ -391,6 +393,7 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::makeAssetWrapper(FilamentAs
 
 // Default light is a directional light for shadows + a default IBL
 void EngineWrapper::setIndirectLight(const std::shared_ptr<FilamentBuffer>& iblBuffer) {
+  std::unique_lock lock(_mutex);
   if (!_scene) {
     throw std::runtime_error("Scene not initialized");
   }
@@ -422,6 +425,7 @@ void EngineWrapper::setIndirectLight(const std::shared_ptr<FilamentBuffer>& iblB
 
 std::shared_ptr<EntityWrapper> EngineWrapper::createLightEntity(const std::string& lightTypeStr, double colorFahrenheit, double intensity,
                                                                 double directionX, double directionY, double directionZ, bool castShadows) {
+  std::unique_lock lock(_mutex);
   auto lightEntity = _engine->getEntityManager().create();
 
   // TODO(Marc): Fix enum converter
@@ -479,6 +483,7 @@ void EngineWrapper::synchronizePendingFrames() {
  * @param multiplyCurrent If true, the current transform will be multiplied with the new transform, otherwise it will be replaced
  */
 void EngineWrapper::updateTransform(math::mat4 transform, const std::shared_ptr<EntityWrapper>& entity, bool multiplyCurrent) {
+  std::unique_lock lock(_mutex);
   if (!entity) {
     throw std::invalid_argument("Entity is null");
   }
@@ -516,6 +521,7 @@ void EngineWrapper::setEntityScale(const std::shared_ptr<EntityWrapper>& entity,
 
 void EngineWrapper::updateTransformByRigidBody(const std::shared_ptr<EntityWrapper>& entityWrapper,
                                                const std::shared_ptr<RigidBodyWrapper>& rigidBody) {
+  std::unique_lock lock(_mutex);
   if (!rigidBody) {
     throw std::invalid_argument("RigidBody is null");
   }
@@ -563,7 +569,8 @@ void EngineWrapper::updateTransformByRigidBody(const std::shared_ptr<EntityWrapp
   tm.setTransform(entityInstance, newTransform);
 }
 
-std::shared_ptr<RenderableManagerWrapper> EngineWrapper::getRendererableManager() {
+std::shared_ptr<RenderableManagerWrapper> EngineWrapper::createRenderableManager() {
+  std::unique_lock lock(_mutex);
   RenderableManager& rm = _engine->getRenderableManager();
 
   // Create a new texture provider
@@ -573,6 +580,7 @@ std::shared_ptr<RenderableManagerWrapper> EngineWrapper::getRendererableManager(
 }
 
 std::shared_ptr<MaterialWrapper> EngineWrapper::createMaterial(const std::shared_ptr<FilamentBuffer>& materialBuffer) {
+  std::unique_lock lock(_mutex);
   auto buffer = materialBuffer->getBuffer();
   if (buffer->getSize() == 0) {
     throw std::runtime_error("Material buffer is empty");

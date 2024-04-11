@@ -9,6 +9,8 @@ void MaterialWrapper::loadHybridMethods() {
 }
 
 std::shared_ptr<MaterialInstanceWrapper> MaterialWrapper::createInstance() {
+  std::unique_lock lock(_mutex);
+
   MaterialInstance* materialInstance = _material->createInstance();
   // TODO: Who managed the memory of the material instance and cleans it up?
   auto instance = std::make_shared<MaterialInstanceWrapper>(materialInstance);
@@ -17,6 +19,8 @@ std::shared_ptr<MaterialInstanceWrapper> MaterialWrapper::createInstance() {
 }
 
 std::shared_ptr<MaterialInstanceWrapper> MaterialWrapper::getDefaultInstance() {
+  std::unique_lock lock(_mutex);
+
   MaterialInstance* materialInstance = _material->getDefaultInstance();
   auto instance = std::make_shared<MaterialInstanceWrapper>(materialInstance);
   _instances.push_back(instance);
@@ -24,6 +28,8 @@ std::shared_ptr<MaterialInstanceWrapper> MaterialWrapper::getDefaultInstance() {
 }
 
 void MaterialWrapper::setDefaultParameter(std::string name, double value) {
+  std::unique_lock lock(_mutex);
+
   if (!_material->hasParameter(name.c_str())) {
     throw std::runtime_error("MaterialWrapper::setDefaultParameter: Material does not have parameter \"" + name + "\"!");
   }

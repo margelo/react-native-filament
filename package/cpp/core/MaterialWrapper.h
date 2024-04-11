@@ -28,6 +28,7 @@ public:
   }
 
 private:
+  std::mutex _mutex;
   std::shared_ptr<MaterialInstanceWrapper> createInstance();
   std::shared_ptr<MaterialInstanceWrapper> getDefaultInstance();
   void setDefaultParameter(std::string name, double value);

@@ -13,6 +13,8 @@ void margelo::SceneWrapper::loadHybridMethods() {
 }
 
 void margelo::SceneWrapper::addEntity(const std::shared_ptr<EntityWrapper>& entity) {
+  std::unique_lock lock(_mutex);
+
   if (!entity) {
     throw std::invalid_argument("Entity is null");
   }
@@ -21,6 +23,8 @@ void margelo::SceneWrapper::addEntity(const std::shared_ptr<EntityWrapper>& enti
 }
 
 void SceneWrapper::removeEntity(const std::shared_ptr<EntityWrapper>& entity) {
+  std::unique_lock lock(_mutex);
+
   if (!entity) {
     throw std::invalid_argument("Entity is null");
   }
@@ -29,6 +33,8 @@ void SceneWrapper::removeEntity(const std::shared_ptr<EntityWrapper>& entity) {
 }
 
 void SceneWrapper::addAsset(const std::shared_ptr<gltfio::FilamentAsset>& asset) {
+  std::unique_lock lock(_mutex);
+
   if (asset == nullptr) {
     Logger::log("SceneWrapper", "Can't add asset an asset from scene as it was null.");
     return;
@@ -38,6 +44,8 @@ void SceneWrapper::addAsset(const std::shared_ptr<gltfio::FilamentAsset>& asset)
 }
 
 void SceneWrapper::removeAsset(const std::shared_ptr<gltfio::FilamentAsset>& asset) {
+  std::unique_lock lock(_mutex);
+
   if (asset == nullptr) {
     Logger::log("SceneWrapper", "Can't remove asset an asset from scene as it was null.");
     return;
@@ -50,6 +58,8 @@ void SceneWrapper::removeAsset(const std::shared_ptr<gltfio::FilamentAsset>& ass
 }
 
 void SceneWrapper::removeAssetEntities(const std::shared_ptr<FilamentAssetWrapper>& asset) {
+  std::unique_lock lock(_mutex);
+
   if (asset == nullptr) {
     throw std::invalid_argument("Asset is null");
   }
@@ -63,6 +73,8 @@ void SceneWrapper::removeAssetEntities(const std::shared_ptr<FilamentAssetWrappe
 }
 
 void SceneWrapper::addAssetEntities(const std::shared_ptr<FilamentAssetWrapper>& asset) {
+  std::unique_lock lock(_mutex);
+
   if (asset == nullptr) {
     throw std::invalid_argument("Asset is null");
   }
