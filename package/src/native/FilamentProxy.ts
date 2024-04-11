@@ -4,6 +4,7 @@ import type { Engine } from '../types/Engine'
 import { FilamentView } from './FilamentViewTypes'
 import type { BulletAPI } from '../bullet/types/api'
 import type { IWorkletContext } from 'react-native-worklets-core'
+import { EngineBackend, EngineConfig } from '../types'
 
 interface TestHybridObject {
   int: number
@@ -37,7 +38,7 @@ export interface TFilamentProxy {
   /**
    * Creates a new engine. You should only call this once.
    */
-  createEngine(): Engine
+  createEngine(backend: EngineBackend | undefined, config: EngineConfig | undefined): Engine
 
   /**
    * Creates the bullet API wrapper.

@@ -35,11 +35,11 @@
 namespace margelo {
 
 EngineWrapper::EngineWrapper(const std::shared_ptr<Choreographer>& choreographer, const std::shared_ptr<Dispatcher>& dispatcher,
-                             const Engine::Config& config)
+                             const Engine::Config& config, const Engine::Backend& backend)
     : HybridObject("EngineWrapper"), _config(config) {
   // TODO: make the enum for the backend for the engine configurable
   _dispatcher = dispatcher;
-  _engine = References<Engine>::adoptRef(Engine::Builder().config(&_config).build(), [dispatcher](Engine* engine) {
+  _engine = References<Engine>::adoptRef(Engine::Builder().backend(backend).config(&_config).build(), [dispatcher](Engine* engine) {
     // Make sure that the engine gets destroyed on the thread that it was created on.
     // It can happen that the engine gets cleaned up by Hades (hermes GC) on a different thread.
     dispatcher->runAsync([engine]() {
