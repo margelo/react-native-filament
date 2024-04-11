@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { Engine } from '../types'
+import type { Engine, EngineBackend, EngineConfig } from '../types'
 import { FilamentProxy } from '../native/FilamentProxy'
 import { useWorklet } from 'react-native-worklets-core'
 
@@ -9,19 +9,30 @@ interface EngineProps {
    * @default false
    */
   isPaused?: boolean
+
+  /**
+   * The backend to be used. By default it picks "opengl" for android and "metal" for ios.
+   */
+  backend?: EngineBackend
+
+  /**
+   * The engine config. Can be used to tweak buffer sizes.
+   * You probably don't need that unless you do a lot and ran into engine crashes.
+   */
+  config?: EngineConfig
 }
 
-export function useEngine({ isPaused = false }: EngineProps = {}): Engine | undefined {
+export function useEngine({ backend, config, isPaused = false }: EngineProps = {}): Engine | undefined {
   const [engine, setEngine] = useState<Engine | undefined>(undefined)
   const context = useMemo(() => FilamentProxy.getWorkletContext(), [])
 
-  const createEngine: () => Promise<Engine> = useWorklet(
+  const createEngine = useWorklet(
     context,
     () => {
       'worklet'
-      return FilamentProxy.createEngine()
+      return FilamentProxy.createEngine(backend ?? undefined, config ?? undefined)
     },
-    []
+    [backend, config]
   )
 
   useEffect(() => {

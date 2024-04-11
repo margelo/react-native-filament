@@ -1,5 +1,6 @@
 export * from './Camera'
 export * from './Engine'
+export * from './EngineConfig'
 export * from './Entity'
 export * from './Manipulator'
 export * from './Renderer'

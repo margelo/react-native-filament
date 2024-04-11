@@ -5,8 +5,11 @@
 #include "FilamentProxy.h"
 #include <jsi/jsi.h>
 
+#include "core/EngineBackendEnum.h"
+#include "core/EngineConfigHelper.h"
 #include "jsi/Promise.h"
 #include "threading/WorkletContextDispatcher.h"
+
 #include <memory>
 #include <string>
 #include <utility>
@@ -90,11 +93,18 @@ std::shared_ptr<TestHybridObject> FilamentProxy::createTestObject() {
   return std::make_shared<TestHybridObject>();
 }
 
-std::shared_ptr<EngineWrapper> FilamentProxy::createEngine() {
+std::shared_ptr<EngineWrapper> FilamentProxy::createEngine(std::optional<std::string> backend,
+                                                           std::optional<std::unordered_map<std::string, int>> arguments) {
   Logger::log(TAG, "Creating Engine...");
+  Engine::Config config = EngineConfigHelper::makeConfigFromUserParams(arguments);
+  Engine::Backend backendEnum = Engine::Backend::DEFAULT;
+  if (backend.has_value()) {
+    EnumMapper::convertJSUnionToEnum(backend.value(), &backendEnum);
+  }
+
   std::shared_ptr<Choreographer> choreographer = createChoreographer();
   std::shared_ptr<Dispatcher> renderThread = getRenderThreadDispatcher();
-  return std::make_shared<EngineWrapper>(choreographer, renderThread);
+  return std::make_shared<EngineWrapper>(choreographer, renderThread, std::move(config), backendEnum);
 }
 
 std::shared_ptr<BulletWrapper> FilamentProxy::createBullet() {
