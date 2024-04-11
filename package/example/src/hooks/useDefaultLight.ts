@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Platform } from 'react-native'
-import { Engine, useAsset, useScene } from 'react-native-filament'
+import { Engine, useAsset, useEntityInScene, useLightEntity, useScene } from 'react-native-filament'
 
 const indirectLightPath = Platform.select({
   android: 'custom/default_env_ibl.ktx',
@@ -13,12 +13,16 @@ export function useDefaultLight(engine: Engine) {
 
   useEffect(() => {
     if (lightBuffer == null) return
-    engine.setIndirectLight(lightBuffer)
-    const directionalLight = engine.createLightEntity('directional', 6500, 10000, 0, -1, 0, true)
-    scene.addEntity(directionalLight)
-
-    return () => {
-      scene.removeEntity(directionalLight)
-    }
+    engine.setIndirectLight(lightBuffer, 25_000, undefined)
   }, [engine, lightBuffer, scene])
+
+  const directionalLight = useLightEntity(engine, {
+    type: 'directional',
+    castShadows: true,
+    colorKelvin: 6_500,
+    direction: [0, -1, 0],
+    intensity: 10_000,
+    position: [0, 0, 0],
+  })
+  useEntityInScene(scene, directionalLight)
 }

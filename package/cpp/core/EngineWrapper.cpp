@@ -393,7 +393,8 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::makeAssetWrapper(FilamentAs
 }
 
 // Default light is a directional light for shadows + a default IBL
-void EngineWrapper::setIndirectLight(const std::shared_ptr<FilamentBuffer>& iblBuffer) {
+void EngineWrapper::setIndirectLight(const std::shared_ptr<FilamentBuffer>& iblBuffer, std::optional<double> intensity,
+                                     std::optional<int> irradianceBands) {
   std::unique_lock lock(_mutex);
   if (!_scene) {
     throw std::runtime_error("Scene not initialized");
@@ -418,14 +419,26 @@ void EngineWrapper::setIndirectLight(const std::shared_ptr<FilamentBuffer>& iblB
   math::float3 harmonics[9];
   iblBundle->getSphericalHarmonics(harmonics);
 
-  IndirectLight* _indirectLight =
-      IndirectLight::Builder().reflections(cubemap).irradiance(3, harmonics).intensity(30000.0f).build(*_engine);
+  IndirectLight::Builder builder = IndirectLight::Builder().reflections(cubemap);
+  if (intensity.has_value()) {
+    builder.intensity(static_cast<float>(intensity.value()));
+  }
+  if (irradianceBands.has_value()) {
+    builder.irradiance(static_cast<uint8_t>(irradianceBands.value()), harmonics);
+  } else {
+    builder.irradiance(3, harmonics);
+  }
 
+  IndirectLight* _indirectLight = builder.build(*_engine);
   _scene->getScene()->setIndirectLight(_indirectLight);
 }
 
-std::shared_ptr<EntityWrapper> EngineWrapper::createLightEntity(const std::string& lightTypeStr, double colorFahrenheit, double intensity,
-                                                                double directionX, double directionY, double directionZ, bool castShadows) {
+std::shared_ptr<EntityWrapper> EngineWrapper::createLightEntity(const std::string& lightTypeStr, std::optional<double> colorKelvin,
+                                                                std::optional<double> intensity,
+                                                                std::optional<std::vector<double>> direction,
+                                                                std::optional<std::vector<double>> position,
+                                                                std::optional<bool> castShadows, std::optional<double> falloffRadius,
+                                                                std::optional<std::vector<double>> spotLightCone) {
   std::unique_lock lock(_mutex);
   auto lightEntity = _engine->getEntityManager().create();
 
@@ -433,12 +446,36 @@ std::shared_ptr<EntityWrapper> EngineWrapper::createLightEntity(const std::strin
   LightManager::Type lightType;
   EnumMapper::convertJSUnionToEnum(lightTypeStr, &lightType);
 
-  LightManager::Builder(lightType)
-      .color(Color::cct(static_cast<float>(colorFahrenheit)))
-      .intensity(static_cast<float>(intensity))
-      .direction({directionX, directionY, directionZ})
-      .castShadows(castShadows)
-      .build(*_engine, lightEntity);
+  LightManager::Builder builder = LightManager::Builder(lightType);
+  if (colorKelvin.has_value()) {
+    builder.color(Color::cct(static_cast<float>(colorKelvin.value())));
+  }
+  if (intensity.has_value()) {
+    builder.intensity(static_cast<float>(intensity.value()));
+  }
+  if (direction.has_value()) {
+    math::float3 directionVec = Converter::VecToFloat3(direction.value());
+    builder.direction(directionVec);
+  }
+  if (position.has_value()) {
+    math::float3 positionVec = Converter::VecToFloat3(position.value());
+    builder.position(positionVec);
+  }
+  if (castShadows.has_value()) {
+    builder.castShadows(castShadows.value());
+  }
+  if (falloffRadius.has_value()) {
+    builder.falloff(static_cast<float>(falloffRadius.value()));
+  }
+  if (spotLightCone.has_value()) {
+    std::vector<double> spotLightConesVec = spotLightCone.value();
+    if (spotLightConesVec.size() != 2) {
+      throw std::invalid_argument("Spot light cones must have 2 values");
+    }
+    builder.spotLightCone(spotLightConesVec[0], spotLightConesVec[1]);
+  }
+
+  builder.build(*_engine, lightEntity);
   return std::make_shared<EntityWrapper>(lightEntity);
 }
 

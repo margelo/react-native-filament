@@ -74,12 +74,15 @@ private:
   void transformToUnitCube(const std::shared_ptr<FilamentAssetWrapper>& asset);
   std::shared_ptr<FilamentAssetWrapper> loadAsset(const std::shared_ptr<FilamentBuffer>& modelBuffer);
   std::shared_ptr<FilamentAssetWrapper> loadInstancedAsset(const std::shared_ptr<FilamentBuffer>& modelBuffer, int instanceCount);
-  void setIndirectLight(const std::shared_ptr<FilamentBuffer>& modelBuffer);
+  void setIndirectLight(const std::shared_ptr<FilamentBuffer>& modelBuffer, std::optional<double> intensity,
+                        std::optional<int> irradianceBands);
 
   void synchronizePendingFrames();
 
-  std::shared_ptr<EntityWrapper> createLightEntity(const std::string& lightTypeStr, double colorFahrenheit, double intensity,
-                                                   double directionX, double directionY, double directionZ, bool castShadows);
+  std::shared_ptr<EntityWrapper> createLightEntity(const std::string& lightTypeStr, std::optional<double> colorKelvin,
+                                                   std::optional<double> intensity, std::optional<std::vector<double>> direction,
+                                                   std::optional<std::vector<double>> position, std::optional<bool> castShadows,
+                                                   std::optional<double> falloffRadius, std::optional<std::vector<double>> spotLightCone);
 
   void updateTransform(math::mat4 transform, const std::shared_ptr<EntityWrapper>& entity, bool multiplyCurrent);
   void setEntityPosition(const std::shared_ptr<EntityWrapper>& entity, std::vector<double> positionVec, bool multiplyCurrent);
