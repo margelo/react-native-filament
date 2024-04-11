@@ -13,16 +13,15 @@ import {
   useView,
   useCamera,
   useScene,
+  Engine,
+  useAssetAnimator,
+  getAssetFromModel,
 } from 'react-native-filament'
+import { useDefaultLight } from './hooks/useDefaultLight'
 
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',
   ios: 'pengu.glb',
-})!
-
-const indirectLightPath = Platform.select({
-  android: 'custom/default_env_ibl.ktx',
-  ios: 'default_env_ibl.ktx',
 })!
 
 const shadowMaterialPath = Platform.select({
@@ -38,30 +37,14 @@ const focalLengthInMillimeters = 28
 const near = 0.1
 const far = 1000
 
-export function CastShadow() {
-  const engine = useEngine()
+function Renderer({ engine }: { engine: Engine }) {
+  useDefaultLight(engine)
   const renderableManager = useRenderableManager(engine)
   const view = useView(engine)
   const camera = useCamera(engine)
   const scene = useScene(engine)
 
-  const pengu = useModel({ engine: engine, path: penguModelPath, castShadow: true, receiveShadow: true })
-
-  //#region Setup lights
-  const light = useAsset({ path: indirectLightPath })
-  useEffect(() => {
-    if (light == null) return
-    // create a default light
-    engine.setIndirectLight(light)
-
-    // Create a directional light for supporting shadows
-    const directionalLight = engine.createLightEntity('directional', 6500, 10000, 0, -1, 0, true)
-    scene.addEntity(directionalLight)
-    return () => {
-      // TODO: Remove directionalLight from scene
-    }
-  }, [engine, light, scene])
-  //#endregion
+  const pengu = useModel({ engine: engine, path: penguModelPath })
 
   //#region Setup shadow plane
   const shadowMaterialBuffer = useAsset({ path: shadowMaterialPath })
@@ -98,10 +81,12 @@ export function CastShadow() {
   //#endregion
 
   const prevAspectRatio = useRef(0)
-  const penguAnimator = pengu.state === 'loaded' ? pengu.animator : undefined
+  const penguAnimator = useAssetAnimator(getAssetFromModel(pengu))
   const penguEntity = pengu.state === 'loaded' ? pengu.asset.getRoot() : undefined
   useRenderCallback(engine, (_timestamp, _startTime, passedSeconds) => {
-    const aspectRatio = view.aspectRatio
+    'worklet'
+
+    const aspectRatio = view.getAspectRatio()
     if (prevAspectRatio.current !== aspectRatio) {
       prevAspectRatio.current = aspectRatio
       // Setup camera lens:
@@ -122,6 +107,13 @@ export function CastShadow() {
       <Filament style={styles.filamentView} engine={engine} />
     </View>
   )
+}
+
+export function CastShadow() {
+  const engine = useEngine()
+
+  if (engine == null) return null
+  return <Renderer engine={engine} />
 }
 
 const styles = StyleSheet.create({
