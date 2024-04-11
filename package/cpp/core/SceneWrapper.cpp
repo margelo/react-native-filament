@@ -58,8 +58,6 @@ void SceneWrapper::removeAsset(const std::shared_ptr<gltfio::FilamentAsset>& ass
 }
 
 void SceneWrapper::removeAssetEntities(const std::shared_ptr<FilamentAssetWrapper>& asset) {
-  std::unique_lock lock(_mutex);
-
   if (asset == nullptr) {
     throw std::invalid_argument("Asset is null");
   }
@@ -73,8 +71,6 @@ void SceneWrapper::removeAssetEntities(const std::shared_ptr<FilamentAssetWrappe
 }
 
 void SceneWrapper::addAssetEntities(const std::shared_ptr<FilamentAssetWrapper>& asset) {
-  std::unique_lock lock(_mutex);
-
   if (asset == nullptr) {
     throw std::invalid_argument("Asset is null");
   }
