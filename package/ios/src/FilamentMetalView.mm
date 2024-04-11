@@ -38,7 +38,7 @@
   [super layoutSubviews];
   CGFloat scale = [UIScreen mainScreen].scale;
   CGSize newSize = CGSizeMake(self.bounds.size.width * scale, self.bounds.size.height * scale);
-    
+
   // TODO: usually the setter function for drawableSize should be auto wrapped with
   // will- and didChange, however for some reason it seems it isn't. Without it the
   // KVO pattern would break and we would never be notified when the view size changes.

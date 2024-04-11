@@ -50,7 +50,7 @@ void MaterialInstanceWrapper::changeAlpha(double alpha) {
 
 void MaterialInstanceWrapper::setParameter(std::string name, double value) {
   std::unique_lock lock(_mutex);
-  
+
   const Material* material = _materialInstance->getMaterial();
 
   if (!material->hasParameter(name.c_str())) {
