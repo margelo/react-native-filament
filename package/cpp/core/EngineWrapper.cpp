@@ -123,7 +123,7 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setEntityScale", &EngineWrapper::setEntityScale, this);
   registerHybridMethod("setIsPaused", &EngineWrapper::setIsPaused, this);
   registerHybridMethod("getTransformManager", &EngineWrapper::getTransformManager, this);
-  registerHybridMethod("getRenderableManager", &EngineWrapper::createRenderableManager, this);
+  registerHybridMethod("createRenderableManager", &EngineWrapper::createRenderableManager, this);
   registerHybridMethod("createMaterial", &EngineWrapper::createMaterial, this);
 
   // Combined Physics API:
