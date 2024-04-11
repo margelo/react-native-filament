@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AssetProps, useAsset } from './useAsset'
-import { Animator, Engine } from '../types'
+import { Engine } from '../types'
 import { FilamentAsset } from '../types/FilamentAsset'
 import { FilamentProxy } from '../native/FilamentProxy'
 import { useScene } from './useScene'
