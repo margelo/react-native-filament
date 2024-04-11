@@ -35,7 +35,6 @@ interface ModelProps extends AssetProps {
 export type FilamentModel =
   | {
       state: 'loaded'
-      animator: Animator
       asset: FilamentAsset
     }
   | {
@@ -75,11 +74,6 @@ export function useModel({ path, engine, shouldReleaseSourceData, autoAddToScene
     }, context)().then(setAsset)
   }, [assetBuffer, context, engine, instanceCount])
 
-  const animator = useMemo(() => {
-    if (asset == null) return undefined
-    return asset.getAnimator()
-  }, [asset])
-
   useEffect(() => {
     if (asset == null || !shouldReleaseSourceData) {
       return
@@ -116,7 +110,7 @@ export function useModel({ path, engine, shouldReleaseSourceData, autoAddToScene
     }
   }, [autoAddToScene, asset, scene, context])
 
-  if (assetBuffer == null || asset == null || animator == null) {
+  if (assetBuffer == null || asset == null) {
     return {
       state: 'loading',
     }
@@ -124,6 +118,5 @@ export function useModel({ path, engine, shouldReleaseSourceData, autoAddToScene
   return {
     state: 'loaded',
     asset: asset,
-    animator: animator,
   }
 }
