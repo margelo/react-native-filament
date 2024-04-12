@@ -70,6 +70,7 @@ export function useModel({ path, engine, shouldReleaseSourceData, autoAddToScene
         loadedAsset = engine.loadInstancedAsset(assetBuffer, instanceCount)
       }
 
+      assetBuffer.release()
       return loadedAsset
     }, context)().then(setAsset)
   }, [assetBuffer, context, engine, instanceCount])

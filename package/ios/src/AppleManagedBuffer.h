@@ -23,6 +23,11 @@ public:
   size_t getSize() const override {
     return _data.length;
   }
+    
+    // Manual release mechanism
+    void release() override {
+        _data = nil;
+    }
 
 private:
   NSData* _data;
