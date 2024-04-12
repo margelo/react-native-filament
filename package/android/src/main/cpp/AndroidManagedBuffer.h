@@ -19,7 +19,7 @@ public:
   }
 
   ~AndroidManagedBuffer() override {
-    jni::ThreadScope::WithClassLoader([&] { _buffer.reset(); });
+    releaseBuffer();
   }
 
   const uint8_t* getData() const override {
@@ -28,6 +28,14 @@ public:
 
   size_t getSize() const override {
     return _buffer->getDirectSize();
+  }
+
+  void release() override {
+    releaseBuffer();
+  }
+
+  void releaseBuffer() {
+    jni::ThreadScope::WithClassLoader([&] { _buffer.reset(); });
   }
 
 private:

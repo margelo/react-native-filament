@@ -24,6 +24,11 @@ public:
     return _data.length;
   }
 
+  // Manual release mechanism
+  void release() override {
+    _data = nil;
+  }
+
 private:
   NSData* _data;
 };
