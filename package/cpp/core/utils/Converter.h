@@ -17,5 +17,9 @@ public:
 
     return math::float3(vec[0], vec[1], vec[2]);
   }
+
+  static std::vector<double> Float3ToVec(const math::float3& vec) {
+    return {vec.x, vec.y, vec.z};
+  }
 };
 } // namespace margelo

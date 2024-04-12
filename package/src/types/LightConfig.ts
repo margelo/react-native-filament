@@ -92,7 +92,7 @@ export type SpotLightExtraConfig = {
    *
    * @see Type.SPOT, Type.FOCUSED_SPOT
    */
-  spotLightCone?: [inner: number, outer: number]
+  spotLightCone?: [innerRadians: number, outerRadians: number]
 }
 
 /**
