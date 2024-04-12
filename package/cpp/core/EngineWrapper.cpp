@@ -367,9 +367,12 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::makeAssetWrapper(FilamentAs
   }
 
   auto assetLoader = _assetLoader;
-  auto asset = References<gltfio::FilamentAsset>::adoptRef(assetPtr, [assetLoader](gltfio::FilamentAsset* asset) {
-    Logger::log(TAG, "Destroying asset...");
-    assetLoader->destroyAsset(asset);
+    auto dispatcher = _dispatcher;
+  auto asset = References<gltfio::FilamentAsset>::adoptRef(assetPtr, [dispatcher, assetLoader](gltfio::FilamentAsset* asset) {
+      dispatcher->runAsync([asset, assetLoader]() {
+          Logger::log(TAG, "Destroying asset...");
+          assetLoader->destroyAsset(asset);
+      });
   });
 
   // TODO: When supporting loading glTF files with external resources, we need to load the resources here
