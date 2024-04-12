@@ -94,6 +94,8 @@ private:
   // Internal helper method to turn an FilamentAsset ptr into a FilamentAssetWrapper
   std::shared_ptr<FilamentAssetWrapper> makeAssetWrapper(FilamentAsset* assetPtr);
 
+  void release();
+
 private:
   std::mutex _mutex;
   Engine::Config _config;

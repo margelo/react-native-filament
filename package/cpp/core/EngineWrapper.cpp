@@ -43,13 +43,24 @@ EngineWrapper::EngineWrapper(const std::shared_ptr<Choreographer>& choreographer
     });
   });
 
+  // Setup filament:
+  _renderer = createRenderer();
+  _scene = createScene();
+  _view = createView();
+  _camera = createCamera();
+
+  _view->getView()->setScene(_scene->getScene().get());
+  _view->getView()->setCamera(_camera->getCamera().get());
+
+  _choreographer = choreographer;
+  _transformManager = createTransformManager();
+
   gltfio::MaterialProvider* _materialProviderPtr =
       gltfio::createUbershaderProvider(_engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
   _materialProvider = References<gltfio::MaterialProvider>::adoptEngineRef(
       _engine, _materialProviderPtr, [](const std::shared_ptr<Engine>& engine, gltfio::MaterialProvider* provider) {
         Logger::log(TAG, "Destroying material provider...");
         // Note: The materials of the provider are getting destroyed when the scene is destroyed,
-        // as the scene controls when the assets are getting destroyed (and only then we can destroy the materials).
         delete provider;
       });
 
@@ -85,18 +96,6 @@ EngineWrapper::EngineWrapper(const std::shared_ptr<Choreographer>& choreographer
         delete stbProvider;
         delete ktx2Provider;
       });
-
-  // Setup filament:
-  _renderer = createRenderer();
-  _scene = createScene();
-  _view = createView();
-  _camera = createCamera();
-
-  _view->getView()->setScene(_scene->getScene().get());
-  _view->getView()->setCamera(_camera->getCamera().get());
-
-  _choreographer = choreographer;
-  _transformManager = createTransformManager();
 }
 
 void EngineWrapper::loadHybridMethods() {
@@ -106,6 +105,7 @@ void EngineWrapper::loadHybridMethods() {
 
   registerHybridMethod("loadAsset", &EngineWrapper::loadAsset, this);
   registerHybridMethod("loadInstancedAsset", &EngineWrapper::loadInstancedAsset, this);
+  registerHybridMethod("release", &EngineWrapper::release, this);
 
   // Filament API:
   registerHybridMethod("getRenderer", &EngineWrapper::getRenderer, this);
@@ -311,7 +311,7 @@ std::shared_ptr<SceneWrapper> EngineWrapper::createScene() {
         });
       });
 
-  return std::make_shared<SceneWrapper>(scene, _assetLoader);
+  return std::make_shared<SceneWrapper>(scene);
 }
 
 std::shared_ptr<ViewWrapper> EngineWrapper::createView() {
@@ -385,9 +385,11 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::makeAssetWrapper(FilamentAs
 
   auto assetLoader = _assetLoader;
   auto dispatcher = _dispatcher;
-  auto asset = References<gltfio::FilamentAsset>::adoptRef(assetPtr, [dispatcher, assetLoader](gltfio::FilamentAsset* asset) {
-    dispatcher->runAsync([assetLoader, asset]() {
+  auto scene = _scene;
+  auto asset = References<gltfio::FilamentAsset>::adoptRef(assetPtr, [dispatcher, assetLoader, scene](gltfio::FilamentAsset* asset) {
+    dispatcher->runAsync([assetLoader, asset, scene]() {
       Logger::log(TAG, "Destroying asset...");
+      scene->getScene()->removeEntities(asset->getEntities(), asset->getEntityCount());
       assetLoader->destroyAsset(asset);
     });
   });
@@ -397,17 +399,7 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::makeAssetWrapper(FilamentAs
   //    const size_t resourceUriCount = asset->getResourceUriCount();
   _resourceLoader->loadResources(asset.get());
 
-  auto scene = _scene;
-  FilamentAssetWrapper* assetWrapper = new FilamentAssetWrapper(asset, scene);
-  return References<FilamentAssetWrapper>::adoptRef(assetWrapper, [dispatcher, scene](FilamentAssetWrapper* assetWrapper) {
-    Logger::log(TAG, "Destroying asset wrapper...");
-    const std::shared_ptr<gltfio::FilamentAsset>& asset = assetWrapper->getAsset();
-    // The asset might have been removed by .release() already, so we check for null here:
-    if (asset) {
-      scene->removeAsset(asset);
-    }
-    delete assetWrapper;
-  });
+  return std::make_shared<FilamentAssetWrapper>(asset, scene);
 }
 
 // Default light is a directional light for shadows + a default IBL
@@ -622,6 +614,15 @@ std::shared_ptr<MaterialWrapper> EngineWrapper::createMaterial(const std::shared
 std::shared_ptr<LightManagerWrapper> EngineWrapper::createLightManager() {
   std::unique_lock lock(_mutex);
   return std::make_shared<LightManagerWrapper>(_engine);
+}
+
+void EngineWrapper::release() {
+  std::unique_lock lock(_mutex);
+  Logger::log(TAG, "Releasing engine...");
+  _renderCallback.reset();
+  destroySurface();
+  // Release the scene, this will remove all assets from it and free all materials
+  _scene.reset();
 }
 
 } // namespace margelo
