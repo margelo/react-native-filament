@@ -1,6 +1,8 @@
 #pragma once
 
+#include "AmbientOcclusionOptionsWrapper.h"
 #include "CameraWrapper.h"
+#include "QualityLevel.h"
 #include "SceneWrapper.h"
 #include "jsi/HybridObject.h"
 
@@ -28,6 +30,9 @@ private:
   void setCamera(const std::shared_ptr<CameraWrapper>& camera);
   const std::shared_ptr<CameraWrapper>& getCamera();
   double getAspectRatio();
+  std::shared_ptr<AmbientOcclusionOptionsWrapper> createAmbientOcclusionOptions();
+  void setAmbientOcclusionOptions(std::shared_ptr<AmbientOcclusionOptionsWrapper> options);
+  std::shared_ptr<AmbientOcclusionOptionsWrapper> getAmbientOcclusionOptions();
 
 private:
   std::mutex _mutex;

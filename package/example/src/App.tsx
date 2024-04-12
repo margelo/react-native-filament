@@ -10,6 +10,7 @@ import { CastShadow } from './CastShadow'
 import { MultipleInstances } from './MultipleInstances'
 import { WorkletExample } from './WorkletExample'
 import { ScaleEffect } from './ScaleEffect'
+import { FadingLightExample } from './FadingLightExample'
 
 function NavigationItem(props: { name: string; route: string }) {
   const navigation = useNavigation()
@@ -48,6 +49,7 @@ function HomeScreen() {
       <NavigationItem name="🤖 Multiple Instances" route="MultipleInstances" />
       <NavigationItem name="↕️ Scale Effect" route="ScaleEffect" />
       <NavigationItem name="🧠 Worklet Example" route="WorkletExample" />
+      <NavigationItem name="💡 Fading Light" route="FadingLight" />
     </View>
   )
 }
@@ -81,6 +83,7 @@ function App() {
         <Stack.Screen name="MultipleInstances" component={MultipleInstances} />
         <Stack.Screen name="WorkletExample" component={WorkletExample} />
         <Stack.Screen name="ScaleEffect" component={ScaleEffect} />
+        <Stack.Screen name="FadingLight" component={FadingLightExample} />
         <Stack.Screen name="Test" component={TestScreen} />
       </Stack.Navigator>
     </NavigationContainer>

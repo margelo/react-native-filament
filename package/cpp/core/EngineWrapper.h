@@ -31,6 +31,7 @@
 #include <gltfio/TextureProvider.h>
 
 #include "CameraWrapper.h"
+#include "LightManagerWrapper.h"
 #include "MaterialWrapper.h"
 #include "RendererWrapper.h"
 #include "SceneWrapper.h"
@@ -78,11 +79,6 @@ private:
                         std::optional<int> irradianceBands);
 
   void synchronizePendingFrames();
-
-  std::shared_ptr<EntityWrapper> createLightEntity(const std::string& lightTypeStr, std::optional<double> colorKelvin,
-                                                   std::optional<double> intensity, std::optional<std::vector<double>> direction,
-                                                   std::optional<std::vector<double>> position, std::optional<bool> castShadows,
-                                                   std::optional<double> falloffRadius, std::optional<std::vector<double>> spotLightCone);
 
   void updateTransform(math::mat4 transform, const std::shared_ptr<EntityWrapper>& entity, bool multiplyCurrent);
   void setEntityPosition(const std::shared_ptr<EntityWrapper>& entity, std::vector<double> positionVec, bool multiplyCurrent);
@@ -137,6 +133,7 @@ private:
   std::shared_ptr<CameraWrapper> createCamera();
   std::shared_ptr<ManipulatorWrapper> createCameraManipulator(int windowWidth, int windowHeight);
   std::shared_ptr<TransformManagerWrapper> createTransformManager();
+  std::shared_ptr<LightManagerWrapper> createLightManager();
 
 private:
   // Getters for shared objects
