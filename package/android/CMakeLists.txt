@@ -37,6 +37,7 @@ add_library(
     ../cpp/test/TestHybridObject.cpp
 
     # Filament Core
+    ../cpp/core/OptionsHelper.cpp
     ../cpp/core/EngineWrapper.cpp
     ../cpp/core/EngineConfigHelper.cpp
     ../cpp/core/RendererWrapper.cpp

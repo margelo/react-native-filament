@@ -1,4 +1,5 @@
 import { Camera } from './Camera'
+import { AmbientOcclusionOptions } from './OptionsHelper'
 import { Scene } from './Scene'
 
 /**
@@ -26,4 +27,9 @@ export interface View {
   // Can return 0 if the view isn't ready yet.
   getAspectRatio(): number
   setViewport(x: number, y: number, width: number, height: number): void
+  setAmbientOcclusionOptions(options: AmbientOcclusionOptions): void
+  getAmbientOcclusionOptions(): AmbientOcclusionOptions
+
+  // Internal helper to create HostObject options object
+  createAmbientOcclusionOptions(): AmbientOcclusionOptions
 }

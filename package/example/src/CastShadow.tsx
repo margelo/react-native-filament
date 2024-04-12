@@ -17,6 +17,7 @@ import {
   useAssetAnimator,
   getAssetFromModel,
   useConfigureAssetShadow,
+  useAmbientOcclusionOptions,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
@@ -39,6 +40,9 @@ function Renderer({ engine }: { engine: Engine }) {
   const view = useView(engine)
   const camera = useCamera(engine)
   const scene = useScene(engine)
+  useAmbientOcclusionOptions(view, {
+    enabled: true,
+  })
 
   const pengu = useModel({ engine: engine, path: penguModelPath })
 

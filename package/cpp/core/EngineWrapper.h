@@ -10,6 +10,7 @@
 #include "Choreographer.h"
 #include "FilamentAssetWrapper.h"
 #include "FilamentBuffer.h"
+#include "OptionsHelper.h"
 #include "RenderableManagerWrapper.h"
 #include "RendererWrapper.h"
 #include "SceneWrapper.h"
@@ -128,6 +129,7 @@ private:
   std::shared_ptr<CameraWrapper> _camera;
   std::shared_ptr<ManipulatorWrapper> _cameraManipulator;
   std::shared_ptr<TransformManagerWrapper> _transformManager;
+  std::shared_ptr<OptionsHelper> _optionsHelper = std::make_shared<OptionsHelper>();
 
 private:
   std::shared_ptr<RendererWrapper> createRenderer();
@@ -160,6 +162,9 @@ private:
   }
   const std::shared_ptr<TransformManagerWrapper>& getTransformManager() {
     return _transformManager;
+  }
+  const std::shared_ptr<OptionsHelper>& createOptionsHelper() {
+    return _optionsHelper;
   }
 
 private:
