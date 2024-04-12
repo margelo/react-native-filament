@@ -22,6 +22,7 @@ void FilamentAssetWrapper::loadHybridMethods() {
   registerHybridMethod("getFirstEntityByName", &FilamentAssetWrapper::getFirstEntityByName, this);
   registerHybridMethod("getInstance", &FilamentAssetWrapper::getInstance, this);
   registerHybridMethod("getAssetInstances", &FilamentAssetWrapper::getAssetInstances, this);
+  registerHybridMethod("release", &FilamentAssetWrapper::release, this);
 }
 
 /**
@@ -106,6 +107,13 @@ std::vector<std::shared_ptr<FilamentInstanceWrapper>> FilamentAssetWrapper::getA
     instances.push_back(std::make_shared<FilamentInstanceWrapper>(instanceArray[i]));
   }
   return instances;
+}
+
+void FilamentAssetWrapper::release() {
+  _scene->removeAsset(_asset);
+  std::unique_lock lock(_mutex); // removeAsset already has its own lock
+  _asset = nullptr;
+  _scene = nullptr;
 }
 
 } // namespace margelo
