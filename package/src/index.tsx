@@ -19,6 +19,8 @@ export * from './hooks/useAssetAnimator'
 export * from './hooks/useConfigureAssetShadow'
 export * from './hooks/useEntityInScene'
 export * from './hooks/useLightEntity'
+export * from './hooks/useAmbientOcclusionOptions'
+export * from './hooks/useLightManager'
 
 // utilities
 export * from './utilities/runOnJS'

@@ -9,6 +9,9 @@ void ViewWrapper::loadHybridMethods() {
   registerHybridGetter("camera", &ViewWrapper::getCamera, this);
   registerHybridMethod("setViewport", &ViewWrapper::setViewport, this);
   registerHybridMethod("getAspectRatio", &ViewWrapper::getAspectRatio, this);
+  registerHybridMethod("createAmbientOcclusionOptions", &ViewWrapper::createAmbientOcclusionOptions, this);
+  registerHybridMethod("setAmbientOcclusionOptions", &ViewWrapper::setAmbientOcclusionOptions, this);
+  registerHybridMethod("getAmbientOcclusionOptions", &ViewWrapper::getAmbientOcclusionOptions, this);
 }
 
 void ViewWrapper::setScene(const std::shared_ptr<SceneWrapper>& scene) {
@@ -59,6 +62,21 @@ double ViewWrapper::getAspectRatio() {
   }
 
   return (double)width / height;
+}
+
+void ViewWrapper::setAmbientOcclusionOptions(std::shared_ptr<AmbientOcclusionOptionsWrapper> options) {
+  if (!options) {
+    [[unlikely]];
+    throw std::invalid_argument("AmbientOcclusionOptions is null");
+  }
+  std::unique_lock lock(_mutex);
+  _view->setAmbientOcclusionOptions(*options.get());
+}
+std::shared_ptr<AmbientOcclusionOptionsWrapper> ViewWrapper::getAmbientOcclusionOptions() {
+  return std::make_shared<AmbientOcclusionOptionsWrapper>(_view->getAmbientOcclusionOptions());
+}
+std::shared_ptr<AmbientOcclusionOptionsWrapper> ViewWrapper::createAmbientOcclusionOptions() {
+  return std::make_shared<AmbientOcclusionOptionsWrapper>();
 }
 
 } // namespace margelo

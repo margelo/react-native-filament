@@ -17,6 +17,7 @@ import {
   useAssetAnimator,
   getAssetFromModel,
   useConfigureAssetShadow,
+  useAmbientOcclusionOptions,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
@@ -39,6 +40,10 @@ function Renderer({ engine }: { engine: Engine }) {
   const view = useView(engine)
   const camera = useCamera(engine)
   const scene = useScene(engine)
+  const [isSSAOEnabled, setIsSSAOEnabled] = React.useState(false)
+  useAmbientOcclusionOptions(view, {
+    enabled: isSSAOEnabled,
+  })
 
   const pengu = useModel({ engine: engine, path: penguModelPath })
 
@@ -73,6 +78,10 @@ function Renderer({ engine }: { engine: Engine }) {
     engine.setEntityPosition(shadowPlane, [0, -1, 0], true)
 
     scene.addEntity(shadowPlane)
+
+    return () => {
+      scene.removeEntity(shadowPlane)
+    }
   }, [engine, renderableManager, scene, shadowMaterialBuffer, shadowPlane])
   //#endregion
 
@@ -109,7 +118,8 @@ function Renderer({ engine }: { engine: Engine }) {
   return (
     <View style={styles.container}>
       <Filament style={styles.filamentView} engine={engine} />
-      <Button title="Toggle Shadow" onPress={() => setShowShadow((prev) => !prev)} />
+      <Button title={`Toggle Shadow (${showShadow ? 'enabled' : 'disabled'})`} onPress={() => setShowShadow((prev) => !prev)} />
+      <Button title={`Toggle SSAO (${isSSAOEnabled ? 'enabled' : 'disabled'})`} onPress={() => setIsSSAOEnabled((prev) => !prev)} />
     </View>
   )
 }

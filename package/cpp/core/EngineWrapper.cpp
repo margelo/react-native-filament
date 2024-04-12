@@ -4,7 +4,6 @@
 
 #include "EngineWrapper.h"
 
-#include "LightEnum.h"
 #include "References.h"
 #include "utils/Converter.h"
 
@@ -23,11 +22,7 @@
 #include <gltfio/MaterialProvider.h>
 #include <gltfio/materials/uberarchive.h>
 
-#include <filament/LightManager.h>
-#include <filament/SwapChain.h>
 #include <ktxreader/Ktx1Reader.h>
-#include <utils/Entity.h>
-#include <utils/EntityManager.h>
 
 #include <unistd.h>
 #include <utility>
@@ -116,7 +111,6 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("getView", &EngineWrapper::getView, this);
   registerHybridMethod("getCamera", &EngineWrapper::getCamera, this);
   registerHybridMethod("getCameraManipulator", &EngineWrapper::getCameraManipulator, this);
-  registerHybridMethod("createLightEntity", &EngineWrapper::createLightEntity, this);
   registerHybridMethod("transformToUnitCube", &EngineWrapper::transformToUnitCube, this);
   registerHybridMethod("setEntityPosition", &EngineWrapper::setEntityPosition, this);
   registerHybridMethod("setEntityRotation", &EngineWrapper::setEntityRotation, this);
@@ -125,6 +119,7 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("getTransformManager", &EngineWrapper::getTransformManager, this);
   registerHybridMethod("createRenderableManager", &EngineWrapper::createRenderableManager, this);
   registerHybridMethod("createMaterial", &EngineWrapper::createMaterial, this);
+  registerHybridMethod("createLightManager", &EngineWrapper::createLightManager, this);
 
   // Combined Physics API:
   registerHybridMethod("updateTransformByRigidBody", &EngineWrapper::updateTransformByRigidBody, this);
@@ -433,52 +428,6 @@ void EngineWrapper::setIndirectLight(const std::shared_ptr<FilamentBuffer>& iblB
   _scene->getScene()->setIndirectLight(_indirectLight);
 }
 
-std::shared_ptr<EntityWrapper> EngineWrapper::createLightEntity(const std::string& lightTypeStr, std::optional<double> colorKelvin,
-                                                                std::optional<double> intensity,
-                                                                std::optional<std::vector<double>> direction,
-                                                                std::optional<std::vector<double>> position,
-                                                                std::optional<bool> castShadows, std::optional<double> falloffRadius,
-                                                                std::optional<std::vector<double>> spotLightCone) {
-  std::unique_lock lock(_mutex);
-  auto lightEntity = _engine->getEntityManager().create();
-
-  // TODO(Marc): Fix enum converter
-  LightManager::Type lightType;
-  EnumMapper::convertJSUnionToEnum(lightTypeStr, &lightType);
-
-  LightManager::Builder builder = LightManager::Builder(lightType);
-  if (colorKelvin.has_value()) {
-    builder.color(Color::cct(static_cast<float>(colorKelvin.value())));
-  }
-  if (intensity.has_value()) {
-    builder.intensity(static_cast<float>(intensity.value()));
-  }
-  if (direction.has_value()) {
-    math::float3 directionVec = Converter::VecToFloat3(direction.value());
-    builder.direction(directionVec);
-  }
-  if (position.has_value()) {
-    math::float3 positionVec = Converter::VecToFloat3(position.value());
-    builder.position(positionVec);
-  }
-  if (castShadows.has_value()) {
-    builder.castShadows(castShadows.value());
-  }
-  if (falloffRadius.has_value()) {
-    builder.falloff(static_cast<float>(falloffRadius.value()));
-  }
-  if (spotLightCone.has_value()) {
-    std::vector<double> spotLightConesVec = spotLightCone.value();
-    if (spotLightConesVec.size() != 2) {
-      throw std::invalid_argument("Spot light cones must have 2 values");
-    }
-    builder.spotLightCone(spotLightConesVec[0], spotLightConesVec[1]);
-  }
-
-  builder.build(*_engine, lightEntity);
-  return std::make_shared<EntityWrapper>(lightEntity);
-}
-
 std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator(int width, int height) {
   ManipulatorBuilder builder;
   // Position of the camera:
@@ -641,6 +590,10 @@ std::shared_ptr<MaterialWrapper> EngineWrapper::createMaterial(const std::shared
 
                                                        delete materialWrapper;
                                                      });
+}
+std::shared_ptr<LightManagerWrapper> EngineWrapper::createLightManager() {
+  std::unique_lock lock(_mutex);
+  return std::make_shared<LightManagerWrapper>(_engine);
 }
 
 } // namespace margelo
