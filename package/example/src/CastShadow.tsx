@@ -78,6 +78,10 @@ function Renderer({ engine }: { engine: Engine }) {
     engine.setEntityPosition(shadowPlane, [0, -1, 0], true)
 
     scene.addEntity(shadowPlane)
+
+    return () => {
+      scene.removeEntity(shadowPlane)
+    }
   }, [engine, renderableManager, scene, shadowMaterialBuffer, shadowPlane])
   //#endregion
 
