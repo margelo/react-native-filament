@@ -400,15 +400,13 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::makeAssetWrapper(FilamentAs
   auto scene = _scene;
   FilamentAssetWrapper* assetWrapper = new FilamentAssetWrapper(asset, scene);
   return References<FilamentAssetWrapper>::adoptRef(assetWrapper, [dispatcher, scene](FilamentAssetWrapper* assetWrapper) {
-    // TODO: Hanno/Marc: This one is a pattern in this file and might not be needed anymore.
-    // Makes the WorkletExample crash after adding the RuntimeAwareCache system to HybridObjects.
-
-    // dispatcher->runAsync([assetWrapper, scene]() {
-    // Making sure to call removeAsset from the worklet thread, as it could be called by hades which can cause a crash
     Logger::log(TAG, "Destroying asset wrapper...");
-    scene->removeAsset(assetWrapper->getAsset());
+    const std::shared_ptr<gltfio::FilamentAsset>& asset = assetWrapper->getAsset();
+    // The asset might have been removed by .release() already, so we check for null here:
+    if (asset) {
+      scene->removeAsset(asset);
+    }
     delete assetWrapper;
-    // });
   });
 }
 
