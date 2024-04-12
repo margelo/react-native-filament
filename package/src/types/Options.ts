@@ -76,7 +76,3 @@ export interface AmbientOcclusionOptions {
 }
 
 export type QualityLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'ULTRA'
-
-export interface OptionsHelper {
-  createAmbientOcclusionOptions(): AmbientOcclusionOptions
-}

@@ -13,7 +13,7 @@ import { TransformManager } from './TransformManager'
 import { RenderableManager } from './RenderableManager'
 import { Material } from './Material'
 import { LightConfig, LightType, SpotLightExtraConfig } from './LightConfig'
-import { OptionsHelper } from './OptionsHelper'
+import { OptionsHelper } from './Options'
 
 export type RenderCallback = (timestamp: number, startTime: number, passedSeconds: number) => void
 
@@ -100,9 +100,4 @@ export interface Engine {
    * @worklet
    */
   createMaterial(matcBuffer: FilamentBuffer): Material
-
-  /**
-   * Internal helper for creating option objects
-   */
-  createOptionsHelper(): OptionsHelper
 }

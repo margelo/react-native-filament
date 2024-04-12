@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { View } from '../types'
-import { AmbientOcclusionOptions } from '../types/OptionsHelper'
+import { AmbientOcclusionOptions } from '../types/Options'
 
 export function useAmbientOcclusionOptions(view: View, options: AmbientOcclusionOptions) {
   useEffect(() => {

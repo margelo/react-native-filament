@@ -125,7 +125,6 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("getTransformManager", &EngineWrapper::getTransformManager, this);
   registerHybridMethod("createRenderableManager", &EngineWrapper::createRenderableManager, this);
   registerHybridMethod("createMaterial", &EngineWrapper::createMaterial, this);
-  registerHybridMethod("createOptionsHelper", &EngineWrapper::createOptionsHelper, this);
 
   // Combined Physics API:
   registerHybridMethod("updateTransformByRigidBody", &EngineWrapper::updateTransformByRigidBody, this);

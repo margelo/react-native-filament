@@ -1,5 +1,5 @@
 import { Camera } from './Camera'
-import { AmbientOcclusionOptions } from './OptionsHelper'
+import { AmbientOcclusionOptions } from './Options'
 import { Scene } from './Scene'
 
 /**
