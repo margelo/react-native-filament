@@ -70,7 +70,6 @@ export function useModel({ path, engine, shouldReleaseSourceData, autoAddToScene
         loadedAsset = engine.loadInstancedAsset(assetBuffer, instanceCount)
       }
 
-      assetBuffer.release()
       return loadedAsset
     }, context)().then(setAsset)
   }, [assetBuffer, context, engine, instanceCount])
@@ -110,6 +109,14 @@ export function useModel({ path, engine, shouldReleaseSourceData, autoAddToScene
       }, context)()
     }
   }, [autoAddToScene, asset, scene, context])
+
+  // Cleanup asset buffer when unmounting:
+  useEffect(() => {
+    return () => {
+      if (assetBuffer == null) return
+      assetBuffer.release()
+    }
+  }, [assetBuffer])
 
   if (assetBuffer == null || asset == null) {
     return {
