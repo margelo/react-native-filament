@@ -7,7 +7,7 @@ const indirectLightPath = Platform.select({
   ios: 'default_env_ibl.ktx',
 })!
 
-export function useDefaultLight(engine: Engine) {
+export function useDefaultLight(engine: Engine, enableDirectionalLight = true) {
   const lightBuffer = useAsset({ path: indirectLightPath })
   const scene = useScene(engine)
   const lightManager = useLightManager(engine)
@@ -22,7 +22,7 @@ export function useDefaultLight(engine: Engine) {
     castShadows: true,
     colorKelvin: 6_500,
     direction: [0, -1, 0],
-    intensity: 10_000,
+    intensity: enableDirectionalLight ? 10_000 : 0,
     position: [0, 0, 0],
   })
   useEntityInScene(scene, directionalLight)

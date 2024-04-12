@@ -1,21 +1,32 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { LightConfig, LightManager } from '../types'
+import { ISharedValue } from 'react-native-worklets-core'
+import { runOnWorklet } from '../utilities/runOnWorklet'
 
 /**
  * Creates a new memoized light entity based on the given configuration.
  */
-export function useLightEntity(lightManager: LightManager, config: LightConfig) {
-  const spotLightConfig = config.type === 'spot' || config.type === 'point' || config.type === 'focused_point' ? config : undefined
-  return useMemo(() => {
+export function useLightEntity(
+  lightManager: LightManager,
+  config:
+    | LightConfig
+    | (Omit<LightConfig, 'intensity'> & {
+        intensity?: ISharedValue<number>
+      })
+) {
+  const falloffRadius = 'falloffRadius' in config ? config.falloffRadius : undefined
+  const spotLightCone = 'spotLightCone' in config ? config.spotLightCone : undefined
+
+  const entity = useMemo(() => {
     return lightManager.createLightEntity(
       config.type,
       config.colorKelvin,
-      config.intensity,
+      typeof config.intensity === 'number' ? config.intensity : config.intensity?.value,
       config.direction,
       config.position,
       config.castShadows,
-      spotLightConfig?.falloffRadius,
-      spotLightConfig?.spotLightCone
+      falloffRadius,
+      spotLightCone
     )
   }, [
     config.castShadows,
@@ -24,8 +35,26 @@ export function useLightEntity(lightManager: LightManager, config: LightConfig) 
     config.intensity,
     config.position,
     config.type,
+    falloffRadius,
     lightManager,
-    spotLightConfig?.falloffRadius,
-    spotLightConfig?.spotLightCone,
+    spotLightCone,
   ])
+
+  // Eventually subscribe to the intensity shared value
+  useEffect(() => {
+    const intensity = config.intensity
+    if (intensity == null) return
+    if (typeof intensity === 'number') return
+
+    const setIntensity = lightManager.setIntensity
+
+    return intensity.addListener(
+      runOnWorklet(() => {
+        'worklet'
+        setIntensity(entity, intensity.value)
+      })
+    )
+  }, [config.intensity, entity, lightManager.setIntensity])
+
+  return entity
 }
