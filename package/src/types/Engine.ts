@@ -12,8 +12,7 @@ import { RigidBody } from '../bullet'
 import { TransformManager } from './TransformManager'
 import { RenderableManager } from './RenderableManager'
 import { Material } from './Material'
-import { LightConfig, LightType, SpotLightExtraConfig } from './LightConfig'
-import { OptionsHelper } from './Options'
+import { LightManager } from './LightManager'
 
 export type RenderCallback = (timestamp: number, startTime: number, passedSeconds: number) => void
 
@@ -53,17 +52,6 @@ export interface Engine {
   getView(): View
   getCameraManipulator(): Manipulator
 
-  createLightEntity(
-    type: LightType,
-    colorKelvin: LightConfig['colorKelvin'],
-    intensity: LightConfig['intensity'],
-    direction: LightConfig['direction'],
-    position: LightConfig['position'],
-    castShadows: LightConfig['castShadows'],
-    falloffRadius: SpotLightExtraConfig['falloffRadius'],
-    spotLightCone: SpotLightExtraConfig['spotLightCone']
-  ): Entity
-
   /**
    * Transforms the given entity to fit into a unit cube at the origin (0,0,0).
    * @param entity The entity to transform
@@ -100,4 +88,6 @@ export interface Engine {
    * @worklet
    */
   createMaterial(matcBuffer: FilamentBuffer): Material
+
+  createLightManager(): LightManager
 }

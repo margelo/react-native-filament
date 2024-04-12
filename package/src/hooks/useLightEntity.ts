@@ -1,13 +1,13 @@
 import { useMemo } from 'react'
-import { Engine, LightConfig } from '../types'
+import { LightConfig, LightManager } from '../types'
 
 /**
  * Creates a new memoized light entity based on the given configuration.
  */
-export function useLightEntity(engine: Engine, config: LightConfig) {
+export function useLightEntity(lightManager: LightManager, config: LightConfig) {
   const spotLightConfig = config.type === 'spot' || config.type === 'point' || config.type === 'focused_point' ? config : undefined
   return useMemo(() => {
-    return engine.createLightEntity(
+    return lightManager.createLightEntity(
       config.type,
       config.colorKelvin,
       config.intensity,
@@ -24,7 +24,7 @@ export function useLightEntity(engine: Engine, config: LightConfig) {
     config.intensity,
     config.position,
     config.type,
-    engine,
+    lightManager,
     spotLightConfig?.falloffRadius,
     spotLightConfig?.spotLightCone,
   ])
