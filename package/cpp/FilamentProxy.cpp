@@ -40,7 +40,7 @@ bool FilamentProxy::getHasWorklets() {
 }
 
 #if HAS_WORKLETS
-const std::shared_ptr<RNWorklet::JsiWorkletContext>& FilamentProxy::getWorkletContext() {
+std::shared_ptr<RNWorklet::JsiWorkletContext> FilamentProxy::getWorkletContext() {
   if (_workletContext == nullptr) {
     Logger::log(TAG, "Creating Worklet Context...");
     auto callInvoker = getCallInvoker();

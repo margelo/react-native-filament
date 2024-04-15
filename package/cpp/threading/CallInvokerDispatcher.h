@@ -16,7 +16,7 @@ using namespace facebook;
  */
 class CallInvokerDispatcher : public Dispatcher {
 public:
-  explicit CallInvokerDispatcher(const std::shared_ptr<react::CallInvoker>& callInvoker) : _callInvoker(callInvoker) {}
+  explicit CallInvokerDispatcher(std::shared_ptr<react::CallInvoker> callInvoker) : _callInvoker(callInvoker) {}
 
   void runAsync(std::function<void()>&& function) override {
     _callInvoker->invokeAsync(std::move(function));

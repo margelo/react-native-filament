@@ -14,32 +14,32 @@ using namespace filament;
 
 class SceneWrapper : public HybridObject {
 public:
-  explicit SceneWrapper(const std::shared_ptr<Scene>& scene) : HybridObject("SceneWrapper"), _scene(scene) {}
+  explicit SceneWrapper(std::shared_ptr<Scene> scene) : HybridObject("SceneWrapper"), _scene(scene) {}
 
   void loadHybridMethods() override;
 
-  const std::shared_ptr<Scene>& getScene() {
+  std::shared_ptr<Scene> getScene() {
     return _scene;
   }
 
-  void addAsset(const std::shared_ptr<gltfio::FilamentAsset>& asset);
-  void removeAsset(const std::shared_ptr<gltfio::FilamentAsset>& asset);
+  void addAsset(std::shared_ptr<gltfio::FilamentAsset> asset);
+  void removeAsset(std::shared_ptr<gltfio::FilamentAsset> asset);
 
 private:
   std::mutex _mutex;
   std::shared_ptr<Scene> _scene;
 
 private: // Public JS API
-  void addEntity(const std::shared_ptr<EntityWrapper>& entity);
-  void removeEntity(const std::shared_ptr<EntityWrapper>& entity);
+  void addEntity(std::shared_ptr<EntityWrapper> entity);
+  void removeEntity(std::shared_ptr<EntityWrapper> entity);
   /**
    * Removed all entities associated with the provided asset from the scene.
    */
-  void removeAssetEntities(const std::shared_ptr<FilamentAssetWrapper>& asset);
+  void removeAssetEntities(std::shared_ptr<FilamentAssetWrapper> asset);
   /**
    * Adds all entities associated with the provided asset to the scene.
    */
-  void addAssetEntities(const std::shared_ptr<FilamentAssetWrapper>& asset);
+  void addAssetEntities(std::shared_ptr<FilamentAssetWrapper> asset);
 
   int getEntityCount();
 };

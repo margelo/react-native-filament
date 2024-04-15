@@ -16,14 +16,14 @@ using namespace filament;
 
 class FilamentAssetWrapper : public HybridObject {
 public:
-  explicit FilamentAssetWrapper(const std::shared_ptr<gltfio::FilamentAsset>& asset, const std::shared_ptr<SceneWrapper>& scene)
+  explicit FilamentAssetWrapper(std::shared_ptr<gltfio::FilamentAsset>& asset, const std::shared_ptr<SceneWrapper> scene)
       : HybridObject("FilamentAssetWrapper"), _asset(asset), _scene(scene) {}
 
   void loadHybridMethods() override;
 
   void transformToUnitCube(TransformManager& transformManager);
 
-  const std::shared_ptr<gltfio::FilamentAsset>& getAsset() {
+  std::shared_ptr<gltfio::FilamentAsset> getAsset() {
     return _asset;
   }
 
@@ -31,7 +31,7 @@ private: // Public API functions:
   std::shared_ptr<EntityWrapper> getRoot();
   void releaseSourceData();
   std::shared_ptr<AnimatorWrapper> getAnimator();
-  std::shared_ptr<AnimatorWrapper> createAnimatorWithAnimationsFrom(const std::shared_ptr<FilamentAssetWrapper>& otherAsset);
+  std::shared_ptr<AnimatorWrapper> createAnimatorWithAnimationsFrom(std::shared_ptr<FilamentAssetWrapper> otherAsset);
   int getEntityCount() {
     return _asset->getEntityCount();
   }

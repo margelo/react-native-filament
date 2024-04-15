@@ -3,7 +3,7 @@
 namespace margelo {
 using namespace filament;
 
-RendererWrapper::RendererWrapper(const std::shared_ptr<Renderer>& renderer) : HybridObject("RendererWrapper"), _renderer(renderer) {
+RendererWrapper::RendererWrapper(std::shared_ptr<Renderer> renderer) : HybridObject("RendererWrapper"), _renderer(renderer) {
   // Support translucent views
   // TODO: make this configurable in the future
   _renderer->setClearOptions({.clear = true});
@@ -15,12 +15,12 @@ void RendererWrapper::loadHybridMethods() {
   registerHybridMethod("endFrame", &RendererWrapper::endFrame, this);
 }
 
-bool RendererWrapper::beginFrame(const std::shared_ptr<SwapChainWrapper>& swapChainWrapper, double frameTimeNanos) {
+bool RendererWrapper::beginFrame(std::shared_ptr<SwapChainWrapper> swapChainWrapper, double frameTimeNanos) {
   SwapChain* swapChainPtr = swapChainWrapper->getSwapChain().get();
   return _renderer->beginFrame(swapChainPtr, frameTimeNanos);
 }
 
-void RendererWrapper::render(const std::shared_ptr<ViewWrapper>& view) {
+void RendererWrapper::render(std::shared_ptr<ViewWrapper> view) {
   View* viewPtr = view->getView().get();
   _renderer->render(viewPtr);
 }

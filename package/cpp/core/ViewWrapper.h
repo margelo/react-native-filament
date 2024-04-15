@@ -14,21 +14,21 @@ using namespace filament;
 
 class ViewWrapper : public HybridObject {
 public:
-  explicit ViewWrapper(const std::shared_ptr<View>& view) : HybridObject("ViewWrapper"), _view(view) {}
+  explicit ViewWrapper(std::shared_ptr<View> view) : HybridObject("ViewWrapper"), _view(view) {}
 
   void loadHybridMethods() override;
 
-  const std::shared_ptr<View>& getView() {
+  std::shared_ptr<View> getView() {
     return _view;
   }
 
   void setViewport(int x, int y, int width, int height);
 
 private:
-  void setScene(const std::shared_ptr<SceneWrapper>& scene);
-  const std::shared_ptr<SceneWrapper>& getScene();
-  void setCamera(const std::shared_ptr<CameraWrapper>& camera);
-  const std::shared_ptr<CameraWrapper>& getCamera();
+  void setScene(std::shared_ptr<SceneWrapper> scene);
+  std::shared_ptr<SceneWrapper> getScene();
+  void setCamera(std::shared_ptr<CameraWrapper> camera);
+  std::shared_ptr<CameraWrapper> getCamera();
   double getAspectRatio();
   std::shared_ptr<AmbientOcclusionOptionsWrapper> createAmbientOcclusionOptions();
   void setAmbientOcclusionOptions(std::shared_ptr<AmbientOcclusionOptionsWrapper> options);

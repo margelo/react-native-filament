@@ -12,7 +12,7 @@ void margelo::SceneWrapper::loadHybridMethods() {
   registerHybridGetter("entityCount", &SceneWrapper::getEntityCount, this);
 }
 
-void margelo::SceneWrapper::addEntity(const std::shared_ptr<EntityWrapper>& entity) {
+void margelo::SceneWrapper::addEntity(std::shared_ptr<EntityWrapper> entity) {
   std::unique_lock lock(_mutex);
 
   if (!entity) {
@@ -22,7 +22,7 @@ void margelo::SceneWrapper::addEntity(const std::shared_ptr<EntityWrapper>& enti
   _scene->addEntity(entity->getEntity());
 }
 
-void SceneWrapper::removeEntity(const std::shared_ptr<EntityWrapper>& entity) {
+void SceneWrapper::removeEntity(std::shared_ptr<EntityWrapper> entity) {
   std::unique_lock lock(_mutex);
 
   if (!entity) {
@@ -32,7 +32,7 @@ void SceneWrapper::removeEntity(const std::shared_ptr<EntityWrapper>& entity) {
   _scene->remove(entity->getEntity());
 }
 
-void SceneWrapper::addAsset(const std::shared_ptr<gltfio::FilamentAsset>& asset) {
+void SceneWrapper::addAsset(std::shared_ptr<gltfio::FilamentAsset> asset) {
   std::unique_lock lock(_mutex);
 
   if (asset == nullptr) {
@@ -43,7 +43,7 @@ void SceneWrapper::addAsset(const std::shared_ptr<gltfio::FilamentAsset>& asset)
   _scene->addEntities(asset->getEntities(), asset->getEntityCount());
 }
 
-void SceneWrapper::removeAsset(const std::shared_ptr<gltfio::FilamentAsset>& asset) {
+void SceneWrapper::removeAsset(std::shared_ptr<gltfio::FilamentAsset> asset) {
   std::unique_lock lock(_mutex);
 
   if (asset == nullptr) {
@@ -57,12 +57,12 @@ void SceneWrapper::removeAsset(const std::shared_ptr<gltfio::FilamentAsset>& ass
   _scene->removeEntities(entities, entityCount);
 }
 
-void SceneWrapper::removeAssetEntities(const std::shared_ptr<FilamentAssetWrapper>& asset) {
+void SceneWrapper::removeAssetEntities(std::shared_ptr<FilamentAssetWrapper> asset) {
   if (asset == nullptr) {
     throw std::invalid_argument("Asset is null");
   }
 
-  const std::shared_ptr<gltfio::FilamentAsset>& filamentAsset = asset->getAsset();
+  std::shared_ptr<gltfio::FilamentAsset> filamentAsset = asset->getAsset();
   if (filamentAsset == nullptr) {
     throw std::invalid_argument("Filament asset is null");
   }
@@ -70,12 +70,12 @@ void SceneWrapper::removeAssetEntities(const std::shared_ptr<FilamentAssetWrappe
   removeAsset(filamentAsset);
 }
 
-void SceneWrapper::addAssetEntities(const std::shared_ptr<FilamentAssetWrapper>& asset) {
+void SceneWrapper::addAssetEntities(std::shared_ptr<FilamentAssetWrapper> asset) {
   if (asset == nullptr) {
     throw std::invalid_argument("Asset is null");
   }
 
-  const std::shared_ptr<gltfio::FilamentAsset>& filamentAsset = asset->getAsset();
+  std::shared_ptr<gltfio::FilamentAsset> filamentAsset = asset->getAsset();
   if (filamentAsset == nullptr) {
     throw std::invalid_argument("Filament asset is null");
   }

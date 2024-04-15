@@ -13,7 +13,7 @@ namespace margelo {
 template <typename T> struct References {
 public:
   using CleanupRefFunction = std::function<void(T* ref)>;
-  using CleanupEngineRefFunction = std::function<void(const std::shared_ptr<filament::Engine>& engine, T* ref)>;
+  using CleanupEngineRefFunction = std::function<void(std::shared_ptr<filament::Engine> engine, T* ref)>;
 
   struct Deleter {
   public:
@@ -43,7 +43,7 @@ public:
    * Same as `adoptRef(T*, CleanupRefFunction)`, but with an additional argument: `Engine`.
    * This is used to clean up children of `Engine`, e.g. via `Engine::destroy(Renderer)`.
    */
-  static std::shared_ptr<T> adoptEngineRef(const std::shared_ptr<filament::Engine>& engine, T* value, CleanupEngineRefFunction&& cleanup) {
+  static std::shared_ptr<T> adoptEngineRef(std::shared_ptr<filament::Engine> engine, T* value, CleanupEngineRefFunction&& cleanup) {
     return adoptRef(value, [engine = engine, cleanup = std::move(cleanup)](T* ref) { cleanup(engine, ref); });
   }
 };
