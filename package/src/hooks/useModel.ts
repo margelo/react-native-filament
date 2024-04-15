@@ -3,6 +3,7 @@ import { AssetProps, useAsset } from './useAsset'
 import { Engine } from '../types'
 import { FilamentAsset } from '../types/FilamentAsset'
 import { FilamentProxy } from '../native/FilamentProxy'
+import { useScene } from './useScene'
 
 interface ModelProps extends AssetProps {
   /**
@@ -99,19 +100,16 @@ export function useModel({
   }, [asset, context, shouldReleaseSourceData])
 
   // Auto add asset to scene:
+  const scene = useScene(engine)
   useEffect(() => {
     if (!autoAddToScene || asset == null) {
       return
     }
 
-    // explicitly don't use the useScene hook here,
-    // so we keep no reference on the scene.
-
     Worklets.createRunInContextFn(() => {
       'worklet'
 
       if (asset == null) return
-      const scene = engine.getScene()
       scene.addAssetEntities(asset)
     }, context)()
 
@@ -120,11 +118,10 @@ export function useModel({
         'worklet'
 
         if (asset == null) return
-        const scene = engine.getScene()
         scene.removeAssetEntities(asset)
       }, context)()
     }
-  }, [autoAddToScene, asset, context, engine])
+  }, [autoAddToScene, asset, context, engine, scene])
 
   // Cleanup native memory when unmounting:
   useEffect(() => {
