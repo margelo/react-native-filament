@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native'
 import * as React from 'react'
-import { useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { Button, ScrollView, StyleSheet, View } from 'react-native'
 import {
   Filament,
@@ -37,15 +37,26 @@ function Renderer({ engine }: { engine: Engine }) {
   const camera = useCamera(engine)
 
   const pengu = useModel({ engine: engine, path: penguModelPath })
+  const penguAsset = getAssetFromModel(pengu)
   const pirateHat = useModel({ engine: engine, path: pirateHatPath })
+  const pirateHatAsset = getAssetFromModel(pirateHat)
   const pirateHatAnimator = useMemo(() => {
-    if (pirateHat.state !== 'loaded' || pengu.state !== 'loaded') {
+    if (pirateHatAsset == null || penguAsset == null) {
       return undefined
     }
-    return pirateHat.asset.createAnimatorWithAnimationsFrom(pengu.asset)
-  }, [pengu, pirateHat])
+    return pirateHatAsset.createAnimatorWithAnimationsFrom(penguAsset)
+  }, [penguAsset, pirateHatAsset])
+  useEffect(() => {
+    return () => {
+      if (pirateHatAnimator != null) {
+        console.log('Releasing pirate hat animator')
+        pirateHatAnimator.release()
+      }
+    }
+  }, [pirateHatAnimator])
+
   const isPirateHatAdded = useRef(true) // assets are added by default to the scene
-  const penguAnimator = useAssetAnimator(getAssetFromModel(pengu))
+  const penguAnimator = useAssetAnimator(penguAsset)
 
   const prevAnimationIndex = useSharedValue<number | undefined>(undefined)
   const prevAnimationStarted = useSharedValue<number | undefined>(undefined)
@@ -59,11 +70,14 @@ function Renderer({ engine }: { engine: Engine }) {
     engine,
     useWorkletCallback(
       (_timestamp, _startTime, passedSeconds) => {
+        'worklet'
+
         const aspectRatio = view.getAspectRatio()
         if (prevAspectRatio.value !== aspectRatio) {
           prevAspectRatio.value = aspectRatio
           // Setup camera lens:
           camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
+          console.log('Setting up camera lens with aspect ratio:', aspectRatio)
         }
 
         camera.lookAt(cameraPosition, cameraTarget, cameraUp)
@@ -101,14 +115,14 @@ function Renderer({ engine }: { engine: Engine }) {
       },
       [
         view,
+        prevAspectRatio,
         camera,
-        pengu,
         pirateHatAnimator,
         penguAnimator,
+        currentAnimationIndex,
         prevAnimationIndex,
         prevAnimationStarted,
         animationInterpolation,
-        currentAnimationIndex,
       ]
     )
   )
