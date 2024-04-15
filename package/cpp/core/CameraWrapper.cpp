@@ -8,7 +8,7 @@ void margelo::CameraWrapper::loadHybridMethods() {
   registerHybridMethod("setProjection", &CameraWrapper::setProjection, this);
 }
 
-void margelo::CameraWrapper::lookAtCameraManipulator(const std::shared_ptr<ManipulatorWrapper>& cameraManipulator) {
+void margelo::CameraWrapper::lookAtCameraManipulator(std::shared_ptr<ManipulatorWrapper> cameraManipulator) {
   if (!cameraManipulator) {
     throw std::invalid_argument("CameraManipulator is null");
   }

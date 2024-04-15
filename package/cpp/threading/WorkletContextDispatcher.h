@@ -18,7 +18,7 @@ using namespace RNWorklet;
 class WorkletContextDispatcher : public Dispatcher {
 
 public:
-  explicit WorkletContextDispatcher(const std::shared_ptr<JsiWorkletContext>& context) : _workletContext(context) {}
+  explicit WorkletContextDispatcher(std::shared_ptr<JsiWorkletContext> context) : _workletContext(context) {}
 
   void runAsync(std::function<void()>&& function) override {
     _workletContext->invokeOnWorkletThread([function = std::move(function)](JsiWorkletContext*, jsi::Runtime&) { function(); });

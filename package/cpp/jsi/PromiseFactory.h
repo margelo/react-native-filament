@@ -17,8 +17,8 @@ namespace margelo {
 
 class DispatcherNativeState : public jsi::NativeState {
 public:
-  explicit DispatcherNativeState(const std::shared_ptr<Dispatcher>& dispatcher) : _dispatcher(dispatcher) {}
-  const std::shared_ptr<Dispatcher>& getDispatcher() {
+  explicit DispatcherNativeState(std::shared_ptr<Dispatcher> dispatcher) : _dispatcher(dispatcher) {}
+  std::shared_ptr<Dispatcher> getDispatcher() {
     return _dispatcher;
   }
 
@@ -28,8 +28,7 @@ private:
 
 class PromiseFactory {
 public:
-  using RunPromise =
-      std::function<void(jsi::Runtime& runtime, const std::shared_ptr<Promise>& promise, const std::shared_ptr<Dispatcher>& dispatcher)>;
+  using RunPromise = std::function<void(jsi::Runtime& runtime, std::shared_ptr<Promise> promise, std::shared_ptr<Dispatcher> dispatcher)>;
 
   /**
    Install the Promise Factory into the given Runtime.
@@ -37,7 +36,7 @@ public:
    For the default JS Context, this can be a CallInvokerDispatcher.
    For a Worklet Context, this can be a WorkletContextDispatcher.
    */
-  static void install(jsi::Runtime& runtime, const std::shared_ptr<Dispatcher>& dispatcher);
+  static void install(jsi::Runtime& runtime, std::shared_ptr<Dispatcher> dispatcher);
 
   /**
    Create a new promise and run the given function.

@@ -22,47 +22,46 @@ class EngineWrapper;
 
 class RenderableManagerWrapper : public HybridObject {
 public:
-  explicit RenderableManagerWrapper(RenderableManager& renderableManager, const std::shared_ptr<TextureProvider>& textureProvider,
-                                    const std::shared_ptr<Engine>& engine)
+  explicit RenderableManagerWrapper(RenderableManager& renderableManager, std::shared_ptr<TextureProvider> textureProvider,
+                                    std::shared_ptr<Engine> engine)
       : HybridObject("RenderableManagerWrapper"), _renderableManager(renderableManager), _textureProvider(textureProvider),
         _engine(engine) {}
 
   void loadHybridMethods() override;
 
 public: // Public API
-  int getPrimitiveCount(const std::shared_ptr<EntityWrapper>& entity);
-  std::shared_ptr<MaterialInstanceWrapper> getMaterialInstanceAt(const std::shared_ptr<EntityWrapper>& entity, int index);
-  void setMaterialInstanceAt(const std::shared_ptr<EntityWrapper>& entity, int index,
-                             const std::shared_ptr<MaterialInstanceWrapper>& materialInstance);
+  int getPrimitiveCount(std::shared_ptr<EntityWrapper> entity);
+  std::shared_ptr<MaterialInstanceWrapper> getMaterialInstanceAt(std::shared_ptr<EntityWrapper> entity, int index);
+  void setMaterialInstanceAt(std::shared_ptr<EntityWrapper> entity, int index, std::shared_ptr<MaterialInstanceWrapper> materialInstance);
 
   /**
    * Convenience method to apply the given opacity to every material of all the asset's entities.
    * Prefer to use this method over `getMaterialInstanceAt` and `setOpacity` for performance reasons.
    */
-  void setAssetEntitiesOpacity(const std::shared_ptr<FilamentAssetWrapper>& asset, double opacity);
+  void setAssetEntitiesOpacity(std::shared_ptr<FilamentAssetWrapper> asset, double opacity);
 
-  void setInstanceWrapperEntitiesOpacity(const std::shared_ptr<FilamentInstanceWrapper>& instanceWrapper, double opacity);
+  void setInstanceWrapperEntitiesOpacity(std::shared_ptr<FilamentInstanceWrapper> instanceWrapper, double opacity);
 
   void setInstanceEntitiesOpacity(FilamentInstance* instance, double opacity);
 
   /**
    * Will select the first material instance from the entity. Will set the baseColorMap parameter to the given textureBuffer.
    */
-  void changeMaterialTextureMap(const std::shared_ptr<EntityWrapper>& entityWrapper, const std::string& materialName,
-                                const std::shared_ptr<FilamentBuffer>& textureBuffer, const std::string& textureFlags = "none");
+  void changeMaterialTextureMap(std::shared_ptr<EntityWrapper> entityWrapper, const std::string& materialName,
+                                std::shared_ptr<FilamentBuffer> textureBuffer, const std::string& textureFlags = "none");
 
-  void setCastShadow(const std::shared_ptr<EntityWrapper>& entityWrapper, bool castShadow);
+  void setCastShadow(std::shared_ptr<EntityWrapper> entityWrapper, bool castShadow);
 
-  void setReceiveShadow(const std::shared_ptr<EntityWrapper>& entityWrapper, bool receiveShadow);
+  void setReceiveShadow(std::shared_ptr<EntityWrapper> entityWrapper, bool receiveShadow);
 
-  std::shared_ptr<EntityWrapper> createPlane(const std::shared_ptr<MaterialWrapper>& materialWrapper, double halfExtendX,
-                                             double halfExtendY, double halfExtendZ);
+  std::shared_ptr<EntityWrapper> createPlane(std::shared_ptr<MaterialWrapper> materialWrapper, double halfExtendX, double halfExtendY,
+                                             double halfExtendZ);
 
   /**
    * Takes an asset, gets the bounding box of all renderable entities and updates the bounding box to be multiplied by the given scale
    * factor.
    */
-  void scaleBoundingBox(const std::shared_ptr<FilamentAssetWrapper>& assetWrapper, double scaleFactor);
+  void scaleBoundingBox(std::shared_ptr<FilamentAssetWrapper> assetWrapper, double scaleFactor);
 
 private:
   // Calls the TextureProvider to start loading the resource

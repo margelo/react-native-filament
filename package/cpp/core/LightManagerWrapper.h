@@ -26,22 +26,22 @@ private: // JS API:
                                                    std::optional<std::vector<double>> position, std::optional<bool> castShadows,
                                                    std::optional<double> falloffRadius, std::optional<std::vector<double>> spotLightCone);
 
-  void destroy(const std::shared_ptr<EntityWrapper>& entityWrapper);
-  void setPosition(const std::shared_ptr<EntityWrapper>& entityWrapper, const std::vector<double>& position);
-  std::vector<double> getPosition(const std::shared_ptr<EntityWrapper>& entityWrapper);
-  void setDirection(const std::shared_ptr<EntityWrapper>& entityWrapper, const std::vector<double>& direction);
-  std::vector<double> getDirection(const std::shared_ptr<EntityWrapper>& entityWrapper);
-  void setColor(const std::shared_ptr<EntityWrapper>& entityWrapper, std::vector<double> color);
-  std::vector<double> getColor(const std::shared_ptr<EntityWrapper>& entityWrapper);
-  void setIntensity(const std::shared_ptr<EntityWrapper>& entityWrapper, double intensity);
-  double getIntensity(const std::shared_ptr<EntityWrapper>& entityWrapper);
-  void setFalloff(const std::shared_ptr<EntityWrapper>& entityWrapper, double falloffRadius);
-  double getFalloff(const std::shared_ptr<EntityWrapper>& entityWrapper);
-  void setSpotLightCone(const std::shared_ptr<EntityWrapper>& entityWrapper, const std::vector<double>& spotLightCone);
-  std::vector<double> getSpotLightCone(const std::shared_ptr<EntityWrapper>& entityWrapper);
+  void destroy(std::shared_ptr<EntityWrapper> entityWrapper);
+  void setPosition(std::shared_ptr<EntityWrapper> entityWrapper, std::vector<double> position);
+  std::vector<double> getPosition(std::shared_ptr<EntityWrapper> entityWrapper);
+  void setDirection(std::shared_ptr<EntityWrapper> entityWrapper, std::vector<double> direction);
+  std::vector<double> getDirection(std::shared_ptr<EntityWrapper> entityWrapper);
+  void setColor(std::shared_ptr<EntityWrapper> entityWrapper, std::vector<double> color);
+  std::vector<double> getColor(std::shared_ptr<EntityWrapper> entityWrapper);
+  void setIntensity(std::shared_ptr<EntityWrapper> entityWrapper, double intensity);
+  double getIntensity(std::shared_ptr<EntityWrapper> entityWrapper);
+  void setFalloff(std::shared_ptr<EntityWrapper> entityWrapper, double falloffRadius);
+  double getFalloff(std::shared_ptr<EntityWrapper> entityWrapper);
+  void setSpotLightCone(std::shared_ptr<EntityWrapper> entityWrapper, std::vector<double> spotLightCone);
+  std::vector<double> getSpotLightCone(std::shared_ptr<EntityWrapper> entityWrapper);
 
 private:
-  LightManager::Instance getLightInstance(const std::shared_ptr<EntityWrapper>& entityWrapper);
+  LightManager::Instance getLightInstance(std::shared_ptr<EntityWrapper> entityWrapper);
 
 private:
   std::mutex _mutex;

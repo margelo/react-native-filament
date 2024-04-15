@@ -76,12 +76,12 @@ std::shared_ptr<EntityWrapper> LightManagerWrapper::createLightEntity(const std:
   return std::make_shared<EntityWrapper>(lightEntity);
 }
 
-void LightManagerWrapper::destroy(const std::shared_ptr<EntityWrapper>& entityWrapper) {
+void LightManagerWrapper::destroy(std::shared_ptr<EntityWrapper> entityWrapper) {
   std::unique_lock lock(_mutex);
   _lightManager.destroy(entityWrapper->getEntity());
 }
 
-LightManager::Instance LightManagerWrapper::getLightInstance(const std::shared_ptr<EntityWrapper>& entityWrapper) {
+LightManager::Instance LightManagerWrapper::getLightInstance(std::shared_ptr<EntityWrapper> entityWrapper) {
   Entity entity = entityWrapper->getEntity();
   LightManager::Instance lightInstance = _lightManager.getInstance(entity);
   if (!lightInstance.isValid()) {
@@ -91,7 +91,7 @@ LightManager::Instance LightManagerWrapper::getLightInstance(const std::shared_p
   return lightInstance;
 }
 
-void LightManagerWrapper::setPosition(const std::shared_ptr<EntityWrapper>& entityWrapper, const std::vector<double>& position) {
+void LightManagerWrapper::setPosition(std::shared_ptr<EntityWrapper> entityWrapper, std::vector<double> position) {
   std::unique_lock lock(_mutex);
   LightManager::Instance lightInstance = getLightInstance(entityWrapper);
 
@@ -99,61 +99,61 @@ void LightManagerWrapper::setPosition(const std::shared_ptr<EntityWrapper>& enti
   _lightManager.setPosition(lightInstance, positionVec);
 }
 
-std::vector<double> LightManagerWrapper::getPosition(const std::shared_ptr<EntityWrapper>& entityWrapper) {
+std::vector<double> LightManagerWrapper::getPosition(std::shared_ptr<EntityWrapper> entityWrapper) {
   LightManager::Instance lightInstance = getLightInstance(entityWrapper);
 
   math::float3 position = _lightManager.getPosition(lightInstance);
   return Converter::Float3ToVec(position);
 }
-void LightManagerWrapper::setDirection(const std::shared_ptr<EntityWrapper>& entityWrapper, const std::vector<double>& direction) {
+void LightManagerWrapper::setDirection(std::shared_ptr<EntityWrapper> entityWrapper, std::vector<double> direction) {
   std::unique_lock lock(_mutex);
   LightManager::Instance lightInstance = getLightInstance(entityWrapper);
 
   math::float3 directionVec = Converter::VecToFloat3(direction);
   _lightManager.setDirection(lightInstance, directionVec);
 }
-std::vector<double> LightManagerWrapper::getDirection(const std::shared_ptr<EntityWrapper>& entityWrapper) {
+std::vector<double> LightManagerWrapper::getDirection(std::shared_ptr<EntityWrapper> entityWrapper) {
   LightManager::Instance lightInstance = getLightInstance(entityWrapper);
 
   math::float3 direction = _lightManager.getDirection(lightInstance);
   return Converter::Float3ToVec(direction);
 }
-void LightManagerWrapper::setColor(const std::shared_ptr<EntityWrapper>& entityWrapper, std::vector<double> color) {
+void LightManagerWrapper::setColor(std::shared_ptr<EntityWrapper> entityWrapper, std::vector<double> color) {
   std::unique_lock lock(_mutex);
   LightManager::Instance lightInstance = getLightInstance(entityWrapper);
 
   math::float3 colorVec = Converter::VecToFloat3(color);
   _lightManager.setColor(lightInstance, colorVec);
 }
-std::vector<double> LightManagerWrapper::getColor(const std::shared_ptr<EntityWrapper>& entityWrapper) {
+std::vector<double> LightManagerWrapper::getColor(std::shared_ptr<EntityWrapper> entityWrapper) {
   LightManager::Instance lightInstance = getLightInstance(entityWrapper);
 
   math::float3 color = _lightManager.getColor(lightInstance);
   return Converter::Float3ToVec(color);
 }
-void LightManagerWrapper::setIntensity(const std::shared_ptr<EntityWrapper>& entityWrapper, double intensity) {
+void LightManagerWrapper::setIntensity(std::shared_ptr<EntityWrapper> entityWrapper, double intensity) {
   std::unique_lock lock(_mutex);
   LightManager::Instance lightInstance = getLightInstance(entityWrapper);
 
   _lightManager.setIntensity(lightInstance, static_cast<float>(intensity));
 }
-double LightManagerWrapper::getIntensity(const std::shared_ptr<EntityWrapper>& entityWrapper) {
+double LightManagerWrapper::getIntensity(std::shared_ptr<EntityWrapper> entityWrapper) {
   LightManager::Instance lightInstance = getLightInstance(entityWrapper);
 
   return _lightManager.getIntensity(lightInstance);
 }
-void LightManagerWrapper::setFalloff(const std::shared_ptr<EntityWrapper>& entityWrapper, double falloffRadius) {
+void LightManagerWrapper::setFalloff(std::shared_ptr<EntityWrapper> entityWrapper, double falloffRadius) {
   std::unique_lock lock(_mutex);
   LightManager::Instance lightInstance = getLightInstance(entityWrapper);
 
   _lightManager.setFalloff(lightInstance, static_cast<float>(falloffRadius));
 }
-double LightManagerWrapper::getFalloff(const std::shared_ptr<EntityWrapper>& entityWrapper) {
+double LightManagerWrapper::getFalloff(std::shared_ptr<EntityWrapper> entityWrapper) {
   LightManager::Instance lightInstance = getLightInstance(entityWrapper);
 
   return static_cast<double>(_lightManager.getFalloff(lightInstance));
 }
-void LightManagerWrapper::setSpotLightCone(const std::shared_ptr<EntityWrapper>& entityWrapper, const std::vector<double>& spotLightCone) {
+void LightManagerWrapper::setSpotLightCone(std::shared_ptr<EntityWrapper> entityWrapper, std::vector<double> spotLightCone) {
   std::unique_lock lock(_mutex);
   LightManager::Instance lightInstance = getLightInstance(entityWrapper);
 
@@ -163,7 +163,7 @@ void LightManagerWrapper::setSpotLightCone(const std::shared_ptr<EntityWrapper>&
 
   _lightManager.setSpotLightCone(lightInstance, spotLightCone[0], spotLightCone[1]);
 }
-std::vector<double> LightManagerWrapper::getSpotLightCone(const std::shared_ptr<EntityWrapper>& entityWrapper) {
+std::vector<double> LightManagerWrapper::getSpotLightCone(std::shared_ptr<EntityWrapper> entityWrapper) {
   LightManager::Instance lightInstance = getLightInstance(entityWrapper);
 
   float innerCone = _lightManager.getSpotLightInnerCone(lightInstance);

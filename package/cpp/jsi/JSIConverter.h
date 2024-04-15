@@ -150,8 +150,8 @@ template <typename TResult> struct JSIConverter<std::future<TResult>> {
   static jsi::Value toJSI(jsi::Runtime& runtime, std::future<TResult>&& arg) {
     auto sharedFuture = std::make_shared<std::future<TResult>>(std::move(arg));
     return PromiseFactory::createPromise(runtime, [sharedFuture = std::move(sharedFuture)](jsi::Runtime& runtime,
-                                                                                           const std::shared_ptr<Promise>& promise,
-                                                                                           const std::shared_ptr<Dispatcher>& dispatcher) {
+                                                                                           std::shared_ptr<Promise> promise,
+                                                                                           std::shared_ptr<Dispatcher> dispatcher) {
       // Spawn new async thread to wait for the result
       std::thread waiterThread([promise, &runtime, dispatcher, sharedFuture = std::move(sharedFuture)]() {
         // wait until the future completes. we are running on a background task here.

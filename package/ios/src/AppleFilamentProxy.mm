@@ -22,7 +22,7 @@
 
 namespace margelo {
 
-AppleFilamentProxy::AppleFilamentProxy(jsi::Runtime* runtime, const std::shared_ptr<react::CallInvoker>& callInvoker)
+AppleFilamentProxy::AppleFilamentProxy(jsi::Runtime* runtime, std::shared_ptr<react::CallInvoker> callInvoker)
     : _runtime(runtime), _callInvoker(callInvoker) {}
 
 AppleFilamentProxy::~AppleFilamentProxy() {
@@ -56,7 +56,7 @@ std::shared_ptr<FilamentBuffer> AppleFilamentProxy::loadAsset(const std::string&
   return std::make_shared<FilamentBuffer>(managedBuffer);
 }
 
-const std::shared_ptr<Dispatcher>& AppleFilamentProxy::getRenderThreadDispatcher() {
+std::shared_ptr<Dispatcher> AppleFilamentProxy::getRenderThreadDispatcher() {
   if (_renderThreadDispatcher == nullptr) {
     // Filament has a strong requirement that you can only render from one single Thread.
     // iOS dispatch_queues may use multiple Threads, so we need to use NSThreadDispatcher instead of
@@ -66,14 +66,14 @@ const std::shared_ptr<Dispatcher>& AppleFilamentProxy::getRenderThreadDispatcher
   return _renderThreadDispatcher;
 }
 
-const std::shared_ptr<Dispatcher>& AppleFilamentProxy::getUIDispatcher() {
+std::shared_ptr<Dispatcher> AppleFilamentProxy::getUIDispatcher() {
   if (_uiDispatcher == nullptr) {
     _uiDispatcher = std::make_shared<AppleDispatcher>(dispatch_get_main_queue());
   }
   return _uiDispatcher;
 }
 
-const std::shared_ptr<Dispatcher>& AppleFilamentProxy::getBackgroundDispatcher() {
+std::shared_ptr<Dispatcher> AppleFilamentProxy::getBackgroundDispatcher() {
   if (_backgroundDispatcher == nullptr) {
     dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_USER_INITIATED, -1);
     dispatch_queue_t queue = dispatch_queue_create("filament.background.queue", qos);
@@ -90,7 +90,7 @@ jsi::Runtime& AppleFilamentProxy::getRuntime() {
   return *_runtime;
 }
 
-const std::shared_ptr<react::CallInvoker>& AppleFilamentProxy::getCallInvoker() {
+std::shared_ptr<react::CallInvoker> AppleFilamentProxy::getCallInvoker() {
   return _callInvoker;
 }
 

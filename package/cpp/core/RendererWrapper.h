@@ -11,11 +11,11 @@ using namespace filament;
 
 class RendererWrapper : public HybridObject {
 public:
-  explicit RendererWrapper(const std::shared_ptr<Renderer>& renderer);
+  explicit RendererWrapper(std::shared_ptr<Renderer> renderer);
 
   void loadHybridMethods() override;
 
-  const std::shared_ptr<Renderer>& getRenderer() {
+  std::shared_ptr<Renderer> getRenderer() {
     return _renderer;
   }
 
@@ -23,8 +23,8 @@ private:
   std::shared_ptr<Renderer> _renderer;
 
 private:
-  __attribute__((hot)) bool beginFrame(const std::shared_ptr<SwapChainWrapper>& swapChain, double frameTimeNanos);
-  __attribute__((hot)) void render(const std::shared_ptr<ViewWrapper>& view);
+  __attribute__((hot)) bool beginFrame(std::shared_ptr<SwapChainWrapper> swapChain, double frameTimeNanos);
+  __attribute__((hot)) void render(std::shared_ptr<ViewWrapper> view);
   __attribute__((hot)) void endFrame();
 };
 
