@@ -30,6 +30,12 @@ void SceneWrapper::removeEntity(std::shared_ptr<EntityWrapper> entity) {
     throw std::invalid_argument("Entity is null");
   }
 
+  if (_scene == nullptr) {
+    Logger::log("SceneWrapper", "Can't remove entity from scene as it was null. This can happen when release() was already called on the "
+                                "scene.\nNote that the scene removes all entities when it is released.");
+    return;
+  }
+
   _scene->remove(entity->getEntity());
 }
 
@@ -52,23 +58,16 @@ void SceneWrapper::removeAsset(std::shared_ptr<gltfio::FilamentAsset> asset) {
     return;
   }
 
+  if (_scene == nullptr) {
+    Logger::log("SceneWrapper", "Can't remove entity from scene as it was null. This can happen when release() was already called on the "
+                                "scene.\nNote that the scene removes all entities when it is released.");
+    return;
+  }
+
   Logger::log("SceneWrapper", "Removing an asset from scene");
   auto entities = asset->getEntities();
   auto entityCount = asset->getEntityCount();
   _scene->removeEntities(entities, entityCount);
-}
-
-void SceneWrapper::removeAssetEntities(std::shared_ptr<FilamentAssetWrapper> asset) {
-  if (asset == nullptr) {
-    throw std::invalid_argument("Asset is null");
-  }
-
-  std::shared_ptr<gltfio::FilamentAsset> filamentAsset = asset->getAsset();
-  if (filamentAsset == nullptr) {
-    throw std::invalid_argument("Filament asset is null");
-  }
-
-  removeAsset(filamentAsset);
 }
 
 void SceneWrapper::addAssetEntities(std::shared_ptr<FilamentAssetWrapper> asset) {
@@ -82,6 +81,25 @@ void SceneWrapper::addAssetEntities(std::shared_ptr<FilamentAssetWrapper> asset)
   }
 
   addAsset(filamentAsset);
+}
+
+void SceneWrapper::removeAssetEntities(std::shared_ptr<FilamentAssetWrapper> asset) {
+  if (asset == nullptr) {
+    throw std::invalid_argument("Asset is null");
+  }
+
+  std::shared_ptr<gltfio::FilamentAsset> filamentAsset = asset->getAsset();
+  if (filamentAsset == nullptr) {
+    throw std::invalid_argument("Filament asset is null");
+  }
+
+  if (_scene == nullptr) {
+    Logger::log("SceneWrapper", "Can't remove entity from scene as it was null. This can happen when release() was already called on the "
+                                "scene.\nNote that the scene removes all entities when it is released.");
+    return;
+  }
+
+  removeAsset(filamentAsset);
 }
 
 int SceneWrapper::getEntityCount() {
