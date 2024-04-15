@@ -219,8 +219,13 @@ void EngineWrapper::setIsPaused(bool isPaused) {
 }
 
 void EngineWrapper::surfaceSizeChanged(int width, int height) {
+  if (width <= 0 || height <= 0) {
+    Logger::log(TAG, "(surfaceSizeChanged) Ignoring invalid surface size: %d x %d", width, height);
+    return;
+  }
+    
   if (_cameraManipulator) {
-    Logger::log(TAG, "Updating viewport size to %d x %d", width, height);
+    Logger::log(TAG, "(surfaceSizeChanged) Updating viewport size to %d x %d", width, height);
     _cameraManipulator->getManipulator()->setViewport(width, height);
   }
   if (_view) {
