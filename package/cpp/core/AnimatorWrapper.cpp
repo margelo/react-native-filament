@@ -13,6 +13,7 @@ void AnimatorWrapper::loadHybridMethods() {
   registerHybridMethod("getAnimationCount", &AnimatorWrapper::getAnimationCount, this);
   registerHybridMethod("getAnimationDuration", &AnimatorWrapper::getAnimationDuration, this);
   registerHybridMethod("getAnimationName", &AnimatorWrapper::getAnimationName, this);
+  registerHybridMethod("release", &AnimatorWrapper::release, this);
 }
 
 Animator* AnimatorWrapper::getAnimator() {
@@ -77,4 +78,13 @@ std::string AnimatorWrapper::getAnimationName(int animationIndex) {
   Animator* animator = getAnimator();
   return animator->getAnimationName(animationIndex);
 }
+
+void AnimatorWrapper::release() {
+  if (_optionalAnimator) {
+    delete _optionalAnimator;
+    _optionalAnimator = nullptr;
+  }
+  _assetRef.reset();
+}
+
 } // namespace margelo

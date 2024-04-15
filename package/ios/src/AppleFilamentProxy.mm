@@ -23,10 +23,7 @@
 namespace margelo {
 
 AppleFilamentProxy::AppleFilamentProxy(jsi::Runtime* runtime, const std::shared_ptr<react::CallInvoker>& callInvoker)
-    : _runtime(runtime), _callInvoker(callInvoker) {
-  // Register main runtime
-  BaseRuntimeAwareCache::setMainJsRuntime(runtime);
-}
+    : _runtime(runtime), _callInvoker(callInvoker) {}
 
 AppleFilamentProxy::~AppleFilamentProxy() {
   // TODO(hanno): cleanup here?

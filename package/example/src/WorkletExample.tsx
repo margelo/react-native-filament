@@ -16,34 +16,46 @@ import {
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { Config } from './config'
+import { getAssetPath } from './utils/getAssetPasth'
 
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',
   ios: 'pengu.glb',
 })!
 
-const coinPath = Platform.select({
-  android: 'custom/coin.glb',
-  ios: 'coin.glb',
-})!
-
-function blockJS(): number {
-  let sum = 0
-  for (let i = 0; i < 1000000000; i++) {
-    sum += i
-  }
-  return sum
-}
-
 function Model({ engine }: { engine: Engine }) {
   useModel({
     engine,
-    path: coinPath,
+    path: getAssetPath('coffeeshop.glb'),
+    autoAddToScene: true,
+  })
+  useModel({
+    engine,
+    path: getAssetPath('coffeeshop_table_level03.glb'),
+    autoAddToScene: true,
+  })
+  useModel({
+    engine,
+    path: getAssetPath('coffeeshop_seating_level03.glb'),
+    autoAddToScene: true,
+  })
+  useModel({
+    engine,
+    path: getAssetPath('coffeeshop_plant_level03.glb'),
+    autoAddToScene: true,
+  })
+  useModel({
+    engine,
+    path: getAssetPath('coffeeshop_machine_level03.glb'),
     autoAddToScene: true,
   })
 
   return null
 }
+
+const cameraPosition: Float3 = [0, 3, 13]
+const cameraTarget: Float3 = [0, 0, 0]
+const cameraUp: Float3 = [0, 1, 0]
 
 function Renderer({ engine }: { engine: Engine }) {
   useDefaultLight(engine)
@@ -73,11 +85,6 @@ function Renderer({ engine }: { engine: Engine }) {
           console.log('Updated camera lens!')
         }
 
-        // Arrays aren't currently copied to the worklet correctly, see:
-        // https://github.com/margelo/react-native-worklets-core/pull/147
-        const cameraPosition: Float3 = [0, 0, 8]
-        const cameraTarget: Float3 = [0, 0, 0]
-        const cameraUp: Float3 = [0, 1, 0]
         camera.lookAt(cameraPosition, cameraTarget, cameraUp)
 
         if (assetAnimator == null) {
@@ -103,7 +110,7 @@ function Renderer({ engine }: { engine: Engine }) {
           // setShowItem((prev) => !prev)
           setInterval(() => {
             setShowItem((prev) => !prev)
-          }, 16)
+          }, 100)
         }}
       />
     </SafeAreaView>

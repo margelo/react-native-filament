@@ -46,6 +46,7 @@ private: // Public API functions:
   }
 
   std::optional<std::shared_ptr<EntityWrapper>> getFirstEntityByName(const std::string& name);
+  void release();
 
   // Convenience method to get the first instance
   std::shared_ptr<FilamentInstanceWrapper> getInstance();

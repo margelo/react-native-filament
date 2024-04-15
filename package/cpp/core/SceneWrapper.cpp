@@ -47,7 +47,7 @@ void SceneWrapper::removeAsset(const std::shared_ptr<gltfio::FilamentAsset>& ass
   std::unique_lock lock(_mutex);
 
   if (asset == nullptr) {
-    Logger::log("SceneWrapper", "Can't remove asset an asset from scene as it was null.");
+    Logger::log("SceneWrapper", "Can't remove an asset from scene as it was null.");
     return;
   }
 

@@ -31,24 +31,6 @@ struct RuntimeLifecycleMonitor {
   static void removeListener(jsi::Runtime& rt, RuntimeLifecycleListener* listener);
 };
 
-class BaseRuntimeAwareCache {
-public:
-  static void setMainJsRuntime(jsi::Runtime* rt) {
-    _mainRuntime = rt;
-  }
-
-protected:
-  static jsi::Runtime* getMainJsRuntime() {
-    assert(_mainRuntime != nullptr && "Expected main Javascript runtime to be set in the "
-                                      "BaseRuntimeAwareCache class.");
-
-    return _mainRuntime;
-  }
-
-private:
-  static inline jsi::Runtime* _mainRuntime;
-};
-
 /**
  * Provides a way to keep data specific to a jsi::Runtime instance that gets
  * cleaned up when that runtime is destroyed. This is necessary because JSI does
@@ -70,49 +52,36 @@ private:
  * runtime is in use. Specifically, we don't perform any additional operations
  * related to tracking runtime lifecycle when only a single runtime is used.
  */
-template <typename T> class RuntimeAwareCache : public BaseRuntimeAwareCache, public RuntimeLifecycleListener {
+template <typename T> class RuntimeAwareCache : public RuntimeLifecycleListener {
 
 public:
   void onRuntimeDestroyed(jsi::Runtime* rt) override {
-    if (getMainJsRuntime() != rt) {
-      // We are removing a secondary runtime
-      _secondaryRuntimeCaches.erase(rt);
-    }
+    // A runtime has been destroyed, so destroy the related cache.
+    _runtimeCaches.erase(rt);
   }
 
   ~RuntimeAwareCache() {
-    for (auto& cache : _secondaryRuntimeCaches) {
-      RuntimeLifecycleMonitor::removeListener(*static_cast<jsi::Runtime*>(cache.first), this);
+    for (auto& cache : _runtimeCaches) {
+      // remove all `onRuntimeDestroyed` listeners.
+      RuntimeLifecycleMonitor::removeListener(*cache.first, this);
     }
   }
 
   T& get(jsi::Runtime& rt) {
-    // We check if we're accessing the main runtime - this is the happy path
-    // to avoid us having to lookup by runtime for caches that only has a single
-    // runtime
-    if (getMainJsRuntime() == &rt) {
-      return _primaryCache;
-    } else {
-      if (_secondaryRuntimeCaches.count(&rt) == 0) {
-        // we only add listener when the secondary runtime is used, this assumes
-        // that the secondary runtime is terminated first. This lets us avoid
-        // additional complexity for the majority of cases when objects are not
-        // shared between runtimes. Otherwise we'd have to register all objecrts
-        // with the RuntimeMonitor as opposed to only registering ones that are
-        // used in secondary runtime. Note that we can't register listener here
-        // with the primary runtime as it may run on a separate thread.
-        RuntimeLifecycleMonitor::addListener(rt, this);
+    if (_runtimeCaches.count(&rt) == 0) {
+      // This is the first time this Runtime has been accessed.
+      // We set up a `onRuntimeDestroyed` listener for it and
+      // initialize the cache map.
+      RuntimeLifecycleMonitor::addListener(rt, this);
 
-        T cache;
-        _secondaryRuntimeCaches.emplace(&rt, std::move(cache));
-      }
+      T cache;
+      _runtimeCaches.emplace(&rt, std::move(cache));
     }
-    return _secondaryRuntimeCaches.at(&rt);
+    return _runtimeCaches.at(&rt);
   }
 
 private:
-  std::unordered_map<void*, T> _secondaryRuntimeCaches;
-  T _primaryCache;
+  std::unordered_map<jsi::Runtime*, T> _runtimeCaches;
 };
 
 } // namespace margelo

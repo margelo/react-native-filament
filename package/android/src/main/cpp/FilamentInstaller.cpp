@@ -19,9 +19,6 @@ void FilamentInstaller::install(jni::alias_ref<jni::JClass> clazz, jni::alias_re
   // PromiseFactory
   std::shared_ptr<Dispatcher> jsDispatcher = std::make_shared<CallInvokerDispatcher>(callInvoker);
   margelo::PromiseFactory::install(runtime, jsDispatcher);
-
-  // Register main runtime
-  BaseRuntimeAwareCache::setMainJsRuntime(&runtime);
 }
 
 void FilamentInstaller::registerNatives() {

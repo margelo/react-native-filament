@@ -65,4 +65,12 @@ export interface FilamentAsset {
    * List will only be greater than 1 if the asset was loaded with loadInstancedAsset.
    */
   getAssetInstances(): FilamentInstance[]
+
+  /**
+   * Helper method to release all memory associated with the asset.
+   * Only call this whn the asset is not going to be used anywhere in JS any longer.
+   * Calling this will automatically remove it from the scene its in.
+   * @note The memory will only be fully released if all animators you may have created from this asset are also released.
+   */
+  release(): void
 }

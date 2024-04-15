@@ -27,6 +27,12 @@ interface ModelProps extends AssetProps {
    * @default 1
    */
   instanceCount?: number
+
+  /**
+   * Whether to cleanup the native memory associated with the asset when the component unmounts.
+   * @default true
+   */
+  cleanupOnUnmount?: boolean
 }
 
 /**
@@ -50,7 +56,14 @@ export type FilamentModel =
  * const pengu = useModel({ engine: engine, path: PENGU_PATH })
  * ```
  */
-export function useModel({ path, engine, shouldReleaseSourceData, autoAddToScene = true, instanceCount }: ModelProps): FilamentModel {
+export function useModel({
+  path,
+  engine,
+  shouldReleaseSourceData,
+  autoAddToScene = true,
+  instanceCount,
+  cleanupOnUnmount = true,
+}: ModelProps): FilamentModel {
   const assetBuffer = useAsset({ path: path })
   const [asset, setAsset] = useState<FilamentAsset | undefined>(undefined)
   const context = useMemo(() => FilamentProxy.getWorkletContext(), [])
@@ -108,15 +121,22 @@ export function useModel({ path, engine, shouldReleaseSourceData, autoAddToScene
         scene.removeAssetEntities(asset)
       }, context)()
     }
-  }, [autoAddToScene, asset, scene, context])
+  }, [autoAddToScene, asset, context, engine, scene])
 
-  // Cleanup asset buffer when unmounting:
+  // Cleanup native memory when unmounting:
   useEffect(() => {
+    if (!cleanupOnUnmount) return
     return () => {
-      if (assetBuffer == null) return
-      assetBuffer.release()
+      assetBuffer?.release()
     }
-  }, [assetBuffer])
+  }, [cleanupOnUnmount, assetBuffer])
+  // Release native memory when the component unmounts
+  useEffect(() => {
+    if (!cleanupOnUnmount) return
+    return () => {
+      asset?.release()
+    }
+  }, [cleanupOnUnmount, asset])
 
   if (assetBuffer == null || asset == null) {
     return {

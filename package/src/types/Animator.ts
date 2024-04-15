@@ -63,4 +63,10 @@ export interface Animator {
    * empty string if none was specified.
    */
   getAnimationName(animIndex: number): string
+
+  /**
+   * If your animator has been created with by a specific asset using {@linkcode FilamentAsset.createAnimatorWithAnimationsFrom}
+   * the memory used for the animations will be released.
+   */
+  release(): void
 }
