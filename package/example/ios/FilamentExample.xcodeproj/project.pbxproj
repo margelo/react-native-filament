@@ -27,10 +27,10 @@
 		94671BF6DAD54DF8A7B842C3 /* pirate.glb in Resources */ = {isa = PBXBuildFile; fileRef = 034C2E5BF6EE449290528E8D /* pirate.glb */; };
 		9D9B37A8229643988DE97B73 /* chair.glb in Resources */ = {isa = PBXBuildFile; fileRef = C4E5AB69D2B94D53A2EE3F93 /* chair.glb */; };
 		BDF34253C8964E78A0DCEAD2 /* eye_full_texture_right_blue.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 70AE03ED5F1844C6832C78BC /* eye_full_texture_right_blue.jpg */; };
-		C9D96BF6335F42C0A265B183 /* TransparentShadowMaterial.matc in Resources */ = {isa = PBXBuildFile; fileRef = 0409EC28377B45A494FCD7A6 /* TransparentShadowMaterial.matc */; };
 		CAE021851F0B458C8FEDBDB2 /* coffeeshop.glb in Resources */ = {isa = PBXBuildFile; fileRef = 0E1B8E3B9AD84C5B9C12AAF4 /* coffeeshop.glb */; };
 		EF29AEC075E640C192A497A0 /* coffeeshop_table_level03.glb in Resources */ = {isa = PBXBuildFile; fileRef = 41C4E371FA24472DA3029636 /* coffeeshop_table_level03.glb */; };
 		FFD6B311C32A4A2580B289D7 /* default_env_skybox.ktx in Resources */ = {isa = PBXBuildFile; fileRef = A947E59D16164B19982D8EC8 /* default_env_skybox.ktx */; };
+		A1195F5DAB4F4E858677036C /* TransparentShadowMaterial.matc in Resources */ = {isa = PBXBuildFile; fileRef = 121271ECACE144359ABFC45E /* TransparentShadowMaterial.matc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,7 +48,6 @@
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* FilamentExampleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FilamentExampleTests.m; sourceTree = "<group>"; };
 		034C2E5BF6EE449290528E8D /* pirate.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = pirate.glb; path = ../assets/pirate.glb; sourceTree = "<group>"; };
-		0409EC28377B45A494FCD7A6 /* TransparentShadowMaterial.matc */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = TransparentShadowMaterial.matc; path = ../assets/TransparentShadowMaterial.matc; sourceTree = "<group>"; };
 		0E1B8E3B9AD84C5B9C12AAF4 /* coffeeshop.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = coffeeshop.glb; path = ../assets/coffeeshop.glb; sourceTree = "<group>"; };
 		134904F01F7041DFA331FD27 /* eye_full_texture_left_blue.jpg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = eye_full_texture_left_blue.jpg; path = ../assets/eye_full_texture_left_blue.jpg; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* FilamentExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FilamentExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -78,6 +77,7 @@
 		C4E5AB69D2B94D53A2EE3F93 /* chair.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = chair.glb; path = ../assets/chair.glb; sourceTree = "<group>"; };
 		E06B8A4FBFD44344BC0C2248 /* coffeeshop_machine_level03.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = coffeeshop_machine_level03.glb; path = ../assets/coffeeshop_machine_level03.glb; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		121271ECACE144359ABFC45E /* TransparentShadowMaterial.matc */ = {isa = PBXFileReference; name = "TransparentShadowMaterial.matc"; path = "../assets/TransparentShadowMaterial.matc"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -185,13 +185,13 @@
 				A947E59D16164B19982D8EC8 /* default_env_skybox.ktx */,
 				9241FD2E35834E6CBD6537B9 /* box.glb */,
 				3BB2032A44844768B124B936 /* TransparentShadowMaterial.mat */,
-				0409EC28377B45A494FCD7A6 /* TransparentShadowMaterial.matc */,
 				2AA4B0B6F62641A797E627AD /* coin.glb */,
 				0E1B8E3B9AD84C5B9C12AAF4 /* coffeeshop.glb */,
 				E06B8A4FBFD44344BC0C2248 /* coffeeshop_machine_level03.glb */,
 				1780677BE48D41E894B8837F /* coffeeshop_plant_level03.glb */,
 				522DEB41EC874A35A439C833 /* coffeeshop_seating_level03.glb */,
 				41C4E371FA24472DA3029636 /* coffeeshop_table_level03.glb */,
+				121271ECACE144359ABFC45E /* TransparentShadowMaterial.matc */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -312,13 +312,13 @@
 				FFD6B311C32A4A2580B289D7 /* default_env_skybox.ktx in Resources */,
 				279D0EC5EF2A4391BD041C64 /* box.glb in Resources */,
 				110E79106D01479997CC6BA9 /* TransparentShadowMaterial.mat in Resources */,
-				C9D96BF6335F42C0A265B183 /* TransparentShadowMaterial.matc in Resources */,
 				5E98C72EE19242D6A0DF2197 /* coin.glb in Resources */,
 				CAE021851F0B458C8FEDBDB2 /* coffeeshop.glb in Resources */,
 				5C03C9AB1EDD449EB8DCD997 /* coffeeshop_machine_level03.glb in Resources */,
 				528C81FF39B74300851828B7 /* coffeeshop_plant_level03.glb in Resources */,
 				343E4A420AF7440ABE4350BB /* coffeeshop_seating_level03.glb in Resources */,
 				EF29AEC075E640C192A497A0 /* coffeeshop_table_level03.glb in Resources */,
+				A1195F5DAB4F4E858677036C /* TransparentShadowMaterial.matc in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -18,6 +18,9 @@ import {
   getAssetFromModel,
   useConfigureAssetShadow,
   useAmbientOcclusionOptions,
+  Material,
+  runOnWorklet,
+  Entity,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
@@ -49,28 +52,37 @@ function Renderer({ engine }: { engine: Engine }) {
 
   //#region Setup shadow plane
   const shadowMaterialBuffer = useAsset({ path: shadowMaterialPath })
-  const shadowMaterial = React.useMemo(() => {
+  const [shadowMaterial, setShadowMaterial] = React.useState<Material | undefined>(undefined)
+  React.useEffect(() => {
     if (shadowMaterialBuffer == null) return undefined
 
-    const material = engine.createMaterial(shadowMaterialBuffer)
-    material.setDefaultParameter('strength', 0.2)
-    return material
+    runOnWorklet(() => {
+      'worklet'
+      const material = engine.createMaterial(shadowMaterialBuffer)
+      material.setDefaultParameter('strength', 0.2)
+      return material
+    })().then(setShadowMaterial)
   }, [engine, shadowMaterialBuffer])
 
   // Create Shadow plane
-  const shadowPlane = React.useMemo(() => {
+  const [shadowPlane, setShadowPlane] = React.useState<Entity | undefined>(undefined)
+  React.useEffect(() => {
     if (shadowMaterial == null) return undefined
 
-    const entity = renderableManager.createPlane(shadowMaterial, 10, 0.0001, 10)
-    renderableManager.setReceiveShadow(entity, true)
-    // Note: Why is cast shadow here, it just needs to receive a shadow?!
-    // Right now there seems to be a bug in filament, which would cause the shadow of the animated Pengu to be cut!
-    // One solution would be to manually correct the bounding box when using the animator (because it seems like the bounding box isn't correctly
-    // updated when using the animator). But, if the plane also casts a shadow, the shadow calculation extends to the bounding box of the plane,
-    // thus fixing the cut shadow of the animated Pengu. The plane will never actually cast a shadow, as its using a transparent material.
-    renderableManager.setCastShadow(entity, true)
-    return entity
+    runOnWorklet(() => {
+      'worklet'
+      const entity = renderableManager.createPlane(shadowMaterial, 10, 0.0001, 10)
+      renderableManager.setReceiveShadow(entity, true)
+      // Note: Why is cast shadow here, it just needs to receive a shadow?!
+      // Right now there seems to be a bug in filament, which would cause the shadow of the animated Pengu to be cut!
+      // One solution would be to manually correct the bounding box when using the animator (because it seems like the bounding box isn't correctly
+      // updated when using the animator). But, if the plane also casts a shadow, the shadow calculation extends to the bounding box of the plane,
+      // thus fixing the cut shadow of the animated Pengu. The plane will never actually cast a shadow, as its using a transparent material.
+      renderableManager.setCastShadow(entity, true)
+      return entity
+    })().then(setShadowPlane)
   }, [renderableManager, shadowMaterial])
+
   useEffect(() => {
     if (shadowPlane == null) return
 
