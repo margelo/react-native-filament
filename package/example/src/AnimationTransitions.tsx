@@ -33,6 +33,7 @@ const far = 1000
 const animationInterpolationTime = 5
 
 function Renderer({ engine }: { engine: Engine }) {
+  useDefaultLight(engine)
   const view = useView(engine)
   const camera = useCamera(engine)
 
@@ -62,8 +63,6 @@ function Renderer({ engine }: { engine: Engine }) {
   const prevAnimationStarted = useSharedValue<number | undefined>(undefined)
   const animationInterpolation = useSharedValue(0)
   const currentAnimationIndex = useSharedValue(0)
-
-  useDefaultLight(engine)
 
   const prevAspectRatio = useSharedValue(0)
   useRenderCallback(
