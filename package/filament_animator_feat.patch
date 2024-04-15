@@ -33,10 +33,21 @@ index 199555a40..9111df050 100644
      Animator(const Animator& animator) = delete;
      Animator(Animator&& animator) = delete;
 diff --git a/libs/gltfio/src/Animator.cpp b/libs/gltfio/src/Animator.cpp
-index 99a4269d0..dd8825d28 100644
+index 6e53b705c..5866106b6 100644
 --- a/libs/gltfio/src/Animator.cpp
 +++ b/libs/gltfio/src/Animator.cpp
-@@ -238,6 +238,9 @@ Animator::Animator(FFilamentAsset const* asset, FFilamentInstance* instance) {
+@@ -206,6 +206,10 @@ Animator::Animator(FFilamentAsset const* asset, FFilamentInstance* instance) {
+ 
+     // Loop over the glTF animation definitions.
+     mImpl->animations.resize(srcAsset->animations_count);
++    // Note: doesn't work, you can only resize the vector to a smaller size
++    // if (instance) {
++    //     instance->mNodeMap.resize(srcAsset->nodes_count);
++    // }
+     for (cgltf_size i = 0, len = srcAsset->animations_count; i < len; ++i) {
+         const cgltf_animation& srcAnim = srcAnims[i];
+         Animation& dstAnim = mImpl->animations[i];
+@@ -238,6 +242,9 @@ Animator::Animator(FFilamentAsset const* asset, FFilamentInstance* instance) {
      }
  }
  
@@ -46,3 +57,16 @@ index 99a4269d0..dd8825d28 100644
  void Animator::applyCrossFade(size_t previousAnimIndex, float previousAnimTime, float alpha) {
      mImpl->stashCrossFade();
      applyAnimation(previousAnimIndex, previousAnimTime);
+@@ -408,7 +415,11 @@ void AnimatorImpl::addChannels(const FixedCapacityVector<Entity>& nodeMap,
+     const Sampler* samplers = dst.samplers.data();
+     for (cgltf_size j = 0, nchans = srcAnim.channels_count; j < nchans; ++j) {
+         const cgltf_animation_channel& srcChannel = srcChannels[j];
+-        Entity targetEntity = nodeMap[srcChannel.target_node - nodes];
++        long position = srcChannel.target_node - nodes;
++        Entity targetEntity;
++        if (UTILS_LIKELY(position < nodeMap.size())) { // avoid assert error on debug
++            targetEntity = nodeMap[position];
++        }
+         if (UTILS_UNLIKELY(!targetEntity)) {
+             if (GLTFIO_VERBOSE) {
+                 slog.w << "No scene root contains node ";
