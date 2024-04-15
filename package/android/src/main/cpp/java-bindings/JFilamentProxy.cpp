@@ -16,7 +16,7 @@ namespace margelo {
 using namespace facebook;
 
 JFilamentProxy::JFilamentProxy(const jni::alias_ref<JFilamentProxy::jhybridobject>& javaThis, jsi::Runtime* runtime,
-                               const std::shared_ptr<facebook::react::CallInvoker>& callInvoker)
+                               std::shared_ptr<facebook::react::CallInvoker> callInvoker)
     : _javaPart(make_global(javaThis)), _runtime(runtime), _callInvoker(callInvoker) {}
 
 JFilamentProxy::~JFilamentProxy() = default;
@@ -44,7 +44,7 @@ std::shared_ptr<Choreographer> JFilamentProxy::createChoreographer() {
   return std::static_pointer_cast<Choreographer>(sharedRef);
 }
 
-const std::shared_ptr<Dispatcher>& JFilamentProxy::getRenderThreadDispatcher() {
+std::shared_ptr<Dispatcher> JFilamentProxy::getRenderThreadDispatcher() {
   if (_renderThreadDispatcher == nullptr) {
     static const auto method = javaClassLocal()->getMethod<jni::alias_ref<JDispatcher::javaobject>()>("getRenderThreadDispatcher");
     jni::local_ref<JDispatcher::javaobject> dispatcher = method(_javaPart);
@@ -54,7 +54,7 @@ const std::shared_ptr<Dispatcher>& JFilamentProxy::getRenderThreadDispatcher() {
   return _renderThreadDispatcher;
 }
 
-const std::shared_ptr<Dispatcher>& JFilamentProxy::getUIDispatcher() {
+std::shared_ptr<Dispatcher> JFilamentProxy::getUIDispatcher() {
   if (_uiDispatcher == nullptr) {
     static const auto method = javaClassLocal()->getMethod<jni::alias_ref<JDispatcher::javaobject>()>("getUIDispatcher");
     jni::local_ref<JDispatcher::javaobject> dispatcher = method(_javaPart);
@@ -64,7 +64,7 @@ const std::shared_ptr<Dispatcher>& JFilamentProxy::getUIDispatcher() {
   return _uiDispatcher;
 }
 
-const std::shared_ptr<Dispatcher>& JFilamentProxy::getBackgroundDispatcher() {
+std::shared_ptr<Dispatcher> JFilamentProxy::getBackgroundDispatcher() {
   if (_backgroundDispatcher == nullptr) {
     static const auto method = javaClassLocal()->getMethod<jni::alias_ref<JDispatcher::javaobject>()>("getBackgroundDispatcher");
     jni::local_ref<JDispatcher::javaobject> dispatcher = method(_javaPart);
@@ -82,7 +82,7 @@ jsi::Runtime& JFilamentProxy::getRuntime() {
   return *_runtime;
 }
 
-const std::shared_ptr<react::CallInvoker>& JFilamentProxy::getCallInvoker() {
+std::shared_ptr<react::CallInvoker> JFilamentProxy::getCallInvoker() {
   return _callInvoker;
 }
 

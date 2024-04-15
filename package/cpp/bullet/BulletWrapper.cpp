@@ -23,7 +23,7 @@ std::shared_ptr<DiscreteDynamicWorldWrapper> BulletWrapper::createDiscreteDynami
 }
 
 std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBody(double mass, double x, double y, double z,
-                                                                 const std::shared_ptr<ShapeWrapper>& shape, std::string id,
+                                                                 std::shared_ptr<ShapeWrapper> shape, std::string id,
                                                                  std::optional<CollisionCallback> collisionCallback) {
   // Don't pass the shape wrapper, but the shape itself
   const auto& shapePtr = shape->getShape();
@@ -34,9 +34,8 @@ std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBody(double mass, do
   return RigidBodyWrapper::create(mass, x, y, z, shapePtr, id, collisionCallback);
 }
 
-std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBodyFromTransform(double mass,
-                                                                              const std::shared_ptr<TMat44Wrapper>& entityTransform,
-                                                                              const std::shared_ptr<ShapeWrapper>& shape, std::string id,
+std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBodyFromTransform(double mass, std::shared_ptr<TMat44Wrapper> entityTransform,
+                                                                              std::shared_ptr<ShapeWrapper> shape, std::string id,
                                                                               std::optional<CollisionCallback> collisionCallback) {
   const auto& shapePtr = shape->getShape();
   if (shapePtr == nullptr) {

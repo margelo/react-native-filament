@@ -10,7 +10,7 @@
 
 namespace margelo {
 
-void PromiseFactory::install(jsi::Runtime& runtime, const std::shared_ptr<Dispatcher>& dispatcher) {
+void PromiseFactory::install(jsi::Runtime& runtime, std::shared_ptr<Dispatcher> dispatcher) {
   Logger::log(TAG, "Installing global PromiseFactory bindings...");
 
   jsi::Object dispatcherHolder(runtime);
@@ -42,10 +42,9 @@ jsi::Value PromiseFactory::createPromise(jsi::Runtime& runtime, RunPromise&& run
 #endif
   std::shared_ptr<DispatcherNativeState> dispatcherState = callInvokerHolder.getNativeState<DispatcherNativeState>(runtime);
 
-  return Promise::createPromise(runtime,
-                                [dispatcherState, run = std::move(run)](jsi::Runtime& runtime, const std::shared_ptr<Promise>& promise) {
-                                  run(runtime, promise, dispatcherState->getDispatcher());
-                                });
+  return Promise::createPromise(runtime, [dispatcherState, run = std::move(run)](jsi::Runtime& runtime, std::shared_ptr<Promise> promise) {
+    run(runtime, promise, dispatcherState->getDispatcher());
+  });
 }
 
 } // namespace margelo

@@ -28,12 +28,12 @@ public:
   std::shared_ptr<FilamentBuffer> loadAsset(const std::string& path);
   std::shared_ptr<FilamentView> findFilamentView(int id);
   std::shared_ptr<Choreographer> createChoreographer();
-  const std::shared_ptr<Dispatcher>& getRenderThreadDispatcher();
-  const std::shared_ptr<Dispatcher>& getUIDispatcher();
-  const std::shared_ptr<Dispatcher>& getBackgroundDispatcher();
+  std::shared_ptr<Dispatcher> getRenderThreadDispatcher();
+  std::shared_ptr<Dispatcher> getUIDispatcher();
+  std::shared_ptr<Dispatcher> getBackgroundDispatcher();
 
   jsi::Runtime& getRuntime();
-  const std::shared_ptr<react::CallInvoker>& getCallInvoker();
+  std::shared_ptr<react::CallInvoker> getCallInvoker();
 
 private:
   friend HybridBase;
@@ -50,7 +50,7 @@ private:
 
 private:
   explicit JFilamentProxy(const jni::alias_ref<JFilamentProxy::jhybridobject>& javaThis, jsi::Runtime* jsRuntime,
-                          const std::shared_ptr<facebook::react::CallInvoker>& jsCallInvoker);
+                          std::shared_ptr<facebook::react::CallInvoker> jsCallInvoker);
   static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> javaThis, jlong jsRuntimePointer,
                                                 jni::alias_ref<facebook::react::CallInvokerHolder::javaobject> jsCallInvokerHolder);
 };

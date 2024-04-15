@@ -30,19 +30,19 @@ std::shared_ptr<Choreographer> AndroidFilamentProxy::createChoreographer() {
   return _proxy->cthis()->createChoreographer();
 }
 
-const std::shared_ptr<react::CallInvoker>& AndroidFilamentProxy::getCallInvoker() {
+std::shared_ptr<react::CallInvoker> AndroidFilamentProxy::getCallInvoker() {
   return _proxy->cthis()->getCallInvoker();
 }
 
-const std::shared_ptr<Dispatcher>& AndroidFilamentProxy::getRenderThreadDispatcher() {
+std::shared_ptr<Dispatcher> AndroidFilamentProxy::getRenderThreadDispatcher() {
   return _proxy->cthis()->getRenderThreadDispatcher();
 }
 
-const std::shared_ptr<Dispatcher>& AndroidFilamentProxy::getUIDispatcher() {
+std::shared_ptr<Dispatcher> AndroidFilamentProxy::getUIDispatcher() {
   return _proxy->cthis()->getUIDispatcher();
 }
 
-const std::shared_ptr<Dispatcher>& AndroidFilamentProxy::getBackgroundDispatcher() {
+std::shared_ptr<Dispatcher> AndroidFilamentProxy::getBackgroundDispatcher() {
   return _proxy->cthis()->getBackgroundDispatcher();
 }
 

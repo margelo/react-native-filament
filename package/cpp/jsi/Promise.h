@@ -23,7 +23,7 @@ private:
   jsi::Function _rejecter;
 
 public:
-  using RunPromise = std::function<void(jsi::Runtime& runtime, const std::shared_ptr<Promise>& promise)>;
+  using RunPromise = std::function<void(jsi::Runtime& runtime, std::shared_ptr<Promise> promise)>;
   /**
    Create a new Promise and runs the given `run` function.
    */
