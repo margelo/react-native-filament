@@ -19,6 +19,8 @@ public:
     return _renderer;
   }
 
+  void release();
+
 private:
   std::shared_ptr<Renderer> _renderer;
 

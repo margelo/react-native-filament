@@ -92,4 +92,9 @@ export interface LightManager {
    */
   setSpotLightCone(entityWrapper: Entity, spotLightCone: [innerRadians: number, outerRadians: number]): void
   getSpotLightCone(entityWrapper: Entity): Float3[]
+
+  /**
+   * Internal method to release memory. You shouldn't need to call this manually!
+   **/
+  release(): void
 }

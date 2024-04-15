@@ -50,4 +50,9 @@ export interface Scene {
    * Returns the number of entities in the scene.
    */
   readonly entityCount: number
+
+  /**
+   * Internal method to release memory. You shouldn't need to call this manually!
+   */
+  release(): void
 }

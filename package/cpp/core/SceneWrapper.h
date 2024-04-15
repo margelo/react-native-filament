@@ -24,6 +24,7 @@ public:
 
   void addAsset(std::shared_ptr<gltfio::FilamentAsset> asset);
   void removeAsset(std::shared_ptr<gltfio::FilamentAsset> asset);
+  void release();
 
 private:
   std::mutex _mutex;

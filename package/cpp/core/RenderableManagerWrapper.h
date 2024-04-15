@@ -28,6 +28,7 @@ public:
         _engine(engine) {}
 
   void loadHybridMethods() override;
+  void release();
 
 public: // Public API
   int getPrimitiveCount(std::shared_ptr<EntityWrapper> entity);

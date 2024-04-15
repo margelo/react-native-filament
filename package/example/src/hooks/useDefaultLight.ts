@@ -16,6 +16,7 @@ export function useDefaultLight(engine: Engine, enableDirectionalLight = true) {
 
     if (lightBuffer == null) return
     engine.setIndirectLight(lightBuffer, 25_000, undefined)
+    lightBuffer.release()
   }, [engine, lightBuffer, scene])
 
   const directionalLight = useLightEntity(lightManager, {
@@ -26,5 +27,6 @@ export function useDefaultLight(engine: Engine, enableDirectionalLight = true) {
     intensity: enableDirectionalLight ? 10_000 : 0,
     position: [0, 0, 0],
   })
-  useEntityInScene(scene, directionalLight)
+  // TODO: fix SceneWrapper to be forgiving when the scene internally is already deleted
+  // useEntityInScene(scene, directionalLight)
 }

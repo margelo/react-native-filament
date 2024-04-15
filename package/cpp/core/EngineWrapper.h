@@ -106,6 +106,8 @@ private:
   std::shared_ptr<Listener> _choreographerListener;
   double _startTime = 0;
   bool _isPaused = false;
+  // Keep a list of pointers to indirect lights we need to delete when releasing the engine
+  std::vector<IndirectLight*> _indirectLights;
 
   // Internals that we might need to split out later
   std::shared_ptr<gltfio::MaterialProvider> _materialProvider;

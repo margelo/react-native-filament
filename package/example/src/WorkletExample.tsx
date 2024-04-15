@@ -110,7 +110,7 @@ function Renderer({ engine }: { engine: Engine }) {
           // setShowItem((prev) => !prev)
           setInterval(() => {
             setShowItem((prev) => !prev)
-          }, 100)
+          }, 250)
         }}
       />
     </SafeAreaView>

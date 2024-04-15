@@ -89,4 +89,9 @@ export interface RenderableManager {
    * The bounding box doesn't seem to be updated to reflect this transformation. And the shadow is calculated the bounding box, which causes the shadow to appear clipped.
    */
   scaleBoundingBox(asset: FilamentAsset, scale: number): void
+
+  /**
+   * Internal method to release memory. You shouldn't need to call this manually!
+   */
+  release(): void
 }

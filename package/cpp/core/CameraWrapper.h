@@ -18,6 +18,8 @@ public:
     return _camera;
   }
 
+  void release();
+
 private:
   std::shared_ptr<Camera> _camera;
 
