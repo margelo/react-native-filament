@@ -13,6 +13,8 @@ export interface AssetProps {
  * Asynchronously load an asset from the given web URL, local file path, or resource ID.
  */
 export function useAsset({ path }: AssetProps): Asset | undefined {
+  // Reset the asset buffer when fast refreshing (as a useEffect might call .release())
+  // @refresh reset
   const [asset, setAsset] = useState<Asset>()
 
   useEffect(() => {

@@ -1,24 +1,26 @@
 import { useNavigation } from '@react-navigation/native'
 import * as React from 'react'
 import { useEffect, useMemo, useRef } from 'react'
+import { Button, ScrollView, StyleSheet, View } from 'react-native'
+import {
+  Filament,
+  useEngine,
+  Float3,
+  useRenderCallback,
+  useModel,
+  useView,
+  useCamera,
+  Engine,
+  useAssetAnimator,
+  getAssetFromModel,
+  useWorkletCallback,
+} from 'react-native-filament'
+import { useDefaultLight } from './hooks/useDefaultLight'
+import { getAssetPath } from './utils/getAssetPasth'
+import { useSharedValue } from 'react-native-worklets-core'
 
-import { Button, Platform, ScrollView, StyleSheet, View } from 'react-native'
-import { Filament, useEngine, Float3, useRenderCallback, useAsset, useModel, useView, useCamera, useScene } from 'react-native-filament'
-
-const penguModelPath = Platform.select({
-  android: 'custom/pengu.glb',
-  ios: 'pengu.glb',
-})!
-
-const indirectLightPath = Platform.select({
-  android: 'custom/default_env_ibl.ktx',
-  ios: 'default_env_ibl.ktx',
-})!
-
-const pirateHatPath = Platform.select({
-  android: 'custom/pirate.glb',
-  ios: 'pirate.glb',
-})!
+const penguModelPath = getAssetPath('pengu.glb')
+const pirateHatPath = getAssetPath('pirate.glb')
 
 // Camera config:
 const cameraPosition: Float3 = [0, 0, 8]
@@ -30,93 +32,110 @@ const far = 1000
 
 const animationInterpolationTime = 5
 
-export function AnimationTransitions() {
-  const engine = useEngine()
+function Renderer({ engine }: { engine: Engine }) {
   const view = useView(engine)
   const camera = useCamera(engine)
-  const scene = useScene(engine)
 
   const pengu = useModel({ engine: engine, path: penguModelPath })
-  const light = useAsset({ path: indirectLightPath })
+  const penguAsset = getAssetFromModel(pengu)
   const pirateHat = useModel({ engine: engine, path: pirateHatPath })
+  const pirateHatAsset = getAssetFromModel(pirateHat)
   const pirateHatAnimator = useMemo(() => {
-    if (pirateHat.state !== 'loaded' || pengu.state !== 'loaded') {
+    if (pirateHatAsset == null || penguAsset == null) {
       return undefined
     }
-    return pirateHat.asset.createAnimatorWithAnimationsFrom(pengu.asset)
-  }, [pengu, pirateHat])
-  const isPirateHatAdded = useRef(true) // assets are added by default to the scene
-
-  const prevAnimationIndex = useRef<number>()
-  const prevAnimationStarted = useRef<number>()
-  const animationInterpolation = useRef(0)
-  const currentAnimationIndex = useRef(0)
-
+    return pirateHatAsset.createAnimatorWithAnimationsFrom(penguAsset)
+  }, [penguAsset, pirateHatAsset])
   useEffect(() => {
-    if (light == null) return
-    // create a default light
-    engine.setIndirectLight(light)
-
-    // Create a directional light for supporting shadows
-    const directionalLight = engine.createLightEntity('directional', 6500, 10000, 0, -1, 0, true)
-    scene.addEntity(directionalLight)
     return () => {
-      // TODO: Remove directionalLight from scene
-    }
-  }, [engine, light, scene])
-
-  const prevAspectRatio = useRef(0)
-  useRenderCallback(engine, (_timestamp, _startTime, passedSeconds) => {
-    const aspectRatio = view.aspectRatio
-    if (prevAspectRatio.current !== aspectRatio) {
-      prevAspectRatio.current = aspectRatio
-      // Setup camera lens:
-      camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
-    }
-
-    camera.lookAt(cameraPosition, cameraTarget, cameraUp)
-
-    if (pengu.state !== 'loaded' || pirateHatAnimator == null) {
-      return
-    }
-
-    // Update the animators to play the current animation
-    pengu.animator.applyAnimation(currentAnimationIndex.current, passedSeconds)
-    pirateHatAnimator.applyAnimation(currentAnimationIndex.current, passedSeconds)
-
-    // Eventually apply a cross fade
-    if (prevAnimationIndex.current != null) {
-      if (prevAnimationStarted.current == null) {
-        prevAnimationStarted.current = passedSeconds
-      }
-      animationInterpolation.current += passedSeconds - prevAnimationStarted.current
-      const alpha = animationInterpolation.current / animationInterpolationTime
-
-      // Blend animations using a cross fade
-      pengu.animator.applyCrossFade(prevAnimationIndex.current, prevAnimationStarted.current!, alpha)
-      pirateHatAnimator.applyCrossFade(prevAnimationIndex.current, prevAnimationStarted.current!, alpha)
-
-      // Reset the prev animation once the transition is completed
-      if (alpha >= 1) {
-        prevAnimationIndex.current = undefined
-        prevAnimationStarted.current = undefined
-        animationInterpolation.current = 0
+      if (pirateHatAnimator != null) {
+        console.log('Releasing pirate hat animator')
+        pirateHatAnimator.release()
       }
     }
+  }, [pirateHatAnimator])
 
-    pengu.animator.updateBoneMatrices()
-    pirateHatAnimator.updateBoneMatrices()
-  })
+  const isPirateHatAdded = useRef(true) // assets are added by default to the scene
+  const penguAnimator = useAssetAnimator(penguAsset)
+
+  const prevAnimationIndex = useSharedValue<number | undefined>(undefined)
+  const prevAnimationStarted = useSharedValue<number | undefined>(undefined)
+  const animationInterpolation = useSharedValue(0)
+  const currentAnimationIndex = useSharedValue(0)
+
+  useDefaultLight(engine)
+
+  const prevAspectRatio = useSharedValue(0)
+  useRenderCallback(
+    engine,
+    useWorkletCallback(
+      (_timestamp, _startTime, passedSeconds) => {
+        'worklet'
+
+        const aspectRatio = view.getAspectRatio()
+        if (prevAspectRatio.value !== aspectRatio) {
+          prevAspectRatio.value = aspectRatio
+          // Setup camera lens:
+          camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
+          console.log('Setting up camera lens with aspect ratio:', aspectRatio)
+        }
+
+        camera.lookAt(cameraPosition, cameraTarget, cameraUp)
+
+        if (pirateHatAnimator == null || penguAnimator == null) {
+          return
+        }
+
+        // Update the animators to play the current animation
+        penguAnimator.applyAnimation(currentAnimationIndex.value, passedSeconds)
+        pirateHatAnimator.applyAnimation(currentAnimationIndex.value, passedSeconds)
+
+        // Eventually apply a cross fade
+        if (prevAnimationIndex.value != null) {
+          if (prevAnimationStarted.value == null) {
+            prevAnimationStarted.value = passedSeconds
+          }
+          animationInterpolation.value += passedSeconds - prevAnimationStarted.value!
+          const alpha = animationInterpolation.value / animationInterpolationTime
+
+          // Blend animations using a cross fade
+          penguAnimator.applyCrossFade(prevAnimationIndex.value, prevAnimationStarted.value!, alpha)
+          pirateHatAnimator.applyCrossFade(prevAnimationIndex.value, prevAnimationStarted.value!, alpha)
+
+          // Reset the prev animation once the transition is completed
+          if (alpha >= 1) {
+            prevAnimationIndex.value = undefined
+            prevAnimationStarted.value = undefined
+            animationInterpolation.value = 0
+          }
+        }
+
+        penguAnimator.updateBoneMatrices()
+        pirateHatAnimator.updateBoneMatrices()
+      },
+      [
+        view,
+        prevAspectRatio,
+        camera,
+        pirateHatAnimator,
+        penguAnimator,
+        currentAnimationIndex,
+        prevAnimationIndex,
+        prevAnimationStarted,
+        animationInterpolation,
+      ]
+    )
+  )
 
   const animations = useMemo(() => {
-    if (pengu.state !== 'loaded') return []
-    const count = pengu.animator.getAnimationCount()
+    if (penguAnimator == null) return []
+    const count = penguAnimator.getAnimationCount()
     const names = []
     for (let i = 0; i < count; i++) {
-      names.push(pengu.animator.getAnimationName(i))
+      names.push(penguAnimator.getAnimationName(i))
     }
     return names
-  }, [pengu])
+  }, [penguAnimator])
 
   const navigation = useNavigation()
 
@@ -151,14 +170,21 @@ export function AnimationTransitions() {
             key={name}
             title={name}
             onPress={() => {
-              prevAnimationIndex.current = currentAnimationIndex.current
-              currentAnimationIndex.current = i
+              prevAnimationIndex.value = currentAnimationIndex.value
+              currentAnimationIndex.value = i
             }}
           />
         ))}
       </ScrollView>
     </View>
   )
+}
+
+export function AnimationTransitions() {
+  const engine = useEngine()
+
+  if (engine == null) return null
+  return <Renderer engine={engine} />
 }
 
 const styles = StyleSheet.create({
