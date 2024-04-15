@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { StyleSheet, Pressable, Text, View } from 'react-native'
+import { StyleSheet, Pressable, Text, View, ScrollView } from 'react-native'
 import { NavigationContainer, useNavigation } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { AnimationTransitions } from './AnimationTransitions'
@@ -40,7 +40,7 @@ function NavigationItem(props: { name: string; route: string }) {
 
 function HomeScreen() {
   return (
-    <View style={{ flex: 1 }}>
+    <ScrollView style={{ flex: 1 }}>
       <NavigationItem name="▶️ Animation Transitions" route="AnimationTransitions" />
       <NavigationItem name="💰 Physics Coin" route="PhysicsCoin" />
       <NavigationItem name="😶‍🌫️ Fade Out" route="FadeOut" />
@@ -50,7 +50,7 @@ function HomeScreen() {
       <NavigationItem name="↕️ Scale Effect" route="ScaleEffect" />
       <NavigationItem name="🧠 Worklet Example" route="WorkletExample" />
       <NavigationItem name="💡 Fading Light" route="FadingLight" />
-    </View>
+    </ScrollView>
   )
 }
 

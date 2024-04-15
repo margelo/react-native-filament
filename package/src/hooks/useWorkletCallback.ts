@@ -11,7 +11,6 @@ export function useWorkletCallback<T extends (...args: any[]) => any>(
 ): (...args: Parameters<T>) => Promise<ReturnType<T>> {
   const workletContext = useMemo(() => FilamentProxy.getWorkletContext(), [])
 
-  // @ts-expect-error Fixed with the next release of react-native-worklets-core
-  const workletCallback = useWorklet<ReturnType<T>, Parameters<T>, T>(workletContext, callback, deps)
+  const workletCallback = useWorklet(workletContext, callback, deps)
   return workletCallback
 }

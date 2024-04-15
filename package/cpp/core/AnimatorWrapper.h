@@ -27,6 +27,9 @@ public:
   void loadHybridMethods() override;
 
 private:
+  void release();
+
+private:
   void applyAnimation(int animationIndex, double time);
   void applyCrossFade(int previousAnimationIndex, double previousAnimationTime, double alpha);
   void updateBoneMatrices();

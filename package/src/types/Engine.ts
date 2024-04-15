@@ -90,4 +90,6 @@ export interface Engine {
   createMaterial(matcBuffer: FilamentBuffer): Material
 
   createLightManager(): LightManager
+
+  release(): void
 }

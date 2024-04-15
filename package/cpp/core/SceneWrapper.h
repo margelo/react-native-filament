@@ -14,8 +14,7 @@ using namespace filament;
 
 class SceneWrapper : public HybridObject {
 public:
-  explicit SceneWrapper(const std::shared_ptr<Scene>& scene, const std::shared_ptr<gltfio::AssetLoader>& assetLoader)
-      : HybridObject("SceneWrapper"), _scene(scene), _assetLoader(assetLoader) {}
+  explicit SceneWrapper(const std::shared_ptr<Scene>& scene) : HybridObject("SceneWrapper"), _scene(scene) {}
 
   void loadHybridMethods() override;
 
@@ -29,7 +28,6 @@ public:
 private:
   std::mutex _mutex;
   std::shared_ptr<Scene> _scene;
-  std::shared_ptr<gltfio::AssetLoader> _assetLoader;
 
 private: // Public JS API
   void addEntity(const std::shared_ptr<EntityWrapper>& entity);

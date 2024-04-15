@@ -18,6 +18,26 @@
       "sha1": "3d844a9a2de52d1622cd4f85e21b9366c118c898"
     },
     {
+      "path": "assets/coffeeshop.glb",
+      "sha1": "e65181dc6e3046e0e286f94947d391f49f7ba9cd"
+    },
+    {
+      "path": "assets/coffeeshop_machine_level03.glb",
+      "sha1": "9e32b8b7240bfe5d07b043a0d3f0e91013430280"
+    },
+    {
+      "path": "assets/coffeeshop_plant_level03.glb",
+      "sha1": "0c3022d2f2cd8d01edf3df413b1b30da5ee19b75"
+    },
+    {
+      "path": "assets/coffeeshop_seating_level03.glb",
+      "sha1": "71fb41315540c3cf5bae3cb9b26c84f62aad364f"
+    },
+    {
+      "path": "assets/coffeeshop_table_level03.glb",
+      "sha1": "42a3f06e5f4e095241b4961595e0f1379265fa74"
+    },
+    {
       "path": "assets/coin.glb",
       "sha1": "419d939c6a5c154fb12a7b7d1b063b956810bdac"
     },
