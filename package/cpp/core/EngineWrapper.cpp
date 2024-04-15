@@ -43,18 +43,6 @@ EngineWrapper::EngineWrapper(const std::shared_ptr<Choreographer>& choreographer
     });
   });
 
-  // Setup filament:
-  _renderer = createRenderer();
-  _scene = createScene();
-  _view = createView();
-  _camera = createCamera();
-
-  _view->getView()->setScene(_scene->getScene().get());
-  _view->getView()->setCamera(_camera->getCamera().get());
-
-  _choreographer = choreographer;
-  _transformManager = createTransformManager();
-
   gltfio::MaterialProvider* _materialProviderPtr =
       gltfio::createUbershaderProvider(_engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
   _materialProvider = References<gltfio::MaterialProvider>::adoptEngineRef(
@@ -96,6 +84,18 @@ EngineWrapper::EngineWrapper(const std::shared_ptr<Choreographer>& choreographer
         delete stbProvider;
         delete ktx2Provider;
       });
+
+  // Setup filament:
+  _renderer = createRenderer();
+  _scene = createScene();
+  _view = createView();
+  _camera = createCamera();
+
+  _view->getView()->setScene(_scene->getScene().get());
+  _view->getView()->setCamera(_camera->getCamera().get());
+
+  _choreographer = choreographer;
+  _transformManager = createTransformManager();
 }
 
 void EngineWrapper::loadHybridMethods() {
@@ -616,6 +616,8 @@ std::shared_ptr<LightManagerWrapper> EngineWrapper::createLightManager() {
   return std::make_shared<LightManagerWrapper>(_engine);
 }
 
+// TODO: Note, this isn't fully working yet
+// The scene never gets cleaned up as JS is still holding a reference to it!
 void EngineWrapper::release() {
   std::unique_lock lock(_mutex);
   Logger::log(TAG, "Releasing engine...");
