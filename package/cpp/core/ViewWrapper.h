@@ -24,6 +24,8 @@ public:
 
   void setViewport(int x, int y, int width, int height);
 
+  void release();
+
 private:
   void setScene(std::shared_ptr<SceneWrapper> scene);
   std::shared_ptr<SceneWrapper> getScene();

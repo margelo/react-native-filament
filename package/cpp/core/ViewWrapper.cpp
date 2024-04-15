@@ -78,5 +78,11 @@ std::shared_ptr<AmbientOcclusionOptionsWrapper> ViewWrapper::getAmbientOcclusion
 std::shared_ptr<AmbientOcclusionOptionsWrapper> ViewWrapper::createAmbientOcclusionOptions() {
   return std::make_shared<AmbientOcclusionOptionsWrapper>();
 }
+void ViewWrapper::release() {
+  Logger::log("ViewWrapper", "Releasing view…");
+  _view.reset();
+  _scene.reset();
+  _camera.reset();
+}
 
 } // namespace margelo

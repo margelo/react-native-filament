@@ -15,6 +15,7 @@ using namespace gltfio;
 using namespace math;
 
 void RenderableManagerWrapper::loadHybridMethods() {
+  registerHybridMethod("release", &RenderableManagerWrapper::release, this);
   registerHybridMethod("getPrimitiveCount", &RenderableManagerWrapper::getPrimitiveCount, this);
   registerHybridMethod("getMaterialInstanceAt", &RenderableManagerWrapper::getMaterialInstanceAt, this);
   registerHybridMethod("setMaterialInstanceAt", &RenderableManagerWrapper::setMaterialInstanceAt, this);
@@ -231,6 +232,11 @@ void RenderableManagerWrapper::scaleBoundingBox(std::shared_ptr<FilamentAssetWra
     Box box = Box().set(boundingBox.getMin() * scaleFactor, boundingBox.getMax() * scaleFactor);
     _renderableManager.setAxisAlignedBoundingBox(renderable, box);
   }
+}
+void RenderableManagerWrapper::release() {
+  Logger::log(TAG, "Releasing renderable manager…");
+  _textureProvider.reset();
+  _engine.reset();
 }
 
 } // namespace margelo

@@ -13,6 +13,7 @@
 namespace margelo {
 
 void LightManagerWrapper::loadHybridMethods() {
+  registerHybridMethod("release", &LightManagerWrapper::release, this);
   registerHybridMethod("createLightEntity", &LightManagerWrapper::createLightEntity, this);
   registerHybridMethod("destroy", &LightManagerWrapper::destroy, this);
   registerHybridMethod("setPosition", &LightManagerWrapper::setPosition, this);
@@ -169,6 +170,11 @@ std::vector<double> LightManagerWrapper::getSpotLightCone(std::shared_ptr<Entity
   float innerCone = _lightManager.getSpotLightInnerCone(lightInstance);
   float outerCone = _lightManager.getSpotLightOuterCone(lightInstance);
   return {static_cast<double>(innerCone), static_cast<double>(outerCone)};
+}
+
+void LightManagerWrapper::release() {
+  Logger::log("LightManagerWrapper", "Releasing light manager…");
+  _engine.reset();
 }
 
 } // namespace margelo

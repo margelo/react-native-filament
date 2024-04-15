@@ -19,6 +19,7 @@ public:
       : HybridObject("LightManager"), _engine(engine), _lightManager(_engine->getLightManager()) {}
 
   void loadHybridMethods() override;
+  void release();
 
 private: // JS API:
   std::shared_ptr<EntityWrapper> createLightEntity(const std::string& lightTypeStr, std::optional<double> colorKelvin,

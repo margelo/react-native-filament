@@ -67,10 +67,10 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
       });
 
   filament::gltfio::ResourceConfiguration resourceConfig{.engine = _engine.get(), .normalizeSkinningWeights = true};
-  auto* resourceLoaderPtr = new filament::gltfio::ResourceLoader(resourceConfig);
+  gltfio::ResourceLoader* resourceLoaderPtr = new gltfio::ResourceLoader(resourceConfig);
   // Add texture providers to the resource loader
-  auto* stbProvider = filament::gltfio::createStbProvider(_engine.get());
-  auto* ktx2Provider = filament::gltfio::createKtx2Provider(_engine.get());
+  gltfio::TextureProvider* stbProvider = gltfio::createStbProvider(_engine.get());
+  gltfio::TextureProvider* ktx2Provider = gltfio::createKtx2Provider(_engine.get());
   resourceLoaderPtr->addTextureProvider("image/jpeg", stbProvider);
   resourceLoaderPtr->addTextureProvider("image/png", stbProvider);
   resourceLoaderPtr->addTextureProvider("image/ktx2", ktx2Provider);
@@ -88,8 +88,8 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
   // Setup filament:
   _renderer = createRenderer();
   _scene = createScene();
-  _view = createView();
   _camera = createCamera();
+  _view = createView();
 
   _view->getView()->setScene(_scene->getScene().get());
   _view->getView()->setCamera(_camera->getCamera().get());
@@ -223,7 +223,7 @@ void EngineWrapper::surfaceSizeChanged(int width, int height) {
     Logger::log(TAG, "(surfaceSizeChanged) Ignoring invalid surface size: %d x %d", width, height);
     return;
   }
-    
+
   if (_cameraManipulator) {
     Logger::log(TAG, "(surfaceSizeChanged) Updating viewport size to %d x %d", width, height);
     _cameraManipulator->getManipulator()->setViewport(width, height);
@@ -310,6 +310,13 @@ std::shared_ptr<SceneWrapper> EngineWrapper::createScene() {
       _engine, _engine->createScene(), [materialProvider, dispatcher](std::shared_ptr<Engine> engine, Scene* scene) {
         dispatcher->runAsync([materialProvider, engine, scene]() {
           Logger::log(TAG, "Destroying scene...");
+
+          // Remove all entities from the scene
+          scene->forEach([scene, engine](Entity entity) {
+            scene->remove(entity);
+            engine->destroy(entity);
+          });
+
           // Destroy all materials that were created by the material provider
           materialProvider->destroyMaterials();
           engine->destroy(scene);
@@ -389,11 +396,11 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::makeAssetWrapper(FilamentAs
 
   auto assetLoader = _assetLoader;
   auto dispatcher = _dispatcher;
-  auto scene = _scene;
+  auto scene = _scene->getScene();
   auto asset = References<gltfio::FilamentAsset>::adoptRef(assetPtr, [dispatcher, assetLoader, scene](gltfio::FilamentAsset* asset) {
     dispatcher->runAsync([assetLoader, asset, scene]() {
       Logger::log(TAG, "Destroying asset...");
-      scene->getScene()->removeEntities(asset->getEntities(), asset->getEntityCount());
+      scene->removeEntities(asset->getEntities(), asset->getEntityCount());
       assetLoader->destroyAsset(asset);
     });
   });
@@ -445,6 +452,7 @@ void EngineWrapper::setIndirectLight(std::shared_ptr<FilamentBuffer> iblBuffer, 
 
   IndirectLight* _indirectLight = builder.build(*_engine);
   _scene->getScene()->setIndirectLight(_indirectLight);
+  _indirectLights.push_back(_indirectLight);
 }
 
 std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator(int width, int height) {
@@ -619,15 +627,32 @@ std::shared_ptr<LightManagerWrapper> EngineWrapper::createLightManager() {
   return std::make_shared<LightManagerWrapper>(_engine);
 }
 
-// TODO: Note, this isn't fully working yet
-// The scene never gets cleaned up as JS is still holding a reference to it!
+// Cleaning up the scene will also clean up the material provider (so all material instances)
 void EngineWrapper::release() {
   std::unique_lock lock(_mutex);
   Logger::log(TAG, "Releasing engine...");
   _renderCallback.reset();
   destroySurface();
+  _surfaceListener->remove();
+  _surfaceProvider.reset();
   // Release the scene, this will remove all assets from it and free all materials
+  _scene->release();
   _scene.reset();
+  _resourceLoader.reset();
+  _assetLoader.reset();
+  _materialProvider.reset();
+  _camera->release();
+  _camera.reset();
+  _view->release();
+  _view.reset();
+  _renderer->release();
+  _renderer.reset();
+  _cameraManipulator.reset();
+  for (const auto& item : _indirectLights) {
+    _engine->destroy(item);
+  }
+  _indirectLights.clear();
+  _engine.reset();
 }
 
 } // namespace margelo

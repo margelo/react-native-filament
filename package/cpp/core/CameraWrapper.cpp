@@ -37,3 +37,7 @@ void margelo::CameraWrapper::setProjection(double fovInDegrees, double aspect, d
   _camera->setProjection(static_cast<float>(fovInDegrees), static_cast<float>(aspect), static_cast<float>(near), static_cast<float>(far),
                          direction);
 }
+void margelo::CameraWrapper::release() {
+  Logger::log("CameraWrapper", "Releasing camera…");
+  _camera.reset();
+}

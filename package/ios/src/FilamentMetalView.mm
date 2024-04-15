@@ -47,4 +47,8 @@
   [self.metalLayer didChangeValueForKey:@"drawableSize"];
 }
 
+-(void)dealloc {
+    NSLog(@"FilamentMetalView dealloc");
+}
+
 @end

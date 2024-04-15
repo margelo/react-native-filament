@@ -29,4 +29,8 @@ void RendererWrapper::endFrame() {
   _renderer->endFrame();
 }
 
+void RendererWrapper::release() {
+  _renderer.reset();
+}
+
 } // namespace margelo
