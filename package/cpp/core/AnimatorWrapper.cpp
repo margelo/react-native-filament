@@ -43,23 +43,27 @@ inline void assertAnimationIndexSmallerThan(int animationIndex, int max) {
 }
 
 void AnimatorWrapper::applyAnimation(int animationIndex, double time) {
+  std::unique_lock lock(_mutex);
   Animator* animator = getAnimator();
   assertAnimationIndexSmallerThan(animationIndex, animator->getAnimationCount());
   animator->applyAnimation(animationIndex, time);
 }
 
 void AnimatorWrapper::updateBoneMatrices() {
+  std::unique_lock lock(_mutex);
   Animator* animator = getAnimator();
   animator->updateBoneMatrices();
 }
 
 void AnimatorWrapper::applyCrossFade(int previousAnimationIndex, double previousAnimationTime, double alpha) {
+  std::unique_lock lock(_mutex);
   Animator* animator = getAnimator();
   assertAnimationIndexSmallerThan(previousAnimationIndex, animator->getAnimationCount());
   animator->applyCrossFade(previousAnimationIndex, previousAnimationTime, alpha);
 }
 
 void AnimatorWrapper::resetBoneMatrices() {
+  std::unique_lock lock(_mutex);
   Animator* animator = getAnimator();
   animator->resetBoneMatrices();
 }
@@ -80,6 +84,7 @@ std::string AnimatorWrapper::getAnimationName(int animationIndex) {
 }
 
 void AnimatorWrapper::release() {
+  std::unique_lock lock(_mutex);
   if (_optionalAnimator) {
     delete _optionalAnimator;
     _optionalAnimator = nullptr;

@@ -30,6 +30,7 @@ private:
   void release();
 
 private:
+  std::mutex _mutex;
   void applyAnimation(int animationIndex, double time);
   void applyCrossFade(int previousAnimationIndex, double previousAnimationTime, double alpha);
   void updateBoneMatrices();
