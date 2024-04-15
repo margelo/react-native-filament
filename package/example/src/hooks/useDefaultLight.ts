@@ -27,6 +27,5 @@ export function useDefaultLight(engine: Engine, enableDirectionalLight = true) {
     intensity: enableDirectionalLight ? 10_000 : 0,
     position: [0, 0, 0],
   })
-  // TODO: fix SceneWrapper to be forgiving when the scene internally is already deleted
-  // useEntityInScene(scene, directionalLight)
+  useEntityInScene(scene, directionalLight)
 }
