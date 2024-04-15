@@ -78,6 +78,7 @@ export interface RenderableManager {
   /**
    * Creates a plane with the material provided. Creates it at the 0,0,0 origin.
    * @param shadowMaterial See {@link Engine.createMaterial}
+   * @worklet
    */
   createPlane(shadowMaterial: Material, halfExtendX: number, halfExtendY: number, halfExtendZ: number): Entity
 
