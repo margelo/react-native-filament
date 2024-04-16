@@ -27,7 +27,9 @@ class PointerHolder: public HybridObject {
   PointerHolder(const char* name, std::shared_ptr<T> pointer): HybridObject(name), _name(name), _pointer(pointer) {
     // eagerly initialize the release() method instead of putting it in `loadHybridMethods`
     registerHybridMethod("release", &PointerHolder<T>::release, this);
+    registerHybridGetter("isValid", &PointerHolder<T>::getIsValid, this);
   }
+
   /**
    * Create a new instance of a pointer holder which holds a shared_ptr of the given value.
    * The shared_ptr will be move-constructed.
@@ -35,6 +37,7 @@ class PointerHolder: public HybridObject {
    * @param value The value this class will hold as a shared_ptr. It might be destroyed from JS at any point via `release()`.
    */
   PointerHolder(const char* name, T&& value): PointerHolder(name, std::make_shared<T>(std::move(value))) { }
+
   /**
    * Called when the PointerHolder gets automatically destroyed (e.g. via GC) and the shared_ptr will be destroyed.
    */
@@ -68,6 +71,15 @@ protected:
       throw std::runtime_error("Pointer " + _name + " has already been manually released!");
     }
     return _pointer;
+  }
+
+  /**
+   * Get if the pointer is still valid and strong.
+   */
+  bool getIsValid() {
+    std::unique_lock lock(_mutex);
+
+    return _pointer != nullptr;
   }
 
 private:
