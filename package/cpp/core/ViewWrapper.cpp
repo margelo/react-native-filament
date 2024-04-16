@@ -80,9 +80,9 @@ std::shared_ptr<AmbientOcclusionOptionsWrapper> ViewWrapper::createAmbientOcclus
 }
 void ViewWrapper::release() {
   Logger::log("ViewWrapper", "Releasing view…");
-  _view.reset();
-  _scene.reset();
-  _camera.reset();
+  _view = nullptr;
+  _scene = nullptr;
+  _camera = nullptr;
 }
 
 } // namespace margelo

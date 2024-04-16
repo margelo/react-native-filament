@@ -30,7 +30,7 @@ void RendererWrapper::endFrame() {
 }
 
 void RendererWrapper::release() {
-  _renderer.reset();
+  _renderer = nullptr;
 }
 
 } // namespace margelo

@@ -21,7 +21,7 @@ export function useDefaultLight(engine: Engine, enableDirectionalLight = true) {
 
   const directionalLight = useLightEntity(lightManager, {
     type: 'directional',
-    castShadows: true,
+    castShadows: false,
     colorKelvin: 6_500,
     direction: [0, -1, 0],
     intensity: enableDirectionalLight ? 10_000 : 0,

@@ -89,7 +89,7 @@ void AnimatorWrapper::release() {
     delete _optionalAnimator;
     _optionalAnimator = nullptr;
   }
-  _assetRef.reset();
+  _assetRef = nullptr;
 }
 
 } // namespace margelo

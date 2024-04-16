@@ -39,5 +39,5 @@ void margelo::CameraWrapper::setProjection(double fovInDegrees, double aspect, d
 }
 void margelo::CameraWrapper::release() {
   Logger::log("CameraWrapper", "Releasing camera…");
-  _camera.reset();
+  _camera = nullptr;
 }

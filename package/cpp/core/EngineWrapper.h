@@ -66,6 +66,7 @@ public:
 
 private:
   void setSurface(std::shared_ptr<Surface> surface);
+  void onSurfaceDestroyed();
   void destroySurface();
   void surfaceSizeChanged(int width, int height);
   void setRenderCallback(std::optional<RenderCallback> callback);

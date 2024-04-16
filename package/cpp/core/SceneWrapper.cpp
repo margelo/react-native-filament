@@ -109,7 +109,7 @@ int SceneWrapper::getEntityCount() {
 void SceneWrapper::release() {
   std::unique_lock lock(_mutex);
   Logger::log("SceneWrapper", "Releasing scene…");
-  _scene.reset();
+  _scene = nullptr;
 }
 
 } // namespace margelo

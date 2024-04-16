@@ -235,8 +235,8 @@ void RenderableManagerWrapper::scaleBoundingBox(std::shared_ptr<FilamentAssetWra
 }
 void RenderableManagerWrapper::release() {
   Logger::log(TAG, "Releasing renderable manager…");
-  _textureProvider.reset();
-  _engine.reset();
+  _textureProvider = nullptr;
+  _engine = nullptr;
 }
 
 } // namespace margelo

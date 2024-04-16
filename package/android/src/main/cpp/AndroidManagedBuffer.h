@@ -14,28 +14,21 @@ using namespace facebook;
 
 class AndroidManagedBuffer : public ManagedBuffer {
 public:
-  explicit AndroidManagedBuffer(const jni::alias_ref<jni::JByteBuffer>& buffer) : _buffer(jni::make_global(buffer)) {
+  explicit AndroidManagedBuffer(const jni::alias_ref<jni::JByteBuffer> &buffer)
+      : _buffer(jni::make_global(buffer)) {
     _buffer->rewind();
   }
 
-  ~AndroidManagedBuffer() override {
-    releaseBuffer();
-  }
+  ~AndroidManagedBuffer() override { releaseBuffer(); }
 
-  const uint8_t* getData() const override {
-    return _buffer->getDirectBytes();
-  }
+  const uint8_t *getData() const override { return _buffer->getDirectBytes(); }
 
-  size_t getSize() const override {
-    return _buffer->getDirectSize();
-  }
+  size_t getSize() const override { return _buffer->getDirectSize(); }
 
-  void release() override {
-    releaseBuffer();
-  }
+  void release() override { releaseBuffer(); }
 
   void releaseBuffer() {
-    jni::ThreadScope::WithClassLoader([&] { _buffer.reset(); });
+    jni::ThreadScope::WithClassLoader([&] { _buffer = nullptr; });
   }
 
 private:
