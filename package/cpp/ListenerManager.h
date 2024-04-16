@@ -19,6 +19,13 @@ private:
   std::mutex _mutex;
 
 public:
+  /**
+   * Add a listener to the list.
+   * This method is thread-safe.
+   * @param listener The listener to add to the list.
+   * @return A listener subscription. Upon deleting that, the Listener gets removed,
+   * so make sure to keep a strong reference to the subscription in memory.
+   */
   std::shared_ptr<Listener> add(Callback listener) {
     std::unique_lock lock(_mutex);
 
@@ -35,6 +42,13 @@ public:
     });
   }
 
+  /**
+   * Iterate through all listeners.
+   * This method is thread-safe.
+   * Make sure to not add or delete any listeners while inside a forEach() block,
+   * otherwise this will dead-lock.
+   * @param callback The callback to run for each listener.
+   */
   void forEach(const std::function<void(const Callback&)>& callback) {
     std::unique_lock lock(_mutex);
 
