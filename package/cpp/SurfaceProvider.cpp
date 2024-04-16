@@ -20,25 +20,19 @@ std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceChangedListener(SurfacePr
 void SurfaceProvider::onSurfaceCreated(std::shared_ptr<Surface> surface) {
   Logger::log(TAG, "Surface created!");
   std::unique_lock lock(_mutex);
-  for (const auto& listener : _listeners->getListeners()) {
-    listener.onSurfaceCreated(surface);
-  }
+  _listeners->forEach([=](const Callback& callback) { callback.onSurfaceCreated(surface); });
 }
 
 void SurfaceProvider::onSurfaceChanged(std::shared_ptr<Surface> surface, int width, int height) {
   Logger::log(TAG, "Surface resized to %i x %i!", width, height);
   std::unique_lock lock(_mutex);
-  for (const auto& listener : _listeners->getListeners()) {
-    listener.onSurfaceSizeChanged(surface, width, height);
-  }
+  _listeners->forEach([=](const Callback& callback) { callback.onSurfaceSizeChanged(surface, width, height); });
 }
 
 void SurfaceProvider::onSurfaceDestroyed(std::shared_ptr<Surface> surface) {
   Logger::log(TAG, "Surface destroyed!");
   std::unique_lock lock(_mutex);
-  for (const auto& listener : _listeners->getListeners()) {
-    listener.onSurfaceDestroyed(surface);
-  }
+  _listeners->forEach([=](const Callback& callback) { callback.onSurfaceDestroyed(surface); });
 }
 
 } // namespace margelo
