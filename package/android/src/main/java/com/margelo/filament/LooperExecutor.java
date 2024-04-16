@@ -7,9 +7,10 @@ import java.util.concurrent.Executor;
 
 public class LooperExecutor implements Executor {
     private final Handler handler;
+    private final HandlerThread thread;
 
     public LooperExecutor(String name) {
-        HandlerThread thread = new HandlerThread(name);
+        thread = new HandlerThread(name);
         thread.start();
         handler = new Handler(thread.getLooper());
     }
