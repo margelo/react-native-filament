@@ -633,8 +633,13 @@ void EngineWrapper::release() {
   Logger::log(TAG, "Releasing engine...");
   _renderCallback.reset();
   destroySurface();
+  _choreographer.reset();
   _surfaceListener->remove();
-  _surfaceProvider.reset();
+  _surfaceListener.reset();
+  if (_surfaceProvider) {
+    _surfaceProvider->releaseSurface();
+    _surfaceProvider.reset();
+  }
   // Release the scene, this will remove all assets from it and free all materials
   _scene->release();
   _scene.reset();
