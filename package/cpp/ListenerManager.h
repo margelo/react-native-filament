@@ -9,15 +9,26 @@
 #include <functional>
 #include <list>
 #include <memory>
+#include <mutex>
 
 namespace margelo {
 
 template <typename Callback> class ListenerManager : public std::enable_shared_from_this<ListenerManager<Callback>> {
 private:
   std::list<Callback> _listeners;
+  std::mutex _mutex;
 
 public:
+  /**
+   * Add a listener to the list.
+   * This method is thread-safe.
+   * @param listener The listener to add to the list.
+   * @return A listener subscription. Upon deleting that, the Listener gets removed,
+   * so make sure to keep a strong reference to the subscription in memory.
+   */
   std::shared_ptr<Listener> add(Callback listener) {
+    std::unique_lock lock(_mutex);
+
     _listeners.push_back(std::move(listener));
     auto id = --_listeners.end();
 
@@ -25,13 +36,27 @@ public:
     return Listener::create([id, weakThis] {
       auto sharedThis = weakThis.lock();
       if (sharedThis) {
+        std::unique_lock lock(sharedThis->_mutex);
         sharedThis->_listeners.erase(id);
       }
     });
   }
 
-  const std::list<Callback>& getListeners() {
-    return _listeners;
+  using LoopCallback = void(const Callback&);
+
+  /**
+   * Iterate through all listeners.
+   * This method is thread-safe.
+   * Make sure to not add or delete any listeners while inside a forEach() block,
+   * otherwise this will dead-lock.
+   * @param callback The callback to run for each listener.
+   */
+  void forEach(std::function<LoopCallback>&& callback) {
+    std::unique_lock lock(_mutex);
+
+    for (const auto& listener : _listeners) {
+      callback(listener);
+    }
   }
 
 private:
