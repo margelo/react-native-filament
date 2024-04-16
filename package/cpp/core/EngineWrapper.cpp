@@ -223,7 +223,7 @@ void EngineWrapper::surfaceSizeChanged(int width, int height) {
     Logger::log(TAG, "(surfaceSizeChanged) Ignoring invalid surface size: %d x %d", width, height);
     return;
   }
-    
+
   if (_cameraManipulator) {
     Logger::log(TAG, "(surfaceSizeChanged) Updating viewport size to %d x %d", width, height);
     _cameraManipulator->getManipulator()->setViewport(width, height);
