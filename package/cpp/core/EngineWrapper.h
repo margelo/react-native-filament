@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "jsi/HybridObject.h"
+#include "jsi/PointerHolder.h"
 
 #include "CameraWrapper.h"
 #include "Choreographer.h"
@@ -37,7 +37,6 @@
 #include "SwapChainWrapper.h"
 #include "TransformManagerWrapper.h"
 #include "ViewWrapper.h"
-#include "jsi/HybridObject.h"
 #include "threading/Dispatcher.h"
 #include <Choreographer.h>
 #include <FilamentBuffer.h>
@@ -54,10 +53,10 @@ using ManipulatorBuilder = Manipulator<float>::Builder;
 
 using RenderCallback = std::function<void(double, double, double)>;
 
-class EngineWrapper : public HybridObject {
+class EngineWrapper : public PointerHolder<Engine> {
 public:
-  explicit EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<Dispatcher> dispatcher, const Engine::Config& config,
-                         const Engine::Backend& backend);
+  explicit EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<Dispatcher> rendererDispatcher,
+                         std::shared_ptr<Engine> engine);
 
   void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
 
@@ -91,13 +90,9 @@ private:
   // Internal helper method to turn an FilamentAsset ptr into a FilamentAssetWrapper
   std::shared_ptr<FilamentAssetWrapper> makeAssetWrapper(FilamentAsset* assetPtr);
 
-  void release();
-
 private:
   std::mutex _mutex;
-  Engine::Config _config;
-  std::shared_ptr<Dispatcher> _dispatcher;
-  std::shared_ptr<Engine> _engine;
+  std::shared_ptr<Dispatcher> _rendererDispatcher;
   std::shared_ptr<SurfaceProvider> _surfaceProvider;
   std::shared_ptr<Listener> _surfaceListener;
   std::optional<RenderCallback> _renderCallback;
