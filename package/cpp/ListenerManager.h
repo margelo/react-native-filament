@@ -42,6 +42,8 @@ public:
     });
   }
 
+  using LoopCallback = void(const Callback&);
+
   /**
    * Iterate through all listeners.
    * This method is thread-safe.
@@ -49,7 +51,7 @@ public:
    * otherwise this will dead-lock.
    * @param callback The callback to run for each listener.
    */
-  void forEach(const std::function<void(const Callback&)>& callback) {
+  void forEach(std::function<LoopCallback>&& callback) {
     std::unique_lock lock(_mutex);
 
     for (const auto& listener : _listeners) {
