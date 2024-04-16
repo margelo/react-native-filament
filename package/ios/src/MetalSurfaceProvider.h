@@ -29,9 +29,14 @@ public:
     [_layer addObserver:_observer forKeyPath:@"drawableSize" options:NSKeyValueObservingOptionNew context:NULL];
   }
   ~MetalSurfaceProvider() {
-    // Surface will be destroyed
-    this->onSurfaceDestroyed(_surface);
-    [_layer removeObserver:_observer forKeyPath:@"drawableSize"];
+      releaseSurface();
+  }
+    
+  void releaseSurface() override {
+      // Surface will be destroyed
+      this->onSurfaceDestroyed(_surface);
+      [_layer removeObserver:_observer forKeyPath:@"drawableSize"];
+      _surface.reset();
   }
 
   std::shared_ptr<Surface> getSurfaceOrNull() override {

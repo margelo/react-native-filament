@@ -34,6 +34,9 @@ public:
   std::shared_ptr<Listener> addOnSurfaceChangedListener(Callback&& callback);
 
   virtual std::shared_ptr<Surface> getSurfaceOrNull() = 0;
+    // Releases the surface. Only call when you're certain you are done using the surface
+    // and you know that no process will be using it anymore.
+  virtual void releaseSurface() = 0;
 
   void loadHybridMethods() override;
 

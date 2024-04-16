@@ -51,4 +51,10 @@
     NSLog(@"FilamentMetalView dealloc");
 }
 
+// Method when being removed from window:
+- (void)removeFromSuperview {
+  [super removeFromSuperview];
+    NSLog(@"FilamentMetalView removeFromSuperview");
+}
+
 @end
