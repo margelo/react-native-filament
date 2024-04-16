@@ -35,7 +35,10 @@ public:
   void releaseSurface() override {
       // Surface will be destroyed
       this->onSurfaceDestroyed(_surface);
-      [_layer removeObserver:_observer forKeyPath:@"drawableSize"];
+      if (_observer) {
+          [_layer removeObserver:_observer forKeyPath:@"drawableSize"];
+      }
+      _observer = nil;
       _surface.reset();
   }
 
