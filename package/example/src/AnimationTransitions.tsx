@@ -50,8 +50,7 @@ function Renderer({ engine }: { engine: Engine }) {
   useEffect(() => {
     return () => {
       if (pirateHatAnimator != null) {
-        console.log('Releasing pirate hat animator')
-        pirateHatAnimator.release()
+        pirateHatAnimator.release?.()
       }
     }
   }, [pirateHatAnimator])

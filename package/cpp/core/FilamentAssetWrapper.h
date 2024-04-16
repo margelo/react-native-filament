@@ -2,6 +2,7 @@
 
 #include "AABBWrapper.h"
 #include "AnimatorWrapper.h"
+#include "CopiedAnimatorWrapper.h"
 #include "FilamentInstanceWrapper.h"
 #include "core/utils/EntityWrapper.h"
 #include "jsi/PointerHolder.h"
@@ -29,8 +30,8 @@ public:
 private: // Public API functions:
   std::shared_ptr<EntityWrapper> getRoot();
   void releaseSourceData();
-  std::shared_ptr<AnimatorWrapper> getAnimator();
-  std::shared_ptr<AnimatorWrapper> createAnimatorWithAnimationsFrom(std::shared_ptr<FilamentAssetWrapper> otherAsset);
+  std::shared_ptr<AnimatorWrapper> createAnimator();
+  std::shared_ptr<CopiedAnimatorWrapper> createAnimatorWithAnimationsFrom(std::shared_ptr<FilamentAssetWrapper> otherAsset);
   int getEntityCount() {
     return pointee()->getEntityCount();
   }
