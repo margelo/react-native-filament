@@ -47,7 +47,6 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
   NameComponentManager* ncm = new NameComponentManager(entityManager);
   gltfio::AssetConfiguration assetConfig{.engine = engine.get(), .materials = _materialProvider.get(), .names = ncm};
   gltfio::AssetLoader* assetLoaderPtr = gltfio::AssetLoader::create(assetConfig);
-  auto disatcher = _rendererDispatcher;
   _assetLoader = References<gltfio::AssetLoader>::adoptEngineRef(
       engine, assetLoaderPtr, [ncm, rendererDispatcher](std::shared_ptr<Engine> engine, gltfio::AssetLoader* assetLoader) {
         rendererDispatcher->runAsync([ncm, engine, &assetLoader]() {
@@ -393,7 +392,7 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::makeAssetWrapper(FilamentAs
   //    const size_t resourceUriCount = asset->getResourceUriCount();
   _resourceLoader->loadResources(asset.get());
 
-  return std::make_shared<FilamentAssetWrapper>(asset, scene);
+  return std::make_shared<FilamentAssetWrapper>(asset);
 }
 
 // Default light is a directional light for shadows + a default IBL
