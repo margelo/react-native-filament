@@ -39,7 +39,7 @@ class PointerHolder: public HybridObject {
    * Called when the PointerHolder gets automatically destroyed (e.g. via GC) and the shared_ptr will be destroyed.
    */
   ~PointerHolder() {
-    Logger::log(TAG, "Automatically releasing %s... (~PointerHolder())", _name);
+    Logger::log(TAG, "Automatically releasing %s... (~PointerHolder())", _name.c_str());
   }
 
 protected:
@@ -53,7 +53,7 @@ protected:
     if (_pointer == nullptr) {
       throw std::runtime_error("Pointer " + _name + " has already been manually released!");
     }
-    Logger::log(TAG, "Manually releasing %s... (PointerHolder::release())", _name);
+    Logger::log(TAG, "Manually releasing %s... (PointerHolder::release())", _name.c_str());
     _pointer = nullptr;
   }
 
