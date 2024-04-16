@@ -11,7 +11,6 @@
 #include "FilamentAssetWrapper.h"
 #include "FilamentBuffer.h"
 #include "RenderableManagerWrapper.h"
-#include "RendererWrapper.h"
 #include "SceneWrapper.h"
 #include "Surface.h"
 #include "SurfaceProvider.h"
@@ -24,6 +23,7 @@
 #include <camutils/Manipulator.h>
 #include <filament/Engine.h>
 #include <filament/LightManager.h>
+#include <filament/Renderer.h>
 #include <filament/SwapChain.h>
 #include <gltfio/AssetLoader.h>
 #include <gltfio/MaterialProvider.h>
@@ -33,7 +33,6 @@
 #include "CameraWrapper.h"
 #include "LightManagerWrapper.h"
 #include "MaterialWrapper.h"
-#include "RendererWrapper.h"
 #include "SceneWrapper.h"
 #include "SwapChainWrapper.h"
 #include "TransformManagerWrapper.h"
@@ -117,19 +116,19 @@ private:
 
 private:
   // Internals we create, but share the access with the user
-  std::shared_ptr<RendererWrapper> _renderer;
+  std::shared_ptr<Renderer> _renderer;
   std::shared_ptr<SwapChainWrapper> _swapChain;
   std::shared_ptr<SceneWrapper> _scene;
-  std::shared_ptr<ViewWrapper> _view;
+  std::shared_ptr<View> _view;
   std::shared_ptr<CameraWrapper> _camera;
   std::shared_ptr<ManipulatorWrapper> _cameraManipulator;
   std::shared_ptr<TransformManagerWrapper> _transformManager;
 
 private:
-  std::shared_ptr<RendererWrapper> createRenderer();
+  std::shared_ptr<Renderer> createRenderer();
   std::shared_ptr<SwapChainWrapper> createSwapChain(std::shared_ptr<Surface> surface);
   std::shared_ptr<SceneWrapper> createScene();
-  std::shared_ptr<ViewWrapper> createView();
+  std::shared_ptr<View> createView();
   std::shared_ptr<CameraWrapper> createCamera();
   std::shared_ptr<ManipulatorWrapper> createCameraManipulator(int windowWidth, int windowHeight);
   std::shared_ptr<TransformManagerWrapper> createTransformManager();
@@ -137,9 +136,6 @@ private:
 
 private:
   // Getters for shared objects
-  std::shared_ptr<RendererWrapper> getRenderer() {
-    return _renderer;
-  }
   std::shared_ptr<SwapChainWrapper> getSwapChain() {
     return _swapChain;
   }
@@ -147,7 +143,7 @@ private:
     return _scene;
   }
   std::shared_ptr<ViewWrapper> getView() {
-    return _view;
+    return std::make_shared<ViewWrapper>(_view);
   }
   std::shared_ptr<CameraWrapper> getCamera() {
     return _camera;

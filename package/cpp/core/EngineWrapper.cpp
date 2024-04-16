@@ -91,8 +91,8 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
   _view = createView();
   _camera = createCamera();
 
-  _view->getView()->setScene(_scene->getScene().get());
-  _view->getView()->setCamera(_camera->getCamera().get());
+  _view->setScene(_scene->getScene().get());
+  _view->setCamera(_camera->getCamera().get());
 
   _choreographer = choreographer;
   _transformManager = createTransformManager();
@@ -108,7 +108,6 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("release", &EngineWrapper::release, this);
 
   // Filament API:
-  registerHybridMethod("getRenderer", &EngineWrapper::getRenderer, this);
   registerHybridMethod("getScene", &EngineWrapper::getScene, this);
   registerHybridMethod("getView", &EngineWrapper::getView, this);
   registerHybridMethod("getCamera", &EngineWrapper::getCamera, this);
@@ -219,6 +218,7 @@ void EngineWrapper::setIsPaused(bool isPaused) {
 }
 
 void EngineWrapper::surfaceSizeChanged(int width, int height) {
+  std::unique_lock lock(_mutex);
   if (width <= 0 || height <= 0) {
     Logger::log(TAG, "(surfaceSizeChanged) Ignoring invalid surface size: %d x %d", width, height);
     return;
@@ -229,7 +229,7 @@ void EngineWrapper::surfaceSizeChanged(int width, int height) {
     _cameraManipulator->getManipulator()->setViewport(width, height);
   }
   if (_view) {
-    _view->setViewport(0, 0, width, height);
+    _view->setViewport({0, 0, static_cast<uint32_t>(width), static_cast<uint32_t>(height)});
   }
 }
 
@@ -281,17 +281,15 @@ void EngineWrapper::renderFrame(double timestamp) {
     renderCallback(timestamp, _startTime, passedSeconds);
   }
 
-  std::shared_ptr<Renderer> renderer = _renderer->getRenderer();
   std::shared_ptr<SwapChain> swapChain = _swapChain->getSwapChain();
-  if (renderer->beginFrame(swapChain.get(), timestamp)) {
+  if (_renderer->beginFrame(swapChain.get(), timestamp)) {
     [[likely]];
-    std::shared_ptr<View> view = _view->getView();
-    renderer->render(view.get());
-    renderer->endFrame();
+    _renderer->render(_view.get());
+    _renderer->endFrame();
   }
 }
 
-std::shared_ptr<RendererWrapper> EngineWrapper::createRenderer() {
+std::shared_ptr<Renderer> EngineWrapper::createRenderer() {
   auto dispatcher = _dispatcher;
   std::shared_ptr<Renderer> renderer = References<Renderer>::adoptEngineRef(
       _engine, _engine->createRenderer(), [dispatcher](std::shared_ptr<Engine> engine, Renderer* renderer) {
@@ -300,7 +298,8 @@ std::shared_ptr<RendererWrapper> EngineWrapper::createRenderer() {
           engine->destroy(renderer);
         });
       });
-  return std::make_shared<RendererWrapper>(renderer);
+  renderer->setClearOptions({.clear = true});
+  return renderer;
 }
 
 std::shared_ptr<SceneWrapper> EngineWrapper::createScene() {
@@ -319,7 +318,7 @@ std::shared_ptr<SceneWrapper> EngineWrapper::createScene() {
   return std::make_shared<SceneWrapper>(scene);
 }
 
-std::shared_ptr<ViewWrapper> EngineWrapper::createView() {
+std::shared_ptr<View> EngineWrapper::createView() {
   auto dispatcher = _dispatcher;
   std::shared_ptr view =
       References<View>::adoptEngineRef(_engine, _engine->createView(), [dispatcher](std::shared_ptr<Engine> engine, View* view) {
@@ -329,7 +328,7 @@ std::shared_ptr<ViewWrapper> EngineWrapper::createView() {
         });
       });
 
-  return std::make_shared<ViewWrapper>(view);
+  return view;
 }
 
 std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChain(std::shared_ptr<Surface> surface) {

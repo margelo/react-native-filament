@@ -39,7 +39,6 @@ add_library(
     # Filament Core
     ../cpp/core/EngineWrapper.cpp
     ../cpp/core/EngineConfigHelper.cpp
-    ../cpp/core/RendererWrapper.cpp
     ../cpp/core/SceneWrapper.cpp
     ../cpp/core/CameraWrapper.cpp
     ../cpp/core/ViewWrapper.cpp
