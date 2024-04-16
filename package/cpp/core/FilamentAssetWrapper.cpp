@@ -121,7 +121,7 @@ void FilamentAssetWrapper::release() {
 
   _scene->removeEntities(_asset->getEntities(), _asset->getEntityCount());
   _asset = nullptr;
-  //  _scene = nullptr;
+  _scene = nullptr;
 }
 
 } // namespace margelo
