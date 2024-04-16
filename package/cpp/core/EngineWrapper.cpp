@@ -56,7 +56,6 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
   NameComponentManager* ncm = new NameComponentManager(entityManager);
   gltfio::AssetConfiguration assetConfig{.engine = _engine.get(), .materials = _materialProvider.get(), .names = ncm};
   gltfio::AssetLoader* assetLoaderPtr = gltfio::AssetLoader::create(assetConfig);
-  auto disatcher = _dispatcher;
   _assetLoader = References<gltfio::AssetLoader>::adoptEngineRef(
       _engine, assetLoaderPtr, [ncm, dispatcher](std::shared_ptr<Engine> engine, gltfio::AssetLoader* assetLoader) {
         dispatcher->runSync([ncm, engine, &assetLoader]() {
@@ -166,7 +165,7 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
                                            dispatcher->runAsync([=]() {
                                              auto sharedThis = weakSelf.lock();
                                              if (sharedThis != nullptr) {
-                                               sharedThis->destroySurface();
+                                               sharedThis->onSurfaceDestroyed();
                                              }
                                            });
                                          }};
@@ -233,15 +232,22 @@ void EngineWrapper::surfaceSizeChanged(int width, int height) {
   }
 }
 
-void EngineWrapper::destroySurface() {
+void EngineWrapper::onSurfaceDestroyed() {
   if (_swapChain == nullptr) {
     // Surface is already destroyed / never existed.
     return;
   }
+  destroySurface();
+}
 
+void EngineWrapper::destroySurface() {
   Logger::log(TAG, "Destroying surface...");
-  _choreographer->stop();
-  _choreographerListener->remove();
+  if (_choreographer) {
+    _choreographer->stop();
+  }
+  if (_choreographerListener) {
+    _choreographerListener->remove();
+  }
   _swapChain = nullptr;
 }
 
@@ -631,33 +637,33 @@ std::shared_ptr<LightManagerWrapper> EngineWrapper::createLightManager() {
 void EngineWrapper::release() {
   std::unique_lock lock(_mutex);
   Logger::log(TAG, "Releasing engine...");
-  _renderCallback.reset();
+  _renderCallback = nullptr;
   destroySurface();
-  _choreographer.reset();
+  _choreographer = nullptr;
   _surfaceListener->remove();
-  _surfaceListener.reset();
+  _surfaceListener = nullptr;
   if (_surfaceProvider) {
     _surfaceProvider->releaseSurface();
-    _surfaceProvider.reset();
+    _surfaceProvider = nullptr;
   }
-  // Release the scene, this will remove all assets from it and free all materials
+  // Releasing the scene, this will remove all assets from it and free all materials
   _scene->release();
-  _scene.reset();
-  _resourceLoader.reset();
-  _assetLoader.reset();
-  _materialProvider.reset();
+  _scene = nullptr;
+  _resourceLoader = nullptr;
+  _assetLoader = nullptr;
+  _materialProvider = nullptr;
   _camera->release();
-  _camera.reset();
+  _camera = nullptr;
   _view->release();
-  _view.reset();
+  _view = nullptr;
   _renderer->release();
-  _renderer.reset();
-  _cameraManipulator.reset();
+  _renderer = nullptr;
+  _cameraManipulator = nullptr;
   for (const auto& item : _indirectLights) {
     _engine->destroy(item);
   }
   _indirectLights.clear();
-  _engine.reset();
+  _engine = nullptr;
 }
 
 } // namespace margelo

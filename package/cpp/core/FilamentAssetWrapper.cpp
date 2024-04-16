@@ -111,8 +111,8 @@ std::vector<std::shared_ptr<FilamentInstanceWrapper>> FilamentAssetWrapper::getA
 void FilamentAssetWrapper::release() {
   _scene->removeEntities(_asset->getEntities(), _asset->getEntityCount());
   std::unique_lock lock(_mutex); // removeAsset already has its own lock
-  _asset.reset();
-  _scene.reset();
+  _asset = nullptr;
+  _scene = nullptr;
 }
 
 } // namespace margelo

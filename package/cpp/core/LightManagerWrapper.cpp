@@ -174,7 +174,7 @@ std::vector<double> LightManagerWrapper::getSpotLightCone(std::shared_ptr<Entity
 
 void LightManagerWrapper::release() {
   Logger::log("LightManagerWrapper", "Releasing light manager…");
-  _engine.reset();
+  _engine = nullptr;
 }
 
 } // namespace margelo

@@ -30,6 +30,7 @@ export function useEngine({ backend, config, isPaused = false }: EngineProps = {
     context,
     () => {
       'worklet'
+      console.log('Creating engine')
       return FilamentProxy.createEngine(backend ?? undefined, config ?? undefined)
     },
     [backend, config]
