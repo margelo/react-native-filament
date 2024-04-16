@@ -81,7 +81,7 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
   _view = createView();
   _camera = createCamera();
 
-  _view->setScene(_scene->getScene().get());
+  _view->setScene(_scene.get());
   _view->setCamera(_camera->getCamera().get());
 
   _choreographer = choreographer;
@@ -291,7 +291,7 @@ std::shared_ptr<Renderer> EngineWrapper::createRenderer() {
   return renderer;
 }
 
-std::shared_ptr<SceneWrapper> EngineWrapper::createScene() {
+std::shared_ptr<Scene> EngineWrapper::createScene() {
   auto materialProvider = _materialProvider;
   auto dispatcher = _rendererDispatcher;
   std::shared_ptr<Scene> scene = References<Scene>::adoptEngineRef(
@@ -304,7 +304,7 @@ std::shared_ptr<SceneWrapper> EngineWrapper::createScene() {
         });
       });
 
-  return std::make_shared<SceneWrapper>(scene);
+  return scene;
 }
 
 std::shared_ptr<View> EngineWrapper::createView() {
@@ -382,7 +382,7 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::makeAssetWrapper(FilamentAs
   auto asset = References<gltfio::FilamentAsset>::adoptRef(assetPtr, [dispatcher, assetLoader, scene](gltfio::FilamentAsset* asset) {
     dispatcher->runAsync([assetLoader, asset, scene]() {
       Logger::log(TAG, "Destroying asset...");
-      scene->getScene()->removeEntities(asset->getEntities(), asset->getEntityCount());
+      scene->removeEntities(asset->getEntities(), asset->getEntityCount());
       assetLoader->destroyAsset(asset);
     });
   });
@@ -433,7 +433,7 @@ void EngineWrapper::setIndirectLight(std::shared_ptr<FilamentBuffer> iblBuffer, 
   }
 
   IndirectLight* _indirectLight = builder.build(*pointee());
-  _scene->getScene()->setIndirectLight(_indirectLight);
+  _scene->setIndirectLight(_indirectLight);
 }
 
 std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator(int width, int height) {

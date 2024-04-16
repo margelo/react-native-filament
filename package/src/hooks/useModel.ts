@@ -100,7 +100,7 @@ export function useModel({
   }, [asset, context, shouldReleaseSourceData])
 
   // Auto add asset to scene:
-  const scene = useScene(engine)
+  const scene = useScene(engine, 'useModel')
   useEffect(() => {
     if (!autoAddToScene || asset == null) {
       return
@@ -109,19 +109,21 @@ export function useModel({
     Worklets.createRunInContextFn(() => {
       'worklet'
 
-      if (asset == null) return
       scene.addAssetEntities(asset)
     }, context)()
 
+    if (cleanupOnUnmount) {
+      // asset.release() will cause the asset to be removed from the scene internally
+      return
+    }
     return () => {
       Worklets.createRunInContextFn(() => {
         'worklet'
 
-        if (asset == null) return
         scene.removeAssetEntities(asset)
       }, context)()
     }
-  }, [autoAddToScene, asset, context, engine, scene])
+  }, [autoAddToScene, asset, context, engine, scene, cleanupOnUnmount])
 
   // Cleanup native memory when unmounting:
   useEffect(() => {

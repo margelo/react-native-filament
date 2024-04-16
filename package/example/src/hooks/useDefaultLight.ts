@@ -8,7 +8,7 @@ const indirectLightPath = Platform.select({
 
 export function useDefaultLight(engine: Engine, enableDirectionalLight = true) {
   const lightBuffer = useAsset({ path: indirectLightPath })
-  const scene = useScene(engine)
+  const scene = useScene(engine, 'useDefaultLight')
   const lightManager = useLightManager(engine)
 
   useWorkletEffect(() => {
@@ -26,5 +26,5 @@ export function useDefaultLight(engine: Engine, enableDirectionalLight = true) {
     intensity: enableDirectionalLight ? 10_000 : 0,
     position: [0, 0, 0],
   })
-  useEntityInScene(scene, directionalLight)
+  useEntityInScene(scene, directionalLight, 'useDefaultLight')
 }

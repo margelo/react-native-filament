@@ -2,7 +2,7 @@
 
 #include "FilamentAssetWrapper.h"
 #include "core/utils/EntityWrapper.h"
-#include "jsi/HybridObject.h"
+#include "jsi/PointerHolder.h"
 
 #include <filament/Scene.h>
 #include <gltfio/AssetLoader.h>
@@ -12,22 +12,17 @@
 namespace margelo {
 using namespace filament;
 
-class SceneWrapper : public HybridObject {
+class SceneWrapper : public PointerHolder<Scene> {
 public:
-  explicit SceneWrapper(std::shared_ptr<Scene> scene) : HybridObject("SceneWrapper"), _scene(scene) {}
+  explicit SceneWrapper(std::shared_ptr<Scene> scene) : PointerHolder("SceneWrapper", scene) {}
 
   void loadHybridMethods() override;
-
-  std::shared_ptr<Scene> getScene() {
-    return _scene;
-  }
 
   void addAsset(std::shared_ptr<gltfio::FilamentAsset> asset);
   void removeAsset(std::shared_ptr<gltfio::FilamentAsset> asset);
 
 private:
   std::mutex _mutex;
-  std::shared_ptr<Scene> _scene;
 
 private: // Public JS API
   void addEntity(std::shared_ptr<EntityWrapper> entity);

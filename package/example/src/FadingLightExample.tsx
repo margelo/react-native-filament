@@ -79,8 +79,8 @@ function Renderer({ engine }: { engine: Engine }) {
     intensity: lightIntensity,
     position: [0, 0, 0],
   })
-  const scene = useScene(engine)
-  useEntityInScene(scene, lightEntity)
+  const scene = useScene(engine, 'DynamicLight')
+  useEntityInScene(scene, lightEntity, 'DynamicLight')
 
   return (
     <SafeAreaView style={styles.container}>

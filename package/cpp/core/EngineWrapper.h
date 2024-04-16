@@ -113,7 +113,7 @@ private:
   // Internals we create, but share the access with the user
   std::shared_ptr<Renderer> _renderer;
   std::shared_ptr<SwapChainWrapper> _swapChain;
-  std::shared_ptr<SceneWrapper> _scene;
+  std::shared_ptr<Scene> _scene;
   std::shared_ptr<View> _view;
   std::shared_ptr<CameraWrapper> _camera;
   std::shared_ptr<ManipulatorWrapper> _cameraManipulator;
@@ -122,7 +122,7 @@ private:
 private:
   std::shared_ptr<Renderer> createRenderer();
   std::shared_ptr<SwapChainWrapper> createSwapChain(std::shared_ptr<Surface> surface);
-  std::shared_ptr<SceneWrapper> createScene();
+  std::shared_ptr<Scene> createScene();
   std::shared_ptr<View> createView();
   std::shared_ptr<CameraWrapper> createCamera();
   std::shared_ptr<ManipulatorWrapper> createCameraManipulator(int windowWidth, int windowHeight);
@@ -135,7 +135,7 @@ private:
     return _swapChain;
   }
   std::shared_ptr<SceneWrapper> getScene() {
-    return _scene;
+    return std::make_shared<SceneWrapper>(_scene);
   }
   std::shared_ptr<ViewWrapper> getView() {
     return std::make_shared<ViewWrapper>(_view);
