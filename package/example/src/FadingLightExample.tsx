@@ -29,7 +29,7 @@ const cameraTarget: Float3 = [0, 0, 0]
 const cameraUp: Float3 = [0, 1, 0]
 
 function Renderer({ engine }: { engine: Engine }) {
-  useDefaultLight(engine, false)
+  // useDefaultLight(engine, false)
   const asset = useModel({
     engine,
     path: penguModelPath,
@@ -40,34 +40,35 @@ function Renderer({ engine }: { engine: Engine }) {
   const camera = useCamera(engine)
 
   const prevAspectRatio = useSharedValue(0)
-  const assetAnimator = useAssetAnimator(getAssetFromModel(asset))
-  useRenderCallback(
-    engine,
-    useWorkletCallback(
-      (_timestamp: number, _startTime: number, passedSeconds: number) => {
-        'worklet'
+  // const assetAnimator = useAssetAnimator(getAssetFromModel(asset))
+  // useRenderCallback(
+  //   engine,
+  //   useWorkletCallback(
+  //     (_timestamp: number, _startTime: number, passedSeconds: number) => {
+  //       'worklet'
 
-        const aspectRatio = view.getAspectRatio()
-        if (prevAspectRatio.value !== aspectRatio) {
-          prevAspectRatio.value = aspectRatio
-          // Setup camera lens:
-          const { focalLengthInMillimeters, near, far } = Config.camera
-          camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
-          console.log('Updated camera lens!')
-        }
+  //       const aspectRatio = view.getAspectRatio()
+  //       if (prevAspectRatio.value !== aspectRatio) {
+  //         prevAspectRatio.value = aspectRatio
+  //         // Setup camera lens:
+  //         const { focalLengthInMillimeters, near, far } = Config.camera
+  //         camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
+  //         console.log('Updated camera lens!')
+  //       }
 
-        camera.lookAt(cameraPosition, cameraTarget, cameraUp)
+  //       camera.lookAt(cameraPosition, cameraTarget, cameraUp)
 
-        if (assetAnimator == null) {
-          return
-        }
+  //       // if (assetAnimator == null) {
+  //       //   return
+  //       // }
 
-        assetAnimator.applyAnimation(0, passedSeconds)
-        assetAnimator.updateBoneMatrices()
-      },
-      [assetAnimator, camera, prevAspectRatio, view]
-    )
-  )
+  //       // assetAnimator.applyAnimation(0, passedSeconds)
+  //       // assetAnimator.updateBoneMatrices()
+  //     },
+  //     // [assetAnimator, camera, prevAspectRatio, view]
+  //     [camera, prevAspectRatio, view]
+  //   )
+  // )
 
   const lightManager = useLightManager(engine)
   const lightIntensity = useSharedValue(100_000)

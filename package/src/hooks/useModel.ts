@@ -87,49 +87,49 @@ export function useModel({
     }, context)().then(setAsset)
   }, [assetBuffer, context, engine, instanceCount])
 
-  useEffect(() => {
-    if (asset == null || !shouldReleaseSourceData) {
-      return
-    }
-    Worklets.createRunInContextFn(() => {
-      'worklet'
+  // useEffect(() => {
+  //   if (asset == null || !shouldReleaseSourceData) {
+  //     return
+  //   }
+  //   Worklets.createRunInContextFn(() => {
+  //     'worklet'
 
-      // releases CPU memory for bindings
-      asset?.releaseSourceData()
-    }, context)()
-  }, [asset, context, shouldReleaseSourceData])
+  //     // releases CPU memory for bindings
+  //     asset?.releaseSourceData()
+  //   }, context)()
+  // }, [asset, context, shouldReleaseSourceData])
 
-  // Auto add asset to scene:
-  const scene = useScene(engine)
-  useEffect(() => {
-    if (!autoAddToScene || asset == null) {
-      return
-    }
+  // // Auto add asset to scene:
+  // const scene = useScene(engine)
+  // useEffect(() => {
+  //   if (!autoAddToScene || asset == null) {
+  //     return
+  //   }
 
-    Worklets.createRunInContextFn(() => {
-      'worklet'
+  //   Worklets.createRunInContextFn(() => {
+  //     'worklet'
 
-      if (asset == null) return
-      scene.addAssetEntities(asset)
-    }, context)()
+  //     if (asset == null) return
+  //     scene.addAssetEntities(asset)
+  //   }, context)()
 
-    return () => {
-      Worklets.createRunInContextFn(() => {
-        'worklet'
+  //   return () => {
+  //     Worklets.createRunInContextFn(() => {
+  //       'worklet'
 
-        if (asset == null) return
-        scene.removeAssetEntities(asset)
-      }, context)()
-    }
-  }, [autoAddToScene, asset, context, engine, scene])
+  //       if (asset == null) return
+  //       scene.removeAssetEntities(asset)
+  //     }, context)()
+  //   }
+  // }, [autoAddToScene, asset, context, engine, scene])
 
-  // Cleanup native memory when unmounting:
-  useEffect(() => {
-    if (!cleanupOnUnmount) return
-    return () => {
-      assetBuffer?.release()
-    }
-  }, [cleanupOnUnmount, assetBuffer])
+  // // Cleanup native memory when unmounting:
+  // useEffect(() => {
+  //   if (!cleanupOnUnmount) return
+  //   return () => {
+  //     assetBuffer?.release()
+  //   }
+  // }, [cleanupOnUnmount, assetBuffer])
   // Release native memory when the component unmounts
   useEffect(() => {
     if (!cleanupOnUnmount) return

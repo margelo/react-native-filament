@@ -8,10 +8,14 @@ import com.facebook.proguard.annotations.DoNotStrip;
 
 import java.util.concurrent.Executor;
 
-/** @noinspection JavaJniMissingFunction*/
+/**
+ * @noinspection JavaJniMissingFunction
+ */
 public class Dispatcher {
     private final Executor executor;
-    /** @noinspection unused, FieldCanBeLocal */
+    /**
+     * @noinspection unused, FieldCanBeLocal
+     */
     @DoNotStrip
     @Keep
     private final HybridData mHybridData;
@@ -21,13 +25,26 @@ public class Dispatcher {
         this.mHybridData = initHybrid();
     }
 
-    /** @noinspection unused */
+    /**
+     * @noinspection unused
+     */
     @DoNotStrip
     @Keep
     private void scheduleTrigger() {
-        executor.execute(this::trigger);
+        try {
+            executor.execute(() -> {
+                try {
+                    trigger();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private native void trigger();
+
     private native HybridData initHybrid();
 }

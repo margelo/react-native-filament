@@ -29,15 +29,15 @@
 
 namespace margelo {
 
-EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<Dispatcher> dispatcher,
+EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<Dispatcher> rendererDispatcher,
                              const Engine::Config& config, const Engine::Backend& backend)
     : HybridObject("EngineWrapper"), _config(config) {
   // TODO: make the enum for the backend for the engine configurable
-  _dispatcher = dispatcher;
-  _engine = References<Engine>::adoptRef(Engine::Builder().backend(backend).config(&_config).build(), [dispatcher](Engine* engine) {
+  _rendererDispatcher = rendererDispatcher;
+  _engine = References<Engine>::adoptRef(Engine::Builder().backend(backend).config(&_config).build(), [rendererDispatcher](Engine* engine) {
     // Make sure that the engine gets destroyed on the thread that it was created on.
     // It can happen that the engine gets cleaned up by Hades (hermes GC) on a different thread.
-    dispatcher->runAsync([engine]() {
+    rendererDispatcher->runAsync([engine]() {
       Logger::log(TAG, "Destroying engine...");
       Engine::destroy(engine);
     });
@@ -57,8 +57,8 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
   gltfio::AssetConfiguration assetConfig{.engine = _engine.get(), .materials = _materialProvider.get(), .names = ncm};
   gltfio::AssetLoader* assetLoaderPtr = gltfio::AssetLoader::create(assetConfig);
   _assetLoader = References<gltfio::AssetLoader>::adoptEngineRef(
-      _engine, assetLoaderPtr, [ncm, dispatcher](std::shared_ptr<Engine> engine, gltfio::AssetLoader* assetLoader) {
-        dispatcher->runSync([ncm, engine, &assetLoader]() {
+      _engine, assetLoaderPtr, [ncm, rendererDispatcher](std::shared_ptr<Engine> engine, gltfio::AssetLoader* assetLoader) {
+        rendererDispatcher->runSync([ncm, engine, &assetLoader]() {
           Logger::log(TAG, "Destroying asset loader...");
           delete ncm;
           gltfio::AssetLoader::destroy(&assetLoader);
@@ -76,7 +76,7 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
 
   _resourceLoader = References<gltfio::ResourceLoader>::adoptEngineRef(
       _engine, resourceLoaderPtr,
-      [stbProvider, ktx2Provider, dispatcher](std::shared_ptr<Engine> engine, gltfio::ResourceLoader* resourceLoader) {
+      [stbProvider, ktx2Provider, rendererDispatcher](std::shared_ptr<Engine> engine, gltfio::ResourceLoader* resourceLoader) {
         Logger::log(TAG, "Destroying resource loader...");
         resourceLoader->evictResourceData();
         delete resourceLoader;
@@ -137,7 +137,7 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
     setSurface(surface);
   }
 
-  auto dispatcher = _dispatcher;
+  auto dispatcher = _rendererDispatcher;
   std::weak_ptr<EngineWrapper> weakSelf = shared<EngineWrapper>();
   SurfaceProvider::Callback callback{.onSurfaceCreated =
                                          [dispatcher, weakSelf](std::shared_ptr<Surface> surface) {
@@ -298,7 +298,7 @@ void EngineWrapper::renderFrame(double timestamp) {
 }
 
 std::shared_ptr<RendererWrapper> EngineWrapper::createRenderer() {
-  auto dispatcher = _dispatcher;
+  auto dispatcher = _rendererDispatcher;
   std::shared_ptr<Renderer> renderer = References<Renderer>::adoptEngineRef(
       _engine, _engine->createRenderer(), [dispatcher](std::shared_ptr<Engine> engine, Renderer* renderer) {
         dispatcher->runAsync([engine, renderer]() {
@@ -311,9 +311,10 @@ std::shared_ptr<RendererWrapper> EngineWrapper::createRenderer() {
 
 std::shared_ptr<SceneWrapper> EngineWrapper::createScene() {
   auto materialProvider = _materialProvider;
-  auto dispatcher = _dispatcher;
+  auto dispatcher = _rendererDispatcher;
   std::shared_ptr<Scene> scene = References<Scene>::adoptEngineRef(
       _engine, _engine->createScene(), [materialProvider, dispatcher](std::shared_ptr<Engine> engine, Scene* scene) {
+        Logger::log(TAG, "Calling dispatcher to destroy scene...");
         dispatcher->runAsync([materialProvider, engine, scene]() {
           Logger::log(TAG, "Destroying scene...");
 
@@ -327,13 +328,14 @@ std::shared_ptr<SceneWrapper> EngineWrapper::createScene() {
           materialProvider->destroyMaterials();
           engine->destroy(scene);
         });
+        Logger::log(TAG, "Destroyed scene!");
       });
 
   return std::make_shared<SceneWrapper>(scene);
 }
 
 std::shared_ptr<ViewWrapper> EngineWrapper::createView() {
-  auto dispatcher = _dispatcher;
+  auto dispatcher = _rendererDispatcher;
   std::shared_ptr view =
       References<View>::adoptEngineRef(_engine, _engine->createView(), [dispatcher](std::shared_ptr<Engine> engine, View* view) {
         dispatcher->runAsync([engine, view]() {
@@ -346,7 +348,7 @@ std::shared_ptr<ViewWrapper> EngineWrapper::createView() {
 }
 
 std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChain(std::shared_ptr<Surface> surface) {
-  auto dispatcher = _dispatcher;
+  auto dispatcher = _rendererDispatcher;
   void* nativeWindow = surface->getSurface();
   auto swapChain = References<SwapChain>::adoptEngineRef(_engine, _engine->createSwapChain(nativeWindow, SwapChain::CONFIG_TRANSPARENT),
                                                          [dispatcher](std::shared_ptr<Engine> engine, SwapChain* swapChain) {
@@ -361,7 +363,7 @@ std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChain(std::shared_ptr
 }
 
 std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
-  auto dispatcher = _dispatcher;
+  auto dispatcher = _rendererDispatcher;
   std::shared_ptr<Camera> camera = References<Camera>::adoptEngineRef(_engine, _engine->createCamera(_engine->getEntityManager().create()),
                                                                       [dispatcher](std::shared_ptr<Engine> engine, Camera* camera) {
                                                                         dispatcher->runAsync([engine, camera]() {
@@ -401,13 +403,14 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::makeAssetWrapper(FilamentAs
   }
 
   auto assetLoader = _assetLoader;
-  auto dispatcher = _dispatcher;
+  auto dispatcher = _rendererDispatcher;
   auto scene = _scene->getScene();
   auto asset = References<gltfio::FilamentAsset>::adoptRef(assetPtr, [dispatcher, assetLoader, scene](gltfio::FilamentAsset* asset) {
     dispatcher->runAsync([assetLoader, asset, scene]() {
       Logger::log(TAG, "Destroying asset...");
-      scene->removeEntities(asset->getEntities(), asset->getEntityCount());
-      assetLoader->destroyAsset(asset);
+      //      scene->removeEntities(asset->getEntities(), asset->getEntityCount());
+      //      assetLoader->destroyAsset(asset);
+      Logger::log(TAG, "Destroyed asset!");
     });
   });
 
@@ -605,7 +608,7 @@ std::shared_ptr<MaterialWrapper> EngineWrapper::createMaterial(std::shared_ptr<F
     throw std::runtime_error("Material buffer is empty");
   }
 
-  auto dispatcher = _dispatcher;
+  auto dispatcher = _rendererDispatcher;
   Material::Builder builder = Material::Builder().package(buffer->getData(), buffer->getSize());
   std::shared_ptr<Material> material = References<Material>::adoptEngineRef(
       _engine, builder.build(*_engine), [dispatcher](std::shared_ptr<Engine> engine, Material* material) {

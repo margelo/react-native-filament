@@ -76,10 +76,6 @@ void SceneWrapper::addAssetEntities(std::shared_ptr<FilamentAssetWrapper> asset)
   }
 
   std::shared_ptr<gltfio::FilamentAsset> filamentAsset = asset->getAsset();
-  if (filamentAsset == nullptr) {
-    throw std::invalid_argument("Filament asset is null");
-  }
-
   addAsset(filamentAsset);
 }
 
@@ -88,17 +84,13 @@ void SceneWrapper::removeAssetEntities(std::shared_ptr<FilamentAssetWrapper> ass
     throw std::invalid_argument("Asset is null");
   }
 
-  std::shared_ptr<gltfio::FilamentAsset> filamentAsset = asset->getAsset();
-  if (filamentAsset == nullptr) {
-    throw std::invalid_argument("Filament asset is null");
-  }
-
   if (_scene == nullptr) {
     Logger::log("SceneWrapper", "Can't remove entity from scene as it was null. This can happen when release() was already called on the "
                                 "scene.\nNote that the scene removes all entities when it is released.");
     return;
   }
 
+  std::shared_ptr<gltfio::FilamentAsset> filamentAsset = asset->getAsset();
   removeAsset(filamentAsset);
 }
 
