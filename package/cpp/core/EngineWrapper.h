@@ -115,7 +115,7 @@ private:
   std::shared_ptr<SwapChainWrapper> _swapChain;
   std::shared_ptr<Scene> _scene;
   std::shared_ptr<View> _view;
-  std::shared_ptr<CameraWrapper> _camera;
+  std::shared_ptr<Camera> _camera;
   std::shared_ptr<ManipulatorWrapper> _cameraManipulator;
   std::shared_ptr<TransformManagerWrapper> _transformManager;
 
@@ -124,7 +124,7 @@ private:
   std::shared_ptr<SwapChainWrapper> createSwapChain(std::shared_ptr<Surface> surface);
   std::shared_ptr<Scene> createScene();
   std::shared_ptr<View> createView();
-  std::shared_ptr<CameraWrapper> createCamera();
+  std::shared_ptr<Camera> createCamera();
   std::shared_ptr<ManipulatorWrapper> createCameraManipulator(int windowWidth, int windowHeight);
   std::shared_ptr<TransformManagerWrapper> createTransformManager();
   std::shared_ptr<LightManagerWrapper> createLightManager();
@@ -141,7 +141,7 @@ private:
     return std::make_shared<ViewWrapper>(_view);
   }
   std::shared_ptr<CameraWrapper> getCamera() {
-    return _camera;
+    return std::make_shared<CameraWrapper>(_camera);
   }
   std::shared_ptr<ManipulatorWrapper> getCameraManipulator() {
     return _cameraManipulator;

@@ -48,12 +48,5 @@ export function useEngine({ backend, config, isPaused = false }: EngineProps = {
     engine.setIsPaused(isPaused)
   }, [engine, isPaused])
 
-  useEffect(() => {
-    if (engine == null) return
-    return () => {
-      engine.release()
-    }
-  }, [engine])
-
   return engine
 }

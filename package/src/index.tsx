@@ -2,6 +2,7 @@ export * from './types'
 
 // react components
 export * from './Filament'
+export * from './FilamentContext'
 
 // hooks
 export * from './hooks/useWorkletEffect'

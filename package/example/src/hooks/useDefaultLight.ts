@@ -1,22 +1,21 @@
 import { Platform } from 'react-native'
-import { Engine, useAsset, useEntityInScene, useLightEntity, useLightManager, useScene, useWorkletEffect } from 'react-native-filament'
+import { useAsset, useEntityInScene, useFilamentContext, useLightEntity, useWorkletEffect } from 'react-native-filament'
 
 const indirectLightPath = Platform.select({
   android: 'custom/default_env_ibl.ktx',
   ios: 'default_env_ibl.ktx',
 })!
 
-export function useDefaultLight(engine: Engine, enableDirectionalLight = true) {
+export function useDefaultLight(enableDirectionalLight = true) {
   const lightBuffer = useAsset({ path: indirectLightPath })
-  const scene = useScene(engine, 'useDefaultLight')
-  const lightManager = useLightManager(engine)
+  const { engine, scene, lightManager } = useFilamentContext()
 
   useWorkletEffect(() => {
     'worklet'
 
     if (lightBuffer == null) return
     engine.setIndirectLight(lightBuffer, 25_000, undefined)
-  }, [engine, lightBuffer, scene])
+  }, [engine, lightBuffer])
 
   const directionalLight = useLightEntity(lightManager, {
     type: 'directional',
@@ -26,5 +25,5 @@ export function useDefaultLight(engine: Engine, enableDirectionalLight = true) {
     intensity: enableDirectionalLight ? 10_000 : 0,
     position: [0, 0, 0],
   })
-  useEntityInScene(scene, directionalLight, 'useDefaultLight')
+  useEntityInScene(scene, directionalLight)
 }

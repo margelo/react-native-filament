@@ -5,7 +5,7 @@
 #pragma once
 
 #include "core/utils/EntityWrapper.h"
-#include "jsi/HybridObject.h"
+#include "jsi/PointerHolder.h"
 #include <filament/Engine.h>
 #include <filament/LightManager.h>
 
@@ -13,10 +13,10 @@ namespace margelo {
 
 using namespace filament;
 
-class LightManagerWrapper : public HybridObject {
+class LightManagerWrapper : public PointerHolder<Engine> {
 public:
   explicit LightManagerWrapper(std::shared_ptr<Engine> engine)
-      : HybridObject("LightManager"), _engine(engine), _lightManager(_engine->getLightManager()) {}
+      : PointerHolder("LightManager", engine), _lightManager(pointee()->getLightManager()) {}
 
   void loadHybridMethods() override;
 
@@ -45,8 +45,7 @@ private:
 
 private:
   std::mutex _mutex;
-  std::shared_ptr<Engine> _engine; // Hold a reference to the engine
-  LightManager& _lightManager;     // As long is the engine is alive, this light manager is alive
+  LightManager& _lightManager; // As long is the engine is alive, this light manager is alive
 };
 
 } // namespace margelo

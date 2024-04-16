@@ -9,7 +9,7 @@
 #include "MaterialInstanceWrapper.h"
 #include "MaterialWrapper.h"
 #include "core/utils/EntityWrapper.h"
-#include "jsi/HybridObject.h"
+#include "jsi/PointerHolder.h"
 
 #include <filament/RenderableManager.h>
 #include <gltfio/TextureProvider.h>
@@ -20,12 +20,13 @@ using namespace gltfio;
 
 class EngineWrapper;
 
-class RenderableManagerWrapper : public HybridObject {
+// TODO: Create an internal implementation class (no hyberid object or pointer holder), and hold that in the Wrapper PointerHolder
+class RenderableManagerWrapper : public PointerHolder<Engine> {
 public:
-  explicit RenderableManagerWrapper(RenderableManager& renderableManager, std::shared_ptr<TextureProvider> textureProvider,
-                                    std::shared_ptr<Engine> engine)
-      : HybridObject("RenderableManagerWrapper"), _renderableManager(renderableManager), _textureProvider(textureProvider),
-        _engine(engine) {}
+  explicit RenderableManagerWrapper(std::shared_ptr<Engine> engine)
+      : PointerHolder("RenderableManagerWrapper", engine), _renderableManager(engine->getRenderableManager()) {
+    _textureProvider = std::shared_ptr<TextureProvider>(filament::gltfio::createStbProvider(pointee().get()));
+  }
 
   void loadHybridMethods() override;
 
@@ -70,7 +71,6 @@ private:
 private:
   RenderableManager& _renderableManager;
   std::shared_ptr<TextureProvider> _textureProvider;
-  std::shared_ptr<Engine> _engine;
 
 private:
   constexpr static const char* TAG = "RenderableManagerWrapper";

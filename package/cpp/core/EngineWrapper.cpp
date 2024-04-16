@@ -82,7 +82,7 @@ EngineWrapper::EngineWrapper(std::shared_ptr<Choreographer> choreographer, std::
   _camera = createCamera();
 
   _view->setScene(_scene.get());
-  _view->setCamera(_camera->getCamera().get());
+  _view->setCamera(_camera.get());
 
   _choreographer = choreographer;
   _transformManager = createTransformManager();
@@ -335,7 +335,7 @@ std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChain(std::shared_ptr
   return std::make_shared<SwapChainWrapper>(swapChain);
 }
 
-std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
+std::shared_ptr<Camera> EngineWrapper::createCamera() {
   auto dispatcher = _rendererDispatcher;
   std::shared_ptr<Camera> camera =
       References<Camera>::adoptEngineRef(pointee(), pointee()->createCamera(pointee()->getEntityManager().create()),
@@ -351,7 +351,7 @@ std::shared_ptr<CameraWrapper> EngineWrapper::createCamera() {
   const float shutterSpeed = 1.0f / 125.0f;
   const float sensitivity = 100.0f;
   camera->setExposure(aperture, shutterSpeed, sensitivity);
-  return std::make_shared<CameraWrapper>(camera);
+  return camera;
 }
 
 std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer) {
@@ -562,12 +562,7 @@ void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> en
 
 std::shared_ptr<RenderableManagerWrapper> EngineWrapper::createRenderableManager() {
   std::unique_lock lock(_mutex);
-  RenderableManager& rm = pointee()->getRenderableManager();
-
-  // Create a new texture provider
-  auto stbTextureProvider = std::shared_ptr<TextureProvider>(filament::gltfio::createStbProvider(pointee().get()));
-
-  return std::make_shared<RenderableManagerWrapper>(rm, stbTextureProvider, pointee());
+  return std::make_shared<RenderableManagerWrapper>(pointee());
 }
 
 std::shared_ptr<MaterialWrapper> EngineWrapper::createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer) {

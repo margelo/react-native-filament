@@ -36,7 +36,7 @@ std::shared_ptr<EntityWrapper> LightManagerWrapper::createLightEntity(const std:
                                                                       std::optional<bool> castShadows, std::optional<double> falloffRadius,
                                                                       std::optional<std::vector<double>> spotLightCone) {
   std::unique_lock lock(_mutex);
-  EntityManager& entityManager = _engine->getEntityManager();
+  EntityManager& entityManager = pointee()->getEntityManager();
   auto lightEntity = entityManager.create();
 
   // TODO(Marc): Fix enum converter
@@ -72,7 +72,7 @@ std::shared_ptr<EntityWrapper> LightManagerWrapper::createLightEntity(const std:
     builder.spotLightCone(spotLightConesVec[0], spotLightConesVec[1]);
   }
 
-  builder.build(*_engine, lightEntity);
+  builder.build(*pointee(), lightEntity);
   return std::make_shared<EntityWrapper>(lightEntity);
 }
 

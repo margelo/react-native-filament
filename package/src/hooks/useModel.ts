@@ -1,15 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AssetProps, useAsset } from './useAsset'
-import { Engine } from '../types'
 import { FilamentAsset } from '../types/FilamentAsset'
-import { FilamentProxy } from '../native/FilamentProxy'
-import { useScene } from './useScene'
+import { useFilamentContext } from '../FilamentContext'
 
 interface ModelProps extends AssetProps {
-  /**
-   * The Filament engine this model should be loaded into.
-   */
-  engine: Engine
   /**
    * Whether source data of the model should be released after loading, or not.
    * @default false
@@ -58,15 +52,14 @@ export type FilamentModel =
  */
 export function useModel({
   path,
-  engine,
   shouldReleaseSourceData,
   autoAddToScene = true,
   instanceCount,
   cleanupOnUnmount = true,
 }: ModelProps): FilamentModel {
+  const { engine, scene, _workletContext } = useFilamentContext()
   const assetBuffer = useAsset({ path: path })
   const [asset, setAsset] = useState<FilamentAsset | undefined>(undefined)
-  const context = useMemo(() => FilamentProxy.getWorkletContext(), [])
 
   useEffect(() => {
     Worklets.createRunInContextFn(() => {
@@ -84,8 +77,8 @@ export function useModel({
       }
 
       return loadedAsset
-    }, context)().then(setAsset)
-  }, [assetBuffer, context, engine, instanceCount])
+    }, _workletContext)().then(setAsset)
+  }, [assetBuffer, _workletContext, engine, instanceCount])
 
   useEffect(() => {
     if (asset == null || !shouldReleaseSourceData) {
@@ -96,11 +89,10 @@ export function useModel({
 
       // releases CPU memory for bindings
       asset?.releaseSourceData()
-    }, context)()
-  }, [asset, context, shouldReleaseSourceData])
+    }, _workletContext)()
+  }, [asset, _workletContext, shouldReleaseSourceData])
 
   // Auto add asset to scene:
-  const scene = useScene(engine, 'useModel')
   useEffect(() => {
     if (!autoAddToScene || asset == null) {
       return
@@ -110,7 +102,7 @@ export function useModel({
       'worklet'
 
       scene.addAssetEntities(asset)
-    }, context)()
+    }, _workletContext)()
 
     if (cleanupOnUnmount) {
       // asset.release() will cause the asset to be removed from the scene internally
@@ -121,9 +113,9 @@ export function useModel({
         'worklet'
 
         scene.removeAssetEntities(asset)
-      }, context)()
+      }, _workletContext)()
     }
-  }, [autoAddToScene, asset, context, engine, scene, cleanupOnUnmount])
+  }, [autoAddToScene, asset, _workletContext, engine, scene, cleanupOnUnmount])
 
   // Cleanup native memory when unmounting:
   useEffect(() => {

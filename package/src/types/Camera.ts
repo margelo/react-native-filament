@@ -1,4 +1,5 @@
 import { Manipulator } from './Manipulator'
+import { PointerHolder } from './PointerHolder'
 import { Float3 } from './float3'
 
 /**
@@ -79,7 +80,7 @@ import { Float3 } from './float3'
  * @see View
  */
 
-export interface Camera {
+export interface Camera extends PointerHolder {
   // Convenience method
   lookAtCameraManipulator(cameraManipulator: Manipulator): void
   /**
