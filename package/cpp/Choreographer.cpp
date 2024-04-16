@@ -12,9 +12,7 @@ std::shared_ptr<Listener> Choreographer::addOnFrameListener(Choreographer::OnFra
 }
 
 void Choreographer::onFrame(double timestamp) {
-  for (const auto& listener : _listeners->getListeners()) {
-    listener(timestamp);
-  }
+  _listeners->forEach([=](const OnFrameCallback& callback) { callback(timestamp); });
 }
 
 } // namespace margelo
