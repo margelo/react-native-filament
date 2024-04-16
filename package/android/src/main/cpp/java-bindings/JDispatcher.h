@@ -31,7 +31,7 @@ private:
 private:
   std::queue<std::function<void()>> _jobs;
   std::recursive_mutex _mutex;
-  std::mutex _syncMutex;
+  std::recursive_mutex _syncMutex;
 
 private:
   static auto constexpr TAG = "JDispatcher";
