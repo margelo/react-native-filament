@@ -16,7 +16,7 @@ namespace margelo {
 template <typename Callback> class ListenerManager : public std::enable_shared_from_this<ListenerManager<Callback>> {
 private:
   std::list<Callback> _listeners;
-  std::recursive_mutex _mutex;
+  std::mutex _mutex;
 
 public:
   std::shared_ptr<Listener> add(Callback listener) {
