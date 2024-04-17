@@ -295,7 +295,7 @@ std::shared_ptr<SwapChainWrapper> EngineImpl::createSwapChain(std::shared_ptr<Su
   auto swapChain = References<SwapChain>::adoptEngineRef(_engine, _engine->createSwapChain(nativeWindow, SwapChain::CONFIG_TRANSPARENT),
                                                          [dispatcher](std::shared_ptr<Engine> engine, SwapChain* swapChain) {
                                                            // We need to call this as soon as possible, so we run it with runSync
-                                                           dispatcher->runSync([engine, swapChain]() {
+                                                           dispatcher->runAsync([engine, swapChain]() {
                                                              Logger::log(TAG, "Destroying swapchain...");
                                                              engine->destroy(swapChain);
                                                              // Required to ensure we don't return before Filament is done executing the
