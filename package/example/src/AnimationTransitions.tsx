@@ -12,6 +12,7 @@ import {
   useWorkletCallback,
   FilamentProvider,
   useFilamentContext,
+  prepareForCleanup,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
@@ -45,11 +46,11 @@ function Renderer() {
     return pirateHatAsset.createAnimatorWithAnimationsFrom(penguAsset)
   }, [penguAsset, pirateHatAsset])
   useEffect(() => {
-    return () => {
+    return prepareForCleanup(() => {
       if (pirateHatAnimator != null) {
         pirateHatAnimator.release?.()
       }
-    }
+    })
   }, [pirateHatAnimator])
 
   const isPirateHatAdded = useRef(true) // assets are added by default to the scene

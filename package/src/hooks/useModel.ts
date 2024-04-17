@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { AssetProps, useAsset } from './useAsset'
 import { FilamentAsset } from '../types/FilamentAsset'
 import { useFilamentContext } from '../FilamentContext'
+import { prepareForCleanup } from '../utilities/prepareForCleanup'
 
 interface ModelProps extends AssetProps {
   /**
@@ -126,9 +127,9 @@ export function useModel({
   // Release native memory when the component unmounts
   useEffect(() => {
     if (!cleanupOnUnmount) return
-    return () => {
+    return prepareForCleanup(() => {
       asset?.release()
-    }
+    })
   }, [cleanupOnUnmount, asset])
 
   if (assetBuffer == null || asset == null) {
