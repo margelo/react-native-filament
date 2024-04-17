@@ -122,12 +122,10 @@ void EngineImpl::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProv
                                          },
                                      .onSurfaceDestroyed =
                                          [dispatcher, weakSelf](std::shared_ptr<Surface> surface) {
-                                           dispatcher->runAsync([=]() {
-                                             auto sharedThis = weakSelf.lock();
-                                             if (sharedThis != nullptr) {
-                                               sharedThis->destroySurface();
-                                             }
-                                           });
+                                           auto sharedThis = weakSelf.lock();
+                                           if (sharedThis != nullptr) {
+                                             sharedThis->destroySurface();
+                                           }
                                          }};
   _surfaceListener = surfaceProvider->addOnSurfaceChangedListener(std::move(callback));
 }
@@ -296,10 +294,15 @@ std::shared_ptr<SwapChainWrapper> EngineImpl::createSwapChain(std::shared_ptr<Su
   void* nativeWindow = surface->getSurface();
   auto swapChain = References<SwapChain>::adoptEngineRef(_engine, _engine->createSwapChain(nativeWindow, SwapChain::CONFIG_TRANSPARENT),
                                                          [dispatcher](std::shared_ptr<Engine> engine, SwapChain* swapChain) {
-                                                           dispatcher->runAsync([engine, swapChain]() {
+                                                           // We need to call this as soon as possible, so we run it with runSync
+                                                           dispatcher->runSync([engine, swapChain]() {
                                                              Logger::log(TAG, "Destroying swapchain...");
                                                              engine->destroy(swapChain);
+                                                             // Required to ensure we don't return before Filament is done executing the
+                                                             // destroySwapChain command, otherwise Android might destroy the Surface
+                                                             // too early
                                                              engine->flushAndWait();
+                                                             Logger::log(TAG, "Destroyed swapchain!");
                                                            });
                                                          });
 

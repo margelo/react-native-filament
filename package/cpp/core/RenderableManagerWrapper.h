@@ -25,6 +25,7 @@ class RenderableManagerWrapper : public PointerHolder<Engine> {
 public:
   explicit RenderableManagerWrapper(std::shared_ptr<Engine> engine)
       : PointerHolder("RenderableManagerWrapper", engine), _renderableManager(engine->getRenderableManager()) {
+    // TODO: We get crashes when the _textureProvider gets deleted here sometimes, fix!!
     _textureProvider = std::shared_ptr<TextureProvider>(filament::gltfio::createStbProvider(pointee().get()));
   }
 
