@@ -37,9 +37,9 @@ add_library(
     ../cpp/test/TestHybridObject.cpp
 
     # Filament Core
+    ../cpp/core/EngineImpl.cpp
     ../cpp/core/EngineWrapper.cpp
     ../cpp/core/EngineConfigHelper.cpp
-    ../cpp/core/RendererWrapper.cpp
     ../cpp/core/SceneWrapper.cpp
     ../cpp/core/CameraWrapper.cpp
     ../cpp/core/ViewWrapper.cpp
@@ -49,7 +49,9 @@ add_library(
     ../cpp/core/TransformManagerWrapper.cpp
     ../cpp/core/AABBWrapper.cpp
     ../cpp/core/MaterialInstanceWrapper.cpp
+    ../cpp/core/RenderableManagerImpl.cpp
     ../cpp/core/RenderableManagerWrapper.cpp
+    ../cpp/core/MaterialImpl.cpp
     ../cpp/core/MaterialWrapper.cpp
     ../cpp/core/FilamentInstanceWrapper.cpp
     ../cpp/core/LightManagerWrapper.cpp

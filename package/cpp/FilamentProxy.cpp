@@ -5,6 +5,7 @@
 #include "FilamentProxy.h"
 #include <jsi/jsi.h>
 
+#include "References.h"
 #include "core/EngineBackendEnum.h"
 #include "core/EngineConfigHelper.h"
 #include "jsi/Promise.h"
@@ -96,15 +97,29 @@ std::shared_ptr<TestHybridObject> FilamentProxy::createTestObject() {
 std::shared_ptr<EngineWrapper> FilamentProxy::createEngine(std::optional<std::string> backend,
                                                            std::optional<std::unordered_map<std::string, int>> arguments) {
   Logger::log(TAG, "Creating Engine...");
+
+  std::shared_ptr<Choreographer> choreographer = createChoreographer();
+  std::shared_ptr<Dispatcher> renderThread = getRenderThreadDispatcher();
+
   Engine::Config config = EngineConfigHelper::makeConfigFromUserParams(arguments);
   Engine::Backend backendEnum = Engine::Backend::DEFAULT;
   if (backend.has_value()) {
     EnumMapper::convertJSUnionToEnum(backend.value(), &backendEnum);
   }
 
-  std::shared_ptr<Choreographer> choreographer = createChoreographer();
-  std::shared_ptr<Dispatcher> renderThread = getRenderThreadDispatcher();
-  return std::make_shared<EngineWrapper>(choreographer, renderThread, std::move(config), backendEnum);
+  std::shared_ptr<Engine> engine =
+      References<Engine>::adoptRef(Engine::Builder().backend(backendEnum).config(&config).build(), [renderThread](Engine* engine) {
+        // Make sure that the engine gets destroyed on the thread that it was created on.
+        // It can happen that the engine gets cleaned up by Hades (hermes GC) on a different thread.
+        renderThread->runAsync([engine]() {
+          Logger::log(TAG, "Destroying engine...");
+          Engine::destroy(engine);
+        });
+      });
+
+  std::shared_ptr<EngineImpl> engineImpl = std::make_shared<EngineImpl>(choreographer, renderThread, engine);
+
+  return std::make_shared<EngineWrapper>(engineImpl);
 }
 
 std::shared_ptr<BulletWrapper> FilamentProxy::createBullet() {

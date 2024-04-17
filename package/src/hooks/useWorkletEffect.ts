@@ -1,11 +1,11 @@
-import { useEffect, useMemo } from 'react'
-import { FilamentProxy } from '../native/FilamentProxy'
+import { useEffect } from 'react'
+import { useFilamentContext } from '../FilamentContext'
 
 export function useWorkletEffect(workletFunction: (...args: any[]) => void, deps: any[] = []) {
-  const context = useMemo(() => FilamentProxy.getWorkletContext(), [])
+  const { _workletContext } = useFilamentContext()
 
   useEffect(() => {
-    Worklets.createRunInContextFn(workletFunction, context)()
+    Worklets.createRunInContextFn(workletFunction, _workletContext)()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps)
 }

@@ -1,5 +1,6 @@
 import { Camera } from './Camera'
 import { AmbientOcclusionOptions } from './Options'
+import { PointerHolder } from './PointerHolder'
 import { Scene } from './Scene'
 
 /**
@@ -21,7 +22,7 @@ import { Scene } from './Scene'
  * effects (e.g. a `View` is akin to a rendering pass).
  **/
 
-export interface View {
+export interface View extends PointerHolder {
   camera: Camera
   scene: Scene
   // Can return 0 if the view isn't ready yet.

@@ -2,18 +2,19 @@ import React from 'react'
 import { findNodeHandle, NativeMethods } from 'react-native'
 import { FilamentProxy } from './native/FilamentProxy'
 import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
-import { Engine } from './types'
 import { reportError } from './ErrorUtils'
 import { Worklets } from 'react-native-worklets-core'
+import { FilamentContext } from './FilamentContext'
 
-export interface FilamentProps extends NativeProps {
-  engine: Engine
-}
+export interface FilamentProps extends NativeProps {}
 
 type RefType = React.Component<NativeProps> & Readonly<NativeMethods>
 
 export class Filament extends React.PureComponent<FilamentProps> {
   private readonly ref: React.RefObject<RefType>
+  static contextType = FilamentContext
+  // @ts-ignore
+  context!: React.ContextType<typeof FilamentContext>
 
   constructor(props: FilamentProps) {
     super(props)
@@ -31,6 +32,10 @@ export class Filament extends React.PureComponent<FilamentProps> {
   }
 
   onViewReady = async () => {
+    if (this.context == null) {
+      throw new Error('Filament component must be used within a FilamentProvider!')
+    }
+
     try {
       const handle = this.handle
       const view = await FilamentProxy.findFilamentView(handle)
@@ -39,12 +44,11 @@ export class Filament extends React.PureComponent<FilamentProps> {
       }
       const surfaceProvider = view.getSurfaceProvider()
       // Link the surface with the engine:
-      const context = FilamentProxy.getWorkletContext()
-      const engine = this.props.engine
+      const engine = this.context.engine
       Worklets.createRunInContextFn(() => {
         'worklet'
         engine.setSurfaceProvider(surfaceProvider)
-      }, context)()
+      }, this.context._workletContext)()
     } catch (e) {
       reportError(e)
     }
@@ -52,8 +56,6 @@ export class Filament extends React.PureComponent<FilamentProps> {
 
   /** @internal */
   public render(): React.ReactNode {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { engine, ...nativeProps } = this.props
-    return <FilamentNativeView ref={this.ref} onViewReady={this.onViewReady} {...nativeProps} />
+    return <FilamentNativeView ref={this.ref} onViewReady={this.onViewReady} {...this.props} />
   }
 }

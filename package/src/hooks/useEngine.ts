@@ -3,7 +3,7 @@ import type { Engine, EngineBackend, EngineConfig } from '../types'
 import { FilamentProxy } from '../native/FilamentProxy'
 import { useWorklet } from 'react-native-worklets-core'
 
-interface EngineProps {
+export interface EngineProps {
   /**
    * Whether the Engine render pipeline is paused or not.
    * @default false
@@ -24,6 +24,7 @@ interface EngineProps {
 
 export function useEngine({ backend, config, isPaused = false }: EngineProps = {}): Engine | undefined {
   const [engine, setEngine] = useState<Engine | undefined>(undefined)
+  // Note: we can't use the FilamentContext here, as useEngine is used to create the context itself.
   const context = useMemo(() => FilamentProxy.getWorkletContext(), [])
 
   const createEngine = useWorklet(
@@ -47,14 +48,6 @@ export function useEngine({ backend, config, isPaused = false }: EngineProps = {
     if (engine == null) return
     engine.setIsPaused(isPaused)
   }, [engine, isPaused])
-
-  // TODO: Fix for cleanup to actually work
-  // useEffect(() => {
-  //   if (engine == null) return
-  //   return () => {
-  //     engine.release()
-  //   }
-  // }, [engine])
 
   return engine
 }

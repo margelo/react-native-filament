@@ -13,10 +13,11 @@ import { TransformManager } from './TransformManager'
 import { RenderableManager } from './RenderableManager'
 import { Material } from './Material'
 import { LightManager } from './LightManager'
+import { PointerHolder } from './PointerHolder'
 
 export type RenderCallback = (timestamp: number, startTime: number, passedSeconds: number) => void
 
-export interface Engine {
+export interface Engine extends PointerHolder {
   setSurfaceProvider(surfaceProvider: SurfaceProvider): void
   setRenderCallback(callback: RenderCallback | undefined): void
 
@@ -90,6 +91,4 @@ export interface Engine {
   createMaterial(matcBuffer: FilamentBuffer): Material
 
   createLightManager(): LightManager
-
-  release(): void
 }

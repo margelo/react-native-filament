@@ -4,6 +4,7 @@ import { FilamentAsset } from './FilamentAsset'
 import { FilamentInstance } from './FilamentInstance'
 import { Material } from './Material'
 import { MaterialInstance } from './MaterialInstance'
+import { PointerHolder } from './PointerHolder'
 
 export type TextureFlags = 'none' | 'sRGB'
 
@@ -38,7 +39,7 @@ export type TextureFlags = 'none' | 'sRGB'
  * - To associate a 4x4 transform with an entity, see TransformManager.
  * - To associate a human-readable label with an entity, see utils::NameComponentManager.
  */
-export interface RenderableManager {
+export interface RenderableManager extends PointerHolder {
   getPrimitiveCount(renderable: Entity): number
   getMaterialInstanceAt(renderable: Entity, index: number): MaterialInstance
   setMaterialInstanceAt(renderable: Entity, index: number, material: MaterialInstance): void

@@ -32,7 +32,7 @@ export interface PointerHolder {
    * Get if the refernce to the native pointer is still valid and strong.
    *
    * If this is `false`, this object has been manually released with
-   * {@linkcode release()} and all other methods on this object will throw an Error.
+   * {@linkcode release}() and all other methods on this object will throw an Error.
    */
   readonly isValid: boolean
 }

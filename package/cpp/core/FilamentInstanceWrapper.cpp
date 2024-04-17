@@ -9,7 +9,7 @@ namespace margelo {
 void FilamentInstanceWrapper::loadHybridMethods() {
   registerHybridMethod("getEntities", &FilamentInstanceWrapper::getEntities, this);
   registerHybridMethod("getRoot", &FilamentInstanceWrapper::getRoot, this);
-  registerHybridMethod("getAnimator", &FilamentInstanceWrapper::getAnimator, this);
+  registerHybridMethod("createAnimator", &FilamentInstanceWrapper::createAnimator, this);
   registerHybridMethod("getBoundingBox", &FilamentInstanceWrapper::getBoundingBox, this);
 }
 
@@ -28,8 +28,9 @@ std::shared_ptr<EntityWrapper> FilamentInstanceWrapper::getRoot() {
   return std::make_shared<EntityWrapper>(rootEntity);
 }
 
-std::shared_ptr<AnimatorWrapper> FilamentInstanceWrapper::getAnimator() {
-  return std::make_shared<AnimatorWrapper>(_instance);
+std::shared_ptr<AnimatorWrapper> FilamentInstanceWrapper::createAnimator() {
+  Animator* animator = _instance->getAnimator();
+  return std::make_shared<AnimatorWrapper>(animator);
 }
 std::shared_ptr<AABBWrapper> FilamentInstanceWrapper::getBoundingBox() {
   auto box = _instance->getBoundingBox();

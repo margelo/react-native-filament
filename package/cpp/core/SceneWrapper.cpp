@@ -19,7 +19,7 @@ void margelo::SceneWrapper::addEntity(std::shared_ptr<EntityWrapper> entity) {
     throw std::invalid_argument("Entity is null");
   }
 
-  _scene->addEntity(entity->getEntity());
+  pointee()->addEntity(entity->getEntity());
 }
 
 void SceneWrapper::removeEntity(std::shared_ptr<EntityWrapper> entity) {
@@ -29,7 +29,7 @@ void SceneWrapper::removeEntity(std::shared_ptr<EntityWrapper> entity) {
     throw std::invalid_argument("Entity is null");
   }
 
-  _scene->remove(entity->getEntity());
+  pointee()->remove(entity->getEntity());
 }
 
 void SceneWrapper::addAsset(std::shared_ptr<gltfio::FilamentAsset> asset) {
@@ -40,7 +40,7 @@ void SceneWrapper::addAsset(std::shared_ptr<gltfio::FilamentAsset> asset) {
     return;
   }
 
-  _scene->addEntities(asset->getEntities(), asset->getEntityCount());
+  pointee()->addEntities(asset->getEntities(), asset->getEntityCount());
 }
 
 void SceneWrapper::removeAsset(std::shared_ptr<gltfio::FilamentAsset> asset) {
@@ -54,7 +54,7 @@ void SceneWrapper::removeAsset(std::shared_ptr<gltfio::FilamentAsset> asset) {
   Logger::log("SceneWrapper", "Removing an asset from scene");
   auto entities = asset->getEntities();
   auto entityCount = asset->getEntityCount();
-  _scene->removeEntities(entities, entityCount);
+  pointee()->removeEntities(entities, entityCount);
 }
 
 void SceneWrapper::removeAssetEntities(std::shared_ptr<FilamentAssetWrapper> asset) {
@@ -84,7 +84,7 @@ void SceneWrapper::addAssetEntities(std::shared_ptr<FilamentAssetWrapper> asset)
 }
 
 int SceneWrapper::getEntityCount() {
-  return _scene->getEntityCount();
+  return pointee()->getEntityCount();
 }
 
 } // namespace margelo
