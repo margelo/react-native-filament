@@ -2,16 +2,14 @@ import React from 'react'
 import { useSharedValue } from 'react-native-worklets-core'
 import { Button, Platform, SafeAreaView, StyleSheet } from 'react-native'
 import {
-  Engine,
   Filament,
+  FilamentProvider,
   Float3,
   getAssetFromModel,
   useAssetAnimator,
-  useCamera,
-  useEngine,
+  useFilamentContext,
   useModel,
   useRenderCallback,
-  useView,
   useWorkletCallback,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
@@ -23,29 +21,24 @@ const penguModelPath = Platform.select({
   ios: 'pengu.glb',
 })!
 
-function Model({ engine }: { engine: Engine }) {
+function Model() {
   useModel({
-    engine,
     path: getAssetPath('coffeeshop.glb'),
     autoAddToScene: true,
   })
   useModel({
-    engine,
     path: getAssetPath('coffeeshop_table_level03.glb'),
     autoAddToScene: true,
   })
   useModel({
-    engine,
     path: getAssetPath('coffeeshop_seating_level03.glb'),
     autoAddToScene: true,
   })
   useModel({
-    engine,
     path: getAssetPath('coffeeshop_plant_level03.glb'),
     autoAddToScene: true,
   })
   useModel({
-    engine,
     path: getAssetPath('coffeeshop_machine_level03.glb'),
     autoAddToScene: true,
   })
@@ -57,16 +50,13 @@ const cameraPosition: Float3 = [0, 3, 13]
 const cameraTarget: Float3 = [0, 0, 0]
 const cameraUp: Float3 = [0, 1, 0]
 
-function Renderer({ engine }: { engine: Engine }) {
-  useDefaultLight(engine)
+function Renderer() {
+  const { engine, camera, view } = useFilamentContext()
+  useDefaultLight()
   const asset = useModel({
-    engine,
     path: penguModelPath,
     autoAddToScene: true,
   })
-
-  const view = useView(engine)
-  const camera = useCamera(engine)
 
   const prevAspectRatio = useSharedValue(0)
   const assetAnimator = useAssetAnimator(getAssetFromModel(asset))
@@ -102,8 +92,8 @@ function Renderer({ engine }: { engine: Engine }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Filament style={styles.filamentView} engine={engine} />
-      {showItem && <Model engine={engine} />}
+      <Filament style={styles.filamentView} />
+      {showItem && <Model />}
       <Button
         title="Toggle item"
         onPress={() => {
@@ -118,10 +108,11 @@ function Renderer({ engine }: { engine: Engine }) {
 }
 
 export function WorkletExample() {
-  const engine = useEngine()
-
-  if (engine == null) return null
-  return <Renderer engine={engine} />
+  return (
+    <FilamentProvider>
+      <Renderer />
+    </FilamentProvider>
+  )
 }
 
 const styles = StyleSheet.create({
