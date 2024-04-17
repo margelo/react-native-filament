@@ -1,12 +1,6 @@
 import React, { PropsWithChildren, useEffect, useMemo } from 'react'
 import { Camera, Engine, LightManager, RenderableManager, Scene, TransformManager, View } from './types'
-import { useTransformManager } from './hooks/useTransformManager'
-import { useRenderableManager } from './hooks/useRenderableManager'
-import { useScene } from './hooks/useScene'
-import { useLightManager } from './hooks/useLightManager'
 import { useEngine } from './hooks/useEngine'
-import { useView } from './hooks/useView'
-import { useCamera } from './hooks/useCamera'
 import { IWorkletContext } from 'react-native-worklets-core'
 import { FilamentProxy } from './native/FilamentProxy'
 import { InteractionManager } from 'react-native'
@@ -45,12 +39,12 @@ type Props = PropsWithChildren<{
 
 // Internal component that actually sets the context; its set once the engine is ready and we can creates values for all APIs
 function EngineAPIProvider({ children, engine }: Props) {
-  const transformManager = useTransformManager(engine)
-  const renderableManager = useRenderableManager(engine)
-  const scene = useScene(engine)
-  const lightManager = useLightManager(engine)
-  const view = useView(engine)
-  const camera = useCamera(engine)
+  const transformManager = useMemo(() => engine.getTransformManager(), [engine])
+  const renderableManager = useMemo(() => engine.createRenderableManager(), [engine])
+  const scene = useMemo(() => engine.getScene(), [engine])
+  const lightManager = useMemo(() => engine.createLightManager(), [engine])
+  const view = useMemo(() => engine.getView(), [engine])
+  const camera = useMemo(() => engine.getCamera(), [engine])
   const workletContext = useMemo(() => FilamentProxy.getWorkletContext(), [])
 
   const value = useMemo(
@@ -84,7 +78,19 @@ type FilamentProviderProps = PropsWithChildren<{
   fallback?: React.ReactElement
 }>
 
-// TODO: Add documentation
+/**
+ * Context provider that contains all APIs.
+ * You need to wrap your <Filament /> view with this provider.
+ *
+ * @example
+ *
+ * ```tsx
+ * <FilamentProvider>
+ *  <Filament>
+ *  <YourScene /> // <- useFilamentContext() can be used here
+ * </FilamentProvider>
+ * ```
+ */
 export function FilamentProvider({ children, fallback }: FilamentProviderProps) {
   const engine = useEngine()
 
