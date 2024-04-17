@@ -193,11 +193,11 @@ std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(std::shared
                                    .attribute(VertexAttribute::POSITION, 0, VertexBuffer::AttributeType::FLOAT3)
                                    .attribute(VertexAttribute::TANGENTS, 1, VertexBuffer::AttributeType::SHORT4)
                                    .normalized(VertexAttribute::TANGENTS)
-                                   .build(*_engine);
-  vertexBuffer->setBufferAt(*_engine, 0, VertexBuffer::BufferDescriptor(vertices, vertexBuffer->getVertexCount() * sizeof(vertices[0])));
-  vertexBuffer->setBufferAt(*_engine, 1, VertexBuffer::BufferDescriptor(normals, vertexBuffer->getVertexCount() * sizeof(normals[0])));
-  IndexBuffer* indexBuffer = IndexBuffer::Builder().indexCount(6).build(*_engine);
-  indexBuffer->setBuffer(*_engine, IndexBuffer::BufferDescriptor(indices, indexBuffer->getIndexCount() * sizeof(uint32_t)));
+                                   .build(*pointee());
+  vertexBuffer->setBufferAt(*pointee(), 0, VertexBuffer::BufferDescriptor(vertices, vertexBuffer->getVertexCount() * sizeof(vertices[0])));
+  vertexBuffer->setBufferAt(*pointee(), 1, VertexBuffer::BufferDescriptor(normals, vertexBuffer->getVertexCount() * sizeof(normals[0])));
+  IndexBuffer* indexBuffer = IndexBuffer::Builder().indexCount(6).build(*pointee());
+  indexBuffer->setBuffer(*pointee(), IndexBuffer::BufferDescriptor(indices, indexBuffer->getIndexCount() * sizeof(uint32_t)));
 
   auto& em = utils::EntityManager::get();
   utils::Entity renderable = em.create();
@@ -207,7 +207,7 @@ std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(std::shared
       .boundingBox({{0, 0, 0}, {halfExtendX, halfExtendY, halfExtendZ}})
       .material(0, test)
       .geometry(0, RenderableManager::PrimitiveType::TRIANGLES, vertexBuffer, indexBuffer, 0, 6)
-      .build(*_engine, renderable);
+      .build(*pointee(), renderable);
 
   return std::make_shared<EntityWrapper>(renderable);
 }

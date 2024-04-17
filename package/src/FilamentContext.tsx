@@ -71,10 +71,11 @@ function EngineAPIProvider({ children, engine }: Props) {
         view.release()
         camera.release()
         lightManager.release()
+        renderableManager.release()
         engine.release()
       })
     }
-  }, [camera, engine, lightManager, scene, view])
+  }, [camera, engine, lightManager, renderableManager, scene, view])
 
   return <FilamentContext.Provider value={value}>{children}</FilamentContext.Provider>
 }
