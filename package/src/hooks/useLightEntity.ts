@@ -30,7 +30,6 @@ export function useLightEntity(
   const outerSpotLightCone = spotLightCone?.[1] ?? undefined
 
   const entity = useMemo(() => {
-    console.log('Creating light entity')
     return lightManager.createLightEntity(
       config.type,
       config.colorKelvin,

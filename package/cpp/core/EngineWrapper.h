@@ -50,6 +50,8 @@ namespace margelo {
 using namespace filament;
 using namespace camutils;
 
+// The EngineWrapper is just the JSI wrapper around the EngineImpl
+// its important to only hold a reference to one shared_ptr, so we can easily release it from JS
 class EngineWrapper : public PointerHolder<EngineImpl> {
 public:
   explicit EngineWrapper(std::shared_ptr<EngineImpl> engineImpl) : PointerHolder("EngineWrapper", engineImpl) {}
