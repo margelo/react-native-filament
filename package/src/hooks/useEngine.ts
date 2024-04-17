@@ -3,7 +3,7 @@ import type { Engine, EngineBackend, EngineConfig } from '../types'
 import { FilamentProxy } from '../native/FilamentProxy'
 import { useWorklet } from 'react-native-worklets-core'
 
-interface EngineProps {
+export interface EngineProps {
   /**
    * Whether the Engine render pipeline is paused or not.
    * @default false

@@ -1,23 +1,20 @@
 import * as React from 'react'
-import { useCallback, useRef } from 'react'
+import { useRef } from 'react'
 
 import { StyleSheet, View } from 'react-native'
 import {
   Filament,
-  useEngine,
   Float3,
   useRenderCallback,
   useWorld,
   useRigidBody,
   useStaticPlaneShape,
-  useView,
-  useCamera,
   Engine,
   useWorkletCallback,
 } from 'react-native-filament'
 import { useCoin } from './useCoin'
 import { useDefaultLight } from './hooks/useDefaultLight'
-import { useSharedValue, useWorklet } from 'react-native-worklets-core'
+import { useSharedValue } from 'react-native-worklets-core'
 
 // Camera config:
 const focalLengthInMillimeters = 28

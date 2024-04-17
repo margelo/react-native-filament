@@ -1,6 +1,6 @@
 import React, { PropsWithChildren, useEffect, useMemo } from 'react'
 import { Camera, Engine, LightManager, RenderableManager, Scene, TransformManager, View } from './types'
-import { useEngine } from './hooks/useEngine'
+import { EngineProps, useEngine } from './hooks/useEngine'
 import { IWorkletContext } from 'react-native-worklets-core'
 import { FilamentProxy } from './native/FilamentProxy'
 import { InteractionManager } from 'react-native'
@@ -74,9 +74,11 @@ function EngineAPIProvider({ children, engine }: Props) {
   return <FilamentContext.Provider value={value}>{children}</FilamentContext.Provider>
 }
 
-type FilamentProviderProps = PropsWithChildren<{
-  fallback?: React.ReactElement
-}>
+type FilamentProviderProps = PropsWithChildren<
+  EngineProps & {
+    fallback?: React.ReactElement
+  }
+>
 
 /**
  * Context provider that contains all APIs.
@@ -91,8 +93,8 @@ type FilamentProviderProps = PropsWithChildren<{
  * </FilamentProvider>
  * ```
  */
-export function FilamentProvider({ children, fallback }: FilamentProviderProps) {
-  const engine = useEngine()
+export function FilamentProvider({ children, fallback, ...engineProps }: FilamentProviderProps) {
+  const engine = useEngine({ ...engineProps })
 
   if (engine == null) return fallback ?? null
   return <EngineAPIProvider engine={engine}>{children}</EngineAPIProvider>
