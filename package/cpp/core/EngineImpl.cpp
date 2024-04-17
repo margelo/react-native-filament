@@ -556,18 +556,22 @@ std::shared_ptr<MaterialWrapper> EngineImpl::createMaterial(std::shared_ptr<Fila
         });
       });
 
-  return References<MaterialWrapper>::adoptEngineRef(_engine, new MaterialWrapper(material),
-                                                     [dispatcher](std::shared_ptr<Engine> engine, MaterialWrapper* materialWrapper) {
-                                                       dispatcher->runAsync([engine, materialWrapper]() {
-                                                         // Iterate over materialWrapper.getInstances() vector and destroy all instances
-                                                         for (auto& materialInstanceWrapper : materialWrapper->getInstances()) {
-                                                           auto materialInstance = materialInstanceWrapper->getMaterialInstance();
-                                                           engine->destroy(materialInstance);
-                                                         }
+  std::shared_ptr<MaterialImpl> materialImpl = References<MaterialImpl>::adoptEngineRef(
+      _engine, new MaterialImpl(material), [dispatcher](std::shared_ptr<Engine> engine, MaterialImpl* pMaterialImpl) {
+        dispatcher->runAsync([engine, pMaterialImpl]() {
+          Logger::log(TAG, "Destroying MaterialImpl / all material instances...");
 
-                                                         delete materialWrapper;
-                                                       });
-                                                     });
+          // Iterate over materialWrapper.getInstances() vector and destroy all instances
+          for (auto& materialInstanceWrapper : pMaterialImpl->getInstances()) {
+            MaterialInstance* materialInstance = materialInstanceWrapper->getMaterialInstance();
+            engine->destroy(materialInstance);
+          }
+
+          delete pMaterialImpl;
+        });
+      });
+
+  return std::make_shared<MaterialWrapper>(materialImpl);
 }
 std::shared_ptr<LightManagerWrapper> EngineImpl::createLightManager() {
   std::unique_lock lock(_mutex);

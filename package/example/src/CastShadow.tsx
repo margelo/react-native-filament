@@ -57,6 +57,11 @@ function Renderer() {
       return material
     })().then(setShadowMaterial)
   }, [engine, shadowMaterialBuffer])
+  useEffect(() => {
+    return () => {
+      shadowMaterial?.release()
+    }
+  }, [shadowMaterial])
 
   // Create Shadow plane
   const [shadowPlane, setShadowPlane] = React.useState<Entity | undefined>(undefined)

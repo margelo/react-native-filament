@@ -51,6 +51,7 @@ add_library(
     ../cpp/core/MaterialInstanceWrapper.cpp
     ../cpp/core/RenderableManagerImpl.cpp
     ../cpp/core/RenderableManagerWrapper.cpp
+    ../cpp/core/MaterialImpl.cpp
     ../cpp/core/MaterialWrapper.cpp
     ../cpp/core/FilamentInstanceWrapper.cpp
     ../cpp/core/LightManagerWrapper.cpp

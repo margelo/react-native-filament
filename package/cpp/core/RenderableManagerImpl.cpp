@@ -118,6 +118,7 @@ void RenderableManagerImpl::changeMaterialTextureMap(std::shared_ptr<EntityWrapp
     throw std::invalid_argument("Material not found!");
   }
 
+  // TODO: memory leak, material instance needs to be deleted (Engine::destroy)
   MaterialInstance* materialInstance = _renderableManager.getMaterialInstanceAt(instance, primitiveIndex);
 
   // The texture might not be loaded yet, but we can already set it on the material instance
@@ -195,11 +196,10 @@ std::shared_ptr<EntityWrapper> RenderableManagerImpl::createPlane(std::shared_pt
 
   auto& em = utils::EntityManager::get();
   utils::Entity renderable = em.create();
-  std::shared_ptr<Material> material = materialWrapper->getMaterial();
-  auto test = material->createInstance();
+  std::shared_ptr<MaterialInstanceWrapper> instance = materialWrapper->createInstance();
   RenderableManager::Builder(1)
       .boundingBox({{0, 0, 0}, {halfExtendX, halfExtendY, halfExtendZ}})
-      .material(0, test)
+      .material(0, instance->getMaterialInstance())
       .geometry(0, RenderableManager::PrimitiveType::TRIANGLES, vertexBuffer, indexBuffer, 0, 6)
       .build(*_engine, renderable);
 
