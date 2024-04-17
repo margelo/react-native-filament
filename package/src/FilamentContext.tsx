@@ -43,7 +43,7 @@ type Props = PropsWithChildren<{
   engine: Engine
 }>
 
-// Internal component that actually sets the context; its set once the engine is ready and creates values for all APIs
+// Internal component that actually sets the context; its set once the engine is ready and we can creates values for all APIs
 function EngineAPIProvider({ children, engine }: Props) {
   const transformManager = useTransformManager(engine)
   const renderableManager = useRenderableManager(engine)

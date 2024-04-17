@@ -117,7 +117,9 @@ std::shared_ptr<EngineWrapper> FilamentProxy::createEngine(std::optional<std::st
         });
       });
 
-  return std::make_shared<EngineWrapper>(choreographer, renderThread, engine);
+  std::shared_ptr<EngineImpl> engineImpl = std::make_shared<EngineImpl>(choreographer, renderThread, engine);
+
+  return std::make_shared<EngineWrapper>(engineImpl);
 }
 
 std::shared_ptr<BulletWrapper> FilamentProxy::createBullet() {
