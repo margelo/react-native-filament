@@ -1,7 +1,7 @@
 import React, { PropsWithChildren, useEffect, useMemo } from 'react'
 import { Camera, Engine, LightManager, RenderableManager, Scene, TransformManager, View } from './types'
 import { EngineProps, useEngine } from './hooks/useEngine'
-import { IWorkletContext } from 'react-native-worklets-core'
+import { Worklets, IWorkletContext } from 'react-native-worklets-core'
 import { FilamentProxy } from './native/FilamentProxy'
 import { InteractionManager } from 'react-native'
 
@@ -61,15 +61,21 @@ function EngineAPIProvider({ children, engine }: Props) {
     return () => {
       // runAfterInteractions to make sure its called after all children have run their cleanup and all interactions are done
       InteractionManager.runAfterInteractions(() => {
-        scene.release()
-        view.release()
-        camera.release()
-        lightManager.release()
-        renderableManager.release()
-        engine.release()
+        // Cleanup in worklets context, as cleanup functions might also use the worklet context
+        // and we want to queue our cleanup after all other worklets have run
+        Worklets.createRunInContextFn(() => {
+          'worklet'
+
+          scene.release()
+          view.release()
+          camera.release()
+          lightManager.release()
+          renderableManager.release()
+          engine.release()
+        }, workletContext)()
       })
     }
-  }, [camera, engine, lightManager, renderableManager, scene, view])
+  }, [camera, engine, lightManager, renderableManager, scene, view, workletContext])
 
   return <FilamentContext.Provider value={value}>{children}</FilamentContext.Provider>
 }
