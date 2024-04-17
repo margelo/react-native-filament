@@ -24,6 +24,7 @@ interface EngineProps {
 
 export function useEngine({ backend, config, isPaused = false }: EngineProps = {}): Engine | undefined {
   const [engine, setEngine] = useState<Engine | undefined>(undefined)
+  // Note: we can't use the FilamentContext here, as useEngine is used to create the context itself.
   const context = useMemo(() => FilamentProxy.getWorkletContext(), [])
 
   const createEngine = useWorklet(
