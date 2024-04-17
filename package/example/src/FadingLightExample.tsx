@@ -2,20 +2,16 @@ import React from 'react'
 import { useSharedValue } from 'react-native-worklets-core'
 import { Animated, Button, SafeAreaView, StyleSheet } from 'react-native'
 import {
-  Engine,
   Filament,
+  FilamentProvider,
   Float3,
   getAssetFromModel,
   useAssetAnimator,
-  useCamera,
-  useEngine,
   useEntityInScene,
+  useFilamentContext,
   useLightEntity,
-  useLightManager,
   useModel,
   useRenderCallback,
-  useScene,
-  useView,
   useWorkletCallback,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
@@ -28,21 +24,17 @@ const cameraPosition: Float3 = [0, 0, 8]
 const cameraTarget: Float3 = [0, 0, 0]
 const cameraUp: Float3 = [0, 1, 0]
 
-function Renderer({ engine }: { engine: Engine }) {
-  useDefaultLight(engine, false)
+function Renderer() {
+  const { camera, view, scene, lightManager } = useFilamentContext()
+  useDefaultLight(false)
   const asset = useModel({
-    engine,
     path: penguModelPath,
     autoAddToScene: true,
   })
 
-  const view = useView(engine)
-  const camera = useCamera(engine)
-
   const prevAspectRatio = useSharedValue(0)
   const assetAnimator = useAssetAnimator(getAssetFromModel(asset))
   useRenderCallback(
-    engine,
     useWorkletCallback(
       (_timestamp: number, _startTime: number, passedSeconds: number) => {
         'worklet'
@@ -69,7 +61,6 @@ function Renderer({ engine }: { engine: Engine }) {
     )
   )
 
-  const lightManager = useLightManager(engine)
   const lightIntensity = useSharedValue(100_000)
   const lightEntity = useLightEntity(lightManager, {
     type: 'directional',
@@ -79,12 +70,11 @@ function Renderer({ engine }: { engine: Engine }) {
     intensity: lightIntensity,
     position: [0, 0, 0],
   })
-  const scene = useScene(engine)
   useEntityInScene(scene, lightEntity)
 
   return (
     <SafeAreaView style={styles.container}>
-      <Filament style={styles.filamentView} engine={engine} />
+      <Filament style={styles.filamentView} />
       <Button
         title="Toggle light"
         onPress={() => {
@@ -106,10 +96,11 @@ function Renderer({ engine }: { engine: Engine }) {
 }
 
 export function FadingLightExample() {
-  const engine = useEngine()
-
-  if (engine == null) return null
-  return <Renderer engine={engine} />
+  return (
+    <FilamentProvider>
+      <Renderer />
+    </FilamentProvider>
+  )
 }
 
 const styles = StyleSheet.create({

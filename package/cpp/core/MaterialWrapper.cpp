@@ -1,3 +1,6 @@
+//
+// Created by Hanno Gödecke on 17.04.24.
+//
 
 #include "MaterialWrapper.h"
 
@@ -7,34 +10,13 @@ void MaterialWrapper::loadHybridMethods() {
   registerHybridMethod("setDefaultParameter", &MaterialWrapper::setDefaultParameter, this);
   registerHybridMethod("getDefaultInstance", &MaterialWrapper::getDefaultInstance, this);
 }
-
 std::shared_ptr<MaterialInstanceWrapper> MaterialWrapper::createInstance() {
-  std::unique_lock lock(_mutex);
-
-  MaterialInstance* materialInstance = _material->createInstance();
-  // TODO: Who managed the memory of the material instance and cleans it up?
-  auto instance = std::make_shared<MaterialInstanceWrapper>(materialInstance);
-  _instances.push_back(instance);
-  return instance;
+  return pointee()->createInstance();
 }
-
 std::shared_ptr<MaterialInstanceWrapper> MaterialWrapper::getDefaultInstance() {
-  std::unique_lock lock(_mutex);
-
-  MaterialInstance* materialInstance = _material->getDefaultInstance();
-  auto instance = std::make_shared<MaterialInstanceWrapper>(materialInstance);
-  _instances.push_back(instance);
-  return instance;
+  return pointee()->getDefaultInstance();
 }
-
 void MaterialWrapper::setDefaultParameter(std::string name, double value) {
-  std::unique_lock lock(_mutex);
-
-  if (!_material->hasParameter(name.c_str())) {
-    throw std::runtime_error("MaterialWrapper::setDefaultParameter: Material does not have parameter \"" + name + "\"!");
-  }
-
-  _material->setDefaultParameter(name.c_str(), (float)value);
+  pointee()->setDefaultParameter(name, value);
 }
-
 } // namespace margelo

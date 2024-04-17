@@ -26,11 +26,11 @@
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		94671BF6DAD54DF8A7B842C3 /* pirate.glb in Resources */ = {isa = PBXBuildFile; fileRef = 034C2E5BF6EE449290528E8D /* pirate.glb */; };
 		9D9B37A8229643988DE97B73 /* chair.glb in Resources */ = {isa = PBXBuildFile; fileRef = C4E5AB69D2B94D53A2EE3F93 /* chair.glb */; };
+		A1195F5DAB4F4E858677036C /* TransparentShadowMaterial.matc in Resources */ = {isa = PBXBuildFile; fileRef = 121271ECACE144359ABFC45E /* TransparentShadowMaterial.matc */; };
 		BDF34253C8964E78A0DCEAD2 /* eye_full_texture_right_blue.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 70AE03ED5F1844C6832C78BC /* eye_full_texture_right_blue.jpg */; };
 		CAE021851F0B458C8FEDBDB2 /* coffeeshop.glb in Resources */ = {isa = PBXBuildFile; fileRef = 0E1B8E3B9AD84C5B9C12AAF4 /* coffeeshop.glb */; };
 		EF29AEC075E640C192A497A0 /* coffeeshop_table_level03.glb in Resources */ = {isa = PBXBuildFile; fileRef = 41C4E371FA24472DA3029636 /* coffeeshop_table_level03.glb */; };
 		FFD6B311C32A4A2580B289D7 /* default_env_skybox.ktx in Resources */ = {isa = PBXBuildFile; fileRef = A947E59D16164B19982D8EC8 /* default_env_skybox.ktx */; };
-		A1195F5DAB4F4E858677036C /* TransparentShadowMaterial.matc in Resources */ = {isa = PBXBuildFile; fileRef = 121271ECACE144359ABFC45E /* TransparentShadowMaterial.matc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +49,7 @@
 		00E356F21AD99517003FC87E /* FilamentExampleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FilamentExampleTests.m; sourceTree = "<group>"; };
 		034C2E5BF6EE449290528E8D /* pirate.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = pirate.glb; path = ../assets/pirate.glb; sourceTree = "<group>"; };
 		0E1B8E3B9AD84C5B9C12AAF4 /* coffeeshop.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = coffeeshop.glb; path = ../assets/coffeeshop.glb; sourceTree = "<group>"; };
+		121271ECACE144359ABFC45E /* TransparentShadowMaterial.matc */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = TransparentShadowMaterial.matc; path = ../assets/TransparentShadowMaterial.matc; sourceTree = "<group>"; };
 		134904F01F7041DFA331FD27 /* eye_full_texture_left_blue.jpg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = eye_full_texture_left_blue.jpg; path = ../assets/eye_full_texture_left_blue.jpg; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* FilamentExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FilamentExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = FilamentExample/AppDelegate.h; sourceTree = "<group>"; };
@@ -77,7 +78,6 @@
 		C4E5AB69D2B94D53A2EE3F93 /* chair.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = chair.glb; path = ../assets/chair.glb; sourceTree = "<group>"; };
 		E06B8A4FBFD44344BC0C2248 /* coffeeshop_machine_level03.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = coffeeshop_machine_level03.glb; path = ../assets/coffeeshop_machine_level03.glb; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		121271ECACE144359ABFC45E /* TransparentShadowMaterial.matc */ = {isa = PBXFileReference; name = "TransparentShadowMaterial.matc"; path = "../assets/TransparentShadowMaterial.matc"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */

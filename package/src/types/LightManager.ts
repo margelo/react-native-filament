@@ -1,5 +1,6 @@
 import { Entity } from './Entity'
 import { LightConfig, LightType, SpotLightExtraConfig } from './LightConfig'
+import { PointerHolder } from './PointerHolder'
 import { Float3 } from './float3'
 
 /**
@@ -8,7 +9,7 @@ import { Float3 } from './float3'
  * At least one light must be added to a scene in order to see anything
  * (unless the Material.Shading.UNLIT is used).
  */
-export interface LightManager {
+export interface LightManager extends PointerHolder {
   createLightEntity(
     type: LightType,
     colorKelvin: LightConfig['colorKelvin'],

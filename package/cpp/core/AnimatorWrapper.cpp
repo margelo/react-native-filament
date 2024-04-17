@@ -13,25 +13,6 @@ void AnimatorWrapper::loadHybridMethods() {
   registerHybridMethod("getAnimationCount", &AnimatorWrapper::getAnimationCount, this);
   registerHybridMethod("getAnimationDuration", &AnimatorWrapper::getAnimationDuration, this);
   registerHybridMethod("getAnimationName", &AnimatorWrapper::getAnimationName, this);
-  registerHybridMethod("release", &AnimatorWrapper::release, this);
-}
-
-Animator* AnimatorWrapper::getAnimator() {
-  if (_optionalAnimator != nullptr) {
-    return _optionalAnimator;
-  }
-
-  return _instance->getAnimator();
-}
-
-// TODO(copy-animations): We currently copy animations from an asset onto another instance (different model than the original asset), we
-// should replace this with once we found a good solution discussed here: https://github.com/google/filament/issues/7622
-AnimatorWrapper::~AnimatorWrapper() {
-#ifdef HAS_FILAMENT_ANIMATOR_PATCH
-  if (_optionalAnimator) {
-    delete _optionalAnimator;
-  }
-#endif
 }
 
 inline void assertAnimationIndexSmallerThan(int animationIndex, int max) {
@@ -44,52 +25,36 @@ inline void assertAnimationIndexSmallerThan(int animationIndex, int max) {
 
 void AnimatorWrapper::applyAnimation(int animationIndex, double time) {
   std::unique_lock lock(_mutex);
-  Animator* animator = getAnimator();
-  assertAnimationIndexSmallerThan(animationIndex, animator->getAnimationCount());
-  animator->applyAnimation(animationIndex, time);
+  assertAnimationIndexSmallerThan(animationIndex, _animator->getAnimationCount());
+  _animator->applyAnimation(animationIndex, time);
 }
 
 void AnimatorWrapper::updateBoneMatrices() {
   std::unique_lock lock(_mutex);
-  Animator* animator = getAnimator();
-  animator->updateBoneMatrices();
+  _animator->updateBoneMatrices();
 }
 
 void AnimatorWrapper::applyCrossFade(int previousAnimationIndex, double previousAnimationTime, double alpha) {
   std::unique_lock lock(_mutex);
-  Animator* animator = getAnimator();
-  assertAnimationIndexSmallerThan(previousAnimationIndex, animator->getAnimationCount());
-  animator->applyCrossFade(previousAnimationIndex, previousAnimationTime, alpha);
+  assertAnimationIndexSmallerThan(previousAnimationIndex, _animator->getAnimationCount());
+  _animator->applyCrossFade(previousAnimationIndex, previousAnimationTime, alpha);
 }
 
 void AnimatorWrapper::resetBoneMatrices() {
   std::unique_lock lock(_mutex);
-  Animator* animator = getAnimator();
-  animator->resetBoneMatrices();
+  _animator->resetBoneMatrices();
 }
 
 int AnimatorWrapper::getAnimationCount() {
-  Animator* animator = getAnimator();
-  return animator->getAnimationCount();
+  return _animator->getAnimationCount();
 }
 
 double AnimatorWrapper::getAnimationDuration(int animationIndex) {
-  Animator* animator = getAnimator();
-  return animator->getAnimationDuration(animationIndex);
+  return _animator->getAnimationDuration(animationIndex);
 }
 
 std::string AnimatorWrapper::getAnimationName(int animationIndex) {
-  Animator* animator = getAnimator();
-  return animator->getAnimationName(animationIndex);
-}
-
-void AnimatorWrapper::release() {
-  std::unique_lock lock(_mutex);
-  if (_optionalAnimator) {
-    delete _optionalAnimator;
-    _optionalAnimator = nullptr;
-  }
-  _assetRef.reset();
+  return _animator->getAnimationName(animationIndex);
 }
 
 } // namespace margelo

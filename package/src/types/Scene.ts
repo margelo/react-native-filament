@@ -1,5 +1,6 @@
 import type { Entity } from './Entity'
 import type { FilamentAsset } from './FilamentAsset'
+import { PointerHolder } from './PointerHolder'
 
 /**
  * A `Scene` is a flat container of `RenderableManager` and `LightManager`
@@ -24,7 +25,7 @@ import type { FilamentAsset } from './FilamentAsset'
  * @see TransformManager
  */
 
-export interface Scene {
+export interface Scene extends PointerHolder {
   /**
    * Adds a single entity to the scene.
    * If you want to add your asset to the scene, which likely contains multiple entities,

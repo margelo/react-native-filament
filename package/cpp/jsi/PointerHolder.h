@@ -4,18 +4,17 @@
 
 #pragma once
 
-#include <memory>
-#include <mutex>
 #include "HybridObject.h"
 #include "Logger.h"
+#include <memory>
+#include <mutex>
 
 namespace margelo {
 
 using namespace facebook;
 
-template <typename T>
-class PointerHolder: public HybridObject {
- protected:
+template <typename T> class PointerHolder : public HybridObject {
+protected:
   // no default constructor
   PointerHolder() = delete;
 
@@ -24,7 +23,7 @@ class PointerHolder: public HybridObject {
    * @param name The name of the implementing class, for example "ViewWrapper".
    * @param pointer The pointer this class will hold. It might be released from JS at any point via `release()`.
    */
-  PointerHolder(const char* name, std::shared_ptr<T> pointer): HybridObject(name), _name(name), _pointer(pointer) {
+  PointerHolder(const char* name, std::shared_ptr<T> pointer) : HybridObject(name), _name(name), _pointer(pointer) {
     // eagerly initialize the release() method instead of putting it in `loadHybridMethods`
     registerHybridMethod("release", &PointerHolder<T>::release, this);
     registerHybridGetter("isValid", &PointerHolder<T>::getIsValid, this);
@@ -36,13 +35,15 @@ class PointerHolder: public HybridObject {
    * @param name The name of the implementing class, for example "ViewWrapper".
    * @param value The value this class will hold as a shared_ptr. It might be destroyed from JS at any point via `release()`.
    */
-  PointerHolder(const char* name, T&& value): PointerHolder(name, std::make_shared<T>(std::move(value))) { }
+  PointerHolder(const char* name, T&& value) : PointerHolder(name, std::make_shared<T>(std::move(value))) {}
 
   /**
    * Called when the PointerHolder gets automatically destroyed (e.g. via GC) and the shared_ptr will be destroyed.
    */
   ~PointerHolder() {
-    Logger::log(TAG, "Automatically releasing %s... (~PointerHolder())", _name.c_str());
+    if (_pointer != nullptr) {
+      Logger::log(TAG, "Automatically releasing %s... (~PointerHolder())", _name.c_str());
+    }
   }
 
 protected:
@@ -88,6 +89,5 @@ private:
   std::mutex _mutex;
   static constexpr auto TAG = "PointerHolder";
 };
-
 
 } // namespace margelo

@@ -2,8 +2,9 @@ import { AABB } from './AABB'
 import type { Animator } from './Animator'
 import type { Entity } from './Entity'
 import { FilamentInstance } from './FilamentInstance'
+import { PointerHolder } from './PointerHolder'
 
-export interface FilamentAsset {
+export interface FilamentAsset extends PointerHolder {
   /**
    * Gets the transform root for the asset, which has no matching glTF node.
    *
@@ -13,7 +14,7 @@ export interface FilamentAsset {
    */
   getRoot(): Entity
 
-  getAnimator(): Animator
+  createAnimator(): Animator
   /**
    * Reclaims CPU-side memory for URI strings, binding lists, and raw animation data.
    */
@@ -65,12 +66,4 @@ export interface FilamentAsset {
    * List will only be greater than 1 if the asset was loaded with loadInstancedAsset.
    */
   getAssetInstances(): FilamentInstance[]
-
-  /**
-   * Helper method to release all memory associated with the asset.
-   * Only call this whn the asset is not going to be used anywhere in JS any longer.
-   * Calling this will automatically remove it from the scene its in.
-   * @note The memory will only be fully released if all animators you may have created from this asset are also released.
-   */
-  release(): void
 }

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { FilamentAsset, RenderableManager } from '../types'
-import { FilamentProxy } from '../native/FilamentProxy'
+import { useFilamentContext } from '../FilamentContext'
 
 export type UseAssetShadowProps = {
   renderableManager: RenderableManager
@@ -17,7 +17,7 @@ export type UseAssetShadowProps = {
 }
 
 export function useConfigureAssetShadow({ renderableManager, asset, receiveShadow, castShadow }: UseAssetShadowProps) {
-  const context = useMemo(() => FilamentProxy.getWorkletContext(), [])
+  const { _workletContext } = useFilamentContext()
 
   const renderableEntities = useMemo(() => asset?.getRenderableEntities(), [asset])
   const prevCastShadowRef = useRef<boolean>()
@@ -33,8 +33,8 @@ export function useConfigureAssetShadow({ renderableManager, asset, receiveShado
       renderableEntities.forEach((entity) => {
         renderableManager.setCastShadow(entity, castShadow)
       })
-    }, context)()
-  }, [castShadow, renderableManager, renderableEntities, context])
+    }, _workletContext)()
+  }, [castShadow, renderableManager, renderableEntities, _workletContext])
 
   const prevReceiveShadowRef = useRef<boolean>()
   useEffect(() => {
@@ -49,6 +49,6 @@ export function useConfigureAssetShadow({ renderableManager, asset, receiveShado
       renderableEntities.forEach((entity) => {
         renderableManager.setReceiveShadow(entity, receiveShadow)
       })
-    }, context)()
-  }, [receiveShadow, renderableEntities, renderableManager, context])
+    }, _workletContext)()
+  }, [receiveShadow, renderableEntities, renderableManager, _workletContext])
 }

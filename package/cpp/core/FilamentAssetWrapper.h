@@ -2,9 +2,10 @@
 
 #include "AABBWrapper.h"
 #include "AnimatorWrapper.h"
+#include "CopiedAnimatorWrapper.h"
 #include "FilamentInstanceWrapper.h"
 #include "core/utils/EntityWrapper.h"
-#include "jsi/HybridObject.h"
+#include "jsi/PointerHolder.h"
 #include <filament/TransformManager.h>
 #include <gltfio/FilamentAsset.h>
 
@@ -14,39 +15,37 @@ class SceneWrapper;
 
 using namespace filament;
 
-class FilamentAssetWrapper : public HybridObject {
+class FilamentAssetWrapper : public PointerHolder<gltfio::FilamentAsset> {
 public:
-  explicit FilamentAssetWrapper(std::shared_ptr<gltfio::FilamentAsset>& asset, const std::shared_ptr<SceneWrapper> scene)
-      : HybridObject("FilamentAssetWrapper"), _asset(asset), _scene(scene) {}
+  explicit FilamentAssetWrapper(std::shared_ptr<gltfio::FilamentAsset> asset) : PointerHolder("FilamentAssetWrapper", asset) {}
 
   void loadHybridMethods() override;
 
   void transformToUnitCube(TransformManager& transformManager);
 
   std::shared_ptr<gltfio::FilamentAsset> getAsset() {
-    return _asset;
+    return pointee();
   }
 
 private: // Public API functions:
   std::shared_ptr<EntityWrapper> getRoot();
   void releaseSourceData();
-  std::shared_ptr<AnimatorWrapper> getAnimator();
-  std::shared_ptr<AnimatorWrapper> createAnimatorWithAnimationsFrom(std::shared_ptr<FilamentAssetWrapper> otherAsset);
+  std::shared_ptr<AnimatorWrapper> createAnimator();
+  std::shared_ptr<CopiedAnimatorWrapper> createAnimatorWithAnimationsFrom(std::shared_ptr<FilamentAssetWrapper> otherAsset);
   int getEntityCount() {
-    return _asset->getEntityCount();
+    return pointee()->getEntityCount();
   }
   std::vector<std::shared_ptr<EntityWrapper>> getEntities();
   int getRenderableEntityCount() {
-    return _asset->getRenderableEntityCount();
+    return pointee()->getRenderableEntityCount();
   }
   std::vector<std::shared_ptr<EntityWrapper>> getRenderableEntities();
   std::shared_ptr<AABBWrapper> getBoundingBox() {
-    Aabb aabb = _asset->getBoundingBox();
+    Aabb aabb = pointee()->getBoundingBox();
     return std::make_shared<AABBWrapper>(aabb);
   }
 
   std::optional<std::shared_ptr<EntityWrapper>> getFirstEntityByName(const std::string& name);
-  void release();
 
   // Convenience method to get the first instance
   std::shared_ptr<FilamentInstanceWrapper> getInstance();
@@ -54,8 +53,6 @@ private: // Public API functions:
 
 private: // Internal state:
   std::mutex _mutex;
-  std::shared_ptr<gltfio::FilamentAsset> _asset;
-  std::shared_ptr<SceneWrapper> _scene; // The scene the asset is currently attached to
 };
 
 } // namespace margelo

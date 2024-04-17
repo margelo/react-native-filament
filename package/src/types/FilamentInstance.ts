@@ -12,6 +12,6 @@ import { Entity } from './Entity'
 export interface FilamentInstance {
   getEntities(): Entity[]
   getRoot(): Entity
-  getAnimator(): Animator
+  createAnimator(): Animator
   getBoundingBox(): AABB
 }
