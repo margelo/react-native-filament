@@ -9,6 +9,7 @@ import { useView } from './hooks/useView'
 import { useCamera } from './hooks/useCamera'
 import { IWorkletContext } from 'react-native-worklets-core'
 import { FilamentProxy } from './native/FilamentProxy'
+import { InteractionManager } from 'react-native'
 
 export type FilamentContextType = {
   engine: Engine
@@ -64,14 +65,14 @@ function EngineAPIProvider({ children, engine }: Props) {
   // if we'd already released the scene.
   useEffect(() => {
     return () => {
-      // setTimeout to make sure its called after all children have run their cleanup
-      setTimeout(() => {
+      // runAfterInteractions to make sure its called after all children have run their cleanup and all interactions are done
+      InteractionManager.runAfterInteractions(() => {
         scene.release()
         view.release()
         camera.release()
         lightManager.release()
         engine.release()
-      }, 0)
+      })
     }
   }, [camera, engine, lightManager, scene, view])
 
