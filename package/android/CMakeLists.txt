@@ -49,6 +49,7 @@ add_library(
     ../cpp/core/TransformManagerWrapper.cpp
     ../cpp/core/AABBWrapper.cpp
     ../cpp/core/MaterialInstanceWrapper.cpp
+    ../cpp/core/RenderableManagerImpl.cpp
     ../cpp/core/RenderableManagerWrapper.cpp
     ../cpp/core/MaterialWrapper.cpp
     ../cpp/core/FilamentInstanceWrapper.cpp

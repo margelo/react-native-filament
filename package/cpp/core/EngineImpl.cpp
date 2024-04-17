@@ -535,7 +535,8 @@ void EngineImpl::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> entit
 
 std::shared_ptr<RenderableManagerWrapper> EngineImpl::createRenderableManager() {
   std::unique_lock lock(_mutex);
-  return std::make_shared<RenderableManagerWrapper>(_engine);
+  std::shared_ptr<RenderableManagerImpl> renderableManager = std::make_shared<RenderableManagerImpl>(_engine);
+  return std::make_shared<RenderableManagerWrapper>(renderableManager);
 }
 
 std::shared_ptr<MaterialWrapper> EngineImpl::createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer) {
