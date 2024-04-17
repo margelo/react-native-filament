@@ -55,7 +55,7 @@ using RenderCallback = std::function<void(double, double, double)>;
 
 // The EngineImpl is the actual implementation wrapper around filaments Engine.
 // If you add a new method that you want to expose to JS, you need to add it to the EngineWrapper as well.
-class EngineImpl : std::enable_shared_from_this<EngineImpl> {
+class EngineImpl : public std::enable_shared_from_this<EngineImpl> {
 public:
   explicit EngineImpl(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<Dispatcher> rendererDispatcher,
                       std::shared_ptr<Engine> engine);
