@@ -4,16 +4,14 @@ import { useEffect, useMemo, useRef } from 'react'
 import { Button, ScrollView, StyleSheet, View } from 'react-native'
 import {
   Filament,
-  useEngine,
   Float3,
   useRenderCallback,
   useModel,
-  useView,
-  useCamera,
-  Engine,
   useAssetAnimator,
   getAssetFromModel,
   useWorkletCallback,
+  FilamentProvider,
+  useFilamentContext,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
@@ -32,14 +30,13 @@ const far = 1000
 
 const animationInterpolationTime = 5
 
-function Renderer({ engine }: { engine: Engine }) {
-  useDefaultLight(engine)
-  const view = useView(engine)
-  const camera = useCamera(engine)
+function Renderer() {
+  const { camera, view, scene } = useFilamentContext()
+  useDefaultLight()
 
-  const pengu = useModel({ engine: engine, path: penguModelPath })
+  const pengu = useModel({ path: penguModelPath })
   const penguAsset = getAssetFromModel(pengu)
-  const pirateHat = useModel({ engine: engine, path: pirateHatPath })
+  const pirateHat = useModel({ path: pirateHatPath })
   const pirateHatAsset = getAssetFromModel(pirateHat)
   const pirateHatAnimator = useMemo(() => {
     if (pirateHatAsset == null || penguAsset == null) {
@@ -65,7 +62,6 @@ function Renderer({ engine }: { engine: Engine }) {
 
   const prevAspectRatio = useSharedValue(0)
   useRenderCallback(
-    engine,
     useWorkletCallback(
       (_timestamp, _startTime, passedSeconds) => {
         'worklet'
@@ -139,7 +135,7 @@ function Renderer({ engine }: { engine: Engine }) {
 
   return (
     <View style={styles.container}>
-      <Filament style={styles.filamentView} engine={engine} />
+      <Filament style={styles.filamentView} />
       <ScrollView style={styles.btnContainer}>
         <Button
           title="Navigate to test screen"
@@ -153,11 +149,11 @@ function Renderer({ engine }: { engine: Engine }) {
             if (pirateHat.state === 'loaded') {
               if (isPirateHatAdded.current) {
                 console.log('Removing pirate hat')
-                engine.getScene().removeAssetEntities(pirateHat.asset)
+                scene.removeAssetEntities(pirateHat.asset)
                 isPirateHatAdded.current = false
               } else {
                 console.log('Adding pirate hat')
-                engine.getScene().addAssetEntities(pirateHat.asset)
+                scene.addAssetEntities(pirateHat.asset)
                 isPirateHatAdded.current = true
               }
             }
@@ -179,10 +175,11 @@ function Renderer({ engine }: { engine: Engine }) {
 }
 
 export function AnimationTransitions() {
-  const engine = useEngine()
-
-  if (engine == null) return null
-  return <Renderer engine={engine} />
+  return (
+    <FilamentProvider>
+      <Renderer />
+    </FilamentProvider>
+  )
 }
 
 const styles = StyleSheet.create({

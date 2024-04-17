@@ -51,7 +51,7 @@ const cameraTarget: Float3 = [0, 0, 0]
 const cameraUp: Float3 = [0, 1, 0]
 
 function Renderer() {
-  const { engine, camera, view } = useFilamentContext()
+  const { camera, view } = useFilamentContext()
   useDefaultLight()
   const asset = useModel({
     path: penguModelPath,
@@ -61,7 +61,6 @@ function Renderer() {
   const prevAspectRatio = useSharedValue(0)
   const assetAnimator = useAssetAnimator(getAssetFromModel(asset))
   useRenderCallback(
-    engine,
     useWorkletCallback(
       (_timestamp: number, _startTime: number, passedSeconds: number) => {
         'worklet'

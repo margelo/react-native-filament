@@ -64,7 +64,7 @@ function PhysicsCoinRenderer() {
   )
 
   const prevAspectRatio = useRef(0)
-  useRenderCallback(engine, (_timestamp, _startTime, passedSeconds) => {
+  useRenderCallback((_timestamp, _startTime, passedSeconds) => {
     'worklet'
 
     const aspectRatio = view.getAspectRatio()

@@ -1,11 +1,11 @@
 import { useEffect } from 'react'
-import type { Engine, RenderCallback } from '../types'
+import type { RenderCallback } from '../types'
 import { reportWorkletError } from '../ErrorUtils'
 import { Worklets } from 'react-native-worklets-core'
 import { useFilamentContext } from '../FilamentContext'
 
-export function useRenderCallback(engine: Engine, onFrame: RenderCallback) {
-  const { _workletContext } = useFilamentContext()
+export function useRenderCallback(onFrame: RenderCallback) {
+  const { engine, _workletContext } = useFilamentContext()
 
   useEffect(() => {
     Worklets.createRunInContextFn(() => {
