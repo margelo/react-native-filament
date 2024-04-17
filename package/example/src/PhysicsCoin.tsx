@@ -9,8 +9,9 @@ import {
   useWorld,
   useRigidBody,
   useStaticPlaneShape,
-  Engine,
   useWorkletCallback,
+  FilamentProvider,
+  useFilamentContext,
 } from 'react-native-filament'
 import { useCoin } from './useCoin'
 import { useDefaultLight } from './hooks/useDefaultLight'
@@ -21,14 +22,11 @@ const focalLengthInMillimeters = 28
 const near = 0.1
 const far = 1000
 
-type RendererProps = {
-  engine: Engine
-}
-function PhysicsCoinRenderer({ engine }: RendererProps) {
-  useDefaultLight(engine)
+function PhysicsCoinRenderer() {
+  useDefaultLight()
   const world = useWorld(0, -9, 0)
-  const view = useView(engine)
-  const camera = useCamera(engine)
+
+  const { engine, view, camera } = useFilamentContext()
 
   // Create an invisible floor:
   const floorShape = useStaticPlaneShape(0, 1, 0, 0)
@@ -43,7 +41,6 @@ function PhysicsCoinRenderer({ engine }: RendererProps) {
 
   const hasNotifiedTouchedFloor = useSharedValue(false)
   const [coinABody, coinAEntity] = useCoin(
-    engine,
     world,
     [0, 3, 0.0],
     useWorkletCallback(
@@ -93,16 +90,17 @@ function PhysicsCoinRenderer({ engine }: RendererProps) {
 
   return (
     <View style={styles.container}>
-      <Filament style={styles.filamentView} engine={engine} />
+      <Filament style={styles.filamentView} />
     </View>
   )
 }
 
 export function PhysicsCoin() {
-  const engine = useEngine()
-
-  if (engine == null) return null
-  return <PhysicsCoinRenderer engine={engine} />
+  return (
+    <FilamentProvider>
+      <PhysicsCoinRenderer />
+    </FilamentProvider>
+  )
 }
 
 const styles = StyleSheet.create({
