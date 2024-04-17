@@ -119,11 +119,10 @@ export function useModel({
 
   // Cleanup native memory when unmounting:
   useEffect(() => {
-    if (!cleanupOnUnmount) return
     return () => {
       assetBuffer?.release()
     }
-  }, [cleanupOnUnmount, assetBuffer])
+  }, [assetBuffer])
   // Release native memory when the component unmounts
   useEffect(() => {
     if (!cleanupOnUnmount) return
