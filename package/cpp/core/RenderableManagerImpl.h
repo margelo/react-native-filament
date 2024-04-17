@@ -22,7 +22,8 @@ class EngineWrapper;
 
 class RenderableManagerImpl {
 public:
-  explicit RenderableManagerImpl(std::shared_ptr<Engine> engine) : _engine(engine) {
+  explicit RenderableManagerImpl(std::shared_ptr<Engine> engine, std::shared_ptr<Dispatcher> rendererDispatcher)
+      : _engine(engine), _rendererDispatcher(rendererDispatcher) {
     _textureProvider = std::shared_ptr<TextureProvider>(filament::gltfio::createStbProvider(_engine.get()));
   }
 
@@ -66,10 +67,13 @@ private:
 
 private:
   std::shared_ptr<Engine> _engine;
+  std::shared_ptr<Dispatcher> _rendererDispatcher;
   std::shared_ptr<TextureProvider> _textureProvider;
+  // Keep a list of all material instances the RenderableManager creates, so we can clean them up when the RenderableManager is
+  std::vector<std::shared_ptr<MaterialInstance>> _materialInstances;
 
 private:
-  constexpr static const char* TAG = "RenderableManagerWrapper";
+  constexpr static const char* TAG = "RenderableManagerImpl";
 };
 
 } // namespace margelo

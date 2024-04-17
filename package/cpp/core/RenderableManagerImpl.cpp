@@ -119,13 +119,24 @@ void RenderableManagerImpl::changeMaterialTextureMap(std::shared_ptr<EntityWrapp
   }
 
   // TODO: memory leak, material instance needs to be deleted (Engine::destroy)
+
+  // This material instance still belongs to the original asset and will be cleaned up when the asset is destroyed
   MaterialInstance* materialInstance = _renderableManager.getMaterialInstanceAt(instance, primitiveIndex);
 
   // The texture might not be loaded yet, but we can already set it on the material instance
-  MaterialInstance* newInstance = MaterialInstance::duplicate(materialInstance);
+  auto engine = _engine;
+  auto dispatcher = _rendererDispatcher;
+  std::shared_ptr<MaterialInstance> newInstance =
+      std::shared_ptr<MaterialInstance>(MaterialInstance::duplicate(materialInstance), [engine, dispatcher](MaterialInstance* instance) {
+        dispatcher->runAsync([engine, instance]() {
+          Logger::log(TAG, "Destroying material instance %p", instance);
+          engine->destroy(instance);
+        });
+      });
   auto sampler = TextureSampler(TextureSampler::MinFilter::LINEAR, TextureSampler::MagFilter::LINEAR, TextureSampler::WrapMode::REPEAT);
   newInstance->setParameter("baseColorMap", texture, sampler);
-  _renderableManager.setMaterialInstanceAt(instance, primitiveIndex, newInstance);
+  _renderableManager.setMaterialInstanceAt(instance, primitiveIndex, newInstance.get());
+  _materialInstances.push_back(newInstance);
 
   // Load the texture
   startUpdateResourceLoading();
