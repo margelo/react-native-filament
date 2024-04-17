@@ -17,6 +17,7 @@ import {
   Entity,
   FilamentProvider,
   useFilamentContext,
+  prepareForCleanup,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
@@ -58,9 +59,9 @@ function Renderer() {
     })().then(setShadowMaterial)
   }, [engine, shadowMaterialBuffer])
   useEffect(() => {
-    return () => {
+    return prepareForCleanup(() => {
       shadowMaterial?.release()
-    }
+    })
   }, [shadowMaterial])
 
   // Create Shadow plane
