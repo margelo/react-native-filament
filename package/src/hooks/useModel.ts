@@ -128,9 +128,13 @@ export function useModel({
   useEffect(() => {
     if (!cleanupOnUnmount) return
     return prepareForCleanup(() => {
-      asset?.release()
+      try {
+        asset?.release()
+      } catch (e) {
+        throw new Error(`Failed to release asset "${path}" because:\n${e}`)
+      }
     })
-  }, [cleanupOnUnmount, asset])
+  }, [cleanupOnUnmount, asset, path])
 
   if (assetBuffer == null || asset == null) {
     return {
