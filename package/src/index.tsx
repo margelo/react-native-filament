@@ -20,7 +20,7 @@ export * from './hooks/useAmbientOcclusionOptions'
 export * from './utilities/runOnJS'
 export * from './utilities/runOnWorklet'
 export * from './utilities/getAssetFromModel'
-export * from './utilities/prepareForCleanup'
+export * from './utilities/withCleanupScope'
 
 // Bullet 3
 export * from './bullet'

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { AssetProps, useAsset } from './useAsset'
 import { FilamentAsset } from '../types/FilamentAsset'
 import { useFilamentContext } from '../FilamentContext'
-import { prepareForCleanup } from '../utilities/prepareForCleanup'
+import { withCleanupScope } from '../utilities/withCleanupScope'
 
 interface ModelProps extends AssetProps {
   /**
@@ -89,8 +89,9 @@ export function useModel({
 
     // Run the cleanup for the asset in the same useEffect creating the asset.
     // This ensures that the cleanup is only called once, even when there is a fast-refresh.
-    return prepareForCleanup(() => {
+    return withCleanupScope(() => {
       if (currentAsset != null) {
+        console.log('Releasing asset:', currentAsset)
         currentAsset.release()
       }
     })
