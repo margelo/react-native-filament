@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { AssetProps, useAsset } from './useAsset'
 import { FilamentAsset } from '../types/FilamentAsset'
 import { useFilamentContext } from '../FilamentContext'
-import { withCleanupScope } from '../utilities/withCleanupScope'
+import { useResource } from './useResource'
+import usePrevious from './usePrevious'
+import { useWorkletEffect } from './useWorkletEffect'
 
 interface ModelProps extends AssetProps {
   /**
@@ -12,22 +14,16 @@ interface ModelProps extends AssetProps {
   shouldReleaseSourceData?: boolean
 
   /**
-   * Whether the model should be automatically added to the scene after loading.
+   * Whether the model should be added to the scene.
    * @default true
    */
-  autoAddToScene?: boolean
+  addToScene?: boolean
 
   /**
    * Number of instances to create.
    * @default 1
    */
   instanceCount?: number
-
-  /**
-   * Whether to cleanup the native memory associated with the asset when the component unmounts.
-   * @default true
-   */
-  cleanupOnUnmount?: boolean
 }
 
 /**
@@ -51,29 +47,20 @@ export type FilamentModel =
  * const pengu = useModel({ engine: engine, path: PENGU_PATH })
  * ```
  */
-export function useModel({
-  path,
-  shouldReleaseSourceData,
-  autoAddToScene = true,
-  instanceCount,
-  cleanupOnUnmount = true,
-}: ModelProps): FilamentModel {
+export function useModel({ path, shouldReleaseSourceData, addToScene = true, instanceCount }: ModelProps): FilamentModel {
   const { engine, scene, _workletContext } = useFilamentContext()
-  const assetBuffer = useAsset({ path: path, cleanupOnUnmount: cleanupOnUnmount })
-  const [asset, setAsset] = useState<FilamentAsset | undefined>(undefined)
-  console.log('useModel: asset set?', asset != null)
+  const assetBuffer = useAsset({ path: path })
 
-  useEffect(() => {
+  // Note: the native cleanup of the asset will remove it automatically from the scene
+  const asset = useResource(() => {
     if (assetBuffer == null) return
     if (instanceCount === 0) {
       throw new Error('instanceCount must be greater than 0')
     }
 
-    setAsset(undefined)
     console.log('useModel: Loading asset')
 
-    let currentAsset: FilamentAsset | undefined
-    Worklets.createRunInContextFn(() => {
+    return Worklets.createRunInContextFn(() => {
       'worklet'
 
       let loadedAsset: FilamentAsset
@@ -84,63 +71,32 @@ export function useModel({
       }
 
       return loadedAsset
-    }, _workletContext)().then((loadedAsset) => {
-      console.log('useModel: Setting asset')
-      setAsset(loadedAsset)
-      currentAsset = loadedAsset
-    })
+    }, _workletContext)()
+  }, [assetBuffer, _workletContext, engine, instanceCount])
 
-    if (!cleanupOnUnmount) return
-
-    // Run the cleanup for the asset in the same useEffect creating the asset.
-    // This ensures that the cleanup is only called once, even when there is a fast-refresh.
-    return () => {
-      console.log('useModel: Queued cleanup for asset')
-      withCleanupScope(() => {
-        if (currentAsset != null) {
-          console.log('useModel: cleaned up asset')
-          currentAsset.release()
-        }
-      })()
-    }
-  }, [assetBuffer, _workletContext, engine, instanceCount, cleanupOnUnmount])
-
-  useEffect(() => {
+  useWorkletEffect(() => {
+    'worklet'
     if (asset == null || !shouldReleaseSourceData) {
       return
     }
-    Worklets.createRunInContextFn(() => {
-      'worklet'
 
-      // releases CPU memory for bindings
-      asset?.releaseSourceData()
-    }, _workletContext)()
+    // releases CPU memory for bindings
+    asset?.releaseSourceData()
   }, [asset, _workletContext, shouldReleaseSourceData])
 
-  // Auto add asset to scene:
-  useEffect(() => {
-    if (!autoAddToScene || asset == null) {
-      return
-    }
+  // Add or remove from the scene:
+  const previousAddToScene = usePrevious(addToScene)
+  useWorkletEffect(() => {
+    'worklet'
+    if (asset == null) return
 
-    Worklets.createRunInContextFn(() => {
-      'worklet'
-
+    if (addToScene) {
       scene.addAssetEntities(asset)
-    }, _workletContext)()
-
-    if (cleanupOnUnmount) {
-      // asset.release() will cause the asset to be removed from the scene internally
-      return
+    } else if (!addToScene && previousAddToScene) {
+      // Only remove when it was previously added (ie. the user set addToScene: false)
+      scene.removeAssetEntities(asset)
     }
-    return () => {
-      Worklets.createRunInContextFn(() => {
-        'worklet'
-
-        scene.removeAssetEntities(asset)
-      }, _workletContext)()
-    }
-  }, [autoAddToScene, asset, _workletContext, engine, scene, cleanupOnUnmount])
+  }, [addToScene, asset, _workletContext, scene, previousAddToScene])
 
   if (assetBuffer == null || asset == null) {
     return {

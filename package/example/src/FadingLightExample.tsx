@@ -24,50 +24,13 @@ const cameraPosition: Float3 = [0, 0, 8]
 const cameraTarget: Float3 = [0, 0, 0]
 const cameraUp: Float3 = [0, 1, 0]
 
-let timeout: ReturnType<typeof setTimeout> | null = null
-const functionQueue: Function[] = []
-export function batchSceneUpdates(update: Function): void {
-  functionQueue.push(update)
-  if (timeout != null) {
-    clearTimeout(timeout)
-  }
-  timeout = setTimeout(() => {
-    functionQueue.forEach((fn) => fn())
-    functionQueue.length = 0
-    timeout = null
-  }, 0)
-}
-
-function useMyModel() {
-  const { scene } = useFilamentContext()
-  const model = useModel({
-    path: penguModelPath,
-    autoAddToScene: false,
-  })
-  const asset = getAssetFromModel(model)
-  useEffect(() => {
-    if (asset == null) return
-
-    batchSceneUpdates(() => {
-      console.log('scene.useEffect: add asset')
-      scene.addAssetEntities(asset)
-    })
-    return () => {
-      batchSceneUpdates(() => {
-        console.log('scene.useEffect: remove asset')
-        scene.removeAssetEntities(asset)
-      })
-    }
-  }, [asset, scene])
-}
-
 function Renderer() {
   const { camera, view, scene, lightManager } = useFilamentContext()
-  // useDefaultLight(false)
-  useMyModel()
+  useDefaultLight(false)
+  const model = useModel({ path: penguModelPath })
 
   const prevAspectRatio = useSharedValue(0)
-  // const assetAnimator = useAssetAnimator(getAssetFromModel(model))
+  const assetAnimator = useAssetAnimator(getAssetFromModel(model))
   useRenderCallback(
     useWorkletCallback(
       (_timestamp: number, _startTime: number, passedSeconds: number) => {
@@ -84,14 +47,14 @@ function Renderer() {
 
         camera.lookAt(cameraPosition, cameraTarget, cameraUp)
 
-        // if (assetAnimator == null) {
-        //   return
-        // }
+        if (assetAnimator == null) {
+          return
+        }
 
-        // assetAnimator.applyAnimation(0, passedSeconds)
-        // assetAnimator.updateBoneMatrices()
+        assetAnimator.applyAnimation(0, passedSeconds)
+        assetAnimator.updateBoneMatrices()
       },
-      [camera, prevAspectRatio, view]
+      [camera, prevAspectRatio, view, assetAnimator]
     )
   )
 
