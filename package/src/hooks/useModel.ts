@@ -59,7 +59,7 @@ export function useModel({
   cleanupOnUnmount = true,
 }: ModelProps): FilamentModel {
   const { engine, scene, _workletContext } = useFilamentContext()
-  const assetBuffer = useAsset({ path: path })
+  const assetBuffer = useAsset({ path: path, cleanupOnUnmount: cleanupOnUnmount })
   const [asset, setAsset] = useState<FilamentAsset | undefined>(undefined)
 
   useEffect(() => {
@@ -91,7 +91,6 @@ export function useModel({
     // This ensures that the cleanup is only called once, even when there is a fast-refresh.
     return withCleanupScope(() => {
       if (currentAsset != null) {
-        console.log('Releasing asset:', currentAsset)
         currentAsset.release()
       }
     })
@@ -133,13 +132,6 @@ export function useModel({
       }, _workletContext)()
     }
   }, [autoAddToScene, asset, _workletContext, engine, scene, cleanupOnUnmount])
-
-  // Cleanup native memory when unmounting:
-  useEffect(() => {
-    return () => {
-      assetBuffer?.release()
-    }
-  }, [assetBuffer])
 
   if (assetBuffer == null || asset == null) {
     return {
