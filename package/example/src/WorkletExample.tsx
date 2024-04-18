@@ -24,23 +24,23 @@ const penguModelPath = Platform.select({
 function Model() {
   useModel({
     path: getAssetPath('coffeeshop.glb'),
-    autoAddToScene: true,
+    addToScene: true,
   })
   useModel({
     path: getAssetPath('coffeeshop_table_level03.glb'),
-    autoAddToScene: true,
+    addToScene: true,
   })
   useModel({
     path: getAssetPath('coffeeshop_seating_level03.glb'),
-    autoAddToScene: true,
+    addToScene: true,
   })
   useModel({
     path: getAssetPath('coffeeshop_plant_level03.glb'),
-    autoAddToScene: true,
+    addToScene: true,
   })
   useModel({
     path: getAssetPath('coffeeshop_machine_level03.glb'),
-    autoAddToScene: true,
+    addToScene: true,
   })
 
   return null
@@ -55,7 +55,7 @@ function Renderer() {
   useDefaultLight()
   const asset = useModel({
     path: penguModelPath,
-    autoAddToScene: true,
+    addToScene: true,
   })
 
   const prevAspectRatio = useSharedValue(0)

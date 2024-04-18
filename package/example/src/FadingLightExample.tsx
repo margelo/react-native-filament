@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { StrictMode, useEffect } from 'react'
 import { useSharedValue } from 'react-native-worklets-core'
 import { Animated, Button, SafeAreaView, StyleSheet } from 'react-native'
 import {
@@ -27,13 +27,10 @@ const cameraUp: Float3 = [0, 1, 0]
 function Renderer() {
   const { camera, view, scene, lightManager } = useFilamentContext()
   useDefaultLight(false)
-  const asset = useModel({
-    path: penguModelPath,
-    autoAddToScene: true,
-  })
+  const model = useModel({ path: penguModelPath })
 
   const prevAspectRatio = useSharedValue(0)
-  const assetAnimator = useAssetAnimator(getAssetFromModel(asset))
+  const assetAnimator = useAssetAnimator(getAssetFromModel(model))
   useRenderCallback(
     useWorkletCallback(
       (_timestamp: number, _startTime: number, passedSeconds: number) => {
@@ -57,7 +54,7 @@ function Renderer() {
         assetAnimator.applyAnimation(0, passedSeconds)
         assetAnimator.updateBoneMatrices()
       },
-      [assetAnimator, camera, prevAspectRatio, view]
+      [camera, prevAspectRatio, view, assetAnimator]
     )
   )
 
@@ -71,6 +68,8 @@ function Renderer() {
     position: [0, 0, 0],
   })
   useEntityInScene(scene, lightEntity)
+
+  console.log('')
 
   return (
     <SafeAreaView style={styles.container}>

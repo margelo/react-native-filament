@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
 import { Asset } from '../native/FilamentBuffer'
 import { FilamentProxy } from '../native/FilamentProxy'
+import { useResource } from './useResource'
 
 export interface AssetProps {
   /**
@@ -13,15 +13,5 @@ export interface AssetProps {
  * Asynchronously load an asset from the given web URL, local file path, or resource ID.
  */
 export function useAsset({ path }: AssetProps): Asset | undefined {
-  // Reset the asset buffer when fast refreshing (as a useEffect might call .release())
-  // @refresh reset
-  const [asset, setAsset] = useState<Asset>()
-
-  useEffect(() => {
-    FilamentProxy.loadAsset(path)
-      .then((a) => setAsset(a))
-      .catch((e) => console.error(`Failed to load asset ${path}!`, e))
-  }, [path])
-
-  return asset
+  return useResource(() => FilamentProxy.loadAsset(path), [path])
 }
