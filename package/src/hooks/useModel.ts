@@ -63,12 +63,14 @@ export function useModel({
   const [asset, setAsset] = useState<FilamentAsset | undefined>(undefined)
 
   useEffect(() => {
+    if (assetBuffer == null) return
+    if (instanceCount === 0) {
+      throw new Error('instanceCount must be greater than 0')
+    }
+
+    let currentAsset: FilamentAsset | undefined
     Worklets.createRunInContextFn(() => {
       'worklet'
-      if (assetBuffer == null) return
-      if (instanceCount === 0) {
-        throw new Error('instanceCount must be greater than 0')
-      }
 
       let loadedAsset: FilamentAsset
       if (instanceCount == null || instanceCount === 1) {
@@ -78,8 +80,21 @@ export function useModel({
       }
 
       return loadedAsset
-    }, _workletContext)().then(setAsset)
-  }, [assetBuffer, _workletContext, engine, instanceCount])
+    }, _workletContext)().then((loadedAsset) => {
+      setAsset(loadedAsset)
+      currentAsset = loadedAsset
+    })
+
+    if (!cleanupOnUnmount) return
+
+    // Run the cleanup for the asset in the same useEffect creating the asset.
+    // This ensures that the cleanup is only called once, even when there is a fast-refresh.
+    return prepareForCleanup(() => {
+      if (currentAsset != null) {
+        currentAsset.release()
+      }
+    })
+  }, [assetBuffer, _workletContext, engine, instanceCount, cleanupOnUnmount, path])
 
   useEffect(() => {
     if (asset == null || !shouldReleaseSourceData) {
@@ -124,17 +139,6 @@ export function useModel({
       assetBuffer?.release()
     }
   }, [assetBuffer])
-  // Release native memory when the component unmounts
-  useEffect(() => {
-    if (!cleanupOnUnmount) return
-    return prepareForCleanup(() => {
-      try {
-        asset?.release()
-      } catch (e) {
-        throw new Error(`Failed to release asset "${path}" because:\n${e}`)
-      }
-    })
-  }, [cleanupOnUnmount, asset, path])
 
   if (assetBuffer == null || asset == null) {
     return {
