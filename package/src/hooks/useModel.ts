@@ -61,12 +61,16 @@ export function useModel({
   const { engine, scene, _workletContext } = useFilamentContext()
   const assetBuffer = useAsset({ path: path, cleanupOnUnmount: cleanupOnUnmount })
   const [asset, setAsset] = useState<FilamentAsset | undefined>(undefined)
+  console.log('useModel: asset set?', asset != null)
 
   useEffect(() => {
     if (assetBuffer == null) return
     if (instanceCount === 0) {
       throw new Error('instanceCount must be greater than 0')
     }
+
+    setAsset(undefined)
+    console.log('useModel: Loading asset')
 
     let currentAsset: FilamentAsset | undefined
     Worklets.createRunInContextFn(() => {
@@ -81,6 +85,7 @@ export function useModel({
 
       return loadedAsset
     }, _workletContext)().then((loadedAsset) => {
+      console.log('useModel: Setting asset')
       setAsset(loadedAsset)
       currentAsset = loadedAsset
     })
@@ -89,12 +94,16 @@ export function useModel({
 
     // Run the cleanup for the asset in the same useEffect creating the asset.
     // This ensures that the cleanup is only called once, even when there is a fast-refresh.
-    return withCleanupScope(() => {
-      if (currentAsset != null) {
-        currentAsset.release()
-      }
-    })
-  }, [assetBuffer, _workletContext, engine, instanceCount, cleanupOnUnmount, path])
+    return () => {
+      console.log('useModel: Queued cleanup for asset')
+      withCleanupScope(() => {
+        if (currentAsset != null) {
+          console.log('useModel: cleaned up asset')
+          currentAsset.release()
+        }
+      })()
+    }
+  }, [assetBuffer, _workletContext, engine, instanceCount, cleanupOnUnmount])
 
   useEffect(() => {
     if (asset == null || !shouldReleaseSourceData) {

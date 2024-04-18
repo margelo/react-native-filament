@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { StrictMode, useEffect } from 'react'
 import { useSharedValue } from 'react-native-worklets-core'
 import { Animated, Button, SafeAreaView, StyleSheet } from 'react-native'
 import {
@@ -24,16 +24,50 @@ const cameraPosition: Float3 = [0, 0, 8]
 const cameraTarget: Float3 = [0, 0, 0]
 const cameraUp: Float3 = [0, 1, 0]
 
+let timeout: ReturnType<typeof setTimeout> | null = null
+const functionQueue: Function[] = []
+export function batchSceneUpdates(update: Function): void {
+  functionQueue.push(update)
+  if (timeout != null) {
+    clearTimeout(timeout)
+  }
+  timeout = setTimeout(() => {
+    functionQueue.forEach((fn) => fn())
+    functionQueue.length = 0
+    timeout = null
+  }, 0)
+}
+
+function useMyModel() {
+  const { scene } = useFilamentContext()
+  const model = useModel({
+    path: penguModelPath,
+    autoAddToScene: false,
+  })
+  const asset = getAssetFromModel(model)
+  useEffect(() => {
+    if (asset == null) return
+
+    batchSceneUpdates(() => {
+      console.log('scene.useEffect: add asset')
+      scene.addAssetEntities(asset)
+    })
+    return () => {
+      batchSceneUpdates(() => {
+        console.log('scene.useEffect: remove asset')
+        scene.removeAssetEntities(asset)
+      })
+    }
+  }, [asset, scene])
+}
+
 function Renderer() {
   const { camera, view, scene, lightManager } = useFilamentContext()
-  useDefaultLight(false)
-  const asset = useModel({
-    path: penguModelPath,
-    autoAddToScene: true,
-  })
+  // useDefaultLight(false)
+  useMyModel()
 
   const prevAspectRatio = useSharedValue(0)
-  const assetAnimator = useAssetAnimator(getAssetFromModel(asset))
+  // const assetAnimator = useAssetAnimator(getAssetFromModel(model))
   useRenderCallback(
     useWorkletCallback(
       (_timestamp: number, _startTime: number, passedSeconds: number) => {
@@ -50,14 +84,14 @@ function Renderer() {
 
         camera.lookAt(cameraPosition, cameraTarget, cameraUp)
 
-        if (assetAnimator == null) {
-          return
-        }
+        // if (assetAnimator == null) {
+        //   return
+        // }
 
-        assetAnimator.applyAnimation(0, passedSeconds)
-        assetAnimator.updateBoneMatrices()
+        // assetAnimator.applyAnimation(0, passedSeconds)
+        // assetAnimator.updateBoneMatrices()
       },
-      [assetAnimator, camera, prevAspectRatio, view]
+      [camera, prevAspectRatio, view]
     )
   )
 
@@ -71,6 +105,8 @@ function Renderer() {
     position: [0, 0, 0],
   })
   useEntityInScene(scene, lightEntity)
+
+  console.log('')
 
   return (
     <SafeAreaView style={styles.container}>
