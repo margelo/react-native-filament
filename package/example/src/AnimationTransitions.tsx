@@ -12,7 +12,7 @@ import {
   useWorkletCallback,
   FilamentProvider,
   useFilamentContext,
-  prepareForCleanup,
+  withCleanupScope,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
@@ -46,7 +46,7 @@ function Renderer() {
     return pirateHatAsset.createAnimatorWithAnimationsFrom(penguAsset)
   }, [penguAsset, pirateHatAsset])
   useEffect(() => {
-    return prepareForCleanup(() => {
+    return withCleanupScope(() => {
       if (pirateHatAnimator != null) {
         pirateHatAnimator.release?.()
       }

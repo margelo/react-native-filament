@@ -45,7 +45,7 @@ export function ScaleEffect() {
   const camera = useCamera(engine)
   const scene = useScene(engine)
 
-  const model = useModel({ engine: engine, path: modelPath, autoAddToScene: false })
+  const model = useModel({ engine: engine, path: modelPath, addToScene: false })
   const modelAsset = model.state === 'loaded' ? model.asset : null
   const originalTransformRef = useRef<Mat4 | null>(null)
 

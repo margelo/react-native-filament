@@ -17,7 +17,7 @@ import {
   Entity,
   FilamentProvider,
   useFilamentContext,
-  prepareForCleanup,
+  withCleanupScope,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
@@ -59,7 +59,7 @@ function Renderer() {
     })().then(setShadowMaterial)
   }, [engine, shadowMaterialBuffer])
   useEffect(() => {
-    return prepareForCleanup(() => {
+    return withCleanupScope(() => {
       shadowMaterial?.release()
     })
   }, [shadowMaterial])
