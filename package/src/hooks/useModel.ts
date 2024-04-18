@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { AssetProps, useAsset } from './useAsset'
 import { FilamentAsset } from '../types/FilamentAsset'
 import { useFilamentContext } from '../FilamentContext'
@@ -57,8 +56,6 @@ export function useModel({ path, shouldReleaseSourceData, addToScene = true, ins
     if (instanceCount === 0) {
       throw new Error('instanceCount must be greater than 0')
     }
-
-    console.log('useModel: Loading asset')
 
     return Worklets.createRunInContextFn(() => {
       'worklet'
