@@ -1,5 +1,5 @@
 import { Camera } from './Camera'
-import { AmbientOcclusionOptions } from './Options'
+import { AmbientOcclusionOptions, DynamicResolutionOptions } from './Options'
 import { PointerHolder } from './PointerHolder'
 import { Scene } from './Scene'
 
@@ -30,7 +30,70 @@ export interface View extends PointerHolder {
   setViewport(x: number, y: number, width: number, height: number): void
   setAmbientOcclusionOptions(options: AmbientOcclusionOptions): void
   getAmbientOcclusionOptions(): AmbientOcclusionOptions
+  setDynamicResolutionOptions(options: DynamicResolutionOptions): void
+  getDynamicResolutionOptions(): DynamicResolutionOptions
+
+  /**
+   * Enables or disables screen space refraction.
+   * @default true
+   */
+  screenSpaceRefraction: boolean
+
+  /**
+   * Enables or disables post processing. Enabled by default.
+   *
+   * Post-processing includes:
+   *  - Depth-of-field
+   *  - Bloom
+   *  - Vignetting
+   *  - Temporal Anti-aliasing (TAA)
+   *  - Color grading & gamma encoding
+   *  - Dithering
+   *  - FXAA
+   *  - Dynamic scaling
+   *
+   * Disabling post-processing forgoes color correctness as well as some anti-aliasing techniques
+   * and should only be used for debugging, UI overlays or when using custom render targets
+   * (see RenderTarget).
+   *
+   * @default true
+   *
+   * @see setBloomOptions, setColorGrading, setAntiAliasing, setDithering, setSampleCount
+   */
+  postProcessing: boolean
+
+  /**
+   * Enables or disables shadow mapping. Enabled by default.
+   *
+   *
+   * @see LightManager::Builder::castShadows(),
+   *      RenderableManager::Builder::receiveShadows(),
+   *      RenderableManager::Builder::castShadows(),
+   *
+   * @default true
+   */
+  shadowing: boolean
+
+  /**
+   * Enables or disables anti-aliasing in the post-processing stage. Enabled by default.
+   * MSAA can be enabled in addition, see setSampleCount().
+   *
+   * @param type FXAA for enabling, NONE for disabling anti-aliasing.
+   *
+   * @note For MSAA anti-aliasing, see setSamplerCount().
+   *
+   * @default 'FXAA'
+   */
+  antiAliasing: 'none' | 'FXAA'
+
+  /**
+   * Enables or disables dithering in the post-processing stage. Enabled by default.
+   *
+   * @default 'temporal'
+   */
+  dithering: 'none' | 'temporal'
 
   // Internal helper to create HostObject options object
   createAmbientOcclusionOptions(): AmbientOcclusionOptions
+  createDynamicResolutionOptions(): DynamicResolutionOptions
 }
