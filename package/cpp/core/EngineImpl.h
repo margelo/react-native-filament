@@ -55,7 +55,7 @@ using RenderCallback = std::function<void(double, double, double)>;
 
 // The EngineImpl is the actual implementation wrapper around filaments Engine.
 // If you add a new method that you want to expose to JS, you need to add it to the EngineWrapper as well.
-class EngineImpl : public std::enable_shared_from_this<EngineImpl> {
+class EngineImpl : public std::enable_shared_from_this<EngineImpl>, public RuntimeLifecycleListener {
 public:
   explicit EngineImpl(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<Dispatcher> rendererDispatcher,
                       std::shared_ptr<Engine> engine);
@@ -87,6 +87,8 @@ private:
 
   // Internal helper method to turn an FilamentAsset ptr into a FilamentAssetWrapper
   std::shared_ptr<FilamentAssetWrapper> makeAssetWrapper(FilamentAsset* assetPtr);
+
+  void onRuntimeDestroyed(jsi::Runtime*) override;
 
 private:
   std::mutex _mutex;

@@ -217,9 +217,24 @@ void EngineImpl::setRenderCallback(std::optional<RenderCallback> callback) {
   _renderCallback = callback;
 }
 
+// This will be called when the runtime that created the EngineImpl gets destroyed.
+// The same runtime/thread that creates the EngineImpl is the one the renderCallback
+// jsi::Function has been created on, and needs to be destroyed on.
+// Additionally we want to stop and release the choreographer listener, so there is no
+// risk of it being called (and then calling the renderCallback which is invalid by then).
+void EngineImpl::onRuntimeDestroyed(jsi::Runtime*) {
+  std::unique_lock lock(_mutex);
+  Logger::log(TAG, "Runtime destroyed, stopping renderer...");
+  _renderCallback = nullptr;
+  _choreographer->stop();
+  _choreographerListener->remove();
+}
+
 // This method is connected to the choreographer and gets called every frame,
 // once we have a surface.
 void EngineImpl::renderFrame(double timestamp) {
+  std::unique_lock lock(_mutex);
+
   if (!_swapChain) {
     [[unlikely]];
     return;
@@ -577,6 +592,7 @@ std::shared_ptr<MaterialWrapper> EngineImpl::createMaterial(std::shared_ptr<Fila
 
   return std::make_shared<MaterialWrapper>(materialImpl);
 }
+
 std::shared_ptr<LightManagerWrapper> EngineImpl::createLightManager() {
   std::unique_lock lock(_mutex);
   return std::make_shared<LightManagerWrapper>(_engine);
