@@ -31,8 +31,7 @@ namespace margelo {
 
 EngineImpl::EngineImpl(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<Dispatcher> rendererDispatcher,
                        std::shared_ptr<Engine> engine)
-    : _engine(engine), _rendererDispatcher(rendererDispatcher), _choreographer(choreographer),
-      _transformManagerRef(engine->getTransformManager()) {
+    : _engine(engine), _rendererDispatcher(rendererDispatcher), _choreographer(choreographer) {
 
   gltfio::MaterialProvider* _materialProviderPtr =
       gltfio::createUbershaderProvider(engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
@@ -237,9 +236,7 @@ void EngineImpl::renderFrame(double timestamp) {
     const auto& renderCallback = _renderCallback.value();
     // Call JS callback with scene information
     double passedSeconds = (timestamp - _startTime) / 1e9;
-    _transformManagerRef.openLocalTransformTransaction();
     renderCallback(timestamp, _startTime, passedSeconds);
-    _transformManagerRef.commitLocalTransformTransaction();
   }
 
   std::shared_ptr<SwapChain> swapChain = _swapChain->getSwapChain();
@@ -424,8 +421,7 @@ std::shared_ptr<ManipulatorWrapper> EngineImpl::createCameraManipulator(int widt
 }
 
 std::shared_ptr<TransformManagerWrapper> EngineImpl::createTransformManager() {
-  // TODO: Don't pass the ref here, but create an implementation that the wrapper holds that will hold a ref to the engine!
-  return std::make_shared<TransformManagerWrapper>(_transformManagerRef);
+  return std::make_shared<TransformManagerWrapper>(_engine->getTransformManager());
 }
 
 /**
