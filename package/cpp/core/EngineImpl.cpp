@@ -165,6 +165,8 @@ void EngineImpl::setSurface(std::shared_ptr<Surface> surface) {
 }
 
 void EngineImpl::setIsPaused(bool isPaused) {
+  std::unique_lock lock(_mutex);
+
   _isPaused = isPaused;
   if (isPaused) {
     Logger::log(TAG, "Pausing renderer...");
