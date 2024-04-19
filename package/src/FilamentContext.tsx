@@ -1,5 +1,15 @@
 import React, { PropsWithChildren, useEffect, useMemo } from 'react'
-import { Camera, Engine, LightManager, RenderableManager, Scene, TransformManager, View } from './types'
+import {
+  AmbientOcclusionOptions,
+  Camera,
+  DynamicResolutionOptions,
+  Engine,
+  LightManager,
+  RenderableManager,
+  Scene,
+  TransformManager,
+  View,
+} from './types'
 import { EngineProps, useEngine } from './hooks/useEngine'
 import { Worklets, IWorkletContext } from 'react-native-worklets-core'
 import { FilamentProxy } from './native/FilamentProxy'
@@ -33,12 +43,18 @@ export function FilamentConsumer({ children }: { children: (value: FilamentConte
   return <FilamentContext.Consumer>{() => children(context)}</FilamentContext.Consumer>
 }
 
+type ViewProps = Partial<Pick<View, 'antiAliasing' | 'screenSpaceRefraction' | 'postProcessing' | 'dithering' | 'shadowing'>> & {
+  ambientOcclusionOptions?: AmbientOcclusionOptions
+  dynamicResolutionOptions?: DynamicResolutionOptions
+}
+
 type Props = PropsWithChildren<{
   engine: Engine
+  viewProps: ViewProps
 }>
 
 // Internal component that actually sets the context; its set once the engine is ready and we can creates values for all APIs
-function EngineAPIProvider({ children, engine }: Props) {
+function EngineAPIProvider({ children, engine, viewProps }: Props) {
   const transformManager = useMemo(() => engine.getTransformManager(), [engine])
   const renderableManager = useMemo(() => engine.createRenderableManager(), [engine])
   const scene = useMemo(() => engine.getScene(), [engine])
@@ -51,6 +67,19 @@ function EngineAPIProvider({ children, engine }: Props) {
     () => ({ engine, transformManager, renderableManager, scene, lightManager, view, camera, _workletContext: workletContext }),
     [engine, transformManager, renderableManager, scene, lightManager, view, camera, workletContext]
   )
+
+  // Apply view configs
+  const { ambientOcclusionOptions, antiAliasing, dithering, dynamicResolutionOptions, postProcessing, screenSpaceRefraction, shadowing } =
+    viewProps
+  useEffect(() => {
+    if (ambientOcclusionOptions != null) view.setAmbientOcclusionOptions(ambientOcclusionOptions)
+    if (dynamicResolutionOptions != null) view.setDynamicResolutionOptions(dynamicResolutionOptions)
+    if (antiAliasing != null) view.antiAliasing = antiAliasing
+    if (dithering != null) view.dithering = dithering
+    if (postProcessing != null) view.postProcessing = postProcessing
+    if (screenSpaceRefraction != null) view.screenSpaceRefraction = screenSpaceRefraction
+    if (shadowing != null) view.shadowing = shadowing
+  }, [view, ambientOcclusionOptions, antiAliasing, dithering, dynamicResolutionOptions, postProcessing, screenSpaceRefraction, shadowing])
 
   // Cleanup:
   // The cleanup phase is one of the reasons behind putting everything beneath a context.
@@ -83,9 +112,10 @@ function EngineAPIProvider({ children, engine }: Props) {
 }
 
 type FilamentProviderProps = PropsWithChildren<
-  EngineProps & {
-    fallback?: React.ReactElement
-  }
+  EngineProps &
+    ViewProps & {
+      fallback?: React.ReactElement
+    }
 >
 
 /**
@@ -101,9 +131,13 @@ type FilamentProviderProps = PropsWithChildren<
  * </FilamentProvider>
  * ```
  */
-export function FilamentProvider({ children, fallback, ...engineProps }: FilamentProviderProps) {
-  const engine = useEngine({ ...engineProps })
+export function FilamentProvider({ children, fallback, config, backend, isPaused, ...viewProps }: FilamentProviderProps) {
+  const engine = useEngine({ config, backend, isPaused })
 
   if (engine == null) return fallback ?? null
-  return <EngineAPIProvider engine={engine}>{children}</EngineAPIProvider>
+  return (
+    <EngineAPIProvider engine={engine} viewProps={viewProps}>
+      {children}
+    </EngineAPIProvider>
+  )
 }

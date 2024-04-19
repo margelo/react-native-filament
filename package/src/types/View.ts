@@ -37,7 +37,7 @@ export interface View extends PointerHolder {
    * Enables or disables screen space refraction.
    * @default true
    */
-  screenSpaceRefractionEnabled: boolean
+  screenSpaceRefraction: boolean
 
   /**
    * Enables or disables post processing. Enabled by default.
@@ -60,7 +60,7 @@ export interface View extends PointerHolder {
    *
    * @see setBloomOptions, setColorGrading, setAntiAliasing, setDithering, setSampleCount
    */
-  postProcessingEnabled: boolean
+  postProcessing: boolean
 
   /**
    * Enables or disables shadow mapping. Enabled by default.
@@ -72,7 +72,7 @@ export interface View extends PointerHolder {
    *
    * @default true
    */
-  shadowingEnabled: boolean
+  shadowing: boolean
 
   /**
    * Enables or disables anti-aliasing in the post-processing stage. Enabled by default.

@@ -10,12 +10,12 @@ void ViewWrapper::loadHybridMethods() {
   registerHybridMethod("createDynamicResolutionOptions", &ViewWrapper::createDynamicResolutionOptions, this);
   registerHybridMethod("setDynamicResolutionOptions", &ViewWrapper::setDynamicResolutionOptions, this);
   registerHybridMethod("getDynamicResolutionOptions", &ViewWrapper::getDynamicResolutionOptions, this);
-  registerHybridGetter("screenSpaceRefractionEnabled", &ViewWrapper::isScreenSpaceRefractionEnabled, this);
-  registerHybridSetter("screenSpaceRefractionEnabled", &ViewWrapper::setScreenSpaceRefractionEnabled, this);
-  registerHybridGetter("postProcessingEnabled", &ViewWrapper::isPostProcessingEnabled, this);
-  registerHybridSetter("postProcessingEnabled", &ViewWrapper::setPostProcessingEnabled, this);
-  registerHybridGetter("shadowingEnabled", &ViewWrapper::isShadowingEnabled, this);
-  registerHybridSetter("shadowingEnabled", &ViewWrapper::setShadowingEnabled, this);
+  registerHybridGetter("screenSpaceRefraction", &ViewWrapper::isScreenSpaceRefractionEnabled, this);
+  registerHybridSetter("screenSpaceRefraction", &ViewWrapper::setScreenSpaceRefractionEnabled, this);
+  registerHybridGetter("postProcessing", &ViewWrapper::isPostProcessingEnabled, this);
+  registerHybridSetter("postProcessing", &ViewWrapper::setPostProcessingEnabled, this);
+  registerHybridGetter("shadowing", &ViewWrapper::isShadowingEnabled, this);
+  registerHybridSetter("shadowing", &ViewWrapper::setShadowingEnabled, this);
   registerHybridGetter("dithering", &ViewWrapper::getDithering, this);
   registerHybridSetter("dithering", &ViewWrapper::setDithering, this);
   registerHybridGetter("antiAliasing", &ViewWrapper::getAntiAliasing, this);
