@@ -33,6 +33,47 @@ export interface View extends PointerHolder {
   setDynamicResolutionOptions(options: DynamicResolutionOptions): void
   getDynamicResolutionOptions(): DynamicResolutionOptions
 
+  /**
+   * Enables or disables screen space refraction.
+   * @default true
+   */
+  screenSpaceRefractionEnabled: boolean
+
+  /**
+   * Enables or disables post processing. Enabled by default.
+   *
+   * Post-processing includes:
+   *  - Depth-of-field
+   *  - Bloom
+   *  - Vignetting
+   *  - Temporal Anti-aliasing (TAA)
+   *  - Color grading & gamma encoding
+   *  - Dithering
+   *  - FXAA
+   *  - Dynamic scaling
+   *
+   * Disabling post-processing forgoes color correctness as well as some anti-aliasing techniques
+   * and should only be used for debugging, UI overlays or when using custom render targets
+   * (see RenderTarget).
+   *
+   * @default true
+   *
+   * @see setBloomOptions, setColorGrading, setAntiAliasing, setDithering, setSampleCount
+   */
+  postProcessingEnabled: boolean
+
+  /**
+   * Enables or disables shadow mapping. Enabled by default.
+   *
+   *
+   * @see LightManager::Builder::castShadows(),
+   *      RenderableManager::Builder::receiveShadows(),
+   *      RenderableManager::Builder::castShadows(),
+   *
+   * @default true
+   */
+  shadowingEnabled: boolean
+
   // Internal helper to create HostObject options object
   createAmbientOcclusionOptions(): AmbientOcclusionOptions
   createDynamicResolutionOptions(): DynamicResolutionOptions

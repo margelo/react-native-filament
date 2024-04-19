@@ -10,6 +10,12 @@ void ViewWrapper::loadHybridMethods() {
   registerHybridMethod("createDynamicResolutionOptions", &ViewWrapper::createDynamicResolutionOptions, this);
   registerHybridMethod("setDynamicResolutionOptions", &ViewWrapper::setDynamicResolutionOptions, this);
   registerHybridMethod("getDynamicResolutionOptions", &ViewWrapper::getDynamicResolutionOptions, this);
+  registerHybridGetter("screenSpaceRefractionEnabled", &ViewWrapper::isScreenSpaceRefractionEnabled, this);
+  registerHybridSetter("screenSpaceRefractionEnabled", &ViewWrapper::setScreenSpaceRefractionEnabled, this);
+  registerHybridGetter("postProcessingEnabled", &ViewWrapper::isPostProcessingEnabled, this);
+  registerHybridSetter("postProcessingEnabled", &ViewWrapper::setPostProcessingEnabled, this);
+  registerHybridGetter("shadowingEnabled", &ViewWrapper::isShadowingEnabled, this);
+  registerHybridSetter("shadowingEnabled", &ViewWrapper::setShadowingEnabled, this);
 }
 
 double ViewWrapper::getAspectRatio() {
@@ -57,6 +63,30 @@ void ViewWrapper::setDynamicResolutionOptions(std::shared_ptr<DynamicResolutionO
 
 std::shared_ptr<DynamicResolutionOptionsWrapper> ViewWrapper::getDynamicResolutionOptions() {
   return std::make_shared<DynamicResolutionOptionsWrapper>(pointee()->getDynamicResolutionOptions());
+}
+
+void ViewWrapper::setPostProcessingEnabled(bool enabled) {
+  pointee()->setPostProcessingEnabled(enabled);
+}
+
+bool ViewWrapper::isPostProcessingEnabled() {
+  return pointee()->isPostProcessingEnabled();
+}
+
+void ViewWrapper::setScreenSpaceRefractionEnabled(bool enabled) {
+  pointee()->setScreenSpaceRefractionEnabled(enabled);
+}
+
+bool ViewWrapper::isScreenSpaceRefractionEnabled() {
+  return pointee()->isScreenSpaceRefractionEnabled();
+}
+
+bool ViewWrapper::isShadowingEnabled() {
+  return pointee()->isShadowingEnabled();
+}
+
+void ViewWrapper::setShadowingEnabled(bool enabled) {
+  pointee()->setShadowingEnabled(enabled);
 }
 
 } // namespace margelo

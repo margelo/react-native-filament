@@ -27,6 +27,12 @@ private:
   std::shared_ptr<DynamicResolutionOptionsWrapper> createDynamicResolutionOptions();
   void setDynamicResolutionOptions(std::shared_ptr<DynamicResolutionOptionsWrapper> options);
   std::shared_ptr<DynamicResolutionOptionsWrapper> getDynamicResolutionOptions();
+  void setPostProcessingEnabled(bool enabled);
+  bool isPostProcessingEnabled();
+  void setScreenSpaceRefractionEnabled(bool enabled);
+  bool isScreenSpaceRefractionEnabled();
+  bool isShadowingEnabled();
+  void setShadowingEnabled(bool enabled);
 
 private:
   std::mutex _mutex;
