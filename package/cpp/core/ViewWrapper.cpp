@@ -16,6 +16,10 @@ void ViewWrapper::loadHybridMethods() {
   registerHybridSetter("postProcessingEnabled", &ViewWrapper::setPostProcessingEnabled, this);
   registerHybridGetter("shadowingEnabled", &ViewWrapper::isShadowingEnabled, this);
   registerHybridSetter("shadowingEnabled", &ViewWrapper::setShadowingEnabled, this);
+  registerHybridGetter("dithering", &ViewWrapper::getDithering, this);
+  registerHybridSetter("dithering", &ViewWrapper::setDithering, this);
+  registerHybridGetter("antiAliasing", &ViewWrapper::getAntiAliasing, this);
+  registerHybridSetter("antiAliasing", &ViewWrapper::setAntiAliasing, this);
 }
 
 double ViewWrapper::getAspectRatio() {
@@ -87,6 +91,30 @@ bool ViewWrapper::isShadowingEnabled() {
 
 void ViewWrapper::setShadowingEnabled(bool enabled) {
   pointee()->setShadowingEnabled(enabled);
+}
+
+std::string ViewWrapper::getDithering() {
+  std::string ditheringStr;
+  EnumMapper::convertEnumToJSUnion(pointee()->getDithering(), &ditheringStr);
+  return ditheringStr;
+}
+
+void ViewWrapper::setDithering(const std::string& dithering) {
+  Dithering ditheringEnum;
+  EnumMapper::convertJSUnionToEnum(dithering, &ditheringEnum);
+  pointee()->setDithering(ditheringEnum);
+}
+
+std::string ViewWrapper::getAntiAliasing() {
+  std::string antiAliasingStr;
+  EnumMapper::convertEnumToJSUnion(pointee()->getAntiAliasing(), &antiAliasingStr);
+  return antiAliasingStr;
+}
+
+void ViewWrapper::setAntiAliasing(const std::string& antiAliasing) {
+  AntiAliasing antiAliasingEnum;
+  EnumMapper::convertJSUnionToEnum(antiAliasing, &antiAliasingEnum);
+  pointee()->setAntiAliasing(antiAliasingEnum);
 }
 
 } // namespace margelo

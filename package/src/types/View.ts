@@ -74,6 +74,25 @@ export interface View extends PointerHolder {
    */
   shadowingEnabled: boolean
 
+  /**
+   * Enables or disables anti-aliasing in the post-processing stage. Enabled by default.
+   * MSAA can be enabled in addition, see setSampleCount().
+   *
+   * @param type FXAA for enabling, NONE for disabling anti-aliasing.
+   *
+   * @note For MSAA anti-aliasing, see setSamplerCount().
+   *
+   * @default 'FXAA'
+   */
+  antiAliasing: 'none' | 'FXAA'
+
+  /**
+   * Enables or disables dithering in the post-processing stage. Enabled by default.
+   *
+   * @default 'temporal'
+   */
+  dithering: 'none' | 'temporal'
+
   // Internal helper to create HostObject options object
   createAmbientOcclusionOptions(): AmbientOcclusionOptions
   createDynamicResolutionOptions(): DynamicResolutionOptions

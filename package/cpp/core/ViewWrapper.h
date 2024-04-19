@@ -1,7 +1,9 @@
 #pragma once
 
 #include "AmbientOcclusionOptionsWrapper.h"
+#include "AntiAliasingEnum.h"
 #include "CameraWrapper.h"
+#include "DitheringEnum.h"
 #include "DynamicResolutionOptions.h"
 #include "QualityLevel.h"
 #include "SceneWrapper.h"
@@ -33,6 +35,10 @@ private:
   bool isScreenSpaceRefractionEnabled();
   bool isShadowingEnabled();
   void setShadowingEnabled(bool enabled);
+  std::string getDithering();
+  void setDithering(const std::string& dithering);
+  std::string getAntiAliasing();
+  void setAntiAliasing(const std::string& antiAliasing);
 
 private:
   std::mutex _mutex;
