@@ -2,6 +2,7 @@
 
 #include "AmbientOcclusionOptionsWrapper.h"
 #include "CameraWrapper.h"
+#include "DynamicResolutionOptions.h"
 #include "QualityLevel.h"
 #include "SceneWrapper.h"
 #include "jsi/PointerHolder.h"
@@ -23,6 +24,9 @@ private:
   std::shared_ptr<AmbientOcclusionOptionsWrapper> createAmbientOcclusionOptions();
   void setAmbientOcclusionOptions(std::shared_ptr<AmbientOcclusionOptionsWrapper> options);
   std::shared_ptr<AmbientOcclusionOptionsWrapper> getAmbientOcclusionOptions();
+  std::shared_ptr<DynamicResolutionOptionsWrapper> createDynamicResolutionOptions();
+  void setDynamicResolutionOptions(std::shared_ptr<DynamicResolutionOptionsWrapper> options);
+  std::shared_ptr<DynamicResolutionOptionsWrapper> getDynamicResolutionOptions();
 
 private:
   std::mutex _mutex;

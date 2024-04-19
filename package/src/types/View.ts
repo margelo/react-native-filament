@@ -1,5 +1,5 @@
 import { Camera } from './Camera'
-import { AmbientOcclusionOptions } from './Options'
+import { AmbientOcclusionOptions, DynamicResolutionOptions } from './Options'
 import { PointerHolder } from './PointerHolder'
 import { Scene } from './Scene'
 
@@ -30,7 +30,10 @@ export interface View extends PointerHolder {
   setViewport(x: number, y: number, width: number, height: number): void
   setAmbientOcclusionOptions(options: AmbientOcclusionOptions): void
   getAmbientOcclusionOptions(): AmbientOcclusionOptions
+  setDynamicResolutionOptions(options: DynamicResolutionOptions): void
+  getDynamicResolutionOptions(): DynamicResolutionOptions
 
   // Internal helper to create HostObject options object
   createAmbientOcclusionOptions(): AmbientOcclusionOptions
+  createDynamicResolutionOptions(): DynamicResolutionOptions
 }
