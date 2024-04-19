@@ -204,6 +204,8 @@ void EngineImpl::destroySurface() {
 }
 
 void EngineImpl::setRenderCallback(std::optional<RenderCallback> callback) {
+  std::unique_lock lock(_mutex);
+
   if (callback.has_value()) {
     Logger::log(TAG, "Setting render callback");
   } else {
