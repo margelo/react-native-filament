@@ -2,6 +2,7 @@ import React from 'react'
 import { useSharedValue } from 'react-native-worklets-core'
 import { Button, Platform, SafeAreaView, StyleSheet } from 'react-native'
 import {
+  DynamicResolutionOptions,
   Filament,
   FilamentProvider,
   Float3,
@@ -106,9 +107,16 @@ function Renderer() {
   )
 }
 
+// Dynamic Resolution can greatly improve the performance on lower end android devices.
+// It will downscale the resolution (thus reducing the load on the GPU) when the frame rate drops
+// below the target frame rate (currently hard coded to 60 FPS).
+const dynamicResolutionOptions: DynamicResolutionOptions = {
+  enabled: true,
+}
+
 export function WorkletExample() {
   return (
-    <FilamentProvider>
+    <FilamentProvider dynamicResolutionOptions={dynamicResolutionOptions}>
       <Renderer />
     </FilamentProvider>
   )

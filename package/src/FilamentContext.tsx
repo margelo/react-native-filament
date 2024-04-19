@@ -14,6 +14,8 @@ import { EngineProps, useEngine } from './hooks/useEngine'
 import { Worklets, IWorkletContext } from 'react-native-worklets-core'
 import { FilamentProxy } from './native/FilamentProxy'
 import { InteractionManager } from 'react-native'
+import { makeDynamicResolutionHostObject } from './utilities/makeDynamicResolutionHostObject'
+import { makeAmbientOcclusionHostObject } from './utilities/makeAmbientOcclusionHostObject'
 
 export type FilamentContextType = {
   engine: Engine
@@ -72,8 +74,14 @@ function EngineAPIProvider({ children, engine, viewProps }: Props) {
   const { ambientOcclusionOptions, antiAliasing, dithering, dynamicResolutionOptions, postProcessing, screenSpaceRefraction, shadowing } =
     viewProps
   useEffect(() => {
-    if (ambientOcclusionOptions != null) view.setAmbientOcclusionOptions(ambientOcclusionOptions)
-    if (dynamicResolutionOptions != null) view.setDynamicResolutionOptions(dynamicResolutionOptions)
+    if (ambientOcclusionOptions != null) {
+      const options = makeAmbientOcclusionHostObject(view, ambientOcclusionOptions)
+      view.setAmbientOcclusionOptions(options)
+    }
+    if (dynamicResolutionOptions != null) {
+      const options = makeDynamicResolutionHostObject(view, dynamicResolutionOptions)
+      view.setDynamicResolutionOptions(options)
+    }
     if (antiAliasing != null) view.antiAliasing = antiAliasing
     if (dithering != null) view.dithering = dithering
     if (postProcessing != null) view.postProcessing = postProcessing
