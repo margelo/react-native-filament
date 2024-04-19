@@ -121,8 +121,8 @@ std::shared_ptr<EngineWrapper> FilamentProxy::createEngine(std::optional<std::st
   // Create the EngineImpl...
   EngineImpl* engineImplPtr = new EngineImpl(choreographer, renderThread, engine);
   // The EngineImpl is interested in the event of the Runtime creating it being destroyed, so we need to add it as a listener:
-  RuntimeLifecycleMonitor::addListener(getRuntime(), engineImplPtr);
   jsi::Runtime& runtime = getRuntime();
+  RuntimeLifecycleMonitor::addListener(runtime, engineImplPtr);
   std::shared_ptr<EngineImpl> engineImpl = std::shared_ptr<EngineImpl>(engineImplPtr, [&runtime](EngineImpl* ptr) {
     // Remove the EngineImpl from the RuntimeLifecycleMonitor when it gets destroyed.
     RuntimeLifecycleMonitor::removeListener(runtime, ptr);
