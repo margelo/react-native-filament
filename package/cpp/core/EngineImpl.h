@@ -117,7 +117,6 @@ private:
   std::shared_ptr<Camera> _camera;
   std::shared_ptr<ManipulatorWrapper> _cameraManipulator;
   std::shared_ptr<TransformManagerWrapper> _transformManager;
-  TransformManager& _transformManagerRef; // This is guaranteed to be valid as long as the engine lives
 
 private:
   std::shared_ptr<Renderer> createRenderer();
