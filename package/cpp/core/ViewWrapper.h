@@ -1,7 +1,10 @@
 #pragma once
 
 #include "AmbientOcclusionOptionsWrapper.h"
+#include "AntiAliasingEnum.h"
 #include "CameraWrapper.h"
+#include "DitheringEnum.h"
+#include "DynamicResolutionOptions.h"
 #include "QualityLevel.h"
 #include "SceneWrapper.h"
 #include "jsi/PointerHolder.h"
@@ -23,6 +26,19 @@ private:
   std::shared_ptr<AmbientOcclusionOptionsWrapper> createAmbientOcclusionOptions();
   void setAmbientOcclusionOptions(std::shared_ptr<AmbientOcclusionOptionsWrapper> options);
   std::shared_ptr<AmbientOcclusionOptionsWrapper> getAmbientOcclusionOptions();
+  std::shared_ptr<DynamicResolutionOptionsWrapper> createDynamicResolutionOptions();
+  void setDynamicResolutionOptions(std::shared_ptr<DynamicResolutionOptionsWrapper> options);
+  std::shared_ptr<DynamicResolutionOptionsWrapper> getDynamicResolutionOptions();
+  void setPostProcessingEnabled(bool enabled);
+  bool isPostProcessingEnabled();
+  void setScreenSpaceRefractionEnabled(bool enabled);
+  bool isScreenSpaceRefractionEnabled();
+  bool isShadowingEnabled();
+  void setShadowingEnabled(bool enabled);
+  std::string getDithering();
+  void setDithering(const std::string& dithering);
+  std::string getAntiAliasing();
+  void setAntiAliasing(const std::string& antiAliasing);
 
 private:
   std::mutex _mutex;
