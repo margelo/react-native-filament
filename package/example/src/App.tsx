@@ -67,7 +67,7 @@ const Stack = createNativeStackNavigator()
 function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator initialRouteName="FadingLight">
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen
           name="AnimationTransitions"
