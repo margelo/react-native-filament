@@ -21,8 +21,6 @@ public:
 
   void loadHybridMethods() override;
 
-  void transformToUnitCube(TransformManager& transformManager);
-
   std::shared_ptr<gltfio::FilamentAsset> getAsset() {
     return pointee();
   }

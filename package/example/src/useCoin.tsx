@@ -17,7 +17,7 @@ const scale = 0.3
 
 // A coin with a random rotation, that will be added to the physics world
 export function useCoin(world: DiscreteDynamicWorld, origin: Float3, collisionCallback: CollisionCallback) {
-  const { transformManager, engine } = useFilamentContext()
+  const { transformManager } = useFilamentContext()
   const coin = useModel({ path: coinPath })
 
   const originX = origin[0]
@@ -44,19 +44,19 @@ export function useCoin(world: DiscreteDynamicWorld, origin: Float3, collisionCa
 
     // For the coins we want to reset the rotation, for that we set a new transform
     // (false will cause the transform to be set as the new local transform).
-    engine.setEntityScale(entity, [newScaleX, newScaleY, newScaleZ], false)
+    transformManager.setEntityScale(entity, [newScaleX, newScaleY, newScaleZ], false)
 
     // Set a random rotation
     const angleRad = Math.random() * Math.PI * 2
     const axis: Float3 = [Math.random(), Math.random(), Math.random()]
-    engine.setEntityRotation(entity, angleRad, axis, true)
+    transformManager.setEntityRotation(entity, angleRad, axis, true)
 
-    engine.setEntityPosition(entity, [originX, originY, originZ], true)
+    transformManager.setEntityPosition(entity, [originX, originY, originZ], true)
 
     const transform = transformManager.getTransform(entity)
 
     return [entity, transform] as const
-  }, [engine, originX, originY, originZ, renderableEntities, transformManager])
+  }, [originX, originY, originZ, renderableEntities, transformManager])
 
   const circleShape = useCylinderShape(
     coinAsset == null

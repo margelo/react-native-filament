@@ -452,14 +452,6 @@ std::shared_ptr<TransformManagerWrapper> EngineImpl::createTransformManager() {
   return std::make_shared<TransformManagerWrapper>(_engine->getTransformManager());
 }
 
-/**
- * Sets up a root transform on the current model to make it fit into a unit cube.
- */
-void EngineImpl::transformToUnitCube(std::shared_ptr<FilamentAssetWrapper> asset) {
-  TransformManager& tm = _engine->getTransformManager();
-  asset->transformToUnitCube(tm);
-}
-
 void EngineImpl::synchronizePendingFrames() {
   // Wait for all pending frames to be processed before returning. This is to
   // avoid a race between the surface being resized before pending frames are
@@ -467,98 +459,6 @@ void EngineImpl::synchronizePendingFrames() {
   Fence* fence = _engine->createFence();
   fence->wait(Fence::Mode::FLUSH, Fence::FENCE_WAIT_FOR_EVER);
   _engine->destroy(fence);
-}
-
-/**
- * Internal method that will help updating the transform of an entity.
- * @param transform The transform matrix to apply
- * @param entity The entity to apply the transform to
- * @param multiplyCurrent If true, the current transform will be multiplied with the new transform, otherwise it will be replaced
- */
-void EngineImpl::updateTransform(math::mat4 transform, std::shared_ptr<EntityWrapper> entity, bool multiplyCurrent) {
-  std::unique_lock lock(_mutex);
-  if (!entity) {
-    throw std::invalid_argument("Entity is null");
-  }
-
-  TransformManager& tm = _engine->getTransformManager();
-  EntityInstance<TransformManager> entityInstance = tm.getInstance(entity->getEntity());
-  auto currentTransform = tm.getTransform(entityInstance);
-  auto newTransform = multiplyCurrent ? (transform * currentTransform) : transform;
-  tm.setTransform(entityInstance, newTransform);
-}
-
-// TODO(Marc): Ideally i want to do this in the entity wrapper, but i dont have access to the transform manager there
-void EngineImpl::setEntityPosition(std::shared_ptr<EntityWrapper> entity, std::vector<double> positionVec, bool multiplyCurrent) {
-  math::float3 position = Converter::VecToFloat3(positionVec);
-  auto translationMatrix = math::mat4::translation(position);
-  updateTransform(translationMatrix, entity, multiplyCurrent);
-}
-
-void EngineImpl::setEntityRotation(std::shared_ptr<EntityWrapper> entity, double angleRadians, std::vector<double> axisVec,
-                                   bool multiplyCurrent) {
-  math::float3 axis = Converter::VecToFloat3(axisVec);
-  if (axis.x == 0 && axis.y == 0 && axis.z == 0) {
-    throw std::invalid_argument("Axis cannot be zero");
-  }
-
-  auto rotationMatrix = math::mat4::rotation(angleRadians, axis);
-  updateTransform(rotationMatrix, entity, multiplyCurrent);
-}
-
-void EngineImpl::setEntityScale(std::shared_ptr<EntityWrapper> entity, std::vector<double> scaleVec, bool multiplyCurrent) {
-  math::float3 scale = Converter::VecToFloat3(scaleVec);
-  auto scaleMatrix = math::mat4::scaling(scale);
-  updateTransform(scaleMatrix, entity, multiplyCurrent);
-}
-
-void EngineImpl::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<RigidBodyWrapper> rigidBody) {
-  std::unique_lock lock(_mutex);
-  if (!rigidBody) {
-    throw std::invalid_argument("RigidBody is null");
-  }
-  if (!entityWrapper) {
-    throw std::invalid_argument("EntityWrapper is null");
-  }
-
-  // get rotation & position from the rigid body (it's not containing any scale information)
-  std::shared_ptr<btRigidBody> collisionObject = rigidBody->getRigidBody();
-  btMotionState* motionState = collisionObject->getMotionState();
-  btTransform bodyTransform;
-  motionState->getWorldTransform(bodyTransform);
-  btQuaternion rotation = bodyTransform.getRotation();
-  btVector3 position = bodyTransform.getOrigin();
-
-  // Create a filament rotation from the bullet rotation
-  math::quatf filamentQuat = math::quatf(rotation.getW(), rotation.getX(), rotation.getY(), rotation.getZ());
-  math::mat4f filamentRotation = math::mat4f(filamentQuat);
-
-  // Create a filament position from the bullet position
-  math::float3 filamentPosition = math::float3(position.getX(), position.getY(), position.getZ());
-  math::mat4f filamentTranslation = math::mat4f::translation(filamentPosition);
-
-  // Get the current transform of the filament entity
-  TransformManager& tm = _engine->getTransformManager();
-  Entity entity = entityWrapper->getEntity();
-  EntityInstance<TransformManager> entityInstance = tm.getInstance(entity);
-  math::mat4f currentTransform = tm.getTransform(entityInstance);
-
-  // Get the current scale of the filament entity
-  float scaleX = std::sqrt(currentTransform[0][0] * currentTransform[0][0] + currentTransform[0][1] * currentTransform[0][1] +
-                           currentTransform[0][2] * currentTransform[0][2]);
-  float scaleY = std::sqrt(currentTransform[1][0] * currentTransform[1][0] + currentTransform[1][1] * currentTransform[1][1] +
-                           currentTransform[1][2] * currentTransform[1][2]);
-  float scaleZ = std::sqrt(currentTransform[2][0] * currentTransform[2][0] + currentTransform[2][1] * currentTransform[2][1] +
-                           currentTransform[2][2] * currentTransform[2][2]);
-  //  Logger::log("EngineImpl", "scaleX: %f, scaleY: %f, scaleZ: %f", scaleX, scaleY, scaleZ);
-  math::vec3<float> scaleVec = {scaleX, scaleY, scaleZ};
-  auto filamentScale = math::mat4f::scaling(scaleVec);
-
-  // Create a new transform from the position, rotation and scale
-  auto newTransform = filamentTranslation * filamentRotation * filamentScale;
-
-  // Set the new transform
-  tm.setTransform(entityInstance, newTransform);
 }
 
 std::shared_ptr<RenderableManagerWrapper> EngineImpl::createRenderableManager() {

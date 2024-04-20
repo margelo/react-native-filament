@@ -1,4 +1,6 @@
+import { RigidBody } from '../bullet'
 import { Entity } from './Entity'
+import { FilamentAsset } from './FilamentAsset'
 import { Float3 } from './float3'
 
 /**
@@ -94,4 +96,33 @@ export interface TransformManager {
    * Creates a new identity matrix.
    */
   createIdentityMatrix(): Mat4
+
+  /**
+   * Transforms the given entity to fit into a unit cube at the origin (0,0,0).
+   * @param entity The entity to transform
+   */
+  transformToUnitCube(entity: FilamentAsset): void
+
+  /**
+   * Sets the position of an entity.
+   * @param multiplyCurrent If true, the new position will be multiplied with the current transform.
+   */
+  setEntityPosition(entity: Entity, position: Float3, multiplyCurrent: boolean): void
+
+  /**
+   * Sets the rotation of an entity.
+   * @param multiplyCurrent If true, the new rotation will be multiplied with the current transform.
+   */
+  setEntityRotation(entity: Entity, angleRadians: number, axis: Float3, multiplyCurrent: boolean): void
+
+  /**
+   * Sets the scale of an entity.
+   * @param multiplyCurrent If true, the new scale will be multiplied with the current transform.
+   */
+  setEntityScale(entity: Entity, scale: Float3, multiplyCurrent: boolean): void
+
+  /**
+   * Updates the transform of an entity based on the rigid body's transform.
+   */
+  updateTransformByRigidBody(entity: Entity, rigidBody: RigidBody): void
 }

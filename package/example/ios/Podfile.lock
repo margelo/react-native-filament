@@ -886,42 +886,42 @@ PODS:
   - React-Mapbuffer (0.73.4):
     - glog
     - React-debug
-  - react-native-filament (0.22.0):
+  - react-native-filament (0.24.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-    - react-native-filament/camutils (= 0.22.0)
-    - react-native-filament/filamat (= 0.22.0)
-    - react-native-filament/filament (= 0.22.0)
-    - react-native-filament/gltfio_core (= 0.22.0)
-    - react-native-filament/image (= 0.22.0)
-    - react-native-filament/ktxreader (= 0.22.0)
-    - react-native-filament/math (= 0.22.0)
-    - react-native-filament/tsl (= 0.22.0)
-    - react-native-filament/uberz (= 0.22.0)
-    - react-native-filament/utils (= 0.22.0)
+    - react-native-filament/camutils (= 0.24.0)
+    - react-native-filament/filamat (= 0.24.0)
+    - react-native-filament/filament (= 0.24.0)
+    - react-native-filament/gltfio_core (= 0.24.0)
+    - react-native-filament/image (= 0.24.0)
+    - react-native-filament/ktxreader (= 0.24.0)
+    - react-native-filament/math (= 0.24.0)
+    - react-native-filament/tsl (= 0.24.0)
+    - react-native-filament/uberz (= 0.24.0)
+    - react-native-filament/utils (= 0.24.0)
     - react-native-worklets-core
-  - react-native-filament/camutils (0.22.0):
-    - glog
-    - RCT-Folly (= 2022.05.16.00)
-    - React-Core
-    - react-native-filament/math
-    - react-native-worklets-core
-  - react-native-filament/filamat (0.22.0):
+  - react-native-filament/camutils (0.24.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - react-native-filament/math
-    - react-native-filament/utils
     - react-native-worklets-core
-  - react-native-filament/filament (0.22.0):
+  - react-native-filament/filamat (0.24.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - react-native-filament/math
     - react-native-filament/utils
     - react-native-worklets-core
-  - react-native-filament/gltfio_core (0.22.0):
+  - react-native-filament/filament (0.24.0):
+    - glog
+    - RCT-Folly (= 2022.05.16.00)
+    - React-Core
+    - react-native-filament/math
+    - react-native-filament/utils
+    - react-native-worklets-core
+  - react-native-filament/gltfio_core (0.24.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -929,30 +929,30 @@ PODS:
     - react-native-filament/ktxreader
     - react-native-filament/uberz
     - react-native-worklets-core
-  - react-native-filament/image (0.22.0):
+  - react-native-filament/image (0.24.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - react-native-filament/filament
     - react-native-worklets-core
-  - react-native-filament/ktxreader (0.22.0):
+  - react-native-filament/ktxreader (0.24.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - react-native-filament/filament
     - react-native-filament/image
     - react-native-worklets-core
-  - react-native-filament/math (0.22.0):
+  - react-native-filament/math (0.24.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - react-native-worklets-core
-  - react-native-filament/tsl (0.22.0):
+  - react-native-filament/tsl (0.24.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - react-native-worklets-core
-  - react-native-filament/uberz (0.22.0):
+  - react-native-filament/uberz (0.24.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -960,7 +960,7 @@ PODS:
     - react-native-filament/tsl
     - react-native-filament/utils
     - react-native-worklets-core
-  - react-native-filament/utils (0.22.0):
+  - react-native-filament/utils (0.24.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1346,7 +1346,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 9ac353eccf6ab54d1e0a33862ba91221d1e88460
   React-logger: 0a57b68dd2aec7ff738195f081f0520724b35dab
   React-Mapbuffer: 63913773ed7f96b814a2521e13e6d010282096ad
-  react-native-filament: a5fa3cbbe340d29b8efca8d269b78245fbc81503
+  react-native-filament: b7bf78e044e7c831c18fa1bb87350aa22be03418
   react-native-safe-area-context: b97eb6f9e3b7f437806c2ce5983f479f8eb5de4b
   react-native-worklets-core: 81033d42d22985176f9d1ef97378df02c092232e
   React-nativeconfig: d7af5bae6da70fa15ce44f045621cf99ed24087c

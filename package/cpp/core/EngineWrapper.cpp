@@ -42,18 +42,11 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("getView", &EngineWrapper::getView, this);
   registerHybridMethod("getCamera", &EngineWrapper::getCamera, this);
   registerHybridMethod("getCameraManipulator", &EngineWrapper::getCameraManipulator, this);
-  registerHybridMethod("transformToUnitCube", &EngineWrapper::transformToUnitCube, this);
-  registerHybridMethod("setEntityPosition", &EngineWrapper::setEntityPosition, this);
-  registerHybridMethod("setEntityRotation", &EngineWrapper::setEntityRotation, this);
-  registerHybridMethod("setEntityScale", &EngineWrapper::setEntityScale, this);
   registerHybridMethod("setIsPaused", &EngineWrapper::setIsPaused, this);
   registerHybridMethod("getTransformManager", &EngineWrapper::getTransformManager, this);
   registerHybridMethod("createRenderableManager", &EngineWrapper::createRenderableManager, this);
   registerHybridMethod("createMaterial", &EngineWrapper::createMaterial, this);
   registerHybridMethod("createLightManager", &EngineWrapper::createLightManager, this);
-
-  // Combined Physics API:
-  registerHybridMethod("updateTransformByRigidBody", &EngineWrapper::updateTransformByRigidBody, this);
 }
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
   pointee()->setSurfaceProvider(surfaceProvider);
@@ -88,24 +81,6 @@ std::shared_ptr<TransformManagerWrapper> EngineWrapper::getTransformManager() {
 }
 std::shared_ptr<LightManagerWrapper> EngineWrapper::createLightManager() {
   return pointee()->createLightManager();
-}
-
-// TODO: Those transform methods should me moved and handled by the transform manager!
-void EngineWrapper::setEntityPosition(std::shared_ptr<EntityWrapper> entity, std::vector<double> positionVec, bool multiplyCurrent) {
-  pointee()->setEntityPosition(entity, positionVec, multiplyCurrent);
-}
-void EngineWrapper::setEntityRotation(std::shared_ptr<EntityWrapper> entity, double angleRadians, std::vector<double> axisVec,
-                                      bool multiplyCurrent) {
-  pointee()->setEntityRotation(entity, angleRadians, axisVec, multiplyCurrent);
-}
-void EngineWrapper::setEntityScale(std::shared_ptr<EntityWrapper> entity, std::vector<double> scaleVec, bool multiplyCurrent) {
-  pointee()->setEntityScale(entity, scaleVec, multiplyCurrent);
-}
-void EngineWrapper::updateTransformByRigidBody(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<RigidBodyWrapper> rigidBody) {
-  pointee()->updateTransformByRigidBody(entityWrapper, rigidBody);
-}
-void EngineWrapper::transformToUnitCube(std::shared_ptr<FilamentAssetWrapper> asset) {
-  pointee()->transformToUnitCube(asset);
 }
 
 void EngineWrapper::setIsPaused(bool isPaused) {

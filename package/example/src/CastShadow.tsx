@@ -11,7 +11,6 @@ import {
   useAssetAnimator,
   getAssetFromModel,
   useConfigureAssetShadow,
-  useAmbientOcclusionOptions,
   Material,
   runOnWorklet,
   Entity,
@@ -35,13 +34,8 @@ const near = 0.1
 const far = 1000
 
 function Renderer() {
-  const { engine, camera, view, renderableManager, scene } = useFilamentContext()
-
+  const { engine, camera, view, renderableManager, transformManager, scene } = useFilamentContext()
   useDefaultLight()
-  const [isSSAOEnabled, setIsSSAOEnabled] = React.useState(false)
-  useAmbientOcclusionOptions(view, {
-    enabled: isSSAOEnabled,
-  })
 
   const pengu = useModel({ path: penguModelPath })
 
@@ -87,14 +81,14 @@ function Renderer() {
     if (shadowPlane == null) return
 
     // Transform it
-    engine.setEntityPosition(shadowPlane, [0, -1, 0], true)
+    transformManager.setEntityPosition(shadowPlane, [0, -1, 0], true)
 
     scene.addEntity(shadowPlane)
 
     return () => {
       scene.removeEntity(shadowPlane)
     }
-  }, [engine, renderableManager, scene, shadowMaterialBuffer, shadowPlane])
+  }, [renderableManager, scene, shadowMaterialBuffer, shadowPlane, transformManager])
   //#endregion
 
   const prevAspectRatio = useRef(0)
@@ -113,7 +107,7 @@ function Renderer() {
     penguAnimator?.applyAnimation(0, passedSeconds)
     penguAnimator?.updateBoneMatrices()
     if (penguEntity != null) {
-      engine.setEntityPosition(penguEntity, [0, 0.45, 0], false)
+      transformManager.setEntityPosition(penguEntity, [0, 0.45, 0], false)
     }
 
     camera.lookAt(cameraPosition, cameraTarget, cameraUp)
@@ -131,15 +125,17 @@ function Renderer() {
     <View style={styles.container}>
       <Filament style={styles.filamentView} />
       <Button title={`Toggle Shadow (${showShadow ? 'enabled' : 'disabled'})`} onPress={() => setShowShadow((prev) => !prev)} />
-      <Button title={`Toggle SSAO (${isSSAOEnabled ? 'enabled' : 'disabled'})`} onPress={() => setIsSSAOEnabled((prev) => !prev)} />
     </View>
   )
 }
 
 export function CastShadow() {
+  const [isSSAOEnabled, setIsSSAOEnabled] = React.useState(false)
+
   return (
-    <FilamentProvider>
+    <FilamentProvider ambientOcclusionOptions={{ enabled: isSSAOEnabled }}>
       <Renderer />
+      <Button title={`Toggle SSAO (${isSSAOEnabled ? 'enabled' : 'disabled'})`} onPress={() => setIsSSAOEnabled((prev) => !prev)} />
     </FilamentProvider>
   )
 }

@@ -26,7 +26,7 @@ function PhysicsCoinRenderer() {
   useDefaultLight()
   const world = useWorld(0, -9, 0)
 
-  const { engine, view, camera } = useFilamentContext()
+  const { transformManager, view, camera } = useFilamentContext()
 
   // Create an invisible floor:
   const floorShape = useStaticPlaneShape(0, 1, 0, 0)
@@ -78,7 +78,7 @@ function PhysicsCoinRenderer() {
     if (passedSeconds > 3) {
       world.stepSimulation(1 / 60, 1, 1 / 60)
       if (coinAEntity != null) {
-        engine.updateTransformByRigidBody(coinAEntity, coinABody)
+        transformManager.updateTransformByRigidBody(coinAEntity, coinABody)
       }
     }
 
