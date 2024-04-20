@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native'
 import * as React from 'react'
-import { useEffect, useMemo, useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import { Button, ScrollView, StyleSheet, View } from 'react-native'
 import {
   Filament,
@@ -12,7 +12,7 @@ import {
   useWorkletCallback,
   FilamentProvider,
   useFilamentContext,
-  withCleanupScope,
+  useResource,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
@@ -39,19 +39,12 @@ function Renderer() {
   const penguAsset = getAssetFromModel(pengu)
   const pirateHat = useModel({ path: pirateHatPath })
   const pirateHatAsset = getAssetFromModel(pirateHat)
-  const pirateHatAnimator = useMemo(() => {
+  const pirateHatAnimator = useResource(() => {
     if (pirateHatAsset == null || penguAsset == null) {
       return undefined
     }
-    return pirateHatAsset.createAnimatorWithAnimationsFrom(penguAsset)
-  }, [penguAsset, pirateHatAsset])
-  useEffect(() => {
-    return withCleanupScope(() => {
-      if (pirateHatAnimator != null) {
-        pirateHatAnimator.release?.()
-      }
-    })
-  }, [pirateHatAnimator])
+    return Promise.resolve(pirateHatAsset.createAnimatorWithAnimationsFrom(penguAsset))
+  }, [pirateHatAsset, penguAsset])
 
   const isPirateHatAdded = useRef(true) // assets are added by default to the scene
   const penguAnimator = useAssetAnimator(penguAsset)
