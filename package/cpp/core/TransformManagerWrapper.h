@@ -1,29 +1,24 @@
 //
-// Created by Hanno Gödecke on 15.03.24.
+// Created by Hanno Gödecke on 20.04.24.
 //
 
 #pragma once
 
-#include "bullet/RigidBodyWrapper.h"
-#include "core/math/TMat44Wrapper.h"
-#include "core/utils/EntityWrapper.h"
-#include "jsi/HybridObject.h"
-#include <filament/TransformManager.h>
+#include "TransformManagerImpl.h"
+#include "jsi/PointerHolder.h"
 
 namespace margelo {
 
-using namespace filament;
-
-class TransformManagerWrapper : public HybridObject {
+class TransformManagerWrapper : public PointerHolder<TransformManagerImpl> {
 public:
-  explicit TransformManagerWrapper(filament::TransformManager& transformManager)
-      : HybridObject("TransformManagerWrapper"), _transformManager(transformManager) {}
+  explicit TransformManagerWrapper(std::shared_ptr<TransformManagerImpl> transformManager)
+      : PointerHolder("TransformManagerWrapper", transformManager) {}
 
   void loadHybridMethods() override;
 
-private: // Public JS API
-  std::shared_ptr<TMat44Wrapper> getTransform(std::shared_ptr<EntityWrapper> entity);
-  std::shared_ptr<TMat44Wrapper> getWorldTransform(std::shared_ptr<EntityWrapper> entity);
+private: // Exposed JS API:
+  std::shared_ptr<TMat44Wrapper> getTransform(std::shared_ptr<EntityWrapper> entityWrapper);
+  std::shared_ptr<TMat44Wrapper> getWorldTransform(std::shared_ptr<EntityWrapper> entityWrapper);
   void openLocalTransformTransaction();
   void commitLocalTransformTransaction();
   void setTransform(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<TMat44Wrapper> transform);
@@ -35,11 +30,7 @@ private: // Public JS API
   void transformToUnitCube(std::shared_ptr<FilamentAssetWrapper> assetWrapper);
 
 private: // Internal
-  void updateTransform(math::mat4 transform, std::shared_ptr<EntityWrapper> entity, bool multiplyCurrent);
-
-private:
-  std::mutex _mutex;
-  filament::TransformManager& _transformManager;
+  Entity getEntity(std::shared_ptr<EntityWrapper> entityWrapper);
 };
 
 } // namespace margelo

@@ -109,12 +109,13 @@ function EngineAPIProvider({ children, engine, viewProps }: Props) {
             camera.release()
             lightManager.release()
             renderableManager.release()
+            transformManager.release()
             engine.release()
           }, workletContext)()
         }, 0)
       })
     }
-  }, [camera, engine, lightManager, renderableManager, scene, view, workletContext])
+  }, [camera, engine, lightManager, renderableManager, scene, transformManager, view, workletContext])
 
   return <FilamentContext.Provider value={value}>{children}</FilamentContext.Provider>
 }

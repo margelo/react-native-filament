@@ -1,6 +1,7 @@
 import { RigidBody } from '../bullet'
 import { Entity } from './Entity'
 import { FilamentAsset } from './FilamentAsset'
+import { PointerHolder } from './PointerHolder'
 import { Float3 } from './float3'
 
 /**
@@ -34,7 +35,7 @@ export interface Mat4 {
  * space of its parent transform. The TransformManager takes care of computing the world-space
  * transform of each component (i.e. its transform relative to the root).
  */
-export interface TransformManager {
+export interface TransformManager extends PointerHolder {
   /**
    * Returns the local transform of a transform component.
    * @param ci The instance of the transform component to query the local transform from.

@@ -82,8 +82,6 @@ EngineImpl::EngineImpl(std::shared_ptr<Choreographer> choreographer, std::shared
 
   _view->setScene(_scene.get());
   _view->setCamera(_camera.get());
-
-  _transformManager = createTransformManager();
 }
 
 void EngineImpl::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
@@ -449,7 +447,9 @@ std::shared_ptr<ManipulatorWrapper> EngineImpl::createCameraManipulator(int widt
 }
 
 std::shared_ptr<TransformManagerWrapper> EngineImpl::createTransformManager() {
-  return std::make_shared<TransformManagerWrapper>(_engine->getTransformManager());
+  std::unique_lock lock(_mutex);
+  std::shared_ptr<TransformManagerImpl> transformManagerImpl = std::make_shared<TransformManagerImpl>(_engine);
+  return std::make_shared<TransformManagerWrapper>(transformManagerImpl);
 }
 
 void EngineImpl::synchronizePendingFrames() {
@@ -463,8 +463,8 @@ void EngineImpl::synchronizePendingFrames() {
 
 std::shared_ptr<RenderableManagerWrapper> EngineImpl::createRenderableManager() {
   std::unique_lock lock(_mutex);
-  std::shared_ptr<RenderableManagerImpl> renderableManager = std::make_shared<RenderableManagerImpl>(_engine, _rendererDispatcher);
-  return std::make_shared<RenderableManagerWrapper>(renderableManager);
+  std::shared_ptr<RenderableManagerImpl> renderableManagerImpl = std::make_shared<RenderableManagerImpl>(_engine, _rendererDispatcher);
+  return std::make_shared<RenderableManagerWrapper>(renderableManagerImpl);
 }
 
 std::shared_ptr<MaterialWrapper> EngineImpl::createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer) {

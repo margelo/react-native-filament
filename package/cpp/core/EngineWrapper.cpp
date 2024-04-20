@@ -74,7 +74,7 @@ std::shared_ptr<ManipulatorWrapper> EngineWrapper::getCameraManipulator() {
   return pointee()->getCameraManipulator();
 }
 std::shared_ptr<TransformManagerWrapper> EngineWrapper::createTransformManager() {
-  return pointee()->getTransformManager();
+  return pointee()->createTransformManager();
 }
 std::shared_ptr<LightManagerWrapper> EngineWrapper::createLightManager() {
   return pointee()->createLightManager();
