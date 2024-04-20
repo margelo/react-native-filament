@@ -382,7 +382,7 @@ std::shared_ptr<FilamentAssetWrapper> EngineImpl::makeAssetWrapper(FilamentAsset
   auto asset =
       References<gltfio::FilamentAsset>::adoptRef(assetPtr, [dispatcher, assetLoader, scene, sharedThis](gltfio::FilamentAsset* asset) {
         dispatcher->runAsync([assetLoader, asset, scene, sharedThis]() {
-          std::unique_lock lock(sharedThis->_mutex);
+          std::unique_lock lock(sharedThis->_mutex); // Locking here, so we don't call render while destroying the asset
           Logger::log(TAG, "Destroying asset...");
           scene->removeEntities(asset->getEntities(), asset->getEntityCount());
           assetLoader->destroyAsset(asset);
