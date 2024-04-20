@@ -63,10 +63,19 @@ export interface Animator {
    * empty string if none was specified.
    */
   getAnimationName(animIndex: number): string
+}
 
+/**
+ * Usually the animator is coming directly from the asset.
+ * In that case the animators memory is managed by the asset.
+ * If you create an animator with {@linkcode FilamentAsset.createAnimatorWithAnimationsFrom}
+ * you have to release the memory manually.
+ * Make sure to use the `useResource()` for creating the animator.
+ */
+export interface CopiedAnimator extends Animator {
   /**
    * If your animator has been created with by a specific asset using {@linkcode FilamentAsset.createAnimatorWithAnimationsFrom}
    * the memory used for the animations will be released.
    */
-  release?(): void
+  release(): void
 }

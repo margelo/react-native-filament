@@ -378,13 +378,16 @@ std::shared_ptr<FilamentAssetWrapper> EngineImpl::makeAssetWrapper(FilamentAsset
   auto assetLoader = _assetLoader;
   auto dispatcher = _rendererDispatcher;
   auto scene = _scene;
-  auto asset = References<gltfio::FilamentAsset>::adoptRef(assetPtr, [dispatcher, assetLoader, scene](gltfio::FilamentAsset* asset) {
-    dispatcher->runAsync([assetLoader, asset, scene]() {
-      Logger::log(TAG, "Destroying asset...");
-      scene->removeEntities(asset->getEntities(), asset->getEntityCount());
-      assetLoader->destroyAsset(asset);
-    });
-  });
+  std::mutex& mutex = _mutex;
+  auto asset =
+      References<gltfio::FilamentAsset>::adoptRef(assetPtr, [dispatcher, assetLoader, scene, &mutex](gltfio::FilamentAsset* asset) {
+        dispatcher->runAsync([assetLoader, asset, scene, &mutex]() {
+          std::unique_lock lock(mutex); // Locking here, so we don't call render while destroying the asset
+          Logger::log(TAG, "Destroying asset...");
+          scene->removeEntities(asset->getEntities(), asset->getEntityCount());
+          assetLoader->destroyAsset(asset);
+        });
+      });
 
   // TODO: When supporting loading glTF files with external resources, we need to load the resources here
   //    const char* const* const resourceUris = asset->getResourceUris();

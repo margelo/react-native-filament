@@ -16,7 +16,7 @@ export const useResource = <T extends ReleasingResource>(
   initialize: () => Promise<T> | undefined,
   deps?: DependencyList
 ): T | undefined => {
-  const [asset, setAsset] = useState<T>()
+  const [resource, setResource] = useState<T>()
 
   useEffect(() => {
     let isValid = true
@@ -24,7 +24,7 @@ export const useResource = <T extends ReleasingResource>(
     initialize()?.then((a) => {
       if (isValid) {
         // this useEffect is still mounted
-        setAsset(a)
+        setResource(a)
         currentAsset = a
       } else {
         // this useEffect has been unmounted already, drop the asset
@@ -32,7 +32,7 @@ export const useResource = <T extends ReleasingResource>(
       }
     })
     return () => {
-      setAsset(undefined)
+      setResource(undefined)
       isValid = false
       withCleanupScope(() => {
         currentAsset?.release()
@@ -41,5 +41,5 @@ export const useResource = <T extends ReleasingResource>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps)
 
-  return asset
+  return resource
 }

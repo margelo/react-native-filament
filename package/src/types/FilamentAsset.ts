@@ -1,5 +1,5 @@
 import { AABB } from './AABB'
-import type { Animator } from './Animator'
+import type { Animator, CopiedAnimator } from './Animator'
 import type { Entity } from './Entity'
 import { FilamentInstance } from './FilamentInstance'
 import { PointerHolder } from './PointerHolder'
@@ -23,7 +23,7 @@ export interface FilamentAsset extends PointerHolder {
   /**
    * Creates a new animator with the animations from the given asset.
    */
-  createAnimatorWithAnimationsFrom(asset: FilamentAsset): Animator
+  createAnimatorWithAnimationsFrom(asset: FilamentAsset): CopiedAnimator
 
   /**
    * Gets the list of entities, one for each glTF node. All of these have a Transform component.
