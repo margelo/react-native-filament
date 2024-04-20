@@ -107,6 +107,7 @@ std::shared_ptr<EngineWrapper> FilamentProxy::createEngine(std::optional<std::st
     EnumMapper::convertJSUnionToEnum(backend.value(), &backendEnum);
   }
 
+  // Create the actual filament engine:
   std::shared_ptr<Engine> engine =
       References<Engine>::adoptRef(Engine::Builder().backend(backendEnum).config(&config).build(), [renderThread](Engine* engine) {
         // Make sure that the engine gets destroyed on the thread that it was created on.
@@ -117,7 +118,16 @@ std::shared_ptr<EngineWrapper> FilamentProxy::createEngine(std::optional<std::st
         });
       });
 
-  std::shared_ptr<EngineImpl> engineImpl = std::make_shared<EngineImpl>(choreographer, renderThread, engine);
+  // Create the EngineImpl...
+  EngineImpl* engineImplPtr = new EngineImpl(choreographer, renderThread, engine);
+  // The EngineImpl is interested in the event of the Runtime creating it being destroyed, so we need to add it as a listener:
+  jsi::Runtime& runtime = getRuntime();
+  RuntimeLifecycleMonitor::addListener(runtime, engineImplPtr);
+  std::shared_ptr<EngineImpl> engineImpl = std::shared_ptr<EngineImpl>(engineImplPtr, [&runtime](EngineImpl* ptr) {
+    // Remove the EngineImpl from the RuntimeLifecycleMonitor when it gets destroyed.
+    RuntimeLifecycleMonitor::removeListener(runtime, ptr);
+    delete ptr;
+  });
 
   return std::make_shared<EngineWrapper>(engineImpl);
 }

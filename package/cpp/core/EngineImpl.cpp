@@ -114,6 +114,7 @@ void EngineImpl::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProv
                                            dispatcher->runAsync([=]() {
                                              auto sharedThis = weakSelf.lock();
                                              if (sharedThis != nullptr) {
+                                               std::unique_lock lock(sharedThis->_mutex);
                                                Logger::log(TAG, "Updating Surface size...");
                                                sharedThis->surfaceSizeChanged(width, height);
                                                sharedThis->synchronizePendingFrames();
@@ -131,6 +132,7 @@ void EngineImpl::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProv
 }
 
 void EngineImpl::setSurface(std::shared_ptr<Surface> surface) {
+  std::unique_lock lock(_mutex);
   Logger::log(TAG, "Initializing SwapChain...");
 
   // Setup swapchain
@@ -178,7 +180,6 @@ void EngineImpl::setIsPaused(bool isPaused) {
 }
 
 void EngineImpl::surfaceSizeChanged(int width, int height) {
-  std::unique_lock lock(_mutex);
   if (width <= 0 || height <= 0) {
     Logger::log(TAG, "(surfaceSizeChanged) Ignoring invalid surface size: %d x %d", width, height);
     return;
@@ -194,6 +195,8 @@ void EngineImpl::surfaceSizeChanged(int width, int height) {
 }
 
 void EngineImpl::destroySurface() {
+  std::unique_lock lock(_mutex);
+
   if (_swapChain == nullptr) {
     // Surface is already destroyed / never existed.
     return;
@@ -201,7 +204,10 @@ void EngineImpl::destroySurface() {
 
   Logger::log(TAG, "Destroying surface...");
   _choreographer->stop();
-  _choreographerListener->remove();
+  if (_choreographerListener) {
+    _choreographerListener->remove();
+    _choreographerListener = nullptr;
+  }
   _swapChain = nullptr;
 }
 
@@ -217,9 +223,27 @@ void EngineImpl::setRenderCallback(std::optional<RenderCallback> callback) {
   _renderCallback = callback;
 }
 
+// This will be called when the runtime that created the EngineImpl gets destroyed.
+// The same runtime/thread that creates the EngineImpl is the one the renderCallback
+// jsi::Function has been created on, and needs to be destroyed on.
+// Additionally we want to stop and release the choreographer listener, so there is no
+// risk of it being called (and then calling the renderCallback which is invalid by then).
+void EngineImpl::onRuntimeDestroyed(jsi::Runtime*) {
+  std::unique_lock lock(_mutex);
+  Logger::log(TAG, "Runtime destroyed, stopping renderer...");
+  _renderCallback = nullptr;
+  _choreographer->stop();
+  if (_choreographerListener) {
+    _choreographerListener->remove();
+    _choreographerListener = nullptr;
+  }
+}
+
 // This method is connected to the choreographer and gets called every frame,
 // once we have a surface.
 void EngineImpl::renderFrame(double timestamp) {
+  std::unique_lock lock(_mutex);
+
   if (!_swapChain) {
     [[unlikely]];
     return;
@@ -577,6 +601,7 @@ std::shared_ptr<MaterialWrapper> EngineImpl::createMaterial(std::shared_ptr<Fila
 
   return std::make_shared<MaterialWrapper>(materialImpl);
 }
+
 std::shared_ptr<LightManagerWrapper> EngineImpl::createLightManager() {
   std::unique_lock lock(_mutex);
   return std::make_shared<LightManagerWrapper>(_engine);
