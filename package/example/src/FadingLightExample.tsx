@@ -1,4 +1,4 @@
-import React, { StrictMode, useEffect } from 'react'
+import React from 'react'
 import { useSharedValue } from 'react-native-worklets-core'
 import { Animated, Button, SafeAreaView, StyleSheet } from 'react-native'
 import {

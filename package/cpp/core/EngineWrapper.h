@@ -68,13 +68,8 @@ private: // Exposed public JS API
   std::shared_ptr<ViewWrapper> getView();
   std::shared_ptr<CameraWrapper> getCamera();
   std::shared_ptr<ManipulatorWrapper> getCameraManipulator();
-  std::shared_ptr<TransformManagerWrapper> getTransformManager();
+  std::shared_ptr<TransformManagerWrapper> createTransformManager();
   std::shared_ptr<LightManagerWrapper> createLightManager();
-  void setEntityPosition(std::shared_ptr<EntityWrapper> entity, std::vector<double> positionVec, bool multiplyCurrent);
-  void setEntityRotation(std::shared_ptr<EntityWrapper> entity, double angleRadians, std::vector<double> axisVec, bool multiplyCurrent);
-  void setEntityScale(std::shared_ptr<EntityWrapper> entity, std::vector<double> scaleVec, bool multiplyCurrent);
-  void updateTransformByRigidBody(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<RigidBodyWrapper> rigidBody);
-  void transformToUnitCube(std::shared_ptr<FilamentAssetWrapper> asset);
   void setIsPaused(bool isPaused);
   std::shared_ptr<RenderableManagerWrapper> createRenderableManager();
   std::shared_ptr<MaterialWrapper> createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer);
