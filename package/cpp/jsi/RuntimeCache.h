@@ -40,17 +40,6 @@ struct RuntimeLifecycleMonitor {
  * eventually) will result in a crash (JSI objects keep a pointer to memory
  * managed by the runtime, accessing that portion of the memory after runtime is
  * deleted is the root cause of that crash).
- *
- * In order to provide an efficient implementation that does not add an overhead
- * for the cases when only a single runtiome is used, which is the primary
- * usecase, the following assumption has been made: Only for secondary runtimes
- * we track destruction and clean up the store associated with that runtime. For
- * the first runtime we assume that the object holding the store is destroyed
- * prior to the destruction of that runtime.
- *
- * The above assumption makes it work without any overhead when only single
- * runtime is in use. Specifically, we don't perform any additional operations
- * related to tracking runtime lifecycle when only a single runtime is used.
  */
 template <typename T> class RuntimeAwareCache : public RuntimeLifecycleListener {
 
