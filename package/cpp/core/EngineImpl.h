@@ -66,13 +66,9 @@ public:
   std::shared_ptr<FilamentAssetWrapper> loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
   std::shared_ptr<FilamentAssetWrapper> loadInstancedAsset(std::shared_ptr<FilamentBuffer> modelBuffer, int instanceCount);
   std::shared_ptr<LightManagerWrapper> createLightManager();
-  void setEntityPosition(std::shared_ptr<EntityWrapper> entity, std::vector<double> positionVec, bool multiplyCurrent);
-  void setEntityRotation(std::shared_ptr<EntityWrapper> entity, double angleRadians, std::vector<double> axisVec, bool multiplyCurrent);
-  void setEntityScale(std::shared_ptr<EntityWrapper> entity, std::vector<double> scaleVec, bool multiplyCurrent);
-  void updateTransformByRigidBody(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<RigidBodyWrapper> rigidBody);
-  void transformToUnitCube(std::shared_ptr<FilamentAssetWrapper> asset);
   void setIsPaused(bool isPaused);
   std::shared_ptr<RenderableManagerWrapper> createRenderableManager();
+  std::shared_ptr<TransformManagerWrapper> createTransformManager();
   std::shared_ptr<MaterialWrapper> createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer);
 
 private:
@@ -82,8 +78,6 @@ private:
   __attribute__((hot)) void renderFrame(double timestamp);
 
   void synchronizePendingFrames();
-
-  void updateTransform(math::mat4 transform, std::shared_ptr<EntityWrapper> entity, bool multiplyCurrent);
 
   // Internal helper method to turn an FilamentAsset ptr into a FilamentAssetWrapper
   std::shared_ptr<FilamentAssetWrapper> makeAssetWrapper(FilamentAsset* assetPtr);
@@ -118,7 +112,6 @@ private:
   std::shared_ptr<View> _view;
   std::shared_ptr<Camera> _camera;
   std::shared_ptr<ManipulatorWrapper> _cameraManipulator;
-  std::shared_ptr<TransformManagerWrapper> _transformManager;
 
 private:
   std::shared_ptr<Renderer> createRenderer();
@@ -127,7 +120,6 @@ private:
   std::shared_ptr<View> createView();
   std::shared_ptr<Camera> createCamera();
   std::shared_ptr<ManipulatorWrapper> createCameraManipulator(int windowWidth, int windowHeight);
-  std::shared_ptr<TransformManagerWrapper> createTransformManager();
 
 public:
   // Getters for shared objects
@@ -145,9 +137,6 @@ public:
   }
   std::shared_ptr<ManipulatorWrapper> getCameraManipulator() {
     return _cameraManipulator;
-  }
-  std::shared_ptr<TransformManagerWrapper> getTransformManager() {
-    return _transformManager;
   }
 
 private:

@@ -5,10 +5,7 @@ import { Renderer } from './Renderer'
 import { Scene } from './Scene'
 import { View } from './View'
 import { FilamentBuffer } from '../native/FilamentBuffer'
-import { Entity } from './Entity'
 import { FilamentAsset } from './FilamentAsset'
-import { Float3 } from './float3'
-import { RigidBody } from '../bullet'
 import { TransformManager } from './TransformManager'
 import { RenderableManager } from './RenderableManager'
 import { Material } from './Material'
@@ -54,41 +51,31 @@ export interface Engine extends PointerHolder {
   getCameraManipulator(): Manipulator
 
   /**
-   * Transforms the given entity to fit into a unit cube at the origin (0,0,0).
-   * @param entity The entity to transform
-   */
-  transformToUnitCube(entity: FilamentAsset): void
-
-  setEntityPosition(entity: Entity, position: Float3, multiplyCurrent: boolean): void
-  setEntityRotation(entity: Entity, angleRadians: number, axis: Float3, multiplyCurrent: boolean): void
-  setEntityScale(entity: Entity, scale: Float3, multiplyCurrent: boolean): void
-
-  /**
    * Controls whether the engine is currently actively rendering, or not.
    * Pausing the engine will stop the choreographer and no frame callbacks will be invoked.
    * @param isPaused whether the rendering will be paused or not. Default: false
    */
   setIsPaused(isPaused: boolean): void
 
-  updateTransformByRigidBody(entity: Entity, rigidBody: RigidBody): void
-
   /**
-   * Note: the reference returned isn't stable, and each call will return a new reference.
-   * Prefer using the hook `useTransformManager` to get a stable reference.
+   * Per engine instance you only need one {@linkcode TransformManager}.
+   * You should never need to call this manually, use instead from `useFilamentContext()`.
    */
-  getTransformManager(): TransformManager
-
+  createTransformManager(): TransformManager
   /**
-   * Note: the reference returned isn't stable, and each call will return a new reference.
-   * Prefer using the hook `useRenderableManager` to get a stable reference.
+   * Per engine instance you only need one {@linkcode RenderableManager}.
+   * You should never need to call this manually, use instead from `useFilamentContext()`.
    */
   createRenderableManager(): RenderableManager
+  /**
+   * Per engine instance you only need one {@linkcode LightManager}.
+   * You should never need to call this manually, use instead from `useFilamentContext()`.
+   */
+  createLightManager(): LightManager
 
   /**
    * Creates a new material from the given FilamentBuffer.
    * @worklet
    */
   createMaterial(matcBuffer: FilamentBuffer): Material
-
-  createLightManager(): LightManager
 }

@@ -1,35 +1,36 @@
 //
-// Created by Hanno Gödecke on 15.03.24.
+// Created by Hanno Gödecke on 20.04.24.
 //
 
 #pragma once
 
-#include "core/math/TMat44Wrapper.h"
-#include "core/utils/EntityWrapper.h"
-#include <filament/TransformManager.h>
-#include <jsi/HybridObject.h>
+#include "TransformManagerImpl.h"
+#include "jsi/PointerHolder.h"
 
 namespace margelo {
 
-using namespace filament;
-
-class TransformManagerWrapper : public HybridObject {
+class TransformManagerWrapper : public PointerHolder<TransformManagerImpl> {
 public:
-  explicit TransformManagerWrapper(filament::TransformManager& transformManager)
-      : HybridObject("TransformManagerWrapper"), _transformManager(transformManager) {}
+  explicit TransformManagerWrapper(std::shared_ptr<TransformManagerImpl> transformManager)
+      : PointerHolder("TransformManagerWrapper", transformManager) {}
 
   void loadHybridMethods() override;
 
-private:
-  std::shared_ptr<TMat44Wrapper> getTransform(std::shared_ptr<EntityWrapper> entity);
-  std::shared_ptr<TMat44Wrapper> getWorldTransform(std::shared_ptr<EntityWrapper> entity);
+private: // Exposed JS API:
+  std::shared_ptr<TMat44Wrapper> getTransform(std::shared_ptr<EntityWrapper> entityWrapper);
+  std::shared_ptr<TMat44Wrapper> getWorldTransform(std::shared_ptr<EntityWrapper> entityWrapper);
   void openLocalTransformTransaction();
   void commitLocalTransformTransaction();
   void setTransform(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<TMat44Wrapper> transform);
   std::shared_ptr<TMat44Wrapper> createIdentityMatrix();
+  void setEntityPosition(std::shared_ptr<EntityWrapper> entity, std::vector<double> positionVec, bool multiplyCurrent);
+  void setEntityRotation(std::shared_ptr<EntityWrapper> entity, double angleRadians, std::vector<double> axisVec, bool multiplyCurrent);
+  void setEntityScale(std::shared_ptr<EntityWrapper> entity, std::vector<double> scaleVec, bool multiplyCurrent);
+  void updateTransformByRigidBody(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<RigidBodyWrapper> rigidBody);
+  void transformToUnitCube(std::shared_ptr<FilamentAssetWrapper> assetWrapper);
 
-private:
-  filament::TransformManager& _transformManager;
+private: // Internal
+  Entity getEntity(std::shared_ptr<EntityWrapper> entityWrapper);
 };
 
 } // namespace margelo
