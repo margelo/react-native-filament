@@ -33,17 +33,14 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider, this);
   registerHybridMethod("setRenderCallback", &EngineWrapper::setRenderCallback, this);
   registerHybridMethod("setIndirectLight", &EngineWrapper::setIndirectLight, this);
-
   registerHybridMethod("loadAsset", &EngineWrapper::loadAsset, this);
   registerHybridMethod("loadInstancedAsset", &EngineWrapper::loadInstancedAsset, this);
-
-  // Filament API:
   registerHybridMethod("getScene", &EngineWrapper::getScene, this);
   registerHybridMethod("getView", &EngineWrapper::getView, this);
   registerHybridMethod("getCamera", &EngineWrapper::getCamera, this);
   registerHybridMethod("getCameraManipulator", &EngineWrapper::getCameraManipulator, this);
   registerHybridMethod("setIsPaused", &EngineWrapper::setIsPaused, this);
-  registerHybridMethod("getTransformManager", &EngineWrapper::getTransformManager, this);
+  registerHybridMethod("createTransformManager", &EngineWrapper::createTransformManager, this);
   registerHybridMethod("createRenderableManager", &EngineWrapper::createRenderableManager, this);
   registerHybridMethod("createMaterial", &EngineWrapper::createMaterial, this);
   registerHybridMethod("createLightManager", &EngineWrapper::createLightManager, this);
@@ -76,7 +73,7 @@ std::shared_ptr<CameraWrapper> EngineWrapper::getCamera() {
 std::shared_ptr<ManipulatorWrapper> EngineWrapper::getCameraManipulator() {
   return pointee()->getCameraManipulator();
 }
-std::shared_ptr<TransformManagerWrapper> EngineWrapper::getTransformManager() {
+std::shared_ptr<TransformManagerWrapper> EngineWrapper::createTransformManager() {
   return pointee()->getTransformManager();
 }
 std::shared_ptr<LightManagerWrapper> EngineWrapper::createLightManager() {

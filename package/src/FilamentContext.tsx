@@ -57,7 +57,7 @@ type Props = PropsWithChildren<{
 
 // Internal component that actually sets the context; its set once the engine is ready and we can creates values for all APIs
 function EngineAPIProvider({ children, engine, viewProps }: Props) {
-  const transformManager = useMemo(() => engine.getTransformManager(), [engine])
+  const transformManager = useMemo(() => engine.createTransformManager(), [engine])
   const renderableManager = useMemo(() => engine.createRenderableManager(), [engine])
   const scene = useMemo(() => engine.getScene(), [engine])
   const lightManager = useMemo(() => engine.createLightManager(), [engine])

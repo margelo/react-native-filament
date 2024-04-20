@@ -58,22 +58,24 @@ export interface Engine extends PointerHolder {
   setIsPaused(isPaused: boolean): void
 
   /**
-   * Note: the reference returned isn't stable, and each call will return a new reference.
-   * Prefer using the hook `useTransformManager` to get a stable reference.
+   * Per engine instance you only need one {@linkcode TransformManager}.
+   * You should never need to call this manually, use instead from `useFilamentContext()`.
    */
-  getTransformManager(): TransformManager
-
+  createTransformManager(): TransformManager
   /**
-   * Note: the reference returned isn't stable, and each call will return a new reference.
-   * Prefer using the hook `useRenderableManager` to get a stable reference.
+   * Per engine instance you only need one {@linkcode RenderableManager}.
+   * You should never need to call this manually, use instead from `useFilamentContext()`.
    */
   createRenderableManager(): RenderableManager
+  /**
+   * Per engine instance you only need one {@linkcode LightManager}.
+   * You should never need to call this manually, use instead from `useFilamentContext()`.
+   */
+  createLightManager(): LightManager
 
   /**
    * Creates a new material from the given FilamentBuffer.
    * @worklet
    */
   createMaterial(matcBuffer: FilamentBuffer): Material
-
-  createLightManager(): LightManager
 }
