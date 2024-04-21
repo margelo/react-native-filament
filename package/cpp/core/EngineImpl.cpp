@@ -477,23 +477,26 @@ std::shared_ptr<MaterialWrapper> EngineImpl::createMaterial(std::shared_ptr<Fila
     throw std::runtime_error("Material buffer is empty");
   }
 
+  auto sharedThis = shared_from_this();
   auto dispatcher = _rendererDispatcher;
   Material::Builder builder = Material::Builder().package(buffer->getData(), buffer->getSize());
   std::shared_ptr<Material> material = References<Material>::adoptEngineRef(
-      _engine, builder.build(*_engine), [dispatcher](std::shared_ptr<Engine> engine, Material* material) {
-        dispatcher->runAsync([engine, material]() {
+      _engine, builder.build(*_engine), [dispatcher, sharedThis](std::shared_ptr<Engine> engine, Material* material) {
+        dispatcher->runAsync([engine, material, sharedThis]() {
+          std::unique_lock lock(sharedThis->_mutex);
           Logger::log(TAG, "Destroying material...");
           engine->destroy(material);
         });
       });
 
   std::shared_ptr<MaterialImpl> materialImpl = References<MaterialImpl>::adoptEngineRef(
-      _engine, new MaterialImpl(material), [dispatcher](std::shared_ptr<Engine> engine, MaterialImpl* pMaterialImpl) {
-        dispatcher->runAsync([engine, pMaterialImpl]() {
+      _engine, new MaterialImpl(material), [dispatcher, sharedThis](std::shared_ptr<Engine> engine, MaterialImpl* pMaterialImpl) {
+        dispatcher->runAsync([engine, pMaterialImpl, sharedThis]() {
           Logger::log(TAG, "Destroying MaterialImpl / all material instances...");
 
           // Iterate over materialWrapper.getInstances() vector and destroy all instances
           for (auto& materialInstanceWrapper : pMaterialImpl->getInstances()) {
+            std::unique_lock lock(sharedThis->_mutex);
             MaterialInstance* materialInstance = materialInstanceWrapper->getMaterialInstance();
             engine->destroy(materialInstance);
           }
