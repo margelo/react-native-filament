@@ -18,7 +18,6 @@ public:
   void loadHybridMethods() override;
 
 private:
-  std::mutex _mutex;
   void applyAnimation(int animationIndex, double time);
   void applyCrossFade(int previousAnimationIndex, double previousAnimationTime, double alpha);
   void updateBoneMatrices();
@@ -27,7 +26,8 @@ private:
   double getAnimationDuration(int animationIndex);
   std::string getAnimationName(int animationIndex);
 
-private:
+protected:
+  std::mutex _mutex;
   Animator* _animator;
 };
 
