@@ -118,8 +118,6 @@ void RenderableManagerImpl::changeMaterialTextureMap(std::shared_ptr<EntityWrapp
     throw std::invalid_argument("Material not found!");
   }
 
-  // TODO: memory leak, material instance needs to be deleted (Engine::destroy)
-
   // This material instance still belongs to the original asset and will be cleaned up when the asset is destroyed
   MaterialInstance* materialInstance = _renderableManager.getMaterialInstanceAt(instance, primitiveIndex);
 
