@@ -32,4 +32,17 @@ void MaterialImpl::setDefaultParameter(std::string name, double value) {
   _material->setDefaultParameter(name.c_str(), (float)value);
 }
 
+void MaterialImpl::setBaseColorSRGB(std::vector<double> rgba) {
+  if (rgba.size() != 4) {
+    throw std::runtime_error("MaterialInstanceWrapper::setBaseColorSRGB: RGBA vector must have 4 elements!");
+  }
+
+  double r = rgba[0];
+  double g = rgba[1];
+  double b = rgba[2];
+  double a = rgba[3];
+
+  _material->setDefaultParameter("baseColorFactor", math::float4({r, g, b, a}));
+}
+
 } // namespace margelo
