@@ -69,8 +69,6 @@ function Renderer() {
   })
   useEntityInScene(scene, lightEntity)
 
-  console.log('')
-
   return (
     <SafeAreaView style={styles.container}>
       <Filament style={styles.filamentView} />
