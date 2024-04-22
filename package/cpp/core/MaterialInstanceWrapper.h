@@ -29,6 +29,7 @@ public: // Public API
   // Convenience method for updating baseColorFactor parameter
   void changeAlpha(double alpha);
   void setParameter(std::string name, double value);
+  void setBaseColorSRGB(std::vector<double> rgba);
 
 public: // Internal API
   MaterialInstance* getMaterialInstance() {
