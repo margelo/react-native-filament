@@ -18,9 +18,6 @@ export function useRenderCallback(onFrame: RenderCallback) {
       engine.setRenderCallback((...args) => {
         'worklet'
 
-        // TODO: Right now the worklet context isn't deallocated when we reload the app.
-        // If you remove all the code below (so just pass an empty worklet function to setRenderCallback),
-        // everything gets cleaned up properly.
         try {
           onFrame(...args)
         } catch (e) {
