@@ -29,6 +29,7 @@ public:
   std::shared_ptr<MaterialInstanceWrapper> createInstance();
   std::shared_ptr<MaterialInstanceWrapper> getDefaultInstance();
   void setDefaultParameter(std::string name, double value);
+  void setBaseColorSRGB(std::vector<double> rgba);
 
 private:
   std::mutex _mutex;
