@@ -58,16 +58,19 @@ void AnimatorWrapper::resetBoneMatrices() {
 }
 
 int AnimatorWrapper::getAnimationCount() {
+  std::unique_lock lock(_mutex);
   assetAnimatorNotNull(_animator);
   return _animator->getAnimationCount();
 }
 
 double AnimatorWrapper::getAnimationDuration(int animationIndex) {
+  std::unique_lock lock(_mutex);
   assetAnimatorNotNull(_animator);
   return _animator->getAnimationDuration(animationIndex);
 }
 
 std::string AnimatorWrapper::getAnimationName(int animationIndex) {
+  std::unique_lock lock(_mutex);
   assetAnimatorNotNull(_animator);
   return _animator->getAnimationName(animationIndex);
 }
