@@ -2,7 +2,7 @@ import React from 'react'
 import { findNodeHandle, NativeMethods } from 'react-native'
 import { FilamentProxy } from './native/FilamentProxy'
 import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
-import { reportError } from './ErrorUtils'
+import { reportFatalError } from './ErrorUtils'
 import { Worklets } from 'react-native-worklets-core'
 import { FilamentContext } from './FilamentContext'
 
@@ -50,7 +50,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
         engine.setSurfaceProvider(surfaceProvider)
       }, this.context._workletContext)()
     } catch (e) {
-      reportError(e)
+      reportFatalError(e)
     }
   }
 

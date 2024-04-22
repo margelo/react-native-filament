@@ -1,13 +1,13 @@
 /**
  * Report an error to react native's `ErrorUtils` if available, or log to console otherwise.
  */
-export function reportError(error: unknown): void {
+export function reportFatalError(error: unknown): void {
   // @ts-expect-error this is defined by react-native.
   if (global.ErrorUtils != null) {
     // @ts-expect-error this is defined by react-native.
     global.ErrorUtils.reportFatalError(error)
   } else {
-    console.error(`An unknown Filament error occured!`, error)
+    console.error(`An unknown Filament error occurred!`, error)
   }
 }
 
@@ -20,7 +20,7 @@ const throwErrorOnJS = Worklets.createRunInJsFn((message: string, stack: string 
   error.jsEngine = 'Filament'
   // From react-native:
   // @ts-ignore the reportFatalError method is an internal method of ErrorUtils not exposed in the type definitions
-  reportError(error)
+  reportFatalError(error)
 })
 
 export function reportWorkletError(error: unknown): void {
