@@ -164,19 +164,6 @@ void EngineImpl::setSurface(std::shared_ptr<Surface> surface) {
   }
 }
 
-void EngineImpl::setIsPaused(bool isPaused) {
-  std::unique_lock lock(_mutex);
-
-  _isPaused = isPaused;
-  if (isPaused) {
-    Logger::log(TAG, "Pausing renderer...");
-    _choreographer->stop();
-  } else {
-    Logger::log(TAG, "Resuming renderer...");
-    _choreographer->start();
-  }
-}
-
 void EngineImpl::surfaceSizeChanged(int width, int height) {
   if (width <= 0 || height <= 0) {
     Logger::log(TAG, "(surfaceSizeChanged) Ignoring invalid surface size: %d x %d", width, height);
@@ -193,20 +180,29 @@ void EngineImpl::surfaceSizeChanged(int width, int height) {
 }
 
 void EngineImpl::destroySurface() {
-  std::unique_lock lock(_mutex);
-
   if (_swapChain == nullptr) {
     // Surface is already destroyed / never existed.
     return;
   }
 
-  Logger::log(TAG, "Destroying surface...");
   _choreographer->stop();
   if (_choreographerListener) {
     _choreographerListener->remove();
     _choreographerListener = nullptr;
   }
+
   _swapChain = nullptr;
+}
+
+void EngineImpl::setIsPaused(bool isPaused) {
+  std::unique_lock lock(_mutex);
+
+  _isPaused = isPaused;
+  if (isPaused) {
+    _choreographer->stop();
+  } else {
+    _choreographer->start();
+  }
 }
 
 void EngineImpl::setRenderCallback(std::optional<RenderCallback> callback) {
@@ -265,8 +261,7 @@ void EngineImpl::renderFrame(double timestamp) {
     renderCallback(timestamp, _startTime, passedSeconds);
   }
 
-  std::shared_ptr<SwapChain> swapChain = _swapChain->getSwapChain();
-  if (_renderer->beginFrame(swapChain.get(), timestamp)) {
+  if (_renderer->beginFrame(_swapChain.get(), timestamp)) {
     [[likely]];
     _renderer->render(_view.get());
     _renderer->endFrame();
@@ -315,13 +310,16 @@ std::shared_ptr<View> EngineImpl::createView() {
   return view;
 }
 
-std::shared_ptr<SwapChainWrapper> EngineImpl::createSwapChain(std::shared_ptr<Surface> surface) {
+std::shared_ptr<SwapChain> EngineImpl::createSwapChain(std::shared_ptr<Surface> surface) {
   auto dispatcher = _rendererDispatcher;
   void* nativeWindow = surface->getSurface();
+  auto sharedThis = shared_from_this();
   auto swapChain = References<SwapChain>::adoptEngineRef(_engine, _engine->createSwapChain(nativeWindow, SwapChain::CONFIG_TRANSPARENT),
-                                                         [dispatcher](std::shared_ptr<Engine> engine, SwapChain* swapChain) {
-                                                           // We need to call this as soon as possible, so we run it with runSync
-                                                           dispatcher->runAsync([engine, swapChain]() {
+                                                         [dispatcher, sharedThis](std::shared_ptr<Engine> engine, SwapChain* swapChain) {
+                                                           dispatcher->runAsync([engine, swapChain, sharedThis]() {
+                                                             // Make sure we don't render while destroying this
+                                                             std::unique_lock lock(sharedThis->_mutex);
+
                                                              Logger::log(TAG, "Destroying swapchain...");
                                                              engine->destroy(swapChain);
                                                              // Required to ensure we don't return before Filament is done executing the
@@ -332,7 +330,7 @@ std::shared_ptr<SwapChainWrapper> EngineImpl::createSwapChain(std::shared_ptr<Su
                                                            });
                                                          });
 
-  return std::make_shared<SwapChainWrapper>(swapChain);
+  return swapChain;
 }
 
 std::shared_ptr<Camera> EngineImpl::createCamera() {

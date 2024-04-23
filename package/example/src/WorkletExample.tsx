@@ -1,6 +1,6 @@
 import React from 'react'
 import { useSharedValue } from 'react-native-worklets-core'
-import { Button, Platform, SafeAreaView, StyleSheet } from 'react-native'
+import { Button, Platform, SafeAreaView, StyleSheet, View } from 'react-native'
 import {
   DynamicResolutionOptions,
   Filament,
@@ -115,10 +115,26 @@ const dynamicResolutionOptions: DynamicResolutionOptions = {
 }
 
 export function WorkletExample() {
+  const [showView, setShowView] = React.useState(true)
+
   return (
-    <FilamentProvider dynamicResolutionOptions={dynamicResolutionOptions}>
-      <Renderer />
-    </FilamentProvider>
+    <View style={styles.container}>
+      {showView ? (
+        <FilamentProvider dynamicResolutionOptions={dynamicResolutionOptions}>
+          <Renderer />
+        </FilamentProvider>
+      ) : (
+        <View style={styles.container} />
+      )}
+      <Button
+        title="Toggle view"
+        onPress={() => {
+          setInterval(() => {
+            setShowView((prev) => !prev)
+          }, 195)
+        }}
+      />
+    </View>
   )
 }
 
