@@ -30,6 +30,7 @@ public: // Public API
   void changeAlpha(double alpha);
   void setParameter(std::string name, double value);
   void setBaseColorSRGB(std::vector<double> rgba);
+  std::string getName();
 
 public: // Internal API
   MaterialInstance* getMaterialInstance() {

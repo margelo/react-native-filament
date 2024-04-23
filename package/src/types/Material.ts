@@ -11,4 +11,5 @@ export interface Material extends PointerHolder {
    * Assumes linear (0-1) linear sRGB color space.
    */
   setBaseColorSRGB(color: RGBA): void
+  readonly name: string
 }

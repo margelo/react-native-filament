@@ -20,6 +20,7 @@ public: // Public JS API
   std::shared_ptr<MaterialInstanceWrapper> getDefaultInstance();
   void setDefaultParameter(std::string name, double value);
   void setBaseColorSRGB(std::vector<double> rgba);
+  std::string getName();
 };
 
 } // namespace margelo
