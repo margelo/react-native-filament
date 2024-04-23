@@ -84,6 +84,15 @@ EngineImpl::EngineImpl(std::shared_ptr<Choreographer> choreographer, std::shared
   _view->setCamera(_camera.get());
 }
 
+EngineImpl::~EngineImpl() {
+  if (_choreographer) {
+    // It can happen that the onSurfaceDestroyed callback wasn't called (yet)
+    // but we cleanup the listener when the EngineImpl instance goes out of scope.
+    // In this case the Choreographer is still running and we need to stop it.
+    _choreographer->stop();
+  }
+}
+
 void EngineImpl::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
   if (surfaceProvider == nullptr) {
     [[unlikely]];
