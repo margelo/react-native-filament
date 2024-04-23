@@ -20,10 +20,12 @@ AppleChoreographer::~AppleChoreographer() {
 }
 
 void AppleChoreographer::stop() {
+  NSLog(@"Stopping choreographer");
   [_displayLink stop];
 }
 
 void AppleChoreographer::start() {
+  NSLog(@"Starting choreographer");
   [_displayLink start];
 }
 
