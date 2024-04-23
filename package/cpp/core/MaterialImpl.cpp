@@ -33,6 +33,7 @@ void MaterialImpl::setDefaultParameter(std::string name, double value) {
 }
 
 void MaterialImpl::setBaseColorSRGB(std::vector<double> rgba) {
+  std::unique_lock lock(_mutex);
   if (rgba.size() != 4) {
     throw std::runtime_error("MaterialInstanceWrapper::setBaseColorSRGB: RGBA vector must have 4 elements!");
   }
@@ -43,6 +44,10 @@ void MaterialImpl::setBaseColorSRGB(std::vector<double> rgba) {
   double a = rgba[3];
 
   _material->setDefaultParameter("baseColorFactor", math::float4({r, g, b, a}));
+}
+std::string MaterialImpl::getName() {
+  std::unique_lock lock(_mutex);
+  return _material->getName();
 }
 
 } // namespace margelo

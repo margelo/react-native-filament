@@ -14,6 +14,7 @@ void MaterialInstanceWrapper::loadHybridMethods() {
   registerHybridMethod("changeAlpha", &MaterialInstanceWrapper::changeAlpha, this);
   registerHybridMethod("setParameter", &MaterialInstanceWrapper::setParameter, this);
   registerHybridMethod("setBaseColorSRGB", &MaterialInstanceWrapper::setBaseColorSRGB, this);
+  registerHybridGetter("getName", &MaterialInstanceWrapper::getName, this);
 }
 
 void MaterialInstanceWrapper::setCullingMode(std::string mode) {
@@ -74,6 +75,12 @@ void MaterialInstanceWrapper::setBaseColorSRGB(std::vector<double> rgba) {
   double a = rgba[3];
 
   _materialInstance->setParameter("baseColorFactor", math::float4({r, g, b, a}));
+}
+
+std::string MaterialInstanceWrapper::getName() {
+  std::unique_lock lock(_mutex);
+    
+  return _materialInstance->getName();
 }
 
 } // namespace margelo
