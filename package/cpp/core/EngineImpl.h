@@ -59,6 +59,7 @@ class EngineImpl : public std::enable_shared_from_this<EngineImpl>, public Runti
 public:
   explicit EngineImpl(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<Dispatcher> rendererDispatcher,
                       std::shared_ptr<Engine> engine);
+  ~EngineImpl();
 
   void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
   void setRenderCallback(std::optional<RenderCallback> callback);

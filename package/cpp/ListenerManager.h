@@ -16,7 +16,11 @@ namespace margelo {
 template <typename Callback> class ListenerManager : public std::enable_shared_from_this<ListenerManager<Callback>> {
 private:
   std::list<Callback> _listeners;
-  std::mutex _mutex;
+
+  // We use a recursive mutex here, because we might call remove() from within a forEach() block.
+  // This happens e.g. when a surface is destroyed and the onDestroy listener is called, which leads
+  // to a remove() call on the listener.
+  std::recursive_mutex _mutex;
 
 public:
   /**
@@ -48,7 +52,7 @@ public:
    * Iterate through all listeners.
    * This method is thread-safe.
    * Make sure to not add or delete any listeners while inside a forEach() block,
-   * otherwise this will dead-lock.
+   * otherwise this could dead-lock.
    * @param callback The callback to run for each listener.
    */
   void forEach(std::function<LoopCallback>&& callback) {

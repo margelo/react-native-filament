@@ -84,6 +84,15 @@ EngineImpl::EngineImpl(std::shared_ptr<Choreographer> choreographer, std::shared
   _view->setCamera(_camera.get());
 }
 
+EngineImpl::~EngineImpl() {
+  if (_choreographer) {
+    // It can happen that the onSurfaceDestroyed callback wasn't called (yet)
+    // but we cleanup the listener when the EngineImpl instance goes out of scope.
+    // In this case the Choreographer is still running and we need to stop it.
+    _choreographer->stop();
+  }
+}
+
 void EngineImpl::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
   if (surfaceProvider == nullptr) {
     [[unlikely]];
@@ -313,13 +322,9 @@ std::shared_ptr<View> EngineImpl::createView() {
 std::shared_ptr<SwapChain> EngineImpl::createSwapChain(std::shared_ptr<Surface> surface) {
   auto dispatcher = _rendererDispatcher;
   void* nativeWindow = surface->getSurface();
-  auto sharedThis = shared_from_this();
   auto swapChain = References<SwapChain>::adoptEngineRef(_engine, _engine->createSwapChain(nativeWindow, SwapChain::CONFIG_TRANSPARENT),
-                                                         [dispatcher, sharedThis](std::shared_ptr<Engine> engine, SwapChain* swapChain) {
-                                                           dispatcher->runAsync([engine, swapChain, sharedThis]() {
-                                                             // Make sure we don't render while destroying this
-                                                             std::unique_lock lock(sharedThis->_mutex);
-
+                                                         [dispatcher](std::shared_ptr<Engine> engine, SwapChain* swapChain) {
+                                                           dispatcher->runAsync([engine, swapChain]() {
                                                              Logger::log(TAG, "Destroying swapchain...");
                                                              engine->destroy(swapChain);
                                                              // Required to ensure we don't return before Filament is done executing the
