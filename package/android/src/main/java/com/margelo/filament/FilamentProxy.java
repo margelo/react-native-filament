@@ -1,6 +1,10 @@
 package com.margelo.filament;
 
+import android.content.Context;
+import android.util.Log;
+import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
@@ -22,9 +26,13 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-/** @noinspection JavaJniMissingFunction*/
+/**
+ * @noinspection JavaJniMissingFunction
+ */
 class FilamentProxy {
-    /** @noinspection unused, FieldCanBeLocal */
+    /**
+     * @noinspection unused, FieldCanBeLocal
+     */
     @DoNotStrip
     @Keep
     private final HybridData mHybridData;
@@ -52,7 +60,9 @@ class FilamentProxy {
         backgroundThreadDispatcher = new Dispatcher(Executors.newCachedThreadPool());
     }
 
-    /** @noinspection unused*/
+    /**
+     * @noinspection unused
+     */
     @DoNotStrip
     @Keep
     FilamentChoreographer createChoreographer() {
@@ -73,7 +83,9 @@ class FilamentProxy {
         }
     }
 
-    /** @noinspection unused*/
+    /**
+     * @noinspection unused
+     */
     @DoNotStrip
     @Keep
     ByteBuffer loadAsset(String assetName) throws IOException {
@@ -87,7 +99,9 @@ class FilamentProxy {
         }
     }
 
-    /** @noinspection unused*/
+    /**
+     * @noinspection unused
+     */
     @DoNotStrip
     @Keep
     FilamentView findFilamentView(int id) {
@@ -102,25 +116,46 @@ class FilamentProxy {
         return (FilamentView) view;
     }
 
-    /** @noinspection unused*/
+    /**
+     * @noinspection unused
+     */
     @DoNotStrip
     @Keep
     Dispatcher getRenderThreadDispatcher() {
         return renderThreadDispatcher;
     }
 
-    /** @noinspection unused*/
+    /**
+     * @noinspection unused
+     */
     @DoNotStrip
     @Keep
     Dispatcher getUIDispatcher() {
         return uiThreadDispatcher;
     }
 
-    /** @noinspection unused*/
+    /**
+     * @noinspection unused
+     */
     @DoNotStrip
     @Keep
     Dispatcher getBackgroundDispatcher() {
         return backgroundThreadDispatcher;
+    }
+
+    /**
+     * @noinspection unused
+     */
+    @DoNotStrip
+    @Keep
+    float getDisplayRefreshRate() {
+        try {
+            Display display = ((WindowManager) reactContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+            return display.getRefreshRate();
+        } catch (Exception e) {
+            Log.d("FilamentProxy", "Failed to get display refresh rate: " + e.getMessage());
+            return 60.0f;
+        }
     }
 
     private native HybridData initHybrid(long jsRuntimePointer, CallInvokerHolderImpl callInvokerHolder);
