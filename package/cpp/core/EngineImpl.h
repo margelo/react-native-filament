@@ -58,7 +58,7 @@ using RenderCallback = std::function<void(double, double, double)>;
 class EngineImpl : public std::enable_shared_from_this<EngineImpl>, public RuntimeLifecycleListener {
 public:
   explicit EngineImpl(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<Dispatcher> rendererDispatcher,
-                      std::shared_ptr<Engine> engine);
+                      std::shared_ptr<Engine> engine, float displayRefreshRate);
   ~EngineImpl() override;
 
   void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
@@ -115,7 +115,7 @@ private:
   std::shared_ptr<ManipulatorWrapper> _cameraManipulator;
 
 private:
-  std::shared_ptr<Renderer> createRenderer();
+  std::shared_ptr<Renderer> createRenderer(float displayRefreshRate);
   std::shared_ptr<SwapChain> createSwapChain(std::shared_ptr<Surface> surface);
   std::shared_ptr<Scene> createScene();
   std::shared_ptr<View> createView();

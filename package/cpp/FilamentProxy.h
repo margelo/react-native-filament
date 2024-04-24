@@ -54,6 +54,11 @@ private:
    * This Dispatcher may use multiple Threads to run code.
    */
   virtual std::shared_ptr<Dispatcher> getBackgroundDispatcher() = 0;
+  /**
+   * Get the refresh rate of the display in Hz.
+   * Needed for correct frame pacing and dynamic resolution calculations.
+   */
+  virtual float getDisplayRefreshRate() = 0;
 
   // For testing
   std::shared_ptr<TestHybridObject> createTestObject();

@@ -118,8 +118,12 @@ std::shared_ptr<EngineWrapper> FilamentProxy::createEngine(std::optional<std::st
         });
       });
 
+  // Get screen refresh rate
+  float refreshRate = getDisplayRefreshRate();
+  Logger::log(TAG, "Display refresh rate: %f hz", refreshRate);
+
   // Create the EngineImpl...
-  EngineImpl* engineImplPtr = new EngineImpl(choreographer, renderThread, engine);
+  EngineImpl* engineImplPtr = new EngineImpl(choreographer, renderThread, engine, refreshRate);
   // The EngineImpl is interested in the event of the Runtime creating it being destroyed, so we need to add it as a listener:
   jsi::Runtime& runtime = getRuntime();
   RuntimeLifecycleMonitor::addListener(runtime, engineImplPtr);
