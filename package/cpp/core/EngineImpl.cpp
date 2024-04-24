@@ -30,7 +30,7 @@
 namespace margelo {
 
 EngineImpl::EngineImpl(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<Dispatcher> rendererDispatcher,
-                       std::shared_ptr<Engine> engine)
+                       std::shared_ptr<Engine> engine, float displayRefreshRate)
     : _engine(engine), _rendererDispatcher(rendererDispatcher), _choreographer(choreographer) {
 
   gltfio::MaterialProvider* _materialProviderPtr =
@@ -75,7 +75,7 @@ EngineImpl::EngineImpl(std::shared_ptr<Choreographer> choreographer, std::shared
       });
 
   // Setup filament:
-  _renderer = createRenderer();
+  _renderer = createRenderer(displayRefreshRate);
   _scene = createScene();
   _view = createView();
   _camera = createCamera();
@@ -277,7 +277,7 @@ void EngineImpl::renderFrame(double timestamp) {
   }
 }
 
-std::shared_ptr<Renderer> EngineImpl::createRenderer() {
+std::shared_ptr<Renderer> EngineImpl::createRenderer(float displayRefreshRate) {
   auto dispatcher = _rendererDispatcher;
   std::shared_ptr<Renderer> renderer = References<Renderer>::adoptEngineRef(
       _engine, _engine->createRenderer(), [dispatcher](std::shared_ptr<Engine> engine, Renderer* renderer) {
@@ -287,6 +287,7 @@ std::shared_ptr<Renderer> EngineImpl::createRenderer() {
         });
       });
   renderer->setClearOptions({.clear = true});
+  renderer->setDisplayInfo({.refreshRate = displayRefreshRate});
   return renderer;
 }
 

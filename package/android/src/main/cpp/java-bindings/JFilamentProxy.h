@@ -31,6 +31,7 @@ public:
   std::shared_ptr<Dispatcher> getRenderThreadDispatcher();
   std::shared_ptr<Dispatcher> getUIDispatcher();
   std::shared_ptr<Dispatcher> getBackgroundDispatcher();
+  float getDisplayRefreshRate();
 
   jsi::Runtime& getRuntime();
   std::shared_ptr<react::CallInvoker> getCallInvoker();

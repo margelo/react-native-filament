@@ -29,6 +29,7 @@ public:
   std::shared_ptr<Dispatcher> getRenderThreadDispatcher() override;
   std::shared_ptr<Dispatcher> getUIDispatcher() override;
   std::shared_ptr<Dispatcher> getBackgroundDispatcher() override;
+  float getDisplayRefreshRate() override;
 
   jsi::Runtime& getRuntime() override;
   std::shared_ptr<react::CallInvoker> getCallInvoker() override;
