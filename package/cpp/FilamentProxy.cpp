@@ -120,7 +120,7 @@ std::shared_ptr<EngineWrapper> FilamentProxy::createEngine(std::optional<std::st
 
   // Get screen refresh rate
   float refreshRate = getDisplayRefreshRate();
-  Logger::log(TAG, "Display refresh rate: %f hz", refreshRate);
+  Logger::log(TAG, "Display refresh rate: %f Hz", refreshRate);
 
   // Create the EngineImpl...
   EngineImpl* engineImplPtr = new EngineImpl(choreographer, renderThread, engine, refreshRate);
