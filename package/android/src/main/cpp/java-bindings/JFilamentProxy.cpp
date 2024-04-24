@@ -74,6 +74,11 @@ std::shared_ptr<Dispatcher> JFilamentProxy::getBackgroundDispatcher() {
   return _backgroundDispatcher;
 }
 
+float JFilamentProxy::getDisplayRefreshRate() {
+  static const auto method = javaClassLocal()->getMethod<jfloat()>("getDisplayRefreshRate");
+  return method(_javaPart);
+}
+
 jsi::Runtime& JFilamentProxy::getRuntime() {
   if (_runtime == nullptr) {
     [[unlikely]];

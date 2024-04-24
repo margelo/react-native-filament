@@ -12,9 +12,9 @@ using namespace facebook;
 AndroidFilamentProxy::AndroidFilamentProxy(jni::alias_ref<JFilamentProxy::javaobject> proxy) : _proxy(jni::make_global(proxy)) {}
 
 AndroidFilamentProxy::~AndroidFilamentProxy() {
-  // Hermes GC might destroy HostObjects on an arbitrary Thread which might not be
-  // connected to the JNI environment. To make sure fbjni can properly destroy
-  // the Java method, we connect to a JNI environment first.
+  // Hermes GC might destroy HostObjects on an arbitrary Thread which might not
+  // be connected to the JNI environment. To make sure fbjni can properly
+  // destroy the Java method, we connect to a JNI environment first.
   jni::ThreadScope::WithClassLoader([&] { _proxy.reset(); });
 }
 
@@ -48,6 +48,10 @@ std::shared_ptr<Dispatcher> AndroidFilamentProxy::getBackgroundDispatcher() {
 
 jsi::Runtime& AndroidFilamentProxy::getRuntime() {
   return _proxy->cthis()->getRuntime();
+}
+
+float AndroidFilamentProxy::getDisplayRefreshRate() {
+  return _proxy->cthis()->getDisplayRefreshRate();
 }
 
 } // namespace margelo

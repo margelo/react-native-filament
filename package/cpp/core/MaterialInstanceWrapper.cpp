@@ -79,7 +79,7 @@ void MaterialInstanceWrapper::setBaseColorSRGB(std::vector<double> rgba) {
 
 std::string MaterialInstanceWrapper::getName() {
   std::unique_lock lock(_mutex);
-    
+
   return _materialInstance->getName();
 }
 

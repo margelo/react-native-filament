@@ -14,7 +14,8 @@ namespace margelo {
 using namespace facebook;
 
 /**
- * Implementation for the abstract class FilamentProxy, which uses the JNI Hybrid Class "JFilamentProxy" underneath.
+ * Implementation for the abstract class FilamentProxy, which uses the JNI
+ * Hybrid Class "JFilamentProxy" underneath.
  */
 class AndroidFilamentProxy : public FilamentProxy {
 public:
@@ -28,6 +29,7 @@ private:
   std::shared_ptr<Dispatcher> getRenderThreadDispatcher() override;
   std::shared_ptr<Dispatcher> getUIDispatcher() override;
   std::shared_ptr<Dispatcher> getBackgroundDispatcher() override;
+  float getDisplayRefreshRate() override;
 
 public:
   jsi::Runtime& getRuntime() override;
