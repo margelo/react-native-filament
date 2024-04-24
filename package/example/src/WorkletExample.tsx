@@ -6,6 +6,7 @@ import {
   Filament,
   FilamentProvider,
   Float3,
+  FrameRateOptions,
   getAssetFromModel,
   useAssetAnimator,
   useFilamentContext,
@@ -114,13 +115,18 @@ const dynamicResolutionOptions: DynamicResolutionOptions = {
   enabled: true,
 }
 
+const frameRateOptions: FrameRateOptions = {
+  // 2 / 60Hz = 30 FPS
+  interval: 2,
+}
+
 export function WorkletExample() {
   const [showView, setShowView] = React.useState(true)
 
   return (
     <View style={styles.container}>
       {showView ? (
-        <FilamentProvider dynamicResolutionOptions={dynamicResolutionOptions}>
+        <FilamentProvider dynamicResolutionOptions={dynamicResolutionOptions} frameRateOptions={frameRateOptions}>
           <Renderer />
         </FilamentProvider>
       ) : (

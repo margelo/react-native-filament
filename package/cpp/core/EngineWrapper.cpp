@@ -44,6 +44,7 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("createRenderableManager", &EngineWrapper::createRenderableManager, this);
   registerHybridMethod("createMaterial", &EngineWrapper::createMaterial, this);
   registerHybridMethod("createLightManager", &EngineWrapper::createLightManager, this);
+  registerHybridMethod("createRenderer", &EngineWrapper::createRenderer, this);
 }
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
   pointee()->setSurfaceProvider(surfaceProvider);
@@ -78,6 +79,9 @@ std::shared_ptr<TransformManagerWrapper> EngineWrapper::createTransformManager()
 }
 std::shared_ptr<LightManagerWrapper> EngineWrapper::createLightManager() {
   return pointee()->createLightManager();
+}
+std::shared_ptr<RendererWrapper> EngineWrapper::createRenderer() {
+  return pointee()->getRenderer();
 }
 
 void EngineWrapper::setIsPaused(bool isPaused) {

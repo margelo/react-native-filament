@@ -70,6 +70,7 @@ private: // Exposed public JS API
   std::shared_ptr<ManipulatorWrapper> getCameraManipulator();
   std::shared_ptr<TransformManagerWrapper> createTransformManager();
   std::shared_ptr<LightManagerWrapper> createLightManager();
+  std::shared_ptr<RendererWrapper> createRenderer();
   void setIsPaused(bool isPaused);
   std::shared_ptr<RenderableManagerWrapper> createRenderableManager();
   std::shared_ptr<MaterialWrapper> createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer);

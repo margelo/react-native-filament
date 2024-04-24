@@ -33,6 +33,7 @@
 #include "CameraWrapper.h"
 #include "LightManagerWrapper.h"
 #include "MaterialWrapper.h"
+#include "RendererWrapper.h"
 #include "SceneWrapper.h"
 #include "SwapChainWrapper.h"
 #include "TransformManagerWrapper.h"
@@ -135,6 +136,9 @@ public:
   }
   std::shared_ptr<ManipulatorWrapper> getCameraManipulator() {
     return _cameraManipulator;
+  }
+  std::shared_ptr<RendererWrapper> getRenderer() {
+    return std::make_shared<RendererWrapper>(_renderer);
   }
 
 private:
