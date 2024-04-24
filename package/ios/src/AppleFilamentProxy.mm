@@ -82,6 +82,11 @@ std::shared_ptr<Dispatcher> AppleFilamentProxy::getBackgroundDispatcher() {
   return _backgroundDispatcher;
 }
 
+float AppleFilamentProxy::getDisplayRefreshRate() {
+    CGFloat refreshRate = [UIScreen mainScreen].maximumFramesPerSecond;
+    return refreshRate;
+}
+
 jsi::Runtime& AppleFilamentProxy::getRuntime() {
   if (_runtime == nullptr) {
     [[unlikely]];
