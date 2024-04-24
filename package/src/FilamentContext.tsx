@@ -4,8 +4,10 @@ import {
   Camera,
   DynamicResolutionOptions,
   Engine,
+  FrameRateOptions,
   LightManager,
   RenderableManager,
+  Renderer,
   Scene,
   TransformManager,
   View,
@@ -25,6 +27,7 @@ export type FilamentContextType = {
   lightManager: LightManager
   view: View
   camera: Camera
+  renderer: Renderer
   // TODO: put this in an "internal" separate context?
   _workletContext: IWorkletContext
 }
@@ -50,24 +53,30 @@ type ViewProps = Partial<Pick<View, 'antiAliasing' | 'screenSpaceRefraction' | '
   dynamicResolutionOptions?: DynamicResolutionOptions
 }
 
+type RendererProps = {
+  frameRateOptions?: FrameRateOptions
+}
+
 type Props = PropsWithChildren<{
   engine: Engine
   viewProps: ViewProps
+  rendererProps?: RendererProps
 }>
 
 // Internal component that actually sets the context; its set once the engine is ready and we can creates values for all APIs
-function EngineAPIProvider({ children, engine, viewProps }: Props) {
+function EngineAPIProvider({ children, engine, viewProps, rendererProps }: Props) {
   const transformManager = useMemo(() => engine.createTransformManager(), [engine])
   const renderableManager = useMemo(() => engine.createRenderableManager(), [engine])
   const scene = useMemo(() => engine.getScene(), [engine])
   const lightManager = useMemo(() => engine.createLightManager(), [engine])
   const view = useMemo(() => engine.getView(), [engine])
   const camera = useMemo(() => engine.getCamera(), [engine])
+  const renderer = useMemo(() => engine.createRenderer(), [engine])
   const workletContext = useMemo(() => FilamentProxy.getWorkletContext(), [])
 
   const value = useMemo(
-    () => ({ engine, transformManager, renderableManager, scene, lightManager, view, camera, _workletContext: workletContext }),
-    [engine, transformManager, renderableManager, scene, lightManager, view, camera, workletContext]
+    () => ({ engine, transformManager, renderableManager, scene, lightManager, view, camera, renderer, _workletContext: workletContext }),
+    [engine, transformManager, renderableManager, scene, lightManager, view, camera, workletContext, renderer]
   )
 
   // Apply view configs
@@ -89,6 +98,14 @@ function EngineAPIProvider({ children, engine, viewProps }: Props) {
     if (shadowing != null) view.shadowing = shadowing
   }, [view, ambientOcclusionOptions, antiAliasing, dithering, dynamicResolutionOptions, postProcessing, screenSpaceRefraction, shadowing])
 
+  // Apply renderer configs
+  const { frameRateOptions } = rendererProps ?? {}
+  useEffect(() => {
+    if (frameRateOptions != null) {
+      renderer.setFrameRateOptions(frameRateOptions)
+    }
+  }, [renderer, frameRateOptions])
+
   // Cleanup:
   // The cleanup phase is one of the reasons behind putting everything beneath a context.
   // This way, we know we will call our cleanup on e.g. "view" and "engine" only once all children (hooks)
@@ -104,9 +121,10 @@ function EngineAPIProvider({ children, engine, viewProps }: Props) {
           Worklets.createRunInContextFn(() => {
             'worklet'
 
-            scene.release()
-            view.release()
             camera.release()
+            view.release()
+            scene.release()
+            renderer.release()
             lightManager.release()
             renderableManager.release()
             transformManager.release()
@@ -115,14 +133,15 @@ function EngineAPIProvider({ children, engine, viewProps }: Props) {
         }, 0)
       })
     }
-  }, [camera, engine, lightManager, renderableManager, scene, transformManager, view, workletContext])
+  }, [camera, engine, lightManager, renderableManager, renderer, scene, transformManager, view, workletContext])
 
   return <FilamentContext.Provider value={value}>{children}</FilamentContext.Provider>
 }
 
 type FilamentProviderProps = PropsWithChildren<
   EngineProps &
-    ViewProps & {
+    ViewProps &
+    RendererProps & {
       fallback?: React.ReactElement
     }
 >
@@ -140,12 +159,13 @@ type FilamentProviderProps = PropsWithChildren<
  * </FilamentProvider>
  * ```
  */
-export function FilamentProvider({ children, fallback, config, backend, isPaused, ...viewProps }: FilamentProviderProps) {
+export function FilamentProvider({ children, fallback, config, backend, isPaused, frameRateOptions, ...viewProps }: FilamentProviderProps) {
   const engine = useEngine({ config, backend, isPaused })
+  const rendererProps = useMemo(() => ({ frameRateOptions }), [frameRateOptions])
 
   if (engine == null) return fallback ?? null
   return (
-    <EngineAPIProvider engine={engine} viewProps={viewProps}>
+    <EngineAPIProvider engine={engine} viewProps={viewProps} rendererProps={rendererProps}>
       {children}
     </EngineAPIProvider>
   )

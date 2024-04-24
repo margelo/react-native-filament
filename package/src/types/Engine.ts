@@ -44,7 +44,7 @@ export interface Engine extends PointerHolder {
    */
   loadAsset(buffer: FilamentBuffer): FilamentAsset
 
-  getRenderer(): Renderer
+  createRenderer(): Renderer
   getScene(): Scene
   getCamera(): Camera
   getView(): View
