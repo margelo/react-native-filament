@@ -83,8 +83,8 @@ std::shared_ptr<Dispatcher> AppleFilamentProxy::getBackgroundDispatcher() {
 }
 
 float AppleFilamentProxy::getDisplayRefreshRate() {
-    CGFloat refreshRate = [UIScreen mainScreen].maximumFramesPerSecond;
-    return refreshRate;
+  CGFloat refreshRate = [UIScreen mainScreen].maximumFramesPerSecond;
+  return refreshRate;
 }
 
 jsi::Runtime& AppleFilamentProxy::getRuntime() {
