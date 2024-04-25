@@ -13,7 +13,7 @@ import {
   View,
 } from './types'
 import { EngineProps, useEngine } from './hooks/useEngine'
-import { Worklets, IWorkletContext } from 'react-native-worklets-core'
+import { IWorkletContext } from 'react-native-worklets-core'
 import { FilamentProxy } from './native/FilamentProxy'
 import { InteractionManager } from 'react-native'
 import { makeDynamicResolutionHostObject } from './utilities/makeDynamicResolutionHostObject'
@@ -118,7 +118,7 @@ function EngineAPIProvider({ children, engine, viewProps, rendererProps }: Props
         setTimeout(() => {
           // Cleanup in worklets context, as cleanup functions might also use the worklet context
           // and we want to queue our cleanup after all other worklets have run
-          Worklets.createRunInContextFn(() => {
+          workletContext.runAsync(() => {
             'worklet'
 
             camera.release()
@@ -129,7 +129,7 @@ function EngineAPIProvider({ children, engine, viewProps, rendererProps }: Props
             renderableManager.release()
             transformManager.release()
             engine.release()
-          }, workletContext)()
+          })
         }, 0)
       })
     }

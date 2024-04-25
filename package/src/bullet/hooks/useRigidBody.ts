@@ -45,7 +45,7 @@ export function useRigidBody(props: RigidBodyProps | undefined) {
     if (mass == null || shape == null || id == null) {
       return
     }
-    const getBody = Worklets.createRunInContextFn(() => {
+    const getBody = context.runAsync(() => {
       'worklet'
 
       if (originX != null && originY != null && originZ != null) {
@@ -55,7 +55,7 @@ export function useRigidBody(props: RigidBodyProps | undefined) {
         return BulletAPI.createRigidBodyFromTransform(mass, transform, shape, id, collisionCallback)
       }
       throw new Error('Either origin or transform must be provided')
-    }, context)()
+    })
 
     getBody.then(setBody)
   }, [id, mass, originX, originY, originZ, collisionCallback, shape, transform, context])

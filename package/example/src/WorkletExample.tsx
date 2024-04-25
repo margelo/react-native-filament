@@ -6,7 +6,6 @@ import {
   Filament,
   FilamentProvider,
   Float3,
-  FrameRateOptions,
   getAssetFromModel,
   useAssetAnimator,
   useFilamentContext,

@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import type { RenderCallback } from '../types'
 import { reportWorkletError } from '../ErrorUtils'
-import { Worklets } from 'react-native-worklets-core'
 import { useFilamentContext } from '../FilamentContext'
 
 /**
@@ -13,7 +12,7 @@ export function useRenderCallback(onFrame: RenderCallback) {
   const { engine, _workletContext } = useFilamentContext()
 
   useEffect(() => {
-    Worklets.createRunInContextFn(() => {
+    _workletContext.runAsync(() => {
       'worklet'
       engine.setRenderCallback((...args) => {
         'worklet'
@@ -24,7 +23,7 @@ export function useRenderCallback(onFrame: RenderCallback) {
           reportWorkletError(e)
         }
       })
-    }, _workletContext)()
+    })
     return () => {
       // remove render callback on unmount
       engine.setRenderCallback(undefined)
