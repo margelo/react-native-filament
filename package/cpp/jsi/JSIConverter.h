@@ -158,7 +158,7 @@ template <typename TResult> struct JSIConverter<std::future<TResult>> {
         sharedFuture->wait();
 
         // the async function completed successfully, resolve the promise on JS Thread
-        dispatcher->runAsync([&runtime, promise, sharedFuture]() {
+        dispatcher->runAsync([&runtime, promise, sharedFuture]() mutable {
           try {
             if constexpr (std::is_same_v<TResult, void>) {
               // it's returning void, just return undefined to JS
@@ -183,6 +183,11 @@ template <typename TResult> struct JSIConverter<std::future<TResult>> {
 #endif
             promise->reject("Unknown non-std exception: " + name);
           }
+
+          // This lambda owns the promise shared pointer, and we need to call its
+          // destructor on the correct thread here - otherwise it might be called
+          // from the waiterThread.
+          promise = nullptr;
         });
       });
       waiterThread.detach();
