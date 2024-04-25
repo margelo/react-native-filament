@@ -1,29 +1,18 @@
 #pragma once
 
 #include "ManagedBuffer.h"
-#include "jsi/HybridObject.h"
+#include "jsi/PointerHolder.h"
 
 namespace margelo {
 
-class FilamentBuffer : public HybridObject {
+class FilamentBuffer : public PointerHolder<ManagedBuffer> {
 public:
-  explicit FilamentBuffer(std::shared_ptr<ManagedBuffer> buffer) : HybridObject("FilamentBuffer"), _buffer(buffer) {}
-
-  void loadHybridMethods() override {
-    registerHybridMethod("release", &FilamentBuffer::release, this);
-  }
+  explicit FilamentBuffer(std::shared_ptr<ManagedBuffer> buffer) : PointerHolder("FilamentBuffer", buffer) {}
+  void loadHybridMethods() override {}
 
   std::shared_ptr<ManagedBuffer> getBuffer() {
-    return _buffer;
+    return pointee();
   }
-
-  void release() {
-    Logger::log("FilamentBuffer", "Manually releasing buffer of size %fmb", static_cast<float>(_buffer->getSize()) / 1024 / 1024);
-    _buffer->release();
-  }
-
-private:
-  std::shared_ptr<ManagedBuffer> _buffer;
 };
 
 } // namespace margelo

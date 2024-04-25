@@ -48,7 +48,7 @@ export type FilamentModel =
  */
 export function useModel({ path, shouldReleaseSourceData, addToScene = true, instanceCount }: ModelProps): FilamentModel {
   const { engine, scene, _workletContext } = useFilamentContext()
-  const assetBuffer = useAsset({ path: path })
+  const assetBuffer = useAsset({ path: path, releaseOnUnmount: false })
 
   // Note: the native cleanup of the asset will remove it automatically from the scene
   const asset = useResource(() => {
@@ -67,6 +67,9 @@ export function useModel({ path, shouldReleaseSourceData, addToScene = true, ins
         loadedAsset = engine.loadInstancedAsset(assetBuffer, instanceCount)
       }
 
+      // After loading the asset we can release the buffer
+      assetBuffer.release()
+
       return loadedAsset
     }, _workletContext)()
   }, [assetBuffer, _workletContext, engine, instanceCount])
@@ -78,7 +81,7 @@ export function useModel({ path, shouldReleaseSourceData, addToScene = true, ins
     }
 
     // releases CPU memory for bindings
-    asset?.releaseSourceData()
+    asset.releaseSourceData()
   }, [asset, _workletContext, shouldReleaseSourceData])
 
   // Add or remove from the scene:
