@@ -57,7 +57,7 @@ export function useModel({ path, shouldReleaseSourceData, addToScene = true, ins
       throw new Error('instanceCount must be greater than 0')
     }
 
-    return Worklets.createRunInContextFn(() => {
+    return _workletContext.runAsync(() => {
       'worklet'
 
       let loadedAsset: FilamentAsset
@@ -71,7 +71,7 @@ export function useModel({ path, shouldReleaseSourceData, addToScene = true, ins
       assetBuffer.release()
 
       return loadedAsset
-    }, _workletContext)()
+    })
   }, [assetBuffer, _workletContext, engine, instanceCount])
 
   useWorkletEffect(() => {

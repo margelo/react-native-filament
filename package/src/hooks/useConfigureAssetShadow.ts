@@ -27,13 +27,13 @@ export function useConfigureAssetShadow({ renderableManager, asset, receiveShado
     }
     prevCastShadowRef.current = castShadow
 
-    Worklets.createRunInContextFn(() => {
+    _workletContext.runAsync(() => {
       'worklet'
 
       renderableEntities.forEach((entity) => {
         renderableManager.setCastShadow(entity, castShadow)
       })
-    }, _workletContext)()
+    })
   }, [castShadow, renderableManager, renderableEntities, _workletContext])
 
   const prevReceiveShadowRef = useRef<boolean>()
@@ -43,12 +43,12 @@ export function useConfigureAssetShadow({ renderableManager, asset, receiveShado
     }
     prevReceiveShadowRef.current = receiveShadow
 
-    Worklets.createRunInContextFn(() => {
+    _workletContext.runAsync(() => {
       'worklet'
 
       renderableEntities.forEach((entity) => {
         renderableManager.setReceiveShadow(entity, receiveShadow)
       })
-    }, _workletContext)()
+    })
   }, [receiveShadow, renderableEntities, renderableManager, _workletContext])
 }
