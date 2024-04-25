@@ -65,10 +65,10 @@ std::future<std::shared_ptr<FilamentBuffer>> FilamentProxy::loadAssetAsync(const
   Logger::log(TAG, "Loading asset %s...", path.c_str());
   auto weakThis = std::weak_ptr<FilamentProxy>(shared<FilamentProxy>());
   auto dispatcher = getBackgroundDispatcher();
-  return dispatcher->runAsync<std::shared_ptr<FilamentBuffer>>([=]() {
+  return dispatcher->runAsync<std::shared_ptr<FilamentBuffer>>([weakThis, path]() {
     auto sharedThis = weakThis.lock();
     if (sharedThis != nullptr) {
-      return this->loadAsset(path);
+      return sharedThis->loadAsset(path);
     } else {
       throw std::runtime_error("Failed to load asset, FilamentProxy has already been destroyed!");
     }
@@ -79,10 +79,10 @@ std::future<std::shared_ptr<FilamentView>> FilamentProxy::findFilamentViewAsync(
   Logger::log(TAG, "Finding FilamentView #%i...", id);
   auto weakThis = std::weak_ptr<FilamentProxy>(shared<FilamentProxy>());
   auto dispatcher = getUIDispatcher();
-  return dispatcher->runAsync<std::shared_ptr<FilamentView>>([=]() {
+  return dispatcher->runAsync<std::shared_ptr<FilamentView>>([weakThis, id]() {
     auto sharedThis = weakThis.lock();
     if (sharedThis != nullptr) {
-      return this->findFilamentView(id);
+      return sharedThis->findFilamentView(id);
     } else {
       throw std::runtime_error("Failed to find Filament View, FilamentProxy has already been destroyed!");
     }
