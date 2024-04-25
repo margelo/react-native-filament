@@ -5,7 +5,7 @@ export function useWorkletEffect(workletFunction: (...args: any[]) => void, deps
   const { _workletContext } = useFilamentContext()
 
   useEffect(() => {
-    Worklets.createRunInContextFn(workletFunction, _workletContext)()
+    _workletContext.runAsync(workletFunction)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps)
 }

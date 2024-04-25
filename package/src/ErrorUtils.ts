@@ -11,7 +11,7 @@ export function reportFatalError(error: unknown): void {
   }
 }
 
-const throwErrorOnJS = Worklets.createRunInJsFn((message: string, stack: string | undefined) => {
+const throwErrorOnJS = Worklets.createRunOnJS((message: string, stack: string | undefined) => {
   const error = new Error()
   error.message = message
   error.stack = stack

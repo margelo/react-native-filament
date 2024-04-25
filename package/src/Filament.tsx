@@ -3,7 +3,6 @@ import { findNodeHandle, NativeMethods } from 'react-native'
 import { FilamentProxy } from './native/FilamentProxy'
 import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 import { reportFatalError } from './ErrorUtils'
-import { Worklets } from 'react-native-worklets-core'
 import { FilamentContext } from './FilamentContext'
 
 export interface FilamentProps extends NativeProps {}
@@ -45,10 +44,10 @@ export class Filament extends React.PureComponent<FilamentProps> {
       const surfaceProvider = view.getSurfaceProvider()
       // Link the surface with the engine:
       const engine = this.context.engine
-      Worklets.createRunInContextFn(() => {
+      this.context._workletContext.runAsync(() => {
         'worklet'
         engine.setSurfaceProvider(surfaceProvider)
-      }, this.context._workletContext)()
+      })
     } catch (e) {
       reportFatalError(e)
     }
