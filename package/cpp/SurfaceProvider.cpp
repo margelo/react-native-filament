@@ -9,6 +9,7 @@ namespace margelo {
 
 void SurfaceProvider::loadHybridMethods() {
   registerHybridMethod("getSurface", &SurfaceProvider::getSurfaceOrNull, this);
+    registerHybridMethod("releaseSurface", &SurfaceProvider::releaseSurface, this);
 }
 
 std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceChangedListener(SurfaceProvider::Callback&& callback) {

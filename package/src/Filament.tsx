@@ -4,12 +4,14 @@ import { FilamentProxy } from './native/FilamentProxy'
 import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 import { reportFatalError } from './ErrorUtils'
 import { FilamentContext } from './FilamentContext'
+import { SurfaceProvider } from './native/FilamentViewTypes'
 
 export interface FilamentProps extends NativeProps {}
 
 type RefType = React.Component<NativeProps> & Readonly<NativeMethods>
 
 export class Filament extends React.PureComponent<FilamentProps> {
+  private surfaceProvider: SurfaceProvider | null = null
   private readonly ref: React.RefObject<RefType>
   static contextType = FilamentContext
   // @ts-ignore
@@ -42,6 +44,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
         throw new Error(`Failed to find FilamentView #${handle}!`)
       }
       const surfaceProvider = view.getSurfaceProvider()
+      this.surfaceProvider = surfaceProvider
       // Link the surface with the engine:
       const engine = this.context.engine
       this.context._workletContext.runAsync(() => {
@@ -50,6 +53,12 @@ export class Filament extends React.PureComponent<FilamentProps> {
       })
     } catch (e) {
       reportFatalError(e)
+    }
+  }
+
+  componentWillUnmount(): void {
+    if (this.surfaceProvider != null) {
+      // this.surfaceProvider.releaseSurface()
     }
   }
 

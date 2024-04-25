@@ -34,6 +34,7 @@ public:
   std::shared_ptr<Listener> addOnSurfaceChangedListener(Callback&& callback);
 
   virtual std::shared_ptr<Surface> getSurfaceOrNull() = 0;
+    virtual void releaseSurface() = 0;
 
   void loadHybridMethods() override;
 
