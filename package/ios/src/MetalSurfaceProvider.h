@@ -23,10 +23,24 @@ public:
     this->onSurfaceCreated(_surface);
 
     _observer = [[BlockObserver alloc] initWithBlock:^(NSDictionary<NSKeyValueChangeKey, id>* change, void* context) {
+      // Get previous value:
+      CGSize oldSize = [change[NSKeyValueChangeOldKey] CGSizeValue];
+
+      // Get new value:
+      CGSize newSize = [change[NSKeyValueChangeNewKey] CGSizeValue];
+
+      // Check if size has changed:
+      if (oldSize.width == newSize.width && oldSize.height == newSize.height) {
+        return;
+      }
+
       // Surface size has changed
       this->onSurfaceChanged(_surface, _surface->getWidth(), _surface->getHeight());
     }];
-    [_layer addObserver:_observer forKeyPath:@"drawableSize" options:NSKeyValueObservingOptionNew context:NULL];
+    [_layer addObserver:_observer
+             forKeyPath:@"drawableSize"
+                options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld
+                context:NULL];
   }
   ~MetalSurfaceProvider() {
     // Surface will be destroyed
