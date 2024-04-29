@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useSharedValue } from 'react-native-worklets-core'
 import { Animated, Button, SafeAreaView, StyleSheet } from 'react-native'
 import {
@@ -12,7 +12,6 @@ import {
   useLightEntity,
   useModel,
   useRenderCallback,
-  useWorkletCallback,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { Config } from './config'
@@ -32,8 +31,8 @@ function Renderer() {
   const prevAspectRatio = useSharedValue(0)
   const assetAnimator = useAssetAnimator(getAssetFromModel(model))
   useRenderCallback(
-    useWorkletCallback(
-      (_timestamp: number, _startTime: number, passedSeconds: number) => {
+    useCallback(
+      ({ passedSeconds }) => {
         'worklet'
 
         const aspectRatio = view.getAspectRatio()
