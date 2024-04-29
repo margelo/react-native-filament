@@ -13,10 +13,19 @@ import { LightManager } from './LightManager'
 import { PointerHolder } from './PointerHolder'
 
 export type FrameInfo = {
+  /**
+   * The current timestamp in nanoseconds.
+   */
   timestamp: number
+  /**
+   * Timestamp when the rendering started
+   */
   startTime: number
+  /**
+   * Time in seconds since the rendering started.
+   */
   passedSeconds: number
-  /** In milliseconds. */
+  /** Time in seconds since the last frame. */
   timeSinceLastFrame: number
 }
 

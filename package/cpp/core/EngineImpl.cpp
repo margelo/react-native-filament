@@ -266,7 +266,8 @@ void EngineImpl::renderFrame(double timestamp) {
     [[likely]];
     const auto& renderCallback = _renderCallback.value();
     double passedSeconds = (timestamp - _startTime) / 1e9;          // Seconds
-    double timeSinceLastFrame = (timestamp - _lastFrameTime) / 1e6; // Milliseconds
+    double timeSinceLastFrame = (timestamp - _lastFrameTime) / 1e9; // Seconds
+    _lastFrameTime = timestamp;
     FrameInfo renderCallbackData = {
         {"timestamp", timestamp},
         {"passedSeconds", passedSeconds},
