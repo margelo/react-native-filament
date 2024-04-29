@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native'
 import * as React from 'react'
-import { useMemo, useRef } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { Button, ScrollView, StyleSheet, View } from 'react-native'
 import {
   Filament,
@@ -9,7 +9,6 @@ import {
   useModel,
   useAssetAnimator,
   getAssetFromModel,
-  useWorkletCallback,
   FilamentProvider,
   useFilamentContext,
   useResource,
@@ -56,8 +55,8 @@ function Renderer() {
 
   const prevAspectRatio = useSharedValue(0)
   useRenderCallback(
-    useWorkletCallback(
-      (_timestamp, _startTime, passedSeconds) => {
+    useCallback(
+      ({ passedSeconds }) => {
         'worklet'
 
         const aspectRatio = view.getAspectRatio()

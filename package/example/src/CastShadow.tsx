@@ -94,7 +94,7 @@ function Renderer() {
   const prevAspectRatio = useRef(0)
   const penguAnimator = useAssetAnimator(getAssetFromModel(pengu))
   const penguEntity = pengu.state === 'loaded' ? pengu.asset.getRoot() : undefined
-  useRenderCallback((_timestamp, _startTime, passedSeconds) => {
+  useRenderCallback(({ passedSeconds }) => {
     'worklet'
 
     const aspectRatio = view.getAspectRatio()

@@ -52,7 +52,8 @@ using namespace camutils;
 
 using ManipulatorBuilder = Manipulator<float>::Builder;
 
-using RenderCallback = std::function<void(double, double, double)>;
+using FrameInfo = std::unordered_map<std::string, double>;
+using RenderCallback = std::function<void(FrameInfo)>;
 
 // The EngineImpl is the actual implementation wrapper around filaments Engine.
 // If you add a new method that you want to expose to JS, you need to add it to the EngineWrapper as well.
@@ -96,6 +97,7 @@ private:
   std::shared_ptr<Choreographer> _choreographer;
   std::shared_ptr<Listener> _choreographerListener;
   double _startTime = 0;
+  double _lastFrameTime = 0;
   bool _isPaused = false;
 
   // Internals that we might need to split out later
