@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useRef } from 'react'
+import { useCallback, useRef } from 'react'
 
 import { Button, StyleSheet, View } from 'react-native'
 import {
@@ -61,7 +61,7 @@ function Renderer() {
 
   const prevAspectRatio = useRef(0)
   useRenderCallback(
-    useWorkletCallback(() => {
+    useCallback(() => {
       'worklet'
       const aspectRatio = view.getAspectRatio()
       if (prevAspectRatio.current !== aspectRatio) {

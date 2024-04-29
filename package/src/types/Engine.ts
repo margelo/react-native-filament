@@ -12,7 +12,15 @@ import { Material } from './Material'
 import { LightManager } from './LightManager'
 import { PointerHolder } from './PointerHolder'
 
-export type RenderCallback = (timestamp: number, startTime: number, passedSeconds: number) => void
+export type FrameInfo = {
+  timestamp: number
+  startTime: number
+  passedSeconds: number
+  /** In milliseconds. */
+  timeSinceLastFrame: number
+}
+
+export type RenderCallback = (frameInfo: FrameInfo) => void
 
 export interface Engine extends PointerHolder {
   setSurfaceProvider(surfaceProvider: SurfaceProvider): void
