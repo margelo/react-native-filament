@@ -25,7 +25,7 @@ export interface Mat4 {
   /**
    * Returns a new matrix that is the result of multiplying the provided rotation matrix with this matrix.
    */
-  rotateX(angleRadians: number, axis: Float3): Mat4
+  rotate(angleRadians: number, axis: Float3): Mat4
 }
 
 /**
