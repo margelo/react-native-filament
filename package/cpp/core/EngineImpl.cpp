@@ -265,9 +265,15 @@ void EngineImpl::renderFrame(double timestamp) {
   if (_renderCallback.has_value()) {
     [[likely]];
     const auto& renderCallback = _renderCallback.value();
-    // Call JS callback with scene information
-    double passedSeconds = (timestamp - _startTime) / 1e9;
-    renderCallback(timestamp, _startTime, passedSeconds);
+    double passedSeconds = (timestamp - _startTime) / 1e9;          // Seconds
+    double timeSinceLastFrame = (timestamp - _lastFrameTime) / 1e6; // Milliseconds
+    FrameInfo renderCallbackData = {
+        {"timestamp", timestamp},
+        {"passedSeconds", passedSeconds},
+        {"startTime", _startTime},
+        {"timeSinceLastFrame", timeSinceLastFrame},
+    };
+    renderCallback(renderCallbackData);
   }
 
   if (_renderer->beginFrame(_swapChain.get(), timestamp)) {
