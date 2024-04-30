@@ -57,6 +57,10 @@ public class FilamentView extends FrameLayout implements TextureView.SurfaceText
         setupView();
     }
 
+    public void setEnableTransparentRendering(boolean enable) {
+        textureView.setOpaque(!enable);
+    }
+
     private void setupView() {
         // Disable overflow
         textureView.setClipToOutline(true);
@@ -65,6 +69,7 @@ public class FilamentView extends FrameLayout implements TextureView.SurfaceText
         textureView.setOpaque(false);
         addView(textureView);
     }
+
 
     @Override
     protected void onAttachedToWindow() {

@@ -18,6 +18,9 @@ export class Filament extends React.PureComponent<FilamentProps> {
   constructor(props: FilamentProps) {
     super(props)
     this.ref = React.createRef<RefType>()
+    if (!props.enableTransparentRendering) {
+      this.updateTransparentRendering(false)
+    }
   }
 
   // TODO: Does this also work for Fabric?
@@ -28,6 +31,16 @@ export class Filament extends React.PureComponent<FilamentProps> {
     }
 
     return nodeHandle
+  }
+
+  private updateTransparentRendering = (enable: boolean) => {
+    this.context?.renderer.setClearContent(enable)
+  }
+
+  componentDidUpdate(prevProps: Readonly<FilamentProps>): void {
+    if (prevProps.enableTransparentRendering !== this.props.enableTransparentRendering) {
+      this.updateTransparentRendering(this.props.enableTransparentRendering ?? true)
+    }
   }
 
   onViewReady = async () => {
@@ -57,4 +70,9 @@ export class Filament extends React.PureComponent<FilamentProps> {
   public render(): React.ReactNode {
     return <FilamentNativeView ref={this.ref} onViewReady={this.onViewReady} {...this.props} />
   }
+}
+
+// @ts-expect-error Not in the types
+Filament.defaultProps = {
+  enableTransparentRendering: true,
 }

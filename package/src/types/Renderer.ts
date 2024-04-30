@@ -47,4 +47,11 @@ export interface FrameRateOptions {
  */
 export interface Renderer extends PointerHolder {
   setFrameRateOptions: (options: FrameRateOptions) => void
+
+  /**
+   * Whether the View should be cleared using the clearColor. Use this if translucent
+   * View will be drawn, for instance.
+   * @default true
+   */
+  setClearContent: (clear: boolean) => void
 }

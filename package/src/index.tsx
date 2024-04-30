@@ -15,6 +15,7 @@ export * from './hooks/useConfigureAssetShadow'
 export * from './hooks/useEntityInScene'
 export * from './hooks/useLightEntity'
 export * from './hooks/useResource'
+export * from './hooks/useSkybox'
 
 // utilities
 export * from './utilities/runOnJS'

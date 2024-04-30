@@ -38,6 +38,7 @@ add_library(
 
     # Filament Core
     ../cpp/core/EngineImpl.cpp
+    ../cpp/core/EngineImpl.Skybox.cpp
     ../cpp/core/EngineWrapper.cpp
     ../cpp/core/EngineConfigHelper.cpp
     ../cpp/core/SceneWrapper.cpp

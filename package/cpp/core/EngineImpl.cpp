@@ -256,11 +256,12 @@ void EngineImpl::renderFrame(double timestamp) {
     return;
   }
 
-  _resourceLoader->asyncUpdateLoad();
-
   if (_startTime == 0) {
+    [[unlikely]];
     _startTime = timestamp;
   }
+
+  _resourceLoader->asyncUpdateLoad();
 
   if (_renderCallback.has_value()) {
     [[likely]];

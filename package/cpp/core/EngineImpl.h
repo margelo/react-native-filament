@@ -24,6 +24,7 @@
 #include <filament/Engine.h>
 #include <filament/LightManager.h>
 #include <filament/Renderer.h>
+#include <filament/Skybox.h>
 #include <filament/SwapChain.h>
 #include <gltfio/AssetLoader.h>
 #include <gltfio/MaterialProvider.h>
@@ -73,6 +74,10 @@ public:
   std::shared_ptr<RenderableManagerWrapper> createRenderableManager();
   std::shared_ptr<TransformManagerWrapper> createTransformManager();
   std::shared_ptr<MaterialWrapper> createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer);
+  void createAndSetSkybox(std::string hexColor, std::optional<bool> showSun, std::optional<float> envIntensity);
+  void createAndSetSkybox(std::optional<std::shared_ptr<FilamentBuffer>> textureBuffer, std::optional<bool> showSun,
+                          std::optional<float> envIntensity);
+  void clearSkybox();
 
 private:
   void setSurface(std::shared_ptr<Surface> surface);
@@ -99,11 +104,10 @@ private:
   double _startTime = 0;
   double _lastFrameTime = 0;
   bool _isPaused = false;
-
-  // Internals that we might need to split out later
   std::shared_ptr<gltfio::MaterialProvider> _materialProvider;
   std::shared_ptr<gltfio::AssetLoader> _assetLoader;
   std::shared_ptr<gltfio::ResourceLoader> _resourceLoader;
+  std::shared_ptr<Skybox> _skybox = nullptr;
 
   const math::float3 defaultObjectPosition = {0.0f, 0.0f, 0.0f};
   const math::float3 defaultCameraPosition = {0.0f, 0.0f, 0.0f};
