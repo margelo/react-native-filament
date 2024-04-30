@@ -242,112 +242,30 @@ void RenderableManagerImpl::scaleBoundingBox(std::shared_ptr<FilamentAssetWrappe
 std::shared_ptr<EntityWrapper> RenderableManagerImpl::createDebugCube(std::shared_ptr<FilamentBuffer> materialBuffer, float halfExtentX,
                                                                       float halfExtentY, float halfExtentZ) {
 
-  // Cube data
-  //             1.0 y
-  //              ^  -1.0
-  //              | / z
-  //              |/       x
-  // -1.0 -----------------> +1.0
-  //            / |
-  //      +1.0 /  |
-  //           -1.0
-  //
-  //         [7]------[6]
-  //        / |      / |
-  //      [3]------[2] |
-  //       |  |     |  |
-  //       | [4]----|-[5]
-  //       |/       |/
-  //      [0]------[1]
-  //
-  float3 verts[] = {
-      // Front face
-      -0.5, -0.5, 0.5, // v0
-      0.5, -0.5, 0.5,  // v1
-      0.5, 0.5, 0.5,   // v2
-      -0.5, 0.5, 0.5,  // v3
-      // Back face
-      -0.5, -0.5, -0.5, // v4
-      0.5, -0.5, -0.5,  // v5
-      0.5, 0.5, -0.5,   // v6
-      -0.5, 0.5, -0.5,  // v7
-      // Top face
-      0.5, 0.5, 0.5,   // v2
-      -0.5, 0.5, 0.5,  // v3
-      -0.5, 0.5, -0.5, // v7
-      0.5, 0.5, -0.5,  // v6
-      // Bottom face
-      -0.5, -0.5, 0.5,  // v0
-      0.5, -0.5, 0.5,   // v1
-      0.5, -0.5, -0.5,  // v5
-      -0.5, -0.5, -0.5, // v4
-      // Right face
-      0.5, -0.5, 0.5,  // v1
-      0.5, 0.5, 0.5,   // v2
-      0.5, 0.5, -0.5,  // v6
-      0.5, -0.5, -0.5, // v5
-      // Left face
-      -0.5, -0.5, 0.5, // v0
-      -0.5, 0.5, 0.5,  // v3
-      -0.5, 0.5, -0.5, // v7
-      -0.5, -0.5, -0.5 // v4
+  struct Vertex {
+    filament::math::float2 position;
+    uint32_t color;
   };
 
-  u_int32_t cubeColor[] = {
-      0xff0000ffu, // Front face
-      0xff0000ffu, // Front face
-      0xff0000ffu, // Front face
-      0xff0000ffu, // Front face
-      0xff00ffffu, // Back face
-      0xff00ffffu, // Back face
-      0xff00ffffu, // Back face
-      0xff00ffffu, // Back face
-      0xff00ff00u, // Top face
-      0xff00ff00u, // Top face
-      0xff00ff00u, // Top face
-      0xff00ff00u, // Top face
-      0xff0f0fffu, // Bottom face
-      0xff0f0fffu, // Bottom face
-      0xff0f0fffu, // Bottom face
-      0xff0f0fffu, // Bottom face
-      0xffff00ffu, // Right face
-      0xffff00ffu, // Right face
-      0xffff00ffu, // Right face
-      0xffff00ffu, // Right face
-      0xffff0000u, // Left face
-      0xffff0000u, // Left face
-      0xffff0000u, // Left face
-      0xffff0000u  // Left face
+  static const Vertex TRIANGLE_VERTICES[3] = {
+      {{1, 0}, 0xffff0000u},
+      {{cos(M_PI * 2 / 3), sin(M_PI * 2 / 3)}, 0xff00ff00u},
+      {{cos(M_PI * 4 / 3), sin(M_PI * 4 / 3)}, 0xff0000ffu},
   };
 
-  u_int16_t indices[] = {
-      0,  1,  2,  0,  2,  3,  // Front face
-      4,  5,  6,  4,  6,  7,  // Back face
-      8,  9,  10, 8,  10, 11, // Top face
-      12, 13, 14, 12, 14, 15, // Bottom face
-      16, 17, 18, 16, 18, 19, // Right face
-      20, 21, 22, 20, 22, 23  // Left face
-  };
+  static constexpr uint16_t TRIANGLE_INDICES[3] = {0, 1, 2};
 
-  // Creating the vertex buffer.
   auto vertexBuffer = VertexBuffer::Builder()
-                          .bufferCount(2)
-                          .vertexCount(24)
-                          .attribute(VertexAttribute::POSITION, 0, VertexBuffer::AttributeType::FLOAT3)
-                          .attribute(VertexAttribute::COLOR, 1, VertexBuffer::AttributeType::UBYTE4)
+                          .vertexCount(3)
+                          .bufferCount(1)
+                          .attribute(VertexAttribute::POSITION, 0, VertexBuffer::AttributeType::FLOAT2, 0, 12)
+                          .attribute(VertexAttribute::COLOR, 0, VertexBuffer::AttributeType::UBYTE4, 8, 12)
                           .normalized(VertexAttribute::COLOR)
                           .build(*_engine);
+  vertexBuffer->setBufferAt(*_engine, 0, VertexBuffer::BufferDescriptor(TRIANGLE_VERTICES, 36, nullptr));
 
-  // Setting the vertex buffer data.
-  vertexBuffer->setBufferAt(*_engine, 0, VertexBuffer::BufferDescriptor(verts, vertexBuffer->getVertexCount() * sizeof(float3), nullptr));
-  vertexBuffer->setBufferAt(*_engine, 1,
-                            VertexBuffer::BufferDescriptor(cubeColor, vertexBuffer->getVertexCount() * sizeof(u_int32_t), nullptr));
-
-  // Creating the index buffer.
-  auto indexBuffer = IndexBuffer::Builder().indexCount(36).bufferType(IndexBuffer::IndexType::USHORT).build(*_engine);
-
-  // Setting the index buffer data.
-  indexBuffer->setBuffer(*_engine, IndexBuffer::BufferDescriptor(indices, indexBuffer->getIndexCount() * sizeof(uint16_t), nullptr));
+  auto indexBuffer = IndexBuffer::Builder().indexCount(3).bufferType(IndexBuffer::IndexType::USHORT).build(*_engine);
+  indexBuffer->setBuffer(*_engine, IndexBuffer::BufferDescriptor(TRIANGLE_INDICES, 6, nullptr));
 
   // Creating a renderable entity.
   Entity wireframeEntity = EntityManager::get().create();

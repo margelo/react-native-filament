@@ -19,7 +19,7 @@ import { useDefaultLight } from './hooks/useDefaultLight'
 import { Config } from './config'
 import { getAssetPath } from './utils/getAssetPasth'
 
-const cameraPosition: Float3 = [0, 0, 1]
+const cameraPosition: Float3 = [0, 0, 10]
 const cameraTarget: Float3 = [0, 0, 0]
 const cameraUp: Float3 = [0, 1, 0]
 
