@@ -59,6 +59,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
   }
 }
 
+// @ts-expect-error Not in the types
 Filament.defaultProps = {
   enableTransparentRendering: true,
 }
