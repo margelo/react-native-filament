@@ -7,11 +7,29 @@
 #include "utils/Converter.h"
 
 namespace margelo {
-void EngineImpl::setSkyboxColorRGBA(std::string hexColor) {
-  math::float4 sRGBColorA = Converter::hexColorToSRGBLinear(hexColor);
+void EngineImpl::createAndSetSkybox(std::string hexColor, std::optional<bool> showSun, std::optional<float> envIntensity) {
+  Skybox::Builder builder = Skybox::Builder();
+  if (showSun.has_value()) {
+    builder.showSun(showSun.value());
+  }
+  if (envIntensity.has_value()) {
+    builder.intensity(envIntensity.value());
+  }
 
-  Skybox::Builder builder = Skybox::Builder().color(sRGBColorA);
-  _skybox = References<Skybox>::adoptEngineRef(_engine, builder.build(*_engine),
-                                               [](std::shared_ptr<Engine> engine, Skybox* skybox) { engine->destroy(skybox); });
+  math::float4 sRGBColorA = Converter::hexColorToSRGBLinear(hexColor);
+  builder.color(sRGBColorA);
+
+  Skybox* skybox = builder.build(*_engine);
+  _skybox = References<Skybox>::adoptEngineRef(_engine, skybox, [](std::shared_ptr<Engine> engine, Skybox* skybox) {
+    Logger::log(TAG, "Destroying Skybox...");
+    engine->destroy(skybox);
+  });
+  _scene->setSkybox(_skybox.get());
 }
+
+void EngineImpl::createAndSetSkybox(std::optional<std::shared_ptr<FilamentBuffer>> textureBuffer, std::optional<bool> showSun,
+                                    std::optional<float> envIntensity) {
+  throw new std::runtime_error("Not implemented yet");
+}
+
 } // namespace margelo

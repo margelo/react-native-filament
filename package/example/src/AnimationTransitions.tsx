@@ -12,6 +12,7 @@ import {
   FilamentProvider,
   useFilamentContext,
   useResource,
+  useSkybox,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
@@ -33,6 +34,7 @@ const animationInterpolationTime = 5
 function Renderer() {
   const { camera, view, scene } = useFilamentContext()
   useDefaultLight()
+  useSkybox({ color: '#88defb' })
 
   const pengu = useModel({ path: penguModelPath })
   const penguAsset = getAssetFromModel(pengu)
@@ -181,7 +183,6 @@ const styles = StyleSheet.create({
   },
   filamentView: {
     flex: 1,
-    backgroundColor: 'lightblue',
   },
   btnContainer: {
     height: 200,

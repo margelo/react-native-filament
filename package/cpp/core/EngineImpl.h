@@ -74,7 +74,9 @@ public:
   std::shared_ptr<RenderableManagerWrapper> createRenderableManager();
   std::shared_ptr<TransformManagerWrapper> createTransformManager();
   std::shared_ptr<MaterialWrapper> createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer);
-  void setSkyboxColorRGBA(std::string hexColor);
+  void createAndSetSkybox(std::string hexColor, std::optional<bool> showSun, std::optional<float> envIntensity);
+  void createAndSetSkybox(std::optional<std::shared_ptr<FilamentBuffer>> textureBuffer, std::optional<bool> showSun,
+                          std::optional<float> envIntensity);
 
 private:
   void setSurface(std::shared_ptr<Surface> surface);
