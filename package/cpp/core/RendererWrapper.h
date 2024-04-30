@@ -19,6 +19,13 @@ public:
 
 private: // Public JS API
   void setFrameRateOptions(std::unordered_map<std::string, double> options);
+
+  /**
+   * Whether the SwapChain should be cleared using the clearColor. Use this if translucent
+   * View will be drawn, for instance.
+   * @default true
+   */
+  void setClearContent(bool shouldClear);
 };
 
 } // namespace margelo

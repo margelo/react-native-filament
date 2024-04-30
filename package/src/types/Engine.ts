@@ -95,4 +95,45 @@ export interface Engine extends PointerHolder {
    * @worklet
    */
   createMaterial(matcBuffer: FilamentBuffer): Material
+
+  /**
+   * Skybox
+   *
+   * When added to a Scene, the Skybox fills all untouched pixels.
+   * By default the scene has no skybox and will be rendered as translucent.
+   * When using a skybox make sure to pass {@linkcode enableTransparentRendering} as false.
+   *
+   * @param showSun Indicates whether the sun should be rendered. The sun can only be
+   *                rendered if there is at least one light of type SUN in the scene.
+   *                Default: false
+   * @param envIntensity Skybox intensity when no IndirectLight is set on the Scene.
+   *                     This call is ignored when an IndirectLight is set on the Scene, and the intensity
+   *                     of the IndirectLight is used instead.
+   *                     Scale factor applied to the skybox texel values such that
+   *                     the result is in lux, or lumen/m^2 (default = 30000)
+   **/
+  createAndSetSkyboxByColor: (colorInHex: string, showSun: boolean | undefined, envIntensity: number | undefined) => void
+
+  /**
+   * Skybox
+   *
+   * When added to a Scene, the Skybox fills all untouched pixels.
+   * By default the scene has no skybox and will be rendered as translucent.
+   * When using a skybox make sure to pass {@linkcode enableTransparentRendering} as false.
+   *
+   * @param showSun Indicates whether the sun should be rendered. The sun can only be
+   *                rendered if there is at least one light of type SUN in the scene.
+   *                Default: false
+   * @param envIntensity Skybox intensity when no IndirectLight is set on the Scene.
+   *                     This call is ignored when an IndirectLight is set on the Scene, and the intensity
+   *                     of the IndirectLight is used instead.
+   *                     Scale factor applied to the skybox texel values such that
+   *                     the result is in lux, or lumen/m^2 (default = 30000)
+   **/
+  createAndSetSkyboxByTexture: (buffer: FilamentBuffer, showSun: boolean | undefined, envIntensity: number | undefined) => void
+
+  /**
+   * Removed the skybox from the scene.
+   */
+  clearSkybox: () => void
 }

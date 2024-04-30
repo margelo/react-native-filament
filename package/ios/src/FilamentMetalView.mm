@@ -19,7 +19,6 @@
   if (self = [super init]) {
     CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
     metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
-    metalLayer.opaque = NO;
     isMounted = false;
   }
   return self;
@@ -30,6 +29,7 @@
 
   if (self.window != nil && !isMounted) {
     isMounted = true;
+    self.metalLayer.opaque = self.enableTransparentRendering ? NO : YES;
     self.onViewReady(@{});
   }
 }
