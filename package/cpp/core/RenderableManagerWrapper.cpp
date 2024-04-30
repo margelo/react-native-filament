@@ -3,6 +3,7 @@
 //
 
 #include "RenderableManagerWrapper.h"
+#include "utils/Converter.h"
 
 namespace margelo {
 void RenderableManagerWrapper::loadHybridMethods() {
@@ -16,7 +17,7 @@ void RenderableManagerWrapper::loadHybridMethods() {
   registerHybridMethod("setReceiveShadow", &RenderableManagerWrapper::setReceiveShadow, this);
   registerHybridMethod("createPlane", &RenderableManagerWrapper::createPlane, this);
   registerHybridMethod("scaleBoundingBox", &RenderableManagerWrapper::scaleBoundingBox, this);
-  registerHybridMethod("createDebugCube", &RenderableManagerWrapper::createDebugCube, this);
+  registerHybridMethod("createDebugCubeWireframe", &RenderableManagerWrapper::createDebugCubeWireframe, this);
 }
 int RenderableManagerWrapper::getPrimitiveCount(std::shared_ptr<EntityWrapper> entity) {
   return pointee()->getPrimitiveCount(entity);
@@ -51,10 +52,17 @@ std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(std::shared
 void RenderableManagerWrapper::scaleBoundingBox(std::shared_ptr<FilamentAssetWrapper> assetWrapper, double scaleFactor) {
   pointee()->scaleBoundingBox(assetWrapper, scaleFactor);
 }
-std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createDebugCube(std::shared_ptr<FilamentBuffer> materialBuffer, double halfExtentX,
-                                                                         double halfExtentY, double halfExtentZ) {
-  return pointee()->createDebugCube(materialBuffer, static_cast<float>(halfExtentX), static_cast<float>(halfExtentY),
-                                    static_cast<float>(halfExtentZ));
+std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createDebugCubeWireframe(std::shared_ptr<FilamentBuffer> materialBuffer,
+                                                                                  double colorHexCode, std::vector<double> halfExtent) {
+
+  if (halfExtent.size() != 3) {
+    throw std::invalid_argument("halfExtent must have 3 elements");
+  }
+
+  float halfExtentX = static_cast<float>(halfExtent[0]);
+  float halfExtentY = static_cast<float>(halfExtent[1]);
+  float halfExtentZ = static_cast<float>(halfExtent[2]);
+  return pointee()->createDebugCubeWireframe(materialBuffer, colorHexCode, halfExtentX, halfExtentY, halfExtentZ);
 }
 
 } // namespace margelo

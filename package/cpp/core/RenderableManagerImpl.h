@@ -54,8 +54,8 @@ public: // Public API
 
   std::shared_ptr<EntityWrapper> createPlane(std::shared_ptr<MaterialWrapper> materialWrapper, double halfExtendX, double halfExtendY,
                                              double halfExtendZ);
-  std::shared_ptr<EntityWrapper> createDebugCube(std::shared_ptr<FilamentBuffer> materialBuffer, float halfExtentX, float halfExtentY,
-                                                 float halfExtentZ);
+  std::shared_ptr<EntityWrapper> createDebugCubeWireframe(std::shared_ptr<FilamentBuffer> materialBuffer, double hexColorCode,
+                                                          float halfExtentX, float halfExtentY, float halfExtentZ);
 
   /**
    * Takes an asset, gets the bounding box of all renderable entities and updates the bounding box to be multiplied by the given scale

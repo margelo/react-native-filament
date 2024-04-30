@@ -3,10 +3,12 @@ import { useSharedValue } from 'react-native-worklets-core'
 import { Button, Platform, SafeAreaView, StyleSheet, View } from 'react-native'
 import {
   DynamicResolutionOptions,
+  Entity,
   Filament,
   FilamentProvider,
   Float3,
   getAssetFromModel,
+  runOnWorklet,
   useAsset,
   useAssetAnimator,
   useFilamentContext,
@@ -26,8 +28,6 @@ const cameraUp: Float3 = [0, 1, 0]
 function Renderer() {
   const { camera, view, renderableManager, scene, transformManager } = useFilamentContext()
   useDefaultLight()
-  // const model = useModel({ path: getAssetPath('pengu.glb') })
-  // const asset = getAssetFromModel(model)
 
   const prevAspectRatio = useSharedValue(0)
   useRenderCallback(
@@ -49,22 +49,25 @@ function Renderer() {
 
   // TODO: check if we can replace material
   const material = useAsset({ path: getAssetPath('baked_color.filamat') })
-  useWorkletEffect(() => {
+  useEffect(() => {
     'worklet'
 
-    // if (asset != null) {
-    //   transformManager.setEntityPosition(asset.getRoot(), [0, 0, -30], false)
-    // }
-
     if (material == null) return
-    const entity = renderableManager.createDebugCube(material, 1, 1, 1)
-    scene.addEntity(entity)
-    console.log('added to scene!', entity)
 
-    // return () => {
-    //   scene.removeEntity(entity)
-    //   console.log('removed from scene!', entity)
-    // }
+    let entity: Entity | undefined
+    runOnWorklet(() => {
+      'worklet'
+      const debugEntity = renderableManager.createDebugCubeWireframe(material, 0xff0000ff, [1, 1, 1])
+      scene.addEntity(debugEntity)
+      return debugEntity
+    })().then((e) => {
+      entity = e
+    })
+
+    return () => {
+      if (entity == null) return
+      scene.removeEntity(entity)
+    }
   }, [material, renderableManager, scene, transformManager])
 
   return (

@@ -5,6 +5,7 @@ import { FilamentInstance } from './FilamentInstance'
 import { Material } from './Material'
 import { MaterialInstance } from './MaterialInstance'
 import { PointerHolder } from './PointerHolder'
+import { Float3 } from './float3'
 
 export type TextureFlags = 'none' | 'sRGB'
 
@@ -90,4 +91,6 @@ export interface RenderableManager extends PointerHolder {
    * The bounding box doesn't seem to be updated to reflect this transformation. And the shadow is calculated the bounding box, which causes the shadow to appear clipped.
    */
   scaleBoundingBox(asset: FilamentAsset, scale: number): void
+
+  createDebugCubeWireframe(materialBuffer: FilamentBuffer, color: number, halfExtent: Float3): Entity
 }
