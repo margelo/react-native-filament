@@ -7,6 +7,7 @@
 namespace margelo {
 void RendererWrapper::loadHybridMethods() {
   registerHybridMethod("setFrameRateOptions", &RendererWrapper::setFrameRateOptions, this);
+  registerHybridMethod("setClearContent", &RendererWrapper::setClearContent, this);
 }
 
 void RendererWrapper::setFrameRateOptions(std::unordered_map<std::string, double> options) {
@@ -24,6 +25,10 @@ void RendererWrapper::setFrameRateOptions(std::unordered_map<std::string, double
     frameRateOptions.headRoomRatio = static_cast<float>(options["headRoomRatio"]);
   }
   pointee()->setFrameRateOptions(frameRateOptions);
+}
+
+void RendererWrapper::setClearContent(bool shouldClear) {
+  pointee()->setClearOptions({.clear = shouldClear});
 }
 
 } // namespace margelo
