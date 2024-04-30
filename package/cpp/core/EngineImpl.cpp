@@ -406,6 +406,9 @@ std::shared_ptr<FilamentAssetWrapper> EngineImpl::makeAssetWrapper(FilamentAsset
   //    const size_t resourceUriCount = asset->getResourceUriCount();
   _resourceLoader->loadResources(asset.get());
 
+  //  Entity wfEntity = asset->getWireframe();
+  //  scene->addEntity(wfEntity);
+
   return std::make_shared<FilamentAssetWrapper>(asset);
 }
 

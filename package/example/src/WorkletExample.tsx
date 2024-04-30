@@ -17,14 +17,15 @@ import { useDefaultLight } from './hooks/useDefaultLight'
 import { Config } from './config'
 import { getAssetPath } from './utils/getAssetPasth'
 
-const cameraPosition: Float3 = [0, 3, 13]
+const cameraPosition: Float3 = [0, 2, 7]
 const cameraTarget: Float3 = [0, 0, 0]
 const cameraUp: Float3 = [0, 1, 0]
 
 function Renderer() {
-  const { camera, view, renderableManager, scene } = useFilamentContext()
+  const { camera, view, renderableManager, scene, transformManager } = useFilamentContext()
   useDefaultLight()
-  useModel({ path: getAssetPath('pengu.glb') })
+  // const model = useModel({ path: getAssetPath('pengu.glb') })
+  // const asset = getAssetFromModel(model)
 
   const prevAspectRatio = useSharedValue(0)
   useRenderCallback(
@@ -47,18 +48,24 @@ function Renderer() {
   // TODO: check if we can replace material
   const material = useAsset({ path: getAssetPath('baked_color.filamat') })
   useEffect(() => {
+    // if (asset != null) {
+    //   transformManager.setEntityPosition(asset.getRoot(), [0, 0, -30], false)
+    // }
+
     if (material == null) return
     const entity = renderableManager.createDebugCube(material, 1, 1, 1)
     scene.addEntity(entity)
+    console.log('added to scene!', entity)
 
     return () => {
       scene.removeEntity(entity)
+      console.log('removed from scene!', entity)
     }
-  }, [material, renderableManager, scene])
+  }, [material, renderableManager, scene, transformManager])
 
   return (
     <SafeAreaView style={styles.container}>
-      <Filament style={styles.filamentView} />
+      <Filament style={styles.filamentView} enableTransparentRendering={false} />
     </SafeAreaView>
   )
 }
@@ -76,7 +83,7 @@ export function WorkletExample() {
   return (
     <View style={styles.container}>
       {showView ? (
-        <FilamentProvider dynamicResolutionOptions={dynamicResolutionOptions}>
+        <FilamentProvider>
           <Renderer />
         </FilamentProvider>
       ) : (
@@ -100,6 +107,6 @@ const styles = StyleSheet.create({
   },
   filamentView: {
     flex: 1,
-    backgroundColor: 'lightblue',
+    // backgroundColor: 'black',
   },
 })
