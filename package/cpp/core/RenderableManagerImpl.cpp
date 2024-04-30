@@ -243,14 +243,14 @@ std::shared_ptr<EntityWrapper> RenderableManagerImpl::createDebugCube(std::share
                                                                       float halfExtentY, float halfExtentZ) {
 
   struct Vertex {
-    filament::math::float2 position;
+    float3 position;
     uint32_t color;
   };
 
   static const Vertex TRIANGLE_VERTICES[3] = {
-      {{1, 0}, 0xffff0000u},
-      {{cos(M_PI * 2 / 3), sin(M_PI * 2 / 3)}, 0xff00ff00u},
-      {{cos(M_PI * 4 / 3), sin(M_PI * 4 / 3)}, 0xff0000ffu},
+      {{1, 0, 0}, 0xffff0000u},
+      {{cos(M_PI * 2 / 3), sin(M_PI * 2 / 3), 0}, 0xff00ff00u},
+      {{cos(M_PI * 4 / 3), sin(M_PI * 4 / 3), 0}, 0xff0000ffu},
   };
 
   static constexpr uint16_t TRIANGLE_INDICES[6] = {0, 1, 1, 2, 2, 0};
@@ -258,8 +258,8 @@ std::shared_ptr<EntityWrapper> RenderableManagerImpl::createDebugCube(std::share
   auto vertexBuffer = VertexBuffer::Builder()
                           .vertexCount(3)
                           .bufferCount(1)
-                          .attribute(VertexAttribute::POSITION, 0, VertexBuffer::AttributeType::FLOAT2, 0, 12)
-                          .attribute(VertexAttribute::COLOR, 0, VertexBuffer::AttributeType::UBYTE4, 8, 12)
+                          .attribute(VertexAttribute::POSITION, 0, VertexBuffer::AttributeType::FLOAT3, 0, sizeof(Vertex))
+                          .attribute(VertexAttribute::COLOR, 0, VertexBuffer::AttributeType::UBYTE4, sizeof(float3), sizeof(Vertex))
                           .normalized(VertexAttribute::COLOR)
                           .build(*_engine);
   vertexBuffer->setBufferAt(*_engine, 0,
