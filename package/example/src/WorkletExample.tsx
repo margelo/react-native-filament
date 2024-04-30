@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useSharedValue } from 'react-native-worklets-core'
 import { Button, Platform, SafeAreaView, StyleSheet, View } from 'react-native'
 import {
@@ -7,6 +7,7 @@ import {
   FilamentProvider,
   Float3,
   getAssetFromModel,
+  useAsset,
   useAssetAnimator,
   useFilamentContext,
   useModel,
@@ -16,92 +17,48 @@ import { useDefaultLight } from './hooks/useDefaultLight'
 import { Config } from './config'
 import { getAssetPath } from './utils/getAssetPasth'
 
-const penguModelPath = Platform.select({
-  android: 'custom/pengu.glb',
-  ios: 'pengu.glb',
-})!
-
-function Model() {
-  useModel({
-    path: getAssetPath('coffeeshop.glb'),
-    addToScene: true,
-  })
-  useModel({
-    path: getAssetPath('coffeeshop_table_level03.glb'),
-    addToScene: true,
-  })
-  useModel({
-    path: getAssetPath('coffeeshop_seating_level03.glb'),
-    addToScene: true,
-  })
-  useModel({
-    path: getAssetPath('coffeeshop_plant_level03.glb'),
-    addToScene: true,
-  })
-  useModel({
-    path: getAssetPath('coffeeshop_machine_level03.glb'),
-    addToScene: true,
-  })
-
-  return null
-}
-
 const cameraPosition: Float3 = [0, 3, 13]
 const cameraTarget: Float3 = [0, 0, 0]
 const cameraUp: Float3 = [0, 1, 0]
 
 function Renderer() {
-  const { camera, view } = useFilamentContext()
+  const { camera, view, renderableManager, scene } = useFilamentContext()
   useDefaultLight()
-  const asset = useModel({
-    path: penguModelPath,
-    addToScene: true,
-  })
+  useModel({ path: getAssetPath('pengu.glb') })
 
   const prevAspectRatio = useSharedValue(0)
-  const assetAnimator = useAssetAnimator(getAssetFromModel(asset))
   useRenderCallback(
-    useCallback(
-      ({ passedSeconds }) => {
-        'worklet'
+    useCallback(() => {
+      'worklet'
 
-        const aspectRatio = view.getAspectRatio()
-        if (prevAspectRatio.value !== aspectRatio) {
-          prevAspectRatio.value = aspectRatio
-          // Setup camera lens:
-          const { focalLengthInMillimeters, near, far } = Config.camera
-          camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
-          console.log('Updated camera lens!')
-        }
+      const aspectRatio = view.getAspectRatio()
+      if (prevAspectRatio.value !== aspectRatio) {
+        prevAspectRatio.value = aspectRatio
+        // Setup camera lens:
+        const { focalLengthInMillimeters, near, far } = Config.camera
+        camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
+        console.log('Updated camera lens!')
+      }
 
-        camera.lookAt(cameraPosition, cameraTarget, cameraUp)
-
-        if (assetAnimator == null) {
-          return
-        }
-
-        assetAnimator.applyAnimation(0, passedSeconds)
-        assetAnimator.updateBoneMatrices()
-      },
-      [assetAnimator, camera, prevAspectRatio, view]
-    )
+      camera.lookAt(cameraPosition, cameraTarget, cameraUp)
+    }, [camera, prevAspectRatio, view])
   )
 
-  const [showItem, setShowItem] = React.useState(true)
+  // TODO: check if we can replace material
+  const material = useAsset({ path: getAssetPath('baked_color.filamat') })
+  useEffect(() => {
+    if (material == null) return
+    const entity = renderableManager.createDebugCube(material, 1, 1, 1)
+    scene.addEntity(entity)
+
+    return () => {
+      scene.removeEntity(entity)
+    }
+  }, [material, renderableManager, scene])
 
   return (
     <SafeAreaView style={styles.container}>
       <Filament style={styles.filamentView} />
-      {showItem && <Model />}
-      <Button
-        title="Toggle item"
-        onPress={() => {
-          // setShowItem((prev) => !prev)
-          setInterval(() => {
-            setShowItem((prev) => !prev)
-          }, 100)
-        }}
-      />
     </SafeAreaView>
   )
 }

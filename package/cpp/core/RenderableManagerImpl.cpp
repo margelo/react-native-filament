@@ -6,6 +6,8 @@
 #include "EngineWrapper.h"
 #include "TextureFlagsEnum.h"
 
+#include <cmath>
+
 #include <filament/IndexBuffer.h>
 #include <gltfio/TextureProvider.h>
 #include <math/norm.h>
@@ -235,6 +237,113 @@ void RenderableManagerImpl::scaleBoundingBox(std::shared_ptr<FilamentAssetWrappe
     Box box = Box().set(boundingBox.getMin() * scaleFactor, boundingBox.getMax() * scaleFactor);
     _renderableManager.setAxisAlignedBoundingBox(renderable, box);
   }
+}
+
+std::shared_ptr<EntityWrapper> RenderableManagerImpl::createDebugCube(std::shared_ptr<FilamentBuffer> materialBuffer, float halfExtentX,
+                                                                      float halfExtentY, float halfExtentZ) {
+
+  struct Vertex {
+    filament::math::float3 position;
+    uint32_t color;
+  };
+
+  const uint32_t color = 0xffff0000u;
+
+  //  static const Vertex TRIANGLE_VERTICES[3] = {
+  //      {{1, 0}, 0xffff0000u},
+  //      {{cos(M_PI * 2 / 3), sin(M_PI * 2 / 3)}, 0xff00ff00u},
+  //      {{cos(M_PI * 4 / 3), sin(M_PI * 4 / 3)}, 0xff0000ffu},
+  //  };
+  //
+  //  static constexpr uint16_t TRIANGLE_INDICES[3] = {0, 1, 2};
+  //
+  //  VertexBuffer* vertexBuffer = VertexBuffer::Builder()
+  //                                   .vertexCount(3)
+  //                                   .bufferCount(1)
+  //                                   .attribute(VertexAttribute::POSITION, 0, VertexBuffer::AttributeType::FLOAT2, 0, 12)
+  //                                   .attribute(VertexAttribute::COLOR, 0, VertexBuffer::AttributeType::UBYTE4, 8, 12)
+  //                                   .normalized(VertexAttribute::COLOR)
+  //                                   .build(*_engine);
+  //  vertexBuffer->setBufferAt(*_engine, 0, VertexBuffer::BufferDescriptor(TRIANGLE_VERTICES, 36, nullptr));
+  //  IndexBuffer* indexBuffer = IndexBuffer::Builder().indexCount(3).bufferType(IndexBuffer::IndexType::USHORT).build(*_engine);
+  //  indexBuffer->setBuffer(*_engine, IndexBuffer::BufferDescriptor(TRIANGLE_INDICES, 6, nullptr));
+
+  //
+  // Define the vertices based on half extents
+  Vertex vertices[] = {
+      // BOTTOM:
+      {{-halfExtentX, -halfExtentY, -halfExtentZ}, color},
+      {{halfExtentX, -halfExtentY, -halfExtentZ}, color},
+      {{halfExtentX, -halfExtentY, halfExtentZ}, color},
+      {{-halfExtentX, -halfExtentY, halfExtentZ}, color},
+      // TOP:
+      {{-halfExtentX, halfExtentY, -halfExtentZ}, color},
+      {{halfExtentX, halfExtentY, -halfExtentZ}, color},
+      {{halfExtentX, halfExtentY, halfExtentZ}, color},
+      {{-halfExtentX, halfExtentY, halfExtentZ}, color},
+  };
+
+  auto vertexSize = sizeof(Vertex);
+  auto sizeOfPosition = sizeof(filament::math::float3);
+  auto vertexCount = 8;
+
+  auto vertexBuffer = VertexBuffer::Builder()
+                          .vertexCount(vertexCount)
+                          .bufferCount(1)
+                          .attribute(VertexAttribute::POSITION, 0, VertexBuffer::AttributeType::FLOAT3, 0, vertexSize)
+                          .attribute(VertexAttribute::COLOR, 0, VertexBuffer::AttributeType::UBYTE4, sizeOfPosition, vertexSize)
+                          // We store colors as unsigned bytes but since we want values between 0 and 1
+                          // in the material (shaders), we must mark the attribute as normalized
+                          .normalized(VertexAttribute::COLOR)
+                          .build(*_engine);
+  vertexBuffer->setBufferAt(*_engine, 0, VertexBuffer::BufferDescriptor(vertices, vertexCount * vertexSize, nullptr));
+
+  // Indices for the box edges
+  static constexpr uint16_t indices[24] = {
+      // Bottom face edges:
+      0, 1, 1, 2, 2, 3, 3, 0,
+      // Top face edges:
+      4, 5, 5, 6, 6, 7, 7, 4,
+      // Vertical edges connecting top and bottom faces:
+      0, 4, 1, 5, 2, 6, 3, 7
+
+      //      // Bottom face edges:
+      //      0, 1, 1, 5, 5, 4, 4, 0,
+      //      // Top face edges:
+      //      3, 2, 2, 6, 6, 7, 7, 3,
+      //      // Vertical edges connecting top and bottom faces:
+      //      0, 3, 1, 2, 4, 7, 5, 6
+  };
+  IndexBuffer* indexBuffer = IndexBuffer::Builder().indexCount(24).bufferType(IndexBuffer::IndexType::USHORT).build(*_engine);
+  indexBuffer->setBuffer(*_engine, IndexBuffer::BufferDescriptor(indices, 24 * sizeof(uint16_t), nullptr));
+
+  // Create the material
+  auto buffer = materialBuffer->getBuffer();
+  if (buffer->getSize() == 0) {
+    throw std::runtime_error("Material buffer is empty");
+  }
+  Material::Builder builder = Material::Builder().package(buffer->getData(), buffer->getSize());
+  Material* material = builder.build(*_engine);
+  //
+  //  // Create an entity to hold the mesh and its transformations
+  auto entity = utils::EntityManager::get().create();
+  //  RenderableManager::Builder(1)
+  //      .boundingBox({.center = {-halfExtentX, -halfExtentY, -halfExtentZ}, .halfExtent = {halfExtentX, halfExtentY, halfExtentZ}})
+  //      .material(0, material->getDefaultInstance())
+  //      .geometry(0, RenderableManager::PrimitiveType::LINES, vertexBuffer, indexBuffer)
+  //      .build(*_engine, entity);
+  //
+
+  RenderableManager::Builder(1)
+      .boundingBox({{-halfExtentX, -halfExtentY, -halfExtentZ}, {halfExtentX, halfExtentY, halfExtentZ}})
+      .material(0, material->getDefaultInstance())
+      .geometry(0, RenderableManager::PrimitiveType::LINES, vertexBuffer, indexBuffer, 0, 24)
+      //      .culling(false)
+      //      .receiveShadows(false)
+      //      .castShadows(false)
+      .build(*_engine, entity);
+
+  return std::make_shared<EntityWrapper>(entity);
 }
 
 } // namespace margelo

@@ -31,6 +31,7 @@
 		CAE021851F0B458C8FEDBDB2 /* coffeeshop.glb in Resources */ = {isa = PBXBuildFile; fileRef = 0E1B8E3B9AD84C5B9C12AAF4 /* coffeeshop.glb */; };
 		EF29AEC075E640C192A497A0 /* coffeeshop_table_level03.glb in Resources */ = {isa = PBXBuildFile; fileRef = 41C4E371FA24472DA3029636 /* coffeeshop_table_level03.glb */; };
 		FFD6B311C32A4A2580B289D7 /* default_env_skybox.ktx in Resources */ = {isa = PBXBuildFile; fileRef = A947E59D16164B19982D8EC8 /* default_env_skybox.ktx */; };
+		46934575911A4001BD968302 /* baked_color.filamat in Resources */ = {isa = PBXBuildFile; fileRef = F68FC94B930D4A17B43374B4 /* baked_color.filamat */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -78,6 +79,7 @@
 		C4E5AB69D2B94D53A2EE3F93 /* chair.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = chair.glb; path = ../assets/chair.glb; sourceTree = "<group>"; };
 		E06B8A4FBFD44344BC0C2248 /* coffeeshop_machine_level03.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = coffeeshop_machine_level03.glb; path = ../assets/coffeeshop_machine_level03.glb; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F68FC94B930D4A17B43374B4 /* baked_color.filamat */ = {isa = PBXFileReference; name = "baked_color.filamat"; path = "../assets/baked_color.filamat"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -192,6 +194,7 @@
 				522DEB41EC874A35A439C833 /* coffeeshop_seating_level03.glb */,
 				41C4E371FA24472DA3029636 /* coffeeshop_table_level03.glb */,
 				121271ECACE144359ABFC45E /* TransparentShadowMaterial.matc */,
+				F68FC94B930D4A17B43374B4 /* baked_color.filamat */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -319,6 +322,7 @@
 				343E4A420AF7440ABE4350BB /* coffeeshop_seating_level03.glb in Resources */,
 				EF29AEC075E640C192A497A0 /* coffeeshop_table_level03.glb in Resources */,
 				A1195F5DAB4F4E858677036C /* TransparentShadowMaterial.matc in Resources */,
+				46934575911A4001BD968302 /* baked_color.filamat in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
