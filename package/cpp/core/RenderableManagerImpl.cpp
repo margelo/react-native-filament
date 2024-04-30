@@ -242,81 +242,131 @@ void RenderableManagerImpl::scaleBoundingBox(std::shared_ptr<FilamentAssetWrappe
 std::shared_ptr<EntityWrapper> RenderableManagerImpl::createDebugCube(std::shared_ptr<FilamentBuffer> materialBuffer, float halfExtentX,
                                                                       float halfExtentY, float halfExtentZ) {
 
-  float3 minpt = {-halfExtentX, -halfExtentY, -halfExtentZ};
-  float3 maxpt = {halfExtentX, halfExtentY, halfExtentZ};
-
-  // Vertices of the box based on the provided half-extends.
-  float3 verts[8] = {
-      // -X face:
-      {minpt.x, minpt.y, minpt.z},
-      {minpt.x, minpt.y, maxpt.z},
-      {minpt.x, maxpt.y, minpt.z},
-      {minpt.x, maxpt.y, maxpt.z},
-      // +X face:
-      {maxpt.x, minpt.y, minpt.z},
-      {maxpt.x, minpt.y, maxpt.z},
-      {maxpt.x, maxpt.y, minpt.z},
-      {maxpt.x, maxpt.y, maxpt.z},
+  // Cube data
+  //             1.0 y
+  //              ^  -1.0
+  //              | / z
+  //              |/       x
+  // -1.0 -----------------> +1.0
+  //            / |
+  //      +1.0 /  |
+  //           -1.0
+  //
+  //         [7]------[6]
+  //        / |      / |
+  //      [3]------[2] |
+  //       |  |     |  |
+  //       | [4]----|-[5]
+  //       |/       |/
+  //      [0]------[1]
+  //
+  float3 verts[] = {
+      // Front face
+      -0.5, -0.5, 0.5, // v0
+      0.5, -0.5, 0.5,  // v1
+      0.5, 0.5, 0.5,   // v2
+      -0.5, 0.5, 0.5,  // v3
+      // Back face
+      -0.5, -0.5, -0.5, // v4
+      0.5, -0.5, -0.5,  // v5
+      0.5, 0.5, -0.5,   // v6
+      -0.5, 0.5, -0.5,  // v7
+      // Top face
+      0.5, 0.5, 0.5,   // v2
+      -0.5, 0.5, 0.5,  // v3
+      -0.5, 0.5, -0.5, // v7
+      0.5, 0.5, -0.5,  // v6
+      // Bottom face
+      -0.5, -0.5, 0.5,  // v0
+      0.5, -0.5, 0.5,   // v1
+      0.5, -0.5, -0.5,  // v5
+      -0.5, -0.5, -0.5, // v4
+      // Right face
+      0.5, -0.5, 0.5,  // v1
+      0.5, 0.5, 0.5,   // v2
+      0.5, 0.5, -0.5,  // v6
+      0.5, -0.5, -0.5, // v5
+      // Left face
+      -0.5, -0.5, 0.5, // v0
+      -0.5, 0.5, 0.5,  // v3
+      -0.5, 0.5, -0.5, // v7
+      -0.5, -0.5, -0.5 // v4
   };
 
-  // Indices for the 12 edges of the box.
-  uint32_t inds[24] = {
-      // Generate 4 lines around face at -X:
-      0,
-      1,
-      1,
-      3,
-      3,
-      2,
-      2,
-      0,
-      // Generate 4 lines around face at +X:
-      4,
-      5,
-      5,
-      7,
-      7,
-      6,
-      6,
-      4,
-      // Generate 2 horizontal lines at -Z:
-      0,
-      4,
-      2,
-      6,
-      // Generate 2 horizontal lines at +Z:
-      1,
-      5,
-      3,
-      7,
+  u_int32_t cubeColor[] = {
+      0xff0000ffu, // Front face
+      0xff0000ffu, // Front face
+      0xff0000ffu, // Front face
+      0xff0000ffu, // Front face
+      0xff00ffffu, // Back face
+      0xff00ffffu, // Back face
+      0xff00ffffu, // Back face
+      0xff00ffffu, // Back face
+      0xff00ff00u, // Top face
+      0xff00ff00u, // Top face
+      0xff00ff00u, // Top face
+      0xff00ff00u, // Top face
+      0xff0f0fffu, // Bottom face
+      0xff0f0fffu, // Bottom face
+      0xff0f0fffu, // Bottom face
+      0xff0f0fffu, // Bottom face
+      0xffff00ffu, // Right face
+      0xffff00ffu, // Right face
+      0xffff00ffu, // Right face
+      0xffff00ffu, // Right face
+      0xffff0000u, // Left face
+      0xffff0000u, // Left face
+      0xffff0000u, // Left face
+      0xffff0000u  // Left face
+  };
 
+  u_int16_t indices[] = {
+      0,  1,  2,  0,  2,  3,  // Front face
+      4,  5,  6,  4,  6,  7,  // Back face
+      8,  9,  10, 8,  10, 11, // Top face
+      12, 13, 14, 12, 14, 15, // Bottom face
+      16, 17, 18, 16, 18, 19, // Right face
+      20, 21, 22, 20, 22, 23  // Left face
   };
 
   // Creating the vertex buffer.
   auto vertexBuffer = VertexBuffer::Builder()
-                          .bufferCount(1)
-                          .vertexCount(8)
+                          .bufferCount(2)
+                          .vertexCount(24)
                           .attribute(VertexAttribute::POSITION, 0, VertexBuffer::AttributeType::FLOAT3)
+                          .attribute(VertexAttribute::COLOR, 1, VertexBuffer::AttributeType::UBYTE4)
+                          .normalized(VertexAttribute::COLOR)
                           .build(*_engine);
 
   // Setting the vertex buffer data.
   vertexBuffer->setBufferAt(*_engine, 0, VertexBuffer::BufferDescriptor(verts, vertexBuffer->getVertexCount() * sizeof(float3), nullptr));
+  vertexBuffer->setBufferAt(*_engine, 1,
+                            VertexBuffer::BufferDescriptor(cubeColor, vertexBuffer->getVertexCount() * sizeof(u_int32_t), nullptr));
 
   // Creating the index buffer.
-  auto indexBuffer = IndexBuffer::Builder().indexCount(24).bufferType(IndexBuffer::IndexType::UINT).build(*_engine);
+  auto indexBuffer = IndexBuffer::Builder().indexCount(36).bufferType(IndexBuffer::IndexType::USHORT).build(*_engine);
 
   // Setting the index buffer data.
-  indexBuffer->setBuffer(*_engine, IndexBuffer::BufferDescriptor(inds, indexBuffer->getIndexCount() * sizeof(uint32_t), nullptr));
+  indexBuffer->setBuffer(*_engine, IndexBuffer::BufferDescriptor(indices, indexBuffer->getIndexCount() * sizeof(uint16_t), nullptr));
 
   // Creating a renderable entity.
-  Entity wireframeEntity = _engine->getEntityManager().create(); // EntityManager::get().create();
+  Entity wireframeEntity = EntityManager::get().create();
+
+  auto buffer = materialBuffer->getBuffer();
+  if (buffer->getSize() == 0) {
+    throw std::runtime_error("Material buffer is empty");
+  }
+  Material* material = Material::Builder().package(buffer->getData(), buffer->getSize()).build(*_engine);
+  MaterialInstance* materialInstance = material->createInstance();
 
   // Building the renderable.
   RenderableManager::Builder(1)
+      .boundingBox({.center = {-1, -1, -1}, .halfExtent = {1, 1, 1}})
       .culling(false)
       .castShadows(false)
       .receiveShadows(false)
-      .geometry(0, RenderableManager::PrimitiveType::LINES, vertexBuffer, indexBuffer)
+      .material(0, materialInstance)
+      .geometry(0, RenderableManager::PrimitiveType::TRIANGLES, vertexBuffer, indexBuffer)
       .build(*_engine, wireframeEntity);
 
   return std::make_shared<EntityWrapper>(wireframeEntity);

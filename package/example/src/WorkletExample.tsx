@@ -12,12 +12,14 @@ import {
   useFilamentContext,
   useModel,
   useRenderCallback,
+  useSkybox,
+  useWorkletEffect,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { Config } from './config'
 import { getAssetPath } from './utils/getAssetPasth'
 
-const cameraPosition: Float3 = [0, 2, 7]
+const cameraPosition: Float3 = [0, 0, 1]
 const cameraTarget: Float3 = [0, 0, 0]
 const cameraUp: Float3 = [0, 1, 0]
 
@@ -47,7 +49,9 @@ function Renderer() {
 
   // TODO: check if we can replace material
   const material = useAsset({ path: getAssetPath('baked_color.filamat') })
-  useEffect(() => {
+  useWorkletEffect(() => {
+    'worklet'
+
     // if (asset != null) {
     //   transformManager.setEntityPosition(asset.getRoot(), [0, 0, -30], false)
     // }
@@ -57,10 +61,10 @@ function Renderer() {
     scene.addEntity(entity)
     console.log('added to scene!', entity)
 
-    return () => {
-      scene.removeEntity(entity)
-      console.log('removed from scene!', entity)
-    }
+    // return () => {
+    //   scene.removeEntity(entity)
+    //   console.log('removed from scene!', entity)
+    // }
   }, [material, renderableManager, scene, transformManager])
 
   return (
