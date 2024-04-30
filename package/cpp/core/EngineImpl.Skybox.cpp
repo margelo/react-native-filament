@@ -32,4 +32,9 @@ void EngineImpl::createAndSetSkybox(std::optional<std::shared_ptr<FilamentBuffer
   throw new std::runtime_error("Not implemented yet");
 }
 
+void EngineImpl::clearSkybox() {
+  _scene->setSkybox(nullptr);
+  _skybox = nullptr;
+}
+
 } // namespace margelo

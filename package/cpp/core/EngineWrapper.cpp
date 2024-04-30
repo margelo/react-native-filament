@@ -47,6 +47,7 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("createRenderer", &EngineWrapper::createRenderer, this);
   registerHybridMethod("createAndSetSkyboxByColor", &EngineWrapper::createAndSetSkyboxByColor, this);
   registerHybridMethod("createAndSetSkyboxByTexture", &EngineWrapper::createAndSetSkyboxByTexture, this);
+  registerHybridMethod("clearSkybox", &EngineWrapper::clearSkybox, this);
 }
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
   pointee()->setSurfaceProvider(surfaceProvider);
@@ -101,6 +102,9 @@ void EngineWrapper::createAndSetSkyboxByColor(std::string hexColor, std::optiona
 void EngineWrapper::createAndSetSkyboxByTexture(std::shared_ptr<FilamentBuffer> textureBuffer, std::optional<bool> showSun,
                                                 std::optional<float> envIntensity) {
   pointee()->createAndSetSkybox(textureBuffer, showSun, envIntensity);
+}
+void EngineWrapper::clearSkybox() {
+  pointee()->clearSkybox();
 }
 
 } // namespace margelo

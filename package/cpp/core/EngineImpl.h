@@ -77,6 +77,7 @@ public:
   void createAndSetSkybox(std::string hexColor, std::optional<bool> showSun, std::optional<float> envIntensity);
   void createAndSetSkybox(std::optional<std::shared_ptr<FilamentBuffer>> textureBuffer, std::optional<bool> showSun,
                           std::optional<float> envIntensity);
+  void clearSkybox();
 
 private:
   void setSurface(std::shared_ptr<Surface> surface);

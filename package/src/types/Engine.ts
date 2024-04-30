@@ -131,4 +131,9 @@ export interface Engine extends PointerHolder {
    *                     the result is in lux, or lumen/m^2 (default = 30000)
    **/
   createAndSetSkyboxByTexture: (buffer: FilamentBuffer, showSun: boolean | undefined, envIntensity: number | undefined) => void
+
+  /**
+   * Removed the skybox from the scene.
+   */
+  clearSkybox: () => void
 }
