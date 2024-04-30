@@ -247,16 +247,56 @@ std::shared_ptr<EntityWrapper> RenderableManagerImpl::createDebugCube(std::share
     uint32_t color;
   };
 
-  static const Vertex TRIANGLE_VERTICES[3] = {
-      {{1, 0, 0}, 0xffff0000u},
-      {{cos(M_PI * 2 / 3), sin(M_PI * 2 / 3), 0}, 0xff00ff00u},
-      {{cos(M_PI * 4 / 3), sin(M_PI * 4 / 3), 0}, 0xff0000ffu},
+  float3 minpt = {-halfExtentX, -halfExtentY, -halfExtentZ};
+  float3 maxpt = {halfExtentX, halfExtentY, halfExtentZ};
+
+  u_int32_t color = 0xff0000ff; // red
+  static const Vertex TRIANGLE_VERTICES[8] = {
+      // -X face:
+      {{minpt.x, minpt.y, minpt.z}, color},
+      {{minpt.x, minpt.y, maxpt.z}, color},
+      {{minpt.x, maxpt.y, minpt.z}, color},
+      {{minpt.x, maxpt.y, maxpt.z}, color},
+      // +X face:
+      {{maxpt.x, minpt.y, minpt.z}, color},
+      {{maxpt.x, minpt.y, maxpt.z}, color},
+      {{maxpt.x, maxpt.y, minpt.z}, color},
+      {{maxpt.x, maxpt.y, maxpt.z}, color},
   };
 
-  static constexpr uint16_t TRIANGLE_INDICES[6] = {0, 1, 1, 2, 2, 0};
+  static constexpr uint16_t TRIANGLE_INDICES[24] = {
+      // Generate 4 lines around face at -X:
+      0,
+      1,
+      1,
+      3,
+      3,
+      2,
+      2,
+      0,
+      // Generate 4 lines around face at +X:
+      4,
+      5,
+      5,
+      7,
+      7,
+      6,
+      6,
+      4,
+      // Generate 2 horizontal lines at -Z:
+      0,
+      4,
+      2,
+      6,
+      // Generate 2 horizontal lines at +Z:
+      1,
+      5,
+      3,
+      7,
+  };
 
   auto vertexBuffer = VertexBuffer::Builder()
-                          .vertexCount(3)
+                          .vertexCount(8)
                           .bufferCount(1)
                           .attribute(VertexAttribute::POSITION, 0, VertexBuffer::AttributeType::FLOAT3, 0, sizeof(Vertex))
                           .attribute(VertexAttribute::COLOR, 0, VertexBuffer::AttributeType::UBYTE4, sizeof(float3), sizeof(Vertex))
@@ -265,7 +305,7 @@ std::shared_ptr<EntityWrapper> RenderableManagerImpl::createDebugCube(std::share
   vertexBuffer->setBufferAt(*_engine, 0,
                             VertexBuffer::BufferDescriptor(TRIANGLE_VERTICES, vertexBuffer->getVertexCount() * sizeof(Vertex), nullptr));
 
-  auto indexBuffer = IndexBuffer::Builder().indexCount(6).bufferType(IndexBuffer::IndexType::USHORT).build(*_engine);
+  auto indexBuffer = IndexBuffer::Builder().indexCount(24).bufferType(IndexBuffer::IndexType::USHORT).build(*_engine);
   indexBuffer->setBuffer(*_engine,
                          IndexBuffer::BufferDescriptor(TRIANGLE_INDICES, indexBuffer->getIndexCount() * sizeof(uint16_t), nullptr));
 
