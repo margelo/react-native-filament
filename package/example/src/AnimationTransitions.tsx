@@ -128,7 +128,7 @@ function Renderer() {
 
   return (
     <View style={styles.container}>
-      <Filament style={styles.filamentView} />
+      <Filament style={styles.filamentView} enableTransparentRendering={false} />
       <ScrollView style={styles.btnContainer}>
         <Button
           title="Navigate to test screen"

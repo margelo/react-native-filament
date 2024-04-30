@@ -58,3 +58,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
     return <FilamentNativeView ref={this.ref} onViewReady={this.onViewReady} {...this.props} />
   }
 }
+
+Filament.defaultProps = {
+  enableTransparentRendering: true,
+}
