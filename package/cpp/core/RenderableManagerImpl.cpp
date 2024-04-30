@@ -253,7 +253,7 @@ std::shared_ptr<EntityWrapper> RenderableManagerImpl::createDebugCube(std::share
       {{cos(M_PI * 4 / 3), sin(M_PI * 4 / 3)}, 0xff0000ffu},
   };
 
-  static constexpr uint16_t TRIANGLE_INDICES[3] = {0, 1, 2};
+  static constexpr uint16_t TRIANGLE_INDICES[6] = {0, 1, 1, 2, 2, 0};
 
   auto vertexBuffer = VertexBuffer::Builder()
                           .vertexCount(3)
@@ -262,10 +262,12 @@ std::shared_ptr<EntityWrapper> RenderableManagerImpl::createDebugCube(std::share
                           .attribute(VertexAttribute::COLOR, 0, VertexBuffer::AttributeType::UBYTE4, 8, 12)
                           .normalized(VertexAttribute::COLOR)
                           .build(*_engine);
-  vertexBuffer->setBufferAt(*_engine, 0, VertexBuffer::BufferDescriptor(TRIANGLE_VERTICES, 36, nullptr));
+  vertexBuffer->setBufferAt(*_engine, 0,
+                            VertexBuffer::BufferDescriptor(TRIANGLE_VERTICES, vertexBuffer->getVertexCount() * sizeof(Vertex), nullptr));
 
-  auto indexBuffer = IndexBuffer::Builder().indexCount(3).bufferType(IndexBuffer::IndexType::USHORT).build(*_engine);
-  indexBuffer->setBuffer(*_engine, IndexBuffer::BufferDescriptor(TRIANGLE_INDICES, 6, nullptr));
+  auto indexBuffer = IndexBuffer::Builder().indexCount(6).bufferType(IndexBuffer::IndexType::USHORT).build(*_engine);
+  indexBuffer->setBuffer(*_engine,
+                         IndexBuffer::BufferDescriptor(TRIANGLE_INDICES, indexBuffer->getIndexCount() * sizeof(uint16_t), nullptr));
 
   // Creating a renderable entity.
   Entity wireframeEntity = EntityManager::get().create();
@@ -284,7 +286,7 @@ std::shared_ptr<EntityWrapper> RenderableManagerImpl::createDebugCube(std::share
       .castShadows(false)
       .receiveShadows(false)
       .material(0, materialInstance)
-      .geometry(0, RenderableManager::PrimitiveType::TRIANGLES, vertexBuffer, indexBuffer)
+      .geometry(0, RenderableManager::PrimitiveType::LINES, vertexBuffer, indexBuffer)
       .build(*_engine, wireframeEntity);
 
   return std::make_shared<EntityWrapper>(wireframeEntity);
