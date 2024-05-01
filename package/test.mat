@@ -1,0 +1,110 @@
+material {
+    name : Test,
+    requires : [ uv0, uv1, color ],
+    shadingModel : lit,
+    blending : opaque,
+    doubleSided : false,
+    flipUV : false,
+
+    specularAmbientOcclusion : bentNormals,
+    specularAntiAliasing : false,
+    clearCoatIorChange : true,
+    reflections : default,
+
+    parameters : [
+
+        { type : float3, name : specularFactor },
+        { type : float, name : glossinessFactor },
+
+        // Base Color
+        { type : int, name : baseColorIndex, default: 0 },
+        { type : float4, name : baseColorFactor },
+        { type : sampler2d, name : baseColorMap },
+        { type : mat3, name : baseColorUvMatrix, precision: high },
+
+        // Metallic-Roughness Map
+        { type : int, name : metallicRoughnessIndex, default: 0 },
+        { type : float, name : metallicFactor },
+        { type : float, name : roughnessFactor },
+        { type : sampler2d, name : metallicRoughnessMap },
+        { type : mat3, name : metallicRoughnessUvMatrix, precision: high },
+
+        // Normal Map
+        { type : int, name : normalIndex, default: 0 },
+        { type : float, name : normalScale, default: 0.5 },
+        { type : sampler2d, name : normalMap },
+        { type : mat3, name : normalUvMatrix, precision: high },
+
+        // Ambient Occlusion
+        { type : int, name : aoIndex },
+        { type : float, name : aoStrength },
+        { type : sampler2d, name : occlusionMap },
+        { type : mat3, name : occlusionUvMatrix, precision: high },
+
+        // Emissive Map
+        { type : int, name : emissiveIndex },
+        { type : float3, name : emissiveFactor },
+        { type : float, name : emissiveStrength },
+        { type : sampler2d, name : emissiveMap },
+        { type : mat3, name : emissiveUvMatrix, precision: high },
+
+        // Clear coat
+        { type : float, name : clearCoatFactor },
+        { type : float, name : clearCoatRoughnessFactor },
+        { type : int, name : clearCoatIndex },
+        { type : sampler2d, name : clearCoatMap },
+        { type : mat3, name : clearCoatUvMatrix, precision: high },
+        { type : int, name : clearCoatRoughnessIndex },
+        { type : sampler2d, name : clearCoatRoughnessMap },
+        { type : mat3, name : clearCoatRoughnessUvMatrix, precision: high },
+        { type : int, name : clearCoatNormalIndex },
+        { type : sampler2d, name : clearCoatNormalMap },
+        { type : mat3, name : clearCoatNormalUvMatrix, precision: high },
+        { type : float, name : clearCoatNormalScale },
+
+        // Reflectance
+        { type : float, name : reflectance },
+
+        { type : float, name : strength, default: 0.5 },
+        { type : float, name : distance, default: 1.0},
+        { type : float, name : sampleWidth, default: 0.01},
+        { type : bool, name : invert, default: false}
+    ],
+}
+
+fragment {
+    void material(inout MaterialInputs material) {
+        highp float2 uvs[2];
+        uvs[0] = getUV0();
+        uvs[1] = getUV1();
+
+        // Configure normals
+        if (materialParams.normalIndex > -1) {
+            highp float2 uv = uvs[materialParams.normalIndex];
+            material.normal = texture(materialParams_normalMap, uv).xyz * 2.0 - 1.0;
+            material.normal.y *= -1.0;
+        }
+
+        prepareMaterial(material);
+
+        // Set base color / texture
+        if (materialParams.baseColorIndex > -1) {
+            highp float2 uv = uvs[materialParams.baseColorIndex];
+            uv = (vec3(uv, 1.0) * materialParams.baseColorUvMatrix).xy;
+            material.baseColor = texture(materialParams_baseColorMap, uv);
+        }
+
+        material.roughness = 0.6;
+        
+        // Configure metallic value (all none white pixels should be metallic):
+        highp float2 uv = uvs[materialParams.metallicRoughnessIndex];
+        uv = (vec3(uv, 1.0) * materialParams.metallicRoughnessUvMatrix).xy;
+        vec4 mr = texture(materialParams_metallicRoughnessMap, uv);   
+
+        // Convert the mr rgb to a greyscale value:
+        float greyscale = 0.2126 * mr.r + 0.7152 * mr.g + 0.0722 * mr.b;
+        // A white pixel should be metallic: 0, a black pixel should be metallic: 1
+        // A whitepixel has a greyscale value of 1, thus we need to invert:
+        material.metallic = 1.0 - greyscale;
+    }
+}
