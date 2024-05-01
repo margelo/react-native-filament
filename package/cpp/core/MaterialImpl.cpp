@@ -1,6 +1,7 @@
 
 #include "MaterialImpl.h"
 #include <filament/Engine.h>
+#include <filament/TextureSampler.h>
 
 namespace margelo {
 
@@ -22,14 +23,24 @@ std::shared_ptr<MaterialInstanceWrapper> MaterialImpl::getDefaultInstance() {
   return instance;
 }
 
-void MaterialImpl::setDefaultParameter(std::string name, double value) {
+void MaterialImpl::setDefaultFloatParameter(std::string name, double value) {
   std::unique_lock lock(_mutex);
 
   if (!_material->hasParameter(name.c_str())) {
-    throw std::runtime_error("MaterialWrapper::setDefaultParameter: Material does not have parameter \"" + name + "\"!");
+    throw std::runtime_error("MaterialWrapper::setDefaultFloatParameter: Material does not have parameter \"" + name + "\"!");
   }
 
   _material->setDefaultParameter(name.c_str(), (float)value);
+}
+
+void MaterialImpl::setDefaultTextureParameter(std::string name, Texture* texture, TextureSampler sampler) {
+  std::unique_lock lock(_mutex);
+
+  if (!_material->hasParameter(name.c_str())) {
+    throw std::runtime_error("MaterialWrapper::setDefaultTextureParameter: Material does not have parameter \"" + name + "\"!");
+  }
+
+  _material->setDefaultParameter(name.c_str(), texture, sampler);
 }
 
 void MaterialImpl::setBaseColorSRGB(std::vector<double> rgba) {

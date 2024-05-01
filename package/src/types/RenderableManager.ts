@@ -2,11 +2,10 @@ import { FilamentBuffer } from '../native/FilamentBuffer'
 import { Entity } from './Entity'
 import { FilamentAsset } from './FilamentAsset'
 import { FilamentInstance } from './FilamentInstance'
-import { Material } from './Material'
-import { MaterialInstance } from './MaterialInstance'
+import type { Material } from './Material'
+import type { MaterialInstance } from './MaterialInstance'
 import { PointerHolder } from './PointerHolder'
-
-export type TextureFlags = 'none' | 'sRGB'
+import { TextureFlags } from './TextureFlags'
 
 /**
  * Factory and manager for \em renderables, which are entities that can be drawn.
