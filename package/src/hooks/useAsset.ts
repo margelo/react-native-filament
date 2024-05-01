@@ -22,10 +22,14 @@ export function useAsset({ path, releaseOnUnmount = true }: AssetProps): Asset |
   const [buffer, setBuffer] = useState<Asset | undefined>(undefined)
   useEffect(() => {
     let localBuffer: Asset | undefined
-    FilamentProxy.loadAsset(path).then((asset) => {
-      localBuffer = asset
-      setBuffer(asset)
-    })
+    FilamentProxy.loadAsset(path)
+      .then((asset) => {
+        localBuffer = asset
+        setBuffer(asset)
+      })
+      .catch((error) => {
+        console.error(`Failed to load asset: ${path}`, error)
+      })
     return withCleanupScope(() => {
       if (releaseOnUnmount) {
         localBuffer?.release()
