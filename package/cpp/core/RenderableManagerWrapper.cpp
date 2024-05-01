@@ -52,8 +52,8 @@ std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(std::shared
 void RenderableManagerWrapper::scaleBoundingBox(std::shared_ptr<FilamentAssetWrapper> assetWrapper, double scaleFactor) {
   pointee()->scaleBoundingBox(assetWrapper, scaleFactor);
 }
-std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createDebugCubeWireframe(std::shared_ptr<FilamentBuffer> materialBuffer,
-                                                                                  double colorHexCode, std::vector<double> halfExtent) {
+std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createDebugCubeWireframe(
+    std::vector<double> halfExtent, std::optional<std::shared_ptr<MaterialWrapper>> materialWrapper, std::optional<double> colorHexCode) {
 
   if (halfExtent.size() != 3) {
     throw std::invalid_argument("halfExtent must have 3 elements");
@@ -62,7 +62,7 @@ std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createDebugCubeWirefram
   float halfExtentX = static_cast<float>(halfExtent[0]);
   float halfExtentY = static_cast<float>(halfExtent[1]);
   float halfExtentZ = static_cast<float>(halfExtent[2]);
-  return pointee()->createDebugCubeWireframe(materialBuffer, colorHexCode, halfExtentX, halfExtentY, halfExtentZ);
+  return pointee()->createDebugCubeWireframe(halfExtentX, halfExtentY, halfExtentZ, materialWrapper, colorHexCode);
 }
 
 } // namespace margelo

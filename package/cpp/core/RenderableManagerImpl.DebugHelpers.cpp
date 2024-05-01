@@ -13,10 +13,16 @@ namespace margelo {
 using namespace filament;
 using namespace math;
 
-std::shared_ptr<EntityWrapper> RenderableManagerImpl::createDebugCubeWireframe(std::shared_ptr<FilamentBuffer> materialBuffer,
-                                                                               double hexColorCode, float halfExtentX, float halfExtentY,
-                                                                               float halfExtentZ) {
-  u_int32_t color = static_cast<u_int32_t>(hexColorCode);
+std::shared_ptr<EntityWrapper>
+RenderableManagerImpl::createDebugCubeWireframe(float halfExtentX, float halfExtentY, float halfExtentZ,
+                                                std::optional<std::shared_ptr<MaterialWrapper>> materialWrapper,
+                                                std::optional<double> colorHexCode) {
+  // White: 0xFFFFFFFF
+  // Note: When no material is provided the rendering backend will always draw a white line, we can't change that
+  u_int32_t color = 0xFFFFFFFF;
+  if (colorHexCode.has_value()) {
+    color = static_cast<u_int32_t>(colorHexCode.value());
+  }
 
   struct Vertex {
     float3 position;
@@ -87,22 +93,24 @@ std::shared_ptr<EntityWrapper> RenderableManagerImpl::createDebugCubeWireframe(s
   // Creating a renderable entity.
   Entity wireframeEntity = EntityManager::get().create();
 
-  auto buffer = materialBuffer->getBuffer();
-  if (buffer->getSize() == 0) {
-    throw std::runtime_error("Material buffer is empty");
-  }
-  Material* material = Material::Builder().package(buffer->getData(), buffer->getSize()).build(*_engine);
-  MaterialInstance* materialInstance = material->createInstance();
-
   // Building the renderable.
-  RenderableManager::Builder(1)
-      .boundingBox({.center = {-1, -1, -1}, .halfExtent = {1, 1, 1}})
+  RenderableManager::Builder builder = RenderableManager::Builder(1);
+  builder.boundingBox({.center = {-1, -1, -1}, .halfExtent = {1, 1, 1}})
       .culling(false)
       .castShadows(false)
       .receiveShadows(false)
-      .material(0, materialInstance)
-      .geometry(0, RenderableManager::PrimitiveType::LINES, vertexBuffer, indexBuffer)
-      .build(*_engine, wireframeEntity);
+      .geometry(0, RenderableManager::PrimitiveType::LINES, vertexBuffer, indexBuffer);
+
+  if (materialWrapper.has_value()) {
+    auto materialInstanceWrapper = materialWrapper.value()->getDefaultInstance();
+    MaterialInstance* instance = materialInstanceWrapper->getMaterialInstance();
+    builder.material(0, instance);
+  }
+
+  RenderableManager::Builder::Result result = builder.build(*_engine, wireframeEntity);
+  if (result != RenderableManager::Builder::Result::Success) {
+    throw std::runtime_error("Failed to build wireframe renderable");
+  }
 
   return std::make_shared<EntityWrapper>(wireframeEntity);
 }

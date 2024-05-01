@@ -26,7 +26,7 @@ const cameraTarget: Float3 = [0, 0, 0]
 const cameraUp: Float3 = [0, 1, 0]
 
 function Renderer() {
-  const { camera, view, renderableManager, scene, transformManager } = useFilamentContext()
+  const { engine, camera, view, renderableManager, scene, transformManager } = useFilamentContext()
   useDefaultLight()
 
   const prevAspectRatio = useSharedValue(0)
@@ -48,16 +48,17 @@ function Renderer() {
   )
 
   // TODO: check if we can replace material
-  const material = useAsset({ path: getAssetPath('baked_color.filamat') })
+  const materialBuffer = useAsset({ path: getAssetPath('baked_color.filamat') })
   useEffect(() => {
     'worklet'
 
-    if (material == null) return
+    if (materialBuffer == null) return
 
     let entity: Entity | undefined
     runOnWorklet(() => {
       'worklet'
-      const debugEntity = renderableManager.createDebugCubeWireframe(material, 0xff0000ff, [1, 1, 1])
+
+      const debugEntity = renderableManager.createDebugCubeWireframe([1, 1, 1])
       scene.addEntity(debugEntity)
       return debugEntity
     })().then((e) => {
