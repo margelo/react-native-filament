@@ -510,7 +510,6 @@ std::shared_ptr<MaterialWrapper> EngineImpl::createMaterial(std::shared_ptr<Fila
           for (auto& materialInstanceWrapper : pMaterialImpl->getInstances()) {
             std::unique_lock lock(sharedThis->_mutex);
             MaterialInstance* materialInstance = materialInstanceWrapper->getMaterialInstance();
-            engine->setAutomaticInstancingEnabled(true);
             engine->destroy(materialInstance);
           }
 
