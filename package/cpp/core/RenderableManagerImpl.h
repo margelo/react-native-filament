@@ -42,6 +42,8 @@ public: // Public API
 
   void setInstanceEntitiesOpacity(FilamentInstance* instance, double opacity);
 
+  Texture* createTextureFromBuffer(std::shared_ptr<FilamentBuffer> buffer, const std::string& textureFlags);
+
   /**
    * Will select the first material instance from the entity. Will set the baseColorMap parameter to the given textureBuffer.
    */

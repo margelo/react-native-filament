@@ -50,5 +50,8 @@ std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(std::shared
 void RenderableManagerWrapper::scaleBoundingBox(std::shared_ptr<FilamentAssetWrapper> assetWrapper, double scaleFactor) {
   pointee()->scaleBoundingBox(assetWrapper, scaleFactor);
 }
+Texture* RenderableManagerWrapper::createTextureFromBuffer(std::shared_ptr<FilamentBuffer> buffer, const std::string& textureFlags) {
+  return pointee()->createTextureFromBuffer(buffer, textureFlags);
+}
 
 } // namespace margelo

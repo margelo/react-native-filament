@@ -4,10 +4,13 @@
 
 #pragma once
 
+#include "FilamentBuffer.h"
 #include "MaterialImpl.h"
 #include "jsi/PointerHolder.h"
 
 namespace margelo {
+
+class RenderableManagerWrapper;
 
 class MaterialWrapper : public PointerHolder<MaterialImpl> {
 public:
@@ -18,7 +21,9 @@ public:
 public: // Public JS API
   std::shared_ptr<MaterialInstanceWrapper> createInstance();
   std::shared_ptr<MaterialInstanceWrapper> getDefaultInstance();
-  void setDefaultParameter(std::string name, double value);
+  void setDefaultFloatParameter(std::string name, double value);
+  void setDefaultTextureParameter(std::shared_ptr<RenderableManagerWrapper> renderableManager, std::string name,
+                                  std::shared_ptr<FilamentBuffer> buffer, const std::string& textureFlags);
   void setBaseColorSRGB(std::vector<double> rgba);
   std::string getName();
 };

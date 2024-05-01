@@ -28,7 +28,8 @@ public:
 public:
   std::shared_ptr<MaterialInstanceWrapper> createInstance();
   std::shared_ptr<MaterialInstanceWrapper> getDefaultInstance();
-  void setDefaultParameter(std::string name, double value);
+  void setDefaultFloatParameter(std::string name, double value);
+  void setDefaultTextureParameter(std::string name, Texture* texture, TextureSampler sampler);
   void setBaseColorSRGB(std::vector<double> rgba);
   std::string getName();
 

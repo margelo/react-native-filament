@@ -77,6 +77,26 @@ void RenderableManagerImpl::setMaterialInstanceAt(std::shared_ptr<EntityWrapper>
   _renderableManager.setMaterialInstanceAt(renderable, index, materialInstance->getMaterialInstance());
 }
 
+Texture* RenderableManagerImpl::createTextureFromBuffer(std::shared_ptr<FilamentBuffer> buffer, const std::string& textureFlags) {
+  TextureProvider::TextureFlags textureFlagsEnum;
+  EnumMapper::convertJSUnionToEnum(textureFlags, &textureFlagsEnum);
+
+  // The mimeType isn't actually used in the stb provider, so we can leave it out!
+  const char* mimeType = nullptr;
+  auto bufferData = buffer->getBuffer();
+  Texture* texture = _textureProvider->pushTexture(bufferData->getData(), bufferData->getSize(), mimeType, textureFlagsEnum);
+
+  if (texture == nullptr) {
+    std::string error = _textureProvider->getPushMessage();
+    Logger::log(TAG, "Error loading texture: %s", error.c_str());
+    throw std::runtime_error("Error loading texture: " + error);
+  }
+
+  startUpdateResourceLoading();
+
+  return texture;
+}
+
 void RenderableManagerImpl::changeMaterialTextureMap(std::shared_ptr<EntityWrapper> entityWrapper, const std::string& materialName,
                                                      std::shared_ptr<FilamentBuffer> textureBuffer, const std::string& textureFlags) {
   // Input validation:
@@ -89,16 +109,6 @@ void RenderableManagerImpl::changeMaterialTextureMap(std::shared_ptr<EntityWrapp
 
   TextureProvider::TextureFlags textureFlagsEnum;
   EnumMapper::convertJSUnionToEnum(textureFlags, &textureFlagsEnum);
-
-  // The mimeType isn't actually used in the stb provider, so we can leave it out!
-  const char* mimeType = nullptr;
-  auto buffer = textureBuffer->getBuffer();
-  Texture* texture = _textureProvider->pushTexture(buffer->getData(), buffer->getSize(), mimeType, textureFlagsEnum);
-  if (texture == nullptr) {
-    std::string error = _textureProvider->getPushMessage();
-    Logger::log(TAG, "Error loading texture: %s", error.c_str());
-    throw std::runtime_error("Error loading texture: " + error);
-  }
 
   // Select the first material instance from the entity
   RenderableManager& _renderableManager = _engine->getRenderableManager();
@@ -131,7 +141,9 @@ void RenderableManagerImpl::changeMaterialTextureMap(std::shared_ptr<EntityWrapp
           engine->destroy(instance);
         });
       });
+
   auto sampler = TextureSampler(TextureSampler::MinFilter::LINEAR, TextureSampler::MagFilter::LINEAR, TextureSampler::WrapMode::REPEAT);
+  Texture* texture = createTextureFromBuffer(textureBuffer, textureFlags);
   newInstance->setParameter("baseColorMap", texture, sampler);
   _renderableManager.setMaterialInstanceAt(instance, primitiveIndex, newInstance.get());
   _materialInstances.push_back(newInstance);
