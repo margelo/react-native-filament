@@ -114,6 +114,7 @@ target_link_libraries(
 
 # Try to find react-native-worklets-core
 find_package(react-native-worklets-core REQUIRED CONFIG)
+file(GLOB RNWC_LIBRARIES "/Users/hannomargelo/Documents/Github/pengu-mobile/node_modules/react-native-worklets-core/android/build/intermediates/prefab_package/debug/prefab/modules/rnworklets/libs/android.arm64-v8a/librnworklets.so")
 
 if(react-native-worklets-core_FOUND)
     message("RN Filament: react-native-worklets core found! Enabling Worklets support...")
@@ -123,6 +124,7 @@ if(react-native-worklets-core_FOUND)
         ${PACKAGE_NAME}
         react-native-worklets-core::rnworklets # <-- react-native-worklets-core
     )
+    target_link_libraries(${PACKAGE_NAME} ${RNWC_LIBRARIES})
     add_definitions(-DHAS_WORKLETS=1)
 else()
     message("RN Filament: react-native-worklets core not found! Worklets support is disabled.")
