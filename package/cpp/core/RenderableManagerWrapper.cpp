@@ -65,4 +65,8 @@ std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createDebugCubeWirefram
   return pointee()->createDebugCubeWireframe(halfExtentX, halfExtentY, halfExtentZ, materialWrapper, colorHexCode);
 }
 
+Texture* RenderableManagerWrapper::createTextureFromBuffer(std::shared_ptr<FilamentBuffer> buffer, const std::string& textureFlags) {
+  return pointee()->createTextureFromBuffer(buffer, textureFlags);
+}
+
 } // namespace margelo

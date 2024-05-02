@@ -11,6 +11,7 @@ import { MultipleInstances } from './MultipleInstances'
 import { WorkletExample } from './WorkletExample'
 import { ScaleEffect } from './ScaleEffect'
 import { FadingLightExample } from './FadingLightExample'
+import { ChangeGoldenMaterials } from './ChangeGoldenMaterial'
 
 function NavigationItem(props: { name: string; route: string }) {
   const navigation = useNavigation()
@@ -78,7 +79,7 @@ function App() {
         />
         <Stack.Screen name="PhysicsCoin" component={PhysicsCoin} />
         <Stack.Screen name="FadeOut" component={FadeOut} />
-        <Stack.Screen name="ChangeMaterials" component={ChangeMaterials} />
+        <Stack.Screen name="ChangeMaterials" component={ChangeGoldenMaterials} />
         <Stack.Screen name="CastShadow" component={CastShadow} />
         <Stack.Screen name="MultipleInstances" component={MultipleInstances} />
         <Stack.Screen name="WorkletExample" component={WorkletExample} />

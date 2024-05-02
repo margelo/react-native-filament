@@ -16,6 +16,9 @@ public:
 
   void loadHybridMethods() override;
 
+public: // Public APIs to be used by other native classes, not exposed to JS
+  Texture* createTextureFromBuffer(std::shared_ptr<FilamentBuffer> buffer, const std::string& textureFlags);
+
 private: // Exposed JS API
   int getPrimitiveCount(std::shared_ptr<EntityWrapper> entity);
   std::shared_ptr<MaterialInstanceWrapper> getMaterialInstanceAt(std::shared_ptr<EntityWrapper> entity, int index);
