@@ -1,21 +1,16 @@
 import React, { useCallback, useEffect } from 'react'
 import { useSharedValue } from 'react-native-worklets-core'
-import { Button, Platform, SafeAreaView, StyleSheet, View } from 'react-native'
+import { Button, SafeAreaView, StyleSheet, View } from 'react-native'
 import {
   DynamicResolutionOptions,
   Entity,
   Filament,
   FilamentProvider,
   Float3,
-  getAssetFromModel,
   runOnWorklet,
   useAsset,
-  useAssetAnimator,
   useFilamentContext,
-  useModel,
   useRenderCallback,
-  useSkybox,
-  useWorkletEffect,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { Config } from './config'
@@ -58,7 +53,7 @@ function Renderer() {
     runOnWorklet(() => {
       'worklet'
 
-      const debugEntity = renderableManager.createDebugCubeWireframe([1, 1, 1])
+      const debugEntity = renderableManager.createDebugCubeWireframe([1, 1, 1], undefined, undefined)
       scene.addEntity(debugEntity)
       return debugEntity
     })().then((e) => {
@@ -69,7 +64,7 @@ function Renderer() {
       if (entity == null) return
       scene.removeEntity(entity)
     }
-  }, [material, renderableManager, scene, transformManager])
+  }, [materialBuffer, renderableManager, scene, transformManager])
 
   return (
     <SafeAreaView style={styles.container}>

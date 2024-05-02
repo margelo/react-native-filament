@@ -96,5 +96,5 @@ export interface RenderableManager extends PointerHolder {
    * Note: you don't have to supply a material. In that case the color will always be white.
    * You can't provide a different color than white if you don't provide a material.
    */
-  createDebugCubeWireframe(halfExtent: Float3, material?: Material, color?: number): Entity
+  createDebugCubeWireframe(halfExtent: Float3, material: Material | undefined, color: number | undefined): Entity
 }
