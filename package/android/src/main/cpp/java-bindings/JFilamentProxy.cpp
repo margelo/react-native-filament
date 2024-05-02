@@ -46,7 +46,7 @@ std::shared_ptr<Choreographer> JFilamentProxy::createChoreographer() {
 }
 
 
-std::shared_ptr<FilamentRecorder> createRecorder(int width, int height, int fps) {
+std::shared_ptr<FilamentRecorder> JFilamentProxy::createRecorder(int width, int height, int fps) {
   static const auto method = javaClassLocal()->getMethod<jni::alias_ref<JFilamentRecorder::javaobject>(int, int, int)>("createRecorder");
   jni::local_ref<JFilamentRecorder::javaobject> recorder = method(_javaPart, width, height, fps);
   jni::global_ref<JFilamentRecorder::javaobject> globalRef = jni::make_global(recorder);
