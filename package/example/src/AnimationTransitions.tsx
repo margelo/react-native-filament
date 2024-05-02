@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native'
 import * as React from 'react'
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Button, ScrollView, StyleSheet, View } from 'react-native'
 import {
   Filament,
@@ -32,7 +32,7 @@ const far = 1000
 const animationInterpolationTime = 5
 
 function Renderer() {
-  const { camera, view, scene } = useFilamentContext()
+  const { camera, view, scene, transformManager } = useFilamentContext()
   useDefaultLight()
   useSkybox({ color: '#88defb' })
 
@@ -49,6 +49,7 @@ function Renderer() {
 
   const isPirateHatAdded = useRef(true) // assets are added by default to the scene
   const penguAnimator = useAssetAnimator(penguAsset)
+  const rootEntity = useMemo(() => penguAsset?.getRoot(), [penguAsset])
 
   const prevAnimationIndex = useSharedValue<number | undefined>(undefined)
   const prevAnimationStarted = useSharedValue<number | undefined>(undefined)
@@ -126,6 +127,26 @@ function Renderer() {
     return names
   }, [penguAnimator])
 
+  const [position, setPosition] = React.useState({ x: 0, y: 0 })
+  const penguBoundingBox = penguAsset?.boundingBox
+  useEffect(() => {
+    if (rootEntity == null) return
+    if (penguBoundingBox == null) return
+
+    setTimeout(() => {
+      // Get the position of the root entity
+      const transform = transformManager.getTransform(rootEntity)
+      const translation = transform.translation
+      const newY = penguBoundingBox.halfExtent[1] + translation[1]
+      const penguTopVec3: Float3 = [translation[0], newY, translation[2]]
+
+      // Project the position to screen space
+      console.log(penguTopVec3)
+      const screenPosition = view.projectWorldToScreen(penguTopVec3)
+      setPosition({ x: screenPosition[0], y: screenPosition[1] })
+    }, 2_500)
+  }, [penguAsset, penguBoundingBox, rootEntity, transformManager, view])
+
   const navigation = useNavigation()
 
   return (
@@ -165,6 +186,18 @@ function Renderer() {
           />
         ))}
       </ScrollView>
+      {position.x !== 0 && position.y !== 0 && (
+        <View
+          style={{
+            position: 'absolute',
+            top: position.y - 30,
+            left: position.x - 15,
+            width: 30,
+            height: 30,
+            backgroundColor: 'red',
+          }}
+        />
+      )}
     </View>
   )
 }

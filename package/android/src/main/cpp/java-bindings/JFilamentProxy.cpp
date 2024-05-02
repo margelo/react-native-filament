@@ -79,6 +79,11 @@ float JFilamentProxy::getDisplayRefreshRate() {
   return method(_javaPart);
 }
 
+float JFilamentProxy::getDensityPixelRatio() {
+  static const auto method = javaClassLocal()->getMethod<jfloat()>("getDensityPixelRatio");
+  return method(_javaPart);
+}
+
 jsi::Runtime& JFilamentProxy::getRuntime() {
   if (_runtime == nullptr) {
     [[unlikely]];

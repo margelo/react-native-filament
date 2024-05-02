@@ -87,6 +87,11 @@ float AppleFilamentProxy::getDisplayRefreshRate() {
   return refreshRate;
 }
 
+float AppleFilamentProxy::getDensityPixelRatio() {
+  CGFloat scale = [UIScreen mainScreen].scale;
+  return scale;
+}
+
 jsi::Runtime& AppleFilamentProxy::getRuntime() {
   if (_runtime == nullptr) {
     [[unlikely]];

@@ -61,7 +61,7 @@ using RenderCallback = std::function<void(FrameInfo)>;
 class EngineImpl : public std::enable_shared_from_this<EngineImpl>, public RuntimeLifecycleListener {
 public:
   explicit EngineImpl(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<Dispatcher> rendererDispatcher,
-                      std::shared_ptr<Engine> engine, float displayRefreshRate);
+                      std::shared_ptr<Engine> engine, float displayRefreshRate, float densityPixelRatio);
   ~EngineImpl() override;
 
   void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering);
@@ -113,6 +113,8 @@ private:
   const math::float3 defaultObjectPosition = {0.0f, 0.0f, 0.0f};
   const math::float3 defaultCameraPosition = {0.0f, 0.0f, 0.0f};
 
+  float _densityPixelRatio;
+
 private:
   // Internals we create, but share the access with the user
   std::shared_ptr<Renderer> _renderer;
@@ -136,7 +138,7 @@ public:
     return std::make_shared<SceneWrapper>(_scene);
   }
   std::shared_ptr<ViewWrapper> getView() {
-    return std::make_shared<ViewWrapper>(_view);
+    return std::make_shared<ViewWrapper>(_view, _densityPixelRatio);
   }
   std::shared_ptr<CameraWrapper> getCamera() {
     return std::make_shared<CameraWrapper>(_camera);
