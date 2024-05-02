@@ -9,10 +9,34 @@
 
 namespace margelo {
 
-AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps) : FilamentRecorder(width, height, fps) {}
+AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps) : FilamentRecorder(width, height, fps) {
+  NSDictionary* pixelAttributes = @{(id)kCVPixelBufferIOSurfacePropertiesKey : @{}};
+  CVPixelBufferRef newPixelBuffer = NULL;
+  CVReturn result = CVPixelBufferCreate(kCFAllocatorDefault, width, height, kCVPixelFormatType_32BGRA,
+                                        (__bridge CFDictionaryRef)(pixelAttributes), &newPixelBuffer);
+  if (result != kCVReturnSuccess) {
+    throw std::runtime_error("Failed to create " + std::to_string(width) + "x" + std::to_string(height) +
+                             " CVPixelBuffer! Status: " + std::to_string(result));
+  }
+
+  NSString* tempDirectory = NSTemporaryDirectory();
+  NSString* filename = [NSString stringWithFormat:@"%@.mp4", [[NSUUID UUID] UUIDString]];
+  NSString* filePath = [tempDirectory stringByAppendingPathComponent:filename];
+  _path = [NSURL fileURLWithPath:filePath];
+  Logger::log(TAG, "Recording to " + std::string(filePath.UTF8String) + "...");
+
+  NSError* error;
+  _assetWriter = [AVAssetWriter assetWriterWithURL:_path fileType:AVFileTypeMPEG4 error:&error];
+  if (error != nil) {
+    std::string path = _path.absoluteString.UTF8String;
+    std::string domain = error.domain.UTF8String;
+    std::string code = std::to_string(error.code);
+    throw std::runtime_error("Failed to create AVAssetWriter at " + path + ", error: " + domain + " (Code: " + code + ")");
+  }
+}
 
 void* AppleFilamentRecorder::getNativeWindow() {
-  throw std::runtime_error("getNativeWindow() is not yet implemented!");
+  return static_cast<void*>(_pixelBuffer);
 }
 
 std::future<void> AppleFilamentRecorder::startRecording() {
