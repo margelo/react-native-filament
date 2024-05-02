@@ -78,6 +78,7 @@ private: // Exposed public JS API
   void createAndSetSkyboxByTexture(std::shared_ptr<FilamentBuffer> textureBuffer, std::optional<bool> showSun,
                                    std::optional<float> envIntensity);
   void clearSkybox();
+  void setAutomaticInstancingEnabled(bool enabled);
 
 private:
   static constexpr auto TAG = "EngineWrapper";

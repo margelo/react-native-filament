@@ -525,4 +525,9 @@ std::shared_ptr<LightManagerWrapper> EngineImpl::createLightManager() {
   return std::make_shared<LightManagerWrapper>(_engine);
 }
 
+void EngineImpl::setAutomaticInstancingEnabled(bool enabled) {
+  std::unique_lock lock(_mutex);
+  _engine->setAutomaticInstancingEnabled(enabled);
+}
+
 } // namespace margelo
