@@ -13,7 +13,14 @@ namespace margelo {
 
 class AppleFilamentRecorder : public FilamentRecorder {
 public:
-  explicit AppleFilamentRecorder();
+  explicit AppleFilamentRecorder(int width, int height, int fps);
+  
+  std::future<std::string> stopRecording() override;
+  std::future<void> startRecording() override;
+  bool getIsRecording() override { return _isRecording; }
+  
+private:
+  bool _isRecording;
 };
 
 } // namespace margelo

@@ -23,5 +23,23 @@ public class FilamentRecorder {
         mHybridData = initHybrid();
     }
 
+    /**
+     * @noinspection unused
+     */
+    @DoNotStrip
+    @Keep
+    void startRecording() {
+        throw new RuntimeError("startRecording() is not yet implemented!");
+    }
+
+    /**
+     * @noinspection unused
+     */
+    @DoNotStrip
+    @Keep
+    String stopRecording() {
+        throw new RuntimeError("stopRecording() is not yet implemented!");
+    }
+
     private native HybridData initHybrid();
 }
