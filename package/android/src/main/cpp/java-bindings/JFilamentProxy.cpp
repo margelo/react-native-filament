@@ -5,8 +5,8 @@
 #include "JFilamentProxy.h"
 #include "AndroidManagedBuffer.h"
 #include "JChoreographer.h"
-#include "JFilamentRecorder.h"
 #include "JDispatcher.h"
+#include "JFilamentRecorder.h"
 #include "JFilamentView.h"
 #include "JNISharedPtr.h"
 #include <fbjni/ByteBuffer.h>
@@ -44,7 +44,6 @@ std::shared_ptr<Choreographer> JFilamentProxy::createChoreographer() {
   std::shared_ptr<JChoreographer> sharedRef = JNISharedPtr::make_shared_from_jni<JChoreographer>(globalRef);
   return std::static_pointer_cast<Choreographer>(sharedRef);
 }
-
 
 std::shared_ptr<FilamentRecorder> JFilamentProxy::createRecorder(int width, int height, int fps) {
   static const auto method = javaClassLocal()->getMethod<jni::alias_ref<JFilamentRecorder::javaobject>(int, int, int)>("createRecorder");

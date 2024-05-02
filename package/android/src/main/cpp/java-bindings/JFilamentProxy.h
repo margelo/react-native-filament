@@ -6,8 +6,8 @@
 
 #include "Choreographer.h"
 #include "FilamentBuffer.h"
-#include "FilamentView.h"
 #include "FilamentRecorder.h"
+#include "FilamentView.h"
 #include "threading/Dispatcher.h"
 #include <ReactCommon/CallInvokerHolder.h>
 #include <fbjni/fbjni.h>

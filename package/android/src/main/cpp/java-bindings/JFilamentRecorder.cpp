@@ -6,10 +6,7 @@
 
 namespace margelo {
 
-JFilamentRecorder::JFilamentRecorder(const jni::alias_ref<jhybridobject>& javaThis)
-    : _javaPart(make_global(javaThis)) {
-
-}
+JFilamentRecorder::JFilamentRecorder(const jni::alias_ref<jhybridobject>& javaThis) : _javaPart(make_global(javaThis)) {}
 
 JFilamentRecorder::~JFilamentRecorder() {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Destroying JFilamentRecorder...");

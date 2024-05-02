@@ -4,9 +4,9 @@
 
 #pragma once
 
+#include <future>
 #include <jsi/jsi.h>
 #include <string>
-#include <future>
 
 #include "jsi/HybridObject.h"
 
@@ -16,12 +16,19 @@ using namespace facebook;
 
 class FilamentRecorder : public HybridObject {
 public:
-  explicit FilamentRecorder(int width, int height, int fps) : HybridObject("FilamentRecorder"), _width(width), _height(height), _fps(fps) {}
+  explicit FilamentRecorder(int width, int height, int fps);
+  ~FilamentRecorder();
 
 public:
-  int getWidth() { return _width; }
-  int getHeight() { return _height; }
-  int getFps() { return _fps; }
+  int getWidth() {
+    return _width;
+  }
+  int getHeight() {
+    return _height;
+  }
+  int getFps() {
+    return _fps;
+  }
 
   virtual bool getIsRecording() = 0;
 
