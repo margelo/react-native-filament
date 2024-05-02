@@ -2,15 +2,24 @@ import React from 'react'
 import { findNodeHandle, NativeMethods } from 'react-native'
 import { FilamentProxy } from './native/FilamentProxy'
 import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
-import { reportFatalError } from './ErrorUtils'
+import { reportFatalError, reportWorkletError } from './ErrorUtils'
 import { FilamentContext } from './FilamentContext'
+import { Choreographer, RenderCallback } from 'react-native-filament'
 
-export interface FilamentProps extends NativeProps {}
+export interface FilamentProps extends NativeProps {
+  renderCallback: RenderCallback
+}
 
 type RefType = React.Component<NativeProps> & Readonly<NativeMethods>
 
 export class Filament extends React.PureComponent<FilamentProps> {
   private readonly ref: React.RefObject<RefType>
+  private readonly choreographer: Choreographer
+
+  /**
+   * Uses the context in class.
+   * @note Not available in the constructor!
+   */
   static contextType = FilamentContext
   // @ts-ignore
   context!: React.ContextType<typeof FilamentContext>
@@ -18,9 +27,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
   constructor(props: FilamentProps) {
     super(props)
     this.ref = React.createRef<RefType>()
-    if (!props.enableTransparentRendering) {
-      this.updateTransparentRendering(false)
-    }
+    this.choreographer = FilamentProxy.createChoreographer()
   }
 
   // TODO: Does this also work for Fabric?
@@ -34,19 +41,60 @@ export class Filament extends React.PureComponent<FilamentProps> {
   }
 
   private updateTransparentRendering = (enable: boolean) => {
+    console.log('context?', this.context)
     this.context?.renderer.setClearContent(enable)
+  }
+
+  private updateRenderCallback = (callback: RenderCallback) => {
+    const { _workletContext } = this.getContext()
+
+    _workletContext.runAsync(() => {
+      'worklet'
+      this.choreographer.setFrameCallback((...args) => {
+        'worklet'
+
+        try {
+          callback(...args)
+        } catch (e) {
+          reportWorkletError(e)
+        }
+      })
+    })
+  }
+
+  private getContext = () => {
+    if (this.context == null) {
+      throw new Error('Filament component must be used within a FilamentProvider!')
+    }
+
+    return this.context
+  }
+
+  componentDidMount(): void {
+    // Set the render callback:
+    this.updateRenderCallback(this.props.renderCallback)
+
+    // Setup transparency mode:
+    if (!this.props.enableTransparentRendering) {
+      this.updateTransparentRendering(false)
+    }
   }
 
   componentDidUpdate(prevProps: Readonly<FilamentProps>): void {
     if (prevProps.enableTransparentRendering !== this.props.enableTransparentRendering) {
       this.updateTransparentRendering(this.props.enableTransparentRendering ?? true)
     }
+    if (prevProps.renderCallback !== this.props.renderCallback) {
+      this.updateRenderCallback(this.props.renderCallback)
+    }
+  }
+
+  componentWillUnmount(): void {
+    this.choreographer.release()
   }
 
   onViewReady = async () => {
-    if (this.context == null) {
-      throw new Error('Filament component must be used within a FilamentProvider!')
-    }
+    const context = this.getContext()
 
     try {
       const handle = this.handle
@@ -56,11 +104,13 @@ export class Filament extends React.PureComponent<FilamentProps> {
       }
       const surfaceProvider = view.getSurfaceProvider()
       // Link the surface with the engine:
-      const engine = this.context.engine
+      const engine = context.engine
       const enableTransparentRendering = this.props.enableTransparentRendering ?? true
-      this.context._workletContext.runAsync(() => {
+      const choreographer = this.choreographer
+      context._workletContext.runAsync(() => {
         'worklet'
         engine.setSurfaceProvider(surfaceProvider, enableTransparentRendering)
+        choreographer.start()
       })
     } catch (e) {
       reportFatalError(e)
