@@ -6,6 +6,7 @@ import type { BulletAPI } from '../bullet/types/api'
 import type { IWorkletContext } from 'react-native-worklets-core'
 import { EngineBackend, EngineConfig } from '../types'
 import { TFilamentRecorder } from './FilamentRecorder'
+import { Choreographer } from '../types/Choreographer'
 
 interface TestHybridObject {
   int: number
@@ -73,6 +74,8 @@ export interface TFilamentProxy {
    * ```
    */
   getWorkletContext: () => IWorkletContext
+
+  createChoreographer(): Choreographer
 }
 
 // Check if we are running on-device (JSI)
