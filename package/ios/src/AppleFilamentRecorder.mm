@@ -69,6 +69,8 @@ AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps, lon
     std::string settingsJson = outputSettings.description.UTF8String;
     throw std::runtime_error("Failed to add AVAssetWriterInput to AVAssetWriter! Settings used: " + settingsJson);
   }
+  // TODO: Set _assetWriterInput.expectsMediaDataInRealTime to YES or NO?
+  // TODO: Set _assetWriterInput.performsMultiPassEncodingIfSupported to YES or NO?
   _pixelBufferAdaptor = [AVAssetWriterInputPixelBufferAdaptor assetWriterInputPixelBufferAdaptorWithAssetWriterInput:_assetWriterInput
                                                                                          sourcePixelBufferAttributes:nil];
 
