@@ -105,15 +105,11 @@ std::shared_ptr<react::CallInvoker> AppleFilamentProxy::getCallInvoker() {
 }
 
 std::shared_ptr<FilamentView> AppleFilamentProxy::findFilamentView(int viewId) {
-  std::shared_ptr<AppleFilamentView> result;
-  RCTUnsafeExecuteOnMainQueueSync([viewId, &result]() {
-    RCTBridge* currentBridge = [RCTBridge currentBridge]; // <-- from <React/RCTBridge+Private.h>
-    RCTUIManager* uiManager = currentBridge.uiManager;    // <-- from <React/RCTUIManager.h>
-    UIView* anonymousView = [uiManager viewForReactTag:[NSNumber numberWithInt:viewId]];
-    FilamentMetalView* view = (FilamentMetalView*)anonymousView;
-    result.reset(new AppleFilamentView(view));
-  });
-  return std::static_pointer_cast<FilamentView>(result);
+  RCTBridge* currentBridge = [RCTBridge currentBridge]; // <-- from <React/RCTBridge+Private.h>
+  RCTUIManager* uiManager = currentBridge.uiManager;    // <-- from <React/RCTUIManager.h>
+  UIView* anonymousView = [uiManager viewForReactTag:[NSNumber numberWithInt:viewId]];
+  FilamentMetalView* view = (FilamentMetalView*)anonymousView;
+  return std::make_shared<AppleFilamentView>(view);
 }
 
 std::shared_ptr<Choreographer> AppleFilamentProxy::createChoreographer() {
