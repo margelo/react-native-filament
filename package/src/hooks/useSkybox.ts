@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
 import { useFilamentContext } from '../FilamentContext'
 import { FilamentBuffer } from '../native/FilamentBuffer'
+import { useWorkletEffect } from './useWorkletEffect'
 
 export type SkyboxBaseOptions = {
   showSun?: boolean
@@ -30,7 +30,9 @@ export function useSkybox(options?: SkyboxOptions | null) {
   const texture = hasOptions && 'texture' in options ? options.texture : undefined
   const color = hasOptions && 'color' in options ? options.color : undefined
 
-  useEffect(() => {
+  useWorkletEffect(() => {
+    'worklet'
+
     if (!hasOptions) {
       engine.clearSkybox()
       return

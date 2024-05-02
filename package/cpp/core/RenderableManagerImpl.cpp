@@ -6,6 +6,8 @@
 #include "EngineWrapper.h"
 #include "TextureFlagsEnum.h"
 
+#include <cmath>
+
 #include <filament/IndexBuffer.h>
 #include <gltfio/TextureProvider.h>
 #include <math/norm.h>

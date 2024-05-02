@@ -15,7 +15,7 @@ cd ..
 cd ..
 cd filament
 
-target="release"
+target="debug"
 
 # On iOS, we already use Filament from CocoaPods.
 echo "Building Filament for iOS ($target)..."
