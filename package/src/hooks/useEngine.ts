@@ -5,12 +5,6 @@ import { useWorklet } from 'react-native-worklets-core'
 
 export interface EngineProps {
   /**
-   * Whether the Engine render pipeline is paused or not.
-   * @default false
-   */
-  isPaused?: boolean
-
-  /**
    * The backend to be used. By default it picks "opengl" for android and "metal" for ios.
    */
   backend?: EngineBackend
@@ -22,7 +16,7 @@ export interface EngineProps {
   config?: EngineConfig
 }
 
-export function useEngine({ backend, config, isPaused = false }: EngineProps = {}): Engine | undefined {
+export function useEngine({ backend, config }: EngineProps = {}): Engine | undefined {
   const [engine, setEngine] = useState<Engine | undefined>(undefined)
   // Note: we can't use the FilamentContext here, as useEngine is used to create the context itself.
   const context = useMemo(() => FilamentProxy.getWorkletContext(), [])
@@ -43,11 +37,6 @@ export function useEngine({ backend, config, isPaused = false }: EngineProps = {
 
     createEngine().then(setEngine)
   }, [createEngine, engine])
-
-  useEffect(() => {
-    if (engine == null) return
-    engine.setIsPaused(isPaused)
-  }, [engine, isPaused])
 
   return engine
 }

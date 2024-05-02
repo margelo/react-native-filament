@@ -53,24 +53,19 @@ using namespace camutils;
 
 using ManipulatorBuilder = Manipulator<float>::Builder;
 
-using FrameInfo = std::unordered_map<std::string, double>;
-using RenderCallback = std::function<void(FrameInfo)>;
-
 // The EngineImpl is the actual implementation wrapper around filaments Engine.
 // If you add a new method that you want to expose to JS, you need to add it to the EngineWrapper as well.
-class EngineImpl : public std::enable_shared_from_this<EngineImpl>, public RuntimeLifecycleListener {
+class EngineImpl : public std::enable_shared_from_this<EngineImpl> {
 public:
-  explicit EngineImpl(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<Dispatcher> rendererDispatcher,
-                      std::shared_ptr<Engine> engine, float displayRefreshRate);
-  ~EngineImpl() override;
+  explicit EngineImpl(std::shared_ptr<Dispatcher> rendererDispatcher, std::shared_ptr<Engine> engine, float displayRefreshRate);
 
   void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering);
-  void setRenderCallback(std::optional<RenderCallback> callback);
+  __attribute__((hot)) void render(double timestamp);
+
   void setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer, std::optional<double> intensity, std::optional<int> irradianceBands);
   std::shared_ptr<FilamentAssetWrapper> loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
   std::shared_ptr<FilamentAssetWrapper> loadInstancedAsset(std::shared_ptr<FilamentBuffer> modelBuffer, int instanceCount);
   std::shared_ptr<LightManagerWrapper> createLightManager();
-  void setIsPaused(bool isPaused);
   std::shared_ptr<RenderableManagerWrapper> createRenderableManager();
   std::shared_ptr<TransformManagerWrapper> createTransformManager();
   std::shared_ptr<MaterialWrapper> createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer);
@@ -84,14 +79,11 @@ private:
   void setSurface(std::shared_ptr<Surface> surface, bool enableTransparentRendering);
   void destroySurface();
   void surfaceSizeChanged(int width, int height);
-  __attribute__((hot)) void renderFrame(double timestamp);
 
   void synchronizePendingFrames();
 
   // Internal helper method to turn an FilamentAsset ptr into a FilamentAssetWrapper
   std::shared_ptr<FilamentAssetWrapper> makeAssetWrapper(FilamentAsset* assetPtr);
-
-  void onRuntimeDestroyed(jsi::Runtime*) override;
 
 private:
   std::mutex _mutex;
@@ -99,12 +91,6 @@ private:
   std::shared_ptr<Dispatcher> _rendererDispatcher;
   std::shared_ptr<SurfaceProvider> _surfaceProvider;
   std::shared_ptr<Listener> _surfaceListener;
-  std::optional<RenderCallback> _renderCallback;
-  std::shared_ptr<Choreographer> _choreographer;
-  std::shared_ptr<Listener> _choreographerListener;
-  double _startTime = 0;
-  double _lastFrameTime = 0;
-  bool _isPaused = false;
   std::shared_ptr<gltfio::MaterialProvider> _materialProvider;
   std::shared_ptr<gltfio::AssetLoader> _assetLoader;
   std::shared_ptr<gltfio::ResourceLoader> _resourceLoader;

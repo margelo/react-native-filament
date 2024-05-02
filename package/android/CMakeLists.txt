@@ -30,6 +30,7 @@ add_library(
     ../cpp/Surface.cpp
     ../cpp/SurfaceProvider.cpp
     ../cpp/Choreographer.cpp
+    ../cpp/ChoreographerWrapper.cpp
     ../cpp/Listener.cpp
     ../cpp/jsi/HybridObject.cpp
     ../cpp/jsi/Promise.cpp

@@ -31,7 +31,7 @@ namespace margelo {
 
 void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider, this);
-  registerHybridMethod("setRenderCallback", &EngineWrapper::setRenderCallback, this);
+  registerHybridMethod("render", &EngineWrapper::render, this);
   registerHybridMethod("setIndirectLight", &EngineWrapper::setIndirectLight, this);
   registerHybridMethod("loadAsset", &EngineWrapper::loadAsset, this);
   registerHybridMethod("loadInstancedAsset", &EngineWrapper::loadInstancedAsset, this);
@@ -39,7 +39,6 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("getView", &EngineWrapper::getView, this);
   registerHybridMethod("getCamera", &EngineWrapper::getCamera, this);
   registerHybridMethod("getCameraManipulator", &EngineWrapper::getCameraManipulator, this);
-  registerHybridMethod("setIsPaused", &EngineWrapper::setIsPaused, this);
   registerHybridMethod("createTransformManager", &EngineWrapper::createTransformManager, this);
   registerHybridMethod("createRenderableManager", &EngineWrapper::createRenderableManager, this);
   registerHybridMethod("createMaterial", &EngineWrapper::createMaterial, this);
@@ -53,8 +52,8 @@ void EngineWrapper::loadHybridMethods() {
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering) {
   pointee()->setSurfaceProvider(surfaceProvider, enableTransparentRendering);
 }
-void EngineWrapper::setRenderCallback(std::optional<RenderCallback> callback) {
-  pointee()->setRenderCallback(callback);
+void EngineWrapper::render(double timestamp) {
+  pointee()->render(timestamp);
 }
 void EngineWrapper::setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer, std::optional<double> intensity,
                                      std::optional<int> irradianceBands) {
@@ -86,10 +85,6 @@ std::shared_ptr<LightManagerWrapper> EngineWrapper::createLightManager() {
 }
 std::shared_ptr<RendererWrapper> EngineWrapper::createRenderer() {
   return pointee()->getRenderer();
-}
-
-void EngineWrapper::setIsPaused(bool isPaused) {
-  pointee()->setIsPaused(isPaused);
 }
 std::shared_ptr<RenderableManagerWrapper> EngineWrapper::createRenderableManager() {
   return pointee()->createRenderableManager();
