@@ -95,6 +95,7 @@ export interface RenderableManager extends PointerHolder {
    * Creates the wireframe of a cube with the given half extent for debugging purposes.
    * Note: you don't have to supply a material. In that case the color will always be white.
    * You can't provide a different color than white if you don't provide a material.
+   * @param color Provide a color in the format 0xRRGGBBAA
    */
   createDebugCubeWireframe(halfExtent: Float3, material: Material | undefined, color: number | undefined): Entity
 }

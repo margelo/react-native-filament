@@ -7,10 +7,12 @@ import {
   Filament,
   FilamentProvider,
   Float3,
+  Material,
   runOnWorklet,
   useAsset,
   useFilamentContext,
   useRenderCallback,
+  withCleanupScope,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { Config } from './config'
@@ -50,21 +52,31 @@ function Renderer() {
     if (materialBuffer == null) return
 
     let entity: Entity | undefined
+    let localMaterial: Material | undefined
     runOnWorklet(() => {
       'worklet'
 
-      const debugEntity = renderableManager.createDebugCubeWireframe([1, 1, 1], undefined, undefined)
+      // create the material
+      const material = engine.createMaterial(materialBuffer)
+
+      const debugEntity = renderableManager.createDebugCubeWireframe([1, 1, 1], material, 0xff0000ff)
       scene.addEntity(debugEntity)
-      return debugEntity
-    })().then((e) => {
+      return [debugEntity, material] as const
+    })().then(([e, material]) => {
       entity = e
+      localMaterial = material
     })
 
     return () => {
       if (entity == null) return
       scene.removeEntity(entity)
+      withCleanupScope(() => {
+        if (localMaterial != null) {
+          localMaterial.release()
+        }
+      })()
     }
-  }, [materialBuffer, renderableManager, scene, transformManager])
+  }, [engine, materialBuffer, renderableManager, scene, transformManager])
 
   return (
     <SafeAreaView style={styles.container}>
