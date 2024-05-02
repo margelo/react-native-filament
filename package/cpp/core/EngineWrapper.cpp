@@ -50,8 +50,8 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("clearSkybox", &EngineWrapper::clearSkybox, this);
   registerHybridMethod("setAutomaticInstancingEnabled", &EngineWrapper::setAutomaticInstancingEnabled, this);
 }
-void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
-  pointee()->setSurfaceProvider(surfaceProvider);
+void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering) {
+  pointee()->setSurfaceProvider(surfaceProvider, enableTransparentRendering);
 }
 void EngineWrapper::setRenderCallback(std::optional<RenderCallback> callback) {
   pointee()->setRenderCallback(callback);

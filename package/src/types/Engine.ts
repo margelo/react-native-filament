@@ -32,7 +32,7 @@ export type FrameInfo = {
 export type RenderCallback = (frameInfo: FrameInfo) => void
 
 export interface Engine extends PointerHolder {
-  setSurfaceProvider(surfaceProvider: SurfaceProvider): void
+  setSurfaceProvider(surfaceProvider: SurfaceProvider, enableTransparentRendering: boolean): void
   setRenderCallback(callback: RenderCallback | undefined): void
 
   /**
