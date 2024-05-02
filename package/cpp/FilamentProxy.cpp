@@ -107,14 +107,6 @@ std::shared_ptr<EngineWrapper> FilamentProxy::createEngine(std::optional<std::st
     EnumMapper::convertJSUnionToEnum(backend.value(), &backendEnum);
   }
 
-  bool enableTransparentRendering = true;
-  if (arguments.has_value()) {
-    auto& params = arguments.value();
-    if (params.find("enableTransparentRendering") != params.end()) {
-      enableTransparentRendering = params["enableTransparentRendering"] != 0;
-    }
-  }
-
   // Create the actual filament engine:
   std::shared_ptr<Engine> engine =
       References<Engine>::adoptRef(Engine::Builder().backend(backendEnum).config(&config).build(), [renderThread](Engine* engine) {
