@@ -143,7 +143,7 @@ void EngineImpl::setSurface(std::shared_ptr<Surface> surface, bool enableTranspa
   Logger::log(TAG, "Initializing SwapChain...");
 
   // Setup swapchain
-  _swapChain = createSwapChain(surface);
+  _swapChain = createSwapChain(surface, enableTransparentRendering);
 
   // Setup camera manipulator
   _cameraManipulator = createCameraManipulator(surface->getWidth(), surface->getHeight());
