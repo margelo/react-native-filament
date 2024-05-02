@@ -34,7 +34,7 @@ public:
 
   virtual std::future<void> startRecording() = 0;
   virtual std::future<std::string> stopRecording() = 0;
-  
+
   /**
    Get the native window that can be used as a render target.
    - On iOS, this is a `CVPixelBuffer`
@@ -43,8 +43,10 @@ public:
    */
   virtual void* getNativeWindow() = 0;
 
-private:
+protected:
   static constexpr auto TAG = "FilamentRecorder";
+
+private:
   int _width;
   int _height;
   int _fps;
