@@ -3,6 +3,7 @@
 //
 
 #include "RenderableManagerWrapper.h"
+#include "utils/Converter.h"
 
 namespace margelo {
 void RenderableManagerWrapper::loadHybridMethods() {
@@ -16,6 +17,7 @@ void RenderableManagerWrapper::loadHybridMethods() {
   registerHybridMethod("setReceiveShadow", &RenderableManagerWrapper::setReceiveShadow, this);
   registerHybridMethod("createPlane", &RenderableManagerWrapper::createPlane, this);
   registerHybridMethod("scaleBoundingBox", &RenderableManagerWrapper::scaleBoundingBox, this);
+  registerHybridMethod("createDebugCubeWireframe", &RenderableManagerWrapper::createDebugCubeWireframe, this);
 }
 int RenderableManagerWrapper::getPrimitiveCount(std::shared_ptr<EntityWrapper> entity) {
   return pointee()->getPrimitiveCount(entity);
@@ -50,6 +52,19 @@ std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(std::shared
 void RenderableManagerWrapper::scaleBoundingBox(std::shared_ptr<FilamentAssetWrapper> assetWrapper, double scaleFactor) {
   pointee()->scaleBoundingBox(assetWrapper, scaleFactor);
 }
+std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createDebugCubeWireframe(
+    std::vector<double> halfExtent, std::optional<std::shared_ptr<MaterialWrapper>> materialWrapper, std::optional<double> colorHexCode) {
+
+  if (halfExtent.size() != 3) {
+    throw std::invalid_argument("halfExtent must have 3 elements");
+  }
+
+  float halfExtentX = static_cast<float>(halfExtent[0]);
+  float halfExtentY = static_cast<float>(halfExtent[1]);
+  float halfExtentZ = static_cast<float>(halfExtent[2]);
+  return pointee()->createDebugCubeWireframe(halfExtentX, halfExtentY, halfExtentZ, materialWrapper, colorHexCode);
+}
+
 Texture* RenderableManagerWrapper::createTextureFromBuffer(std::shared_ptr<FilamentBuffer> buffer, const std::string& textureFlags) {
   return pointee()->createTextureFromBuffer(buffer, textureFlags);
 }
