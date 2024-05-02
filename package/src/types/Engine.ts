@@ -15,6 +15,9 @@ import { PointerHolder } from './PointerHolder'
 export interface Engine extends PointerHolder {
   setSurfaceProvider(surfaceProvider: SurfaceProvider, enableTransparentRendering: boolean): void
 
+  // TODO: Document
+  render(timestamp: number): void
+
   /**
    * Given a {@linkcode FilamentBuffer} (e.g. from a .glb file), load the asset into the engine.
    */

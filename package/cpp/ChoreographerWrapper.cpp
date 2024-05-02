@@ -9,7 +9,7 @@ namespace margelo {
 void ChoreographerWrapper::loadHybridMethods() {
   registerHybridMethod("start", &ChoreographerWrapper::start, this);
   registerHybridMethod("stop", &ChoreographerWrapper::stop, this);
-  registerHybridMethod("setFrameListener", &ChoreographerWrapper::setFrameListener, this);
+  registerHybridMethod("setFrameCallback", &ChoreographerWrapper::setFrameCallback, this);
 }
 
 void ChoreographerWrapper::start() {
@@ -24,8 +24,14 @@ void ChoreographerWrapper::stop() {
   pointee()->stop();
 }
 
-void ChoreographerWrapper::setFrameListener(RenderCallback onFrameCallback) {
+void ChoreographerWrapper::setFrameCallback(RenderCallback onFrameCallback) {
   std::unique_lock lock(_mutex);
+    
+    _renderCallback = onFrameCallback;
+    
+    if (_listener) {
+        _listener->remove();
+    }
 
   std::weak_ptr<ChoreographerWrapper> weakThis = shared<ChoreographerWrapper>();
   _listener = pointee()->addOnFrameListener([onFrameCallback, weakThis](double timestamp) {
@@ -53,6 +59,12 @@ void ChoreographerWrapper::renderCallback(double timestamp) {
       {"startTime", _startTime},
       {"timeSinceLastFrame", timeSinceLastFrame},
   };
+    
+    if (_renderCallback == nullptr) {
+        [[unlikely]];
+        Logger::log(TAG, "⚠️ Calling Choreographer renderCallback without a valid renderCallback function!");
+        return;
+    }
 
   _renderCallback(frameInfo);
 }
