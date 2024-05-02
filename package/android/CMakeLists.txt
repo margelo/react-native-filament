@@ -26,6 +26,7 @@ add_library(
     # Shared C++
     ../cpp/FilamentView.cpp
     ../cpp/FilamentProxy.cpp
+    ../cpp/FilamentRecorder.cpp
     ../cpp/Surface.cpp
     ../cpp/SurfaceProvider.cpp
     ../cpp/Choreographer.cpp
@@ -81,6 +82,7 @@ add_library(
     src/main/cpp/JNISharedPtr.cpp
     src/main/cpp/FilamentInstaller.cpp
     src/main/cpp/java-bindings/JFilamentProxy.cpp
+    src/main/cpp/java-bindings/JFilamentRecorder.cpp
     src/main/cpp/java-bindings/JChoreographer.cpp
     src/main/cpp/java-bindings/JFilamentView.cpp
     src/main/cpp/java-bindings/JDispatcher.cpp

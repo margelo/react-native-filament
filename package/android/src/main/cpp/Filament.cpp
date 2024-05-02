@@ -2,6 +2,7 @@
 #include "JChoreographer.h"
 #include "JDispatcher.h"
 #include "JFilamentProxy.h"
+#include "JFilamentRecorder.h"
 #include "JFilamentView.h"
 #include "JSurfaceProvider.h"
 #include <fbjni/fbjni.h>
@@ -13,6 +14,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
     margelo::JFilamentProxy::registerNatives();
     margelo::JSurfaceProvider::registerNatives();
     margelo::JFilamentView::registerNatives();
+    margelo::JFilamentRecorder::registerNatives();
     margelo::JChoreographer::registerNatives();
     margelo::JDispatcher::registerNatives();
   });
