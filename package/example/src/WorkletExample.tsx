@@ -1,86 +1,107 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback } from 'react'
 import { useSharedValue } from 'react-native-worklets-core'
-import { Button, SafeAreaView, StyleSheet, View } from 'react-native'
+import { Button, Platform, SafeAreaView, StyleSheet, View } from 'react-native'
 import {
   DynamicResolutionOptions,
-  Entity,
   Filament,
   FilamentProvider,
   Float3,
-  Material,
-  runOnWorklet,
-  useAsset,
+  getAssetFromModel,
+  useAssetAnimator,
   useFilamentContext,
+  useModel,
   useRenderCallback,
-  withCleanupScope,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { Config } from './config'
 import { getAssetPath } from './utils/getAssetPasth'
 
-const cameraPosition: Float3 = [0, 2, 7]
+const penguModelPath = Platform.select({
+  android: 'custom/pengu.glb',
+  ios: 'pengu.glb',
+})!
+
+function Model() {
+  useModel({
+    path: getAssetPath('coffeeshop.glb'),
+    addToScene: true,
+  })
+  useModel({
+    path: getAssetPath('coffeeshop_table_level03.glb'),
+    addToScene: true,
+  })
+  useModel({
+    path: getAssetPath('coffeeshop_seating_level03.glb'),
+    addToScene: true,
+  })
+  useModel({
+    path: getAssetPath('coffeeshop_plant_level03.glb'),
+    addToScene: true,
+  })
+  useModel({
+    path: getAssetPath('coffeeshop_machine_level03.glb'),
+    addToScene: true,
+  })
+
+  return null
+}
+
+const cameraPosition: Float3 = [0, 3, 13]
 const cameraTarget: Float3 = [0, 0, 0]
 const cameraUp: Float3 = [0, 1, 0]
 
 function Renderer() {
-  const { engine, camera, view, renderableManager, scene, transformManager } = useFilamentContext()
+  const { camera, view } = useFilamentContext()
   useDefaultLight()
+  const asset = useModel({
+    path: penguModelPath,
+    addToScene: true,
+  })
 
   const prevAspectRatio = useSharedValue(0)
+  const assetAnimator = useAssetAnimator(getAssetFromModel(asset))
   useRenderCallback(
-    useCallback(() => {
-      'worklet'
+    useCallback(
+      ({ passedSeconds }) => {
+        'worklet'
 
-      const aspectRatio = view.getAspectRatio()
-      if (prevAspectRatio.value !== aspectRatio) {
-        prevAspectRatio.value = aspectRatio
-        // Setup camera lens:
-        const { focalLengthInMillimeters, near, far } = Config.camera
-        camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
-        console.log('Updated camera lens!')
-      }
+        const aspectRatio = view.getAspectRatio()
+        if (prevAspectRatio.value !== aspectRatio) {
+          prevAspectRatio.value = aspectRatio
+          // Setup camera lens:
+          const { focalLengthInMillimeters, near, far } = Config.camera
+          camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
+          console.log('Updated camera lens!')
+        }
 
-      camera.lookAt(cameraPosition, cameraTarget, cameraUp)
-    }, [camera, prevAspectRatio, view])
+        camera.lookAt(cameraPosition, cameraTarget, cameraUp)
+
+        if (assetAnimator == null) {
+          return
+        }
+
+        assetAnimator.applyAnimation(0, passedSeconds)
+        assetAnimator.updateBoneMatrices()
+      },
+      [assetAnimator, camera, prevAspectRatio, view]
+    )
   )
 
-  // TODO: check if we can replace material
-  const materialBuffer = useAsset({ path: getAssetPath('baked_color.filamat') })
-  useEffect(() => {
-    'worklet'
-
-    if (materialBuffer == null) return
-
-    let entity: Entity | undefined
-    let localMaterial: Material | undefined
-    runOnWorklet(() => {
-      'worklet'
-
-      // create the material
-      const material = engine.createMaterial(materialBuffer)
-
-      const debugEntity = renderableManager.createDebugCubeWireframe([1, 1, 1], material, 0xff0000ff)
-      scene.addEntity(debugEntity)
-      return [debugEntity, material] as const
-    })().then(([e, material]) => {
-      entity = e
-      localMaterial = material
-    })
-
-    return () => {
-      if (entity == null) return
-      scene.removeEntity(entity)
-      withCleanupScope(() => {
-        if (localMaterial != null) {
-          localMaterial.release()
-        }
-      })()
-    }
-  }, [engine, materialBuffer, renderableManager, scene, transformManager])
+  const [showItem, setShowItem] = React.useState(true)
 
   return (
     <SafeAreaView style={styles.container}>
-      <Filament style={styles.filamentView} enableTransparentRendering={false} />
+      <Filament style={styles.filamentView} />
+      {showItem && <Model />}
+      <Button
+        title="Toggle item"
+        onPress={() => {
+          // setShowItem((prev) => !prev)
+          setInterval(() => {
+            setShowItem((prev) => !prev)
+          }, 100)
+        }}
+      />
     </SafeAreaView>
   )
 }
@@ -98,7 +119,7 @@ export function WorkletExample() {
   return (
     <View style={styles.container}>
       {showView ? (
-        <FilamentProvider>
+        <FilamentProvider dynamicResolutionOptions={dynamicResolutionOptions}>
           <Renderer />
         </FilamentProvider>
       ) : (
@@ -122,6 +143,6 @@ const styles = StyleSheet.create({
   },
   filamentView: {
     flex: 1,
-    // backgroundColor: 'black',
+    backgroundColor: 'lightblue',
   },
 })
