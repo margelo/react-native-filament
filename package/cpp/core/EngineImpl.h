@@ -78,6 +78,7 @@ public:
   void createAndSetSkybox(std::optional<std::shared_ptr<FilamentBuffer>> textureBuffer, std::optional<bool> showSun,
                           std::optional<float> envIntensity);
   void clearSkybox();
+  void setAutomaticInstancingEnabled(bool enabled);
 
 private:
   void setSurface(std::shared_ptr<Surface> surface);
