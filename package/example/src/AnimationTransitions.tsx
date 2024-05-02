@@ -107,7 +107,7 @@ function Renderer() {
       camera,
       pirateHatAnimator,
       penguAnimator,
-      currentAnimationIndex,
+      currentAnimationIndex.value,
       prevAnimationIndex,
       prevAnimationStarted,
       animationInterpolation,

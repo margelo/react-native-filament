@@ -22,18 +22,18 @@ private: // Exposed JS API
   void start();
   void stop();
   // TODO: refactor to addOnFrameListener and support multiple listeners, expose Listener as JS object
-  void setFrameListener(RenderCallback onFrameCallback);
+  void setFrameCallback(RenderCallback onFrameCallback);
 
 private: // Internal
   void onRuntimeDestroyed(jsi::Runtime*) override;
   void renderCallback(double timestamp);
 
 private:
-  std::shared_ptr<Listener> _listener;
   std::mutex _mutex;
   double _startTime = 0;
   double _lastFrameTime = 0;
-  RenderCallback _renderCallback;
+  std::shared_ptr<Listener> _listener = nullptr;
+  RenderCallback _renderCallback = nullptr;
 
 private:
   static constexpr auto TAG = "EngineImpl";

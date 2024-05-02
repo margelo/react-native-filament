@@ -7,6 +7,11 @@ import { FilamentContext } from './FilamentContext'
 import { Choreographer, RenderCallback } from 'react-native-filament'
 
 export interface FilamentProps extends NativeProps {
+  /**
+   * This function will be called every frame. You can use it to update your scene.
+   *
+   * @note Don't call any methods on `engine` here - this will lead to deadlocks!
+   */
   renderCallback: RenderCallback
 }
 
@@ -14,7 +19,11 @@ type RefType = React.Component<NativeProps> & Readonly<NativeMethods>
 
 export class Filament extends React.PureComponent<FilamentProps> {
   private readonly ref: React.RefObject<RefType>
-  private readonly choreographer: Choreographer
+  // private choreographer: Choreographer | undefined
+  private readonly waitUntilChoreographer: Promise<Choreographer>
+  private waitUntilChoreographerResolve: (value: Choreographer) => void = () => {
+    throw new Error('Internal error: waitUntilChoreographerResolve not initialized!')
+  }
 
   /**
    * Uses the context in class.
@@ -27,7 +36,10 @@ export class Filament extends React.PureComponent<FilamentProps> {
   constructor(props: FilamentProps) {
     super(props)
     this.ref = React.createRef<RefType>()
-    this.choreographer = FilamentProxy.createChoreographer()
+
+    this.waitUntilChoreographer = new Promise<Choreographer>((resolve) => {
+      this.waitUntilChoreographerResolve = resolve
+    })
   }
 
   // TODO: Does this also work for Fabric?
@@ -41,25 +53,47 @@ export class Filament extends React.PureComponent<FilamentProps> {
   }
 
   private updateTransparentRendering = (enable: boolean) => {
-    console.log('context?', this.context)
-    this.context?.renderer.setClearContent(enable)
+    const { renderer } = this.getContext()
+    renderer.setClearContent(enable)
   }
 
-  private updateRenderCallback = (callback: RenderCallback) => {
-    const { _workletContext } = this.getContext()
+  private updateRenderCallback = async (callback: RenderCallback) => {
+    console.log('updateRenderCallback')
+    const { engine, _workletContext } = this.getContext()
+
+    const choreographer = await this.waitUntilChoreographer
 
     _workletContext.runAsync(() => {
       'worklet'
-      this.choreographer.setFrameCallback((...args) => {
+      choreographer.setFrameCallback((frameInfo) => {
         'worklet'
 
         try {
-          callback(...args)
+          callback(frameInfo)
+          engine.render(frameInfo.timestamp)
         } catch (e) {
           reportWorkletError(e)
         }
       })
     })
+  }
+
+  private createAndSetChoreographer = async () => {
+    const { _workletContext } = this.getContext()
+
+    // Create the choreographer in the worklet context, so its frame callback can be called from the worklet thread:
+    _workletContext
+      .runAsync(() => {
+        'worklet'
+        return FilamentProxy.createChoreographer()
+      })
+      .then((choreographer) => {
+        this.waitUntilChoreographerResolve(choreographer)
+      })
+    // TODO: Catch doesn't work with the promise returned by RNWC
+    // .catch((e) => {
+    //   console.error('Failed to create Choreographer:', e)
+    // })
   }
 
   private getContext = () => {
@@ -71,13 +105,15 @@ export class Filament extends React.PureComponent<FilamentProps> {
   }
 
   componentDidMount(): void {
-    // Set the render callback:
-    this.updateRenderCallback(this.props.renderCallback)
-
     // Setup transparency mode:
     if (!this.props.enableTransparentRendering) {
       this.updateTransparentRendering(false)
     }
+
+    // Set the render callback:
+    this.createAndSetChoreographer().then(() => {
+      this.updateRenderCallback(this.props.renderCallback)
+    })
   }
 
   componentDidUpdate(prevProps: Readonly<FilamentProps>): void {
@@ -90,11 +126,14 @@ export class Filament extends React.PureComponent<FilamentProps> {
   }
 
   componentWillUnmount(): void {
-    this.choreographer.release()
+    // TODO: implement release
+    // this.choreographer?.release()
+    // const choreographer = this.choreographer
   }
 
   onViewReady = async () => {
     const context = this.getContext()
+    const choreographer = await this.waitUntilChoreographer
 
     try {
       const handle = this.handle
@@ -106,7 +145,6 @@ export class Filament extends React.PureComponent<FilamentProps> {
       // Link the surface with the engine:
       const engine = context.engine
       const enableTransparentRendering = this.props.enableTransparentRendering ?? true
-      const choreographer = this.choreographer
       context._workletContext.runAsync(() => {
         'worklet'
         engine.setSurfaceProvider(surfaceProvider, enableTransparentRendering)
