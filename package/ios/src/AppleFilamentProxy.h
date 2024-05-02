@@ -11,6 +11,7 @@
 #include "FilamentBuffer.h"
 #include "FilamentProxy.h"
 #include "FilamentView.h"
+#include "FilamentRecorder.h"
 #include "threading/Dispatcher.h"
 #include <ReactCommon/CallInvoker.h>
 #include <jsi/jsi.h>
@@ -26,6 +27,7 @@ public:
   std::shared_ptr<FilamentBuffer> loadAsset(const std::string& path) override;
   std::shared_ptr<FilamentView> findFilamentView(int modelId) override;
   std::shared_ptr<Choreographer> createChoreographer() override;
+  std::shared_ptr<FilamentRecorder> createRecorder(int width, int height, int fps) override;
   std::shared_ptr<Dispatcher> getRenderThreadDispatcher() override;
   std::shared_ptr<Dispatcher> getUIDispatcher() override;
   std::shared_ptr<Dispatcher> getBackgroundDispatcher() override;

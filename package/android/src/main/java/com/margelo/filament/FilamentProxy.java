@@ -69,6 +69,15 @@ class FilamentProxy {
         return new FilamentChoreographer();
     }
 
+    /**
+     * @noinspection unused
+     */
+    @DoNotStrip
+    @Keep
+    FilamentRecorder createRecorder(int width, int height, int fps) {
+        return new FilamentRecorder(width, height, fps);
+    }
+
     private static byte[] readAllBytes(InputStream inputStream) throws IOException {
         final int bufferSize = 4096; // 4KB
         byte[] buffer = new byte[bufferSize];

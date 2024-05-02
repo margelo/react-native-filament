@@ -51,7 +51,7 @@ export interface TFilamentProxy {
    * Creates a Filament Recorder instance that can be used to render offscreen and
    * record to a video file.
    */
-  createRecorder(): TFilamentRecorder
+  createRecorder(width: number, height: number, fps: number): TFilamentRecorder
 
   /**
    * Whether Worklets are installed, or not.
