@@ -18,6 +18,10 @@ void JFilamentRecorder::registerNatives() {
   });
 }
 
+void* JFilamentRecorder::getNativeWindow() {
+  throw std::runtime_error("getNativeWindow() is not yet implemented!");
+}
+
 std::future<void> JFilamentRecorder::startRecording() {
   auto self = shared<JFilamentRecorder>();
   return std::async(std::launch::async, [self]() {

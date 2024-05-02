@@ -34,6 +34,14 @@ public:
 
   virtual std::future<void> startRecording() = 0;
   virtual std::future<std::string> stopRecording() = 0;
+  
+  /**
+   Get the native window that can be used as a render target.
+   - On iOS, this is a `CVPixelBuffer`
+   - On Android, this is a `ANativeWindow` (`android.media.Surface`)
+   The `FilamentRecoder` has exclusive ownership of the native window.
+   */
+  virtual void* getNativeWindow() = 0;
 
 private:
   static constexpr auto TAG = "FilamentRecorder";

@@ -11,6 +11,10 @@ namespace margelo {
 
 AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps) : FilamentRecorder(width, height, fps) {}
 
+void* AppleFilamentRecorder::getNativeWindow() {
+  throw std::runtime_error("getNativeWindow() is not yet implemented!");
+}
+
 std::future<void> AppleFilamentRecorder::startRecording() {
   return std::async(std::launch::async, []() { throw std::runtime_error("startRecording() is not yet implemented!"); });
 }
