@@ -2,16 +2,24 @@
   "migIndex": 1,
   "data": [
     {
+      "path": "assets/Pengu_Skin_Gold.jpg",
+      "sha1": "11553a5e4864a05574d328c84d141a3c00fc062d"
+    },
+    {
+      "path": "assets/Pengu_Skin_Gold_Normal.jpg",
+      "sha1": "a37b82584c585952351678707a6997412d61e2ee"
+    },
+    {
+      "path": "assets/Pengu_Skin_Gold_Roughness.jpg",
+      "sha1": "3c9ce3a960ecbfd30ac5bc057140600a63a685cc"
+    },
+    {
       "path": "assets/TransparentShadowMaterial.mat",
       "sha1": "2253349868eb61907a2e2adb2b9af494374ac323"
     },
     {
       "path": "assets/TransparentShadowMaterial.matc",
       "sha1": "38fa321b43726c8fa3c021c05d60b053db90961c"
-    },
-    {
-      "path": "assets/baked_color.filamat",
-      "sha1": "fb77e2f1de6dcb7564f98f003c1c9378b8afc0ec"
     },
     {
       "path": "assets/box.glb",
@@ -64,18 +72,6 @@
     {
       "path": "assets/pengu.glb",
       "sha1": "9c3aa64101b6af758735eeaafb48d482526d2c69"
-    },
-    {
-      "path": "assets/pengu_skin_gold.jpg",
-      "sha1": "11553a5e4864a05574d328c84d141a3c00fc062d"
-    },
-    {
-      "path": "assets/pengu_skin_gold_normal.jpg",
-      "sha1": "a37b82584c585952351678707a6997412d61e2ee"
-    },
-    {
-      "path": "assets/pengu_skin_gold_roughness.jpg",
-      "sha1": "3c9ce3a960ecbfd30ac5bc057140600a63a685cc"
     },
     {
       "path": "assets/pijamas.glb",
