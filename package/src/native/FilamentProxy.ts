@@ -5,6 +5,7 @@ import { FilamentView } from './FilamentViewTypes'
 import type { BulletAPI } from '../bullet/types/api'
 import type { IWorkletContext } from 'react-native-worklets-core'
 import { EngineBackend, EngineConfig } from '../types'
+import { TFilamentRecorder } from './FilamentRecorder'
 
 interface TestHybridObject {
   int: number
@@ -45,6 +46,13 @@ export interface TFilamentProxy {
    * @private
    */
   createBullet(): BulletAPI
+
+  /**
+   * Creates a Filament Recorder instance that can be used to render offscreen and
+   * record to a video file.
+   */
+  createRecorder(): TFilamentRecorder
+
   /**
    * Whether Worklets are installed, or not.
    */
