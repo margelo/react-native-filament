@@ -5,7 +5,6 @@ import { Button, ScrollView, StyleSheet, View } from 'react-native'
 import {
   Filament,
   Float3,
-  useRenderCallback,
   useModel,
   useAssetAnimator,
   getAssetFromModel,
@@ -13,6 +12,7 @@ import {
   useFilamentContext,
   useResource,
   useSkybox,
+  RenderCallback,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
@@ -56,64 +56,62 @@ function Renderer() {
   const currentAnimationIndex = useSharedValue(0)
 
   const prevAspectRatio = useSharedValue(0)
-  useRenderCallback(
-    useCallback(
-      ({ passedSeconds }) => {
-        'worklet'
+  const renderCallback: RenderCallback = useCallback(
+    ({ passedSeconds }) => {
+      'worklet'
 
-        const aspectRatio = view.getAspectRatio()
-        if (prevAspectRatio.value !== aspectRatio) {
-          prevAspectRatio.value = aspectRatio
-          // Setup camera lens:
-          camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
-          console.log('Setting up camera lens with aspect ratio:', aspectRatio)
+      const aspectRatio = view.getAspectRatio()
+      if (prevAspectRatio.value !== aspectRatio) {
+        prevAspectRatio.value = aspectRatio
+        // Setup camera lens:
+        camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
+        console.log('Setting up camera lens with aspect ratio:', aspectRatio)
+      }
+
+      camera.lookAt(cameraPosition, cameraTarget, cameraUp)
+
+      if (pirateHatAnimator == null || penguAnimator == null) {
+        return
+      }
+
+      // Update the animators to play the current animation
+      penguAnimator.applyAnimation(currentAnimationIndex.value, passedSeconds)
+      pirateHatAnimator.applyAnimation(currentAnimationIndex.value, passedSeconds)
+
+      // Eventually apply a cross fade
+      if (prevAnimationIndex.value != null) {
+        if (prevAnimationStarted.value == null) {
+          prevAnimationStarted.value = passedSeconds
         }
+        animationInterpolation.value += passedSeconds - prevAnimationStarted.value!
+        const alpha = animationInterpolation.value / animationInterpolationTime
 
-        camera.lookAt(cameraPosition, cameraTarget, cameraUp)
+        // Blend animations using a cross fade
+        penguAnimator.applyCrossFade(prevAnimationIndex.value, prevAnimationStarted.value!, alpha)
+        pirateHatAnimator.applyCrossFade(prevAnimationIndex.value, prevAnimationStarted.value!, alpha)
 
-        if (pirateHatAnimator == null || penguAnimator == null) {
-          return
+        // Reset the prev animation once the transition is completed
+        if (alpha >= 1) {
+          prevAnimationIndex.value = undefined
+          prevAnimationStarted.value = undefined
+          animationInterpolation.value = 0
         }
+      }
 
-        // Update the animators to play the current animation
-        penguAnimator.applyAnimation(currentAnimationIndex.value, passedSeconds)
-        pirateHatAnimator.applyAnimation(currentAnimationIndex.value, passedSeconds)
-
-        // Eventually apply a cross fade
-        if (prevAnimationIndex.value != null) {
-          if (prevAnimationStarted.value == null) {
-            prevAnimationStarted.value = passedSeconds
-          }
-          animationInterpolation.value += passedSeconds - prevAnimationStarted.value!
-          const alpha = animationInterpolation.value / animationInterpolationTime
-
-          // Blend animations using a cross fade
-          penguAnimator.applyCrossFade(prevAnimationIndex.value, prevAnimationStarted.value!, alpha)
-          pirateHatAnimator.applyCrossFade(prevAnimationIndex.value, prevAnimationStarted.value!, alpha)
-
-          // Reset the prev animation once the transition is completed
-          if (alpha >= 1) {
-            prevAnimationIndex.value = undefined
-            prevAnimationStarted.value = undefined
-            animationInterpolation.value = 0
-          }
-        }
-
-        penguAnimator.updateBoneMatrices()
-        pirateHatAnimator.updateBoneMatrices()
-      },
-      [
-        view,
-        prevAspectRatio,
-        camera,
-        pirateHatAnimator,
-        penguAnimator,
-        currentAnimationIndex,
-        prevAnimationIndex,
-        prevAnimationStarted,
-        animationInterpolation,
-      ]
-    )
+      penguAnimator.updateBoneMatrices()
+      pirateHatAnimator.updateBoneMatrices()
+    },
+    [
+      view,
+      prevAspectRatio,
+      camera,
+      pirateHatAnimator,
+      penguAnimator,
+      currentAnimationIndex,
+      prevAnimationIndex,
+      prevAnimationStarted,
+      animationInterpolation,
+    ]
   )
 
   const animations = useMemo(() => {
@@ -130,7 +128,7 @@ function Renderer() {
 
   return (
     <View style={styles.container}>
-      <Filament style={styles.filamentView} enableTransparentRendering={false} />
+      <Filament style={styles.filamentView} enableTransparentRendering={false} renderCallback={renderCallback} />
       <ScrollView style={styles.btnContainer}>
         <Button
           title="Navigate to test screen"

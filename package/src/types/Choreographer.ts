@@ -1,3 +1,5 @@
+import { PointerHolder } from './PointerHolder'
+
 export type FrameInfo = {
   /**
    * The current timestamp in nanoseconds.
@@ -17,7 +19,7 @@ export type FrameInfo = {
 
 export type RenderCallback = (frameInfo: FrameInfo) => void
 
-export interface Choreographer {
+export interface Choreographer extends PointerHolder {
   start(): void
   stop(): void
   setFrameCallback(callback: RenderCallback): void
