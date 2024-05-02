@@ -17,6 +17,7 @@ public:
   ~JFilamentRecorder();
   static void registerNatives();
 
+  void* getNativeWindow() override;
   std::future<std::string> stopRecording() override;
   std::future<void> startRecording() override;
   bool getIsRecording() override;
