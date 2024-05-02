@@ -17,6 +17,10 @@ public:
   ~JFilamentRecorder();
   static void registerNatives();
 
+  std::future<std::string> stopRecording() override;
+  std::future<void> startRecording() override;
+  bool getIsRecording() override;
+
 private:
   friend HybridBase;
   jni::global_ref<JFilamentRecorder::javaobject> _javaPart;

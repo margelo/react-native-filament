@@ -9,6 +9,19 @@
 
 namespace margelo {
 
-AppleFilamentRecorder::AppleFilamentRecorder() {}
+AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps): FilamentRecorder(width, height, fps) {}
+
+std::future<void> AppleFilamentRecorder::startRecording() {
+  return std::async(std::launch::async, []() {
+    throw std::runtime_error("startRecording() is not yet implemented!");
+  });
+}
+
+std::future<std::string> AppleFilamentRecorder::stopRecording() {
+  auto self = shared<AppleFilamentRecorder>();
+  return std::async(std::launch::async, [self]() -> std::string {
+    throw std::runtime_error("stopRecording() is not yet implemented!");
+  });
+}
 
 } // namespace margelo
