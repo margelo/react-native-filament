@@ -57,9 +57,10 @@ export class Filament extends React.PureComponent<FilamentProps> {
       const surfaceProvider = view.getSurfaceProvider()
       // Link the surface with the engine:
       const engine = this.context.engine
+      const enableTransparentRendering = this.props.enableTransparentRendering ?? true
       this.context._workletContext.runAsync(() => {
         'worklet'
-        engine.setSurfaceProvider(surfaceProvider)
+        engine.setSurfaceProvider(surfaceProvider, enableTransparentRendering)
       })
     } catch (e) {
       reportFatalError(e)

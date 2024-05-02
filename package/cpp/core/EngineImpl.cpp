@@ -93,7 +93,7 @@ EngineImpl::~EngineImpl() {
   }
 }
 
-void EngineImpl::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
+void EngineImpl::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering) {
   if (surfaceProvider == nullptr) {
     [[unlikely]];
     throw std::runtime_error("SurfaceProvider cannot be null!");
@@ -101,18 +101,18 @@ void EngineImpl::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProv
   _surfaceProvider = surfaceProvider; // Hold a reference to avoid it getting destroyed
   std::shared_ptr<Surface> surface = surfaceProvider->getSurfaceOrNull();
   if (surface != nullptr) {
-    setSurface(surface);
+    setSurface(surface, enableTransparentRendering);
   }
 
   auto dispatcher = _rendererDispatcher;
   std::weak_ptr<EngineImpl> weakSelf = shared_from_this();
   SurfaceProvider::Callback callback{.onSurfaceCreated =
-                                         [dispatcher, weakSelf](std::shared_ptr<Surface> surface) {
+                                         [dispatcher, weakSelf, enableTransparentRendering](std::shared_ptr<Surface> surface) {
                                            dispatcher->runAsync([=]() {
                                              auto sharedThis = weakSelf.lock();
                                              if (sharedThis != nullptr) {
                                                Logger::log(TAG, "Initializing surface...");
-                                               sharedThis->setSurface(surface);
+                                               sharedThis->setSurface(surface, enableTransparentRendering);
                                              }
                                            });
                                          },
@@ -138,12 +138,12 @@ void EngineImpl::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProv
   _surfaceListener = surfaceProvider->addOnSurfaceChangedListener(std::move(callback));
 }
 
-void EngineImpl::setSurface(std::shared_ptr<Surface> surface) {
+void EngineImpl::setSurface(std::shared_ptr<Surface> surface, bool enableTransparentRendering) {
   std::unique_lock lock(_mutex);
   Logger::log(TAG, "Initializing SwapChain...");
 
   // Setup swapchain
-  _swapChain = createSwapChain(surface);
+  _swapChain = createSwapChain(surface, enableTransparentRendering);
 
   // Setup camera manipulator
   _cameraManipulator = createCameraManipulator(surface->getWidth(), surface->getHeight());
@@ -328,10 +328,11 @@ std::shared_ptr<View> EngineImpl::createView() {
   return view;
 }
 
-std::shared_ptr<SwapChain> EngineImpl::createSwapChain(std::shared_ptr<Surface> surface) {
+std::shared_ptr<SwapChain> EngineImpl::createSwapChain(std::shared_ptr<Surface> surface, bool enableTransparentRendering) {
   auto dispatcher = _rendererDispatcher;
   void* nativeWindow = surface->getSurface();
-  auto swapChain = References<SwapChain>::adoptEngineRef(_engine, _engine->createSwapChain(nativeWindow, SwapChain::CONFIG_TRANSPARENT),
+  uint64_t flags = enableTransparentRendering ? SwapChain::CONFIG_TRANSPARENT : 0;
+  auto swapChain = References<SwapChain>::adoptEngineRef(_engine, _engine->createSwapChain(nativeWindow, flags),
                                                          [dispatcher](std::shared_ptr<Engine> engine, SwapChain* swapChain) {
                                                            dispatcher->runAsync([engine, swapChain]() {
                                                              Logger::log(TAG, "Destroying swapchain...");
