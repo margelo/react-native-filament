@@ -15,7 +15,7 @@ namespace margelo {
  */
 class ShapeWrapper : public HybridObject {
 public:
-  explicit ShapeWrapper(const char* name, std::shared_ptr<btCollisionShape> shape) : HybridObject(name), _shape(shape){};
+  explicit ShapeWrapper(const char* name, std::shared_ptr<btCollisionShape> shape) : HybridObject(name), _shape(shape) {};
 
   void loadHybridMethods() override;
 

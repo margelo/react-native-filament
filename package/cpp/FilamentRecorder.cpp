@@ -9,6 +9,15 @@ namespace margelo {
 
 using namespace facebook;
 
+FilamentRecorder::FilamentRecorder(int width, int height, int fps)
+    : HybridObject("FilamentRecorder"), _width(width), _height(height), _fps(fps) {
+  Logger::log(TAG, "Creating %zu x %zu @ %zu FPS FilamentRecorder...", width, height, fps);
+}
+
+FilamentRecorder::~FilamentRecorder() {
+  Logger::log(TAG, "Destroying FilamentRecorder...");
+}
+
 void FilamentRecorder::loadHybridMethods() {
   registerHybridGetter("width", &FilamentRecorder::getWidth, this);
   registerHybridGetter("height", &FilamentRecorder::getHeight, this);
