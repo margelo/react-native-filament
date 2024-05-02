@@ -7,7 +7,6 @@ export * from './FilamentContext'
 // hooks
 export * from './hooks/useWorkletEffect'
 export * from './hooks/useWorkletCallback'
-export * from './hooks/useRenderCallback'
 export * from './hooks/useAsset'
 export * from './hooks/useModel'
 export * from './hooks/useAssetAnimator'
