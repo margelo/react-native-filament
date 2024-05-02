@@ -13,6 +13,7 @@
 #include "Choreographer.h"
 #include "FilamentBuffer.h"
 #include "FilamentView.h"
+#include "FilamentRecorder.h"
 #include "bullet/BulletWrapper.h"
 #include "core/EngineWrapper.h"
 #include "jsi/HybridObject.h"
@@ -39,6 +40,7 @@ private:
   virtual std::shared_ptr<FilamentBuffer> loadAsset(const std::string& path) = 0;
   virtual std::shared_ptr<FilamentView> findFilamentView(int id) = 0;
   virtual std::shared_ptr<Choreographer> createChoreographer() = 0;
+  virtual std::shared_ptr<FilamentRecorder> createRecorder(int width, int height, int fps) = 0;
   /**
    * Get the Dispatcher that is responsible for rendering to Filament.
    * This is guaranteed to only use a single Thread, as opposed to a Thread-pool.
