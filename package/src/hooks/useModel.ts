@@ -4,6 +4,8 @@ import { useFilamentContext } from '../FilamentContext'
 import { useResource } from './useResource'
 import usePrevious from './usePrevious'
 import { useWorkletEffect } from './useWorkletEffect'
+import { AABB } from '../types'
+import { useMemo } from 'react'
 
 interface ModelProps extends AssetProps {
   /**
@@ -32,6 +34,7 @@ export type FilamentModel =
   | {
       state: 'loaded'
       asset: FilamentAsset
+      boundingBox: AABB
     }
   | {
       state: 'loading'
@@ -98,7 +101,12 @@ export function useModel({ path, shouldReleaseSourceData, addToScene = true, ins
     }
   }, [addToScene, asset, _workletContext, scene, previousAddToScene])
 
-  if (assetBuffer == null || asset == null) {
+  const boundingBox = useMemo(() => {
+    if (asset == null) return undefined
+    return asset.boundingBox
+  }, [asset])
+
+  if (assetBuffer == null || asset == null || boundingBox == null) {
     return {
       state: 'loading',
     }
@@ -106,5 +114,6 @@ export function useModel({ path, shouldReleaseSourceData, addToScene = true, ins
   return {
     state: 'loaded',
     asset: asset,
+    boundingBox: boundingBox,
   }
 }

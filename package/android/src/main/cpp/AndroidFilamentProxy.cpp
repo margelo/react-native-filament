@@ -9,7 +9,9 @@ namespace margelo {
 
 using namespace facebook;
 
-AndroidFilamentProxy::AndroidFilamentProxy(jni::alias_ref<JFilamentProxy::javaobject> proxy) : _proxy(jni::make_global(proxy)) {}
+AndroidFilamentProxy::AndroidFilamentProxy(
+    jni::alias_ref<JFilamentProxy::javaobject> proxy)
+    : _proxy(jni::make_global(proxy)) {}
 
 AndroidFilamentProxy::~AndroidFilamentProxy() {
   // Hermes GC might destroy HostObjects on an arbitrary Thread which might not
@@ -18,7 +20,8 @@ AndroidFilamentProxy::~AndroidFilamentProxy() {
   jni::ThreadScope::WithClassLoader([&] { _proxy.reset(); });
 }
 
-std::shared_ptr<FilamentBuffer> AndroidFilamentProxy::loadAsset(const std::string& path) {
+std::shared_ptr<FilamentBuffer>
+AndroidFilamentProxy::loadAsset(const std::string &path) {
   return _proxy->cthis()->loadAsset(path);
 }
 
@@ -46,12 +49,16 @@ std::shared_ptr<Dispatcher> AndroidFilamentProxy::getBackgroundDispatcher() {
   return _proxy->cthis()->getBackgroundDispatcher();
 }
 
-jsi::Runtime& AndroidFilamentProxy::getRuntime() {
+jsi::Runtime &AndroidFilamentProxy::getRuntime() {
   return _proxy->cthis()->getRuntime();
 }
 
 float AndroidFilamentProxy::getDisplayRefreshRate() {
   return _proxy->cthis()->getDisplayRefreshRate();
+}
+
+float AndroidFilamentProxy::getDensityPixelRatio() {
+  return _proxy->cthis()->getDensityPixelRatio();
 }
 
 } // namespace margelo

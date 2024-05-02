@@ -25,21 +25,22 @@ public:
   ~JFilamentProxy();
   static void registerNatives();
 
-  std::shared_ptr<FilamentBuffer> loadAsset(const std::string& path);
+  std::shared_ptr<FilamentBuffer> loadAsset(const std::string &path);
   std::shared_ptr<FilamentView> findFilamentView(int id);
   std::shared_ptr<Choreographer> createChoreographer();
   std::shared_ptr<Dispatcher> getRenderThreadDispatcher();
   std::shared_ptr<Dispatcher> getUIDispatcher();
   std::shared_ptr<Dispatcher> getBackgroundDispatcher();
   float getDisplayRefreshRate();
+  float getDensityPixelRatio();
 
-  jsi::Runtime& getRuntime();
+  jsi::Runtime &getRuntime();
   std::shared_ptr<react::CallInvoker> getCallInvoker();
 
 private:
   friend HybridBase;
   jni::global_ref<JFilamentProxy::javaobject> _javaPart;
-  jsi::Runtime* _runtime;
+  jsi::Runtime *_runtime;
   std::shared_ptr<facebook::react::CallInvoker> _callInvoker;
   std::shared_ptr<Dispatcher> _renderThreadDispatcher;
   std::shared_ptr<Dispatcher> _uiDispatcher;
@@ -47,13 +48,18 @@ private:
 
 private:
   static auto constexpr TAG = "FilamentProxy";
-  static auto constexpr kJavaDescriptor = "Lcom/margelo/filament/FilamentProxy;";
+  static auto constexpr kJavaDescriptor =
+      "Lcom/margelo/filament/FilamentProxy;";
 
 private:
-  explicit JFilamentProxy(const jni::alias_ref<JFilamentProxy::jhybridobject>& javaThis, jsi::Runtime* jsRuntime,
-                          std::shared_ptr<facebook::react::CallInvoker> jsCallInvoker);
-  static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> javaThis, jlong jsRuntimePointer,
-                                                jni::alias_ref<facebook::react::CallInvokerHolder::javaobject> jsCallInvokerHolder);
+  explicit JFilamentProxy(
+      const jni::alias_ref<JFilamentProxy::jhybridobject> &javaThis,
+      jsi::Runtime *jsRuntime,
+      std::shared_ptr<facebook::react::CallInvoker> jsCallInvoker);
+  static jni::local_ref<jhybriddata>
+  initHybrid(jni::alias_ref<jhybridobject> javaThis, jlong jsRuntimePointer,
+             jni::alias_ref<facebook::react::CallInvokerHolder::javaobject>
+                 jsCallInvokerHolder);
 };
 
 } // namespace margelo
