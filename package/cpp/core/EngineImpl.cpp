@@ -29,9 +29,8 @@
 
 namespace margelo {
 
-EngineImpl::EngineImpl(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<Dispatcher> rendererDispatcher,
-                       std::shared_ptr<Engine> engine, float displayRefreshRate)
-    : _engine(engine), _rendererDispatcher(rendererDispatcher), _choreographer(choreographer) {
+EngineImpl::EngineImpl(std::shared_ptr<Dispatcher> rendererDispatcher, std::shared_ptr<Engine> engine, float displayRefreshRate)
+    : _engine(engine), _rendererDispatcher(rendererDispatcher) {
 
   gltfio::MaterialProvider* _materialProviderPtr =
       gltfio::createUbershaderProvider(engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
@@ -82,15 +81,6 @@ EngineImpl::EngineImpl(std::shared_ptr<Choreographer> choreographer, std::shared
 
   _view->setScene(_scene.get());
   _view->setCamera(_camera.get());
-}
-
-EngineImpl::~EngineImpl() {
-  if (_choreographer) {
-    // It can happen that the onSurfaceDestroyed callback wasn't called (yet)
-    // but we cleanup the listener when the EngineImpl instance goes out of scope.
-    // In this case the Choreographer is still running and we need to stop it.
-    _choreographer->stop();
-  }
 }
 
 void EngineImpl::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering) {
@@ -150,27 +140,6 @@ void EngineImpl::setSurface(std::shared_ptr<Surface> surface, bool enableTranspa
 
   // Notify about the surface size change
   surfaceSizeChanged(surface->getWidth(), surface->getHeight());
-
-  // Install our render function into the choreographer
-  if (_choreographerListener) {
-    // If a previous listener was attached, remove it
-    _choreographerListener->remove();
-  }
-  std::weak_ptr<EngineImpl> weakSelf = shared_from_this();
-  _choreographerListener = _choreographer->addOnFrameListener([weakSelf](double timestamp) {
-    auto sharedThis = weakSelf.lock();
-    if (sharedThis != nullptr) {
-      sharedThis->renderFrame(timestamp);
-    }
-  });
-
-  if (!_isPaused) {
-    // Start the rendering
-    Logger::log(TAG, "Successfully created SwapChain, starting choreographer!");
-    _choreographer->start();
-  } else {
-    Logger::log(TAG, "Successfully created SwapChain, but rendering is paused!");
-  }
 }
 
 void EngineImpl::surfaceSizeChanged(int width, int height) {
@@ -194,57 +163,17 @@ void EngineImpl::destroySurface() {
     return;
   }
 
-  _choreographer->stop();
-  if (_choreographerListener) {
-    _choreographerListener->remove();
-    _choreographerListener = nullptr;
-  }
+  // TODO: ensure the user choreographer is stopped when the surface gets destroyed (android)
+  //  _choreographer->stop();
+  //  if (_choreographerListener) {
+  //    _choreographerListener->remove();
+  //    _choreographerListener = nullptr;
+  //  }
 
   _swapChain = nullptr;
 }
 
-void EngineImpl::setIsPaused(bool isPaused) {
-  std::unique_lock lock(_mutex);
-
-  _isPaused = isPaused;
-  if (isPaused) {
-    _choreographer->stop();
-  } else {
-    _choreographer->start();
-  }
-}
-
-void EngineImpl::setRenderCallback(std::optional<RenderCallback> callback) {
-  std::unique_lock lock(_mutex);
-
-  if (callback.has_value()) {
-    Logger::log(TAG, "Setting render callback");
-  } else {
-    Logger::log(TAG, "Removing render callback");
-  }
-
-  _renderCallback = callback;
-}
-
-// This will be called when the runtime that created the EngineImpl gets destroyed.
-// The same runtime/thread that creates the EngineImpl is the one the renderCallback
-// jsi::Function has been created on, and needs to be destroyed on.
-// Additionally we want to stop and release the choreographer listener, so there is no
-// risk of it being called (and then calling the renderCallback which is invalid by then).
-void EngineImpl::onRuntimeDestroyed(jsi::Runtime*) {
-  std::unique_lock lock(_mutex);
-  Logger::log(TAG, "Runtime destroyed, stopping renderer...");
-  _renderCallback = nullptr;
-  _choreographer->stop();
-  if (_choreographerListener) {
-    _choreographerListener->remove();
-    _choreographerListener = nullptr;
-  }
-}
-
-// This method is connected to the choreographer and gets called every frame,
-// once we have a surface.
-void EngineImpl::renderFrame(double timestamp) {
+void EngineImpl::render(double timestamp) {
   std::unique_lock lock(_mutex);
 
   if (!_swapChain) {
@@ -256,27 +185,7 @@ void EngineImpl::renderFrame(double timestamp) {
     return;
   }
 
-  if (_startTime == 0) {
-    [[unlikely]];
-    _startTime = timestamp;
-  }
-
   _resourceLoader->asyncUpdateLoad();
-
-  if (_renderCallback.has_value()) {
-    [[likely]];
-    const auto& renderCallback = _renderCallback.value();
-    double passedSeconds = (timestamp - _startTime) / 1e9;          // Seconds
-    double timeSinceLastFrame = (timestamp - _lastFrameTime) / 1e9; // Seconds
-    _lastFrameTime = timestamp;
-    FrameInfo renderCallbackData = {
-        {"timestamp", timestamp},
-        {"passedSeconds", passedSeconds},
-        {"startTime", _startTime},
-        {"timeSinceLastFrame", timeSinceLastFrame},
-    };
-    renderCallback(renderCallbackData);
-  }
 
   if (_renderer->beginFrame(_swapChain.get(), timestamp)) {
     [[likely]];

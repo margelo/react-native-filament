@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "Choreographer.h"
+#include "ChoreographerWrapper.h"
 #include "FilamentBuffer.h"
 #include "FilamentRecorder.h"
 #include "FilamentView.h"
@@ -72,6 +73,7 @@ private:
                                               std::optional<std::unordered_map<std::string, int>> arguments = std::nullopt);
   std::shared_ptr<BulletWrapper> createBullet();
   bool getHasWorklets();
+  std::shared_ptr<ChoreographerWrapper> createChoreographerWrapper();
 
 #if HAS_WORKLETS
   std::shared_ptr<RNWorklet::JsiWorkletContext> getWorkletContext();

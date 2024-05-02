@@ -27,6 +27,7 @@ void FilamentProxy::loadHybridMethods() {
   registerHybridMethod("createEngine", &FilamentProxy::createEngine, this);
   registerHybridMethod("createBullet", &FilamentProxy::createBullet, this);
   registerHybridGetter("hasWorklets", &FilamentProxy::getHasWorklets, this);
+  registerHybridMethod("createChoreographer", &FilamentProxy::createChoreographerWrapper, this);
 #if HAS_WORKLETS
   registerHybridMethod("getWorkletContext", &FilamentProxy::getWorkletContext, this);
 #endif
@@ -98,7 +99,6 @@ std::shared_ptr<EngineWrapper> FilamentProxy::createEngine(std::optional<std::st
                                                            std::optional<std::unordered_map<std::string, int>> arguments) {
   Logger::log(TAG, "Creating Engine...");
 
-  std::shared_ptr<Choreographer> choreographer = createChoreographer();
   std::shared_ptr<Dispatcher> renderThread = getRenderThreadDispatcher();
 
   Engine::Config config = EngineConfigHelper::makeConfigFromUserParams(arguments);
@@ -123,15 +123,7 @@ std::shared_ptr<EngineWrapper> FilamentProxy::createEngine(std::optional<std::st
   Logger::log(TAG, "Display refresh rate: %f Hz", refreshRate);
 
   // Create the EngineImpl...
-  EngineImpl* engineImplPtr = new EngineImpl(choreographer, renderThread, engine, refreshRate);
-  // The EngineImpl is interested in the event of the Runtime creating it being destroyed, so we need to add it as a listener:
-  jsi::Runtime& runtime = getRuntime();
-  RuntimeLifecycleMonitor::addListener(runtime, engineImplPtr);
-  std::shared_ptr<EngineImpl> engineImpl = std::shared_ptr<EngineImpl>(engineImplPtr, [&runtime](EngineImpl* ptr) {
-    // Remove the EngineImpl from the RuntimeLifecycleMonitor when it gets destroyed.
-    RuntimeLifecycleMonitor::removeListener(runtime, ptr);
-    delete ptr;
-  });
+  std::shared_ptr<EngineImpl> engineImpl = std::make_shared<EngineImpl>(renderThread, engine, refreshRate);
 
   return std::make_shared<EngineWrapper>(engineImpl);
 }
@@ -139,6 +131,26 @@ std::shared_ptr<EngineWrapper> FilamentProxy::createEngine(std::optional<std::st
 std::shared_ptr<BulletWrapper> FilamentProxy::createBullet() {
   Logger::log(TAG, "Creating Bullet...");
   return std::make_shared<BulletWrapper>();
+}
+
+std::shared_ptr<ChoreographerWrapper> FilamentProxy::createChoreographerWrapper() {
+  std::shared_ptr<Choreographer> choreographer = createChoreographer();
+
+  ChoreographerWrapper* choreographerWrapperPtr = new ChoreographerWrapper(choreographer);
+
+  // The ChoreographerWrapper is interested in the event of the Runtime creating it being destroyed, so we need to add it as a listener:
+  jsi::Runtime& runtime = getRuntime();
+  RuntimeLifecycleMonitor::addListener(runtime, choreographerWrapperPtr);
+
+  // Wrap the ChoreographerWrapper in a shared_ptr with a custom deleter that removes the listener from the RuntimeLifecycleMonitor:
+  std::shared_ptr<ChoreographerWrapper> choreographerWrapper =
+      std::shared_ptr<ChoreographerWrapper>(choreographerWrapperPtr, [&runtime](ChoreographerWrapper* ptr) {
+        // Remove the ChoreographerWrapper from the RuntimeLifecycleMonitor when it gets destroyed.
+        RuntimeLifecycleMonitor::removeListener(runtime, ptr);
+        delete ptr;
+      });
+
+  return choreographerWrapper;
 }
 
 } // namespace margelo

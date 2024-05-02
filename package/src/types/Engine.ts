@@ -33,7 +33,6 @@ export type RenderCallback = (frameInfo: FrameInfo) => void
 
 export interface Engine extends PointerHolder {
   setSurfaceProvider(surfaceProvider: SurfaceProvider, enableTransparentRendering: boolean): void
-  setRenderCallback(callback: RenderCallback | undefined): void
 
   /**
    * Given a {@linkcode FilamentBuffer} (e.g. from a .glb file), load the asset into the engine.
@@ -66,13 +65,6 @@ export interface Engine extends PointerHolder {
   getCamera(): Camera
   getView(): View
   getCameraManipulator(): Manipulator
-
-  /**
-   * Controls whether the engine is currently actively rendering, or not.
-   * Pausing the engine will stop the choreographer and no frame callbacks will be invoked.
-   * @param isPaused whether the rendering will be paused or not. Default: false
-   */
-  setIsPaused(isPaused: boolean): void
 
   /**
    * Per engine instance you only need one {@linkcode TransformManager}.
