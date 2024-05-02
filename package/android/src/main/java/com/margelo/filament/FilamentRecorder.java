@@ -19,8 +19,8 @@ public class FilamentRecorder {
     @Keep
     private final HybridData mHybridData;
 
-    public FilamentRecorder() {
-        mHybridData = initHybrid();
+    public FilamentRecorder(int width, int height, int fps, long bitRate) {
+        mHybridData = initHybrid(width, height, fps, bitRate);
     }
 
     /**
@@ -41,5 +41,5 @@ public class FilamentRecorder {
         throw new RuntimeError("stopRecording() is not yet implemented!");
     }
 
-    private native HybridData initHybrid();
+    private native HybridData initHybrid(int width, int height, int fps, long bitRate);
 }

@@ -6,7 +6,8 @@
 
 namespace margelo {
 
-JFilamentRecorder::JFilamentRecorder(const jni::alias_ref<jhybridobject>& javaThis) : _javaPart(make_global(javaThis)) {}
+JFilamentRecorder::JFilamentRecorder(const jni::alias_ref<jhybridobject>& javaThis, int width, int height, int fps, long bitRate)
+    : FilamentRecorder(width, height, fps, bitRate), _javaPart(make_global(javaThis)) {}
 
 JFilamentRecorder::~JFilamentRecorder() {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Destroying JFilamentRecorder...");
@@ -42,9 +43,10 @@ bool JFilamentRecorder::getIsRecording() {
   throw std::runtime_error("isRecording is not yet implemented!");
 }
 
-jni::local_ref<JFilamentRecorder::jhybriddata> JFilamentRecorder::initHybrid(jni::alias_ref<jhybridobject> jThis) {
+jni::local_ref<JFilamentRecorder::jhybriddata> JFilamentRecorder::initHybrid(jni::alias_ref<jhybridobject> jThis, int width, int height,
+                                                                             int fps, long bitRate) {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Initializing JFilamentRecorder...");
-  return makeCxxInstance(jThis);
+  return makeCxxInstance(jThis, int width, int height, int fps, long bitRate);
 }
 
 } // namespace margelo

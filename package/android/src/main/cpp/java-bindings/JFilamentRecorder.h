@@ -32,8 +32,8 @@ private:
   static auto constexpr kJavaDescriptor = "Lcom/margelo/filament/FilamentRecorder;";
 
 private:
-  explicit JFilamentRecorder(const jni::alias_ref<jhybridobject>& javaThis);
-  static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> javaThis);
+  explicit JFilamentRecorder(const jni::alias_ref<jhybridobject>& javaThis, int width, int height, int fps, long bitRate);
+  static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> javaThis, int width, int height, int fps, long bitRate);
 };
 
 } // namespace margelo

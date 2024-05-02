@@ -16,7 +16,7 @@ using namespace facebook;
 
 class FilamentRecorder : public HybridObject {
 public:
-  explicit FilamentRecorder(int width, int height, int fps);
+  explicit FilamentRecorder(int width, int height, int fps, long bitRate);
   ~FilamentRecorder();
 
 public:
@@ -28,6 +28,9 @@ public:
   }
   int getFps() {
     return _fps;
+  }
+  long getBitRate() {
+    return _bitRate;
   }
 
   virtual bool getIsRecording() = 0;
@@ -55,6 +58,7 @@ private:
   int _width;
   int _height;
   int _fps;
+  long _bitRate;
 
 public:
   void loadHybridMethods() override;

@@ -74,8 +74,8 @@ class FilamentProxy {
      */
     @DoNotStrip
     @Keep
-    FilamentRecorder createRecorder(int width, int height, int fps) {
-        return new FilamentRecorder(width, height, fps);
+    FilamentRecorder createRecorder(int width, int height, int fps, long bitRate) {
+        return new FilamentRecorder(width, height, fps, bitRate);
     }
 
     private static byte[] readAllBytes(InputStream inputStream) throws IOException {

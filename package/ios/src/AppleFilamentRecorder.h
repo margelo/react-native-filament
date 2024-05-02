@@ -16,13 +16,12 @@ namespace margelo {
 
 class AppleFilamentRecorder : public FilamentRecorder {
 public:
-  explicit AppleFilamentRecorder(int width, int height, int fps);
+  explicit AppleFilamentRecorder(int width, int height, int fps, long bitRate);
 
   void* getNativeWindow() override;
 
   std::future<std::string> stopRecording() override;
   std::future<void> startRecording() override;
-  void notifyFrameAvailable() override;
 
   bool getIsRecording() override {
     return _isRecording;

@@ -51,8 +51,13 @@ export interface TFilamentProxy {
   /**
    * Creates a Filament Recorder instance that can be used to render offscreen and
    * record to a video file.
+   * @param width The width of the target video and the target scene.
+   * @param height The height of the target video and the target scene.
+   * @param fps The FPS of the rendered video. Offscreen rendering does not happen at the same
+   * FPS rate as set here, but the resulting video will be displayed at this rate.
+   * @param bitRate The target bit-rate of the video, in bits per second. For example, 2_000_000 is 2 Mbps.
    */
-  createRecorder(width: number, height: number, fps: number): TFilamentRecorder
+  createRecorder(width: number, height: number, fps: number, bitRate: number): TFilamentRecorder
 
   /**
    * Whether Worklets are installed, or not.

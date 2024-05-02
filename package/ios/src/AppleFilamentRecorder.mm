@@ -11,7 +11,8 @@
 
 namespace margelo {
 
-AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps) : FilamentRecorder(width, height, fps) {
+AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps, long bitRate) : FilamentRecorder(width, height, fps, bitRate) {
+  Logger::log(TAG, "Creating CVPixelBufferPool...");
   int maxBufferCount = 30;
   NSDictionary* poolAttributes = @{(NSString*)kCVPixelBufferPoolMinimumBufferCountKey : @(maxBufferCount)};
   NSDictionary* pixelBufferAttributes = @{
@@ -26,18 +27,21 @@ AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps) : F
                              " CVPixelBufferPool! Status: " + std::to_string(result));
   }
 
+  Logger::log(TAG, "Creating CVPixelBuffer target texture...");
   result = CVPixelBufferPoolCreatePixelBuffer(kCFAllocatorDefault, _pixelBufferPool, &_pixelBuffer);
   if (result != kCVReturnSuccess) {
     throw std::runtime_error("Failed to create " + std::to_string(width) + "x" + std::to_string(height) +
                              " CVPixelBuffer texture! Status: " + std::to_string(result));
   }
 
+  Logger::log(TAG, "Creating temporary file...");
   NSString* tempDirectory = NSTemporaryDirectory();
   NSString* filename = [NSString stringWithFormat:@"%@.mp4", [[NSUUID UUID] UUIDString]];
   NSString* filePath = [tempDirectory stringByAppendingPathComponent:filename];
   _path = [NSURL fileURLWithPath:filePath];
   Logger::log(TAG, "Recording to " + std::string(filePath.UTF8String) + "...");
 
+  Logger::log(TAG, "Creating AVAssetWriter...");
   NSError* error;
   _assetWriter = [AVAssetWriter assetWriterWithURL:_path fileType:AVFileTypeMPEG4 error:&error];
   if (error != nil) {
@@ -48,12 +52,13 @@ AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps) : F
   }
   _assetWriter.shouldOptimizeForNetworkUse = NO;
 
+  Logger::log(TAG, "Creating AVAssetWriterInput...");
   NSDictionary* outputSettings = @{
     AVVideoCodecKey : AVVideoCodecTypeH264,
     AVVideoCompressionPropertiesKey : @{
       AVVideoExpectedSourceFrameRateKey : @(fps),
       AVVideoMaxKeyFrameIntervalKey : @(fps),
-      AVVideoAverageBitRateKey : @2000000,
+      AVVideoAverageBitRateKey : @(bitRate),
       AVVideoProfileLevelKey : AVVideoProfileLevelH264HighAutoLevel
     },
     AVVideoWidthKey : @(width),
@@ -66,6 +71,8 @@ AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps) : F
   }
   _pixelBufferAdaptor = [AVAssetWriterInputPixelBufferAdaptor assetWriterInputPixelBufferAdaptorWithAssetWriterInput:_assetWriterInput
                                                                                          sourcePixelBufferAttributes:nil];
+
+  Logger::log(TAG, "Adding AVAssetWriterInput...");
   [_assetWriter addInput:_assetWriterInput];
 }
 
@@ -99,14 +106,17 @@ void* AppleFilamentRecorder::getNativeWindow() {
 }
 
 std::future<void> AppleFilamentRecorder::startRecording() {
+  Logger::log(TAG, "Starting recording...");
   auto self = shared<AppleFilamentRecorder>();
   return std::async(std::launch::async, [self]() {
     [self->_assetWriter startWriting];
     [self->_assetWriter startSessionAtSourceTime:kCMTimeZero];
+    Logger::log(TAG, "Recording started!");
   });
 }
 
 std::future<std::string> AppleFilamentRecorder::stopRecording() {
+  Logger::log(TAG, "Stopping recording...");
   auto promise = std::make_shared<std::promise<std::string>>();
   auto self = shared<AppleFilamentRecorder>();
   dispatch_async(_queue, ^{
@@ -114,14 +124,17 @@ std::future<std::string> AppleFilamentRecorder::stopRecording() {
     [self->_assetWriterInput markAsFinished];
     // Finish and wait for callback
     [self->_assetWriter finishWritingWithCompletionHandler:^{
+      Logger::log(TAG, "Recording finished!");
       AVAssetWriterStatus status = self->_assetWriter.status;
       if (status != AVAssetWriterStatusCompleted) {
+        Logger::log(TAG, "Recording finished with error; %zu", static_cast<int>(status));
         auto error = std::runtime_error("AVAssetWriter didn't finish properly, status: " + std::to_string(static_cast<int>(status)));
         auto exceptionPtr = std::make_exception_ptr(error);
         promise->set_exception(exceptionPtr);
         return;
       }
 
+      Logger::log(TAG, "Recording finished successfully!");
       NSString* path = self->_path.absoluteString;
       std::string stringPath = path.UTF8String;
       promise->set_value(stringPath);
