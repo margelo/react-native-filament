@@ -64,7 +64,7 @@ public:
                       std::shared_ptr<Engine> engine, float displayRefreshRate);
   ~EngineImpl() override;
 
-  void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
+  void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering);
   void setRenderCallback(std::optional<RenderCallback> callback);
   void setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer, std::optional<double> intensity, std::optional<int> irradianceBands);
   std::shared_ptr<FilamentAssetWrapper> loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
@@ -81,7 +81,7 @@ public:
   void setAutomaticInstancingEnabled(bool enabled);
 
 private:
-  void setSurface(std::shared_ptr<Surface> surface);
+  void setSurface(std::shared_ptr<Surface> surface, bool enableTransparentRendering);
   void destroySurface();
   void surfaceSizeChanged(int width, int height);
   __attribute__((hot)) void renderFrame(double timestamp);
@@ -124,7 +124,7 @@ private:
 
 private:
   std::shared_ptr<Renderer> createRenderer(float displayRefreshRate);
-  std::shared_ptr<SwapChain> createSwapChain(std::shared_ptr<Surface> surface);
+  std::shared_ptr<SwapChain> createSwapChain(std::shared_ptr<Surface> surface, bool enableTransparentRendering);
   std::shared_ptr<Scene> createScene();
   std::shared_ptr<View> createView();
   std::shared_ptr<Camera> createCamera();
