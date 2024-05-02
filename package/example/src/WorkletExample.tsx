@@ -57,11 +57,11 @@ function Renderer() {
       'worklet'
 
       // create the material
-      const material = engine.createMaterial(materialBuffer)
+      // const material = engine.createMaterial(materialBuffer)
 
-      const debugEntity = renderableManager.createDebugCubeWireframe([1, 1, 1], material, 0xff0000ff)
+      const debugEntity = renderableManager.createDebugCubeWireframe([1, 1, 1], undefined, undefined)
       scene.addEntity(debugEntity)
-      return [debugEntity, material] as const
+      return [debugEntity, undefined] as const
     })().then(([e, material]) => {
       entity = e
       localMaterial = material

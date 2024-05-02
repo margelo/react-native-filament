@@ -17,7 +17,8 @@ using namespace filament;
 
 class ViewWrapper : public PointerHolder<View> {
 public:
-  explicit ViewWrapper(std::shared_ptr<View> view) : PointerHolder("ViewWrapper", view) {}
+  explicit ViewWrapper(std::shared_ptr<View> view, float densityPixelRatio)
+      : PointerHolder("ViewWrapper", view), _densityPixelRatio(densityPixelRatio) {}
 
   void loadHybridMethods() override;
 
@@ -39,10 +40,12 @@ private:
   void setDithering(const std::string& dithering);
   std::string getAntiAliasing();
   void setAntiAliasing(const std::string& antiAliasing);
+  std::vector<double> projectWorldToScreen(std::vector<double> worldCoordinates);
 
 private:
   std::mutex _mutex;
   std::shared_ptr<Scene> _scene;
   std::shared_ptr<Camera> _camera;
+  float _densityPixelRatio;
 };
 } // namespace margelo

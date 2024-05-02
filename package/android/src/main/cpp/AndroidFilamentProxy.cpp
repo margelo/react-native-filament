@@ -54,4 +54,8 @@ float AndroidFilamentProxy::getDisplayRefreshRate() {
   return _proxy->cthis()->getDisplayRefreshRate();
 }
 
+float AndroidFilamentProxy::getDensityPixelRatio() {
+  return _proxy->cthis()->getDensityPixelRatio();
+}
+
 } // namespace margelo
