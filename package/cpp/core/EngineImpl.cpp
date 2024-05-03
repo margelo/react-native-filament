@@ -83,35 +83,26 @@ EngineImpl::EngineImpl(std::shared_ptr<Dispatcher> rendererDispatcher, std::shar
   _view->setCamera(_camera.get());
 }
 
-std::future<std::shared_ptr<SwapChain>> EngineImpl::createSwapChainForSurfaceAsync(std::shared_ptr<SurfaceProvider> surfaceProvider,
-                                                                                   bool enableTransparentRendering) {
+void EngineImpl::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering) {
   if (surfaceProvider == nullptr) {
     [[unlikely]];
     throw std::runtime_error("SurfaceProvider cannot be null!");
   }
-
-  std::shared_ptr<std::promise<std::shared_ptr<SwapChain>>> promise;
-  std::future<std::shared_ptr<SwapChain>> future = promise->get_future();
-
   _surfaceProvider = surfaceProvider; // Hold a reference to avoid it getting destroyed
   std::shared_ptr<Surface> surface = surfaceProvider->getSurfaceOrNull();
   if (surface != nullptr) {
-    std::shared_ptr<SwapChain> swapChain = setSurface(surface, enableTransparentRendering);
-    promise->set_value(swapChain);
+    setSurface(surface, enableTransparentRendering);
   }
 
   auto dispatcher = _rendererDispatcher;
   std::weak_ptr<EngineImpl> weakSelf = shared_from_this();
   SurfaceProvider::Callback callback{.onSurfaceCreated =
-                                         [dispatcher, weakSelf, enableTransparentRendering, promise](std::shared_ptr<Surface> surface) {
+                                         [dispatcher, weakSelf, enableTransparentRendering](std::shared_ptr<Surface> surface) {
                                            dispatcher->runAsync([=]() {
                                              auto sharedThis = weakSelf.lock();
                                              if (sharedThis != nullptr) {
                                                Logger::log(TAG, "Initializing surface...");
-                                               std::shared_ptr<SwapChain> swapChain =
-                                                   sharedThis->setSurface(surface, enableTransparentRendering);
-                                               promise->set_value(swapChain);
-                                               // TODO: how do we make sure the promise isn't called multiple times (android)
+                                               sharedThis->setSurface(surface, enableTransparentRendering);
                                              }
                                            });
                                          },
@@ -132,49 +123,23 @@ std::future<std::shared_ptr<SwapChain>> EngineImpl::createSwapChainForSurfaceAsy
                                            auto sharedThis = weakSelf.lock();
                                            if (sharedThis != nullptr) {
                                              sharedThis->destroySurface();
-                                             // TODO: if surface created was never called, so we need to set the promise to an error state?
-                                             //       is such a flow even possible?
                                            }
                                          }};
   _surfaceListener = surfaceProvider->addOnSurfaceChangedListener(std::move(callback));
-
-  return future;
 }
 
-std::shared_ptr<SwapChain> EngineImpl::setSurface(std::shared_ptr<Surface> surface, bool enableTransparentRendering) {
+void EngineImpl::setSurface(std::shared_ptr<Surface> surface, bool enableTransparentRendering) {
   std::unique_lock lock(_mutex);
   Logger::log(TAG, "Initializing SwapChain...");
 
   // Setup swapchain
-  void* nativeWindow = surface->getSurface();
-  _swapChain = createSwapChain(nativeWindow, enableTransparentRendering);
+  _swapChain = createSwapChain(surface, enableTransparentRendering);
 
   // Setup camera manipulator
   _cameraManipulator = createCameraManipulator(surface->getWidth(), surface->getHeight());
 
   // Notify about the surface size change
   surfaceSizeChanged(surface->getWidth(), surface->getHeight());
-
-  return _swapChain;
-}
-
-std::shared_ptr<SwapChain> EngineImpl::createSwapChain(void* nativeWindow, bool enableTransparentRendering) {
-  auto dispatcher = _rendererDispatcher;
-  uint64_t flags = enableTransparentRendering ? SwapChain::CONFIG_TRANSPARENT : 0; // TODO: make flags configurable
-  auto swapChain = References<SwapChain>::adoptEngineRef(_engine, _engine->createSwapChain(nativeWindow, flags),
-                                                         [dispatcher](std::shared_ptr<Engine> engine, SwapChain* swapChain) {
-                                                           dispatcher->runAsync([engine, swapChain]() {
-                                                             Logger::log(TAG, "Destroying swapchain...");
-                                                             engine->destroy(swapChain);
-                                                             // Required to ensure we don't return before Filament is done executing the
-                                                             // destroySwapChain command, otherwise Android might destroy the Surface
-                                                             // too early
-                                                             engine->flushAndWait();
-                                                             Logger::log(TAG, "Destroyed swapchain!");
-                                                           });
-                                                         });
-
-  return swapChain;
 }
 
 void EngineImpl::surfaceSizeChanged(int width, int height) {
@@ -270,6 +235,26 @@ std::shared_ptr<View> EngineImpl::createView() {
       });
 
   return view;
+}
+
+std::shared_ptr<SwapChain> EngineImpl::createSwapChain(std::shared_ptr<Surface> surface, bool enableTransparentRendering) {
+  auto dispatcher = _rendererDispatcher;
+  void* nativeWindow = surface->getSurface();
+  uint64_t flags = enableTransparentRendering ? SwapChain::CONFIG_TRANSPARENT : 0;
+  auto swapChain = References<SwapChain>::adoptEngineRef(_engine, _engine->createSwapChain(nativeWindow, flags),
+                                                         [dispatcher](std::shared_ptr<Engine> engine, SwapChain* swapChain) {
+                                                           dispatcher->runAsync([engine, swapChain]() {
+                                                             Logger::log(TAG, "Destroying swapchain...");
+                                                             engine->destroy(swapChain);
+                                                             // Required to ensure we don't return before Filament is done executing the
+                                                             // destroySwapChain command, otherwise Android might destroy the Surface
+                                                             // too early
+                                                             engine->flushAndWait();
+                                                             Logger::log(TAG, "Destroyed swapchain!");
+                                                           });
+                                                         });
+
+  return swapChain;
 }
 
 std::shared_ptr<Camera> EngineImpl::createCamera() {

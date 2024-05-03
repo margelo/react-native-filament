@@ -30,7 +30,7 @@
 namespace margelo {
 
 void EngineWrapper::loadHybridMethods() {
-  registerHybridMethod("createSwapChainForSurface", &EngineWrapper::createSwapChainForSurfaceAsync, this);
+  registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider, this);
   registerHybridMethod("render", &EngineWrapper::render, this);
   registerHybridMethod("setIndirectLight", &EngineWrapper::setIndirectLight, this);
   registerHybridMethod("loadAsset", &EngineWrapper::loadAsset, this);
@@ -49,14 +49,8 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("clearSkybox", &EngineWrapper::clearSkybox, this);
   registerHybridMethod("setAutomaticInstancingEnabled", &EngineWrapper::setAutomaticInstancingEnabled, this);
 }
-std::future<std::shared_ptr<SwapChainWrapper>>
-EngineWrapper::createSwapChainForSurfaceAsync(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering) {
-  auto swapChainFuture = pointee()->createSwapChainForSurfaceAsync(surfaceProvider, enableTransparentRendering);
-  auto sharedSwapChainFuture = swapChainFuture.share();
-  return std::async(std::launch::async, [=]() {
-    auto swapChain = sharedSwapChainFuture.get();
-    return std::make_shared<SwapChainWrapper>(swapChain);
-  });
+void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering) {
+  pointee()->setSurfaceProvider(surfaceProvider, enableTransparentRendering);
 }
 void EngineWrapper::render(double timestamp) {
   pointee()->render(timestamp);

@@ -59,8 +59,7 @@ public:
   void loadHybridMethods() override;
 
 private: // Exposed public JS API
-  std::future<std::shared_ptr<SwapChainWrapper>> createSwapChainForSurfaceAsync(std::shared_ptr<SurfaceProvider> surfaceProvider,
-                                                                                bool enableTransparentRendering);
+  void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering);
   void render(double timestamp);
   void setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer, std::optional<double> intensity, std::optional<int> irradianceBands);
   std::shared_ptr<FilamentAssetWrapper> loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
