@@ -36,6 +36,6 @@ private:
   RenderCallback _renderCallback = nullptr;
 
 private:
-  static constexpr auto TAG = "EngineImpl";
+  static constexpr auto TAG = "ChoreographerWrapper";
 };
 } // namespace margelo
