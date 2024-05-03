@@ -58,7 +58,6 @@ export class Filament extends React.PureComponent<FilamentProps> {
   }
 
   private updateRenderCallback = async (callback: RenderCallback) => {
-    console.log('updateRenderCallback')
     const { engine, _workletContext } = this.getContext()
 
     const choreographer = await this.choreographer
