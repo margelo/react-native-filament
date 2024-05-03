@@ -49,6 +49,16 @@ template <> struct JSIConverter<int> {
   }
 };
 
+// long <> number
+template <> struct JSIConverter<long> {
+  static long fromJSI(jsi::Runtime&, const jsi::Value& arg) {
+    return static_cast<long>(arg.asNumber());
+  }
+  static jsi::Value toJSI(jsi::Runtime&, long arg) {
+    return jsi::Value(static_cast<double>(arg));
+  }
+};
+
 // double <> number
 template <> struct JSIConverter<double> {
   static double fromJSI(jsi::Runtime&, const jsi::Value& arg) {
