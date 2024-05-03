@@ -13,8 +13,7 @@ import { LightManager } from './LightManager'
 import { PointerHolder } from './PointerHolder'
 
 export interface Engine extends PointerHolder {
-  // TODO: Document
-  createAndSetSwapChainFromSurface(surfaceProvider: SurfaceProvider, enableTransparentRendering: boolean): void
+  setSurfaceProvider(surfaceProvider: SurfaceProvider, enableTransparentRendering: boolean): void
 
   // TODO: Document
   render(timestamp: number): void

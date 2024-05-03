@@ -59,7 +59,7 @@ class EngineImpl : public std::enable_shared_from_this<EngineImpl> {
 public:
   explicit EngineImpl(std::shared_ptr<Dispatcher> rendererDispatcher, std::shared_ptr<Engine> engine, float displayRefreshRate);
 
-  void createAndSetSwapChainFromSurface(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering);
+  void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering);
   __attribute__((hot)) void render(double timestamp);
 
   void setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer, std::optional<double> intensity, std::optional<int> irradianceBands);

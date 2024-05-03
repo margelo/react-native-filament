@@ -30,7 +30,7 @@
 namespace margelo {
 
 void EngineWrapper::loadHybridMethods() {
-  registerHybridMethod("createAndSetSwapChainFromSurface", &EngineWrapper::createAndSetSwapChainFromSurface, this);
+  registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider, this);
   registerHybridMethod("render", &EngineWrapper::render, this);
   registerHybridMethod("setIndirectLight", &EngineWrapper::setIndirectLight, this);
   registerHybridMethod("loadAsset", &EngineWrapper::loadAsset, this);
@@ -49,8 +49,8 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("clearSkybox", &EngineWrapper::clearSkybox, this);
   registerHybridMethod("setAutomaticInstancingEnabled", &EngineWrapper::setAutomaticInstancingEnabled, this);
 }
-void EngineWrapper::createAndSetSwapChainFromSurface(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering) {
-  pointee()->createAndSetSwapChainFromSurface(surfaceProvider, enableTransparentRendering);
+void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering) {
+  pointee()->setSurfaceProvider(surfaceProvider, enableTransparentRendering);
 }
 void EngineWrapper::render(double timestamp) {
   pointee()->render(timestamp);
