@@ -12,16 +12,11 @@ import { Material } from './Material'
 import { LightManager } from './LightManager'
 import { PointerHolder } from './PointerHolder'
 
-// TODO: do we really want to expose this?
-//       Should probably be more like a createAndSet operation
-interface SwapChain {}
-
 export interface Engine extends PointerHolder {
-  // setSurfaceProvider(surfaceProvider: SurfaceProvider, enableTransparentRendering: boolean): void
+  setSurfaceProvider(surfaceProvider: SurfaceProvider, enableTransparentRendering: boolean): void
 
   // TODO: Document
   render(timestamp: number): void
-  createSwapChainForSurface(surface: SurfaceProvider, enableTransparentRendering: boolean): SwapChain
 
   /**
    * Given a {@linkcode FilamentBuffer} (e.g. from a .glb file), load the asset into the engine.

@@ -59,10 +59,7 @@ class EngineImpl : public std::enable_shared_from_this<EngineImpl> {
 public:
   explicit EngineImpl(std::shared_ptr<Dispatcher> rendererDispatcher, std::shared_ptr<Engine> engine, float displayRefreshRate);
 
-  std::future<std::shared_ptr<SwapChain>> createSwapChainForSurfaceAsync(std::shared_ptr<SurfaceProvider> surfaceProvider,
-                                                                         bool enableTransparentRendering);
-  //  void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering);
-
+  void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering);
   __attribute__((hot)) void render(double timestamp);
 
   void setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer, std::optional<double> intensity, std::optional<int> irradianceBands);
@@ -79,8 +76,7 @@ public:
   void setAutomaticInstancingEnabled(bool enabled);
 
 private:
-  std::shared_ptr<SwapChain> setSurface(std::shared_ptr<Surface> surface, bool enableTransparentRendering);
-  std::shared_ptr<SwapChain> createSwapChain(void* nativeWindow, bool enableTransparentRendering);
+  void setSurface(std::shared_ptr<Surface> surface, bool enableTransparentRendering);
   void destroySurface();
   void surfaceSizeChanged(int width, int height);
 
@@ -114,6 +110,7 @@ private:
 
 private:
   std::shared_ptr<Renderer> createRenderer(float displayRefreshRate);
+  std::shared_ptr<SwapChain> createSwapChain(std::shared_ptr<Surface> surface, bool enableTransparentRendering);
   std::shared_ptr<Scene> createScene();
   std::shared_ptr<View> createView();
   std::shared_ptr<Camera> createCamera();
