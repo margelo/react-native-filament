@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "BoxWrapper.h"
 #include "RenderableManagerImpl.h"
 #include "jsi/PointerHolder.h"
 
@@ -37,6 +38,7 @@ private: // Exposed JS API
   std::shared_ptr<EntityWrapper> createDebugCubeWireframe(std::vector<double> halfExtent,
                                                           std::optional<std::shared_ptr<MaterialWrapper>> materialWrapper,
                                                           std::optional<double> colorHexCode);
+  std::shared_ptr<BoxWrapper> getAxisAlignedBoundingBox(std::shared_ptr<EntityWrapper> entityWrapper);
 };
 
 } // namespace margelo
