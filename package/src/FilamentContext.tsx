@@ -159,8 +159,8 @@ type FilamentProviderProps = PropsWithChildren<
  * </FilamentProvider>
  * ```
  */
-export function FilamentProvider({ children, fallback, config, backend, isPaused, frameRateOptions, ...viewProps }: FilamentProviderProps) {
-  const engine = useEngine({ config, backend, isPaused })
+export function FilamentProvider({ children, fallback, config, backend, frameRateOptions, ...viewProps }: FilamentProviderProps) {
+  const engine = useEngine({ config, backend })
   const rendererProps = useMemo(() => ({ frameRateOptions }), [frameRateOptions])
 
   if (engine == null) return fallback ?? null
