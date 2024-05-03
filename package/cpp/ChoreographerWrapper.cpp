@@ -26,12 +26,12 @@ void ChoreographerWrapper::stop() {
 
 void ChoreographerWrapper::setFrameCallback(RenderCallback onFrameCallback) {
   std::unique_lock lock(_mutex);
-    
-    _renderCallback = onFrameCallback;
-    
-    if (_listener) {
-        _listener->remove();
-    }
+
+  _renderCallback = onFrameCallback;
+
+  if (_listener) {
+    _listener->remove();
+  }
 
   std::weak_ptr<ChoreographerWrapper> weakThis = shared<ChoreographerWrapper>();
   _listener = pointee()->addOnFrameListener([onFrameCallback, weakThis](double timestamp) {
@@ -49,12 +49,12 @@ void ChoreographerWrapper::renderCallback(double timestamp) {
     [[unlikely]];
     _startTime = timestamp;
   }
-    
-    if (_renderCallback == nullptr) {
-        [[unlikely]];
-        Logger::log(TAG, "⚠️ Calling Choreographer renderCallback without a valid renderCallback function!");
-        return;
-    }
+
+  if (_renderCallback == nullptr) {
+    [[unlikely]];
+    Logger::log(TAG, "⚠️ Calling Choreographer renderCallback without a valid renderCallback function!");
+    return;
+  }
 
   double passedSeconds = (timestamp - _startTime) / 1e9;
   double timeSinceLastFrame = (timestamp - _lastFrameTime) / 1e9;
@@ -76,13 +76,13 @@ void ChoreographerWrapper::renderCallback(double timestamp) {
 // risk of it being called (and then calling the renderCallback which is invalid by then).
 void ChoreographerWrapper::onRuntimeDestroyed(jsi::Runtime*) {
   std::unique_lock lock(_mutex);
-    
+
   Logger::log(TAG, "Runtime destroyed, stopping choreographer...");
   _renderCallback = nullptr;
-    // Its possible that the pointer was already released manually by the user
-    if (getIsValid()){
-        pointee()->stop();
-    }
+  // Its possible that the pointer was already released manually by the user
+  if (getIsValid()) {
+    pointee()->stop();
+  }
   if (_listener) {
     _listener->remove();
     _listener = nullptr;
