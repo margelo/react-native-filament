@@ -149,7 +149,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
       const enableTransparentRendering = this.props.enableTransparentRendering ?? true
       context._workletContext.runAsync(() => {
         'worklet'
-        engine.setSurfaceProvider(surfaceProvider, enableTransparentRendering)
+        engine.createAndSetSwapChainFromSurface(surfaceProvider, enableTransparentRendering)
         choreographer.start()
       })
     } catch (e) {
