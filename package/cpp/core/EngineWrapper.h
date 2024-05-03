@@ -62,6 +62,7 @@ private: // Exposed public JS API
   void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
   std::shared_ptr<SwapChainWrapper> createSwapChainForSurface(std::shared_ptr<SurfaceProvider> surfaceProvider,
                                                               bool enableTransparentRendering);
+  std::shared_ptr<SwapChainWrapper> createSwapChainForRecorder(std::shared_ptr<FilamentRecorder> recorder);
   void setSwapChain(std::shared_ptr<SwapChainWrapper> swapChainWrapper);
   void render(double timestamp);
   void setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer, std::optional<double> intensity, std::optional<int> irradianceBands);

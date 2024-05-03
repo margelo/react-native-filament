@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useCallback } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { Button, StyleSheet, View } from 'react-native'
 import {
   Filament,
   Float3,
@@ -12,6 +12,8 @@ import {
   useResource,
   useSkybox,
   RenderCallback,
+  useRecorder,
+  useWorkletCallback,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
@@ -27,6 +29,9 @@ const cameraUp: Float3 = [0, 1, 0]
 const focalLengthInMillimeters = 28
 const near = 0.1
 const far = 1000
+
+const FPS = 29
+const DURATION = 1 // seconds
 
 function Renderer() {
   const { camera, view } = useFilamentContext()
@@ -75,9 +80,36 @@ function Renderer() {
     [view, prevAspectRatio, camera, pirateHatAnimator, penguAnimator]
   )
 
+  const recorder = useRecorder({
+    bitRate: 10_000_000,
+    fps: FPS,
+    height: 1080,
+    width: 1920,
+  })
+  const { engine } = useFilamentContext()
+  const startRecording = useWorkletCallback(() => {
+    'worklet'
+
+    console.log('Starting recording...')
+    recorder.startRecording()
+    const framesToRender = DURATION * FPS
+    for (let i = 0; i < framesToRender; i++) {
+      console.log(`Rendering frame #${i + 1} of ${framesToRender}`)
+      engine.render(Date.now())
+    }
+    console.log('Stopping recording')
+    recorder.stopRecording()
+    console.log('Recording stopped.')
+  }, [engine, recorder])
+
   return (
     <View style={styles.container}>
-      <Filament style={styles.filamentView} enableTransparentRendering={false} renderCallback={renderCallback} />
+      <Button
+        onPress={() => {
+          startRecording()
+        }}
+        title={'Start recording'}
+      />
     </View>
   )
 }

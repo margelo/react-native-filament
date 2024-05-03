@@ -84,6 +84,8 @@ EngineImpl::EngineImpl(std::shared_ptr<Dispatcher> rendererDispatcher, std::shar
 }
 
 void EngineImpl::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
+  Logger::log(TAG, "Setting surface provider...");
+
   if (surfaceProvider == nullptr) {
     [[unlikely]];
     throw std::runtime_error("SurfaceProvider cannot be null!");
@@ -160,6 +162,29 @@ void EngineImpl::destroySurface() {
   _swapChain = nullptr;
 }
 
+std::shared_ptr<SwapChain> EngineImpl::createSwapChain(void* nativeWindow, u_int64_t flags = 0) {
+  Logger::log(TAG, "Creating swapchain ...");
+  auto dispatcher = _rendererDispatcher;
+  return References<SwapChain>::adoptEngineRef(_engine, _engine->createSwapChain(nativeWindow, flags),
+                                               [dispatcher](std::shared_ptr<Engine> engine, SwapChain* swapChain) {
+                                                 dispatcher->runAsync([engine, swapChain]() {
+                                                   Logger::log(TAG, "Destroying swapchain...");
+                                                   engine->destroy(swapChain);
+                                                   // Required to ensure we don't return before Filament is done executing the
+                                                   // destroySwapChain command, otherwise Android might destroy the Surface
+                                                   // too early
+                                                   engine->flushAndWait();
+                                                   Logger::log(TAG, "Destroyed swapchain!");
+                                                 });
+                                               });
+}
+
+void EngineImpl::setSwapChain(std::shared_ptr<SwapChain> swapChain) {
+  std::unique_lock lock(_mutex);
+  Logger::log(TAG, "Setting swapchain...");
+  _swapChain = swapChain;
+}
+
 void EngineImpl::render(double timestamp) {
   std::unique_lock lock(_mutex);
 
@@ -222,39 +247,6 @@ std::shared_ptr<View> EngineImpl::createView() {
       });
 
   return view;
-}
-
-std::shared_ptr<SwapChain> EngineImpl::createSwapChainForSurface(std::shared_ptr<SurfaceProvider> surfaceProvider,
-                                                                 bool enableTransparentRendering) {
-  auto dispatcher = _rendererDispatcher;
-  std::shared_ptr<Surface> surface = surfaceProvider->getSurfaceOrNull();
-
-  if (surface == nullptr) {
-    throw std::runtime_error("Surface is null");
-  }
-
-  void* nativeWindow = surface->getSurface();
-  // TODO: make flags configurable
-  uint64_t flags = enableTransparentRendering ? SwapChain::CONFIG_TRANSPARENT : 0;
-  auto swapChain = References<SwapChain>::adoptEngineRef(_engine, _engine->createSwapChain(nativeWindow, flags),
-                                                         [dispatcher](std::shared_ptr<Engine> engine, SwapChain* swapChain) {
-                                                           dispatcher->runAsync([engine, swapChain]() {
-                                                             Logger::log(TAG, "Destroying swapchain...");
-                                                             engine->destroy(swapChain);
-                                                             // Required to ensure we don't return before Filament is done executing the
-                                                             // destroySwapChain command, otherwise Android might destroy the Surface
-                                                             // too early
-                                                             engine->flushAndWait();
-                                                             Logger::log(TAG, "Destroyed swapchain!");
-                                                           });
-                                                         });
-
-  return swapChain;
-}
-
-void EngineImpl::setSwapChain(std::shared_ptr<SwapChain> swapChain) {
-  std::unique_lock lock(_mutex);
-  _swapChain = swapChain;
 }
 
 std::shared_ptr<Camera> EngineImpl::createCamera() {

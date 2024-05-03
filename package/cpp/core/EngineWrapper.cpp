@@ -32,6 +32,7 @@ namespace margelo {
 void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider, this);
   registerHybridMethod("createSwapChainForSurface", &EngineWrapper::createSwapChainForSurface, this);
+  registerHybridMethod("createSwapChainForRecorder", &EngineWrapper::createSwapChainForRecorder, this);
   registerHybridMethod("setSwapChain", &EngineWrapper::setSwapChain, this);
   registerHybridMethod("render", &EngineWrapper::render, this);
   registerHybridMethod("setIndirectLight", &EngineWrapper::setIndirectLight, this);
@@ -56,7 +57,30 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
 }
 std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChainForSurface(std::shared_ptr<SurfaceProvider> surfaceProvider,
                                                                            bool enableTransparentRendering) {
-  std::shared_ptr<SwapChain> swapChain = pointee()->createSwapChainForSurface(surfaceProvider, enableTransparentRendering);
+  Logger::log(TAG, "Creating swapchain for surface ...");
+
+  std::shared_ptr<Surface> surface = surfaceProvider->getSurfaceOrNull();
+  if (surface == nullptr) {
+    throw std::runtime_error("Surface is null");
+  }
+
+  void* nativeWindow = surface->getSurface();
+  // TODO: make flags configurable
+  uint64_t flags = enableTransparentRendering ? SwapChain::CONFIG_TRANSPARENT : 0;
+  std::shared_ptr<SwapChain> swapChain = pointee()->createSwapChain(nativeWindow, flags);
+
+  return std::make_shared<SwapChainWrapper>(swapChain);
+}
+std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChainForRecorder(std::shared_ptr<FilamentRecorder> recorder) {
+    Logger::log(TAG, "Creating swapchain for recorder ...");
+    
+  if (recorder == nullptr) {
+    throw std::invalid_argument("Recorder is null");
+  }
+  void* nativeWindow = recorder->getNativeWindow();
+
+  // TODO: make this flag configurable, or get from platform settings?
+  std::shared_ptr<SwapChain> swapChain = pointee()->createSwapChain(nativeWindow, SwapChain::CONFIG_APPLE_CVPIXELBUFFER);
   return std::make_shared<SwapChainWrapper>(swapChain);
 }
 void EngineWrapper::setSwapChain(std::shared_ptr<SwapChainWrapper> swapChainWrapper) {

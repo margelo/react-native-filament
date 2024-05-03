@@ -63,6 +63,7 @@ export interface TFilamentProxy {
    * Whether Worklets are installed, or not.
    */
   readonly hasWorklets: boolean
+
   /**
    * Get the Worklet context used for Rendering to Filament.
    *
@@ -72,10 +73,10 @@ export interface TFilamentProxy {
    * const context = FilamentProxy.getWorkletContext()
    *
    * // 2. From now on, perform all Filament calls and operations in `context`
-   * Worklets.createRunInContextFn(() => {
+   * context.runAsync(() => {
    *   const engine = FilamentProxy.createEngine()
    *   // render...
-   * }, context)()
+   * })
    * ```
    */
   getWorkletContext: () => IWorkletContext
