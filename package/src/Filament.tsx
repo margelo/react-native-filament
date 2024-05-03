@@ -19,10 +19,10 @@ type RefType = React.Component<NativeProps> & Readonly<NativeMethods>
 
 export class Filament extends React.PureComponent<FilamentProps> {
   private readonly ref: React.RefObject<RefType>
-  // private choreographer: Choreographer | undefined
-  private readonly waitUntilChoreographer: Promise<Choreographer>
-  private waitUntilChoreographerResolve: (value: Choreographer) => void = () => {
-    throw new Error('Internal error: waitUntilChoreographerResolve not initialized!')
+  // The creation of the Choreographer is async, so we store it in a promise:
+  private readonly choreographer: Promise<Choreographer>
+  private resolveChoreographer: (value: Choreographer) => void = () => {
+    throw new Error('Internal error: Choreographer creation promise is not initialized yet. This should never happen!')
   }
 
   /**
@@ -37,8 +37,8 @@ export class Filament extends React.PureComponent<FilamentProps> {
     super(props)
     this.ref = React.createRef<RefType>()
 
-    this.waitUntilChoreographer = new Promise<Choreographer>((resolve) => {
-      this.waitUntilChoreographerResolve = resolve
+    this.choreographer = new Promise<Choreographer>((resolve) => {
+      this.resolveChoreographer = resolve
     })
   }
 
@@ -61,7 +61,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
     console.log('updateRenderCallback')
     const { engine, _workletContext } = this.getContext()
 
-    const choreographer = await this.waitUntilChoreographer
+    const choreographer = await this.choreographer
 
     _workletContext.runAsync(() => {
       'worklet'
@@ -88,11 +88,12 @@ export class Filament extends React.PureComponent<FilamentProps> {
         return FilamentProxy.createChoreographer()
       })
       .then((choreographer) => {
-        this.waitUntilChoreographerResolve(choreographer)
+        this.resolveChoreographer(choreographer)
       })
     // TODO: Catch doesn't work with the promise returned by RNWC
     // .catch((e) => {
     //   console.error('Failed to create Choreographer:', e)
+    //   rejectChoreographer()
     // })
   }
 
@@ -110,7 +111,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
       this.updateTransparentRendering(false)
     }
 
-    // Set the render callback:
+    // Create the Choreographer and set the render callback once done:
     this.createAndSetChoreographer().then(() => {
       this.updateRenderCallback(this.props.renderCallback)
     })
@@ -126,14 +127,15 @@ export class Filament extends React.PureComponent<FilamentProps> {
   }
 
   componentWillUnmount(): void {
-    // TODO: implement release
-    // this.choreographer?.release()
-    // const choreographer = this.choreographer
+    this.choreographer.then((choreographer) => {
+      choreographer.stop()
+      choreographer.release()
+    })
   }
 
   onViewReady = async () => {
     const context = this.getContext()
-    const choreographer = await this.waitUntilChoreographer
+    const choreographer = await this.choreographer
 
     try {
       const handle = this.handle
