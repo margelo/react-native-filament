@@ -7,6 +7,7 @@ import type { MaterialInstance } from './MaterialInstance'
 import { PointerHolder } from './PointerHolder'
 import { Float3 } from './float3'
 import { TextureFlags } from './TextureFlags'
+import { Box } from './Boxes'
 
 /**
  * Factory and manager for \em renderables, which are entities that can be drawn.
@@ -98,4 +99,6 @@ export interface RenderableManager extends PointerHolder {
    * @param color Provide a color in the format 0xRRGGBBAA
    */
   createDebugCubeWireframe(halfExtent: Float3, material: Material | undefined, color: number | undefined): Entity
+
+  getAxisAlignedBoundingBox(entity: Entity): Box
 }

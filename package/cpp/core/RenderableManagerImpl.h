@@ -66,6 +66,8 @@ public: // Public API
    */
   void scaleBoundingBox(std::shared_ptr<FilamentAssetWrapper> assetWrapper, double scaleFactor);
 
+  Box getAxisAlignedBoundingBox(std::shared_ptr<EntityWrapper> entityWrapper);
+
 private:
   // Calls the TextureProvider to start loading the resource
   void startUpdateResourceLoading();
