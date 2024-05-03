@@ -49,6 +49,12 @@ void ChoreographerWrapper::renderCallback(double timestamp) {
     [[unlikely]];
     _startTime = timestamp;
   }
+    
+    if (_renderCallback == nullptr) {
+        [[unlikely]];
+        Logger::log(TAG, "⚠️ Calling Choreographer renderCallback without a valid renderCallback function!");
+        return;
+    }
 
   double passedSeconds = (timestamp - _startTime) / 1e9;
   double timeSinceLastFrame = (timestamp - _lastFrameTime) / 1e9;
@@ -59,12 +65,6 @@ void ChoreographerWrapper::renderCallback(double timestamp) {
       {"startTime", _startTime},
       {"timeSinceLastFrame", timeSinceLastFrame},
   };
-    
-    if (_renderCallback == nullptr) {
-        [[unlikely]];
-        Logger::log(TAG, "⚠️ Calling Choreographer renderCallback without a valid renderCallback function!");
-        return;
-    }
 
   _renderCallback(frameInfo);
 }
