@@ -18,6 +18,7 @@ void RenderableManagerWrapper::loadHybridMethods() {
   registerHybridMethod("createPlane", &RenderableManagerWrapper::createPlane, this);
   registerHybridMethod("scaleBoundingBox", &RenderableManagerWrapper::scaleBoundingBox, this);
   registerHybridMethod("createDebugCubeWireframe", &RenderableManagerWrapper::createDebugCubeWireframe, this);
+  registerHybridMethod("getAxisAlignedBoundingBox", &RenderableManagerWrapper::getAxisAlignedBoundingBox, this);
 }
 int RenderableManagerWrapper::getPrimitiveCount(std::shared_ptr<EntityWrapper> entity) {
   return pointee()->getPrimitiveCount(entity);
@@ -67,6 +68,11 @@ std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createDebugCubeWirefram
 
 Texture* RenderableManagerWrapper::createTextureFromBuffer(std::shared_ptr<FilamentBuffer> buffer, const std::string& textureFlags) {
   return pointee()->createTextureFromBuffer(buffer, textureFlags);
+}
+
+std::shared_ptr<BoxWrapper> RenderableManagerWrapper::getAxisAlignedBoundingBox(std::shared_ptr<EntityWrapper> entityWrapper) {
+  Box box = pointee()->getAxisAlignedBoundingBox(entityWrapper);
+  return std::make_shared<BoxWrapper>(box);
 }
 
 } // namespace margelo

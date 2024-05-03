@@ -1,4 +1,4 @@
-import { AABB } from './AABB'
+import { AABB } from './Boxes'
 import { Animator } from './Animator'
 import { Entity } from './Entity'
 

@@ -32,7 +32,7 @@ const far = 1000
 const animationInterpolationTime = 5
 
 function Renderer() {
-  const { camera, view, scene, transformManager } = useFilamentContext()
+  const { camera, view, scene, transformManager, renderableManager } = useFilamentContext()
   useDefaultLight()
   useSkybox({ color: '#88defb' })
 
@@ -127,25 +127,27 @@ function Renderer() {
     return names
   }, [penguAnimator])
 
-  const [position, setPosition] = React.useState({ x: 0, y: 0 })
-  const penguBoundingBox = penguAsset?.boundingBox
   useEffect(() => {
     if (rootEntity == null) return
-    if (penguBoundingBox == null) return
+    if (penguAsset == null) return
 
-    setTimeout(() => {
-      // Get the position of the root entity
-      const transform = transformManager.getTransform(rootEntity)
-      const translation = transform.translation
-      const newY = penguBoundingBox.halfExtent[1] + translation[1]
-      const penguTopVec3: Float3 = [translation[0], newY, translation[2]]
-
-      // Project the position to screen space
-      console.log(penguTopVec3)
-      const screenPosition = view.projectWorldToScreen(penguTopVec3)
-      setPosition({ x: screenPosition[0], y: screenPosition[1] })
-    }, 2_500)
-  }, [penguAsset, penguBoundingBox, rootEntity, transformManager, view])
+    penguAsset.getRenderableEntities().forEach((entity) => {
+      const box = renderableManager.getAxisAlignedBoundingBox(entity)
+      const worldTransform = transformManager.getWorldTransform(entity)
+      const worldPosition = worldTransform.translation
+      console.log(
+        'Box:',
+        JSON.stringify(
+          {
+            box,
+            worldPosition,
+          },
+          null,
+          2
+        )
+      )
+    })
+  }, [penguAsset, renderableManager, rootEntity, transformManager, view])
 
   const navigation = useNavigation()
 
@@ -186,18 +188,6 @@ function Renderer() {
           />
         ))}
       </ScrollView>
-      {position.x !== 0 && position.y !== 0 && (
-        <View
-          style={{
-            position: 'absolute',
-            top: position.y - 30,
-            left: position.x - 15,
-            width: 30,
-            height: 30,
-            backgroundColor: 'red',
-          }}
-        />
-      )}
     </View>
   )
 }
