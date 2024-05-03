@@ -83,7 +83,7 @@ EngineImpl::EngineImpl(std::shared_ptr<Dispatcher> rendererDispatcher, std::shar
   _view->setCamera(_camera.get());
 }
 
-void EngineImpl::createAndSetSwapChainFromSurface(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering) {
+void EngineImpl::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering) {
   if (surfaceProvider == nullptr) {
     [[unlikely]];
     throw std::runtime_error("SurfaceProvider cannot be null!");
