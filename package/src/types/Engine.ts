@@ -11,6 +11,7 @@ import { RenderableManager } from './RenderableManager'
 import { Material } from './Material'
 import { LightManager } from './LightManager'
 import { PointerHolder } from './PointerHolder'
+import { TFilamentRecorder } from '../native/FilamentRecorder'
 
 interface SwapChain {
   _type: 'SwapChain'
@@ -20,6 +21,8 @@ export interface Engine extends PointerHolder {
   setSurfaceProvider(surfaceProvider: SurfaceProvider): void
   // TODO: Document
   createSwapChainForSurface(surface: SurfaceProvider, enableTransparentRendering: boolean): SwapChain
+  // TODO: Document
+  createSwapChainForRecorder(recorder: TFilamentRecorder): SwapChain
   setSwapChain(swapChain: SwapChain): void
 
   // TODO: Document

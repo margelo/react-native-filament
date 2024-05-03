@@ -10,15 +10,21 @@
 #include "Choreographer.h"
 #include "FilamentAssetWrapper.h"
 #include "FilamentBuffer.h"
+#include "FilamentRecorder.h"
+#include "LightManagerWrapper.h"
+#include "MaterialWrapper.h"
 #include "RenderableManagerWrapper.h"
+#include "RendererWrapper.h"
 #include "SceneWrapper.h"
 #include "Surface.h"
 #include "SurfaceProvider.h"
 #include "SwapChainWrapper.h"
+#include "TransformManagerWrapper.h"
 #include "ViewWrapper.h"
 #include "bullet/RigidBodyWrapper.h"
 #include "core/utils/EntityWrapper.h"
 #include "core/utils/ManipulatorWrapper.h"
+#include "threading/Dispatcher.h"
 
 #include <camutils/Manipulator.h>
 #include <filament/Engine.h>
@@ -30,20 +36,6 @@
 #include <gltfio/MaterialProvider.h>
 #include <gltfio/ResourceLoader.h>
 #include <gltfio/TextureProvider.h>
-
-#include "CameraWrapper.h"
-#include "LightManagerWrapper.h"
-#include "MaterialWrapper.h"
-#include "RendererWrapper.h"
-#include "SceneWrapper.h"
-#include "SwapChainWrapper.h"
-#include "TransformManagerWrapper.h"
-#include "ViewWrapper.h"
-#include "threading/Dispatcher.h"
-#include <Choreographer.h>
-#include <FilamentBuffer.h>
-#include <camutils/Manipulator.h>
-#include <core/utils/ManipulatorWrapper.h>
 #include <utils/NameComponentManager.h>
 
 namespace margelo {
@@ -59,9 +51,11 @@ class EngineImpl : public std::enable_shared_from_this<EngineImpl> {
 public:
   explicit EngineImpl(std::shared_ptr<Dispatcher> rendererDispatcher, std::shared_ptr<Engine> engine, float displayRefreshRate);
 
+  // First a surface provider must be set, then once we have a surface a swapchain can be created and finally the swapchain can be set
   void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
-  std::shared_ptr<SwapChain> createSwapChainForSurface(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering);
+  std::shared_ptr<SwapChain> createSwapChain(void* nativeWindow, u_int64_t flags);
   void setSwapChain(std::shared_ptr<SwapChain> swapChain);
+
   __attribute__((hot)) void render(double timestamp);
 
   void setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer, std::optional<double> intensity, std::optional<int> irradianceBands);

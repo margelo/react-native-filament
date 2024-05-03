@@ -26,8 +26,9 @@ void FilamentProxy::loadHybridMethods() {
   registerHybridMethod("createTestObject", &FilamentProxy::createTestObject, this);
   registerHybridMethod("createEngine", &FilamentProxy::createEngine, this);
   registerHybridMethod("createBullet", &FilamentProxy::createBullet, this);
-  registerHybridGetter("hasWorklets", &FilamentProxy::getHasWorklets, this);
   registerHybridMethod("createChoreographer", &FilamentProxy::createChoreographerWrapper, this);
+  registerHybridMethod("createRecorder", &FilamentProxy::createRecorder, this);
+  registerHybridGetter("hasWorklets", &FilamentProxy::getHasWorklets, this);
 #if HAS_WORKLETS
   registerHybridMethod("getWorkletContext", &FilamentProxy::getWorkletContext, this);
 #endif
