@@ -17,6 +17,7 @@ export interface FilamentProps extends NativeProps {
 
 type RefType = React.Component<NativeProps> & Readonly<NativeMethods>
 
+// TODO: Add a ref API to stop rendering
 export class Filament extends React.PureComponent<FilamentProps> {
   private readonly ref: React.RefObject<RefType>
   // The creation of the Choreographer is async, so we store it in a promise:
