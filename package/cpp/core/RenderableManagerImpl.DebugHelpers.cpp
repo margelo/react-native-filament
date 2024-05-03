@@ -24,26 +24,8 @@ RenderableManagerImpl::createDebugCubeWireframe(float halfExtentX, float halfExt
     color = static_cast<u_int32_t>(colorHexCode.value());
   }
 
-  struct Vertex {
-    float3 position;
-    uint32_t color;
-  };
-
-  float3 minpt = {-halfExtentX, -halfExtentY, -halfExtentZ};
-  float3 maxpt = {halfExtentX, halfExtentY, halfExtentZ};
-
-  static const Vertex TRIANGLE_VERTICES[8] = {
-      // -X face:
-      {{minpt.x, minpt.y, minpt.z}, color},
-      {{minpt.x, minpt.y, maxpt.z}, color},
-      {{minpt.x, maxpt.y, minpt.z}, color},
-      {{minpt.x, maxpt.y, maxpt.z}, color},
-      // +X face:
-      {{maxpt.x, minpt.y, minpt.z}, color},
-      {{maxpt.x, minpt.y, maxpt.z}, color},
-      {{maxpt.x, maxpt.y, minpt.z}, color},
-      {{maxpt.x, maxpt.y, maxpt.z}, color},
-  };
+  std::shared_ptr<DebugVertex[]> vertices = createCubeVertices(halfExtentX, halfExtentY, halfExtentZ, color);
+  _debugVerticesList.push_back(vertices); // keep a reference to the vertices to prevent deallocation (the vertex buffer doesn't take ownership, and rendering could fail if deallocated)
 
   static constexpr uint16_t TRIANGLE_INDICES[24] = {
       // Generate 4 lines around face at -X:
@@ -79,12 +61,12 @@ RenderableManagerImpl::createDebugCubeWireframe(float halfExtentX, float halfExt
   auto vertexBuffer = VertexBuffer::Builder()
                           .vertexCount(8)
                           .bufferCount(1)
-                          .attribute(VertexAttribute::POSITION, 0, VertexBuffer::AttributeType::FLOAT3, 0, sizeof(Vertex))
-                          .attribute(VertexAttribute::COLOR, 0, VertexBuffer::AttributeType::UBYTE4, sizeof(float3), sizeof(Vertex))
+                          .attribute(VertexAttribute::POSITION, 0, VertexBuffer::AttributeType::FLOAT3, 0, sizeof(DebugVertex))
+                          .attribute(VertexAttribute::COLOR, 0, VertexBuffer::AttributeType::UBYTE4, sizeof(float3), sizeof(DebugVertex))
                           .normalized(VertexAttribute::COLOR)
                           .build(*_engine);
   vertexBuffer->setBufferAt(*_engine, 0,
-                            VertexBuffer::BufferDescriptor(TRIANGLE_VERTICES, vertexBuffer->getVertexCount() * sizeof(Vertex), nullptr));
+                            VertexBuffer::BufferDescriptor(vertices.get(), vertexBuffer->getVertexCount() * sizeof(DebugVertex), nullptr));
 
   auto indexBuffer = IndexBuffer::Builder().indexCount(24).bufferType(IndexBuffer::IndexType::USHORT).build(*_engine);
   indexBuffer->setBuffer(*_engine,
@@ -95,7 +77,7 @@ RenderableManagerImpl::createDebugCubeWireframe(float halfExtentX, float halfExt
 
   // Building the renderable.
   RenderableManager::Builder builder = RenderableManager::Builder(1);
-  builder.boundingBox({.center = {-1, -1, -1}, .halfExtent = {1, 1, 1}})
+    builder.boundingBox({.center = {0, 0, 0}, .halfExtent = {halfExtentX, halfExtentY, halfExtentZ}})
       .culling(false)
       .castShadows(false)
       .receiveShadows(false)
@@ -114,4 +96,21 @@ RenderableManagerImpl::createDebugCubeWireframe(float halfExtentX, float halfExt
 
   return std::make_shared<EntityWrapper>(wireframeEntity);
 }
+
+std::shared_ptr<DebugVertex[]> RenderableManagerImpl::createCubeVertices(float halfExtentX, float halfExtentY, float halfExtentZ, uint32_t color) {
+    float3 minpt = {-halfExtentX, -halfExtentY, -halfExtentZ};
+    float3 maxpt = {halfExtentX, halfExtentY, halfExtentZ};
+    
+    std::shared_ptr<DebugVertex[]> vertices = std::make_shared<DebugVertex[]>(8);
+    vertices[0] = {{minpt.x, minpt.y, minpt.z}, color};
+    vertices[1] = {{minpt.x, minpt.y, maxpt.z}, color};
+    vertices[2] = {{minpt.x, maxpt.y, minpt.z}, color};
+    vertices[3] = {{minpt.x, maxpt.y, maxpt.z}, color};
+    vertices[4] = {{maxpt.x, minpt.y, minpt.z}, color};
+    vertices[5] = {{maxpt.x, minpt.y, maxpt.z}, color};
+    vertices[6] = {{maxpt.x, maxpt.y, minpt.z}, color};
+    vertices[7] = {{maxpt.x, maxpt.y, maxpt.z}, color};
+    return vertices;
+}
+
 } // namespace margelo
