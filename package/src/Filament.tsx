@@ -5,6 +5,7 @@ import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 import { reportFatalError, reportWorkletError } from './ErrorUtils'
 import { FilamentContext } from './FilamentContext'
 import { Choreographer, RenderCallback } from 'react-native-filament'
+import { SurfaceProvider } from './native/FilamentViewTypes'
 
 export interface FilamentProps extends NativeProps {
   /**
@@ -25,6 +26,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
   private resolveChoreographer: (value: Choreographer) => void = () => {
     throw new Error('Internal error: Choreographer creation promise is not initialized yet. This should never happen!')
   }
+  private surfaceProvider: SurfaceProvider | undefined
 
   /**
    * Uses the context in class.
@@ -133,9 +135,9 @@ export class Filament extends React.PureComponent<FilamentProps> {
     })
   }
 
+  // This registers the surface provider, which will be notified when the surface is ready to draw on:
   onViewReady = async () => {
     const context = this.getContext()
-    const choreographer = await this.choreographer
 
     try {
       const handle = this.handle
@@ -143,23 +145,39 @@ export class Filament extends React.PureComponent<FilamentProps> {
       if (view == null) {
         throw new Error(`Failed to find FilamentView #${handle}!`)
       }
-      const surfaceProvider = view.getSurfaceProvider()
+      this.surfaceProvider = view.getSurfaceProvider()
       // Link the surface with the engine:
-      const engine = context.engine
-      const enableTransparentRendering = this.props.enableTransparentRendering ?? true
-      context._workletContext.runAsync(() => {
-        'worklet'
-        engine.setSurfaceProvider(surfaceProvider, enableTransparentRendering)
-        choreographer.start()
-      })
+      // const engine = context.engine
+      // const surfaceProvider = this.surfaceProvider
+      context.engine.setSurfaceProvider(this.surfaceProvider)
     } catch (e) {
       reportFatalError(e)
     }
   }
 
+  // This will be called once the surface is created and ready to draw on:
+  onSurfaceCreated = async () => {
+    const { engine } = this.getContext()
+
+    if (this.surfaceProvider == null) {
+      throw new Error(
+        'Internal error: Surface provider is not set! This should never happen!\nWe expect onViewReady to be called before onSurfaceCreated.'
+      )
+    }
+
+    // Create a swap chain …
+    const enableTransparentRendering = this.props.enableTransparentRendering ?? true
+    const swapChain = engine.createSwapChainForSurface(this.surfaceProvider, enableTransparentRendering)
+    // Apply the swapchain to the engine …
+    engine.setSwapChain(swapChain)
+    // Start the choreographer …
+    const choreographer = await this.choreographer
+    choreographer.start()
+  }
+
   /** @internal */
   public render(): React.ReactNode {
-    return <FilamentNativeView ref={this.ref} onViewReady={this.onViewReady} {...this.props} />
+    return <FilamentNativeView ref={this.ref} onViewReady={this.onViewReady} onSurfaceCreated={this.onSurfaceCreated} {...this.props} />
   }
 }
 

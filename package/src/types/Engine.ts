@@ -12,8 +12,15 @@ import { Material } from './Material'
 import { LightManager } from './LightManager'
 import { PointerHolder } from './PointerHolder'
 
+interface SwapChain {
+  _type: 'SwapChain'
+}
+
 export interface Engine extends PointerHolder {
-  setSurfaceProvider(surfaceProvider: SurfaceProvider, enableTransparentRendering: boolean): void
+  setSurfaceProvider(surfaceProvider: SurfaceProvider): void
+  // TODO: Document
+  createSwapChainForSurface(surface: SurfaceProvider, enableTransparentRendering: boolean): SwapChain
+  setSwapChain(swapChain: SwapChain): void
 
   // TODO: Document
   render(timestamp: number): void

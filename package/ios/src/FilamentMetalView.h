@@ -12,6 +12,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * This is the actual UIView component that will be part of the view hierarchy.
+ */
 @interface FilamentMetalView : UIView
 
 - (instancetype)init;
@@ -21,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)layoutSubviews;
 
 @property(nonatomic, strong) RCTDirectEventBlock onViewReady;
+@property(nonatomic, strong) RCTDirectEventBlock onSurfaceCreated;
 @property(nonatomic, assign) BOOL enableTransparentRendering;
 
 - (void)didMoveToWindow;

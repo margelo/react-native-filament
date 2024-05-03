@@ -95,7 +95,7 @@ RenderableManagerImpl::createDebugCubeWireframe(float halfExtentX, float halfExt
 
   // Building the renderable.
   RenderableManager::Builder builder = RenderableManager::Builder(1);
-  builder.boundingBox({.center = {-1, -1, -1}, .halfExtent = {1, 1, 1}})
+  builder.boundingBox({.center = {0, 0, 0}, .halfExtent = maxpt})
       .culling(false)
       .castShadows(false)
       .receiveShadows(false)

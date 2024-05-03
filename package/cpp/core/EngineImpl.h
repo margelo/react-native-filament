@@ -59,7 +59,9 @@ class EngineImpl : public std::enable_shared_from_this<EngineImpl> {
 public:
   explicit EngineImpl(std::shared_ptr<Dispatcher> rendererDispatcher, std::shared_ptr<Engine> engine, float displayRefreshRate);
 
-  void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering);
+  void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
+  std::shared_ptr<SwapChain> createSwapChainForSurface(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering);
+  void setSwapChain(std::shared_ptr<SwapChain> swapChain);
   __attribute__((hot)) void render(double timestamp);
 
   void setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer, std::optional<double> intensity, std::optional<int> irradianceBands);
@@ -76,7 +78,6 @@ public:
   void setAutomaticInstancingEnabled(bool enabled);
 
 private:
-  void setSurface(std::shared_ptr<Surface> surface, bool enableTransparentRendering);
   void destroySurface();
   void surfaceSizeChanged(int width, int height);
 
@@ -110,7 +111,6 @@ private:
 
 private:
   std::shared_ptr<Renderer> createRenderer(float displayRefreshRate);
-  std::shared_ptr<SwapChain> createSwapChain(std::shared_ptr<Surface> surface, bool enableTransparentRendering);
   std::shared_ptr<Scene> createScene();
   std::shared_ptr<View> createView();
   std::shared_ptr<Camera> createCamera();
