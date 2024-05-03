@@ -76,9 +76,13 @@ void ChoreographerWrapper::renderCallback(double timestamp) {
 // risk of it being called (and then calling the renderCallback which is invalid by then).
 void ChoreographerWrapper::onRuntimeDestroyed(jsi::Runtime*) {
   std::unique_lock lock(_mutex);
+    
   Logger::log(TAG, "Runtime destroyed, stopping choreographer...");
   _renderCallback = nullptr;
-  pointee()->stop();
+    // Its possible that the pointer was already released manually by the user
+    if (getIsValid()){
+        pointee()->stop();
+    }
   if (_listener) {
     _listener->remove();
     _listener = nullptr;
