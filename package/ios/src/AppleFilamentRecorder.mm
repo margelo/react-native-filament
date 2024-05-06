@@ -56,8 +56,8 @@ AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps, dou
   _assetWriter.shouldOptimizeForNetworkUse = NO;
 
   Logger::log(TAG, "Creating AVAssetWriterInput...");
-  AVVideoCodecType codec = getSupportsHEVC() ? AVVideoCodecTypeHEVC : AVVideoCodecTypeH264;
-  NSString* profile = getSupportsHEVC() ? (NSString*)kVTProfileLevel_HEVC_Main_AutoLevel : AVVideoProfileLevelH264HighAutoLevel;
+  AVVideoCodecType codec = AVVideoCodecTypeH264;
+  NSString* profile = AVVideoProfileLevelH264HighAutoLevel;
   NSDictionary* outputSettings = @{
     AVVideoCodecKey : codec,
     AVVideoCompressionPropertiesKey : @{
@@ -135,11 +135,23 @@ void AppleFilamentRecorder::renderFrame(double timestamp) {
   void* source = CVPixelBufferGetBaseAddress(_pixelBuffer);
 
   memcpy(destination, source, bytesPerRow * height);
+    
+    CIImage *ciImage = [CIImage imageWithCVPixelBuffer:_pixelBuffer];
+
+    CIContext *temporaryContext = [CIContext contextWithOptions:nil];
+    CGImageRef videoImage = [temporaryContext
+                       createCGImage:ciImage
+                       fromRect:CGRectMake(0, 0,
+                              CVPixelBufferGetWidth(_pixelBuffer),
+                              CVPixelBufferGetHeight(_pixelBuffer))];
+
+    UIImage *uiImage = [UIImage imageWithCGImage:videoImage];
+    CGImageRelease(videoImage);
 
   CVPixelBufferUnlockBaseAddress(targetBuffer, /* write flag */ 0);
   CVPixelBufferUnlockBaseAddress(_pixelBuffer, kCVPixelBufferLock_ReadOnly);
 
-  CMTime time = CMTimeMake(timestamp, 1);
+  CMTime time = CMTimeMake(_frameCount++, getFps());
   BOOL success = [_pixelBufferAdaptor appendPixelBuffer:targetBuffer withPresentationTime:time];
   if (!success || _assetWriter.status != AVAssetWriterStatusWriting) {
     std::string errorMessage = "Unknown error (status " + std::to_string(_assetWriter.status) + ")";
