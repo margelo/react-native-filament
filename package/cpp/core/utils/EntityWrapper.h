@@ -17,6 +17,8 @@ public:
     return _entity;
   }
 
+  int getId();
+
 private:
   Entity _entity;
 };

@@ -21,6 +21,7 @@ void ViewWrapper::loadHybridMethods() {
   registerHybridGetter("antiAliasing", &ViewWrapper::getAntiAliasing, this);
   registerHybridSetter("antiAliasing", &ViewWrapper::setAntiAliasing, this);
   registerHybridMethod("projectWorldToScreen", &ViewWrapper::projectWorldToScreen, this);
+  registerHybridMethod("pickEntity", &ViewWrapper::pickEntity, this);
 }
 
 double ViewWrapper::getAspectRatio() {
@@ -156,6 +157,32 @@ std::vector<double> ViewWrapper::projectWorldToScreen(std::vector<double> worldC
   screenCoordinates[1] = screenHeight * (1.0 - ((ndc.y + 1.0) / 2.0));
 
   return screenCoordinates;
+}
+
+std::future<std::optional<std::shared_ptr<EntityWrapper>>> ViewWrapper::pickEntity(double x, double y) {
+  std::promise<std::optional<std::shared_ptr<EntityWrapper>>> promise;
+  std::future<std::optional<std::shared_ptr<EntityWrapper>>> future = promise.get_future();
+
+  // Adjust DP value from react native to actual viewport / screen pixel
+  x *= _densityPixelRatio;
+  y *= _densityPixelRatio;
+  // The y coordinate we receive has its origin at the top of the screen, but Filament expects it to be at the bottom
+  y = pointee()->getViewport().height - y;
+
+  Logger::log(TAG, "Picking entity at (%f, %f)...", x, y);
+  pointee()->pick(x, y, [promise = std::move(promise)](View::PickingQueryResult result) mutable {
+    Entity entity = result.renderable;
+    if (entity.isNull()) {
+      Logger::log(TAG, "No entity picked!");
+      promise.set_value(std::nullopt);
+    } else {
+      Logger::log(TAG, "Entity picked with id %d!", entity.getId());
+      std::shared_ptr<EntityWrapper> entityWrapper = std::make_shared<EntityWrapper>(entity);
+      promise.set_value(std::optional(entityWrapper));
+    }
+  });
+
+  return future;
 }
 
 } // namespace margelo
