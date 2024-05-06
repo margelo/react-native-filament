@@ -126,10 +126,7 @@ std::shared_ptr<EngineWrapper> FilamentProxy::createEngine(std::optional<std::st
   // Create the EngineImpl...
   std::shared_ptr<EngineImpl> engineImpl = std::make_shared<EngineImpl>(renderThread, engine, refreshRate);
 
-  // Creata a callbackhandler, explain the purpose of this
-  std::shared_ptr<CallbackHandler> callbackHandler = std::make_shared<CallbackHandler>(renderThread);
-
-  return std::make_shared<EngineWrapper>(engineImpl, callbackHandler);
+  return std::make_shared<EngineWrapper>(engineImpl);
 }
 
 std::shared_ptr<BulletWrapper> FilamentProxy::createBullet() {
