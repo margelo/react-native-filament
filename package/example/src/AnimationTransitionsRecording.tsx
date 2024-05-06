@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useCallback } from 'react'
-import { Button, StyleSheet, View } from 'react-native'
+import { Button, Dimensions, PixelRatio, StyleSheet, View } from 'react-native'
 import {
   Float3,
   useModel,
@@ -13,6 +13,7 @@ import {
   RenderCallback,
   useRecorder,
   useWorkletCallback,
+  Filament,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
@@ -30,8 +31,8 @@ const focalLengthInMillimeters = 28
 const near = 0.1
 const far = 1000
 
-const FPS = 30
-const DURATION = 1 // seconds
+const FPS = 60
+const DURATION = 3 // seconds
 
 function Renderer() {
   const { camera, view } = useFilamentContext()
@@ -84,8 +85,8 @@ function Renderer() {
   const recorder = useRecorder({
     bitRate: 2_000_000,
     fps: FPS,
-    height: 720,
-    width: 480,
+    height: PixelRatio.roundToNearestPixel(Dimensions.get('screen').height),
+    width: PixelRatio.roundToNearestPixel(Dimensions.get('screen').width),
   })
   const { engine } = useFilamentContext()
   const startRecording = useWorkletCallback(() => {
@@ -97,7 +98,8 @@ function Renderer() {
     for (let i = 0; i < framesToRender; i++) {
       const nextTimestamp = started + i * (1 / FPS)
       console.log(`Rendering frame #${i + 1} of ${framesToRender} at ${nextTimestamp}`)
-      renderCallback({ passedSeconds: nextTimestamp, startTime: started })
+      const passedSeconds = nextTimestamp - started
+      renderCallback({ passedSeconds: passedSeconds, startTime: started })
       try {
         engine.render(started + i * (1 / FPS))
       } catch (e) {
@@ -109,8 +111,16 @@ function Renderer() {
 
   return (
     <View style={styles.container}>
+      {/* <Filament style={styles.filamentView} renderCallback={renderCallback} /> */}
       {videoUri != null ? (
-        <Video style={{ flex: 1 }} source={{ uri: videoUri }} onError={() => console.error(e)} onLoad={() => console.log('On load')} />
+        <Video
+          style={{ flex: 1 }}
+          paused={false}
+          source={{ uri: videoUri }}
+          onError={() => console.error(e)}
+          onLoad={() => console.log('On load')}
+          onEnd={() => console.log('On end')}
+        />
       ) : null}
       <Button
         onPress={async () => {
