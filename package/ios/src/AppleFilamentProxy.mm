@@ -117,7 +117,7 @@ std::shared_ptr<Choreographer> AppleFilamentProxy::createChoreographer() {
   return std::static_pointer_cast<Choreographer>(choreographer);
 }
 
-std::shared_ptr<FilamentRecorder> AppleFilamentProxy::createRecorder(int width, int height, int fps, long bitRate) {
+std::shared_ptr<FilamentRecorder> AppleFilamentProxy::createRecorder(int width, int height, int fps, double bitRate) {
   std::shared_ptr<AppleFilamentRecorder> recorder = std::make_shared<AppleFilamentRecorder>(width, height, fps, bitRate);
   return std::static_pointer_cast<FilamentRecorder>(recorder);
 }
