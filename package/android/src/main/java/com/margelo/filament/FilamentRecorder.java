@@ -39,6 +39,8 @@ public class FilamentRecorder {
         Log.i(TAG, "Creating Recorder with codec " + codec + ", recording to " + file.getAbsolutePath());
 
         recorder = createRecorder(context);
+        // Create Surface/ANativeWindow
+        recorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         // MP4 container
         recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         // Width x Height
