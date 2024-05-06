@@ -30,6 +30,9 @@ public:
   void renderFrame(double timestamp) override;
 
 private:
+  static bool getSupportsHEVC();
+
+private:
   // Render Target is a single PixelBuffer that acts as a 32BGRA Metal Texture
   CVPixelBufferRef _pixelBuffer;
   CVPixelBufferPoolRef _pixelBufferPool;

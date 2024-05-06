@@ -6,6 +6,7 @@
 //
 
 #include "AppleFilamentRecorder.h"
+#include <VideoToolbox/VTCompressionProperties.h>
 #include <memory>
 #include <mutex>
 
@@ -55,13 +56,15 @@ AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps, dou
   _assetWriter.shouldOptimizeForNetworkUse = NO;
 
   Logger::log(TAG, "Creating AVAssetWriterInput...");
+  AVVideoCodecType codec = getSupportsHEVC() ? AVVideoCodecTypeHEVC : AVVideoCodecTypeH264;
+  NSString* profile = getSupportsHEVC() ? (NSString*)kVTProfileLevel_HEVC_Main_AutoLevel : AVVideoProfileLevelH264HighAutoLevel;
   NSDictionary* outputSettings = @{
-    AVVideoCodecKey : AVVideoCodecTypeH264,
+    AVVideoCodecKey : codec,
     AVVideoCompressionPropertiesKey : @{
       AVVideoExpectedSourceFrameRateKey : @(fps),
       AVVideoMaxKeyFrameIntervalKey : @(fps),
       AVVideoAverageBitRateKey : @(bitRate),
-      AVVideoProfileLevelKey : AVVideoProfileLevelH264HighAutoLevel
+      AVVideoProfileLevelKey : profile
     },
     AVVideoWidthKey : @(width),
     AVVideoHeightKey : @(height)
@@ -71,7 +74,7 @@ AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps, dou
     std::string settingsJson = outputSettings.description.UTF8String;
     throw std::runtime_error("Failed to add AVAssetWriterInput to AVAssetWriter! Settings used: " + settingsJson);
   }
-      
+
   // TODO: We can make this Recorder a bit more efficient if we set:
   //       - expectsMediaDataInRealTime = NO
   //       - performsMultiPassEncodingIfSupported = YES
@@ -89,6 +92,16 @@ AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps, dou
   [_assetWriter addInput:_assetWriterInput];
 }
 
+bool AppleFilamentRecorder::getSupportsHEVC() {
+  NSArray<NSString*>* availablePresets = AVAssetExportSession.allExportPresets;
+  for (NSString* preset in availablePresets) {
+    if (preset == AVAssetExportPresetHEVCHighestQuality) {
+      return true;
+    }
+  }
+  return false;
+}
+
 void AppleFilamentRecorder::renderFrame(double timestamp) {
   Logger::log(TAG, "Rendering Frame with timestamp %f...", timestamp);
   if (!_assetWriterInput.isReadyForMoreMediaData) {
@@ -97,7 +110,7 @@ void AppleFilamentRecorder::renderFrame(double timestamp) {
     //       that only renders when isReadyForMoreMediaData turns true?
     throw std::runtime_error("AVAssetWriterInput was not ready for more data!");
   }
-  
+
   CVPixelBufferRef targetBuffer;
   CVReturn result = CVPixelBufferPoolCreatePixelBuffer(kCFAllocatorDefault, _pixelBufferPool, &targetBuffer);
   if (result != kCVReturnSuccess) {
@@ -153,7 +166,7 @@ std::future<void> AppleFilamentRecorder::startRecording() {
 
 std::future<std::string> AppleFilamentRecorder::stopRecording() {
   Logger::log(TAG, "Stopping recording...");
-  
+
   auto promise = std::make_shared<std::promise<std::string>>();
   auto self = shared<AppleFilamentRecorder>();
   dispatch_async(_queue, ^{
