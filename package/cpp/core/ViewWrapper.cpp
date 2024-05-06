@@ -159,10 +159,11 @@ std::vector<double> ViewWrapper::projectWorldToScreen(std::vector<double> worldC
   return screenCoordinates;
 }
 
-std::future<std::shared_ptr<EntityWrapper>> ViewWrapper::pickEntity(double x, double y) {
-  std::promise<std::shared_ptr<EntityWrapper>> promise;
-  std::future<std::shared_ptr<EntityWrapper>> future = promise.get_future();
+std::future<std::optional<std::shared_ptr<EntityWrapper>>> ViewWrapper::pickEntity(double x, double y) {
+  std::promise<std::optional<std::shared_ptr<EntityWrapper>>> promise;
+  std::future<std::optional<std::shared_ptr<EntityWrapper>>> future = promise.get_future();
 
+  // Adjust DP value from react native to actual viewport / screen pixel
   x *= _densityPixelRatio;
   y *= _densityPixelRatio;
   // The y coordinate we receive has its origin at the top of the screen, but Filament expects it to be at the bottom
@@ -173,10 +174,11 @@ std::future<std::shared_ptr<EntityWrapper>> ViewWrapper::pickEntity(double x, do
     Entity entity = result.renderable;
     if (entity.isNull()) {
       Logger::log(TAG, "No entity picked!");
-      promise.set_value(nullptr);
+      promise.set_value(std::nullopt);
     } else {
       Logger::log(TAG, "Entity picked with id %d!", entity.getId());
-      promise.set_value(std::make_shared<EntityWrapper>(entity));
+      std::shared_ptr<EntityWrapper> entityWrapper = std::make_shared<EntityWrapper>(entity);
+      promise.set_value(std::optional(entityWrapper));
     }
   });
 

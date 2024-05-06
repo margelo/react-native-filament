@@ -34,7 +34,7 @@ const animationInterpolationTime = 5
 function Renderer() {
   const { camera, view, scene } = useFilamentContext()
   useDefaultLight()
-  useSkybox({ color: '#88defb' })
+  // useSkybox({ color: '#88defb' })
 
   const pengu = useModel({ path: penguModelPath })
   const penguAsset = getAssetFromModel(pengu)
@@ -49,7 +49,6 @@ function Renderer() {
 
   const isPirateHatAdded = useRef(true) // assets are added by default to the scene
   const penguAnimator = useAssetAnimator(penguAsset)
-  const rootEntity = useMemo(() => penguAsset?.getRoot(), [penguAsset])
 
   const prevAnimationIndex = useSharedValue<number | undefined>(undefined)
   const prevAnimationStarted = useSharedValue<number | undefined>(undefined)
@@ -159,7 +158,7 @@ function Renderer() {
 
   return (
     <View style={styles.container} onTouchStart={onTouchStart}>
-      <Filament style={styles.filamentView} enableTransparentRendering={false} />
+      <Filament style={styles.filamentView} />
       <ScrollView style={styles.btnContainer}>
         <Button
           title="Navigate to test screen"
