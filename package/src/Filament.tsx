@@ -4,7 +4,7 @@ import { FilamentProxy } from './native/FilamentProxy'
 import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 import { reportFatalError, reportWorkletError } from './ErrorUtils'
 import { FilamentContext } from './FilamentContext'
-import { Choreographer, RenderCallback } from 'react-native-filament'
+import { Choreographer, RenderCallback, runOnWorklet } from 'react-native-filament'
 import { SurfaceProvider } from './native/FilamentViewTypes'
 
 export interface FilamentProps extends NativeProps {
