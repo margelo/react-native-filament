@@ -29,7 +29,7 @@ public:
   std::shared_ptr<FilamentBuffer> loadAsset(const std::string& path);
   std::shared_ptr<FilamentView> findFilamentView(int id);
   std::shared_ptr<Choreographer> createChoreographer();
-  std::shared_ptr<FilamentRecorder> createRecorder(int width, int height, int fps, long bitRate);
+  std::shared_ptr<FilamentRecorder> createRecorder(int width, int height, int fps, double bitRate);
   std::shared_ptr<Dispatcher> getRenderThreadDispatcher();
   std::shared_ptr<Dispatcher> getUIDispatcher();
   std::shared_ptr<Dispatcher> getBackgroundDispatcher();

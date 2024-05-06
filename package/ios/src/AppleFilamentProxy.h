@@ -27,7 +27,7 @@ public:
   std::shared_ptr<FilamentBuffer> loadAsset(const std::string& path) override;
   std::shared_ptr<FilamentView> findFilamentView(int modelId) override;
   std::shared_ptr<Choreographer> createChoreographer() override;
-  std::shared_ptr<FilamentRecorder> createRecorder(int width, int height, int fps, long bitRate) override;
+  std::shared_ptr<FilamentRecorder> createRecorder(int width, int height, int fps, double bitRate) override;
   std::shared_ptr<Dispatcher> getRenderThreadDispatcher() override;
   std::shared_ptr<Dispatcher> getUIDispatcher() override;
   std::shared_ptr<Dispatcher> getBackgroundDispatcher() override;

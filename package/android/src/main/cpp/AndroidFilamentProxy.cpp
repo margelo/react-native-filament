@@ -30,7 +30,7 @@ std::shared_ptr<Choreographer> AndroidFilamentProxy::createChoreographer() {
   return _proxy->cthis()->createChoreographer();
 }
 
-std::shared_ptr<FilamentRecorder> AndroidFilamentProxy::createRecorder(int width, int height, int fps, long bitRate) {
+std::shared_ptr<FilamentRecorder> AndroidFilamentProxy::createRecorder(int width, int height, int fps, double bitRate) {
   return _proxy->cthis()->createRecorder(width, height, fps, bitRate);
 }
 
