@@ -3,6 +3,7 @@
 //
 
 #include "JFilamentRecorder.h"
+#include <android/native_window_jni.h>
 
 namespace margelo {
 
@@ -11,6 +12,9 @@ JFilamentRecorder::JFilamentRecorder(const jni::alias_ref<jhybridobject>& javaTh
 
 JFilamentRecorder::~JFilamentRecorder() {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Destroying JFilamentRecorder...");
+  if (_nativeWindow != nullptr) {
+    ANativeWindow_release(_nativeWindow);
+  }
 }
 
 void JFilamentRecorder::registerNatives() {
@@ -20,7 +24,12 @@ void JFilamentRecorder::registerNatives() {
 }
 
 void* JFilamentRecorder::getNativeWindow() {
-  throw std::runtime_error("getNativeWindow() is not yet implemented!");
+  if (_nativeWindow == nullptr) {
+    static const auto method = javaClassLocal()->getMethod<jobject()>("getNativeWindow");
+    jni::local_ref<jobject> nativeWindow = method(_javaPart);
+    _nativeWindow = ANativeWindow_fromSurface(jni::Environment::current(), nativeWindow.get());
+  }
+  return _nativeWindow;
 }
 
 std::future<void> JFilamentRecorder::startRecording() {
@@ -46,7 +55,7 @@ bool JFilamentRecorder::getIsRecording() {
 jni::local_ref<JFilamentRecorder::jhybriddata> JFilamentRecorder::initHybrid(jni::alias_ref<jhybridobject> jThis, int width, int height,
                                                                              int fps, long bitRate) {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Initializing JFilamentRecorder...");
-  return makeCxxInstance(jThis, int width, int height, int fps, long bitRate);
+  return makeCxxInstance(jThis, width, height, fps, bitRate);
 }
 
 } // namespace margelo
