@@ -55,6 +55,7 @@ public:
   void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
   std::shared_ptr<SwapChain> createSwapChain(void* nativeWindow, u_int64_t flags);
   void setSwapChain(std::shared_ptr<SwapChain> swapChain);
+  void surfaceSizeChanged(int width, int height);
 
   __attribute__((hot)) void render(double timestamp);
 
@@ -75,7 +76,6 @@ public:
 
 private:
   void destroySurface();
-  void surfaceSizeChanged(int width, int height);
 
   void synchronizePendingFrames();
 

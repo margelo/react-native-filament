@@ -83,6 +83,10 @@ std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChainForRecorder(std:
   // TODO: make this flag configurable, or get from platform settings?
   std::shared_ptr<SwapChain> swapChain =
       pointee()->createSwapChain(nativeWindow, SwapChain::CONFIG_APPLE_CVPIXELBUFFER | SwapChain::CONFIG_READABLE);
+    
+    int width = recorder->getWidth();
+    int height = recorder->getHeight();
+    pointee()->surfaceSizeChanged(width, height);
   pointee()->setFrameCompletedCallback([recorder](double timestamp) { recorder->renderFrame(timestamp); });
 
   return std::make_shared<SwapChainWrapper>(swapChain);
