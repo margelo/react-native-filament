@@ -31,6 +31,7 @@ public:
 
 private:
   static bool getSupportsHEVC();
+  static std::string getErrorMessage(NSError* error);
 
 private:
   // Render Target is a single PixelBuffer that acts as a 32BGRA Metal Texture
