@@ -90,7 +90,7 @@ function Renderer() {
     'worklet'
 
     console.log('Starting rendering')
-    const framesToRender = 1 //DURATION * FPS
+    const framesToRender = DURATION * FPS
     for (let i = 0; i < framesToRender; i++) {
       console.log(`Rendering frame #${i + 1} of ${framesToRender}`)
       renderCallback({ passedSeconds: i / FPS })
