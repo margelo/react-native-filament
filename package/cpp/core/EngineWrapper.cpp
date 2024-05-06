@@ -24,6 +24,7 @@
 
 #include <ktxreader/Ktx1Reader.h>
 
+#include <chrono>
 #include <unistd.h>
 #include <utility>
 
@@ -72,8 +73,8 @@ std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChainForSurface(std::
   return std::make_shared<SwapChainWrapper>(swapChain);
 }
 std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChainForRecorder(std::shared_ptr<FilamentRecorder> recorder) {
-    Logger::log(TAG, "Creating swapchain for recorder ...");
-    
+  Logger::log(TAG, "Creating swapchain for recorder ...");
+
   if (recorder == nullptr) {
     throw std::invalid_argument("Recorder is null");
   }
@@ -81,6 +82,14 @@ std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChainForRecorder(std:
 
   // TODO: make this flag configurable, or get from platform settings?
   std::shared_ptr<SwapChain> swapChain = pointee()->createSwapChain(nativeWindow, SwapChain::CONFIG_APPLE_CVPIXELBUFFER);
+  // TODO: when destroying the swapchain remove this lambda (which will releases the recorder)
+    swapChain->setFrameCompletedCallback(nullptr, [recorder](SwapChain* UTILS_NONNULL swapChain) {
+        Logger::log(TAG, "SwapChain frame completed callback");
+        // TODO: how do i get the correct timestamp here?
+        auto nowInMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        recorder->renderFrame(nowInMs);
+    });
+
   return std::make_shared<SwapChainWrapper>(swapChain);
 }
 void EngineWrapper::setSwapChain(std::shared_ptr<SwapChainWrapper> swapChainWrapper) {

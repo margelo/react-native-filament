@@ -101,6 +101,7 @@ void AppleFilamentRecorder::renderFrame(long timestamp) {
 
   CMTime time = CMTimeMake(timestamp, 1);
   [_pixelBufferAdaptor appendPixelBuffer:targetBuffer withPresentationTime:time];
+    Logger::log(TAG, "Appending pixel buffer to AVAssetWriterInput...");
 }
 
 void* AppleFilamentRecorder::getNativeWindow() {
