@@ -89,8 +89,7 @@ function Renderer() {
   const startRecording = useWorkletCallback(() => {
     'worklet'
 
-    console.log('Starting recording...')
-    recorder.startRecording()
+    console.log('Starting rendering')
     const framesToRender = 1 //DURATION * FPS
     for (let i = 0; i < framesToRender; i++) {
       console.log(`Rendering frame #${i + 1} of ${framesToRender}`)
@@ -107,7 +106,10 @@ function Renderer() {
     <View style={styles.container}>
       <Button
         onPress={() => {
-          startRecording()
+          console.log('Starting recording...')
+          recorder.startRecording().then(() => {
+            startRecording()
+          })
         }}
         title={'Start recording'}
       />
