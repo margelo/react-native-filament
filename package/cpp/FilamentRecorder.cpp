@@ -23,6 +23,7 @@ void FilamentRecorder::loadHybridMethods() {
   registerHybridGetter("height", &FilamentRecorder::getHeight, this);
   registerHybridGetter("fps", &FilamentRecorder::getFps, this);
   registerHybridGetter("bitRate", &FilamentRecorder::getBitRate, this);
+  registerHybridGetter("outputFile", &FilamentRecorder::getOutputFile, this);
   registerHybridGetter("isRecording", &FilamentRecorder::getIsRecording, this);
   registerHybridMethod("startRecording", &FilamentRecorder::startRecording, this);
   registerHybridMethod("stopRecording", &FilamentRecorder::stopRecording, this);

@@ -39,15 +39,20 @@ public:
   virtual std::future<std::string> stopRecording() = 0;
 
   /**
-   Render the current Frame to the video recording, with the given timestamp.
+   * Returns the absolute path of the file this Recorder is- or will be recording to.
+   */
+  virtual std::string getOutputFile() = 0;
+
+  /**
+   * Render the current Frame to the video recording, with the given timestamp.
    */
   virtual void renderFrame(double timestamp) = 0;
 
   /**
-   Get the native window that can be used as a render target.
-   - On iOS, this is a `CVPixelBuffer`
-   - On Android, this is a `ANativeWindow` (`android.media.Surface`)
-   The `FilamentRecoder` has exclusive ownership of the native window.
+   * Get the native window that can be used as a render target.
+   * - On iOS, this is a `CVPixelBuffer`
+   * - On Android, this is a `ANativeWindow` (`android.media.Surface`)
+   * The `FilamentRecoder` has exclusive ownership of the native window.
    */
   virtual void* getNativeWindow() = 0;
 

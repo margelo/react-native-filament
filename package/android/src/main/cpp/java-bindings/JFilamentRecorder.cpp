@@ -47,18 +47,24 @@ std::future<void> JFilamentRecorder::startRecording() {
 std::future<std::string> JFilamentRecorder::stopRecording() {
   auto self = shared<JFilamentRecorder>();
   return std::async(std::launch::async, [self]() -> std::string {
-    static const auto method = self->javaClassLocal()->getMethod<std::string()>("stopRecording");
-    jni::local_ref<jstring> path = method(self->_javaPart);
-    return path->toString();
+    static const auto method = self->javaClassLocal()->getMethod<void()>("stopRecording");
+    method(self->_javaPart);
+    return self->getOutputFile();
   });
+}
+
+std::string JFilamentRecorder::getOutputFile() {
+  static const auto method = javaClassLocal()->getMethod<std::string()>("getOutputFile");
+  jni::local_ref<jstring> path = method(_javaPart);
+  return path->toString();
 }
 
 bool JFilamentRecorder::getIsRecording() {
   throw std::runtime_error("isRecording is not yet implemented!");
 }
 
-jni::local_ref<JFilamentRecorder::jhybriddata> JFilamentRecorder::initHybrid(jni::alias_ref<JFilamentRecorder::jhybridobject> jThis, int width, int height,
-                                                                             int fps, double bitRate) {
+jni::local_ref<JFilamentRecorder::jhybriddata> JFilamentRecorder::initHybrid(jni::alias_ref<JFilamentRecorder::jhybridobject> jThis,
+                                                                             int width, int height, int fps, double bitRate) {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Initializing JFilamentRecorder...");
   return makeCxxInstance(jThis, width, height, fps, bitRate);
 }
