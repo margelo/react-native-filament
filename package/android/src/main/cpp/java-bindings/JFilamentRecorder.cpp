@@ -39,17 +39,23 @@ void* JFilamentRecorder::getNativeWindow() {
 std::future<void> JFilamentRecorder::startRecording() {
   auto self = shared<JFilamentRecorder>();
   return std::async(std::launch::async, [self]() {
-    static const auto method = self->javaClassLocal()->getMethod<void()>("startRecording");
-    method(self->_javaPart);
+    jni::ThreadScope::WithClassLoader([&]() {
+      static const auto method = self->javaClassLocal()->getMethod<void()>("startRecording");
+      method(self->_javaPart);
+    });
   });
 }
 
 std::future<std::string> JFilamentRecorder::stopRecording() {
   auto self = shared<JFilamentRecorder>();
   return std::async(std::launch::async, [self]() -> std::string {
-    static const auto method = self->javaClassLocal()->getMethod<void()>("stopRecording");
-    method(self->_javaPart);
-    return self->getOutputFile();
+    std::string result;
+    jni::ThreadScope::WithClassLoader([&]() {
+      static const auto method = self->javaClassLocal()->getMethod<void()>("stopRecording");
+      method(self->_javaPart);
+      result = self->getOutputFile();
+    });
+    return result;
   });
 }
 
