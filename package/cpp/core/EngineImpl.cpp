@@ -204,7 +204,7 @@ void EngineImpl::render(double timestamp) {
     _renderer->render(_view.get());
     _renderer->endFrame();
     // Test: wait for render thread to finish (does that incldue waiting for the GPU?)
-    synchronizePendingFrames();
+//    synchronizePendingFrames();
   }
 }
 

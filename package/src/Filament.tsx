@@ -4,7 +4,7 @@ import { FilamentProxy } from './native/FilamentProxy'
 import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 import { reportFatalError, reportWorkletError } from './ErrorUtils'
 import { FilamentContext } from './FilamentContext'
-import { Choreographer, RenderCallback } from 'react-native-filament'
+import { Choreographer, RenderCallback, runOnWorklet } from 'react-native-filament'
 import { SurfaceProvider } from './native/FilamentViewTypes'
 
 export interface FilamentProps extends NativeProps {
@@ -147,8 +147,6 @@ export class Filament extends React.PureComponent<FilamentProps> {
       }
       this.surfaceProvider = view.getSurfaceProvider()
       // Link the surface with the engine:
-      // const engine = context.engine
-      // const surfaceProvider = this.surfaceProvider
       context.engine.setSurfaceProvider(this.surfaceProvider)
     } catch (e) {
       reportFatalError(e)
@@ -157,7 +155,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
 
   // This will be called once the surface is created and ready to draw on:
   onSurfaceCreated = async () => {
-    const { engine } = this.getContext()
+    const { engine, _workletContext } = this.getContext()
 
     if (this.surfaceProvider == null) {
       throw new Error(
@@ -167,7 +165,12 @@ export class Filament extends React.PureComponent<FilamentProps> {
 
     // Create a swap chain …
     const enableTransparentRendering = this.props.enableTransparentRendering ?? true
-    const swapChain = engine.createSwapChainForSurface(this.surfaceProvider, enableTransparentRendering)
+    const surfaceProvider = this.surfaceProvider
+    const swapChain = await _workletContext.runAsync(() => {
+      'worklet'
+      return engine.createSwapChainForSurface(surfaceProvider, enableTransparentRendering)
+    })
+
     // Apply the swapchain to the engine …
     engine.setSwapChain(swapChain)
     // Start the choreographer …
