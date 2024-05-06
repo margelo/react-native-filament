@@ -16,7 +16,7 @@ namespace margelo {
 
 class AppleFilamentRecorder : public FilamentRecorder {
 public:
-  explicit AppleFilamentRecorder(int width, int height, int fps, long bitRate);
+  explicit AppleFilamentRecorder(int width, int height, int fps, double bitRate);
 
   void* getNativeWindow() override;
 
@@ -26,7 +26,7 @@ public:
   bool getIsRecording() override {
     return _isRecording;
   }
-  void renderFrame(long timestamp) override;
+  void renderFrame(double timestamp) override;
 
 private:
   // Render Target is a single PixelBuffer that acts as a 32BGRA Metal Texture

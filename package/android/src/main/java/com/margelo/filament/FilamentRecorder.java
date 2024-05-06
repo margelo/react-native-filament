@@ -29,7 +29,7 @@ public class FilamentRecorder {
     private final MediaRecorder recorder;
     private final File file;
 
-    public FilamentRecorder(Context context, int width, int height, int fps, long bitRate) throws IOException {
+    public FilamentRecorder(Context context, int width, int height, int fps, double bitRate) throws IOException {
         mHybridData = initHybrid(width, height, fps, bitRate);
         file = File.createTempFile("filament", ".mp4");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -76,5 +76,5 @@ public class FilamentRecorder {
         return recorder.getSurface();
     }
 
-    private native HybridData initHybrid(int width, int height, int fps, long bitRate);
+    private native HybridData initHybrid(int width, int height, int fps, double bitRate);
 }
