@@ -82,13 +82,7 @@ std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChainForRecorder(std:
 
   // TODO: make this flag configurable, or get from platform settings?
   std::shared_ptr<SwapChain> swapChain = pointee()->createSwapChain(nativeWindow, SwapChain::CONFIG_APPLE_CVPIXELBUFFER);
-  // TODO: when destroying the swapchain remove this lambda (which will releases the recorder)
-  swapChain->setFrameCompletedCallback(nullptr, [recorder](SwapChain* UTILS_NONNULL swapChain) {
-    Logger::log(TAG, "SwapChain frame completed callback");
-    // TODO: how do i get the correct timestamp here?
-    auto nowInMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-    recorder->renderFrame(nowInMs);
-  });
+  pointee()->setFrameCompletedCallback([recorder](double timestamp) { recorder->renderFrame(timestamp); });
 
   return std::make_shared<SwapChainWrapper>(swapChain);
 }

@@ -71,6 +71,8 @@ public:
   void clearSkybox();
   void setAutomaticInstancingEnabled(bool enabled);
 
+  void setFrameCompletedCallback(std::function<void(double)> callback);
+
 private:
   void destroySurface();
   void surfaceSizeChanged(int width, int height);
@@ -93,6 +95,8 @@ private:
 
   const math::float3 defaultObjectPosition = {0.0f, 0.0f, 0.0f};
   const math::float3 defaultCameraPosition = {0.0f, 0.0f, 0.0f};
+
+  std::function<void(double)> _frameCompletedCallback;
 
 private:
   // Internals we create, but share the access with the user
