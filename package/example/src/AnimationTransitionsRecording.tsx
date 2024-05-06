@@ -93,6 +93,7 @@ function Renderer() {
     const framesToRender = 1 //DURATION * FPS
     for (let i = 0; i < framesToRender; i++) {
       console.log(`Rendering frame #${i + 1} of ${framesToRender}`)
+      renderCallback({ passedSeconds: i / FPS })
       engine.render(Date.now())
     }
 
@@ -100,7 +101,7 @@ function Renderer() {
     console.log('Stopping recording')
     recorder.stopRecording()
     console.log('Recording stopped.')
-  }, [engine, recorder])
+  }, [engine, recorder, renderCallback])
 
   return (
     <View style={styles.container}>

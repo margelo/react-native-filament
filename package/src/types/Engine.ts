@@ -12,10 +12,7 @@ import { Material } from './Material'
 import { LightManager } from './LightManager'
 import { PointerHolder } from './PointerHolder'
 import { TFilamentRecorder } from '../native/FilamentRecorder'
-
-interface SwapChain {
-  _type: 'SwapChain'
-}
+import { SwapChain } from './SwapChain'
 
 export interface Engine extends PointerHolder {
   setSurfaceProvider(surfaceProvider: SurfaceProvider): void
