@@ -15,8 +15,6 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		1E1D479FC35A4D088732EB7D /* Pengu_Skin_Gold_Roughness.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 16EEA1EE8077409AA8CBDBD7 /* Pengu_Skin_Gold_Roughness.jpg */; };
-		1E91A5D351D4447C95496F0E /* Pengu_Skin_Gold_Normal.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7B9AC14963D8463BA1655C54 /* Pengu_Skin_Gold_Normal.jpg */; };
 		279D0EC5EF2A4391BD041C64 /* box.glb in Resources */ = {isa = PBXBuildFile; fileRef = 9241FD2E35834E6CBD6537B9 /* box.glb */; };
 		343E4A420AF7440ABE4350BB /* coffeeshop_seating_level03.glb in Resources */ = {isa = PBXBuildFile; fileRef = 522DEB41EC874A35A439C833 /* coffeeshop_seating_level03.glb */; };
 		46934575911A4001BD968302 /* baked_color.filamat in Resources */ = {isa = PBXBuildFile; fileRef = F68FC94B930D4A17B43374B4 /* baked_color.filamat */; };
@@ -29,7 +27,6 @@
 		7699B88040F8A987B510C191 /* libPods-FilamentExample-FilamentExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-FilamentExample-FilamentExampleTests.a */; };
 		782EADEC8F044578BBAFDEFD /* test.mat in Resources */ = {isa = PBXBuildFile; fileRef = 1860D5689B094822A5541DE6 /* test.mat */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		8BD1AF11EF224BAFA2773E36 /* Pengu_Skin_Gold.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 95F8631704964248AD1F97A7 /* Pengu_Skin_Gold.jpg */; };
 		94671BF6DAD54DF8A7B842C3 /* pirate.glb in Resources */ = {isa = PBXBuildFile; fileRef = 034C2E5BF6EE449290528E8D /* pirate.glb */; };
 		9D9B37A8229643988DE97B73 /* chair.glb in Resources */ = {isa = PBXBuildFile; fileRef = C4E5AB69D2B94D53A2EE3F93 /* chair.glb */; };
 		A1195F5DAB4F4E858677036C /* TransparentShadowMaterial.matc in Resources */ = {isa = PBXBuildFile; fileRef = 121271ECACE144359ABFC45E /* TransparentShadowMaterial.matc */; };
@@ -63,7 +60,6 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = FilamentExample/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = FilamentExample/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = FilamentExample/main.m; sourceTree = "<group>"; };
-		16EEA1EE8077409AA8CBDBD7 /* Pengu_Skin_Gold_Roughness.jpg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = Pengu_Skin_Gold_Roughness.jpg; path = ../assets/Pengu_Skin_Gold_Roughness.jpg; sourceTree = "<group>"; };
 		1780677BE48D41E894B8837F /* coffeeshop_plant_level03.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = coffeeshop_plant_level03.glb; path = ../assets/coffeeshop_plant_level03.glb; sourceTree = "<group>"; };
 		1860D5689B094822A5541DE6 /* test.mat */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = test.mat; path = ../assets/test.mat; sourceTree = "<group>"; };
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-FilamentExample-FilamentExampleTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FilamentExample-FilamentExampleTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -79,11 +75,9 @@
 		5DCACB8F33CDC322A6C60F78 /* libPods-FilamentExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FilamentExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		70AE03ED5F1844C6832C78BC /* eye_full_texture_right_blue.jpg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = eye_full_texture_right_blue.jpg; path = ../assets/eye_full_texture_right_blue.jpg; sourceTree = "<group>"; };
 		7A69823713B34897AF31CAF0 /* default_env_ibl.ktx */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = default_env_ibl.ktx; path = ../assets/default_env_ibl.ktx; sourceTree = "<group>"; };
-		7B9AC14963D8463BA1655C54 /* Pengu_Skin_Gold_Normal.jpg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = Pengu_Skin_Gold_Normal.jpg; path = ../assets/Pengu_Skin_Gold_Normal.jpg; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = FilamentExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-FilamentExample-FilamentExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FilamentExample-FilamentExampleTests.release.xcconfig"; path = "Target Support Files/Pods-FilamentExample-FilamentExampleTests/Pods-FilamentExample-FilamentExampleTests.release.xcconfig"; sourceTree = "<group>"; };
 		9241FD2E35834E6CBD6537B9 /* box.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = box.glb; path = ../assets/box.glb; sourceTree = "<group>"; };
-		95F8631704964248AD1F97A7 /* Pengu_Skin_Gold.jpg */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = Pengu_Skin_Gold.jpg; path = ../assets/Pengu_Skin_Gold.jpg; sourceTree = "<group>"; };
 		A947E59D16164B19982D8EC8 /* default_env_skybox.ktx */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = default_env_skybox.ktx; path = ../assets/default_env_skybox.ktx; sourceTree = "<group>"; };
 		BE173E0B3B23427D84C92C91 /* pijamas.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = pijamas.glb; path = ../assets/pijamas.glb; sourceTree = "<group>"; };
 		C4E5AB69D2B94D53A2EE3F93 /* chair.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = chair.glb; path = ../assets/chair.glb; sourceTree = "<group>"; };
@@ -207,9 +201,6 @@
 				F68FC94B930D4A17B43374B4 /* baked_color.filamat */,
 				1860D5689B094822A5541DE6 /* test.mat */,
 				378A39171E9D4E74BA124111 /* test.matc */,
-				95F8631704964248AD1F97A7 /* Pengu_Skin_Gold.jpg */,
-				7B9AC14963D8463BA1655C54 /* Pengu_Skin_Gold_Normal.jpg */,
-				16EEA1EE8077409AA8CBDBD7 /* Pengu_Skin_Gold_Roughness.jpg */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -340,9 +331,6 @@
 				46934575911A4001BD968302 /* baked_color.filamat in Resources */,
 				782EADEC8F044578BBAFDEFD /* test.mat in Resources */,
 				5A22489558ED45E29E00143B /* test.matc in Resources */,
-				8BD1AF11EF224BAFA2773E36 /* Pengu_Skin_Gold.jpg in Resources */,
-				1E91A5D351D4447C95496F0E /* Pengu_Skin_Gold_Normal.jpg in Resources */,
-				1E1D479FC35A4D088732EB7D /* Pengu_Skin_Gold_Roughness.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

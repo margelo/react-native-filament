@@ -2,18 +2,6 @@
   "migIndex": 1,
   "data": [
     {
-      "path": "assets/Pengu_Skin_Gold.jpg",
-      "sha1": "11553a5e4864a05574d328c84d141a3c00fc062d"
-    },
-    {
-      "path": "assets/Pengu_Skin_Gold_Normal.jpg",
-      "sha1": "a37b82584c585952351678707a6997412d61e2ee"
-    },
-    {
-      "path": "assets/Pengu_Skin_Gold_Roughness.jpg",
-      "sha1": "3c9ce3a960ecbfd30ac5bc057140600a63a685cc"
-    },
-    {
       "path": "assets/TransparentShadowMaterial.mat",
       "sha1": "2253349868eb61907a2e2adb2b9af494374ac323"
     },
