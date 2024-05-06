@@ -11,7 +11,8 @@
 
 namespace margelo {
 
-AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps, double bitRate) : FilamentRecorder(width, height, fps, bitRate) {
+AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps, double bitRate)
+    : FilamentRecorder(width, height, fps, bitRate) {
   Logger::log(TAG, "Creating CVPixelBufferPool...");
   int maxBufferCount = 30;
   NSDictionary* poolAttributes = @{(NSString*)kCVPixelBufferPoolMinimumBufferCountKey : @(maxBufferCount)};
@@ -102,11 +103,17 @@ void AppleFilamentRecorder::renderFrame(double timestamp) {
 
   CMTime time = CMTimeMake(timestamp, 1);
   [_pixelBufferAdaptor appendPixelBuffer:targetBuffer withPresentationTime:time];
-    Logger::log(TAG, "Appending pixel buffer to AVAssetWriterInput...");
+  Logger::log(TAG, "Appending pixel buffer to AVAssetWriterInput...");
 }
 
 void* AppleFilamentRecorder::getNativeWindow() {
   return static_cast<void*>(_pixelBuffer);
+}
+
+std::string AppleFilamentRecorder::getOutputFile() {
+  NSString* path = _path.absoluteString;
+  std::string stringPath = path.UTF8String;
+  return stringPath;
 }
 
 std::future<void> AppleFilamentRecorder::startRecording() {
@@ -139,9 +146,8 @@ std::future<std::string> AppleFilamentRecorder::stopRecording() {
       }
 
       Logger::log(TAG, "Recording finished successfully!");
-      NSString* path = self->_path.absoluteString;
-      std::string stringPath = path.UTF8String;
-      promise->set_value(stringPath);
+      std::string path = self->getOutputFile();
+      promise->set_value(path);
     }];
 
     CVPixelBufferPoolFlush(self->_pixelBufferPool, 0);

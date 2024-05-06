@@ -5,9 +5,9 @@
 #pragma once
 
 #include "FilamentRecorder.h"
+#include <android/native_window.h>
 #include <fbjni/fbjni.h>
 #include <jni.h>
-#include <android/native_window.h>
 
 namespace margelo {
 
@@ -19,9 +19,11 @@ public:
   static void registerNatives();
 
   void* getNativeWindow() override;
+  bool getIsRecording() override;
+  std::string getOutputFile() override;
+
   std::future<std::string> stopRecording() override;
   std::future<void> startRecording() override;
-  bool getIsRecording() override;
 
   void renderFrame(double timestamp) override;
 

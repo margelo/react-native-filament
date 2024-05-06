@@ -62,9 +62,8 @@ public class FilamentRecorder {
      */
     @DoNotStrip
     @Keep
-    String stopRecording() {
+    void stopRecording() {
         recorder.stop();
-        return file.getAbsolutePath();
     }
 
     /**
@@ -74,6 +73,15 @@ public class FilamentRecorder {
     @Keep
     Object getNativeWindow() {
         return recorder.getSurface();
+    }
+
+    /**
+     * @noinspection unused
+     */
+    @DoNotStrip
+    @Keep
+    String getOutputFile() {
+        return file.getAbsolutePath();
     }
 
     private native HybridData initHybrid(int width, int height, int fps, double bitRate);

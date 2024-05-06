@@ -19,6 +19,7 @@ public:
   explicit AppleFilamentRecorder(int width, int height, int fps, double bitRate);
 
   void* getNativeWindow() override;
+  std::string getOutputFile() override;
 
   std::future<std::string> stopRecording() override;
   std::future<void> startRecording() override;
