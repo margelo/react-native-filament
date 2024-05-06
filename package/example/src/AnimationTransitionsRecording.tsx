@@ -85,8 +85,8 @@ function Renderer() {
   const recorder = useRecorder({
     bitRate: 2_000_000,
     fps: FPS,
-    height: PixelRatio.roundToNearestPixel(Dimensions.get('screen').height),
-    width: PixelRatio.roundToNearestPixel(Dimensions.get('screen').width),
+    height: PixelRatio.getPixelSizeForLayoutSize(Dimensions.get('screen').height),
+    width: PixelRatio.getPixelSizeForLayoutSize(Dimensions.get('screen').width),
   })
   const { engine } = useFilamentContext()
   const startRecording = useWorkletCallback(() => {
