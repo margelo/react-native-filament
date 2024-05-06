@@ -81,14 +81,28 @@ AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps, dou
 }
 
 void AppleFilamentRecorder::renderFrame(double timestamp) {
+  Logger::log(TAG, "Rendering Frame with timestamp %f...", timestamp);
+  if (!_assetWriterInput.isReadyForMoreMediaData) {
+    // TODO: Dropping this frame is probably not a good idea, as we are rendering from an offscreen context anyways
+    //       and could just wait until the input is ready for more data again. Maybe we can implement a mechanism
+    //       that only renders when isReadyForMoreMediaData turns true?
+    throw std::runtime_error("AVAssetWriterInput was not ready for more data!");
+  }
+  
   CVPixelBufferRef targetBuffer;
   CVReturn result = CVPixelBufferPoolCreatePixelBuffer(kCFAllocatorDefault, _pixelBufferPool, &targetBuffer);
   if (result != kCVReturnSuccess) {
     throw std::runtime_error("Failed to create CVPixelBuffer for writing! Status: " + std::to_string(result));
   }
 
-  CVPixelBufferLockBaseAddress(targetBuffer, /* write flag */ 0);
-  CVPixelBufferLockBaseAddress(_pixelBuffer, kCVPixelBufferLock_ReadOnly);
+  result = CVPixelBufferLockBaseAddress(targetBuffer, /* write flag */ 0);
+  if (result != kCVReturnSuccess) {
+    throw std::runtime_error("Failed to lock target buffer for write access!");
+  }
+  result = CVPixelBufferLockBaseAddress(_pixelBuffer, kCVPixelBufferLock_ReadOnly);
+  if (result != kCVReturnSuccess) {
+    throw std::runtime_error("Failed to lock input buffer for read access!");
+  }
 
   size_t bytesPerRow = CVPixelBufferGetBytesPerRow(_pixelBuffer);
   size_t height = CVPixelBufferGetHeight(_pixelBuffer);
@@ -102,8 +116,10 @@ void AppleFilamentRecorder::renderFrame(double timestamp) {
   CVPixelBufferUnlockBaseAddress(_pixelBuffer, kCVPixelBufferLock_ReadOnly);
 
   CMTime time = CMTimeMake(timestamp, 1);
-  [_pixelBufferAdaptor appendPixelBuffer:targetBuffer withPresentationTime:time];
-  Logger::log(TAG, "Appending pixel buffer to AVAssetWriterInput...");
+  BOOL success = [_pixelBufferAdaptor appendPixelBuffer:targetBuffer withPresentationTime:time];
+  if (!success) {
+    throw std::runtime_error("Failed to append buffer to AVAssetWriter!");
+  }
 }
 
 void* AppleFilamentRecorder::getNativeWindow() {
@@ -128,6 +144,7 @@ std::future<void> AppleFilamentRecorder::startRecording() {
 
 std::future<std::string> AppleFilamentRecorder::stopRecording() {
   Logger::log(TAG, "Stopping recording...");
+  
   auto promise = std::make_shared<std::promise<std::string>>();
   auto self = shared<AppleFilamentRecorder>();
   dispatch_async(_queue, ^{
