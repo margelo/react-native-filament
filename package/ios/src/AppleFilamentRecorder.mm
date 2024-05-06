@@ -71,7 +71,16 @@ AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps, dou
     std::string settingsJson = outputSettings.description.UTF8String;
     throw std::runtime_error("Failed to add AVAssetWriterInput to AVAssetWriter! Settings used: " + settingsJson);
   }
+      
+  // TODO: We can make this Recorder a bit more efficient if we set:
+  //       - expectsMediaDataInRealTime = NO
+  //       - performsMultiPassEncodingIfSupported = YES
+  //       But then we need to implement a "on ready for more data" listener here,
+  //       which will then control the rendering. Currently we push-render in a for loop from JS,
+  //       this will then be changed to pull-render. Will result in lower-size & higher quality video,
+  //       and less CPU usage. But render times might increase.
   _assetWriterInput.expectsMediaDataInRealTime = YES;
+  _assetWriterInput.performsMultiPassEncodingIfSupported = NO;
   // TODO: Set _assetWriterInput.performsMultiPassEncodingIfSupported to YES or NO?
   _pixelBufferAdaptor = [AVAssetWriterInputPixelBufferAdaptor assetWriterInputPixelBufferAdaptorWithAssetWriterInput:_assetWriterInput
                                                                                          sourcePixelBufferAttributes:nil];
