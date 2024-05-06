@@ -1,4 +1,5 @@
 import { Camera } from './Camera'
+import { Entity } from './Entity'
 import { AmbientOcclusionOptions, DynamicResolutionOptions } from './Options'
 import { PointerHolder } from './PointerHolder'
 import { Scene } from './Scene'
@@ -98,5 +99,14 @@ export interface View extends PointerHolder {
   createAmbientOcclusionOptions(): AmbientOcclusionOptions
   createDynamicResolutionOptions(): DynamicResolutionOptions
 
+  /**
+   * Given a world position, returns the 2D screen coordinates.
+   */
   projectWorldToScreen(worldPosition: Float3): [x: number, y: number]
+
+  /**
+   * Given 2D screen coordinates, returns the entity at that position.
+   * Returns undefined if no entity is found.
+   */
+  pickEntity(x: number, y: number): Entity | null
 }

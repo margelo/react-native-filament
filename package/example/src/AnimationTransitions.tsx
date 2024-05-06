@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native'
 import * as React from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { Button, ScrollView, StyleSheet, View } from 'react-native'
+import { Button, GestureResponderEvent, ScrollView, StyleSheet, View } from 'react-native'
 import {
   Filament,
   Float3,
@@ -32,7 +32,7 @@ const far = 1000
 const animationInterpolationTime = 5
 
 function Renderer() {
-  const { camera, view, scene, transformManager, renderableManager } = useFilamentContext()
+  const { camera, view, scene } = useFilamentContext()
   useDefaultLight()
   useSkybox({ color: '#88defb' })
 
@@ -127,32 +127,19 @@ function Renderer() {
     return names
   }, [penguAnimator])
 
-  useEffect(() => {
-    if (rootEntity == null) return
-    if (penguAsset == null) return
-
-    penguAsset.getRenderableEntities().forEach((entity) => {
-      const box = renderableManager.getAxisAlignedBoundingBox(entity)
-      const worldTransform = transformManager.getWorldTransform(entity)
-      const worldPosition = worldTransform.translation
-      console.log(
-        'Box:',
-        JSON.stringify(
-          {
-            box,
-            worldPosition,
-          },
-          null,
-          2
-        )
-      )
-    })
-  }, [penguAsset, renderableManager, rootEntity, transformManager, view])
-
   const navigation = useNavigation()
 
+  const onTouchStart = useCallback(
+    async (event: GestureResponderEvent) => {
+      const { locationX, locationY } = event.nativeEvent
+      const entity = await view.pickEntity(locationX, locationY)
+      console.log('Picked entity:', entity)
+    },
+    [view]
+  )
+
   return (
-    <View style={styles.container}>
+    <View style={styles.container} onTouchStart={onTouchStart}>
       <Filament style={styles.filamentView} enableTransparentRendering={false} />
       <ScrollView style={styles.btnContainer}>
         <Button
@@ -208,9 +195,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   btnContainer: {
-    height: 200,
+    maxHeight: 120,
     width: '100%',
-    position: 'absolute',
-    bottom: 0,
   },
 })

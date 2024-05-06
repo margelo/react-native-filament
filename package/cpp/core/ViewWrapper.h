@@ -41,11 +41,15 @@ private:
   std::string getAntiAliasing();
   void setAntiAliasing(const std::string& antiAliasing);
   std::vector<double> projectWorldToScreen(std::vector<double> worldCoordinates);
+  std::future<std::shared_ptr<EntityWrapper>> pickEntity(double x, double y);
 
 private:
   std::mutex _mutex;
   std::shared_ptr<Scene> _scene;
   std::shared_ptr<Camera> _camera;
   float _densityPixelRatio;
+
+private:
+  static constexpr auto TAG = "ViewWrapper";
 };
 } // namespace margelo
