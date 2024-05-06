@@ -129,13 +129,32 @@ function Renderer() {
 
   const navigation = useNavigation()
 
+  const renderableEntities = useMemo(() => {
+    if (penguAsset == null) return []
+    return penguAsset.getRenderableEntities()
+  }, [penguAsset])
+
   const onTouchStart = useCallback(
     async (event: GestureResponderEvent) => {
+      if (renderableEntities == null) return
+
       const { locationX, locationY } = event.nativeEvent
       const entity = await view.pickEntity(locationX, locationY)
+      if (entity == null) {
+        console.log('No entity was picked')
+        return
+      }
       console.log('Picked entity:', entity)
+
+      // Check if the pengu was picked
+      for (const renderableEntity of renderableEntities) {
+        if (entity?.id === renderableEntity.id) {
+          console.log('Pengu was picked!')
+          return
+        }
+      }
     },
-    [view]
+    [renderableEntities, view]
   )
 
   return (
