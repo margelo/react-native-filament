@@ -7,7 +7,7 @@
 
 namespace margelo {
 
-JFilamentRecorder::JFilamentRecorder(const jni::alias_ref<jhybridobject>& javaThis, int width, int height, int fps, long bitRate)
+JFilamentRecorder::JFilamentRecorder(const jni::alias_ref<jhybridobject>& javaThis, int width, int height, int fps, double bitRate)
     : FilamentRecorder(width, height, fps, bitRate), _javaPart(make_global(javaThis)) {}
 
 JFilamentRecorder::~JFilamentRecorder() {
@@ -21,6 +21,10 @@ void JFilamentRecorder::registerNatives() {
   registerHybrid({
       makeNativeMethod("initHybrid", JFilamentRecorder::initHybrid),
   });
+}
+
+void JFilamentRecorder::renderFrame(double timestamp) {
+  // TODO: Do anything here??
 }
 
 void* JFilamentRecorder::getNativeWindow() {
@@ -44,7 +48,8 @@ std::future<std::string> JFilamentRecorder::stopRecording() {
   auto self = shared<JFilamentRecorder>();
   return std::async(std::launch::async, [self]() -> std::string {
     static const auto method = self->javaClassLocal()->getMethod<std::string()>("stopRecording");
-    return method(self->_javaPart);
+    jni::local_ref<jstring> path = method(self->_javaPart);
+    return path->toString();
   });
 }
 
@@ -52,8 +57,8 @@ bool JFilamentRecorder::getIsRecording() {
   throw std::runtime_error("isRecording is not yet implemented!");
 }
 
-jni::local_ref<JFilamentRecorder::jhybriddata> JFilamentRecorder::initHybrid(jni::alias_ref<jhybridobject> jThis, int width, int height,
-                                                                             int fps, long bitRate) {
+jni::local_ref<JFilamentRecorder::jhybriddata> JFilamentRecorder::initHybrid(jni::alias_ref<JFilamentRecorder::jhybridobject> jThis, int width, int height,
+                                                                             int fps, double bitRate) {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Initializing JFilamentRecorder...");
   return makeCxxInstance(jThis, width, height, fps, bitRate);
 }

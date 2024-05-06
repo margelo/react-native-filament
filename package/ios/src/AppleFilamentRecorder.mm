@@ -11,7 +11,7 @@
 
 namespace margelo {
 
-AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps, long bitRate) : FilamentRecorder(width, height, fps, bitRate) {
+AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps, double bitRate) : FilamentRecorder(width, height, fps, bitRate) {
   Logger::log(TAG, "Creating CVPixelBufferPool...");
   int maxBufferCount = 30;
   NSDictionary* poolAttributes = @{(NSString*)kCVPixelBufferPoolMinimumBufferCountKey : @(maxBufferCount)};
@@ -79,7 +79,7 @@ AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps, lon
   [_assetWriter addInput:_assetWriterInput];
 }
 
-void AppleFilamentRecorder::renderFrame(long timestamp) {
+void AppleFilamentRecorder::renderFrame(double timestamp) {
   CVPixelBufferRef targetBuffer;
   CVReturn result = CVPixelBufferPoolCreatePixelBuffer(kCFAllocatorDefault, _pixelBufferPool, &targetBuffer);
   if (result != kCVReturnSuccess) {
