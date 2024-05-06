@@ -17,6 +17,7 @@ import {
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
 import { useSharedValue } from 'react-native-worklets-core'
+import Video from 'react-native-video'
 
 const penguModelPath = getAssetPath('pengu.glb')
 const pirateHatPath = getAssetPath('pirate.glb')
@@ -79,38 +80,49 @@ function Renderer() {
     [view, prevAspectRatio, camera, pirateHatAnimator, penguAnimator]
   )
 
+  const [videoUri, setVideoUri] = React.useState<string>()
   const recorder = useRecorder({
-    bitRate: 10_000_000,
+    bitRate: 2_000_000,
     fps: FPS,
-    height: 1080,
-    width: 1920,
+    height: 720,
+    width: 480,
   })
   const { engine } = useFilamentContext()
   const startRecording = useWorkletCallback(() => {
     'worklet'
 
     console.log('Starting rendering')
-    const framesToRender = 1 //DURATION * FPS
+    const framesToRender = DURATION * FPS
+    const started = Date.now()
     for (let i = 0; i < framesToRender; i++) {
-      console.log(`Rendering frame #${i + 1} of ${framesToRender}`)
-      renderCallback({ passedSeconds: i / FPS })
-      engine.render(Date.now())
+      const nextTimestamp = started + i * (1 / FPS)
+      console.log(`Rendering frame #${i + 1} of ${framesToRender} at ${nextTimestamp}`)
+      renderCallback({ passedSeconds: nextTimestamp, startTime: started })
+      try {
+        engine.render(started + i * (1 / FPS))
+      } catch (e) {
+        // ignored
+        console.log(`Error rendering frame: ${i + 1}`, e)
+      }
     }
-
-    // TODO: issue, we can't call stop when we don't know here if all frames have been processed yet
-    console.log('Stopping recording')
-    recorder.stopRecording()
-    console.log('Recording stopped.')
   }, [engine, recorder, renderCallback])
 
   return (
     <View style={styles.container}>
+      {videoUri != null ? (
+        <Video style={{ flex: 1 }} source={{ uri: videoUri }} onError={() => console.error(e)} onLoad={() => console.log('On load')} />
+      ) : null}
       <Button
-        onPress={() => {
+        onPress={async () => {
           console.log('Starting recording...')
-          recorder.startRecording().then(() => {
-            startRecording()
-          })
+          await recorder.startRecording()
+          await startRecording()
+          // TODO: issue, we can't call stop when we don't know here if all frames have been processed yet
+          console.log('Stopping recording')
+          const uri = await recorder.stopRecording()
+          console.log('Recording stopped.')
+          console.log('Video URI:', uri)
+          setVideoUri(uri)
         }}
         title={'Start recording'}
       />
