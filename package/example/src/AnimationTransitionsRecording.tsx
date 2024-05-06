@@ -102,7 +102,7 @@ function Renderer() {
         engine.render(started + i * (1 / FPS))
       } catch (e) {
         // ignored
-        console.log(`Error rendering frame: ${i + 1}`, e)
+        console.log(`Error rendering frame: ${i + 1}`, e.toString())
       }
     }
   }, [engine, recorder, renderCallback])

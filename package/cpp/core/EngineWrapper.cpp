@@ -81,7 +81,8 @@ std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChainForRecorder(std:
   void* nativeWindow = recorder->getNativeWindow();
 
   // TODO: make this flag configurable, or get from platform settings?
-  std::shared_ptr<SwapChain> swapChain = pointee()->createSwapChain(nativeWindow, SwapChain::CONFIG_APPLE_CVPIXELBUFFER);
+  std::shared_ptr<SwapChain> swapChain =
+      pointee()->createSwapChain(nativeWindow, SwapChain::CONFIG_APPLE_CVPIXELBUFFER | SwapChain::CONFIG_READABLE);
   pointee()->setFrameCompletedCallback([recorder](double timestamp) { recorder->renderFrame(timestamp); });
 
   return std::make_shared<SwapChainWrapper>(swapChain);
