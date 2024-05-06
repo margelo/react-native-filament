@@ -50,11 +50,24 @@ namespace margelo {
 using namespace filament;
 using namespace camutils;
 
+class CallbackHandler : public filament::backend::CallbackHandler {
+public:
+  explicit CallbackHandler(std::shared_ptr<Dispatcher> dispatcher) : _dispatcher(dispatcher) {}
+
+  void post(void* user, Callback callback) override {
+    _dispatcher->runAsync([=]() { callback(user); });
+  }
+
+private:
+  std::shared_ptr<Dispatcher> _dispatcher;
+};
+
 // The EngineWrapper is just the JSI wrapper around the EngineImpl
 // its important to only hold a reference to one shared_ptr, so we can easily release it from JS
 class EngineWrapper : public PointerHolder<EngineImpl> {
 public:
-  explicit EngineWrapper(std::shared_ptr<EngineImpl> engineImpl) : PointerHolder("EngineWrapper", engineImpl) {}
+  explicit EngineWrapper(std::shared_ptr<EngineImpl> engineImpl, std::shared_ptr<CallbackHandler> callbackHandler)
+      : PointerHolder("EngineWrapper", engineImpl), _callbackHandler(callbackHandler) {}
 
   void loadHybridMethods() override;
 
@@ -82,6 +95,9 @@ private: // Exposed public JS API
                                    std::optional<float> envIntensity);
   void clearSkybox();
   void setAutomaticInstancingEnabled(bool enabled);
+
+private:
+  std::shared_ptr<CallbackHandler> _callbackHandler;
 
 private:
   static constexpr auto TAG = "EngineWrapper";
