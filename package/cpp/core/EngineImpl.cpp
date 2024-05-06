@@ -205,9 +205,7 @@ void EngineImpl::render(double timestamp) {
     _renderer->endFrame();
     // Test: wait for render thread to finish (does that incldue waiting for the GPU?)
     synchronizePendingFrames();
-
-    // Wait 500ms:
-    usleep(500'000);
+    _engine->flushAndWait();
 
     if (_frameCompletedCallback) {
       _frameCompletedCallback(timestamp);

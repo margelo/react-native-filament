@@ -45,6 +45,7 @@ private:
   NSURL* _path;
   dispatch_queue_t _queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
   bool _isRecording;
+  size_t _frameCount = 0;
 };
 
 } // namespace margelo
