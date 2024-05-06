@@ -2,7 +2,6 @@ import * as React from 'react'
 import { useCallback } from 'react'
 import { Button, StyleSheet, View } from 'react-native'
 import {
-  Filament,
   Float3,
   useModel,
   useAssetAnimator,
@@ -30,7 +29,7 @@ const focalLengthInMillimeters = 28
 const near = 0.1
 const far = 1000
 
-const FPS = 29
+const FPS = 30
 const DURATION = 1 // seconds
 
 function Renderer() {
@@ -92,11 +91,13 @@ function Renderer() {
 
     console.log('Starting recording...')
     recorder.startRecording()
-    const framesToRender = DURATION * FPS
+    const framesToRender = 1 //DURATION * FPS
     for (let i = 0; i < framesToRender; i++) {
       console.log(`Rendering frame #${i + 1} of ${framesToRender}`)
       engine.render(Date.now())
     }
+
+    // TODO: issue, we can't call stop when we don't know here if all frames have been processed yet
     console.log('Stopping recording')
     recorder.stopRecording()
     console.log('Recording stopped.')
