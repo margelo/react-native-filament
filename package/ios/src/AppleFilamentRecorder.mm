@@ -93,6 +93,8 @@ AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps, dou
 }
 
 bool AppleFilamentRecorder::getSupportsHEVC() {
+  // TODO: Remove this once we confirmed that H.264 works
+  return false;
   NSArray<NSString*>* availablePresets = AVAssetExportSession.allExportPresets;
   for (NSString* preset in availablePresets) {
     if (preset == AVAssetExportPresetHEVCHighestQuality) {

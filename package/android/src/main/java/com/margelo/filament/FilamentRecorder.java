@@ -71,6 +71,9 @@ public class FilamentRecorder {
     }
 
     private static boolean isHEVCSupported() {
+        // TODO: Remove this once we confirmed that H.264 works
+        return false;
+
         MediaCodecList codecList = new MediaCodecList(MediaCodecList.ALL_CODECS);
         MediaCodecInfo[] infos = codecList.getCodecInfos();
         for (MediaCodecInfo codecInfo : infos) {
