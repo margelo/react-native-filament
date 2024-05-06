@@ -18,7 +18,8 @@ AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps, lon
   NSDictionary* pixelBufferAttributes = @{
     (NSString*)kCVPixelBufferWidthKey : @(width),
     (NSString*)kCVPixelBufferHeightKey : @(height),
-    (NSString*)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA)
+    (NSString*)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA),
+    (NSString*)kCVPixelBufferMetalCompatibilityKey : @(YES)
   };
   CVReturn result = CVPixelBufferPoolCreate(kCFAllocatorDefault, (__bridge CFDictionaryRef)poolAttributes,
                                             (__bridge CFDictionaryRef)pixelBufferAttributes, &_pixelBufferPool);
