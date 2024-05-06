@@ -18,7 +18,7 @@ import java.io.IOException;
 /**
  * @noinspection JavaJniMissingFunction
  */
-public class FilamentRecorder {
+public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaRecorder.OnErrorListener {
 
     private static final String TAG = "FilamentRecorder";
 
@@ -39,6 +39,8 @@ public class FilamentRecorder {
         Log.i(TAG, "Creating Recorder with codec " + codec + ", recording to " + file.getAbsolutePath());
 
         recorder = createRecorder(context);
+        recorder.setOnInfoListener(this);
+        recorder.setOnErrorListener(this);
         // Create Surface/ANativeWindow
         recorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         // MP4 container
@@ -54,6 +56,39 @@ public class FilamentRecorder {
         // Output file
         recorder.setOutputFile(file.getAbsolutePath());
         recorder.prepare();
+    }
+
+    @Override
+    public void onError(MediaRecorder mediaRecorder, int what, int extra) {
+        String string = mediaErrorToString(what);
+        Log.e(TAG, "MediaRecorder onError(): " + string + ", extra: " + extra);
+    }
+
+    private static String mediaErrorToString(int mediaError) {
+        return switch (mediaError) {
+            case MediaRecorder.MEDIA_RECORDER_ERROR_UNKNOWN -> "unknown";
+            case MediaRecorder.MEDIA_ERROR_SERVER_DIED -> "server-died";
+            default -> "unknown-(" + mediaError + ")";
+        };
+    }
+
+    @Override
+    public void onInfo(MediaRecorder mediaRecorder, int what, int extra) {
+        String string = mediaInfoToString(what);
+        Log.i(TAG, "MediaRecorder onInfo(): " + string + ", extra: " + extra);
+    }
+
+    private static String mediaInfoToString(int mediaInfo) {
+        return switch (mediaInfo) {
+            case MediaRecorder.MEDIA_RECORDER_INFO_UNKNOWN -> "unknown";
+            case MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED -> "max-duration-reached";
+            case MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_APPROACHING ->
+                    "max-file-size-approaching";
+            case MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED -> "max-file-size-reached";
+            case MediaRecorder.MEDIA_RECORDER_INFO_NEXT_OUTPUT_FILE_STARTED ->
+                    "next-output-file-started";
+            default -> "unknown-(" + mediaInfo + ")";
+        };
     }
 
     private static MediaRecorder createRecorder(Context context) {
