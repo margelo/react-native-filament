@@ -141,8 +141,13 @@ void AppleFilamentRecorder::renderFrame(double timestamp) {
 
   CMTime time = CMTimeMake(timestamp, 1);
   BOOL success = [_pixelBufferAdaptor appendPixelBuffer:targetBuffer withPresentationTime:time];
-  if (!success) {
-    throw std::runtime_error("Failed to append buffer to AVAssetWriter!");
+  if (!success || _assetWriter.status != AVAssetWriterStatusWriting) {
+    std::string errorMessage = "Unknown error (status " + std::to_string(_assetWriter.status) + ")";
+    NSError* error = _assetWriter.error;
+    if (error != nil) {
+      errorMessage = getErrorMessage(error);
+    }
+    throw std::runtime_error("Failed to append buffer to AVAssetWriter! " + errorMessage);
   }
 }
 
@@ -156,12 +161,22 @@ std::string AppleFilamentRecorder::getOutputFile() {
   return stringPath;
 }
 
+std::string AppleFilamentRecorder::getErrorMessage(NSError* error) {
+  NSString* string = [NSString stringWithFormat:@"%@ (%zu): %@", error.domain, error.code, error.userInfo.description];
+  return std::string(string.UTF8String);
+}
+
 std::future<void> AppleFilamentRecorder::startRecording() {
   Logger::log(TAG, "Starting recording...");
   auto self = shared<AppleFilamentRecorder>();
   return std::async(std::launch::async, [self]() {
     [self->_assetWriter startWriting];
     [self->_assetWriter startSessionAtSourceTime:kCMTimeZero];
+    NSError* maybeError = self->_assetWriter.error;
+    if (maybeError != nil) {
+      std::string errorMessage = getErrorMessage(maybeError);
+      throw std::runtime_error("Failed to start recording! Error: " + errorMessage);
+    }
     Logger::log(TAG, "Recording started!");
   });
 }
@@ -178,9 +193,12 @@ std::future<std::string> AppleFilamentRecorder::stopRecording() {
     [self->_assetWriter finishWritingWithCompletionHandler:^{
       Logger::log(TAG, "Recording finished!");
       AVAssetWriterStatus status = self->_assetWriter.status;
-      if (status != AVAssetWriterStatusCompleted) {
+      NSError* maybeError = self->_assetWriter.error;
+      if (status != AVAssetWriterStatusCompleted || maybeError != nil) {
         Logger::log(TAG, "Recording finished with error; %zu", static_cast<int>(status));
-        auto error = std::runtime_error("AVAssetWriter didn't finish properly, status: " + std::to_string(static_cast<int>(status)));
+        std::string statusString = std::to_string(static_cast<int>(status));
+        std::string errorMessage = getErrorMessage(maybeError);
+        auto error = std::runtime_error("AVAssetWriter didn't finish properly, status: " + statusString + ", error: " + errorMessage);
         auto exceptionPtr = std::make_exception_ptr(error);
         promise->set_exception(exceptionPtr);
         return;
