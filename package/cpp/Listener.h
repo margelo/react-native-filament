@@ -10,16 +10,17 @@
 
 namespace margelo {
 
-class Listener {
-public:
+class Listener : public HybridObject {
   using ListenerRemover = std::function<void()>;
+
+public:
+  explicit Listener(const ListenerRemover& remove);
+
+  void loadHybridMethods() override;
 
   static std::shared_ptr<Listener> create(ListenerRemover remover);
   ~Listener();
   void remove();
-
-private:
-  explicit Listener(const std::function<void()>& remove);
 
 private:
   std::function<void()> _remove;
