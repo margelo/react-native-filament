@@ -32,10 +32,7 @@ public class FilamentViewManager extends ViewGroupManager<FilamentView> {
     @Nullable
     @Override
     public Map getExportedCustomDirectEventTypeConstants() {
-        return MapBuilder.of(
-                FilamentViewReadyEvent.EVENT_NAME, MapBuilder.of("registrationName", "onViewReady"),
-                FilamentViewSurfaceCreatedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onSurfaceCreated")
-        );
+        return MapBuilder.of(FilamentViewReadyEvent.EVENT_NAME, MapBuilder.of("registrationName", "onViewReady"));
     }
 
     @ReactProp(name = "enableTransparentRendering")
