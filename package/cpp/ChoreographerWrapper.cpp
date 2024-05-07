@@ -10,6 +10,7 @@ void ChoreographerWrapper::loadHybridMethods() {
   registerHybridMethod("start", &ChoreographerWrapper::start, this);
   registerHybridMethod("stop", &ChoreographerWrapper::stop, this);
   registerHybridMethod("setFrameCallback", &ChoreographerWrapper::setFrameCallback, this);
+  registerHybridMethod("release", &ChoreographerWrapper::release, this, true);
 }
 
 void ChoreographerWrapper::start() {
@@ -69,15 +70,9 @@ void ChoreographerWrapper::renderCallback(double timestamp) {
   _renderCallback(frameInfo);
 }
 
-// This will be called when the runtime that created the EngineImpl gets destroyed.
-// The same runtime/thread that creates the EngineImpl is the one the renderCallback
-// jsi::Function has been created on, and needs to be destroyed on.
-// Additionally we want to stop and release the choreographer listener, so there is no
-// risk of it being called (and then calling the renderCallback which is invalid by then).
-void ChoreographerWrapper::onRuntimeDestroyed(jsi::Runtime*) {
+void ChoreographerWrapper::cleanup() {
   std::unique_lock lock(_mutex);
 
-  Logger::log(TAG, "Runtime destroyed, stopping choreographer...");
   _renderCallback = nullptr;
   // Its possible that the pointer was already released manually by the user
   if (getIsValid()) {
@@ -88,4 +83,21 @@ void ChoreographerWrapper::onRuntimeDestroyed(jsi::Runtime*) {
     _listener = nullptr;
   }
 }
+
+// This will be called when the runtime that created the EngineImpl gets destroyed.
+// The same runtime/thread that creates the EngineImpl is the one the renderCallback
+// jsi::Function has been created on, and needs to be destroyed on.
+// Additionally we want to stop and release the choreographer listener, so there is no
+// risk of it being called (and then calling the renderCallback which is invalid by then).
+void ChoreographerWrapper::onRuntimeDestroyed(jsi::Runtime*) {
+  Logger::log(TAG, "Runtime destroyed, stopping choreographer...");
+  cleanup();
+}
+
+void ChoreographerWrapper::release() {
+  Logger::log(TAG, "Cleanup ChoreographerWrapper");
+  cleanup();
+  PointerHolder::release();
+}
+
 } // namespace margelo

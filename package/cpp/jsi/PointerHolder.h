@@ -51,7 +51,7 @@ protected:
    * Manually release this reference to the pointer.
    * If there are any other references to this pointer, no memory will be force-deleted.
    */
-  void release() {
+  virtual void release() {
     std::unique_lock lock(_mutex);
 
     if (_pointer == nullptr) {
