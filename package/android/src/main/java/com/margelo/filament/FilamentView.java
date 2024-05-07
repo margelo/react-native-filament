@@ -86,12 +86,6 @@ public class FilamentView extends FrameLayout implements TextureView.SurfaceText
         this.sendEvent(event);
     }
 
-    private void onSurfaceCreated() {
-        int surfaceId = UIManagerHelper.getSurfaceId(this);
-        FilamentViewSurfaceCreatedEvent event = new FilamentViewSurfaceCreatedEvent(surfaceId, getId());
-        this.sendEvent(event);
-    }
-
     private void sendEvent(Event<?> event) {
         ReactContext reactContext = (ReactContext) getContext();
         EventDispatcher dispatcher = UIManagerHelper.getEventDispatcherForReactTag(reactContext, getId());
@@ -104,7 +98,6 @@ public class FilamentView extends FrameLayout implements TextureView.SurfaceText
     public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surfaceTexture, int width, int height) {
         surface = new Surface(surfaceTexture);
         surfaceProvider.onSurfaceCreated(surface);
-        onSurfaceCreated();
     }
 
     @Override
