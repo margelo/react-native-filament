@@ -9,7 +9,7 @@ export interface SurfaceProvider {
   /**
    * @private
    */
-  getSurface(): Surface
+  getSurface(): Surface | undefined
 
   /**
    * Called nce the surface is available to draw (android: onSurfaceTextureAvailable, ios:

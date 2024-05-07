@@ -5,7 +5,8 @@ import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 import { reportFatalError, reportWorkletError } from './ErrorUtils'
 import { FilamentContext } from './FilamentContext'
 import { Choreographer, RenderCallback } from 'react-native-filament'
-import { SurfaceProvider } from './native/FilamentViewTypes'
+import { Surface, SurfaceProvider } from './native/FilamentViewTypes'
+import { Listener } from './types/Listener'
 
 export interface FilamentProps extends NativeProps {
   /**
@@ -18,7 +19,6 @@ export interface FilamentProps extends NativeProps {
 
 type RefType = React.Component<NativeProps> & Readonly<NativeMethods>
 
-// TODO: Add a ref API to stop rendering
 export class Filament extends React.PureComponent<FilamentProps> {
   private readonly ref: React.RefObject<RefType>
   // The creation of the Choreographer is async, so we store it in a promise:
@@ -26,7 +26,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
   private resolveChoreographer: (value: Choreographer) => void = () => {
     throw new Error('Internal error: Choreographer creation promise is not initialized yet. This should never happen!')
   }
-  private surfaceProvider: SurfaceProvider | undefined
+  private surfaceCreatedListener: Listener | undefined
 
   /**
    * Uses the context in class.
@@ -129,6 +129,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
   }
 
   componentWillUnmount(): void {
+    this.surfaceCreatedListener?.remove()
     this.choreographer.then((choreographer) => {
       choreographer.stop()
       choreographer.release()
@@ -146,29 +147,35 @@ export class Filament extends React.PureComponent<FilamentProps> {
       if (view == null) {
         throw new Error(`Failed to find FilamentView #${handle}!`)
       }
-      this.surfaceProvider = view.getSurfaceProvider()
+      const surfaceProvider = view.getSurfaceProvider()
+
+      this.surfaceCreatedListener = surfaceProvider.addOnSurfaceCreatedListener(() => {
+        console.log('Surface created!')
+        this.onSurfaceCreated(surfaceProvider)
+      })
+
       // Link the surface with the engine:
-      context.engine.setSurfaceProvider(this.surfaceProvider)
-      console.log('on surface provider is set')
+      console.log('Setting surface provider')
+      context.engine.setSurfaceProvider(surfaceProvider)
+
+      // Its possible that the surface is already created, then our callback wouldn't be called
+      // (we still keep the callback as on android a surface can be destroyed and recreated, while the view stays alive)
+      if (surfaceProvider.getSurface() != null) {
+        console.log('Surface already created!')
+        this.onSurfaceCreated(surfaceProvider)
+      }
     } catch (e) {
       reportFatalError(e)
     }
   }
 
   // This will be called once the surface is created and ready to draw on:
-  onSurfaceCreated = async () => {
+  onSurfaceCreated = async (surfaceProvider: SurfaceProvider) => {
     const { engine, _workletContext } = this.getContext()
     console.log('On surface created')
 
-    if (this.surfaceProvider == null) {
-      throw new Error(
-        'Internal error: Surface provider is not set! This should never happen!\nWe expect onViewReady to be called before onSurfaceCreated.'
-      )
-    }
-
     // Create a swap chain …
     const enableTransparentRendering = this.props.enableTransparentRendering ?? true
-    const surfaceProvider = this.surfaceProvider
     const swapChain = await _workletContext.runAsync(() => {
       'worklet'
       return engine.createSwapChainForSurface(surfaceProvider, enableTransparentRendering)
@@ -183,7 +190,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
 
   /** @internal */
   public render(): React.ReactNode {
-    return <FilamentNativeView ref={this.ref} onViewReady={this.onViewReady} onSurfaceCreated={this.onSurfaceCreated} {...this.props} />
+    return <FilamentNativeView ref={this.ref} onViewReady={this.onViewReady} {...this.props} />
   }
 }
 
