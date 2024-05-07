@@ -11,7 +11,6 @@ import {
   runOnWorklet,
   useAsset,
   useFilamentContext,
-  useRenderCallback,
   withCleanupScope,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
@@ -27,22 +26,20 @@ function Renderer() {
   useDefaultLight()
 
   const prevAspectRatio = useSharedValue(0)
-  useRenderCallback(
-    useCallback(() => {
-      'worklet'
+  const renderCallback = useCallback(() => {
+    'worklet'
 
-      const aspectRatio = view.getAspectRatio()
-      if (prevAspectRatio.value !== aspectRatio) {
-        prevAspectRatio.value = aspectRatio
-        // Setup camera lens:
-        const { focalLengthInMillimeters, near, far } = Config.camera
-        camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
-        console.log('Updated camera lens!')
-      }
+    const aspectRatio = view.getAspectRatio()
+    if (prevAspectRatio.value !== aspectRatio) {
+      prevAspectRatio.value = aspectRatio
+      // Setup camera lens:
+      const { focalLengthInMillimeters, near, far } = Config.camera
+      camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
+      console.log('Updated camera lens!')
+    }
 
-      camera.lookAt(cameraPosition, cameraTarget, cameraUp)
-    }, [camera, prevAspectRatio, view])
-  )
+    camera.lookAt(cameraPosition, cameraTarget, cameraUp)
+  }, [camera, prevAspectRatio, view])
 
   // TODO: check if we can replace material
   const materialBuffer = useAsset({ path: getAssetPath('baked_color.filamat') })
@@ -80,7 +77,7 @@ function Renderer() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Filament style={styles.filamentView} enableTransparentRendering={false} />
+      <Filament style={styles.filamentView} enableTransparentRendering={false} renderCallback={renderCallback} />
     </SafeAreaView>
   )
 }
