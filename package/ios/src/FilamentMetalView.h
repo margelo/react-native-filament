@@ -24,7 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)layoutSubviews;
 
 @property(nonatomic, strong) RCTDirectEventBlock onViewReady;
-@property(nonatomic, strong) RCTDirectEventBlock onSurfaceCreated;
 @property(nonatomic, assign) BOOL enableTransparentRendering;
 
 - (void)didMoveToWindow;

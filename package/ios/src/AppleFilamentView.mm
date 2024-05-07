@@ -11,10 +11,7 @@
 namespace margelo {
 
 AppleFilamentView::AppleFilamentView(FilamentMetalView* view)
-    : _view(view), _surfaceProvider(std::make_shared<MetalSurfaceProvider>(view.metalLayer)) {
-  // On iOS, when the UIView with the MetalLayer has been created, it is immediately ready:
-  view.onSurfaceCreated(@{});
-}
+    : _view(view), _surfaceProvider(std::make_shared<MetalSurfaceProvider>(view.metalLayer)) {}
 
 std::shared_ptr<SurfaceProvider> AppleFilamentView::getSurfaceProvider() {
   return _surfaceProvider;
