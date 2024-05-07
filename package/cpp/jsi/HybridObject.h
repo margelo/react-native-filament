@@ -103,12 +103,12 @@ private:
 
 protected:
   template <typename Derived, typename ReturnType, typename... Args>
-  void registerHybridMethod(std::string name, ReturnType (Derived::*method)(Args...), Derived* derivedInstance) {
-    if (_getters.count(name) > 0 || _setters.count(name) > 0) {
+  void registerHybridMethod(std::string name, ReturnType (Derived::*method)(Args...), Derived* derivedInstance, bool override = false) {
+    if (!override && (_getters.count(name) > 0 || _setters.count(name) > 0)) {
       [[unlikely]];
       throw std::runtime_error("Cannot add Hybrid Method \"" + name + "\" - a property with that name already exists!");
     }
-    if (_methods.count(name) > 0) {
+    if (!override && (_methods.count(name) > 0)) {
       throw std::runtime_error("Cannot add Hybrid Method \"" + name + "\" - a method with that name already exists!");
     }
 
