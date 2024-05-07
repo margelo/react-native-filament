@@ -4,7 +4,7 @@ import { FilamentProxy } from './native/FilamentProxy'
 import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 import { reportFatalError, reportWorkletError } from './ErrorUtils'
 import { FilamentContext } from './FilamentContext'
-import { Choreographer, RenderCallback, runOnWorklet } from 'react-native-filament'
+import { Choreographer, RenderCallback } from 'react-native-filament'
 import { SurfaceProvider } from './native/FilamentViewTypes'
 
 export interface FilamentProps extends NativeProps {
@@ -137,6 +137,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
 
   // This registers the surface provider, which will be notified when the surface is ready to draw on:
   onViewReady = async () => {
+    console.log('On view ready')
     const context = this.getContext()
 
     try {
@@ -148,6 +149,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
       this.surfaceProvider = view.getSurfaceProvider()
       // Link the surface with the engine:
       context.engine.setSurfaceProvider(this.surfaceProvider)
+      console.log('on surface provider is set')
     } catch (e) {
       reportFatalError(e)
     }
@@ -156,6 +158,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
   // This will be called once the surface is created and ready to draw on:
   onSurfaceCreated = async () => {
     const { engine, _workletContext } = this.getContext()
+    console.log('On surface created')
 
     if (this.surfaceProvider == null) {
       throw new Error(

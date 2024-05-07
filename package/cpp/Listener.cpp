@@ -7,13 +7,17 @@
 
 namespace margelo {
 
-Listener::Listener(const std::function<void()>& remove) : _remove(remove), _isRemoved(false) {
+Listener::Listener(const std::function<void()>& remove) : HybridObject(TAG), _remove(remove), _isRemoved(false) {
   Logger::log(TAG, "Creating Listener...");
 }
 
 Listener::~Listener() {
   Logger::log(TAG, "Destroying Listener...");
   remove();
+}
+
+void Listener::loadHybridMethods() {
+  registerHybridMethod("remove", &Listener::remove, this);
 }
 
 void Listener::remove() {
