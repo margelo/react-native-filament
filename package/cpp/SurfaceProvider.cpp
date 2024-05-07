@@ -8,7 +8,7 @@
 namespace margelo {
 
 void SurfaceProvider::loadHybridMethods() {
-  registerHybridMethod("getSurface", &SurfaceProvider::getSurfaceOrNull, this);
+  registerHybridMethod("getSurface", &SurfaceProvider::getSurface, this);
   registerHybridMethod("addOnSurfaceCreatedListener", &SurfaceProvider::addOnSurfaceCreatedListener, this);
 }
 
@@ -21,6 +21,7 @@ std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceChangedListener(SurfacePr
 // TODO: note, we are storing again a JSI function here. Potentially we need to make sure this gets destroyed on the same thread it was
 //       created on, so we need to use the Runtime Listener here as well.
 std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceCreatedListener(SurfaceProvider::TOnCreate callback) {
+  Logger::log(TAG, "Adding \"surface created\" listener");
   std::unique_lock lock(_mutex);
 
   return _listeners->add({
@@ -61,6 +62,13 @@ void SurfaceProvider::onSurfaceDestroyed(std::shared_ptr<Surface> surface) {
       callback(surface);
     }
   });
+}
+std::optional<std::shared_ptr<Surface>> SurfaceProvider::getSurface() {
+  std::shared_ptr<Surface> surface = getSurfaceOrNull();
+  if (surface == nullptr) {
+    return std::nullopt;
+  }
+  return std::optional<std::shared_ptr<Surface>>(surface);
 }
 
 } // namespace margelo

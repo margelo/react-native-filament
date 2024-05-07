@@ -8,11 +8,6 @@ export interface NativeProps extends ViewProps {
   onViewReady?: () => void
 
   /**
-   * Called once the native view's underlying surface is ready to be drawn on.
-   */
-  onSurfaceCreated?: () => void
-
-  /**
    * Every pixel of the view that is not covered by the Filament scene will be transparent.
    *
    * @note if you use a skybox you should disable this feature.
