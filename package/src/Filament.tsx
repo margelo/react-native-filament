@@ -5,7 +5,7 @@ import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 import { reportFatalError, reportWorkletError } from './ErrorUtils'
 import { FilamentContext } from './FilamentContext'
 import { Choreographer, RenderCallback } from 'react-native-filament'
-import { Surface, SurfaceProvider } from './native/FilamentViewTypes'
+import { SurfaceProvider } from './native/FilamentViewTypes'
 import { Listener } from './types/Listener'
 
 export interface FilamentProps extends NativeProps {
@@ -27,6 +27,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
     throw new Error('Internal error: Choreographer creation promise is not initialized yet. This should never happen!')
   }
   private surfaceCreatedListener: Listener | undefined
+  private surfaceDestroyedListener: Listener | undefined
 
   /**
    * Uses the context in class.
@@ -130,6 +131,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
 
   componentWillUnmount(): void {
     this.surfaceCreatedListener?.remove()
+    this.surfaceDestroyedListener?.remove()
     this.choreographer.then((choreographer) => {
       choreographer.stop()
       choreographer.release()
@@ -152,6 +154,11 @@ export class Filament extends React.PureComponent<FilamentProps> {
       this.surfaceCreatedListener = surfaceProvider.addOnSurfaceCreatedListener(() => {
         console.log('Surface created!')
         this.onSurfaceCreated(surfaceProvider)
+      })
+
+      this.surfaceDestroyedListener = surfaceProvider.addOnSurfaceDestroyedListener(() => {
+        console.log('Surface destroyed!')
+        this.onSurfaceDestroyed()
       })
 
       // Link the surface with the engine:
@@ -186,6 +193,13 @@ export class Filament extends React.PureComponent<FilamentProps> {
     // Start the choreographer …
     const choreographer = await this.choreographer
     choreographer.start()
+  }
+
+  onSurfaceDestroyed = () => {
+    console.log('Stopping choreographer')
+    this.choreographer.then((choreographer) => {
+      choreographer.stop()
+    })
   }
 
   /** @internal */
