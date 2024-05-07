@@ -1,8 +1,6 @@
 package com.margelo.filament;
 
 import android.content.Context;
-import android.media.MediaCodecInfo;
-import android.media.MediaCodecList;
 import android.media.MediaRecorder;
 import android.os.Build;
 import android.util.Log;
@@ -48,7 +46,7 @@ public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaReco
         // Width x Height
         recorder.setVideoSize(width, height);
         // Bit-Rate
-        recorder.setVideoEncodingBitRate((int)bitRate);
+        recorder.setVideoEncodingBitRate((int) bitRate);
         // FPS
         recorder.setVideoFrameRate(fps);
         // Codec
@@ -111,19 +109,19 @@ public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaReco
         // TODO: Remove this once we confirmed that H.264 works
         return false;
 
-        MediaCodecList codecList = new MediaCodecList(MediaCodecList.ALL_CODECS);
-        MediaCodecInfo[] infos = codecList.getCodecInfos();
-        for (MediaCodecInfo codecInfo : infos) {
-            if (codecInfo.isEncoder()) {
-                String[] types = codecInfo.getSupportedTypes();
-                for (String type : types) {
-                    if (type.equalsIgnoreCase("video/hevc")) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
+//        MediaCodecList codecList = new MediaCodecList(MediaCodecList.ALL_CODECS);
+//        MediaCodecInfo[] infos = codecList.getCodecInfos();
+//        for (MediaCodecInfo codecInfo : infos) {
+//            if (codecInfo.isEncoder()) {
+//                String[] types = codecInfo.getSupportedTypes();
+//                for (String type : types) {
+//                    if (type.equalsIgnoreCase("video/hevc")) {
+//                        return true;
+//                    }
+//                }
+//            }
+//        }
+//        return false;
     }
 
     @Override
