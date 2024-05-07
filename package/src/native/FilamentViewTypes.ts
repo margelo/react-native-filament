@@ -17,6 +17,11 @@ export interface SurfaceProvider {
    * @private
    */
   addOnSurfaceCreatedListener(listener: (surface: Surface) => void): Listener
+
+  /**
+   * @private
+   */
+  addOnSurfaceDestroyedListener(listener: () => void): Listener
 }
 
 export interface FilamentView {

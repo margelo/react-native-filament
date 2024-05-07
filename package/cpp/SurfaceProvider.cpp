@@ -10,6 +10,7 @@ namespace margelo {
 void SurfaceProvider::loadHybridMethods() {
   registerHybridMethod("getSurface", &SurfaceProvider::getSurface, this);
   registerHybridMethod("addOnSurfaceCreatedListener", &SurfaceProvider::addOnSurfaceCreatedListener, this);
+  registerHybridMethod("addOnSurfaceDestroyedListener", &SurfaceProvider::addOnSurfaceDestroyedListener, this);
 }
 
 std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceChangedListener(SurfaceProvider::Callbacks&& callback) {
@@ -28,6 +29,16 @@ std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceCreatedListener(SurfacePr
       .onSurfaceCreated = callback,
       .onSurfaceSizeChanged = std::nullopt,
       .onSurfaceDestroyed = std::nullopt,
+  });
+}
+std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceDestroyedListener(SurfaceProvider::TOnDestroy callback) {
+  Logger::log(TAG, "Adding \"surface destroyed\" listener");
+  std::unique_lock lock(_mutex);
+
+  return _listeners->add({
+      .onSurfaceCreated = std::nullopt,
+      .onSurfaceSizeChanged = std::nullopt,
+      .onSurfaceDestroyed = callback,
   });
 }
 
