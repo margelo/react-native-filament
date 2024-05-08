@@ -9,6 +9,9 @@ void RendererWrapper::loadHybridMethods() {
   registerHybridMethod("setFrameRateOptions", &RendererWrapper::setFrameRateOptions, this);
   registerHybridMethod("setClearContent", &RendererWrapper::setClearContent, this);
   registerHybridMethod("setPresentationTime", &RendererWrapper::setPresentationTime, this);
+  registerHybridMethod("beginFrame", &RendererWrapper::beginFrame, this);
+  registerHybridMethod("render", &RendererWrapper::render, this);
+  registerHybridMethod("endFrame", &RendererWrapper::endFrame, this);
 }
 
 void RendererWrapper::setFrameRateOptions(std::unordered_map<std::string, double> options) {
@@ -36,4 +39,17 @@ void RendererWrapper::setPresentationTime(int64_t timestamp) {
   pointee()->setPresentationTime(timestamp);
 }
 
+bool RendererWrapper::beginFrame(std::shared_ptr<SwapChainWrapper> swapChainWrapper, double timestamp) {
+  std::shared_ptr<SwapChain> swapChain = swapChainWrapper->getSwapChain();
+  return pointee()->beginFrame(swapChain.get(), timestamp);
+}
+
+void RendererWrapper::render(std::shared_ptr<ViewWrapper> viewWrapper) {
+  std::shared_ptr<View> view = viewWrapper->getView();
+  pointee()->render(view.get());
+}
+
+void RendererWrapper::endFrame() {
+  pointee()->endFrame();
+}
 } // namespace margelo

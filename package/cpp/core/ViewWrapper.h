@@ -21,6 +21,9 @@ public:
       : PointerHolder("ViewWrapper", view), _densityPixelRatio(densityPixelRatio) {}
 
   void loadHybridMethods() override;
+  std::shared_ptr<View> getView() {
+    return pointee();
+  }
 
 private:
   double getAspectRatio();
