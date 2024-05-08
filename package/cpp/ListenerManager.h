@@ -16,11 +16,7 @@ namespace margelo {
 template <typename Callback> class ListenerManager : public std::enable_shared_from_this<ListenerManager<Callback>> {
 private:
   std::list<Callback> _listeners;
-
-  // We use a recursive mutex here, because we might call remove() from within a forEach() block.
-  // This happens e.g. when a surface is destroyed and the onDestroy listener is called, which leads
-  // to a remove() call on the listener.
-  std::recursive_mutex _mutex;
+  std::mutex _mutex;
 
 public:
   /**
