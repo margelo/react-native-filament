@@ -8,12 +8,12 @@
 #pragma once
 
 #include "Promise.h"
-#include "threading/Dispatcher.h"
-#include <ReactCommon/CallInvoker.h>
 #include <jsi/jsi.h>
 #include <memory>
 
 namespace margelo {
+
+class Dispatcher;
 
 class PromiseFactory {
 public:
