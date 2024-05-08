@@ -54,4 +54,9 @@ export interface Renderer extends PointerHolder {
    * @default true
    */
   setClearContent: (clear: boolean) => void
+
+  /**
+   * Set the current Frame's output presentation timestamp
+   */
+  setPresentationTime: (timestamp: bigint) => void
 }
