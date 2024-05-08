@@ -57,7 +57,7 @@ public:
   void setSwapChain(std::shared_ptr<SwapChain> swapChain);
   void surfaceSizeChanged(int width, int height);
 
-  __attribute__((hot)) void render(double timestamp);
+  __attribute__((hot)) void render(std::optional<double> timestampOrNull);
 
   void setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer, std::optional<double> intensity, std::optional<int> irradianceBands);
   std::shared_ptr<FilamentAssetWrapper> loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
