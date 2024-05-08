@@ -413,8 +413,7 @@ void EngineImpl::setAutomaticInstancingEnabled(bool enabled) {
 }
 
 void EngineImpl::flushAndWait() {
-  // Note: explicitly no lock, because this is called from the render loop, which already has a lock
-
+  std::unique_lock lock(_mutex);
   _engine->flushAndWait();
 }
 
