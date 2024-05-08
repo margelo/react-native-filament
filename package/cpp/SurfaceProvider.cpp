@@ -21,14 +21,14 @@ std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceChangedListener(SurfacePr
 
 // TODO: note, we are storing again a JSI function here. Potentially we need to make sure this gets destroyed on the same thread it was
 //       created on, so we need to use the Runtime Listener here as well.
-std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceCreatedListener(SurfaceProvider::TOnCreate callback) {
+std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceCreatedListener(SurfaceProvider::TOnCreate callback,
+                                                                       std::shared_ptr<Dispatcher> dispatcher) {
   Logger::log(TAG, "Adding \"surface created\" listener");
   std::unique_lock lock(_mutex);
 
   // Create a callback that will be called on the JS thread
-  auto jsDispatcher = _jsDispatcher;
-  TOnCreate onSurfaceCreatedCallback = [jsDispatcher, callback](std::shared_ptr<Surface> surface) {
-    jsDispatcher->runAsync([callback, surface]() { callback(surface); });
+  TOnCreate onSurfaceCreatedCallback = [dispatcher, callback](std::shared_ptr<Surface> surface) {
+    dispatcher->runAsync([callback, surface]() { callback(surface); });
   };
 
   return _listeners->add({
@@ -37,14 +37,14 @@ std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceCreatedListener(SurfacePr
       .onSurfaceDestroyed = std::nullopt,
   });
 }
-std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceDestroyedListener(SurfaceProvider::TOnDestroy callback) {
+std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceDestroyedListener(SurfaceProvider::TOnDestroy callback,
+                                                                         std::shared_ptr<Dispatcher> dispatcher) {
   Logger::log(TAG, "Adding \"surface destroyed\" listener");
   std::unique_lock lock(_mutex);
 
   // Create a callback that will be called on the JS thread
-  auto jsDispatcher = _jsDispatcher;
-  TOnDestroy onSurfaceDestroyedCallback = [jsDispatcher, callback](std::shared_ptr<Surface> surface) {
-    jsDispatcher->runAsync([callback, surface]() { callback(surface); });
+  TOnDestroy onSurfaceDestroyedCallback = [dispatcher, callback](std::shared_ptr<Surface> surface) {
+    dispatcher->runAsync([callback, surface]() { callback(surface); });
   };
 
   return _listeners->add({

@@ -16,11 +16,11 @@ public class SurfaceProvider {
     @Keep
     private final HybridData mHybridData;
 
-    SurfaceProvider(Dispatcher jsDispatcher) {
-        mHybridData = initHybrid(jsDispatcher);
+    SurfaceProvider() {
+        mHybridData = initHybrid();
     }
 
-    private native HybridData initHybrid(Dispatcher jsDispatcher);
+    private native HybridData initHybrid();
 
     public native void onSurfaceCreated(Object surface);
 

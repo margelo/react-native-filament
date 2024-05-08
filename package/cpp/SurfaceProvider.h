@@ -28,12 +28,12 @@ public:
   };
 
 public:
-  explicit SurfaceProvider(std::shared_ptr<Dispatcher> jsDispatcher) : HybridObject("SurfaceProvider"), _jsDispatcher(jsDispatcher) {}
+  explicit SurfaceProvider() : HybridObject("SurfaceProvider") {}
 
 public:
   std::shared_ptr<Listener> addOnSurfaceChangedListener(Callbacks&& callbacks);
-  std::shared_ptr<Listener> addOnSurfaceCreatedListener(TOnCreate callback);
-  std::shared_ptr<Listener> addOnSurfaceDestroyedListener(TOnDestroy callback);
+  std::shared_ptr<Listener> addOnSurfaceCreatedListener(TOnCreate callback, std::shared_ptr<Dispatcher> dispatcher);
+  std::shared_ptr<Listener> addOnSurfaceDestroyedListener(TOnDestroy callback, std::shared_ptr<Dispatcher> dispatcher);
 
   virtual std::shared_ptr<Surface> getSurfaceOrNull() = 0;
   std::optional<std::shared_ptr<Surface>> getSurface();
@@ -46,7 +46,6 @@ protected:
   void onSurfaceDestroyed(std::shared_ptr<Surface> surface);
 
 private:
-  std::shared_ptr<Dispatcher> _jsDispatcher;
   std::shared_ptr<ListenerManager<Callbacks>> _listeners = ListenerManager<Callbacks>::create();
   std::mutex _mutex;
 

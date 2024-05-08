@@ -8,9 +8,8 @@
 namespace margelo {
 
 JSurfaceProvider::JSurfaceProvider(
-    const jni::alias_ref<jhybridobject> &javaThis,
-    std::shared_ptr<Dispatcher> jsDispatcher)
-    : SurfaceProvider(jsDispatcher), _javaPart(make_global(javaThis)) {}
+    const jni::alias_ref<jhybridobject> &javaThis)
+    : SurfaceProvider(), _javaPart(make_global(javaThis)) {}
 
 JSurfaceProvider::~JSurfaceProvider() {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Destroying JSurfaceProvider...");

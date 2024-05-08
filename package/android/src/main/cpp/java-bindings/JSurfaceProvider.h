@@ -36,8 +36,7 @@ private:
       "Lcom/margelo/filament/SurfaceProvider;";
 
 private:
-  explicit JSurfaceProvider(const jni::alias_ref<jhybridobject> &javaThis,
-                            std::shared_ptr<Dispatcher> jsDispatcher);
+  explicit JSurfaceProvider(const jni::alias_ref<jhybridobject> &javaThis);
   static jni::local_ref<jhybriddata>
   initHybrid(jni::alias_ref<jhybridobject> javaThis);
 };
