@@ -11,29 +11,25 @@ import { RenderableManager } from './RenderableManager'
 import { Material } from './Material'
 import { LightManager } from './LightManager'
 import { PointerHolder } from './PointerHolder'
-
-export type FrameInfo = {
-  /**
-   * The current timestamp in nanoseconds.
-   */
-  timestamp: number
-  /**
-   * Timestamp when the rendering started
-   */
-  startTime: number
-  /**
-   * Time in seconds since the rendering started.
-   */
-  passedSeconds: number
-  /** Time in seconds since the last frame. */
-  timeSinceLastFrame: number
-}
-
-export type RenderCallback = (frameInfo: FrameInfo) => void
+import { TFilamentRecorder } from '../native/FilamentRecorder'
+import { SwapChain } from './SwapChain'
 
 export interface Engine extends PointerHolder {
-  setSurfaceProvider(surfaceProvider: SurfaceProvider, enableTransparentRendering: boolean): void
-  setRenderCallback(callback: RenderCallback | undefined): void
+  setSurfaceProvider(surfaceProvider: SurfaceProvider): void
+  // TODO: Document
+  createSwapChainForSurface(surface: SurfaceProvider, enableTransparentRendering: boolean): SwapChain
+  // TODO: Document
+  createSwapChainForRecorder(recorder: TFilamentRecorder): SwapChain
+  setSwapChain(swapChain: SwapChain): void
+
+  /**
+   * Imperatively causes the engine to render its View (scene) into this renderer's window (surface / recorder).
+   * @note When rendering to a surface (<FilamentView>), you don't need to call this yourself.
+   *
+   * @param timestamp The timestamp of the current frame
+   * @param respectVSync When respectVSync is true, we will skip the frame when the GPU gets behind the CPU.
+   */
+  render(timestamp: number, respectVSync: boolean): void
 
   /**
    * Given a {@linkcode FilamentBuffer} (e.g. from a .glb file), load the asset into the engine.
@@ -66,13 +62,6 @@ export interface Engine extends PointerHolder {
   getCamera(): Camera
   getView(): View
   getCameraManipulator(): Manipulator
-
-  /**
-   * Controls whether the engine is currently actively rendering, or not.
-   * Pausing the engine will stop the choreographer and no frame callbacks will be invoked.
-   * @param isPaused whether the rendering will be paused or not. Default: false
-   */
-  setIsPaused(isPaused: boolean): void
 
   /**
    * Per engine instance you only need one {@linkcode TransformManager}.
@@ -149,4 +138,12 @@ export interface Engine extends PointerHolder {
    * @param enable true to enable, false to disable automatic instancing.
    */
   setAutomaticInstancingEnabled(enabled: boolean): void
+
+  /**
+   * Kicks the hardware thread (e.g. the OpenGL, Vulkan or Metal thread) and blocks until
+   * all commands to this point are executed. Note that does guarantee that the
+   * hardware is actually finished.
+   * Note: during on screen rendering this is handled automatically, typically used for offscreen rendering (recording).
+   */
+  flushAndWait(): void
 }

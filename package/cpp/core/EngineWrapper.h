@@ -59,8 +59,12 @@ public:
   void loadHybridMethods() override;
 
 private: // Exposed public JS API
-  void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering);
-  void setRenderCallback(std::optional<RenderCallback> callback);
+  void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
+  std::shared_ptr<SwapChainWrapper> createSwapChainForSurface(std::shared_ptr<SurfaceProvider> surfaceProvider,
+                                                              bool enableTransparentRendering);
+  std::shared_ptr<SwapChainWrapper> createSwapChainForRecorder(std::shared_ptr<FilamentRecorder> recorder);
+  void setSwapChain(std::shared_ptr<SwapChainWrapper> swapChainWrapper);
+  void render(double timestamp, bool respectVSync);
   void setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer, std::optional<double> intensity, std::optional<int> irradianceBands);
   std::shared_ptr<FilamentAssetWrapper> loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
   std::shared_ptr<FilamentAssetWrapper> loadInstancedAsset(std::shared_ptr<FilamentBuffer> modelBuffer, int instanceCount);
@@ -71,7 +75,6 @@ private: // Exposed public JS API
   std::shared_ptr<TransformManagerWrapper> createTransformManager();
   std::shared_ptr<LightManagerWrapper> createLightManager();
   std::shared_ptr<RendererWrapper> createRenderer();
-  void setIsPaused(bool isPaused);
   std::shared_ptr<RenderableManagerWrapper> createRenderableManager();
   std::shared_ptr<MaterialWrapper> createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer);
   void createAndSetSkyboxByColor(std::string hexColor, std::optional<bool> showSun, std::optional<float> envIntensity);
@@ -79,6 +82,7 @@ private: // Exposed public JS API
                                    std::optional<float> envIntensity);
   void clearSkybox();
   void setAutomaticInstancingEnabled(bool enabled);
+  void flushAndWait();
 
 private:
   static constexpr auto TAG = "EngineWrapper";

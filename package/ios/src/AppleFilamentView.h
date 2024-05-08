@@ -14,6 +14,10 @@
 
 namespace margelo {
 
+/**
+ * `AppleFilamentView` is the C++ wrapper around the `FilamentMetalView`.
+ * FilamentView is a hybrid object which we can pass to JS, while `AppleFilamentView` is just a UIView,
+ */
 class AppleFilamentView : public FilamentView {
 public:
   explicit AppleFilamentView(FilamentMetalView* view);

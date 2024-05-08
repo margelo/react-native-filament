@@ -12,6 +12,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * This is the actual UIView component that will be part of the view hierarchy.
+ */
 @interface FilamentMetalView : UIView
 
 - (instancetype)init;

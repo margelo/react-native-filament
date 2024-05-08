@@ -70,6 +70,15 @@ class FilamentProxy {
         return new FilamentChoreographer();
     }
 
+    /**
+     * @noinspection unused
+     */
+    @DoNotStrip
+    @Keep
+    FilamentRecorder createRecorder(int width, int height, int fps, double bitRate) throws IOException {
+        return new FilamentRecorder(reactContext, renderThreadDispatcher, width, height, fps, bitRate);
+    }
+
     private static byte[] readAllBytes(InputStream inputStream) throws IOException {
         final int bufferSize = 4096; // 4KB
         byte[] buffer = new byte[bufferSize];

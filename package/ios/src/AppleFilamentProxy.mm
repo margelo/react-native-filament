@@ -8,6 +8,7 @@
 #import "AppleFilamentProxy.h"
 #import "AppleChoreographer.h"
 #import "AppleDispatcher.h"
+#import "AppleFilamentRecorder.h"
 #import "AppleFilamentView.h"
 #import "AppleManagedBuffer.h"
 #import "FilamentMetalView.h"
@@ -119,6 +120,11 @@ std::shared_ptr<FilamentView> AppleFilamentProxy::findFilamentView(int viewId) {
 std::shared_ptr<Choreographer> AppleFilamentProxy::createChoreographer() {
   std::shared_ptr<AppleChoreographer> choreographer = std::make_shared<AppleChoreographer>();
   return std::static_pointer_cast<Choreographer>(choreographer);
+}
+
+std::shared_ptr<FilamentRecorder> AppleFilamentProxy::createRecorder(int width, int height, int fps, double bitRate) {
+  std::shared_ptr<AppleFilamentRecorder> recorder = std::make_shared<AppleFilamentRecorder>(_renderThreadDispatcher, width, height, fps, bitRate);
+  return std::static_pointer_cast<FilamentRecorder>(recorder);
 }
 
 } // namespace margelo

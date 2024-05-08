@@ -2,7 +2,11 @@ import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNati
 import type { HostComponent, ViewProps } from 'react-native'
 
 export interface NativeProps extends ViewProps {
+  /**
+   * Called when the native view has been attached to the window.
+   */
   onViewReady?: () => void
+
   /**
    * Every pixel of the view that is not covered by the Filament scene will be transparent.
    *

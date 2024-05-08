@@ -12,6 +12,7 @@ import { WorkletExample } from './WorkletExample'
 import { ScaleEffect } from './ScaleEffect'
 import { FadingLightExample } from './FadingLightExample'
 import { ChangeGoldenMaterials } from './ChangeGoldenMaterial'
+import { AnimationTransitionsRecording } from './AnimationTransitionsRecording'
 
 function NavigationItem(props: { name: string; route: string }) {
   const navigation = useNavigation()
@@ -43,6 +44,7 @@ function HomeScreen() {
   return (
     <ScrollView style={{ flex: 1 }}>
       <NavigationItem name="▶️ Animation Transitions" route="AnimationTransitions" />
+      <NavigationItem name="📹 Offscreen recording" route="AnimationTransitionsRecording" />
       <NavigationItem name="💰 Physics Coin" route="PhysicsCoin" />
       <NavigationItem name="😶‍🌫️ Fade Out" route="FadeOut" />
       <NavigationItem name="🎨 Change Materials" route="ChangeMaterials" />
@@ -77,6 +79,7 @@ function App() {
             headerShown: false,
           }}
         />
+        <Stack.Screen name="AnimationTransitionsRecording" component={AnimationTransitionsRecording} />
         <Stack.Screen name="PhysicsCoin" component={PhysicsCoin} />
         <Stack.Screen name="FadeOut" component={FadeOut} />
         <Stack.Screen name="ChangeMaterials" component={ChangeGoldenMaterials} />

@@ -10,15 +10,21 @@
 #include "Choreographer.h"
 #include "FilamentAssetWrapper.h"
 #include "FilamentBuffer.h"
+#include "FilamentRecorder.h"
+#include "LightManagerWrapper.h"
+#include "MaterialWrapper.h"
 #include "RenderableManagerWrapper.h"
+#include "RendererWrapper.h"
 #include "SceneWrapper.h"
 #include "Surface.h"
 #include "SurfaceProvider.h"
 #include "SwapChainWrapper.h"
+#include "TransformManagerWrapper.h"
 #include "ViewWrapper.h"
 #include "bullet/RigidBodyWrapper.h"
 #include "core/utils/EntityWrapper.h"
 #include "core/utils/ManipulatorWrapper.h"
+#include "threading/Dispatcher.h"
 
 #include <camutils/Manipulator.h>
 #include <filament/Engine.h>
@@ -30,20 +36,6 @@
 #include <gltfio/MaterialProvider.h>
 #include <gltfio/ResourceLoader.h>
 #include <gltfio/TextureProvider.h>
-
-#include "CameraWrapper.h"
-#include "LightManagerWrapper.h"
-#include "MaterialWrapper.h"
-#include "RendererWrapper.h"
-#include "SceneWrapper.h"
-#include "SwapChainWrapper.h"
-#include "TransformManagerWrapper.h"
-#include "ViewWrapper.h"
-#include "threading/Dispatcher.h"
-#include <Choreographer.h>
-#include <FilamentBuffer.h>
-#include <camutils/Manipulator.h>
-#include <core/utils/ManipulatorWrapper.h>
 #include <utils/NameComponentManager.h>
 
 namespace margelo {
@@ -53,24 +45,25 @@ using namespace camutils;
 
 using ManipulatorBuilder = Manipulator<float>::Builder;
 
-using FrameInfo = std::unordered_map<std::string, double>;
-using RenderCallback = std::function<void(FrameInfo)>;
-
 // The EngineImpl is the actual implementation wrapper around filaments Engine.
 // If you add a new method that you want to expose to JS, you need to add it to the EngineWrapper as well.
-class EngineImpl : public std::enable_shared_from_this<EngineImpl>, public RuntimeLifecycleListener {
+class EngineImpl : public std::enable_shared_from_this<EngineImpl> {
 public:
-  explicit EngineImpl(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<Dispatcher> rendererDispatcher,
-                      std::shared_ptr<Engine> engine, float displayRefreshRate, float densityPixelRatio);
-  ~EngineImpl() override;
+  explicit EngineImpl(std::shared_ptr<Dispatcher> rendererDispatcher, std::shared_ptr<Engine> engine, float displayRefreshRate,
+                      float densityPixelRatio);
 
-  void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering);
-  void setRenderCallback(std::optional<RenderCallback> callback);
+  // First a surface provider must be set, then once we have a surface a swapchain can be created and finally the swapchain can be set
+  void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
+  std::shared_ptr<SwapChain> createSwapChain(void* nativeWindow, u_int64_t flags);
+  void setSwapChain(std::shared_ptr<SwapChain> swapChain);
+  void surfaceSizeChanged(int width, int height);
+
+  __attribute__((hot)) void render(double timestamp, bool respectVSync);
+
   void setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer, std::optional<double> intensity, std::optional<int> irradianceBands);
   std::shared_ptr<FilamentAssetWrapper> loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
   std::shared_ptr<FilamentAssetWrapper> loadInstancedAsset(std::shared_ptr<FilamentBuffer> modelBuffer, int instanceCount);
   std::shared_ptr<LightManagerWrapper> createLightManager();
-  void setIsPaused(bool isPaused);
   std::shared_ptr<RenderableManagerWrapper> createRenderableManager();
   std::shared_ptr<TransformManagerWrapper> createTransformManager();
   std::shared_ptr<MaterialWrapper> createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer);
@@ -80,18 +73,7 @@ public:
   void clearSkybox();
   void setAutomaticInstancingEnabled(bool enabled);
 
-private:
-  void setSurface(std::shared_ptr<Surface> surface, bool enableTransparentRendering);
-  void destroySurface();
-  void surfaceSizeChanged(int width, int height);
-  __attribute__((hot)) void renderFrame(double timestamp);
-
-  void synchronizePendingFrames();
-
-  // Internal helper method to turn an FilamentAsset ptr into a FilamentAssetWrapper
-  std::shared_ptr<FilamentAssetWrapper> makeAssetWrapper(FilamentAsset* assetPtr);
-
-  void onRuntimeDestroyed(jsi::Runtime*) override;
+  void flushAndWait();
 
 private:
   std::mutex _mutex;
@@ -99,12 +81,6 @@ private:
   std::shared_ptr<Dispatcher> _rendererDispatcher;
   std::shared_ptr<SurfaceProvider> _surfaceProvider;
   std::shared_ptr<Listener> _surfaceListener;
-  std::optional<RenderCallback> _renderCallback;
-  std::shared_ptr<Choreographer> _choreographer;
-  std::shared_ptr<Listener> _choreographerListener;
-  double _startTime = 0;
-  double _lastFrameTime = 0;
-  bool _isPaused = false;
   std::shared_ptr<gltfio::MaterialProvider> _materialProvider;
   std::shared_ptr<gltfio::AssetLoader> _assetLoader;
   std::shared_ptr<gltfio::ResourceLoader> _resourceLoader;
@@ -113,6 +89,7 @@ private:
   const math::float3 defaultObjectPosition = {0.0f, 0.0f, 0.0f};
   const math::float3 defaultCameraPosition = {0.0f, 0.0f, 0.0f};
 
+  std::function<void(double)> _frameCompletedCallback;
   float _densityPixelRatio;
 
 private:
@@ -125,12 +102,14 @@ private:
   std::shared_ptr<ManipulatorWrapper> _cameraManipulator;
 
 private:
+  void synchronizePendingFrames();
   std::shared_ptr<Renderer> createRenderer(float displayRefreshRate);
-  std::shared_ptr<SwapChain> createSwapChain(std::shared_ptr<Surface> surface, bool enableTransparentRendering);
   std::shared_ptr<Scene> createScene();
   std::shared_ptr<View> createView();
   std::shared_ptr<Camera> createCamera();
   std::shared_ptr<ManipulatorWrapper> createCameraManipulator(int windowWidth, int windowHeight);
+  // Internal helper method to turn an FilamentAsset ptr into a FilamentAssetWrapper
+  std::shared_ptr<FilamentAssetWrapper> makeAssetWrapper(FilamentAsset* assetPtr);
 
 public:
   // Getters for shared objects

@@ -2,6 +2,7 @@ import React, { PropsWithChildren, useEffect, useMemo } from 'react'
 import {
   AmbientOcclusionOptions,
   Camera,
+  Choreographer,
   DynamicResolutionOptions,
   Engine,
   FrameRateOptions,
@@ -13,11 +14,12 @@ import {
   View,
 } from './types'
 import { EngineProps, useEngine } from './hooks/useEngine'
-import { IWorkletContext } from 'react-native-worklets-core'
+import { IWorkletContext, useWorklet } from 'react-native-worklets-core'
 import { FilamentProxy } from './native/FilamentProxy'
 import { InteractionManager } from 'react-native'
 import { makeDynamicResolutionHostObject } from './utilities/makeDynamicResolutionHostObject'
 import { makeAmbientOcclusionHostObject } from './utilities/makeAmbientOcclusionHostObject'
+import { useDisposableResource } from './hooks/useDisposableResource'
 
 export type FilamentContextType = {
   engine: Engine
@@ -30,6 +32,7 @@ export type FilamentContextType = {
   renderer: Renderer
   // TODO: put this in an "internal" separate context?
   _workletContext: IWorkletContext
+  _choreographer: Choreographer
 }
 export const FilamentContext = React.createContext<FilamentContextType | undefined>(undefined)
 
@@ -59,12 +62,13 @@ type RendererProps = {
 
 type Props = PropsWithChildren<{
   engine: Engine
+  choreographer: Choreographer
   viewProps: ViewProps
   rendererProps?: RendererProps
 }>
 
 // Internal component that actually sets the context; its set once the engine is ready and we can creates values for all APIs
-function EngineAPIProvider({ children, engine, viewProps, rendererProps }: Props) {
+function EngineAPIProvider({ children, engine, choreographer, viewProps, rendererProps }: Props) {
   const transformManager = useMemo(() => engine.createTransformManager(), [engine])
   const renderableManager = useMemo(() => engine.createRenderableManager(), [engine])
   const scene = useMemo(() => engine.getScene(), [engine])
@@ -74,9 +78,20 @@ function EngineAPIProvider({ children, engine, viewProps, rendererProps }: Props
   const renderer = useMemo(() => engine.createRenderer(), [engine])
   const workletContext = useMemo(() => FilamentProxy.getWorkletContext(), [])
 
-  const value = useMemo(
-    () => ({ engine, transformManager, renderableManager, scene, lightManager, view, camera, renderer, _workletContext: workletContext }),
-    [engine, transformManager, renderableManager, scene, lightManager, view, camera, workletContext, renderer]
+  const value = useMemo<FilamentContextType>(
+    () => ({
+      engine,
+      transformManager,
+      renderableManager,
+      scene,
+      lightManager,
+      view,
+      camera,
+      renderer,
+      _workletContext: workletContext,
+      _choreographer: choreographer,
+    }),
+    [engine, transformManager, renderableManager, scene, lightManager, view, camera, renderer, workletContext, choreographer]
   )
 
   // Apply view configs
@@ -139,7 +154,7 @@ function EngineAPIProvider({ children, engine, viewProps, rendererProps }: Props
 }
 
 type FilamentProviderProps = PropsWithChildren<
-  EngineProps &
+  Omit<EngineProps, 'context'> &
     ViewProps &
     RendererProps & {
       fallback?: React.ReactElement
@@ -159,13 +174,20 @@ type FilamentProviderProps = PropsWithChildren<
  * </FilamentProvider>
  * ```
  */
-export function FilamentProvider({ children, fallback, config, backend, isPaused, frameRateOptions, ...viewProps }: FilamentProviderProps) {
-  const engine = useEngine({ config, backend, isPaused })
+export function FilamentProvider({ children, fallback, config, backend, frameRateOptions, ...viewProps }: FilamentProviderProps) {
+  const context = useMemo(() => FilamentProxy.getWorkletContext(), [])
+  const engine = useEngine({ config, backend, context })
   const rendererProps = useMemo(() => ({ frameRateOptions }), [frameRateOptions])
+  const choreographer = useDisposableResource(
+    useWorklet(context, () => {
+      'worklet'
+      return FilamentProxy.createChoreographer()
+    })
+  )
 
-  if (engine == null) return fallback ?? null
+  if (engine == null || choreographer == null) return fallback ?? null
   return (
-    <EngineAPIProvider engine={engine} viewProps={viewProps} rendererProps={rendererProps}>
+    <EngineAPIProvider engine={engine} choreographer={choreographer} viewProps={viewProps} rendererProps={rendererProps}>
       {children}
     </EngineAPIProvider>
   )

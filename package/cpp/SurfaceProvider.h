@@ -21,29 +21,32 @@ public:
   using TOnResize = std::function<void(std::shared_ptr<Surface> surface, int width, int height)>;
   using TOnDestroy = std::function<void(std::shared_ptr<Surface>)>;
 
-  struct Callback {
-    TOnCreate onSurfaceCreated;
-    TOnResize onSurfaceSizeChanged;
-    TOnDestroy onSurfaceDestroyed;
+  struct Callbacks {
+    std::optional<TOnCreate> onSurfaceCreated;
+    std::optional<TOnResize> onSurfaceSizeChanged;
+    std::optional<TOnDestroy> onSurfaceDestroyed;
   };
 
 public:
   explicit SurfaceProvider() : HybridObject("SurfaceProvider") {}
 
 public:
-  std::shared_ptr<Listener> addOnSurfaceChangedListener(Callback&& callback);
+  std::shared_ptr<Listener> addOnSurfaceChangedListener(Callbacks&& callbacks);
+  std::shared_ptr<Listener> addOnSurfaceCreatedListener(TOnCreate callback);
+  std::shared_ptr<Listener> addOnSurfaceDestroyedListener(TOnDestroy callback);
 
   virtual std::shared_ptr<Surface> getSurfaceOrNull() = 0;
+  std::optional<std::shared_ptr<Surface>> getSurface();
 
   void loadHybridMethods() override;
 
 protected:
-  void onSurfaceCreated(std::shared_ptr<Surface> surface);
+  void onSurfaceCreated(std::shared_ptr<Surface> callbacks);
   void onSurfaceChanged(std::shared_ptr<Surface> surface, int width, int height);
   void onSurfaceDestroyed(std::shared_ptr<Surface> surface);
 
 private:
-  std::shared_ptr<ListenerManager<Callback>> _listeners = ListenerManager<Callback>::create();
+  std::shared_ptr<ListenerManager<Callbacks>> _listeners = ListenerManager<Callbacks>::create();
   std::mutex _mutex;
 
 private:

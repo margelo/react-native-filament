@@ -37,4 +37,6 @@
  * @see Engine
  */
 
-export interface SwapChain {}
+import { PointerHolder } from './PointerHolder'
+
+export interface SwapChain extends PointerHolder {}
