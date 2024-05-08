@@ -161,8 +161,16 @@ public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaReco
     @Keep
     void stopRecording() {
         isRecording = false;
-        recorder.stop();
-        recorder.release();
+        try {
+            recorder.stop();
+            recorder.release();
+        } catch (RuntimeException ex) {
+            String message = ex.getMessage();
+            if (message != null && message.contains("stop failed: -1007")) {
+                throw new RuntimeException("Failed to stop recorder, were any Frames rendered between startRecording() and stopRecording()? (code -1007) ");
+            }
+            throw ex;
+        }
     }
 
     /**
