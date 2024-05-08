@@ -8,6 +8,7 @@
 #pragma once
 
 #include "Promise.h"
+#include "threading/Dispatcher.h"
 #include <jsi/jsi.h>
 #include <memory>
 
