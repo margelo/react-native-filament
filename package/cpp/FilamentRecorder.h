@@ -20,7 +20,7 @@ using namespace facebook;
 
 class FilamentRecorder : public HybridObject {
 public:
-  using ReadyForMoreDataCallback = std::function<void()>;
+  using ReadyForMoreDataCallback = std::function<bool()>;
   
 public:
   explicit FilamentRecorder(std::shared_ptr<Dispatcher> renderThreadDispatcher, int width, int height, int fps, double bitRate);
@@ -44,8 +44,10 @@ public:
   /**
    * Notify all JS listeners that the Recorder is ready for more data - this will probably cause rendering to happen.
    * This needs to be called from the renderer Thread!
+   *
+   * Once this returns false, the render loop should be stopped.
    */
-  void onReadyForMoreData();
+  bool onReadyForMoreData();
 
 public:
   virtual bool getIsRecording() = 0;

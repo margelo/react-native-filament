@@ -142,16 +142,15 @@ public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaReco
         recorder.start();
         isRecording = true;
 
-        scheduleRender();
-    }
-
-    private void scheduleRender() {
-        if (!isRecording) return;
-
         rendererDispatcher.getExecutor().execute(() -> {
-            Log.i(TAG, "Recorder is ready for more data.");
-            onReadyForMoreData();
-            scheduleRender();
+            while (isRecording) {
+                Log.i(TAG, "Recorder is ready for more data.");
+                boolean shouldContinueNext = onReadyForMoreData();
+                if (!shouldContinueNext) {
+                    Log.i(TAG, "Render callback returned false, stopping render loop.");
+                    return;
+                }
+            }
         });
     }
 
@@ -200,6 +199,6 @@ public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaReco
     @Keep
     Dispatcher getRecorderDispatcher() { return recorderDispatcher; }
 
-    private native void onReadyForMoreData();
+    private native boolean onReadyForMoreData();
     private native HybridData initHybrid(Dispatcher rendererDispatcher, int width, int height, int fps, double bitRate);
 }

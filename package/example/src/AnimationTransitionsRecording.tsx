@@ -99,13 +99,13 @@ function Renderer() {
     'worklet'
     if (swapChain == null) {
       console.warn('SwapChain is null, cannot render frame. Only call startRecording after the swapChain is set.')
-      return
+      return false
     }
 
     if (frameIndex > framesToRender) {
       // stop rendering
       onFinish()
-      return
+      return false
     }
 
     const nextTimestamp = started + frameIndex * (1 / FPS)
@@ -124,6 +124,7 @@ function Renderer() {
     engine.flushAndWait()
     // Render the current frame to the recorder:
     recorder.renderFrame(nextTimestamp)
+    return true
   })
 
   const onStartRecording = useCallback(async () => {
