@@ -15,7 +15,6 @@ import {
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
-import { useSharedValue } from 'react-native-worklets-core'
 import Video from 'react-native-video'
 
 const penguModelPath = getAssetPath('pengu.glb')
@@ -33,7 +32,7 @@ const FPS = 60
 const DURATION = 3 // seconds
 
 function Renderer() {
-  const { camera, view } = useFilamentContext()
+  const { camera } = useFilamentContext()
   useDefaultLight()
   useSkybox({ color: '#88defb' })
 
@@ -50,19 +49,9 @@ function Renderer() {
 
   const penguAnimator = useAssetAnimator(penguAsset)
 
-  const prevAspectRatio = useSharedValue(0)
   const renderCallback = useCallback(
     (passedSeconds: number) => {
       'worklet'
-
-      const aspectRatio = view.getAspectRatio()
-      if (prevAspectRatio.value !== aspectRatio) {
-        prevAspectRatio.value = aspectRatio
-        // Setup camera lens:
-        camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
-        console.log('Setting up camera lens with aspect ratio:', aspectRatio)
-      }
-
       camera.lookAt(cameraPosition, cameraTarget, cameraUp)
 
       if (pirateHatAnimator == null || penguAnimator == null) {
@@ -76,7 +65,7 @@ function Renderer() {
       penguAnimator.updateBoneMatrices()
       pirateHatAnimator.updateBoneMatrices()
     },
-    [view, prevAspectRatio, camera, pirateHatAnimator, penguAnimator]
+    [camera, pirateHatAnimator, penguAnimator]
   )
 
   const [videoUri, setVideoUri] = React.useState<string>()
@@ -107,6 +96,13 @@ function Renderer() {
       recorder.renderFrame(nextTimestamp)
     }
   }, [engine, recorder, renderCallback])
+
+  // Configure camera
+  React.useEffect(() => {
+    const aspectRatio = recorder.width / recorder.height
+    camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
+    console.log('Camera configured')
+  }, [camera, recorder.height, recorder.width])
 
   return (
     <View style={styles.container}>
