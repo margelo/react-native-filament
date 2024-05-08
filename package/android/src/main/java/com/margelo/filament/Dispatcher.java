@@ -28,6 +28,8 @@ public class Dispatcher {
         executor.execute(this::trigger);
     }
 
+    public Executor getExecutor() { return executor; }
+
     private native void trigger();
     private native HybridData initHybrid();
 }

@@ -29,9 +29,9 @@
 
 namespace margelo {
 
-EngineImpl::EngineImpl(std::shared_ptr<Choreographer> choreographer, std::shared_ptr<Dispatcher> rendererDispatcher,
-                       std::shared_ptr<Engine> engine, float displayRefreshRate, float densityPixelRatio)
-    : _engine(engine), _rendererDispatcher(rendererDispatcher), _choreographer(choreographer), _densityPixelRatio(densityPixelRatio) {
+EngineImpl::EngineImpl(std::shared_ptr<Dispatcher> rendererDispatcher, std::shared_ptr<Engine> engine, float displayRefreshRate,
+                       float densityPixelRatio)
+    : _engine(engine), _rendererDispatcher(rendererDispatcher), _densityPixelRatio(densityPixelRatio) {
 
   gltfio::MaterialProvider* _materialProviderPtr =
       gltfio::createUbershaderProvider(engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);
@@ -84,16 +84,9 @@ EngineImpl::EngineImpl(std::shared_ptr<Choreographer> choreographer, std::shared
   _view->setCamera(_camera.get());
 }
 
-EngineImpl::~EngineImpl() {
-  if (_choreographer) {
-    // It can happen that the onSurfaceDestroyed callback wasn't called (yet)
-    // but we cleanup the listener when the EngineImpl instance goes out of scope.
-    // In this case the Choreographer is still running and we need to stop it.
-    _choreographer->stop();
-  }
-}
+void EngineImpl::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
+  Logger::log(TAG, "Setting surface provider...");
 
-void EngineImpl::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering) {
   if (surfaceProvider == nullptr) {
     [[unlikely]];
     throw std::runtime_error("SurfaceProvider cannot be null!");
@@ -101,76 +94,34 @@ void EngineImpl::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProv
   _surfaceProvider = surfaceProvider; // Hold a reference to avoid it getting destroyed
   std::shared_ptr<Surface> surface = surfaceProvider->getSurfaceOrNull();
   if (surface != nullptr) {
-    setSurface(surface, enableTransparentRendering);
+    surfaceSizeChanged(surface->getWidth(), surface->getHeight());
   }
 
   auto dispatcher = _rendererDispatcher;
   std::weak_ptr<EngineImpl> weakSelf = shared_from_this();
-  SurfaceProvider::Callback callback{.onSurfaceCreated =
-                                         [dispatcher, weakSelf, enableTransparentRendering](std::shared_ptr<Surface> surface) {
-                                           dispatcher->runAsync([=]() {
-                                             auto sharedThis = weakSelf.lock();
-                                             if (sharedThis != nullptr) {
-                                               Logger::log(TAG, "Initializing surface...");
-                                               sharedThis->setSurface(surface, enableTransparentRendering);
-                                             }
-                                           });
-                                         },
-                                     .onSurfaceSizeChanged =
-                                         [dispatcher, weakSelf](std::shared_ptr<Surface> surface, int width, int height) {
-                                           dispatcher->runAsync([=]() {
-                                             auto sharedThis = weakSelf.lock();
-                                             if (sharedThis != nullptr) {
-                                               std::unique_lock lock(sharedThis->_mutex);
-                                               Logger::log(TAG, "Updating Surface size...");
-                                               sharedThis->surfaceSizeChanged(width, height);
-                                               sharedThis->synchronizePendingFrames();
-                                             }
-                                           });
-                                         },
-                                     .onSurfaceDestroyed =
-                                         [dispatcher, weakSelf](std::shared_ptr<Surface> surface) {
-                                           auto sharedThis = weakSelf.lock();
-                                           if (sharedThis != nullptr) {
-                                             sharedThis->destroySurface();
-                                           }
-                                         }};
+  SurfaceProvider::Callbacks callback{.onSurfaceCreated =
+                                          [dispatcher, weakSelf](std::shared_ptr<Surface> surface) {
+                                            dispatcher->runAsync([=]() {
+                                              auto sharedThis = weakSelf.lock();
+                                              if (sharedThis != nullptr) {
+                                                sharedThis->surfaceSizeChanged(surface->getWidth(), surface->getHeight());
+                                              }
+                                            });
+                                          },
+                                      .onSurfaceSizeChanged =
+                                          [dispatcher, weakSelf](std::shared_ptr<Surface> surface, int width, int height) {
+                                            dispatcher->runAsync([=]() {
+                                              auto sharedThis = weakSelf.lock();
+                                              if (sharedThis != nullptr) {
+                                                std::unique_lock lock(sharedThis->_mutex);
+                                                Logger::log(TAG, "Updating Surface size...");
+                                                sharedThis->surfaceSizeChanged(width, height);
+                                                sharedThis->synchronizePendingFrames();
+                                              }
+                                            });
+                                          },
+                                      .onSurfaceDestroyed = std::nullopt};
   _surfaceListener = surfaceProvider->addOnSurfaceChangedListener(std::move(callback));
-}
-
-void EngineImpl::setSurface(std::shared_ptr<Surface> surface, bool enableTransparentRendering) {
-  std::unique_lock lock(_mutex);
-  Logger::log(TAG, "Initializing SwapChain...");
-
-  // Setup swapchain
-  _swapChain = createSwapChain(surface, enableTransparentRendering);
-
-  // Setup camera manipulator
-  _cameraManipulator = createCameraManipulator(surface->getWidth(), surface->getHeight());
-
-  // Notify about the surface size change
-  surfaceSizeChanged(surface->getWidth(), surface->getHeight());
-
-  // Install our render function into the choreographer
-  if (_choreographerListener) {
-    // If a previous listener was attached, remove it
-    _choreographerListener->remove();
-  }
-  std::weak_ptr<EngineImpl> weakSelf = shared_from_this();
-  _choreographerListener = _choreographer->addOnFrameListener([weakSelf](double timestamp) {
-    auto sharedThis = weakSelf.lock();
-    if (sharedThis != nullptr) {
-      sharedThis->renderFrame(timestamp);
-    }
-  });
-
-  if (!_isPaused) {
-    // Start the rendering
-    Logger::log(TAG, "Successfully created SwapChain, starting choreographer!");
-    _choreographer->start();
-  } else {
-    Logger::log(TAG, "Successfully created SwapChain, but rendering is paused!");
-  }
 }
 
 void EngineImpl::surfaceSizeChanged(int width, int height) {
@@ -179,7 +130,9 @@ void EngineImpl::surfaceSizeChanged(int width, int height) {
     return;
   }
 
-  if (_cameraManipulator) {
+  if (!_cameraManipulator) {
+    _cameraManipulator = createCameraManipulator(width, height);
+  } else {
     Logger::log(TAG, "(surfaceSizeChanged) Updating viewport size to %d x %d", width, height);
     _cameraManipulator->getManipulator()->setViewport(width, height);
   }
@@ -188,63 +141,30 @@ void EngineImpl::surfaceSizeChanged(int width, int height) {
   }
 }
 
-void EngineImpl::destroySurface() {
-  if (_swapChain == nullptr) {
-    // Surface is already destroyed / never existed.
-    return;
-  }
-
-  _choreographer->stop();
-  if (_choreographerListener) {
-    _choreographerListener->remove();
-    _choreographerListener = nullptr;
-  }
-
-  _swapChain = nullptr;
+std::shared_ptr<SwapChain> EngineImpl::createSwapChain(void* nativeWindow, u_int64_t flags = 0) {
+  Logger::log(TAG, "Creating swapchain ...");
+  auto dispatcher = _rendererDispatcher;
+  return References<SwapChain>::adoptEngineRef(_engine, _engine->createSwapChain(nativeWindow, flags),
+                                               [dispatcher](std::shared_ptr<Engine> engine, SwapChain* swapChain) {
+                                                 dispatcher->runAsync([engine, swapChain]() {
+                                                   Logger::log(TAG, "Destroying swapchain...");
+                                                   engine->destroy(swapChain);
+                                                   // Required to ensure we don't return before Filament is done executing the
+                                                   // destroySwapChain command, otherwise Android might destroy the Surface
+                                                   // too early
+                                                   engine->flushAndWait();
+                                                   Logger::log(TAG, "Destroyed swapchain!");
+                                                 });
+                                               });
 }
 
-void EngineImpl::setIsPaused(bool isPaused) {
+void EngineImpl::setSwapChain(std::shared_ptr<SwapChain> swapChain) {
   std::unique_lock lock(_mutex);
-
-  _isPaused = isPaused;
-  if (isPaused) {
-    _choreographer->stop();
-  } else {
-    _choreographer->start();
-  }
+  Logger::log(TAG, "Setting swapchain...");
+  _swapChain = swapChain;
 }
 
-void EngineImpl::setRenderCallback(std::optional<RenderCallback> callback) {
-  std::unique_lock lock(_mutex);
-
-  if (callback.has_value()) {
-    Logger::log(TAG, "Setting render callback");
-  } else {
-    Logger::log(TAG, "Removing render callback");
-  }
-
-  _renderCallback = callback;
-}
-
-// This will be called when the runtime that created the EngineImpl gets destroyed.
-// The same runtime/thread that creates the EngineImpl is the one the renderCallback
-// jsi::Function has been created on, and needs to be destroyed on.
-// Additionally we want to stop and release the choreographer listener, so there is no
-// risk of it being called (and then calling the renderCallback which is invalid by then).
-void EngineImpl::onRuntimeDestroyed(jsi::Runtime*) {
-  std::unique_lock lock(_mutex);
-  Logger::log(TAG, "Runtime destroyed, stopping renderer...");
-  _renderCallback = nullptr;
-  _choreographer->stop();
-  if (_choreographerListener) {
-    _choreographerListener->remove();
-    _choreographerListener = nullptr;
-  }
-}
-
-// This method is connected to the choreographer and gets called every frame,
-// once we have a surface.
-void EngineImpl::renderFrame(double timestamp) {
+void EngineImpl::render(double timestamp, bool respectVSync) {
   std::unique_lock lock(_mutex);
 
   if (!_swapChain) {
@@ -256,33 +176,15 @@ void EngineImpl::renderFrame(double timestamp) {
     return;
   }
 
-  if (_startTime == 0) {
-    [[unlikely]];
-    _startTime = timestamp;
-  }
-
   _resourceLoader->asyncUpdateLoad();
 
-  if (_renderCallback.has_value()) {
-    [[likely]];
-    const auto& renderCallback = _renderCallback.value();
-    double passedSeconds = (timestamp - _startTime) / 1e9;          // Seconds
-    double timeSinceLastFrame = (timestamp - _lastFrameTime) / 1e9; // Seconds
-    _lastFrameTime = timestamp;
-    FrameInfo renderCallbackData = {
-        {"timestamp", timestamp},
-        {"passedSeconds", passedSeconds},
-        {"startTime", _startTime},
-        {"timeSinceLastFrame", timeSinceLastFrame},
-    };
-    renderCallback(renderCallbackData);
+  bool shouldRender = _renderer->beginFrame(_swapChain.get(), timestamp);
+  if (respectVSync && !shouldRender) {
+    [[unlikely]];
+    return;
   }
-
-  if (_renderer->beginFrame(_swapChain.get(), timestamp)) {
-    [[likely]];
-    _renderer->render(_view.get());
-    _renderer->endFrame();
-  }
+  _renderer->render(_view.get());
+  _renderer->endFrame();
 }
 
 std::shared_ptr<Renderer> EngineImpl::createRenderer(float displayRefreshRate) {
@@ -326,26 +228,6 @@ std::shared_ptr<View> EngineImpl::createView() {
       });
 
   return view;
-}
-
-std::shared_ptr<SwapChain> EngineImpl::createSwapChain(std::shared_ptr<Surface> surface, bool enableTransparentRendering) {
-  auto dispatcher = _rendererDispatcher;
-  void* nativeWindow = surface->getSurface();
-  uint64_t flags = enableTransparentRendering ? SwapChain::CONFIG_TRANSPARENT : 0;
-  auto swapChain = References<SwapChain>::adoptEngineRef(_engine, _engine->createSwapChain(nativeWindow, flags),
-                                                         [dispatcher](std::shared_ptr<Engine> engine, SwapChain* swapChain) {
-                                                           dispatcher->runAsync([engine, swapChain]() {
-                                                             Logger::log(TAG, "Destroying swapchain...");
-                                                             engine->destroy(swapChain);
-                                                             // Required to ensure we don't return before Filament is done executing the
-                                                             // destroySwapChain command, otherwise Android might destroy the Surface
-                                                             // too early
-                                                             engine->flushAndWait();
-                                                             Logger::log(TAG, "Destroyed swapchain!");
-                                                           });
-                                                         });
-
-  return swapChain;
 }
 
 std::shared_ptr<Camera> EngineImpl::createCamera() {
@@ -529,6 +411,11 @@ std::shared_ptr<LightManagerWrapper> EngineImpl::createLightManager() {
 void EngineImpl::setAutomaticInstancingEnabled(bool enabled) {
   std::unique_lock lock(_mutex);
   _engine->setAutomaticInstancingEnabled(enabled);
+}
+
+void EngineImpl::flushAndWait() {
+  std::unique_lock lock(_mutex);
+  _engine->flushAndWait();
 }
 
 } // namespace margelo

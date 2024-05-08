@@ -1,18 +1,18 @@
 import { useNavigation } from '@react-navigation/native'
 import * as React from 'react'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { Button, GestureResponderEvent, ScrollView, StyleSheet, View } from 'react-native'
 import {
   Filament,
   Float3,
-  useRenderCallback,
   useModel,
   useAssetAnimator,
   getAssetFromModel,
   FilamentProvider,
   useFilamentContext,
-  useResource,
+  useDisposableResource,
   useSkybox,
+  RenderCallback,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
@@ -34,13 +34,13 @@ const animationInterpolationTime = 5
 function Renderer() {
   const { camera, view, scene } = useFilamentContext()
   useDefaultLight()
-  // useSkybox({ color: '#88defb' })
+  useSkybox({ color: '#88defb' })
 
   const pengu = useModel({ path: penguModelPath })
   const penguAsset = getAssetFromModel(pengu)
   const pirateHat = useModel({ path: pirateHatPath })
   const pirateHatAsset = getAssetFromModel(pirateHat)
-  const pirateHatAnimator = useResource(() => {
+  const pirateHatAnimator = useDisposableResource(() => {
     if (pirateHatAsset == null || penguAsset == null) {
       return undefined
     }
@@ -56,64 +56,62 @@ function Renderer() {
   const currentAnimationIndex = useSharedValue(0)
 
   const prevAspectRatio = useSharedValue(0)
-  useRenderCallback(
-    useCallback(
-      ({ passedSeconds }) => {
-        'worklet'
+  const renderCallback: RenderCallback = useCallback(
+    ({ passedSeconds }) => {
+      'worklet'
 
-        const aspectRatio = view.getAspectRatio()
-        if (prevAspectRatio.value !== aspectRatio) {
-          prevAspectRatio.value = aspectRatio
-          // Setup camera lens:
-          camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
-          console.log('Setting up camera lens with aspect ratio:', aspectRatio)
+      const aspectRatio = view.getAspectRatio()
+      if (prevAspectRatio.value !== aspectRatio) {
+        prevAspectRatio.value = aspectRatio
+        // Setup camera lens:
+        camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
+        console.log('Setting up camera lens with aspect ratio:', aspectRatio)
+      }
+
+      camera.lookAt(cameraPosition, cameraTarget, cameraUp)
+
+      if (pirateHatAnimator == null || penguAnimator == null) {
+        return
+      }
+
+      // Update the animators to play the current animation
+      penguAnimator.applyAnimation(currentAnimationIndex.value, passedSeconds)
+      pirateHatAnimator.applyAnimation(currentAnimationIndex.value, passedSeconds)
+
+      // Eventually apply a cross fade
+      if (prevAnimationIndex.value != null) {
+        if (prevAnimationStarted.value == null) {
+          prevAnimationStarted.value = passedSeconds
         }
+        animationInterpolation.value += passedSeconds - prevAnimationStarted.value!
+        const alpha = animationInterpolation.value / animationInterpolationTime
 
-        camera.lookAt(cameraPosition, cameraTarget, cameraUp)
+        // Blend animations using a cross fade
+        penguAnimator.applyCrossFade(prevAnimationIndex.value, prevAnimationStarted.value!, alpha)
+        pirateHatAnimator.applyCrossFade(prevAnimationIndex.value, prevAnimationStarted.value!, alpha)
 
-        if (pirateHatAnimator == null || penguAnimator == null) {
-          return
+        // Reset the prev animation once the transition is completed
+        if (alpha >= 1) {
+          prevAnimationIndex.value = undefined
+          prevAnimationStarted.value = undefined
+          animationInterpolation.value = 0
         }
+      }
 
-        // Update the animators to play the current animation
-        penguAnimator.applyAnimation(currentAnimationIndex.value, passedSeconds)
-        pirateHatAnimator.applyAnimation(currentAnimationIndex.value, passedSeconds)
-
-        // Eventually apply a cross fade
-        if (prevAnimationIndex.value != null) {
-          if (prevAnimationStarted.value == null) {
-            prevAnimationStarted.value = passedSeconds
-          }
-          animationInterpolation.value += passedSeconds - prevAnimationStarted.value!
-          const alpha = animationInterpolation.value / animationInterpolationTime
-
-          // Blend animations using a cross fade
-          penguAnimator.applyCrossFade(prevAnimationIndex.value, prevAnimationStarted.value!, alpha)
-          pirateHatAnimator.applyCrossFade(prevAnimationIndex.value, prevAnimationStarted.value!, alpha)
-
-          // Reset the prev animation once the transition is completed
-          if (alpha >= 1) {
-            prevAnimationIndex.value = undefined
-            prevAnimationStarted.value = undefined
-            animationInterpolation.value = 0
-          }
-        }
-
-        penguAnimator.updateBoneMatrices()
-        pirateHatAnimator.updateBoneMatrices()
-      },
-      [
-        view,
-        prevAspectRatio,
-        camera,
-        pirateHatAnimator,
-        penguAnimator,
-        currentAnimationIndex,
-        prevAnimationIndex,
-        prevAnimationStarted,
-        animationInterpolation,
-      ]
-    )
+      penguAnimator.updateBoneMatrices()
+      pirateHatAnimator.updateBoneMatrices()
+    },
+    [
+      view,
+      prevAspectRatio,
+      camera,
+      pirateHatAnimator,
+      penguAnimator,
+      currentAnimationIndex.value,
+      prevAnimationIndex,
+      prevAnimationStarted,
+      animationInterpolation,
+    ]
   )
 
   const animations = useMemo(() => {
@@ -158,7 +156,7 @@ function Renderer() {
 
   return (
     <View style={styles.container} onTouchStart={onTouchStart}>
-      <Filament style={styles.filamentView} />
+      <Filament style={styles.filamentView} enableTransparentRendering={false} renderCallback={renderCallback} />
       <ScrollView style={styles.btnContainer}>
         <Button
           title="Navigate to test screen"

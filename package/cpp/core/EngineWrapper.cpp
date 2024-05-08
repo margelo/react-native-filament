@@ -24,6 +24,7 @@
 
 #include <ktxreader/Ktx1Reader.h>
 
+#include <chrono>
 #include <unistd.h>
 #include <utility>
 
@@ -31,7 +32,10 @@ namespace margelo {
 
 void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider, this);
-  registerHybridMethod("setRenderCallback", &EngineWrapper::setRenderCallback, this);
+  registerHybridMethod("createSwapChainForSurface", &EngineWrapper::createSwapChainForSurface, this);
+  registerHybridMethod("createSwapChainForRecorder", &EngineWrapper::createSwapChainForRecorder, this);
+  registerHybridMethod("setSwapChain", &EngineWrapper::setSwapChain, this);
+  registerHybridMethod("render", &EngineWrapper::render, this);
   registerHybridMethod("setIndirectLight", &EngineWrapper::setIndirectLight, this);
   registerHybridMethod("loadAsset", &EngineWrapper::loadAsset, this);
   registerHybridMethod("loadInstancedAsset", &EngineWrapper::loadInstancedAsset, this);
@@ -39,7 +43,6 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("getView", &EngineWrapper::getView, this);
   registerHybridMethod("getCamera", &EngineWrapper::getCamera, this);
   registerHybridMethod("getCameraManipulator", &EngineWrapper::getCameraManipulator, this);
-  registerHybridMethod("setIsPaused", &EngineWrapper::setIsPaused, this);
   registerHybridMethod("createTransformManager", &EngineWrapper::createTransformManager, this);
   registerHybridMethod("createRenderableManager", &EngineWrapper::createRenderableManager, this);
   registerHybridMethod("createMaterial", &EngineWrapper::createMaterial, this);
@@ -49,12 +52,50 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("createAndSetSkyboxByTexture", &EngineWrapper::createAndSetSkyboxByTexture, this);
   registerHybridMethod("clearSkybox", &EngineWrapper::clearSkybox, this);
   registerHybridMethod("setAutomaticInstancingEnabled", &EngineWrapper::setAutomaticInstancingEnabled, this);
+  registerHybridMethod("flushAndWait", &EngineWrapper::flushAndWait, this);
 }
-void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider, bool enableTransparentRendering) {
-  pointee()->setSurfaceProvider(surfaceProvider, enableTransparentRendering);
+void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
+  pointee()->setSurfaceProvider(surfaceProvider);
 }
-void EngineWrapper::setRenderCallback(std::optional<RenderCallback> callback) {
-  pointee()->setRenderCallback(callback);
+std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChainForSurface(std::shared_ptr<SurfaceProvider> surfaceProvider,
+                                                                           bool enableTransparentRendering) {
+  Logger::log(TAG, "Creating swapchain for surface ...");
+
+  std::shared_ptr<Surface> surface = surfaceProvider->getSurfaceOrNull();
+  if (surface == nullptr) {
+    throw std::runtime_error("Surface is null");
+  }
+
+  void* nativeWindow = surface->getSurface();
+  // TODO: make flags configurable
+  uint64_t flags = enableTransparentRendering ? SwapChain::CONFIG_TRANSPARENT : 0;
+  std::shared_ptr<SwapChain> swapChain = pointee()->createSwapChain(nativeWindow, flags);
+
+  return std::make_shared<SwapChainWrapper>(swapChain);
+}
+std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChainForRecorder(std::shared_ptr<FilamentRecorder> recorder) {
+  Logger::log(TAG, "Creating swapchain for recorder ...");
+
+  if (recorder == nullptr) {
+    throw std::invalid_argument("Recorder is null");
+  }
+  void* nativeWindow = recorder->getNativeWindow();
+  
+  // The flag CONFIG_APPLE_CVPIXELBUFFER is needed for iOS metal backend to allow rendering into a CVPixelBuffer. On android this flag is ignored.
+  std::shared_ptr<SwapChain> swapChain = pointee()->createSwapChain(nativeWindow, SwapChain::CONFIG_APPLE_CVPIXELBUFFER);
+
+  int width = recorder->getWidth();
+  int height = recorder->getHeight();
+  pointee()->surfaceSizeChanged(width, height);
+
+  return std::make_shared<SwapChainWrapper>(swapChain);
+}
+void EngineWrapper::setSwapChain(std::shared_ptr<SwapChainWrapper> swapChainWrapper) {
+  std::shared_ptr<SwapChain> swapChain = swapChainWrapper->getSwapChain();
+  pointee()->setSwapChain(swapChain);
+}
+void EngineWrapper::render(double timestamp, bool respectVSync) {
+  pointee()->render(timestamp, respectVSync);
 }
 void EngineWrapper::setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer, std::optional<double> intensity,
                                      std::optional<int> irradianceBands) {
@@ -87,10 +128,6 @@ std::shared_ptr<LightManagerWrapper> EngineWrapper::createLightManager() {
 std::shared_ptr<RendererWrapper> EngineWrapper::createRenderer() {
   return pointee()->getRenderer();
 }
-
-void EngineWrapper::setIsPaused(bool isPaused) {
-  pointee()->setIsPaused(isPaused);
-}
 std::shared_ptr<RenderableManagerWrapper> EngineWrapper::createRenderableManager() {
   return pointee()->createRenderableManager();
 }
@@ -109,6 +146,9 @@ void EngineWrapper::clearSkybox() {
 }
 void EngineWrapper::setAutomaticInstancingEnabled(bool enabled) {
   pointee()->setAutomaticInstancingEnabled(enabled);
+}
+void EngineWrapper::flushAndWait() {
+  pointee()->flushAndWait();
 }
 
 } // namespace margelo

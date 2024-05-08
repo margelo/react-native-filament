@@ -11,7 +11,9 @@
 #include <vector>
 
 #include "Choreographer.h"
+#include "ChoreographerWrapper.h"
 #include "FilamentBuffer.h"
+#include "FilamentRecorder.h"
 #include "FilamentView.h"
 #include "bullet/BulletWrapper.h"
 #include "core/EngineWrapper.h"
@@ -39,6 +41,7 @@ private:
   virtual std::shared_ptr<FilamentBuffer> loadAsset(const std::string& path) = 0;
   virtual std::shared_ptr<FilamentView> findFilamentView(int id) = 0;
   virtual std::shared_ptr<Choreographer> createChoreographer() = 0;
+  virtual std::shared_ptr<FilamentRecorder> createRecorder(int width, int height, int fps, double bitRate) = 0;
   /**
    * Get the Dispatcher that is responsible for rendering to Filament.
    * This is guaranteed to only use a single Thread, as opposed to a Thread-pool.
@@ -74,6 +77,7 @@ private:
                                               std::optional<std::unordered_map<std::string, int>> arguments = std::nullopt);
   std::shared_ptr<BulletWrapper> createBullet();
   bool getHasWorklets();
+  std::shared_ptr<ChoreographerWrapper> createChoreographerWrapper();
 
 #if HAS_WORKLETS
   std::shared_ptr<RNWorklet::JsiWorkletContext> getWorkletContext();

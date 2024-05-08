@@ -5,6 +5,8 @@ import { FilamentView } from './FilamentViewTypes'
 import type { BulletAPI } from '../bullet/types/api'
 import type { IWorkletContext } from 'react-native-worklets-core'
 import { EngineBackend, EngineConfig } from '../types'
+import { TFilamentRecorder } from './FilamentRecorder'
+import { Choreographer } from '../types/Choreographer'
 
 interface TestHybridObject {
   int: number
@@ -45,10 +47,23 @@ export interface TFilamentProxy {
    * @private
    */
   createBullet(): BulletAPI
+
+  /**
+   * Creates a Filament Recorder instance that can be used to render offscreen and
+   * record to a video file.
+   * @param width The width of the target video and the target scene.
+   * @param height The height of the target video and the target scene.
+   * @param fps The FPS of the rendered video. Offscreen rendering does not happen at the same
+   * FPS rate as set here, but the resulting video will be displayed at this rate.
+   * @param bitRate The target bit-rate of the video, in bits per second. For example, 2_000_000 is 2 Mbps.
+   */
+  createRecorder(width: number, height: number, fps: number, bitRate: number): TFilamentRecorder
+
   /**
    * Whether Worklets are installed, or not.
    */
   readonly hasWorklets: boolean
+
   /**
    * Get the Worklet context used for Rendering to Filament.
    *
@@ -58,13 +73,15 @@ export interface TFilamentProxy {
    * const context = FilamentProxy.getWorkletContext()
    *
    * // 2. From now on, perform all Filament calls and operations in `context`
-   * Worklets.createRunInContextFn(() => {
+   * context.runAsync(() => {
    *   const engine = FilamentProxy.createEngine()
    *   // render...
-   * }, context)()
+   * })
    * ```
    */
   getWorkletContext: () => IWorkletContext
+
+  createChoreographer(): Choreographer
 }
 
 // Check if we are running on-device (JSI)
