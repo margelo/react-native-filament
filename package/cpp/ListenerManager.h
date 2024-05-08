@@ -60,17 +60,22 @@ public:
   void forEach(std::function<LoopCallback>&& callback) {
     std::unique_lock lock(_mutex);
 
+    Logger::log("Listener", "Calling %zu listeners...", _listeners.size());
+
     _removedListenersCount = 0;
     for (auto iterator = _listeners.begin(); iterator != _listeners.end(); /* increment done manually */) {
+      Logger::log("Listener", "Calling this iter..");
       const auto& listener = *iterator;
       callback(listener);
 
       if (_removedListenersCount > 0) {
         // do not increment iterator as one (or more) Listeners were just removed.
         _removedListenersCount--;
+        Logger::log("Listener", "Skipping iter..");
       } else {
         // no Listeners were removed, we go to the next item in the list
         iterator++;
+        Logger::log("Listener", "Going to next iter..");
       }
     }
   }

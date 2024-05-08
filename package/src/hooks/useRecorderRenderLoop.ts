@@ -19,7 +19,8 @@ export function useRecorderRenderLoop(recorder: TFilamentRecorder, render: (fram
       frameCount++
     })
     return () => {
+      'worklet'
       listener.remove()
     }
-  }, [recorder, memoizedRender])
+  })
 }

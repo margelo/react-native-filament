@@ -131,12 +131,6 @@ public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaReco
 //        return false;
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        recorder.release();
-    }
-
     /**
      * @noinspection unused
      */
@@ -160,19 +154,6 @@ public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaReco
         });
     }
 
-    private void onReadyTimerCallback(Executor timer) {
-        rendererDispatcher.getExecutor().execute(() -> {
-            // stopRecording() needs to be called here to stop the actual draw loop.
-            while (isRecording) {
-                Log.i(TAG, "Recorder is ready for more data.");
-                onReadyForMoreData();
-
-                // repeat loop, call this func again
-                timer.execute(() -> onReadyTimerCallback(timer));
-            }
-        });
-    }
-
     /**
      * @noinspection unused
      */
@@ -180,6 +161,7 @@ public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaReco
     @Keep
     void stopRecording() {
         recorder.stop();
+        recorder.release();
         isRecording = false;
     }
 
