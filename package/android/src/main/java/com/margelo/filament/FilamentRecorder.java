@@ -141,15 +141,9 @@ public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaReco
         isRecording = true;
 
         rendererDispatcher.getExecutor().execute(() -> {
-            int count = 0;
             while (isRecording) {
                 Log.i(TAG, "Recorder is ready for more data.");
                 onReadyForMoreData();
-                count++;
-                if (count > 1000) {
-                    Log.i(TAG, "Recorder aborted!!!!!");
-                    return;
-                }
             }
         });
     }
