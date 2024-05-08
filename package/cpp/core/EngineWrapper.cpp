@@ -95,8 +95,8 @@ void EngineWrapper::setSwapChain(std::shared_ptr<SwapChainWrapper> swapChainWrap
   std::shared_ptr<SwapChain> swapChain = swapChainWrapper->getSwapChain();
   pointee()->setSwapChain(swapChain);
 }
-void EngineWrapper::render(std::optional<double> timestampOrNull) {
-  pointee()->render(timestampOrNull);
+void EngineWrapper::render(double timestamp, bool respectVSync) {
+  pointee()->render(timestamp, false);
 }
 void EngineWrapper::setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer, std::optional<double> intensity,
                                      std::optional<int> irradianceBands) {

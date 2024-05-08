@@ -22,8 +22,14 @@ export interface Engine extends PointerHolder {
   createSwapChainForRecorder(recorder: TFilamentRecorder): SwapChain
   setSwapChain(swapChain: SwapChain): void
 
-  // TODO: Document
-  render(timestamp?: number): void
+  /**
+   * Imperatively causes the engine to render its View (scene) into this renderer's window (surface / recorder).
+   * @note When rendering to a surface (<FilamentView>), you don't need to call this yourself.
+   *
+   * @param timestamp The timestamp of the current frame
+   * @param respectVSync When respectVSync is true, we will skip the frame when the GPU gets behind the CPU.
+   */
+  render(timestamp: number, respectVSync: boolean): void
 
   /**
    * Given a {@linkcode FilamentBuffer} (e.g. from a .glb file), load the asset into the engine.

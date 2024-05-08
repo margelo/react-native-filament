@@ -61,7 +61,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
         'worklet'
         try {
           callback(frameInfo)
-          engine.render(frameInfo.timestamp)
+          engine.render(frameInfo.timestamp, true)
         } catch (e) {
           reportWorkletError(e)
         }
