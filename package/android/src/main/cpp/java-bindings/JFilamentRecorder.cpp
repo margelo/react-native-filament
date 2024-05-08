@@ -63,10 +63,6 @@ std::future<std::string> JFilamentRecorder::stopRecording() {
   });
 }
 
-void JFilamentRecorder::onReadyForMoreDataJava() {
-  onReadyForMoreData();
-}
-
 std::string JFilamentRecorder::getOutputFile() {
   static const auto method = javaClassLocal()->getMethod<std::string()>("getOutputFile");
   jni::local_ref<jstring> path = method(_javaPart);

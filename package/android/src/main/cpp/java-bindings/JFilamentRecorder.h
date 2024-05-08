@@ -30,7 +30,9 @@ public:
 
  private:
   // JNI
-  void onReadyForMoreDataJava();
+  void onReadyForMoreDataJava() {
+    onReadyForMoreData();
+  }
 
 private:
   friend HybridBase;
