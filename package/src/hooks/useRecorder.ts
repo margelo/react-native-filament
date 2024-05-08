@@ -5,6 +5,7 @@ import { useDisposableResource } from './useDisposableResource'
 import { runOnWorklet } from '../utilities/runOnWorklet'
 import { useWorkletEffect } from './useWorkletEffect'
 import { TFilamentRecorder } from '../native/FilamentRecorder'
+import { SwapChain } from '../types'
 
 export type RecorderOptions = {
   width: number
@@ -13,7 +14,12 @@ export type RecorderOptions = {
   bitRate: number
 }
 
-export function useRecorder({ width, height, fps, bitRate }: RecorderOptions): TFilamentRecorder {
+type Result = {
+  recorder: TFilamentRecorder
+  swapChain: SwapChain | undefined
+}
+
+export function useRecorder({ width, height, fps, bitRate }: RecorderOptions): Result {
   const { engine } = useFilamentContext()
   const recorder = useMemo(() => {
     console.log('Creating recorder JS')
@@ -36,7 +42,7 @@ export function useRecorder({ width, height, fps, bitRate }: RecorderOptions): T
 
     console.log('JS setting swapchain')
     engine.setSwapChain(swapChain)
-  }, [engine, swapChain])
+  })
 
-  return recorder
+  return { recorder, swapChain }
 }
