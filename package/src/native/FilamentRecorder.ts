@@ -50,11 +50,13 @@ export interface TFilamentRecorder {
    * Adds a listener that will be called every time the Recorder is ready for more data.
    * When the Recorder is ready for more data, you can use {@linkcode renderFrame()} to render the next Frame.
    *
+   * When your callback returns `false`, the render loop will stop.
+   *
    * If you don't wait for this callback, you might risk dropping Frames as the recorder might not be ready
    * to consume more frames.
    *
    * @returns A Listener subscription that can be removed if no longer needed.
    * If the Recorder gets deleted, the listener also becomes invalid.
    */
-  addOnReadyForMoreDataListener(callback: () => void): Listener
+  addOnReadyForMoreDataListener(callback: () => boolean): Listener
 }

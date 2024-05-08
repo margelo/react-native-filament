@@ -33,12 +33,14 @@ public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaReco
     private final MediaRecorder recorder;
     private final File file;
     private final Dispatcher rendererDispatcher;
+    private final Dispatcher recorderDispatcher;
     private boolean isRecording;
 
     public FilamentRecorder(Context context, Dispatcher rendererThreadDispatcher, int width, int height, int fps, double bitRate) throws IOException {
         mHybridData = initHybrid(rendererThreadDispatcher, width, height, fps, bitRate);
         file = File.createTempFile("filament", ".mp4");
         rendererDispatcher = rendererThreadDispatcher;
+        recorderDispatcher = new Dispatcher(Executors.newSingleThreadExecutor());
 
         int codec = getVideoCodec();
         Log.i(TAG, "Creating Recorder with codec " + codec + ", recording to " + file.getAbsolutePath());
@@ -143,7 +145,11 @@ public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaReco
         rendererDispatcher.getExecutor().execute(() -> {
             while (isRecording) {
                 Log.i(TAG, "Recorder is ready for more data.");
-                onReadyForMoreData();
+                boolean shouldContinueNext = onReadyForMoreData();
+                if (!shouldContinueNext) {
+                    Log.i(TAG, "Render callback returned false, stopping render loop.");
+                    return;
+                }
             }
         });
     }
@@ -154,9 +160,17 @@ public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaReco
     @DoNotStrip
     @Keep
     void stopRecording() {
-        recorder.stop();
-        recorder.release();
         isRecording = false;
+        try {
+            recorder.stop();
+            recorder.release();
+        } catch (RuntimeException ex) {
+            String message = ex.getMessage();
+            if (message != null && message.contains("stop failed: -1007")) {
+                throw new RuntimeException("Failed to stop recorder, were any Frames rendered between startRecording() and stopRecording()? (code -1007) ");
+            }
+            throw ex;
+        }
     }
 
     /**
@@ -186,6 +200,13 @@ public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaReco
         return file.getAbsolutePath();
     }
 
-    private native void onReadyForMoreData();
+    /**
+     * @noinspection unused
+     */
+    @DoNotStrip
+    @Keep
+    Dispatcher getRecorderDispatcher() { return recorderDispatcher; }
+
+    private native boolean onReadyForMoreData();
     private native HybridData initHybrid(Dispatcher rendererDispatcher, int width, int height, int fps, double bitRate);
 }

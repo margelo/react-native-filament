@@ -30,9 +30,10 @@ public:
 
  private:
   // JNI
-  void onReadyForMoreDataJava() {
-    onReadyForMoreData();
+  bool onReadyForMoreDataJava() {
+    return onReadyForMoreData();
   }
+  jni::local_ref<JDispatcher::javaobject> getRecorderDispatcher();
 
 private:
   friend HybridBase;
