@@ -85,8 +85,8 @@ AppleFilamentRecorder::AppleFilamentRecorder(std::shared_ptr<Dispatcher> renderT
   //       which will then control the rendering. Currently we push-render in a for loop from JS,
   //       this will then be changed to pull-render. Will result in lower-size & higher quality video,
   //       and less CPU usage. But render times might increase.
-  _assetWriterInput.expectsMediaDataInRealTime = YES;
-  _assetWriterInput.performsMultiPassEncodingIfSupported = NO;
+  _assetWriterInput.expectsMediaDataInRealTime = NO;
+  _assetWriterInput.performsMultiPassEncodingIfSupported = YES;
   // TODO: Set _assetWriterInput.performsMultiPassEncodingIfSupported to YES or NO?
   _pixelBufferAdaptor = [AVAssetWriterInputPixelBufferAdaptor assetWriterInputPixelBufferAdaptorWithAssetWriterInput:_assetWriterInput
                                                                                          sourcePixelBufferAttributes:nil];

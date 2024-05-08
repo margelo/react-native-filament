@@ -106,12 +106,17 @@ function Renderer() {
     const started = Date.now()
     let frameIndex = 0
     let isStopping = false
+
+    const start = performance.now()
+
     const listener = recorder.addOnReadyForMoreDataListener(() => {
       if (frameIndex > framesToRender) {
         if (!isStopping) {
           isStopping = true
+          const end = performance.now()
+          console.log(`Rendering ${framesToRender} frames took ${(end - start).toFixed(0)}ms!`)
           onFinish()
-          // listener.remove()
+          listener.remove()
         }
         return
       }
