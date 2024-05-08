@@ -67,7 +67,7 @@ public:
    * Get the native window that can be used as a render target.
    * - On iOS, this is a `CVPixelBuffer`
    * - On Android, this is a `ANativeWindow` (`android.media.Surface`)
-   * The `FilamentRecoder` has exclusive ownership of the native window.
+   * The `FilamentRecorder` has exclusive ownership of the native window.
    */
   virtual void* getNativeWindow() = 0;
 
