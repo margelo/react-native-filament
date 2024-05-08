@@ -132,4 +132,12 @@ export interface Engine extends PointerHolder {
    * @param enable true to enable, false to disable automatic instancing.
    */
   setAutomaticInstancingEnabled(enabled: boolean): void
+
+  /**
+   * Kicks the hardware thread (e.g. the OpenGL, Vulkan or Metal thread) and blocks until
+   * all commands to this point are executed. Note that does guarantee that the
+   * hardware is actually finished.
+   * Note: during on screen rendering this is handled automatically, typically used for offscreen rendering (recording).
+   */
+  flushAndWait(): void
 }

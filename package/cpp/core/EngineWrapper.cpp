@@ -52,6 +52,7 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("createAndSetSkyboxByTexture", &EngineWrapper::createAndSetSkyboxByTexture, this);
   registerHybridMethod("clearSkybox", &EngineWrapper::clearSkybox, this);
   registerHybridMethod("setAutomaticInstancingEnabled", &EngineWrapper::setAutomaticInstancingEnabled, this);
+  registerHybridMethod("flushAndWait", &EngineWrapper::flushAndWait, this);
 }
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
   pointee()->setSurfaceProvider(surfaceProvider);
@@ -87,7 +88,6 @@ std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChainForRecorder(std:
   int width = recorder->getWidth();
   int height = recorder->getHeight();
   pointee()->surfaceSizeChanged(width, height);
-  pointee()->setFrameCompletedCallback([recorder](double timestamp) { recorder->renderFrame(timestamp); });
 
   return std::make_shared<SwapChainWrapper>(swapChain);
 }
@@ -147,6 +147,9 @@ void EngineWrapper::clearSkybox() {
 }
 void EngineWrapper::setAutomaticInstancingEnabled(bool enabled) {
   pointee()->setAutomaticInstancingEnabled(enabled);
+}
+void EngineWrapper::flushAndWait() {
+  pointee()->flushAndWait();
 }
 
 } // namespace margelo

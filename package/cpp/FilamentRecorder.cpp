@@ -27,6 +27,7 @@ void FilamentRecorder::loadHybridMethods() {
   registerHybridGetter("isRecording", &FilamentRecorder::getIsRecording, this);
   registerHybridMethod("startRecording", &FilamentRecorder::startRecording, this);
   registerHybridMethod("stopRecording", &FilamentRecorder::stopRecording, this);
+  registerHybridMethod("renderFrame", &FilamentRecorder::renderFrame, this);
 }
 
 } // namespace margelo

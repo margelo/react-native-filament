@@ -82,6 +82,7 @@ private: // Exposed public JS API
                                    std::optional<float> envIntensity);
   void clearSkybox();
   void setAutomaticInstancingEnabled(bool enabled);
+  void flushAndWait();
 
 private:
   static constexpr auto TAG = "EngineWrapper";

@@ -72,7 +72,7 @@ public:
   void clearSkybox();
   void setAutomaticInstancingEnabled(bool enabled);
 
-  void setFrameCompletedCallback(std::function<void(double)> callback);
+  void flushAndWait();
 
 private:
   void destroySurface();

@@ -32,4 +32,9 @@ export interface TFilamentRecorder {
    * Stops the recording session and invalidates this recorder.
    */
   stopRecording(): Promise<string>
+
+  /**
+   * Adds the current frame to the recording.
+   */
+  renderFrame(timestamp: number): void
 }
