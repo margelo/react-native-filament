@@ -7,10 +7,25 @@
 #include <functional>
 #include <future>
 #include <queue>
+#include <jsi/jsi.h>
 
 namespace margelo {
 
-class Dispatcher {
+using namespace facebook;
+
+class Dispatcher: public jsi::NativeState {
+public:
+  /**
+   Installs the Dispatcher into the given Runtime.
+   It can be accessed using `getRuntimeGlobalDispatcher` later.
+   */
+  static void installRuntimeGlobalDispatcher(jsi::Runtime& runtime, std::shared_ptr<Dispatcher> dispatcher);
+  /**
+   Gets the global Dispatcher in the given Runtime, or throws an error if not found.
+  */
+  static std::shared_ptr<Dispatcher> getRuntimeGlobalDispatcher(jsi::Runtime& runtime);
+  static jsi::Value getRuntimeGlobalDispatcherHolder(jsi::Runtime& runtime);
+
 public:
   /**
    * Run the given void function synchronously on the Thread this Dispatcher is managing.
@@ -53,6 +68,9 @@ public:
     // 3. Return an open future that gets resolved later by the dispatcher Thread
     return future;
   }
+
+ private:
+  static constexpr auto TAG = "Dispatcher";
 };
 
 } // namespace margelo

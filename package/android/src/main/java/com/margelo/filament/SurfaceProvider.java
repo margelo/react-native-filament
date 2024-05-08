@@ -5,9 +5,13 @@ import androidx.annotation.Keep;
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
 
-/** @noinspection JavaJniMissingFunction*/
+/**
+ * @noinspection JavaJniMissingFunction
+ */
 public class SurfaceProvider {
-    /** @noinspection unused, FieldCanBeLocal */
+    /**
+     * @noinspection unused, FieldCanBeLocal
+     */
     @DoNotStrip
     @Keep
     private final HybridData mHybridData;
@@ -17,7 +21,10 @@ public class SurfaceProvider {
     }
 
     private native HybridData initHybrid();
+
     public native void onSurfaceCreated(Object surface);
+
     public native void onSurfaceChanged(Object surface, int width, int height);
+
     public native void onSurfaceDestroyed(Object surface);
 }

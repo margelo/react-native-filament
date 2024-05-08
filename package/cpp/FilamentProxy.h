@@ -42,6 +42,7 @@ private:
   virtual std::shared_ptr<FilamentView> findFilamentView(int id) = 0;
   virtual std::shared_ptr<Choreographer> createChoreographer() = 0;
   virtual std::shared_ptr<FilamentRecorder> createRecorder(int width, int height, int fps, double bitRate) = 0;
+  virtual std::shared_ptr<Dispatcher> getJSDispatcher() = 0;
   /**
    * Get the Dispatcher that is responsible for rendering to Filament.
    * This is guaranteed to only use a single Thread, as opposed to a Thread-pool.
@@ -67,6 +68,8 @@ private:
    */
   virtual float getDensityPixelRatio() = 0;
 
+  jsi::Value getCurrentDispatcher(jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* args, size_t count);
+
   // For testing
   std::shared_ptr<TestHybridObject> createTestObject();
 
@@ -85,7 +88,7 @@ private:
 
 public:
   virtual jsi::Runtime& getRuntime() = 0;
-  virtual std::shared_ptr<react::CallInvoker> getCallInvoker() = 0;
+  //  virtual std::shared_ptr<react::CallInvoker> getCallInvoker() = 0;
 
 private:
   static constexpr auto TAG = "FilamentProxy";

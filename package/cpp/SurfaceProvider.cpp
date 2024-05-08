@@ -21,24 +21,36 @@ std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceChangedListener(SurfacePr
 
 // TODO: note, we are storing again a JSI function here. Potentially we need to make sure this gets destroyed on the same thread it was
 //       created on, so we need to use the Runtime Listener here as well.
-std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceCreatedListener(SurfaceProvider::TOnCreate callback) {
+std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceCreatedListener(SurfaceProvider::TOnCreate callback,
+                                                                       std::shared_ptr<Dispatcher> dispatcher) {
   Logger::log(TAG, "Adding \"surface created\" listener");
   std::unique_lock lock(_mutex);
 
+  // Create a callback that will be called on the JS thread
+  TOnCreate onSurfaceCreatedCallback = [dispatcher, callback](std::shared_ptr<Surface> surface) {
+    dispatcher->runAsync([callback, surface]() { callback(surface); });
+  };
+
   return _listeners->add({
-      .onSurfaceCreated = callback,
+      .onSurfaceCreated = onSurfaceCreatedCallback,
       .onSurfaceSizeChanged = std::nullopt,
       .onSurfaceDestroyed = std::nullopt,
   });
 }
-std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceDestroyedListener(SurfaceProvider::TOnDestroy callback) {
+std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceDestroyedListener(SurfaceProvider::TOnDestroy callback,
+                                                                         std::shared_ptr<Dispatcher> dispatcher) {
   Logger::log(TAG, "Adding \"surface destroyed\" listener");
   std::unique_lock lock(_mutex);
+
+  // Create a callback that will be called on the JS thread
+  TOnDestroy onSurfaceDestroyedCallback = [dispatcher, callback](std::shared_ptr<Surface> surface) {
+    dispatcher->runAsync([callback, surface]() { callback(surface); });
+  };
 
   return _listeners->add({
       .onSurfaceCreated = std::nullopt,
       .onSurfaceSizeChanged = std::nullopt,
-      .onSurfaceDestroyed = callback,
+      .onSurfaceDestroyed = onSurfaceDestroyedCallback,
   });
 }
 
@@ -68,6 +80,7 @@ void SurfaceProvider::onSurfaceDestroyed(std::shared_ptr<Surface> surface) {
   Logger::log(TAG, "Surface destroyed!");
   std::unique_lock lock(_mutex);
   _listeners->forEach([=](const Callbacks& callbacks) {
+    // TODO: we kind of need runOnJS here to avoid crashes in hermes, as this gets called from the main thread.
     if (callbacks.onSurfaceDestroyed.has_value()) {
       TOnDestroy callback = callbacks.onSurfaceDestroyed.value();
       callback(surface);
