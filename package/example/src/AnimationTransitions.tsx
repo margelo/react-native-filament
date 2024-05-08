@@ -33,109 +33,103 @@ const animationInterpolationTime = 5
 
 function Renderer() {
   const { camera, view, scene } = useFilamentContext()
-  // useDefaultLight()
+  useDefaultLight()
   useSkybox({ color: '#88defb' })
 
-  // const pengu = useModel({ path: penguModelPath })
-  // const penguAsset = getAssetFromModel(pengu)
-  // const pirateHat = useModel({ path: pirateHatPath })
-  // const pirateHatAsset = getAssetFromModel(pirateHat)
-  // const pirateHatAnimator = useResource(() => {
-  //   if (pirateHatAsset == null || penguAsset == null) {
-  //     return undefined
-  //   }
-  //   return Promise.resolve(pirateHatAsset.createAnimatorWithAnimationsFrom(penguAsset))
-  // }, [pirateHatAsset, penguAsset])
+  const pengu = useModel({ path: penguModelPath })
+  const penguAsset = getAssetFromModel(pengu)
+  const pirateHat = useModel({ path: pirateHatPath })
+  const pirateHatAsset = getAssetFromModel(pirateHat)
+  const pirateHatAnimator = useDisposableResource(() => {
+    if (pirateHatAsset == null || penguAsset == null) {
+      return undefined
+    }
+    return Promise.resolve(pirateHatAsset.createAnimatorWithAnimationsFrom(penguAsset))
+  }, [pirateHatAsset, penguAsset])
 
-  // const isPirateHatAdded = useRef(true) // assets are added by default to the scene
-  // const penguAnimator = useAssetAnimator(penguAsset)
+  const isPirateHatAdded = useRef(true) // assets are added by default to the scene
+  const penguAnimator = useAssetAnimator(penguAsset)
 
-  // const prevAnimationIndex = useSharedValue<number | undefined>(undefined)
-  // const prevAnimationStarted = useSharedValue<number | undefined>(undefined)
-  // const animationInterpolation = useSharedValue(0)
-  // const currentAnimationIndex = useSharedValue(0)
+  const prevAnimationIndex = useSharedValue<number | undefined>(undefined)
+  const prevAnimationStarted = useSharedValue<number | undefined>(undefined)
+  const animationInterpolation = useSharedValue(0)
+  const currentAnimationIndex = useSharedValue(0)
 
-  // const prevAspectRatio = useSharedValue(0)
-  // const renderCallback: RenderCallback = useCallback(
-  //   ({ passedSeconds }) => {
-  //     'worklet'
+  const prevAspectRatio = useSharedValue(0)
+  const renderCallback: RenderCallback = useCallback(
+    ({ passedSeconds }) => {
+      'worklet'
 
-  //     const aspectRatio = view.getAspectRatio()
-  //     if (prevAspectRatio.value !== aspectRatio) {
-  //       prevAspectRatio.value = aspectRatio
-  //       // Setup camera lens:
-  //       camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
-  //       console.log('Setting up camera lens with aspect ratio:', aspectRatio)
-  //     }
+      const aspectRatio = view.getAspectRatio()
+      if (prevAspectRatio.value !== aspectRatio) {
+        prevAspectRatio.value = aspectRatio
+        // Setup camera lens:
+        camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
+        console.log('Setting up camera lens with aspect ratio:', aspectRatio)
+      }
 
-  //     camera.lookAt(cameraPosition, cameraTarget, cameraUp)
+      camera.lookAt(cameraPosition, cameraTarget, cameraUp)
 
-  //     if (pirateHatAnimator == null || penguAnimator == null) {
-  //       return
-  //     }
+      if (pirateHatAnimator == null || penguAnimator == null) {
+        return
+      }
 
-  //     // Update the animators to play the current animation
-  //     penguAnimator.applyAnimation(currentAnimationIndex.value, passedSeconds)
-  //     pirateHatAnimator.applyAnimation(currentAnimationIndex.value, passedSeconds)
+      // Update the animators to play the current animation
+      penguAnimator.applyAnimation(currentAnimationIndex.value, passedSeconds)
+      pirateHatAnimator.applyAnimation(currentAnimationIndex.value, passedSeconds)
 
-  //     // Eventually apply a cross fade
-  //     if (prevAnimationIndex.value != null) {
-  //       if (prevAnimationStarted.value == null) {
-  //         prevAnimationStarted.value = passedSeconds
-  //       }
-  //       animationInterpolation.value += passedSeconds - prevAnimationStarted.value!
-  //       const alpha = animationInterpolation.value / animationInterpolationTime
+      // Eventually apply a cross fade
+      if (prevAnimationIndex.value != null) {
+        if (prevAnimationStarted.value == null) {
+          prevAnimationStarted.value = passedSeconds
+        }
+        animationInterpolation.value += passedSeconds - prevAnimationStarted.value!
+        const alpha = animationInterpolation.value / animationInterpolationTime
 
-  //       // Blend animations using a cross fade
-  //       penguAnimator.applyCrossFade(prevAnimationIndex.value, prevAnimationStarted.value!, alpha)
-  //       pirateHatAnimator.applyCrossFade(prevAnimationIndex.value, prevAnimationStarted.value!, alpha)
+        // Blend animations using a cross fade
+        penguAnimator.applyCrossFade(prevAnimationIndex.value, prevAnimationStarted.value!, alpha)
+        pirateHatAnimator.applyCrossFade(prevAnimationIndex.value, prevAnimationStarted.value!, alpha)
 
-  //       // Reset the prev animation once the transition is completed
-  //       if (alpha >= 1) {
-  //         prevAnimationIndex.value = undefined
-  //         prevAnimationStarted.value = undefined
-  //         animationInterpolation.value = 0
-  //       }
-  //     }
+        // Reset the prev animation once the transition is completed
+        if (alpha >= 1) {
+          prevAnimationIndex.value = undefined
+          prevAnimationStarted.value = undefined
+          animationInterpolation.value = 0
+        }
+      }
 
-  //     penguAnimator.updateBoneMatrices()
-  //     pirateHatAnimator.updateBoneMatrices()
-  //   },
-  //   [
-  //     view,
-  //     prevAspectRatio,
-  //     camera,
-  //     pirateHatAnimator,
-  //     penguAnimator,
-  //     currentAnimationIndex.value,
-  //     prevAnimationIndex,
-  //     prevAnimationStarted,
-  //     animationInterpolation,
-  //   ]
-  // )
+      penguAnimator.updateBoneMatrices()
+      pirateHatAnimator.updateBoneMatrices()
+    },
+    [
+      view,
+      prevAspectRatio,
+      camera,
+      pirateHatAnimator,
+      penguAnimator,
+      currentAnimationIndex.value,
+      prevAnimationIndex,
+      prevAnimationStarted,
+      animationInterpolation,
+    ]
+  )
 
-  // const animations = useMemo(() => {
-  //   if (penguAnimator == null) return []
-  //   const count = penguAnimator.getAnimationCount()
-  //   const names = []
-  //   for (let i = 0; i < count; i++) {
-  //     names.push(penguAnimator.getAnimationName(i))
-  //   }
-  //   return names
-  // }, [penguAnimator])
+  const animations = useMemo(() => {
+    if (penguAnimator == null) return []
+    const count = penguAnimator.getAnimationCount()
+    const names = []
+    for (let i = 0; i < count; i++) {
+      names.push(penguAnimator.getAnimationName(i))
+    }
+    return names
+  }, [penguAnimator])
 
   const navigation = useNavigation()
 
   return (
     <View style={styles.container}>
-      <Filament
-        style={styles.filamentView}
-        enableTransparentRendering={false}
-        renderCallback={() => {
-          'worklet'
-        }}
-      />
-      {/* <ScrollView style={styles.btnContainer}>
+      <Filament style={styles.filamentView} enableTransparentRendering={false} renderCallback={renderCallback} />
+      <ScrollView style={styles.btnContainer}>
         <Button
           title="Navigate to test screen"
           onPress={() => {
@@ -168,7 +162,7 @@ function Renderer() {
             }}
           />
         ))}
-      </ScrollView> */}
+      </ScrollView>
     </View>
   )
 }

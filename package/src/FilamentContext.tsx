@@ -154,7 +154,7 @@ function EngineAPIProvider({ children, engine, choreographer, viewProps, rendere
 }
 
 type FilamentProviderProps = PropsWithChildren<
-  EngineProps &
+  Omit<EngineProps, 'context'> &
     ViewProps &
     RendererProps & {
       fallback?: React.ReactElement
