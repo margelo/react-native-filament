@@ -10,10 +10,8 @@ import {
   useFilamentContext,
   useDisposableResource,
   useSkybox,
-  RenderCallback,
   useRecorder,
-  useWorkletCallback,
-  Filament,
+  useRecorderRenderLoop,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
@@ -81,16 +79,25 @@ function Renderer() {
     [view, prevAspectRatio, camera, pirateHatAnimator, penguAnimator]
   )
 
+  const framesToRender = DURATION * FPS
+  const started = Date.now()
+
   const [videoUri, setVideoUri] = React.useState<string>()
+
+  const { engine } = useFilamentContext()
   const recorder = useRecorder({
     bitRate: 2_000_000,
     fps: FPS,
     height: PixelRatio.getPixelSizeForLayoutSize(Dimensions.get('screen').height),
     width: PixelRatio.getPixelSizeForLayoutSize(Dimensions.get('screen').width),
   })
-  const { engine } = useFilamentContext()
 
+  const isStopping = React.useRef(false)
   const onFinish = useRunOnJS(async () => {
+    if (isStopping.current) {
+      return
+    }
+    isStopping.current = true
     console.log('Stopping recording')
     const uri = await recorder.stopRecording()
     console.log('Recording stopped.')
@@ -98,51 +105,34 @@ function Renderer() {
     setVideoUri(uri)
   }, [recorder])
 
-  const beginRendering = useWorkletCallback(() => {
+  useRecorderRenderLoop(recorder, ({ frameIndex }) => {
     'worklet'
+    if (frameIndex > framesToRender) {
+      // stop rendering
+      onFinish()
+      return
+    }
 
-    console.log('Starting rendering')
-    const framesToRender = DURATION * FPS
-    const started = Date.now()
-    let frameIndex = 0
-    let isStopping = false
+    const nextTimestamp = started + frameIndex * (1 / FPS)
+    console.log(`Rendering frame #${frameIndex + 1} of ${framesToRender} at ${nextTimestamp}`)
+    const passedSeconds = nextTimestamp - started
+    // Update the scene:
+    renderCallback(passedSeconds)
+    // Create the commands for the GPU:
+    engine.render(nextTimestamp, false)
+    // Wait for the GPU render to complete:
+    engine.flushAndWait()
+    // Render the current frame to the recorder:
+    recorder.renderFrame(nextTimestamp)
 
-    const start = performance.now()
-
-    const listener = recorder.addOnReadyForMoreDataListener(() => {
-      if (frameIndex > framesToRender) {
-        if (!isStopping) {
-          isStopping = true
-          const end = performance.now()
-          console.log(`Rendering ${framesToRender} frames took ${(end - start).toFixed(0)}ms!`)
-          onFinish()
-          listener.remove()
-        }
-        return
-      }
-
-      const nextTimestamp = started + frameIndex * (1 / FPS)
-      console.log(`Rendering frame #${frameIndex + 1} of ${framesToRender} at ${nextTimestamp}`)
-      const passedSeconds = nextTimestamp - started
-      // Update the scene:
-      renderCallback(passedSeconds)
-      // Create the commands for the GPU:
-      engine.render(nextTimestamp, false)
-      // Wait for the GPU render to complete:
-      engine.flushAndWait()
-      // Render the current frame to the recorder:
-      recorder.renderFrame(nextTimestamp)
-
-      frameIndex++
-    })
-  }, [engine, recorder, renderCallback])
+    frameIndex++
+  })
 
   const onStartRecording = useCallback(async () => {
     console.log('Starting recorder')
+    isStopping.current = false
     await recorder.startRecording()
-
-    beginRendering()
-  }, [recorder, beginRendering])
+  }, [recorder])
 
   return (
     <View style={styles.container}>

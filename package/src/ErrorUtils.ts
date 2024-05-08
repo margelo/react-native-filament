@@ -1,3 +1,5 @@
+import { Worklets } from 'react-native-worklets-core'
+
 /**
  * Report an error to react native's `ErrorUtils` if available, or log to console otherwise.
  */

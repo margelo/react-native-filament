@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Engine, EngineBackend, EngineConfig } from '../types'
 import { FilamentProxy } from '../native/FilamentProxy'
 import { IWorkletContext, useWorklet } from 'react-native-worklets-core'
@@ -21,14 +21,10 @@ export interface EngineProps {
 export function useEngine({ backend, config, context }: EngineProps): Engine | undefined {
   const [engine, setEngine] = useState<Engine | undefined>(undefined)
 
-  const createEngine = useWorklet(
-    context,
-    () => {
-      'worklet'
-      return FilamentProxy.createEngine(backend ?? undefined, config ?? undefined)
-    },
-    [backend, config]
-  )
+  const createEngine = useWorklet(context, () => {
+    'worklet'
+    return FilamentProxy.createEngine(backend ?? undefined, config ?? undefined)
+  })
 
   useEffect(() => {
     // Once the engine is created we don't need to create another one

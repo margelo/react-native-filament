@@ -12,6 +12,10 @@ import com.facebook.proguard.annotations.DoNotStrip;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @noinspection JavaJniMissingFunction
@@ -143,10 +147,28 @@ public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaReco
         isRecording = true;
 
         rendererDispatcher.getExecutor().execute(() -> {
+            int count = 0;
+            while (isRecording) {
+                Log.i(TAG, "Recorder is ready for more data.");
+                onReadyForMoreData();
+                count++;
+                if (count > 1000) {
+                    Log.i(TAG, "Recorder aborted!!!!!");
+                    return;
+                }
+            }
+        });
+    }
+
+    private void onReadyTimerCallback(Executor timer) {
+        rendererDispatcher.getExecutor().execute(() -> {
             // stopRecording() needs to be called here to stop the actual draw loop.
             while (isRecording) {
                 Log.i(TAG, "Recorder is ready for more data.");
                 onReadyForMoreData();
+
+                // repeat loop, call this func again
+                timer.execute(() -> onReadyTimerCallback(timer));
             }
         });
     }

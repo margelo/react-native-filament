@@ -1,9 +1,10 @@
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useFilamentContext } from '../FilamentContext'
 import { FilamentProxy } from '../native/FilamentProxy'
 import { useDisposableResource } from './useDisposableResource'
 import { runOnWorklet } from '../utilities/runOnWorklet'
 import { useWorkletEffect } from './useWorkletEffect'
+import { TFilamentRecorder } from '../native/FilamentRecorder'
 
 export type RecorderOptions = {
   width: number
@@ -12,9 +13,8 @@ export type RecorderOptions = {
   bitRate: number
 }
 
-export function useRecorder(options: RecorderOptions) {
+export function useRecorder({ width, height, fps, bitRate }: RecorderOptions): TFilamentRecorder {
   const { engine } = useFilamentContext()
-  const { width, height, fps, bitRate } = options
   const recorder = useMemo(() => {
     console.log('Creating recorder JS')
     return FilamentProxy.createRecorder(width, height, fps, bitRate)
