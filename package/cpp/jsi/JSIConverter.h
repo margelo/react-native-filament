@@ -8,13 +8,13 @@
 #include "HybridObject.h"
 #include "Promise.h"
 #include "PromiseFactory.h"
+#include "threading/Dispatcher.h"
 #include <array>
 #include <future>
 #include <jsi/jsi.h>
 #include <memory>
 #include <type_traits>
 #include <unordered_map>
-#include "threading/Dispatcher.h"
 
 #if __has_include(<cxxabi.h>)
 #include <cxxabi.h>
@@ -391,7 +391,7 @@ template <typename T> struct JSIConverter<T, std::enable_if_t<is_shared_ptr_to_n
 #endif
     jsi::Object object = arg.getObject(runtime);
 #if DEBUG
-    if (!object.isNativeState<TPointee>(runtime)) {
+    if (!object.hasNativeState<TPointee>(runtime)) {
       [[unlikely]];
       std::string stringRepresentation = arg.toString(runtime).utf8(runtime);
       throw jsi::JSError(runtime, invalidTypeErrorMessage(stringRepresentation, "It is a different NativeState<T>!"));
@@ -406,7 +406,7 @@ template <typename T> struct JSIConverter<T, std::enable_if_t<is_shared_ptr_to_n
       throw jsi::JSError(runtime, "Cannot convert nullptr to HostObject<" + getFriendlyTypename() + ">!");
     }
 #endif
-    jsi::Object object;
+    jsi::Object object(runtime);
     object.setNativeState(runtime, arg);
     return object;
   }
