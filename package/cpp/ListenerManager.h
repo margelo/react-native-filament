@@ -36,7 +36,7 @@ public:
     _listeners.push_back(std::move(listener));
     auto id = --_listeners.end();
 
-    auto weakThis = std::weak_ptr<ListenerManager<Callback>>(shared());
+    auto weakThis = std::weak_ptr(shared());
     return Listener::create([id, weakThis] {
       auto sharedThis = weakThis.lock();
       if (sharedThis) {

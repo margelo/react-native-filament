@@ -17,7 +17,7 @@ import {
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
-import { useSharedValue } from 'react-native-worklets-core'
+import { useRunOnJS, useSharedValue } from 'react-native-worklets-core'
 import Video from 'react-native-video'
 
 const penguModelPath = getAssetPath('pengu.glb')
@@ -89,15 +89,33 @@ function Renderer() {
     width: PixelRatio.getPixelSizeForLayoutSize(Dimensions.get('screen').width),
   })
   const { engine } = useFilamentContext()
-  const startRecording = useWorkletCallback(() => {
+
+  const onFinish = useRunOnJS(async () => {
+    await recorder.stopRecording()
+
+    console.log('Stopping recording')
+    const uri = await recorder.stopRecording()
+    console.log('Recording stopped.')
+    console.log('Video URI:', uri)
+    setVideoUri(uri)
+  }, [recorder])
+
+  const beginRendering = useWorkletCallback(() => {
     'worklet'
 
     console.log('Starting rendering')
     const framesToRender = DURATION * FPS
     const started = Date.now()
-    for (let i = 0; i < framesToRender; i++) {
-      const nextTimestamp = started + i * (1 / FPS)
-      console.log(`Rendering frame #${i + 1} of ${framesToRender} at ${nextTimestamp}`)
+    let frameIndex = 0
+    const listener = recorder.addOnReadyForMoreDataListener(() => {
+      if (frameIndex > framesToRender) {
+        onFinish()
+        // listener.remove()
+        return
+      }
+
+      const nextTimestamp = started + frameIndex * (1 / FPS)
+      console.log(`Rendering frame #${frameIndex + 1} of ${framesToRender} at ${nextTimestamp}`)
       const passedSeconds = nextTimestamp - started
       // Update the scene:
       renderCallback(passedSeconds)
@@ -107,8 +125,17 @@ function Renderer() {
       engine.flushAndWait()
       // Render the current frame to the recorder:
       recorder.renderFrame(nextTimestamp)
-    }
+
+      frameIndex++
+    })
   }, [engine, recorder, renderCallback])
+
+  const onStartRecording = useCallback(async () => {
+    console.log('Starting recorder')
+    await recorder.startRecording()
+
+    beginRendering()
+  }, [recorder, beginRendering])
 
   return (
     <View style={styles.container}>
@@ -120,25 +147,12 @@ function Renderer() {
           repeat={true}
           controls={true}
           source={{ uri: videoUri }}
-          onError={() => console.error(e)}
+          onError={(e) => console.error(e)}
           onLoad={() => console.log('On load')}
           onEnd={() => console.log('On end')}
         />
       ) : null}
-      <Button
-        onPress={async () => {
-          console.log('Starting recording...')
-          await recorder.startRecording()
-          await startRecording()
-          // TODO: issue, we can't call stop when we don't know here if all frames have been processed yet
-          console.log('Stopping recording')
-          const uri = await recorder.stopRecording()
-          console.log('Recording stopped.')
-          console.log('Video URI:', uri)
-          setVideoUri(uri)
-        }}
-        title={'Start recording'}
-      />
+      <Button onPress={onStartRecording} title={'Start recording'} />
     </View>
   )
 }

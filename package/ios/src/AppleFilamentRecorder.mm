@@ -182,6 +182,7 @@ std::future<void> AppleFilamentRecorder::startRecording() {
     }
     Logger::log(TAG, "Recording started! Starting Media Data listener...");
     
+    self->_isRecording = true;
     auto weakSelf = std::weak_ptr(self);
     [self->_assetWriterInput requestMediaDataWhenReadyOnQueue:self->_queue
                                                    usingBlock:[weakSelf]() {
@@ -199,11 +200,11 @@ std::future<std::string> AppleFilamentRecorder::stopRecording() {
 
   auto promise = std::make_shared<std::promise<std::string>>();
   auto self = shared<AppleFilamentRecorder>();
-  dispatch_async(_queue, ^{
+  dispatch_async(_queue, [self, promise]() {
     // Stop the AVAssetWriter
     [self->_assetWriterInput markAsFinished];
     // Finish and wait for callback
-    [self->_assetWriter finishWritingWithCompletionHandler:^{
+    [self->_assetWriter finishWritingWithCompletionHandler:[self, promise](){
       Logger::log(TAG, "Recording finished!");
       AVAssetWriterStatus status = self->_assetWriter.status;
       NSError* maybeError = self->_assetWriter.error;
@@ -222,6 +223,7 @@ std::future<std::string> AppleFilamentRecorder::stopRecording() {
       promise->set_value(path);
     }];
 
+    self->_isRecording = false;
     CVPixelBufferPoolFlush(self->_pixelBufferPool, 0);
   });
 
