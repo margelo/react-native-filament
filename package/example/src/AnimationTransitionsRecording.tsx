@@ -10,10 +10,8 @@ import {
   useFilamentContext,
   useDisposableResource,
   useSkybox,
-  RenderCallback,
   useRecorder,
   useWorkletCallback,
-  Filament,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
@@ -112,7 +110,6 @@ function Renderer() {
 
   return (
     <View style={styles.container}>
-      {/* <Filament style={styles.filamentView} renderCallback={renderCallback} /> */}
       {videoUri != null ? (
         <Video
           style={{ flex: 1 }}
