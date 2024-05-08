@@ -104,10 +104,6 @@ std::shared_ptr<TestHybridObject> FilamentProxy::createTestObject() {
   return std::make_shared<TestHybridObject>();
 }
 
-std::shared_ptr<Dispatcher> FilamentProxy::getCurrentDispatcher(jsi::Runtime& runtime) {
-  return Dispatcher::getRuntimeGlobalDispatcher(runtime);
-}
-
 std::shared_ptr<EngineWrapper> FilamentProxy::createEngine(std::optional<std::string> backend,
                                                            std::optional<std::unordered_map<std::string, int>> arguments) {
   Logger::log(TAG, "Creating Engine...");
