@@ -9,8 +9,8 @@ namespace margelo {
 
 using namespace facebook;
 
-FilamentRecorder::FilamentRecorder(int width, int height, int fps, double bitRate)
-    : HybridObject("FilamentRecorder"), _width(width), _height(height), _fps(fps), _bitRate(bitRate), _listenerManager(ListenerManager<ReadyForMoreDataCallback>::create()) {
+FilamentRecorder::FilamentRecorder(std::shared_ptr<Dispatcher> renderThreadDispatcher, int width, int height, int fps, double bitRate)
+    : HybridObject("FilamentRecorder"), _renderThreadDispatcher(renderThreadDispatcher), _width(width), _height(height), _fps(fps), _bitRate(bitRate), _listenerManager(ListenerManager<ReadyForMoreDataCallback>::create()) {
   Logger::log(TAG, "Creating %zu x %zu @ %zu FPS (%f bps) FilamentRecorder...", width, height, fps, bitRate);
 }
 
@@ -38,9 +38,14 @@ std::shared_ptr<Listener> FilamentRecorder::addOnReadyForMoreDataListener(ReadyF
 
 
 void FilamentRecorder::onReadyForMoreData() {
-  // notify all JS listeners
-  _listenerManager->forEach([](const ReadyForMoreDataCallback& callback) {
-    callback();
+  // this might get called from a background Thread (e.g. Encoder Thread),
+  // so we need to make sure to render on the Renderer Thread
+  auto listenerManager = _listenerManager;
+  _renderThreadDispatcher->runAsync([listenerManager]() {
+    // notify all JS listeners
+    listenerManager->forEach([](const ReadyForMoreDataCallback& callback) {
+      callback();
+    });
   });
 }
 

@@ -12,8 +12,8 @@
 
 namespace margelo {
 
-AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps, double bitRate)
-    : FilamentRecorder(width, height, fps, bitRate) {
+AppleFilamentRecorder::AppleFilamentRecorder(std::shared_ptr<Dispatcher> renderThreadDispatcher, int width, int height, int fps, double bitRate)
+    : FilamentRecorder(renderThreadDispatcher, width, height, fps, bitRate) {
   dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, -1);
   _queue = dispatch_queue_create("filament.recorder.queue", qos);
       

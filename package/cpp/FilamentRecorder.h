@@ -12,6 +12,7 @@
 #include "jsi/HybridObject.h"
 #include "Listener.h"
 #include "ListenerManager.h"
+#include "Dispatcher.h"
 
 namespace margelo {
 
@@ -22,7 +23,7 @@ public:
   using ReadyForMoreDataCallback = std::function<void()>;
   
 public:
-  explicit FilamentRecorder(int width, int height, int fps, double bitRate);
+  explicit FilamentRecorder(std::shared_ptr<Dispatcher> renderThreadDispatcher, int width, int height, int fps, double bitRate);
   ~FilamentRecorder();
 
 public:
@@ -70,6 +71,7 @@ protected:
   static constexpr auto TAG = "FilamentRecorder";
 
 private:
+  std::shared_ptr<Dispatcher> _renderThreadDispatcher;
   int _width;
   int _height;
   int _fps;

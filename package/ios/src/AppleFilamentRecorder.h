@@ -16,7 +16,7 @@ namespace margelo {
 
 class AppleFilamentRecorder : public FilamentRecorder {
 public:
-  explicit AppleFilamentRecorder(int width, int height, int fps, double bitRate);
+  explicit AppleFilamentRecorder(std::shared_ptr<Dispatcher> renderThreadDispatcher, int width, int height, int fps, double bitRate);
 
   void* getNativeWindow() override;
   std::string getOutputFile() override;
