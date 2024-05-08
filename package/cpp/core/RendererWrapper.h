@@ -21,7 +21,7 @@ public:
 
 private: // Exposed JS API
   void setFrameRateOptions(std::unordered_map<std::string, double> options);
-  void setPresentationTime(int64_t timestamp);
+  void setPresentationTime(double timestamp);
 
   /**
    * Whether the SwapChain should be cleared using the clearColor. Use this if translucent

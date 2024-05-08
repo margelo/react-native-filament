@@ -115,6 +115,8 @@ function Renderer() {
     renderCallback(passedSeconds)
     // Create the commands for the GPU:
     renderer.beginFrame(swapChain, 0)
+    const presentationTime = (frameIndex / FPS) * 1000
+    renderer.setPresentationTime(presentationTime)
     renderer.render(view)
     renderer.endFrame()
 
