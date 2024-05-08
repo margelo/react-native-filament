@@ -4,7 +4,7 @@ import { FilamentProxy } from './native/FilamentProxy'
 import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 import { reportFatalError, reportWorkletError } from './ErrorUtils'
 import { FilamentContext } from './FilamentContext'
-import { RenderCallback } from 'react-native-filament'
+import { RenderCallback, SwapChain } from 'react-native-filament'
 import { SurfaceProvider } from './native/FilamentViewTypes'
 import { Listener } from './types/Listener'
 
@@ -23,6 +23,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
   private readonly ref: React.RefObject<RefType>
   private surfaceCreatedListener: Listener | undefined
   private surfaceDestroyedListener: Listener | undefined
+  private swapChain: SwapChain | undefined
 
   /**
    * Uses the context in class.
@@ -53,19 +54,19 @@ export class Filament extends React.PureComponent<FilamentProps> {
   }
 
   private updateRenderCallback = (callback: RenderCallback) => {
-    // const { engine, _workletContext, _choreographer } = this.getContext()
-    // _workletContext.runAsync(() => {
-    //   'worklet'
-    //   _choreographer.setFrameCallback((frameInfo) => {
-    //     'worklet'
-    //     try {
-    //       callback(frameInfo)
-    //       engine.render(frameInfo.timestamp)
-    //     } catch (e) {
-    //       reportWorkletError(e)
-    //     }
-    //   })
-    // })
+    const { engine, _workletContext, _choreographer } = this.getContext()
+    _workletContext.runAsync(() => {
+      'worklet'
+      _choreographer.setFrameCallback((frameInfo) => {
+        'worklet'
+        try {
+          callback(frameInfo)
+          engine.render(frameInfo.timestamp)
+        } catch (e) {
+          reportWorkletError(e)
+        }
+      })
+    })
   }
 
   private getContext = () => {
@@ -96,6 +97,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
     const { _choreographer } = this.getContext()
     this.surfaceCreatedListener?.remove()
     this.surfaceDestroyedListener?.remove()
+    this.swapChain?.release()
     _choreographer.stop()
   }
 
@@ -103,7 +105,6 @@ export class Filament extends React.PureComponent<FilamentProps> {
   onViewReady = async () => {
     console.log('On view ready')
     const context = this.getContext()
-
     try {
       const handle = this.handle
       const view = await FilamentProxy.findFilamentView(handle)
@@ -111,21 +112,17 @@ export class Filament extends React.PureComponent<FilamentProps> {
         throw new Error(`Failed to find FilamentView #${handle}!`)
       }
       const surfaceProvider = view.getSurfaceProvider()
-
       this.surfaceCreatedListener = surfaceProvider.addOnSurfaceCreatedListener(() => {
         console.log('Surface created!')
         this.onSurfaceCreated(surfaceProvider)
       })
-
       this.surfaceDestroyedListener = surfaceProvider.addOnSurfaceDestroyedListener(() => {
         console.log('Surface destroyed!')
         this.onSurfaceDestroyed()
       })
-
       // Link the surface with the engine:
       console.log('Setting surface provider')
       context.engine.setSurfaceProvider(surfaceProvider)
-
       // Its possible that the surface is already created, then our callback wouldn't be called
       // (we still keep the callback as on android a surface can be destroyed and recreated, while the view stays alive)
       if (surfaceProvider.getSurface() != null) {
@@ -141,24 +138,23 @@ export class Filament extends React.PureComponent<FilamentProps> {
   onSurfaceCreated = async (surfaceProvider: SurfaceProvider) => {
     const { engine, _workletContext, _choreographer } = this.getContext()
     console.log('On surface created')
-
     // Create a swap chain …
     const enableTransparentRendering = this.props.enableTransparentRendering ?? true
-    const swapChain = await _workletContext.runAsync(() => {
+    this.swapChain = await _workletContext.runAsync(() => {
       'worklet'
       return engine.createSwapChainForSurface(surfaceProvider, enableTransparentRendering)
     })
-
     // Apply the swapchain to the engine …
-    engine.setSwapChain(swapChain)
+    engine.setSwapChain(this.swapChain)
     // Start the choreographer …
     _choreographer.start()
   }
 
   onSurfaceDestroyed = () => {
-    console.log('Stopping choreographer')
+    console.log('Surface destroyed')
     const { _choreographer } = this.getContext()
     _choreographer.stop()
+    this.swapChain?.release()
   }
 
   /** @internal */
