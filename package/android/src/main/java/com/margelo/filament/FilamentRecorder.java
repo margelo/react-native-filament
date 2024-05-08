@@ -159,9 +159,9 @@ public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaReco
     @DoNotStrip
     @Keep
     void stopRecording() {
+        isRecording = false;
         recorder.stop();
         recorder.release();
-        isRecording = false;
     }
 
     /**
