@@ -185,10 +185,14 @@ std::future<void> AppleFilamentRecorder::startRecording() {
                                                    usingBlock:[weakSelf]() {
       Logger::log(TAG, "Recorder is ready for more data.");
       auto self = weakSelf.lock();
-      if (self == nullptr) return;
-      self->_renderThreadDispatcher->runAsync([self]() {
-        self->onReadyForMoreData();
-      });
+      if (self != nullptr) {
+        std::unique_lock lock(self->_mutex);
+        bool shouldContinueNext = self->onReadyForMoreData();
+        if (!shouldContinueNext) {
+          // stop the render queue
+          [self->_assetWriterInput markAsFinished];
+        }
+      }
     }];
   });
 }
@@ -208,8 +212,6 @@ std::future<std::string> AppleFilamentRecorder::stopRecording() {
   auto promise = std::make_shared<std::promise<std::string>>();
   auto self = shared<AppleFilamentRecorder>();
   dispatch_async(_queue, [self, promise]() {
-    // Stop the AVAssetWriter
-    [self->_assetWriterInput markAsFinished];
     // Finish and wait for callback
     [self->_assetWriter finishWritingWithCompletionHandler:[self, promise](){
       Logger::log(TAG, "Recording finished!");

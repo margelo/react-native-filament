@@ -31,6 +31,11 @@ void JFilamentRecorder::renderFrame(double timestamp) {
   // TODO: Do anything here??
 }
 
+jni::local_ref<JDispatcher::javaobject> JFilamentRecorder::getRecorderDispatcher() {
+  static const auto method = javaClassLocal()->getMethod<JDispatcher::javaobject()>("getRecorderDispatcher");
+  return method(_javaPart);
+}
+
 void* JFilamentRecorder::getNativeWindow() {
   if (_nativeWindow == nullptr) {
     static const auto method = javaClassLocal()->getMethod<jobject()>("getNativeWindow");
@@ -42,24 +47,20 @@ void* JFilamentRecorder::getNativeWindow() {
 
 std::future<void> JFilamentRecorder::startRecording() {
   auto self = shared<JFilamentRecorder>();
-  return std::async(std::launch::async, [self]() {
-    jni::ThreadScope::WithClassLoader([&]() {
-      static const auto method = self->javaClassLocal()->getMethod<void()>("startRecording");
-      method(self->_javaPart);
-    });
+  auto dispatcher = getRecorderDispatcher();
+  return dispatcher->cthis()->runAsyncAwaitable<void>([self]() {
+    static const auto method = self->javaClassLocal()->getMethod<void()>("startRecording");
+    method(self->_javaPart);
   });
 }
 
 std::future<std::string> JFilamentRecorder::stopRecording() {
   auto self = shared<JFilamentRecorder>();
-  return std::async(std::launch::async, [self]() -> std::string {
-    std::string result;
-    jni::ThreadScope::WithClassLoader([&]() {
-      static const auto method = self->javaClassLocal()->getMethod<void()>("stopRecording");
-      method(self->_javaPart);
-      result = self->getOutputFile();
-    });
-    return result;
+  auto dispatcher = getRecorderDispatcher();
+  return dispatcher->cthis()->runAsyncAwaitable<std::string>([self]() {
+    static const auto method = self->javaClassLocal()->getMethod<void()>("stopRecording");
+    method(self->_javaPart);
+    return self->getOutputFile();
   });
 }
 
