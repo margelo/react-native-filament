@@ -16,7 +16,8 @@ namespace margelo {
 template <typename Callback> class ListenerManager : public std::enable_shared_from_this<ListenerManager<Callback>> {
 private:
   std::list<Callback> _listeners;
-  std::mutex _mutex;
+  // recursive mutex allows listeners to be removed within their actual callback.
+  std::recursive_mutex _mutex;
 
 public:
   /**
@@ -54,7 +55,8 @@ public:
   void forEach(std::function<LoopCallback>&& callback) {
     std::unique_lock lock(_mutex);
 
-    for (const auto& listener : _listeners) {
+    for (auto iterator = _listeners.begin(); iterator != _listeners.end();) {
+      const auto& listener = *iterator;
       callback(listener);
     }
   }
