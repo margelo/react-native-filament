@@ -85,7 +85,7 @@ export function useModel({ path, shouldReleaseSourceData, addToScene = true, ins
 
     // releases CPU memory for bindings
     asset.releaseSourceData()
-  }, [asset, _workletContext, shouldReleaseSourceData])
+  })
 
   // Add or remove from the scene:
   const previousAddToScene = usePrevious(addToScene)
@@ -99,7 +99,7 @@ export function useModel({ path, shouldReleaseSourceData, addToScene = true, ins
       // Only remove when it was previously added (ie. the user set addToScene: false)
       scene.removeAssetEntities(asset)
     }
-  }, [addToScene, asset, _workletContext, scene, previousAddToScene])
+  })
 
   const boundingBox = useMemo(() => {
     if (asset == null) return undefined
