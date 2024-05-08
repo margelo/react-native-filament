@@ -17,7 +17,7 @@ import { useDefaultLight } from './hooks/useDefaultLight'
 import { Config } from './config'
 import { getAssetPath } from './utils/getAssetPasth'
 
-const cameraPosition: Float3 = [0, 2, 7]
+const cameraPosition: Float3 = [0, 3, 10]
 const cameraTarget: Float3 = [0, 0, 0]
 const cameraUp: Float3 = [0, 1, 0]
 
@@ -54,11 +54,11 @@ function Renderer() {
       'worklet'
 
       // create the material
-      const material = engine.createMaterial(materialBuffer)
+      // const material = engine.createMaterial(materialBuffer)
 
-      const debugEntity = renderableManager.createDebugCubeWireframe([1, 1, 1], material, 0xff0000ff)
+      const debugEntity = renderableManager.createDebugCubeWireframe([1.5, 1, 3], undefined, undefined)
       scene.addEntity(debugEntity)
-      return [debugEntity, material] as const
+      return [debugEntity, undefined] as const
     })().then(([e, material]) => {
       entity = e
       localMaterial = material

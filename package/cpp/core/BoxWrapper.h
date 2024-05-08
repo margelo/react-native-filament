@@ -11,9 +11,9 @@ namespace margelo {
 
 using namespace filament;
 
-class AABBWrapper : public HybridObject {
+class BoxWrapper : public HybridObject {
 public:
-  explicit AABBWrapper(const Aabb& aabb) : HybridObject("AABBWrapper"), _aabb(aabb) {}
+  explicit BoxWrapper(const Box& box) : HybridObject("BoxWrapper"), _box(box) {}
   void loadHybridMethods() override;
 
 private: // Exposed JS api
@@ -23,7 +23,7 @@ private: // Exposed JS api
   std::vector<double> getMax();
 
 private:
-  Aabb _aabb;
+  Box _box;
 };
 
 } // namespace margelo

@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native'
 import * as React from 'react'
-import { useCallback, useMemo, useRef } from 'react'
-import { Button, ScrollView, StyleSheet, View } from 'react-native'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { Button, GestureResponderEvent, ScrollView, StyleSheet, View } from 'react-native'
 import {
   Filament,
   Float3,
@@ -34,7 +34,7 @@ const animationInterpolationTime = 5
 function Renderer() {
   const { camera, view, scene } = useFilamentContext()
   useDefaultLight()
-  useSkybox({ color: '#88defb' })
+  // useSkybox({ color: '#88defb' })
 
   const pengu = useModel({ path: penguModelPath })
   const penguAsset = getAssetFromModel(pengu)
@@ -126,8 +126,36 @@ function Renderer() {
 
   const navigation = useNavigation()
 
+  const renderableEntities = useMemo(() => {
+    if (penguAsset == null) return []
+    return penguAsset.getRenderableEntities()
+  }, [penguAsset])
+
+  const onTouchStart = useCallback(
+    async (event: GestureResponderEvent) => {
+      if (renderableEntities == null) return
+
+      const { locationX, locationY } = event.nativeEvent
+      const entity = await view.pickEntity(locationX, locationY)
+      if (entity == null) {
+        console.log('No entity was picked')
+        return
+      }
+      console.log('Picked entity:', entity)
+
+      // Check if the pengu was picked
+      for (const renderableEntity of renderableEntities) {
+        if (entity?.id === renderableEntity.id) {
+          console.log('Pengu was picked!')
+          return
+        }
+      }
+    },
+    [renderableEntities, view]
+  )
+
   return (
-    <View style={styles.container}>
+    <View style={styles.container} onTouchStart={onTouchStart}>
       <Filament style={styles.filamentView} enableTransparentRendering={false} renderCallback={renderCallback} />
       <ScrollView style={styles.btnContainer}>
         <Button
@@ -183,9 +211,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   btnContainer: {
-    height: 200,
+    maxHeight: 120,
     width: '100%',
-    position: 'absolute',
-    bottom: 0,
   },
 })

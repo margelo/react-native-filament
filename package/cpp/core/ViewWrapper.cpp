@@ -20,6 +20,8 @@ void ViewWrapper::loadHybridMethods() {
   registerHybridSetter("dithering", &ViewWrapper::setDithering, this);
   registerHybridGetter("antiAliasing", &ViewWrapper::getAntiAliasing, this);
   registerHybridSetter("antiAliasing", &ViewWrapper::setAntiAliasing, this);
+  registerHybridMethod("projectWorldToScreen", &ViewWrapper::projectWorldToScreen, this);
+  registerHybridMethod("pickEntity", &ViewWrapper::pickEntity, this);
 }
 
 double ViewWrapper::getAspectRatio() {
@@ -115,6 +117,72 @@ void ViewWrapper::setAntiAliasing(const std::string& antiAliasing) {
   AntiAliasing antiAliasingEnum;
   EnumMapper::convertJSUnionToEnum(antiAliasing, &antiAliasingEnum);
   pointee()->setAntiAliasing(antiAliasingEnum);
+}
+
+std::vector<double> ViewWrapper::projectWorldToScreen(std::vector<double> worldCoordinates) {
+  if (worldCoordinates.size() != 3) {
+    [[unlikely]];
+    throw std::invalid_argument("worldCoordinates must be an array of 3 elements");
+  }
+
+  // Get camera
+  Camera& camera = pointee()->getCamera();
+  // Get viewport
+  Viewport viewport = pointee()->getViewport();
+  // Get projection matrix
+  math::mat4 projectionMatrix = camera.getProjectionMatrix();
+  // Get view matrix
+  math::mat4 viewMatrix = camera.getViewMatrix();
+
+  // World coords to vec4
+  math::float4 worldCoordinatesFloat4 = math::float4(worldCoordinates[0], worldCoordinates[1], worldCoordinates[2], 1.0f);
+
+  // Transform to camera view space
+  math::float4 viewSpaceCoordinates = viewMatrix * worldCoordinatesFloat4;
+
+  // Transform to clip space
+  math::float4 clipSpaceCoordinates = projectionMatrix * viewSpaceCoordinates;
+
+  // Normalize to device coordinates (NDC)
+  math::float2 ndc;
+  ndc.x = clipSpaceCoordinates.x / clipSpaceCoordinates.w;
+  ndc.y = clipSpaceCoordinates.y / clipSpaceCoordinates.w;
+
+  float screenWidth = viewport.width / _densityPixelRatio;
+  float screenHeight = viewport.height / _densityPixelRatio;
+
+  // Map NDC to screen coordinates
+  std::vector<double> screenCoordinates(2);
+  screenCoordinates[0] = (ndc.x + 1.0) * (screenWidth / 2.0);
+  screenCoordinates[1] = screenHeight * (1.0 - ((ndc.y + 1.0) / 2.0));
+
+  return screenCoordinates;
+}
+
+std::future<std::optional<std::shared_ptr<EntityWrapper>>> ViewWrapper::pickEntity(double x, double y) {
+  std::promise<std::optional<std::shared_ptr<EntityWrapper>>> promise;
+  std::future<std::optional<std::shared_ptr<EntityWrapper>>> future = promise.get_future();
+
+  // Adjust DP value from react native to actual viewport / screen pixel
+  x *= _densityPixelRatio;
+  y *= _densityPixelRatio;
+  // The y coordinate we receive has its origin at the top of the screen, but Filament expects it to be at the bottom
+  y = pointee()->getViewport().height - y;
+
+  Logger::log(TAG, "Picking entity at (%f, %f)...", x, y);
+  pointee()->pick(x, y, [promise = std::move(promise)](View::PickingQueryResult result) mutable {
+    Entity entity = result.renderable;
+    if (entity.isNull()) {
+      Logger::log(TAG, "No entity picked!");
+      promise.set_value(std::nullopt);
+    } else {
+      Logger::log(TAG, "Entity picked with id %d!", entity.getId());
+      std::shared_ptr<EntityWrapper> entityWrapper = std::make_shared<EntityWrapper>(entity);
+      promise.set_value(std::optional(entityWrapper));
+    }
+  });
+
+  return future;
 }
 
 } // namespace margelo

@@ -17,18 +17,18 @@ using namespace gltfio;
 using namespace math;
 
 int RenderableManagerImpl::getPrimitiveCount(std::shared_ptr<EntityWrapper> entity) {
-  RenderableManager& _renderableManager = _engine->getRenderableManager();
+  RenderableManager& renderableManager = _engine->getRenderableManager();
   Entity entityInstance = entity->getEntity();
-  RenderableManager::Instance renderable = _renderableManager.getInstance(entityInstance);
-  return _renderableManager.getPrimitiveCount(renderable);
+  RenderableManager::Instance renderable = renderableManager.getInstance(entityInstance);
+  return renderableManager.getPrimitiveCount(renderable);
 }
 
 std::shared_ptr<MaterialInstanceWrapper> RenderableManagerImpl::getMaterialInstanceAt(std::shared_ptr<EntityWrapper> entity, int index) {
-  RenderableManager& _renderableManager = _engine->getRenderableManager();
+  RenderableManager& renderableManager = _engine->getRenderableManager();
   Entity entityInstance = entity->getEntity();
-  RenderableManager::Instance renderable = _renderableManager.getInstance(entityInstance);
+  RenderableManager::Instance renderable = renderableManager.getInstance(entityInstance);
   // Note: the material instance pointer is managed by the renderable manager and should not be deleted by the user
-  MaterialInstance* materialInstance = _renderableManager.getMaterialInstanceAt(renderable, index);
+  MaterialInstance* materialInstance = renderableManager.getMaterialInstanceAt(renderable, index);
   return std::make_shared<MaterialInstanceWrapper>(materialInstance);
 }
 
@@ -48,7 +48,7 @@ void RenderableManagerImpl::setInstanceWrapperEntitiesOpacity(std::shared_ptr<Fi
 }
 
 void RenderableManagerImpl::setInstanceEntitiesOpacity(FilamentInstance* instance, double opacity) {
-  RenderableManager& _renderableManager = _engine->getRenderableManager();
+  RenderableManager& renderableManager = _engine->getRenderableManager();
   size_t entityCount = instance->getEntityCount();
 
   // Get the pointer to the first entity
@@ -56,27 +56,27 @@ void RenderableManagerImpl::setInstanceEntitiesOpacity(FilamentInstance* instanc
 
   for (size_t i = 0; i < entityCount; ++i) {
     Entity entity = entities[i];
-    if (!_renderableManager.hasComponent(entity)) {
+    if (!renderableManager.hasComponent(entity)) {
       continue;
     }
 
-    RenderableManager::Instance renderable = _renderableManager.getInstance(entity);
-    size_t primitiveCount = _renderableManager.getPrimitiveCount(renderable);
+    RenderableManager::Instance renderable = renderableManager.getInstance(entity);
+    size_t primitiveCount = renderableManager.getPrimitiveCount(renderable);
     for (size_t j = 0; j < primitiveCount; ++j) {
-      MaterialInstance* materialInstance = _renderableManager.getMaterialInstanceAt(renderable, j);
+      MaterialInstance* materialInstance = renderableManager.getMaterialInstanceAt(renderable, j);
       MaterialInstanceWrapper::changeAlpha(materialInstance, opacity);
       // Replace the material instance in the renderable manager
-      _renderableManager.setMaterialInstanceAt(renderable, j, materialInstance);
+      renderableManager.setMaterialInstanceAt(renderable, j, materialInstance);
     }
   }
 }
 
 void RenderableManagerImpl::setMaterialInstanceAt(std::shared_ptr<EntityWrapper> entity, int index,
                                                   std::shared_ptr<MaterialInstanceWrapper> materialInstance) {
-  RenderableManager& _renderableManager = _engine->getRenderableManager();
+  RenderableManager& renderableManager = _engine->getRenderableManager();
   Entity entityInstance = entity->getEntity();
-  RenderableManager::Instance renderable = _renderableManager.getInstance(entityInstance);
-  _renderableManager.setMaterialInstanceAt(renderable, index, materialInstance->getMaterialInstance());
+  RenderableManager::Instance renderable = renderableManager.getInstance(entityInstance);
+  renderableManager.setMaterialInstanceAt(renderable, index, materialInstance->getMaterialInstance());
 }
 
 Texture* RenderableManagerImpl::createTextureFromBuffer(std::shared_ptr<FilamentBuffer> buffer, const std::string& textureFlags) {
@@ -113,13 +113,13 @@ void RenderableManagerImpl::changeMaterialTextureMap(std::shared_ptr<EntityWrapp
   EnumMapper::convertJSUnionToEnum(textureFlags, &textureFlagsEnum);
 
   // Select the first material instance from the entity
-  RenderableManager& _renderableManager = _engine->getRenderableManager();
+  RenderableManager& renderableManager = _engine->getRenderableManager();
   Entity entityInstance = entityWrapper->getEntity();
-  RenderableManager::Instance instance = _renderableManager.getInstance(entityInstance);
-  size_t primitiveCount = _renderableManager.getPrimitiveCount(instance);
+  RenderableManager::Instance instance = renderableManager.getInstance(entityInstance);
+  size_t primitiveCount = renderableManager.getPrimitiveCount(instance);
   size_t primitiveIndex = -1;
   for (size_t i = 0; i < primitiveCount; i++) {
-    MaterialInstance* materialInstance = _renderableManager.getMaterialInstanceAt(instance, i);
+    MaterialInstance* materialInstance = renderableManager.getMaterialInstanceAt(instance, i);
     std::string primitiveName = materialInstance->getName();
     if (primitiveName == materialName) {
       primitiveIndex = i;
@@ -131,7 +131,7 @@ void RenderableManagerImpl::changeMaterialTextureMap(std::shared_ptr<EntityWrapp
   }
 
   // This material instance still belongs to the original asset and will be cleaned up when the asset is destroyed
-  MaterialInstance* materialInstance = _renderableManager.getMaterialInstanceAt(instance, primitiveIndex);
+  MaterialInstance* materialInstance = renderableManager.getMaterialInstanceAt(instance, primitiveIndex);
 
   // The texture might not be loaded yet, but we can already set it on the material instance
   auto engine = _engine;
@@ -147,7 +147,7 @@ void RenderableManagerImpl::changeMaterialTextureMap(std::shared_ptr<EntityWrapp
   auto sampler = TextureSampler(TextureSampler::MinFilter::LINEAR, TextureSampler::MagFilter::LINEAR, TextureSampler::WrapMode::REPEAT);
   Texture* texture = createTextureFromBuffer(textureBuffer, textureFlags);
   newInstance->setParameter("baseColorMap", texture, sampler);
-  _renderableManager.setMaterialInstanceAt(instance, primitiveIndex, newInstance.get());
+  renderableManager.setMaterialInstanceAt(instance, primitiveIndex, newInstance.get());
   _materialInstances.push_back(newInstance);
 
   // Load the texture
@@ -172,10 +172,10 @@ void RenderableManagerImpl::setCastShadow(std::shared_ptr<EntityWrapper> entityW
     throw std::invalid_argument("Entity is null");
   }
 
-  RenderableManager& _renderableManager = _engine->getRenderableManager();
+  RenderableManager& renderableManager = _engine->getRenderableManager();
   Entity entity = entityWrapper->getEntity();
-  RenderableManager::Instance renderable = _renderableManager.getInstance(entity);
-  _renderableManager.setCastShadows(renderable, castShadow);
+  RenderableManager::Instance renderable = renderableManager.getInstance(entity);
+  renderableManager.setCastShadows(renderable, castShadow);
 }
 
 void RenderableManagerImpl::setReceiveShadow(std::shared_ptr<EntityWrapper> entityWrapper, bool receiveShadow) {
@@ -183,10 +183,10 @@ void RenderableManagerImpl::setReceiveShadow(std::shared_ptr<EntityWrapper> enti
     throw std::invalid_argument("Entity is null");
   }
 
-  RenderableManager& _renderableManager = _engine->getRenderableManager();
+  RenderableManager& renderableManager = _engine->getRenderableManager();
   Entity entity = entityWrapper->getEntity();
-  RenderableManager::Instance renderable = _renderableManager.getInstance(entity);
-  _renderableManager.setReceiveShadows(renderable, receiveShadow);
+  RenderableManager::Instance renderable = renderableManager.getInstance(entity);
+  renderableManager.setReceiveShadows(renderable, receiveShadow);
 }
 
 std::shared_ptr<EntityWrapper> RenderableManagerImpl::createPlane(std::shared_ptr<MaterialWrapper> materialWrapper, double halfExtendX,
@@ -233,7 +233,7 @@ void RenderableManagerImpl::scaleBoundingBox(std::shared_ptr<FilamentAssetWrappe
   if (assetWrapper == nullptr) {
     throw std::invalid_argument("Asset is null");
   }
-  RenderableManager& _renderableManager = _engine->getRenderableManager();
+  RenderableManager& renderableManager = _engine->getRenderableManager();
 
   // Get bounding box from asset
   FilamentAsset* asset = assetWrapper->getAsset().get();
@@ -241,14 +241,24 @@ void RenderableManagerImpl::scaleBoundingBox(std::shared_ptr<FilamentAssetWrappe
   const Entity* entities = asset->getRenderableEntities();
   for (size_t i = 0; i < entityCount; ++i) {
     Entity entity = entities[i];
-    RenderableManager::Instance renderable = _renderableManager.getInstance(entity);
-    Box boundingBox = _renderableManager.getAxisAlignedBoundingBox(renderable);
+    RenderableManager::Instance renderable = renderableManager.getInstance(entity);
+    Box boundingBox = renderableManager.getAxisAlignedBoundingBox(renderable);
     Logger::log(TAG, "#%d Bounding box: min: %f %f %f, max: %f %f %f", i, boundingBox.getMin().x, boundingBox.getMin().y,
                 boundingBox.getMin().z, boundingBox.getMax().x, boundingBox.getMax().y, boundingBox.getMax().z);
     // Create a new box that is twice the size
     Box box = Box().set(boundingBox.getMin() * scaleFactor, boundingBox.getMax() * scaleFactor);
-    _renderableManager.setAxisAlignedBoundingBox(renderable, box);
+    renderableManager.setAxisAlignedBoundingBox(renderable, box);
   }
+}
+
+Box RenderableManagerImpl::getAxisAlignedBoundingBox(std::shared_ptr<EntityWrapper> entityWrapper) {
+  if (entityWrapper == nullptr) {
+    throw std::invalid_argument("Entity is null");
+  }
+  RenderableManager& renderableManager = _engine->getRenderableManager();
+  Entity entity = entityWrapper->getEntity();
+  RenderableManager::Instance renderable = renderableManager.getInstance(entity);
+  return renderableManager.getAxisAlignedBoundingBox(renderable);
 }
 
 } // namespace margelo

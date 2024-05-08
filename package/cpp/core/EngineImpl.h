@@ -49,7 +49,8 @@ using ManipulatorBuilder = Manipulator<float>::Builder;
 // If you add a new method that you want to expose to JS, you need to add it to the EngineWrapper as well.
 class EngineImpl : public std::enable_shared_from_this<EngineImpl> {
 public:
-  explicit EngineImpl(std::shared_ptr<Dispatcher> rendererDispatcher, std::shared_ptr<Engine> engine, float displayRefreshRate);
+  explicit EngineImpl(std::shared_ptr<Dispatcher> rendererDispatcher, std::shared_ptr<Engine> engine, float displayRefreshRate,
+                      float densityPixelRatio);
 
   // First a surface provider must be set, then once we have a surface a swapchain can be created and finally the swapchain can be set
   void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
@@ -89,6 +90,7 @@ private:
   const math::float3 defaultCameraPosition = {0.0f, 0.0f, 0.0f};
 
   std::function<void(double)> _frameCompletedCallback;
+  float _densityPixelRatio;
 
 private:
   // Internals we create, but share the access with the user
@@ -115,7 +117,7 @@ public:
     return std::make_shared<SceneWrapper>(_scene);
   }
   std::shared_ptr<ViewWrapper> getView() {
-    return std::make_shared<ViewWrapper>(_view);
+    return std::make_shared<ViewWrapper>(_view, _densityPixelRatio);
   }
   std::shared_ptr<CameraWrapper> getCamera() {
     return std::make_shared<CameraWrapper>(_camera);

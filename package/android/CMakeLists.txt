@@ -52,6 +52,7 @@ add_library(
     ../cpp/core/TransformManagerImpl.cpp
     ../cpp/core/TransformManagerWrapper.cpp
     ../cpp/core/AABBWrapper.cpp
+    ../cpp/core/BoxWrapper.cpp
     ../cpp/core/MaterialInstanceWrapper.cpp
     ../cpp/core/RenderableManagerImpl.cpp
     ../cpp/core/RenderableManagerImpl.DebugHelpers.cpp

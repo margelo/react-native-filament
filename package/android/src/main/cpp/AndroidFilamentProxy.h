@@ -31,6 +31,7 @@ private:
   std::shared_ptr<Dispatcher> getUIDispatcher() override;
   std::shared_ptr<Dispatcher> getBackgroundDispatcher() override;
   float getDisplayRefreshRate() override;
+  float getDensityPixelRatio() override;
 
 public:
   jsi::Runtime& getRuntime() override;

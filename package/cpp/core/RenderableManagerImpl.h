@@ -20,6 +20,11 @@ using namespace gltfio;
 
 class EngineWrapper;
 
+struct DebugVertex {
+  math::float3 position;
+  uint32_t color;
+};
+
 class RenderableManagerImpl {
 public:
   explicit RenderableManagerImpl(std::shared_ptr<Engine> engine, std::shared_ptr<Dispatcher> rendererDispatcher)
@@ -66,9 +71,12 @@ public: // Public API
    */
   void scaleBoundingBox(std::shared_ptr<FilamentAssetWrapper> assetWrapper, double scaleFactor);
 
+  Box getAxisAlignedBoundingBox(std::shared_ptr<EntityWrapper> entityWrapper);
+
 private:
   // Calls the TextureProvider to start loading the resource
   void startUpdateResourceLoading();
+  std::unique_ptr<DebugVertex[]> createCubeVertices(float halfExtentX, float halfExtentY, float halfExtentZ, uint32_t color);
 
 private:
   std::shared_ptr<Engine> _engine;
@@ -76,6 +84,7 @@ private:
   std::shared_ptr<TextureProvider> _textureProvider;
   // Keep a list of all material instances the RenderableManager creates, so we can clean them up when the RenderableManager is
   std::vector<std::shared_ptr<MaterialInstance>> _materialInstances;
+  std::vector<std::unique_ptr<DebugVertex[]>> _debugVerticesList;
 
 private:
   constexpr static const char* TAG = "RenderableManagerImpl";

@@ -3,5 +3,5 @@
  * Entities are managed by the EntityManager.
  */
 export interface Entity {
-  _id: number
+  id: number
 }

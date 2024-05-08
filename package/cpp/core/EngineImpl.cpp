@@ -29,8 +29,9 @@
 
 namespace margelo {
 
-EngineImpl::EngineImpl(std::shared_ptr<Dispatcher> rendererDispatcher, std::shared_ptr<Engine> engine, float displayRefreshRate)
-    : _engine(engine), _rendererDispatcher(rendererDispatcher) {
+EngineImpl::EngineImpl(std::shared_ptr<Dispatcher> rendererDispatcher, std::shared_ptr<Engine> engine, float displayRefreshRate,
+                       float densityPixelRatio)
+    : _engine(engine), _rendererDispatcher(rendererDispatcher), _densityPixelRatio(densityPixelRatio) {
 
   gltfio::MaterialProvider* _materialProviderPtr =
       gltfio::createUbershaderProvider(engine.get(), UBERARCHIVE_DEFAULT_DATA, UBERARCHIVE_DEFAULT_SIZE);

@@ -123,6 +123,8 @@ std::shared_ptr<EngineWrapper> FilamentProxy::createEngine(std::optional<std::st
   float refreshRate = getDisplayRefreshRate();
   Logger::log(TAG, "Display refresh rate: %f Hz", refreshRate);
 
+  float densityPixelRatio = getDensityPixelRatio();
+
   // Create the EngineImpl...
   std::shared_ptr<EngineImpl> engineImpl = std::make_shared<EngineImpl>(renderThread, engine, refreshRate);
 

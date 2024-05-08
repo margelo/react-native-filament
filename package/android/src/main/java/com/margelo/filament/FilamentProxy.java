@@ -1,6 +1,7 @@
 package com.margelo.filament;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -165,6 +166,15 @@ class FilamentProxy {
             Log.d("FilamentProxy", "Failed to get display refresh rate: " + e.getMessage());
             return 60.0f;
         }
+    }
+
+    /**
+     * @noinspection unused
+     */
+    @DoNotStrip
+    @Keep
+    float getDensityPixelRatio() {
+        return Resources.getSystem().getDisplayMetrics().density;
     }
 
     private native HybridData initHybrid(long jsRuntimePointer, CallInvokerHolderImpl callInvokerHolder);

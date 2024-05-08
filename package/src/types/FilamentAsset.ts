@@ -1,4 +1,4 @@
-import { AABB } from './AABB'
+import { AABB } from './Boxes'
 import type { Animator, CopiedAnimator } from './Animator'
 import type { Entity } from './Entity'
 import { FilamentInstance } from './FilamentInstance'

@@ -62,6 +62,10 @@ private:
    * Needed for correct frame pacing and dynamic resolution calculations.
    */
   virtual float getDisplayRefreshRate() = 0;
+  /**
+   * Get the density pixel ratio (DP) of the display.
+   */
+  virtual float getDensityPixelRatio() = 0;
 
   // For testing
   std::shared_ptr<TestHybridObject> createTestObject();
