@@ -75,14 +75,6 @@ public:
   void flushAndWait();
 
 private:
-  void destroySurface();
-
-  void synchronizePendingFrames();
-
-  // Internal helper method to turn an FilamentAsset ptr into a FilamentAssetWrapper
-  std::shared_ptr<FilamentAssetWrapper> makeAssetWrapper(FilamentAsset* assetPtr);
-
-private:
   std::mutex _mutex;
   std::shared_ptr<Engine> _engine;
   std::shared_ptr<Dispatcher> _rendererDispatcher;
@@ -108,11 +100,14 @@ private:
   std::shared_ptr<ManipulatorWrapper> _cameraManipulator;
 
 private:
+  void synchronizePendingFrames();
   std::shared_ptr<Renderer> createRenderer(float displayRefreshRate);
   std::shared_ptr<Scene> createScene();
   std::shared_ptr<View> createView();
   std::shared_ptr<Camera> createCamera();
   std::shared_ptr<ManipulatorWrapper> createCameraManipulator(int windowWidth, int windowHeight);
+  // Internal helper method to turn an FilamentAsset ptr into a FilamentAssetWrapper
+  std::shared_ptr<FilamentAssetWrapper> makeAssetWrapper(FilamentAsset* assetPtr);
 
 public:
   // Getters for shared objects
