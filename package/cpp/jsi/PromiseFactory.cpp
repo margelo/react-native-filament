@@ -7,6 +7,7 @@
 
 #include "PromiseFactory.h"
 #include "Logger.h"
+#include "threading/Dispatcher.h"
 
 namespace margelo {
 
