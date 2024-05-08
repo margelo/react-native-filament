@@ -7,6 +7,7 @@ import type { IWorkletContext } from 'react-native-worklets-core'
 import { EngineBackend, EngineConfig } from '../types'
 import { TFilamentRecorder } from './FilamentRecorder'
 import { Choreographer } from '../types/Choreographer'
+import { Dispatcher } from './Dispatcher'
 
 interface TestHybridObject {
   int: number
@@ -47,6 +48,14 @@ export interface TFilamentProxy {
    * @private
    */
   createBullet(): BulletAPI
+
+  /**
+   * Creates a Dispatcher interface that can dispatch to the current JS Runtime.
+   *
+   * @throws If the current JS Runtime does not have a Dispatcher.
+   * This may happen if a JS Runtime was not created by Filament
+   */
+  getCurrentDispatcher(): Dispatcher
 
   /**
    * Creates a Filament Recorder instance that can be used to render offscreen and

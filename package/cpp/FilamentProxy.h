@@ -68,6 +68,8 @@ private:
    */
   virtual float getDensityPixelRatio() = 0;
 
+  jsi::Value getCurrentDispatcher(jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* args, size_t count);
+
   // For testing
   std::shared_ptr<TestHybridObject> createTestObject();
 

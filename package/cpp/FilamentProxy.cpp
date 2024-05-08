@@ -10,6 +10,7 @@
 #include "core/EngineConfigHelper.h"
 #include "jsi/Promise.h"
 #include "threading/WorkletContextDispatcher.h"
+#include "threading/Dispatcher.h"
 
 #include <memory>
 #include <string>
@@ -28,6 +29,7 @@ void FilamentProxy::loadHybridMethods() {
   registerHybridMethod("createBullet", &FilamentProxy::createBullet, this);
   registerHybridMethod("createChoreographer", &FilamentProxy::createChoreographerWrapper, this);
   registerHybridMethod("createRecorder", &FilamentProxy::createRecorder, this);
+  registerHybridMethod("getCurrentDispatcher", &FilamentProxy::getCurrentDispatcher, this);
   registerHybridGetter("hasWorklets", &FilamentProxy::getHasWorklets, this);
 #if HAS_WORKLETS
   registerHybridMethod("getWorkletContext", &FilamentProxy::getWorkletContext, this);
@@ -55,13 +57,18 @@ std::shared_ptr<RNWorklet::JsiWorkletContext> FilamentProxy::getWorkletContext()
     Logger::log(TAG, "Successfully created WorkletContext! Installing global Dispatcher...");
 
     _workletContext->invokeOnWorkletThread([=](RNWorklet::JsiWorkletContext*, jsi::Runtime& runtime) {
-      PromiseFactory::install(runtime, renderThreadDispatcher);
+      Dispatcher::installRuntimeGlobalDispatcher(runtime, renderThreadDispatcher);
       Logger::log(TAG, "Successfully installed global Dispatcher in WorkletContext!");
     });
   }
   return _workletContext;
 }
 #endif
+
+jsi::Value FilamentProxy::getCurrentDispatcher(jsi::Runtime &runtime, const jsi::Value&,
+                                               const jsi::Value *, size_t ) {
+  return Dispatcher::getRuntimeGlobalDispatcherHolder(runtime);
+}
 
 std::future<std::shared_ptr<FilamentBuffer>> FilamentProxy::loadAssetAsync(const std::string& path) {
   Logger::log(TAG, "Loading asset %s...", path.c_str());
@@ -76,6 +83,7 @@ std::future<std::shared_ptr<FilamentBuffer>> FilamentProxy::loadAssetAsync(const
     }
   });
 }
+
 
 std::future<std::shared_ptr<FilamentView>> FilamentProxy::findFilamentViewAsync(int id) {
   Logger::log(TAG, "Finding FilamentView #%i...", id);
@@ -94,6 +102,10 @@ std::future<std::shared_ptr<FilamentView>> FilamentProxy::findFilamentViewAsync(
 std::shared_ptr<TestHybridObject> FilamentProxy::createTestObject() {
   Logger::log(TAG, "Creating TestObject...");
   return std::make_shared<TestHybridObject>();
+}
+
+std::shared_ptr<Dispatcher> FilamentProxy::getCurrentDispatcher(jsi::Runtime& runtime) {
+  return Dispatcher::getRuntimeGlobalDispatcher(runtime);
 }
 
 std::shared_ptr<EngineWrapper> FilamentProxy::createEngine(std::optional<std::string> backend,
