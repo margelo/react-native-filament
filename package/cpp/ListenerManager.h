@@ -10,6 +10,7 @@
 #include <list>
 #include <memory>
 #include <mutex>
+#include <atomic>
 
 namespace margelo {
 
@@ -18,6 +19,9 @@ private:
   std::list<Callback> _listeners;
   // recursive mutex allows listeners to be removed within their actual callback.
   std::recursive_mutex _mutex;
+  // this holds the amount of listeners that were just removed.
+  // this is used to allow listeners to be "automagically" removed within the forEach loop.
+  std::atomic_size_t _removedListenersCount;
 
 public:
   /**
@@ -33,12 +37,13 @@ public:
     _listeners.push_back(std::move(listener));
     auto id = --_listeners.end();
 
-    auto weakThis = std::weak_ptr(shared());
+    auto weakThis = std::weak_ptr<ListenerManager<Callback>>(shared());
     return Listener::create([id, weakThis] {
       auto sharedThis = weakThis.lock();
       if (sharedThis) {
         std::unique_lock lock(sharedThis->_mutex);
         sharedThis->_listeners.erase(id);
+        sharedThis->_removedListenersCount++;
       }
     });
   }
@@ -55,10 +60,25 @@ public:
   void forEach(std::function<LoopCallback>&& callback) {
     std::unique_lock lock(_mutex);
 
-    for (auto iterator = _listeners.begin(); iterator != _listeners.end();) {
+    _removedListenersCount = 0;
+    for (auto iterator = _listeners.begin(); iterator != _listeners.end(); /* increment done manually */) {
       const auto& listener = *iterator;
       callback(listener);
+
+      if (_removedListenersCount > 0) {
+        // do not increment iterator as one (or more) Listeners were just removed.
+        _removedListenersCount--;
+      } else {
+        // no Listeners were removed, we go to the next item in the list
+        iterator++;
+      }
     }
+  }
+
+  bool getHasListeners() {
+    std::unique_lock lock(_mutex);
+
+    return _listeners.size() > 0;
   }
 
 private:
