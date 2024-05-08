@@ -80,10 +80,9 @@ std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChainForRecorder(std:
     throw std::invalid_argument("Recorder is null");
   }
   void* nativeWindow = recorder->getNativeWindow();
-
-  // TODO: make this flag configurable, or get from platform settings?
-  std::shared_ptr<SwapChain> swapChain =
-      pointee()->createSwapChain(nativeWindow, SwapChain::CONFIG_APPLE_CVPIXELBUFFER | SwapChain::CONFIG_READABLE);
+  
+  // The flag CONFIG_APPLE_CVPIXELBUFFER is needed for iOS metal backend to allow rendering into a CVPixelBuffer. On android this flag is ignored.
+  std::shared_ptr<SwapChain> swapChain = pointee()->createSwapChain(nativeWindow, SwapChain::CONFIG_APPLE_CVPIXELBUFFER);
 
   int width = recorder->getWidth();
   int height = recorder->getHeight();
