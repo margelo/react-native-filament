@@ -136,16 +136,6 @@ void AppleFilamentRecorder::renderFrame(double timestamp) {
 
   memcpy(destination, source, bytesPerRow * height);
 
-  CIImage* ciImage = [CIImage imageWithCVPixelBuffer:_pixelBuffer];
-
-  CIContext* temporaryContext = [CIContext contextWithOptions:nil];
-  CGImageRef videoImage =
-      [temporaryContext createCGImage:ciImage
-                             fromRect:CGRectMake(0, 0, CVPixelBufferGetWidth(_pixelBuffer), CVPixelBufferGetHeight(_pixelBuffer))];
-
-  UIImage* uiImage = [UIImage imageWithCGImage:videoImage];
-  CGImageRelease(videoImage);
-
   CVPixelBufferUnlockBaseAddress(targetBuffer, /* write flag */ 0);
   CVPixelBufferUnlockBaseAddress(_pixelBuffer, kCVPixelBufferLock_ReadOnly);
 

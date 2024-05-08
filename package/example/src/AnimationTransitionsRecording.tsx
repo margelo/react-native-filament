@@ -116,6 +116,8 @@ function Renderer() {
         <Video
           style={{ flex: 1 }}
           paused={false}
+          repeat={true}
+          controls={true}
           source={{ uri: videoUri }}
           onError={() => console.error(e)}
           onLoad={() => console.log('On load')}
