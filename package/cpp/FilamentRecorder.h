@@ -76,7 +76,7 @@ public:
 protected:
   static constexpr auto TAG = "FilamentRecorder";
 
-private:
+protected:
   std::shared_ptr<Dispatcher> _renderThreadDispatcher;
   int _width;
   int _height;
