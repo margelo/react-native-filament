@@ -42,5 +42,5 @@ export function useSkybox(options?: SkyboxOptions | null) {
     } else if (color) {
       engine.createAndSetSkyboxByColor(color, showSun, envIntensity)
     }
-  }, [engine, showSun, envIntensity, texture, color, hasOptions])
+  })
 }
