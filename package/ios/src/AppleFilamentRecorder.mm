@@ -87,9 +87,9 @@ AppleFilamentRecorder::AppleFilamentRecorder(std::shared_ptr<Dispatcher> renderT
   //       and less CPU usage. But render times might increase.
   _assetWriterInput.expectsMediaDataInRealTime = NO;
   _assetWriterInput.performsMultiPassEncodingIfSupported = YES;
-  // TODO: Set _assetWriterInput.performsMultiPassEncodingIfSupported to YES or NO?
+      
   _pixelBufferAdaptor = [AVAssetWriterInputPixelBufferAdaptor assetWriterInputPixelBufferAdaptorWithAssetWriterInput:_assetWriterInput
-                                                                                         sourcePixelBufferAttributes:nil];
+                                                                                         sourcePixelBufferAttributes:pixelBufferAttributes];
 
   Logger::log(TAG, "Adding AVAssetWriterInput...");
   [_assetWriter addInput:_assetWriterInput];
