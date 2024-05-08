@@ -39,13 +39,9 @@ std::shared_ptr<Listener> FilamentRecorder::addOnReadyForMoreDataListener(ReadyF
 
 void FilamentRecorder::onReadyForMoreData() {
   // notify all JS listeners
-  static int _iii = 0;
-  Logger::log(TAG, "Okay, %i", _iii);
   _listenerManager->forEach([](const ReadyForMoreDataCallback& callback) {
-    Logger::log(TAG, "Calling %i once.", _iii);
     callback();
   });
-  _iii++;
 }
 
 } // namespace margelo
