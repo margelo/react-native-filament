@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { Engine, EngineBackend, EngineConfig } from '../types'
 import { FilamentProxy } from '../native/FilamentProxy'
-import { useWorklet } from 'react-native-worklets-core'
+import { IWorkletContext, useWorklet } from 'react-native-worklets-core'
 
 export interface EngineProps {
   /**
@@ -14,12 +14,12 @@ export interface EngineProps {
    * You probably don't need that unless you do a lot and ran into engine crashes.
    */
   config?: EngineConfig
+
+  context: IWorkletContext
 }
 
-export function useEngine({ backend, config }: EngineProps = {}): Engine | undefined {
+export function useEngine({ backend, config, context }: EngineProps): Engine | undefined {
   const [engine, setEngine] = useState<Engine | undefined>(undefined)
-  // Note: we can't use the FilamentContext here, as useEngine is used to create the context itself.
-  const context = useMemo(() => FilamentProxy.getWorkletContext(), [])
 
   const createEngine = useWorklet(
     context,

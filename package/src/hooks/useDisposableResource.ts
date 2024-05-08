@@ -4,6 +4,8 @@ import { PointerHolder } from '../types/PointerHolder'
 
 type ReleasingResource = Pick<PointerHolder, 'release'>
 
+const emptyStaticArray: DependencyList = []
+
 /**
  * Any resource that is a {@link PointerHolder} and can be released, should be loaded
  * using this hook. It takes care of properly releasing the resource when the component
@@ -12,7 +14,7 @@ type ReleasingResource = Pick<PointerHolder, 'release'>
  * multiple times. Also loading the resource can be async and this hooks handles all these
  * cases properly.
  */
-export const useResource = <T extends ReleasingResource>(
+export const useDisposableResource = <T extends ReleasingResource>(
   initialize: () => Promise<T> | undefined,
   deps?: DependencyList
 ): T | undefined => {
@@ -39,7 +41,7 @@ export const useResource = <T extends ReleasingResource>(
       })()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps)
+  }, deps ?? emptyStaticArray)
 
   return resource
 }

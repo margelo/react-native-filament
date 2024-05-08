@@ -13,6 +13,9 @@ namespace margelo {
 class Choreographer {
 public:
   explicit Choreographer() {}
+  ~Choreographer() {
+    Logger::log("Choreographer", "(MEMORY) Deleting Choreographer... ❌");
+  }
   using OnFrameCallback = std::function<void(double timestamp)>;
 
   std::shared_ptr<Listener> addOnFrameListener(OnFrameCallback onFrameCallback);

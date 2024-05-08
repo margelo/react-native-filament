@@ -4,7 +4,7 @@ import { FilamentProxy } from './native/FilamentProxy'
 import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 import { reportFatalError, reportWorkletError } from './ErrorUtils'
 import { FilamentContext } from './FilamentContext'
-import { Choreographer, RenderCallback } from 'react-native-filament'
+import { RenderCallback } from 'react-native-filament'
 import { SurfaceProvider } from './native/FilamentViewTypes'
 import { Listener } from './types/Listener'
 
@@ -21,11 +21,6 @@ type RefType = React.Component<NativeProps> & Readonly<NativeMethods>
 
 export class Filament extends React.PureComponent<FilamentProps> {
   private readonly ref: React.RefObject<RefType>
-  // The creation of the Choreographer is async, so we store it in a promise:
-  private readonly choreographer: Promise<Choreographer>
-  private resolveChoreographer: (value: Choreographer) => void = () => {
-    throw new Error('Internal error: Choreographer creation promise is not initialized yet. This should never happen!')
-  }
   private surfaceCreatedListener: Listener | undefined
   private surfaceDestroyedListener: Listener | undefined
 
@@ -40,10 +35,6 @@ export class Filament extends React.PureComponent<FilamentProps> {
   constructor(props: FilamentProps) {
     super(props)
     this.ref = React.createRef<RefType>()
-
-    this.choreographer = new Promise<Choreographer>((resolve) => {
-      this.resolveChoreographer = resolve
-    })
   }
 
   // TODO: Does this also work for Fabric?
@@ -61,42 +52,19 @@ export class Filament extends React.PureComponent<FilamentProps> {
     renderer.setClearContent(enable)
   }
 
-  private updateRenderCallback = async (callback: RenderCallback) => {
-    const { engine, _workletContext } = this.getContext()
-
-    const choreographer = await this.choreographer
-
-    _workletContext.runAsync(() => {
-      'worklet'
-      choreographer.setFrameCallback((frameInfo) => {
-        'worklet'
-
-        try {
-          callback(frameInfo)
-          engine.render(frameInfo.timestamp)
-        } catch (e) {
-          reportWorkletError(e)
-        }
-      })
-    })
-  }
-
-  private createAndSetChoreographer = async () => {
-    const { _workletContext } = this.getContext()
-
-    // Create the choreographer in the worklet context, so its frame callback can be called from the worklet thread:
-    _workletContext
-      .runAsync(() => {
-        'worklet'
-        return FilamentProxy.createChoreographer()
-      })
-      .then((choreographer) => {
-        this.resolveChoreographer(choreographer)
-      })
-    // TODO: Catch doesn't work with the promise returned by RNWC
-    // .catch((e) => {
-    //   console.error('Failed to create Choreographer:', e)
-    //   rejectChoreographer()
+  private updateRenderCallback = (callback: RenderCallback) => {
+    // const { engine, _workletContext, _choreographer } = this.getContext()
+    // _workletContext.runAsync(() => {
+    //   'worklet'
+    //   _choreographer.setFrameCallback((frameInfo) => {
+    //     'worklet'
+    //     try {
+    //       callback(frameInfo)
+    //       engine.render(frameInfo.timestamp)
+    //     } catch (e) {
+    //       reportWorkletError(e)
+    //     }
+    //   })
     // })
   }
 
@@ -113,11 +81,6 @@ export class Filament extends React.PureComponent<FilamentProps> {
     if (!this.props.enableTransparentRendering) {
       this.updateTransparentRendering(false)
     }
-
-    // Create the Choreographer and set the render callback once done:
-    this.createAndSetChoreographer().then(() => {
-      this.updateRenderCallback(this.props.renderCallback)
-    })
   }
 
   componentDidUpdate(prevProps: Readonly<FilamentProps>): void {
@@ -130,12 +93,10 @@ export class Filament extends React.PureComponent<FilamentProps> {
   }
 
   componentWillUnmount(): void {
+    const { _choreographer } = this.getContext()
     this.surfaceCreatedListener?.remove()
     this.surfaceDestroyedListener?.remove()
-    this.choreographer.then((choreographer) => {
-      choreographer.stop()
-      choreographer.release()
-    })
+    _choreographer.stop()
   }
 
   // This registers the surface provider, which will be notified when the surface is ready to draw on:
@@ -178,7 +139,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
 
   // This will be called once the surface is created and ready to draw on:
   onSurfaceCreated = async (surfaceProvider: SurfaceProvider) => {
-    const { engine, _workletContext } = this.getContext()
+    const { engine, _workletContext, _choreographer } = this.getContext()
     console.log('On surface created')
 
     // Create a swap chain …
@@ -191,15 +152,13 @@ export class Filament extends React.PureComponent<FilamentProps> {
     // Apply the swapchain to the engine …
     engine.setSwapChain(swapChain)
     // Start the choreographer …
-    const choreographer = await this.choreographer
-    choreographer.start()
+    _choreographer.start()
   }
 
   onSurfaceDestroyed = () => {
     console.log('Stopping choreographer')
-    this.choreographer.then((choreographer) => {
-      choreographer.stop()
-    })
+    const { _choreographer } = this.getContext()
+    _choreographer.stop()
   }
 
   /** @internal */

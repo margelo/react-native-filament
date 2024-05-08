@@ -8,7 +8,7 @@ import {
   getAssetFromModel,
   FilamentProvider,
   useFilamentContext,
-  useResource,
+  useDisposableResource,
   useSkybox,
   RenderCallback,
   useRecorder,
@@ -43,7 +43,7 @@ function Renderer() {
   const penguAsset = getAssetFromModel(pengu)
   const pirateHat = useModel({ path: pirateHatPath })
   const pirateHatAsset = getAssetFromModel(pirateHat)
-  const pirateHatAnimator = useResource(() => {
+  const pirateHatAnimator = useDisposableResource(() => {
     if (pirateHatAsset == null || penguAsset == null) {
       return undefined
     }

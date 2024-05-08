@@ -1,7 +1,7 @@
 import { AssetProps, useAsset } from './useAsset'
 import { FilamentAsset } from '../types/FilamentAsset'
 import { useFilamentContext } from '../FilamentContext'
-import { useResource } from './useResource'
+import { useDisposableResource } from './useDisposableResource'
 import usePrevious from './usePrevious'
 import { useWorkletEffect } from './useWorkletEffect'
 
@@ -51,7 +51,7 @@ export function useModel({ path, shouldReleaseSourceData, addToScene = true, ins
   const assetBuffer = useAsset({ path: path, releaseOnUnmount: false })
 
   // Note: the native cleanup of the asset will remove it automatically from the scene
-  const asset = useResource(() => {
+  const asset = useDisposableResource(() => {
     if (assetBuffer == null) return
     if (instanceCount === 0) {
       throw new Error('instanceCount must be greater than 0')
