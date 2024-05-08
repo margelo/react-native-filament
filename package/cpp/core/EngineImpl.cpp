@@ -119,13 +119,7 @@ void EngineImpl::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProv
                                               }
                                             });
                                           },
-                                      .onSurfaceDestroyed =
-                                          [dispatcher, weakSelf](std::shared_ptr<Surface> surface) {
-                                            auto sharedThis = weakSelf.lock();
-                                            if (sharedThis != nullptr) {
-                                              sharedThis->destroySurface();
-                                            }
-                                          }};
+                                      .onSurfaceDestroyed = std::nullopt};
   _surfaceListener = surfaceProvider->addOnSurfaceChangedListener(std::move(callback));
 }
 
@@ -144,22 +138,6 @@ void EngineImpl::surfaceSizeChanged(int width, int height) {
   if (_view) {
     _view->setViewport({0, 0, static_cast<uint32_t>(width), static_cast<uint32_t>(height)});
   }
-}
-
-void EngineImpl::destroySurface() {
-  if (_swapChain == nullptr) {
-    // Surface is already destroyed / never existed.
-    return;
-  }
-
-  // TODO: ensure the user choreographer is stopped when the surface gets destroyed (android)
-  //  _choreographer->stop();
-  //  if (_choreographerListener) {
-  //    _choreographerListener->remove();
-  //    _choreographerListener = nullptr;
-  //  }
-
-  _swapChain = nullptr;
 }
 
 std::shared_ptr<SwapChain> EngineImpl::createSwapChain(void* nativeWindow, u_int64_t flags = 0) {
