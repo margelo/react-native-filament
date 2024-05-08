@@ -11,14 +11,15 @@ static constexpr auto GLOBAL_DISPATCHER_HOLDER_NAME = "__globalDispatcher";
 void Dispatcher::installRuntimeGlobalDispatcher(jsi::Runtime& runtime, std::shared_ptr<Dispatcher> dispatcher) {
   Logger::log(TAG, "Installing global Dispatcher Holder...");
 
-  auto dispatcherHolder = jsi::Object::createFromHostObject(runtime, dispatcher);
+  jsi::Object dispatcherHolder(runtime);
+  dispatcherHolder.setNativeState(runtime, dispatcher);
   runtime.global().setProperty(runtime, GLOBAL_DISPATCHER_HOLDER_NAME, dispatcherHolder);
 }
 
 std::shared_ptr<Dispatcher> Dispatcher::getRuntimeGlobalDispatcher(jsi::Runtime& runtime) {
   jsi::Value dispatcherHolderValue = getRuntimeGlobalDispatcherHolder(runtime);
   jsi::Object dispatcherHolder = dispatcherHolderValue.asObject(runtime);
-  return dispatcherHolder.getHostObject<Dispatcher>(runtime);
+  return dispatcherHolder.getNativeState<Dispatcher>(runtime);
 }
 
 jsi::Value Dispatcher::getRuntimeGlobalDispatcherHolder(jsi::Runtime& runtime) {

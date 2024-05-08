@@ -13,8 +13,6 @@
 
 namespace margelo {
 
-class Dispatcher;
-
 class PromiseFactory {
 public:
   using RunPromise = std::function<void(jsi::Runtime& runtime, std::shared_ptr<Promise> promise, std::shared_ptr<Dispatcher> dispatcher)>;

@@ -29,9 +29,9 @@ public:
   explicit HybridObject(const char* name);
   ~HybridObject();
 
-  void set(facebook::jsi::Runtime&, const facebook::jsi::PropNameID& name, const facebook::jsi::Value& value) override;
-  jsi::Value get(facebook::jsi::Runtime& runtime, const facebook::jsi::PropNameID& propName) override;
-  std::vector<jsi::PropNameID> getPropertyNames(facebook::jsi::Runtime& runtime) override;
+  void set(jsi::Runtime&, const jsi::PropNameID& name, const jsi::Value& value) override;
+  jsi::Value get(jsi::Runtime& runtime, const jsi::PropNameID& propName) override;
+  std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime& runtime) override;
 
   /**
    * Get the `std::shared_ptr` instance of this HybridObject.

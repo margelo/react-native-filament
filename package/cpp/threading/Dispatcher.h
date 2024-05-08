@@ -8,16 +8,12 @@
 #include <future>
 #include <queue>
 #include <jsi/jsi.h>
-#include "jsi/HybridObject.h"
 
 namespace margelo {
 
 using namespace facebook;
 
-class Dispatcher: public HybridObject {
- public:
-  Dispatcher() : HybridObject("Dispatcher") {}
-
+class Dispatcher: public jsi::NativeState {
 public:
   /**
    Installs the Dispatcher into the given Runtime.
