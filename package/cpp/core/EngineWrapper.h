@@ -64,7 +64,6 @@ private: // Exposed public JS API
                                                               bool enableTransparentRendering);
   std::shared_ptr<SwapChainWrapper> createSwapChainForRecorder(std::shared_ptr<FilamentRecorder> recorder);
   void setSwapChain(std::shared_ptr<SwapChainWrapper> swapChainWrapper);
-  void render(double timestamp, bool respectVSync);
   void setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer, std::optional<double> intensity, std::optional<int> irradianceBands);
   std::shared_ptr<FilamentAssetWrapper> loadAsset(std::shared_ptr<FilamentBuffer> modelBuffer);
   std::shared_ptr<FilamentAssetWrapper> loadInstancedAsset(std::shared_ptr<FilamentBuffer> modelBuffer, int instanceCount);

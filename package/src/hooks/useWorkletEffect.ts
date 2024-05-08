@@ -4,7 +4,7 @@ import { getWorkletDependencies, isWorklet } from 'react-native-worklets-core'
 
 type CleanupFn = () => void
 
-export function useWorkletEffect(workletFunction: () => CleanupFn | undefined) {
+export function useWorkletEffect(workletFunction: () => CleanupFn | void) {
   const { _workletContext } = useFilamentContext()
 
   useEffect(() => {

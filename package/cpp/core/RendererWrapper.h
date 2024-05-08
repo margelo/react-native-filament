@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "SwapChainWrapper.h"
+#include "ViewWrapper.h"
 #include "jsi/PointerHolder.h"
 #include <filament/Renderer.h>
 
@@ -17,7 +19,7 @@ public:
 
   void loadHybridMethods() override;
 
-private: // Public JS API
+private: // Exposed JS API
   void setFrameRateOptions(std::unordered_map<std::string, double> options);
   void setPresentationTime(int64_t timestamp);
 
@@ -27,6 +29,10 @@ private: // Public JS API
    * @default true
    */
   void setClearContent(bool shouldClear);
+
+  bool beginFrame(std::shared_ptr<SwapChainWrapper> swapChainWrapper, double timestamp);
+  void render(std::shared_ptr<ViewWrapper> viewWrapper);
+  void endFrame();
 };
 
 } // namespace margelo

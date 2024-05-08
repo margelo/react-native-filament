@@ -1,4 +1,6 @@
 import { PointerHolder } from './PointerHolder'
+import { SwapChain } from './SwapChain'
+import { View } from './View'
 
 /**
  * Use FrameRateOptions to set the desired frame rate and control how quickly the system
@@ -59,4 +61,8 @@ export interface Renderer extends PointerHolder {
    * Set the current Frame's output presentation timestamp
    */
   setPresentationTime: (timestamp: bigint) => void
+
+  beginFrame: (swapChain: SwapChain, timestamp: number) => boolean
+  render: (view: View) => void
+  endFrame: () => void
 }

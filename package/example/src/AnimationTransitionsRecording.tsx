@@ -15,7 +15,7 @@ import {
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
-import { useRunOnJS, useSharedValue } from 'react-native-worklets-core'
+import { useRunOnJS } from 'react-native-worklets-core'
 import Video from 'react-native-video'
 
 const penguModelPath = getAssetPath('pengu.glb')
@@ -74,8 +74,8 @@ function Renderer() {
 
   const [videoUri, setVideoUri] = React.useState<string>()
 
-  const { engine } = useFilamentContext()
-  const recorder = useRecorder({
+  const { engine, renderer, view } = useFilamentContext()
+  const { recorder, swapChain } = useRecorder({
     bitRate: 2_000_000,
     fps: FPS,
     height: PixelRatio.getPixelSizeForLayoutSize(Dimensions.get('screen').height),
@@ -97,6 +97,11 @@ function Renderer() {
 
   useRecorderRenderLoop(recorder, ({ frameIndex }) => {
     'worklet'
+    if (swapChain == null) {
+      console.warn('SwapChain is null, cannot render frame. Only call startRecording after the swapChain is set.')
+      return
+    }
+
     if (frameIndex > framesToRender) {
       // stop rendering
       onFinish()
@@ -109,7 +114,10 @@ function Renderer() {
     // Update the scene:
     renderCallback(passedSeconds)
     // Create the commands for the GPU:
-    engine.render(nextTimestamp, false)
+    renderer.beginFrame(swapChain, 0)
+    renderer.render(view)
+    renderer.endFrame()
+
     // Wait for the GPU render to complete:
     engine.flushAndWait()
     // Render the current frame to the recorder:
