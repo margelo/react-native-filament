@@ -43,7 +43,7 @@ private:
   AVAssetWriterInputPixelBufferAdaptor* _pixelBufferAdaptor;
   // Path to record to - usually a temporary generated path.
   NSURL* _path;
-  dispatch_queue_t _queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
+  dispatch_queue_t _queue;
   bool _isRecording;
   size_t _frameCount = 0;
 };

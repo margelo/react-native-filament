@@ -7,14 +7,20 @@
 #include <future>
 #include <jsi/jsi.h>
 #include <string>
+#include <functional>
 
 #include "jsi/HybridObject.h"
+#include "Listener.h"
+#include "ListenerManager.h"
 
 namespace margelo {
 
 using namespace facebook;
 
 class FilamentRecorder : public HybridObject {
+public:
+  using ReadyForMoreDataCallback = std::function<void()>;
+  
 public:
   explicit FilamentRecorder(int width, int height, int fps, double bitRate);
   ~FilamentRecorder();
@@ -32,7 +38,11 @@ public:
   double getBitRate() {
     return _bitRate;
   }
+  
+  std::shared_ptr<Listener> addOnReadyForMoreDataListener(ReadyForMoreDataCallback callback);
+  void onReadyForMoreData();
 
+public:
   virtual bool getIsRecording() = 0;
 
   virtual std::future<void> startRecording() = 0;
@@ -64,6 +74,7 @@ private:
   int _height;
   int _fps;
   double _bitRate;
+  std::shared_ptr<ListenerManager<ReadyForMoreDataCallback>> _listenerManager;
 
 public:
   void loadHybridMethods() override;

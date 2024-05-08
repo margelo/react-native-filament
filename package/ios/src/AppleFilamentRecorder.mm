@@ -14,6 +14,9 @@ namespace margelo {
 
 AppleFilamentRecorder::AppleFilamentRecorder(int width, int height, int fps, double bitRate)
     : FilamentRecorder(width, height, fps, bitRate) {
+  dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, -1);
+  _queue = dispatch_queue_create("filament.recorder.queue", qos);
+      
   Logger::log(TAG, "Creating CVPixelBufferPool...");
   int maxBufferCount = 30;
   NSDictionary* poolAttributes = @{(NSString*)kCVPixelBufferPoolMinimumBufferCountKey : @(maxBufferCount)};
@@ -177,7 +180,17 @@ std::future<void> AppleFilamentRecorder::startRecording() {
       std::string errorMessage = getErrorMessage(maybeError);
       throw std::runtime_error("Failed to start recording! Error: " + errorMessage);
     }
-    Logger::log(TAG, "Recording started!");
+    Logger::log(TAG, "Recording started! Starting Media Data listener...");
+    
+    auto weakSelf = std::weak_ptr(self);
+    [self->_assetWriterInput requestMediaDataWhenReadyOnQueue:self->_queue
+                                                   usingBlock:[weakSelf]() {
+      Logger::log(TAG, "Recorder is ready for more data.");
+      auto self = weakSelf.lock();
+      if (self != nullptr) {
+        self->onReadyForMoreData();
+      }
+    }];
   });
 }
 
