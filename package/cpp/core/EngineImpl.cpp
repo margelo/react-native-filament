@@ -203,13 +203,6 @@ void EngineImpl::render(double timestamp) {
     [[likely]];
     _renderer->render(_view.get());
     _renderer->endFrame();
-    // Test: wait for render thread to finish (does that incldue waiting for the GPU?)
-//        synchronizePendingFrames();
-        _engine->flushAndWait();
-
-    if (_frameCompletedCallback) {
-      _frameCompletedCallback(timestamp);
-    }
   }
 }
 
@@ -439,8 +432,10 @@ void EngineImpl::setAutomaticInstancingEnabled(bool enabled) {
   _engine->setAutomaticInstancingEnabled(enabled);
 }
 
-void EngineImpl::setFrameCompletedCallback(std::function<void(double)> callback) {
-  _frameCompletedCallback = callback;
+void EngineImpl::flushAndWait() {
+  // Note: explicitly no lock, because this is called from the render loop, which already has a lock
+
+  _engine->flushAndWait();
 }
 
 } // namespace margelo

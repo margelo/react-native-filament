@@ -53,8 +53,8 @@ function Renderer() {
   const penguAnimator = useAssetAnimator(penguAsset)
 
   const prevAspectRatio = useSharedValue(0)
-  const renderCallback: RenderCallback = useCallback(
-    ({ passedSeconds }) => {
+  const renderCallback = useCallback(
+    (passedSeconds: number) => {
       'worklet'
 
       const aspectRatio = view.getAspectRatio()
@@ -99,13 +99,14 @@ function Renderer() {
       const nextTimestamp = started + i * (1 / FPS)
       console.log(`Rendering frame #${i + 1} of ${framesToRender} at ${nextTimestamp}`)
       const passedSeconds = nextTimestamp - started
-      renderCallback({ passedSeconds: passedSeconds, startTime: started })
-      try {
-        engine.render(started + i * (1 / FPS))
-      } catch (e) {
-        // ignored
-        console.log(`Error rendering frame: ${i + 1}`, e.toString())
-      }
+      // Update the scene:
+      renderCallback(passedSeconds)
+      // Create the commands for the GPU:
+      engine.render(nextTimestamp)
+      // Wait for the GPU render to complete:
+      engine.flushAndWait()
+      // Render the current frame to the recorder:
+      recorder.renderFrame(nextTimestamp)
     }
   }, [engine, recorder, renderCallback])
 
