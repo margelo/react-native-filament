@@ -15,7 +15,7 @@ import {
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
-import { useRunOnJS } from 'react-native-worklets-core'
+import { useRunOnJS, useSharedValue } from 'react-native-worklets-core'
 import Video from 'react-native-video'
 
 const penguModelPath = getAssetPath('pengu.glb')
@@ -70,7 +70,8 @@ function Renderer() {
   )
 
   const framesToRender = DURATION * FPS
-  const started = Date.now()
+  // const started = Date.now()
+  const started = useSharedValue(0)
 
   const [videoUri, setVideoUri] = React.useState<string>()
 
@@ -99,22 +100,26 @@ function Renderer() {
     'worklet'
     if (swapChain == null) {
       console.warn('SwapChain is null, cannot render frame. Only call startRecording after the swapChain is set.')
-      return
+      return false
     }
 
     if (frameIndex > framesToRender) {
       // stop rendering
       onFinish()
-      return
+      return false
+    }
+    if (started.value === 0) {
+      started.value = performance.now()
     }
 
-    const nextTimestamp = started + frameIndex * (1 / FPS)
+    const nextTimestamp = started.value + frameIndex * (1 / FPS)
     console.log(`Rendering frame #${frameIndex + 1} of ${framesToRender} at ${nextTimestamp}`)
-    const passedSeconds = nextTimestamp - started
+    const passedSeconds = nextTimestamp - started.value
     // Update the scene:
     renderCallback(passedSeconds)
     // Create the commands for the GPU:
     renderer.beginFrame(swapChain, 0)
+    renderer.setPresentationTime(nextTimestamp * 1000)
     renderer.render(view)
     renderer.endFrame()
 
@@ -122,6 +127,7 @@ function Renderer() {
     engine.flushAndWait()
     // Render the current frame to the recorder:
     recorder.renderFrame(nextTimestamp)
+    return true
   })
 
   const onStartRecording = useCallback(async () => {

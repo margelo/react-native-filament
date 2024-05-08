@@ -58,9 +58,9 @@ export interface Renderer extends PointerHolder {
   setClearContent: (clear: boolean) => void
 
   /**
-   * Set the current Frame's output presentation timestamp
+   * Set the current Frame's output presentation timestamp, in milliseconds.
    */
-  setPresentationTime: (timestamp: bigint) => void
+  setPresentationTime: (timestamp: number) => void
 
   beginFrame: (swapChain: SwapChain, timestamp: number) => boolean
   render: (view: View) => void

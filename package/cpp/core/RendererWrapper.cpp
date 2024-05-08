@@ -35,8 +35,9 @@ void RendererWrapper::setClearContent(bool shouldClear) {
   pointee()->setClearOptions({.clear = shouldClear});
 }
 
-void RendererWrapper::setPresentationTime(int64_t timestamp) {
-  pointee()->setPresentationTime(timestamp);
+void RendererWrapper::setPresentationTime(double timestamp) {
+  int64_t timestampNs = static_cast<int64_t>(timestamp * 1'000) * 1'000;
+  pointee()->setPresentationTime(timestampNs);
 }
 
 bool RendererWrapper::beginFrame(std::shared_ptr<SwapChainWrapper> swapChainWrapper, double timestamp) {

@@ -108,13 +108,11 @@ jsi::Runtime& AppleFilamentProxy::getRuntime() {
 std::shared_ptr<FilamentView> AppleFilamentProxy::findFilamentView(int viewId) {
   auto jsDispatcher = _jsDispatcher;
   std::shared_ptr<AppleFilamentView> result;
-  RCTUnsafeExecuteOnMainQueueSync([viewId, &result, jsDispatcher]() {
     RCTBridge* currentBridge = [RCTBridge currentBridge]; // <-- from <React/RCTBridge+Private.h>
     RCTUIManager* uiManager = currentBridge.uiManager;    // <-- from <React/RCTUIManager.h>
     UIView* anonymousView = [uiManager viewForReactTag:[NSNumber numberWithInt:viewId]];
     FilamentMetalView* view = (FilamentMetalView*)anonymousView;
     result.reset(new AppleFilamentView(view, jsDispatcher));
-  });
   return std::static_pointer_cast<FilamentView>(result);
 }
 
