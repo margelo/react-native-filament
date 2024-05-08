@@ -28,10 +28,13 @@ public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaReco
     private final HybridData mHybridData;
     private final MediaRecorder recorder;
     private final File file;
+    private final Dispatcher rendererDispatcher;
+    private boolean isRecording;
 
-    public FilamentRecorder(Context context, int width, int height, int fps, double bitRate) throws IOException {
-        mHybridData = initHybrid(width, height, fps, bitRate);
+    public FilamentRecorder(Context context, Dispatcher rendererThreadDispatcher, int width, int height, int fps, double bitRate) throws IOException {
+        mHybridData = initHybrid(rendererThreadDispatcher, width, height, fps, bitRate);
         file = File.createTempFile("filament", ".mp4");
+        rendererDispatcher = rendererThreadDispatcher;
 
         int codec = getVideoCodec();
         Log.i(TAG, "Creating Recorder with codec " + codec + ", recording to " + file.getAbsolutePath());
@@ -137,6 +140,15 @@ public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaReco
     @Keep
     void startRecording() {
         recorder.start();
+        isRecording = true;
+
+        rendererDispatcher.getExecutor().execute(() -> {
+            // stopRecording() needs to be called here to stop the actual draw loop.
+            while (isRecording) {
+                Log.i(TAG, "Recorder is ready for more data.");
+                onReadyForMoreData();
+            }
+        });
     }
 
     /**
@@ -146,6 +158,16 @@ public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaReco
     @Keep
     void stopRecording() {
         recorder.stop();
+        isRecording = false;
+    }
+
+    /**
+     * @noinspection unused
+     */
+    @DoNotStrip
+    @Keep
+    boolean getIsRecording() {
+        return isRecording;
     }
 
     /**
@@ -166,5 +188,6 @@ public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaReco
         return file.getAbsolutePath();
     }
 
-    private native HybridData initHybrid(int width, int height, int fps, double bitRate);
+    private native void onReadyForMoreData();
+    private native HybridData initHybrid(Dispatcher rendererDispatcher, int width, int height, int fps, double bitRate);
 }

@@ -41,6 +41,10 @@ void FilamentRecorder::onReadyForMoreData() {
   // this might get called from a background Thread (e.g. Encoder Thread),
   // so we need to make sure to render on the Renderer Thread
   auto listenerManager = _listenerManager;
+  if (!listenerManager->getHasListeners()) {
+    return;
+  }
+
   _renderThreadDispatcher->runAsync([listenerManager]() {
     // notify all JS listeners
     listenerManager->forEach([](const ReadyForMoreDataCallback& callback) {

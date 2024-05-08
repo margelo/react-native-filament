@@ -12,7 +12,7 @@
 #include "jsi/HybridObject.h"
 #include "Listener.h"
 #include "ListenerManager.h"
-#include "Dispatcher.h"
+#include "threading/Dispatcher.h"
 
 namespace margelo {
 
