@@ -10,8 +10,8 @@
 
 namespace margelo {
 
-AppleFilamentView::AppleFilamentView(FilamentMetalView* view)
-    : _view(view), _surfaceProvider(std::make_shared<MetalSurfaceProvider>(view.metalLayer)) {}
+AppleFilamentView::AppleFilamentView(FilamentMetalView* view, std::shared_ptr<Dispatcher> jsDispatcher)
+    : _view(view), _surfaceProvider(std::make_shared<MetalSurfaceProvider>(view.metalLayer, jsDispatcher)) {}
 
 std::shared_ptr<SurfaceProvider> AppleFilamentView::getSurfaceProvider() {
   return _surfaceProvider;

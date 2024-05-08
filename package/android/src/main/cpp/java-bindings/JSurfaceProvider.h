@@ -13,7 +13,8 @@ namespace margelo {
 
 using namespace facebook;
 
-class JSurfaceProvider : public jni::HybridClass<JSurfaceProvider>, public SurfaceProvider {
+class JSurfaceProvider : public jni::HybridClass<JSurfaceProvider>,
+                         public SurfaceProvider {
 public:
   ~JSurfaceProvider();
   static void registerNatives();
@@ -31,11 +32,14 @@ private:
 
 private:
   static auto constexpr TAG = "JSurfaceProvider";
-  static auto constexpr kJavaDescriptor = "Lcom/margelo/filament/SurfaceProvider;";
+  static auto constexpr kJavaDescriptor =
+      "Lcom/margelo/filament/SurfaceProvider;";
 
 private:
-  explicit JSurfaceProvider(const jni::alias_ref<jhybridobject>& javaThis);
-  static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> javaThis);
+  explicit JSurfaceProvider(const jni::alias_ref<jhybridobject> &javaThis,
+                            std::shared_ptr<Dispatcher> jsDispatcher);
+  static jni::local_ref<jhybriddata>
+  initHybrid(jni::alias_ref<jhybridobject> javaThis);
 };
 
 } // namespace margelo

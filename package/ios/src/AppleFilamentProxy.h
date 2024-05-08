@@ -20,7 +20,7 @@ namespace margelo {
 
 class AppleFilamentProxy : public FilamentProxy {
 public:
-  explicit AppleFilamentProxy(jsi::Runtime* runtime, std::shared_ptr<react::CallInvoker> callInvoker);
+  explicit AppleFilamentProxy(jsi::Runtime* runtime, std::shared_ptr<Dispatcher> jsDispatcher);
   ~AppleFilamentProxy();
 
 public:
@@ -28,6 +28,7 @@ public:
   std::shared_ptr<FilamentView> findFilamentView(int modelId) override;
   std::shared_ptr<Choreographer> createChoreographer() override;
   std::shared_ptr<FilamentRecorder> createRecorder(int width, int height, int fps, double bitRate) override;
+  std::shared_ptr<Dispatcher> getJSDispatcher() override;
   std::shared_ptr<Dispatcher> getRenderThreadDispatcher() override;
   std::shared_ptr<Dispatcher> getUIDispatcher() override;
   std::shared_ptr<Dispatcher> getBackgroundDispatcher() override;
@@ -35,11 +36,10 @@ public:
   float getDensityPixelRatio() override;
 
   jsi::Runtime& getRuntime() override;
-  std::shared_ptr<react::CallInvoker> getCallInvoker() override;
 
 private:
   jsi::Runtime* _runtime;
-  std::shared_ptr<react::CallInvoker> _callInvoker;
+  std::shared_ptr<Dispatcher> _jsDispatcher;
   std::shared_ptr<Dispatcher> _renderThreadDispatcher;
   std::shared_ptr<Dispatcher> _uiDispatcher;
   std::shared_ptr<Dispatcher> _backgroundDispatcher;

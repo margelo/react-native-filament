@@ -20,7 +20,7 @@ namespace margelo {
  */
 class AppleFilamentView : public FilamentView {
 public:
-  explicit AppleFilamentView(FilamentMetalView* view);
+  explicit AppleFilamentView(FilamentMetalView* view, std::shared_ptr<Dispatcher> jsDispatcher);
 
   std::shared_ptr<SurfaceProvider> getSurfaceProvider() override;
 

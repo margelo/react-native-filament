@@ -46,8 +46,8 @@ bool FilamentProxy::getHasWorklets() {
 std::shared_ptr<RNWorklet::JsiWorkletContext> FilamentProxy::getWorkletContext() {
   if (_workletContext == nullptr) {
     Logger::log(TAG, "Creating Worklet Context...");
-    auto callInvoker = getCallInvoker();
-    auto runOnJS = [=](std::function<void()>&& function) { callInvoker->invokeAsync(std::move(function)); };
+    auto jsDispatcher = getJSDispatcher();
+    auto runOnJS = [=](std::function<void()>&& function) { jsDispatcher->runAsync(std::move(function)); };
     auto renderThreadDispatcher = getRenderThreadDispatcher();
     auto runOnWorklet = [=](std::function<void()>&& function) { renderThreadDispatcher->runAsync(std::move(function)); };
     auto& runtime = getRuntime();

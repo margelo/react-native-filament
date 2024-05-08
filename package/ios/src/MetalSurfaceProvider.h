@@ -16,7 +16,7 @@ namespace margelo {
 
 class MetalSurfaceProvider : public SurfaceProvider {
 public:
-  explicit MetalSurfaceProvider(CAMetalLayer* layer) {
+  explicit MetalSurfaceProvider(CAMetalLayer* layer, std::shared_ptr<Dispatcher> jsDispatcher) : SurfaceProvider(jsDispatcher) {
     _layer = layer;
     // Surface has been created
     _surface = std::make_shared<MetalSurface>(layer);
