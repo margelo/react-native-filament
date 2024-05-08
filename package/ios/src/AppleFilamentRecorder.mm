@@ -78,18 +78,11 @@ AppleFilamentRecorder::AppleFilamentRecorder(std::shared_ptr<Dispatcher> renderT
     throw std::runtime_error("Failed to add AVAssetWriterInput to AVAssetWriter! Settings used: " + settingsJson);
   }
 
-  // TODO: We can make this Recorder a bit more efficient if we set:
-  //       - expectsMediaDataInRealTime = NO
-  //       - performsMultiPassEncodingIfSupported = YES
-  //       But then we need to implement a "on ready for more data" listener here,
-  //       which will then control the rendering. Currently we push-render in a for loop from JS,
-  //       this will then be changed to pull-render. Will result in lower-size & higher quality video,
-  //       and less CPU usage. But render times might increase.
   _assetWriterInput.expectsMediaDataInRealTime = NO;
   _assetWriterInput.performsMultiPassEncodingIfSupported = YES;
       
   _pixelBufferAdaptor = [AVAssetWriterInputPixelBufferAdaptor assetWriterInputPixelBufferAdaptorWithAssetWriterInput:_assetWriterInput
-                                                                                         sourcePixelBufferAttributes:pixelBufferAttributes];
+                                                                                         sourcePixelBufferAttributes:nil];
 
   Logger::log(TAG, "Adding AVAssetWriterInput...");
   [_assetWriter addInput:_assetWriterInput];
@@ -108,6 +101,8 @@ bool AppleFilamentRecorder::getSupportsHEVC() {
 }
 
 void AppleFilamentRecorder::renderFrame(double timestamp) {
+  std::unique_lock lock(_mutex);
+  
   Logger::log(TAG, "Rendering Frame with timestamp %f...", timestamp);
   if (!_assetWriterInput.isReadyForMoreMediaData) {
     // TODO: Dropping this frame is probably not a good idea, as we are rendering from an offscreen context anyways
@@ -170,6 +165,8 @@ std::string AppleFilamentRecorder::getErrorMessage(NSError* error) {
 }
 
 std::future<void> AppleFilamentRecorder::startRecording() {
+  std::unique_lock lock(_mutex);
+  
   Logger::log(TAG, "Starting recording...");
   auto self = shared<AppleFilamentRecorder>();
   return std::async(std::launch::async, [self]() {
@@ -189,6 +186,7 @@ std::future<void> AppleFilamentRecorder::startRecording() {
       Logger::log(TAG, "Recorder is ready for more data.");
       auto self = weakSelf.lock();
       if (self != nullptr) {
+        std::unique_lock lock(self->_mutex);
         self->onReadyForMoreData();
       }
     }];
@@ -196,6 +194,8 @@ std::future<void> AppleFilamentRecorder::startRecording() {
 }
 
 std::future<std::string> AppleFilamentRecorder::stopRecording() {
+  std::unique_lock lock(_mutex);
+  
   Logger::log(TAG, "Stopping recording...");
   
   if (!_isRecording) {

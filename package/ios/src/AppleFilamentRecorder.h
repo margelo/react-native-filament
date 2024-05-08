@@ -11,6 +11,7 @@
 #include <AVFoundation/AVFoundation.h>
 #include <CoreVideo/CoreVideo.h>
 #include <Foundation/Foundation.h>
+#include <mutex>
 
 namespace margelo {
 
@@ -46,6 +47,7 @@ private:
   dispatch_queue_t _queue;
   bool _isRecording;
   size_t _frameCount = 0;
+  std::mutex _mutex;
 };
 
 } // namespace margelo
