@@ -1,6 +1,5 @@
 #include "Dispatcher.h"
 #include "Logger.h"
-#include "Logger.h"
 
 namespace margelo {
 
@@ -26,9 +25,11 @@ jsi::Value Dispatcher::getRuntimeGlobalDispatcherHolder(jsi::Runtime& runtime) {
 #if DEBUG
   if (!runtime.global().hasProperty(runtime, GLOBAL_DISPATCHER_HOLDER_NAME)) {
     throw jsi::JSError(runtime, "Failed to get current Dispatcher - the global Dispatcher "
-                                "holder (global." + std::string(GLOBAL_DISPATCHER_HOLDER_NAME) + ") "
-                                "does not exist! Was Dispatcher::installDispatcherIntoRuntime() called "
-                                "for this jsi::Runtime?");
+                                "holder (global." +
+                                    std::string(GLOBAL_DISPATCHER_HOLDER_NAME) +
+                                    ") "
+                                    "does not exist! Was Dispatcher::installDispatcherIntoRuntime() called "
+                                    "for this jsi::Runtime?");
   }
 #endif
   return runtime.global().getProperty(runtime, GLOBAL_DISPATCHER_HOLDER_NAME);

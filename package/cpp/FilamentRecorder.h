@@ -4,14 +4,14 @@
 
 #pragma once
 
+#include <functional>
 #include <future>
 #include <jsi/jsi.h>
 #include <string>
-#include <functional>
 
-#include "jsi/HybridObject.h"
 #include "Listener.h"
 #include "ListenerManager.h"
+#include "jsi/HybridObject.h"
 #include "threading/Dispatcher.h"
 
 namespace margelo {
@@ -21,7 +21,7 @@ using namespace facebook;
 class FilamentRecorder : public HybridObject {
 public:
   using ReadyForMoreDataCallback = std::function<bool()>;
-  
+
 public:
   explicit FilamentRecorder(std::shared_ptr<Dispatcher> renderThreadDispatcher, int width, int height, int fps, double bitRate);
   ~FilamentRecorder();
@@ -39,7 +39,7 @@ public:
   double getBitRate() {
     return _bitRate;
   }
-  
+
   std::shared_ptr<Listener> addOnReadyForMoreDataListener(ReadyForMoreDataCallback callback);
   /**
    * Notify all JS listeners that the Recorder is ready for more data - this will probably cause rendering to happen.

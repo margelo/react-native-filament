@@ -6,11 +6,11 @@
 
 #include "Listener.h"
 #include <algorithm>
+#include <atomic>
 #include <functional>
 #include <list>
 #include <memory>
 #include <mutex>
-#include <atomic>
 
 namespace margelo {
 

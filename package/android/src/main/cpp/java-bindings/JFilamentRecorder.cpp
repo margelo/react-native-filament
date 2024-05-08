@@ -3,15 +3,15 @@
 //
 
 #include "JFilamentRecorder.h"
-#include <android/native_window_jni.h>
-#include "java-bindings/JDispatcher.h"
 #include "JNISharedPtr.h"
+#include "java-bindings/JDispatcher.h"
+#include <android/native_window_jni.h>
 
 namespace margelo {
 
-JFilamentRecorder::JFilamentRecorder(const jni::alias_ref<jhybridobject>& javaThis, std::shared_ptr<Dispatcher> rendererDispatcher, int width, int height, int fps, double bitRate)
-    : FilamentRecorder(rendererDispatcher, width, height, fps, bitRate), _javaPart(make_global(javaThis)) {
-}
+JFilamentRecorder::JFilamentRecorder(const jni::alias_ref<jhybridobject>& javaThis, std::shared_ptr<Dispatcher> rendererDispatcher,
+                                     int width, int height, int fps, double bitRate)
+    : FilamentRecorder(rendererDispatcher, width, height, fps, bitRate), _javaPart(make_global(javaThis)) {}
 
 JFilamentRecorder::~JFilamentRecorder() {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Destroying JFilamentRecorder...");
@@ -22,8 +22,8 @@ JFilamentRecorder::~JFilamentRecorder() {
 
 void JFilamentRecorder::registerNatives() {
   registerHybrid({
-     makeNativeMethod("initHybrid", JFilamentRecorder::initHybrid),
-     makeNativeMethod("onReadyForMoreData", JFilamentRecorder::onReadyForMoreDataJava),
+      makeNativeMethod("initHybrid", JFilamentRecorder::initHybrid),
+      makeNativeMethod("onReadyForMoreData", JFilamentRecorder::onReadyForMoreDataJava),
   });
 }
 
