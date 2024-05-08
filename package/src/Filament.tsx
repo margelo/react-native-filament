@@ -53,15 +53,19 @@ export class Filament extends React.PureComponent<FilamentProps> {
     renderer.setClearContent(enable)
   }
 
-  private updateRenderCallback = (callback: RenderCallback) => {
-    const { engine, _workletContext, _choreographer } = this.getContext()
-    _workletContext.runAsync(() => {
+  private updateRenderCallback = async (callback: RenderCallback, swapChain: SwapChain) => {
+    const { renderer, view, _workletContext, _choreographer } = this.getContext()
+    this.swapChain
+    return _workletContext.runAsync(() => {
       'worklet'
       _choreographer.setFrameCallback((frameInfo) => {
         'worklet'
         try {
           callback(frameInfo)
-          engine.render(frameInfo.timestamp, true)
+          if (renderer.beginFrame(swapChain, frameInfo.timestamp)) {
+            renderer.render(view)
+            renderer.endFrame()
+          }
         } catch (e) {
           reportWorkletError(e)
         }
@@ -88,8 +92,9 @@ export class Filament extends React.PureComponent<FilamentProps> {
     if (prevProps.enableTransparentRendering !== this.props.enableTransparentRendering) {
       this.updateTransparentRendering(this.props.enableTransparentRendering ?? true)
     }
-    if (prevProps.renderCallback !== this.props.renderCallback) {
-      this.updateRenderCallback(this.props.renderCallback)
+    if (prevProps.renderCallback !== this.props.renderCallback && this.swapChain != null) {
+      // Note: if swapChain was null, the renderCallback will be set/updated in onSurfaceCreated, which uses the latest renderCallback prop
+      this.updateRenderCallback(this.props.renderCallback, this.swapChain)
     }
   }
 
@@ -146,6 +151,11 @@ export class Filament extends React.PureComponent<FilamentProps> {
     })
     // Apply the swapchain to the engine …
     engine.setSwapChain(this.swapChain)
+
+    // Set the render callback in the choreographer:
+    const { renderCallback } = this.props
+    await this.updateRenderCallback(renderCallback, this.swapChain)
+
     // Start the choreographer …
     _choreographer.start()
   }

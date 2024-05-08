@@ -35,7 +35,6 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("createSwapChainForSurface", &EngineWrapper::createSwapChainForSurface, this);
   registerHybridMethod("createSwapChainForRecorder", &EngineWrapper::createSwapChainForRecorder, this);
   registerHybridMethod("setSwapChain", &EngineWrapper::setSwapChain, this);
-  registerHybridMethod("render", &EngineWrapper::render, this);
   registerHybridMethod("setIndirectLight", &EngineWrapper::setIndirectLight, this);
   registerHybridMethod("loadAsset", &EngineWrapper::loadAsset, this);
   registerHybridMethod("loadInstancedAsset", &EngineWrapper::loadInstancedAsset, this);
@@ -80,8 +79,9 @@ std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChainForRecorder(std:
     throw std::invalid_argument("Recorder is null");
   }
   void* nativeWindow = recorder->getNativeWindow();
-  
-  // The flag CONFIG_APPLE_CVPIXELBUFFER is needed for iOS metal backend to allow rendering into a CVPixelBuffer. On android this flag is ignored.
+
+  // The flag CONFIG_APPLE_CVPIXELBUFFER is needed for iOS metal backend to allow rendering into a CVPixelBuffer. On android this flag is
+  // ignored.
   std::shared_ptr<SwapChain> swapChain = pointee()->createSwapChain(nativeWindow, SwapChain::CONFIG_APPLE_CVPIXELBUFFER);
 
   int width = recorder->getWidth();
@@ -93,9 +93,6 @@ std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChainForRecorder(std:
 void EngineWrapper::setSwapChain(std::shared_ptr<SwapChainWrapper> swapChainWrapper) {
   std::shared_ptr<SwapChain> swapChain = swapChainWrapper->getSwapChain();
   pointee()->setSwapChain(swapChain);
-}
-void EngineWrapper::render(double timestamp, bool respectVSync) {
-  pointee()->render(timestamp, respectVSync);
 }
 void EngineWrapper::setIndirectLight(std::shared_ptr<FilamentBuffer> modelBuffer, std::optional<double> intensity,
                                      std::optional<int> irradianceBands) {

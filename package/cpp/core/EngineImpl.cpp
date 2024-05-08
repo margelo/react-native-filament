@@ -164,29 +164,6 @@ void EngineImpl::setSwapChain(std::shared_ptr<SwapChain> swapChain) {
   _swapChain = swapChain;
 }
 
-void EngineImpl::render(double timestamp, bool respectVSync) {
-  std::unique_lock lock(_mutex);
-
-  if (!_swapChain) {
-    [[unlikely]];
-    return;
-  }
-  if (!_view) {
-    [[unlikely]];
-    return;
-  }
-
-  _resourceLoader->asyncUpdateLoad();
-
-  bool shouldRender = _renderer->beginFrame(_swapChain.get(), timestamp);
-  if (respectVSync && !shouldRender) {
-    [[unlikely]];
-    return;
-  }
-  _renderer->render(_view.get());
-  _renderer->endFrame();
-}
-
 std::shared_ptr<Renderer> EngineImpl::createRenderer(float displayRefreshRate) {
   auto dispatcher = _rendererDispatcher;
   std::shared_ptr<Renderer> renderer = References<Renderer>::adoptEngineRef(
