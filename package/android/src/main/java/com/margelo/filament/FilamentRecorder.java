@@ -33,12 +33,14 @@ public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaReco
     private final MediaRecorder recorder;
     private final File file;
     private final Dispatcher rendererDispatcher;
+    private final Dispatcher recorderDispatcher;
     private boolean isRecording;
 
     public FilamentRecorder(Context context, Dispatcher rendererThreadDispatcher, int width, int height, int fps, double bitRate) throws IOException {
         mHybridData = initHybrid(rendererThreadDispatcher, width, height, fps, bitRate);
         file = File.createTempFile("filament", ".mp4");
         rendererDispatcher = rendererThreadDispatcher;
+        recorderDispatcher = new Dispatcher(Executors.newSingleThreadExecutor());
 
         int codec = getVideoCodec();
         Log.i(TAG, "Creating Recorder with codec " + codec + ", recording to " + file.getAbsolutePath());
@@ -190,6 +192,13 @@ public class FilamentRecorder implements MediaRecorder.OnInfoListener, MediaReco
     String getOutputFile() {
         return file.getAbsolutePath();
     }
+
+    /**
+     * @noinspection unused
+     */
+    @DoNotStrip
+    @Keep
+    Dispatcher getRecorderDispatcher() { return recorderDispatcher; }
 
     private native void onReadyForMoreData();
     private native HybridData initHybrid(Dispatcher rendererDispatcher, int width, int height, int fps, double bitRate);

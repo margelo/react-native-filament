@@ -33,6 +33,7 @@ public:
   void onReadyForMoreDataJava() {
     onReadyForMoreData();
   }
+  jni::local_ref<JDispatcher::javaobject> getRecorderDispatcher();
 
 private:
   friend HybridBase;
