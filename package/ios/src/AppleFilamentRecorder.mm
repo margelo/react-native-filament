@@ -16,7 +16,7 @@ AppleFilamentRecorder::AppleFilamentRecorder(std::shared_ptr<Dispatcher> renderT
     : FilamentRecorder(renderThreadDispatcher, width, height, fps, bitRate) {
   dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, -1);
   _queue = dispatch_queue_create("filament.recorder.queue", qos);
-      
+
   Logger::log(TAG, "Creating CVPixelBufferPool...");
   int maxBufferCount = 30;
   NSDictionary* poolAttributes = @{(NSString*)kCVPixelBufferPoolMinimumBufferCountKey : @(maxBufferCount)};
@@ -80,7 +80,7 @@ AppleFilamentRecorder::AppleFilamentRecorder(std::shared_ptr<Dispatcher> renderT
 
   _assetWriterInput.expectsMediaDataInRealTime = NO;
   _assetWriterInput.performsMultiPassEncodingIfSupported = YES;
-      
+
   _pixelBufferAdaptor = [AVAssetWriterInputPixelBufferAdaptor assetWriterInputPixelBufferAdaptorWithAssetWriterInput:_assetWriterInput
                                                                                          sourcePixelBufferAttributes:nil];
 
@@ -102,7 +102,7 @@ bool AppleFilamentRecorder::getSupportsHEVC() {
 
 void AppleFilamentRecorder::renderFrame(double timestamp) {
   std::unique_lock lock(_mutex);
-  
+
   Logger::log(TAG, "Rendering Frame with timestamp %f...", timestamp);
   if (!_assetWriterInput.isReadyForMoreMediaData) {
     // TODO: Dropping this frame is probably not a good idea, as we are rendering from an offscreen context anyways
@@ -166,7 +166,7 @@ std::string AppleFilamentRecorder::getErrorMessage(NSError* error) {
 
 std::future<void> AppleFilamentRecorder::startRecording() {
   std::unique_lock lock(_mutex);
-  
+
   Logger::log(TAG, "Starting recording...");
   auto self = shared<AppleFilamentRecorder>();
   return std::async(std::launch::async, [self]() {
@@ -178,7 +178,7 @@ std::future<void> AppleFilamentRecorder::startRecording() {
       throw std::runtime_error("Failed to start recording! Error: " + errorMessage);
     }
     Logger::log(TAG, "Recording started! Starting Media Data listener...");
-    
+
     self->_isRecording = true;
     auto weakSelf = std::weak_ptr(self);
     [self->_assetWriterInput requestMediaDataWhenReadyOnQueue:self->_queue
@@ -187,7 +187,11 @@ std::future<void> AppleFilamentRecorder::startRecording() {
       auto self = weakSelf.lock();
       if (self != nullptr) {
         std::unique_lock lock(self->_mutex);
-        self->onReadyForMoreData();
+        bool shouldContinueNext = self->onReadyForMoreData();
+        if (!shouldContinueNext) {
+          // stop the render queue
+          [self->_assetWriterInput markAsFinished];
+        }
       }
     }];
   });
@@ -195,9 +199,9 @@ std::future<void> AppleFilamentRecorder::startRecording() {
 
 std::future<std::string> AppleFilamentRecorder::stopRecording() {
   std::unique_lock lock(_mutex);
-  
+
   Logger::log(TAG, "Stopping recording...");
-  
+
   if (!_isRecording) {
     throw std::runtime_error("Cannot call stopRecording() when isRecording is false!");
   }
@@ -208,8 +212,6 @@ std::future<std::string> AppleFilamentRecorder::stopRecording() {
   auto promise = std::make_shared<std::promise<std::string>>();
   auto self = shared<AppleFilamentRecorder>();
   dispatch_async(_queue, [self, promise]() {
-    // Stop the AVAssetWriter
-    [self->_assetWriterInput markAsFinished];
     // Finish and wait for callback
     [self->_assetWriter finishWritingWithCompletionHandler:[self, promise](){
       Logger::log(TAG, "Recording finished!");
