@@ -15,7 +15,7 @@ import {
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
-import { useRunOnJS } from 'react-native-worklets-core'
+import { useRunOnJS, useSharedValue } from 'react-native-worklets-core'
 import Video from 'react-native-video'
 
 const penguModelPath = getAssetPath('pengu.glb')
@@ -70,7 +70,8 @@ function Renderer() {
   )
 
   const framesToRender = DURATION * FPS
-  const started = Date.now()
+  // const started = Date.now()
+  const started = useSharedValue(0)
 
   const [videoUri, setVideoUri] = React.useState<string>()
 
@@ -107,16 +108,18 @@ function Renderer() {
       onFinish()
       return false
     }
+    if (started.value === 0) {
+      started.value = performance.now()
+    }
 
-    const nextTimestamp = started + frameIndex * (1 / FPS)
+    const nextTimestamp = started.value + frameIndex * (1 / FPS)
     console.log(`Rendering frame #${frameIndex + 1} of ${framesToRender} at ${nextTimestamp}`)
-    const passedSeconds = nextTimestamp - started
+    const passedSeconds = nextTimestamp - started.value
     // Update the scene:
     renderCallback(passedSeconds)
     // Create the commands for the GPU:
     renderer.beginFrame(swapChain, 0)
-    const presentationTime = (frameIndex / FPS) * 1000
-    renderer.setPresentationTime(presentationTime)
+    renderer.setPresentationTime(nextTimestamp * 1000)
     renderer.render(view)
     renderer.endFrame()
 
