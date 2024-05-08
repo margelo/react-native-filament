@@ -46,7 +46,7 @@ using namespace margelo;
   }
 
   // global.__globalDispatcher
-  std::shared_ptr<Dispatcher> jsDispatcher = std::make_shared<CallInvokerDispatcher>(callInvoker);\
+  std::shared_ptr<Dispatcher> jsDispatcher = std::make_shared<CallInvokerDispatcher>(callInvoker);
   Dispatcher::installRuntimeGlobalDispatcher(*runtime, jsDispatcher);
 
   // global.FilamentProxy

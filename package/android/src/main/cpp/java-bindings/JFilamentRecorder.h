@@ -5,10 +5,10 @@
 #pragma once
 
 #include "FilamentRecorder.h"
+#include "java-bindings/JDispatcher.h"
 #include <android/native_window.h>
 #include <fbjni/fbjni.h>
 #include <jni.h>
-#include "java-bindings/JDispatcher.h"
 
 namespace margelo {
 
@@ -28,7 +28,7 @@ public:
 
   void renderFrame(double timestamp) override;
 
- private:
+private:
   // JNI
   bool onReadyForMoreDataJava() {
     return onReadyForMoreData();
@@ -45,8 +45,11 @@ private:
   static auto constexpr kJavaDescriptor = "Lcom/margelo/filament/FilamentRecorder;";
 
 public:
-  explicit JFilamentRecorder(const jni::alias_ref<jhybridobject>& javaThis, std::shared_ptr<Dispatcher> rendererDispatcher, int width, int height, int fps, double bitRate);
-  static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> javaThis, jni::alias_ref<JDispatcher::javaobject> rendererDispatcher, int width, int height, int fps, double bitRate);
+  explicit JFilamentRecorder(const jni::alias_ref<jhybridobject>& javaThis, std::shared_ptr<Dispatcher> rendererDispatcher, int width,
+                             int height, int fps, double bitRate);
+  static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> javaThis,
+                                                jni::alias_ref<JDispatcher::javaobject> rendererDispatcher, int width, int height, int fps,
+                                                double bitRate);
 };
 
 } // namespace margelo

@@ -12,7 +12,8 @@
 
 namespace margelo {
 
-AppleFilamentRecorder::AppleFilamentRecorder(std::shared_ptr<Dispatcher> renderThreadDispatcher, int width, int height, int fps, double bitRate)
+AppleFilamentRecorder::AppleFilamentRecorder(std::shared_ptr<Dispatcher> renderThreadDispatcher, int width, int height, int fps,
+                                             double bitRate)
     : FilamentRecorder(renderThreadDispatcher, width, height, fps, bitRate) {
   dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, -1);
   _queue = dispatch_queue_create("filament.recorder.queue", qos);
@@ -183,18 +184,18 @@ std::future<void> AppleFilamentRecorder::startRecording() {
     auto weakSelf = std::weak_ptr(self);
     [self->_assetWriterInput requestMediaDataWhenReadyOnQueue:self->_queue
                                                    usingBlock:[weakSelf]() {
-      Logger::log(TAG, "Recorder is ready for more data.");
-      auto self = weakSelf.lock();
-        if (self != nullptr) {
-        self->_renderThreadDispatcher->runAsync([self]() {
-            bool shouldContinueNext = self->onReadyForMoreData();
-            if (!shouldContinueNext) {
-              // stop the render queue
-              [self->_assetWriterInput markAsFinished];
-            }
-        });
-      }
-    }];
+                                                     Logger::log(TAG, "Recorder is ready for more data.");
+                                                     auto self = weakSelf.lock();
+                                                     if (self != nullptr) {
+                                                       self->_renderThreadDispatcher->runAsync([self]() {
+                                                         bool shouldContinueNext = self->onReadyForMoreData();
+                                                         if (!shouldContinueNext) {
+                                                           // stop the render queue
+                                                           [self->_assetWriterInput markAsFinished];
+                                                         }
+                                                       });
+                                                     }
+                                                   }];
   });
 }
 
@@ -214,7 +215,7 @@ std::future<std::string> AppleFilamentRecorder::stopRecording() {
   auto self = shared<AppleFilamentRecorder>();
   dispatch_async(_queue, [self, promise]() {
     // Finish and wait for callback
-    [self->_assetWriter finishWritingWithCompletionHandler:[self, promise](){
+    [self->_assetWriter finishWritingWithCompletionHandler:[self, promise]() {
       Logger::log(TAG, "Recording finished!");
       AVAssetWriterStatus status = self->_assetWriter.status;
       NSError* maybeError = self->_assetWriter.error;

@@ -6,14 +6,14 @@
 
 #include <functional>
 #include <future>
-#include <queue>
 #include <jsi/jsi.h>
+#include <queue>
 
 namespace margelo {
 
 using namespace facebook;
 
-class Dispatcher: public jsi::NativeState {
+class Dispatcher : public jsi::NativeState {
 public:
   /**
    Installs the Dispatcher into the given Runtime.
@@ -69,7 +69,7 @@ public:
     return future;
   }
 
- private:
+private:
   static constexpr auto TAG = "Dispatcher";
 };
 

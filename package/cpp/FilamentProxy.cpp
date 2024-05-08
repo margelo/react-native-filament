@@ -9,8 +9,8 @@
 #include "core/EngineBackendEnum.h"
 #include "core/EngineConfigHelper.h"
 #include "jsi/Promise.h"
-#include "threading/WorkletContextDispatcher.h"
 #include "threading/Dispatcher.h"
+#include "threading/WorkletContextDispatcher.h"
 
 #include <memory>
 #include <string>
@@ -65,8 +65,7 @@ std::shared_ptr<RNWorklet::JsiWorkletContext> FilamentProxy::getWorkletContext()
 }
 #endif
 
-jsi::Value FilamentProxy::getCurrentDispatcher(jsi::Runtime &runtime, const jsi::Value&,
-                                               const jsi::Value *, size_t ) {
+jsi::Value FilamentProxy::getCurrentDispatcher(jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t) {
   return Dispatcher::getRuntimeGlobalDispatcherHolder(runtime);
 }
 
@@ -83,7 +82,6 @@ std::future<std::shared_ptr<FilamentBuffer>> FilamentProxy::loadAssetAsync(const
     }
   });
 }
-
 
 std::future<std::shared_ptr<FilamentView>> FilamentProxy::findFilamentViewAsync(int id) {
   Logger::log(TAG, "Finding FilamentView #%i...", id);

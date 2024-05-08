@@ -10,7 +10,8 @@ namespace margelo {
 using namespace facebook;
 
 FilamentRecorder::FilamentRecorder(std::shared_ptr<Dispatcher> renderThreadDispatcher, int width, int height, int fps, double bitRate)
-    : HybridObject("FilamentRecorder"), _renderThreadDispatcher(renderThreadDispatcher), _width(width), _height(height), _fps(fps), _bitRate(bitRate), _listenerManager(ListenerManager<ReadyForMoreDataCallback>::create()) {
+    : HybridObject("FilamentRecorder"), _renderThreadDispatcher(renderThreadDispatcher), _width(width), _height(height), _fps(fps),
+      _bitRate(bitRate), _listenerManager(ListenerManager<ReadyForMoreDataCallback>::create()) {
   Logger::log(TAG, "Creating %zu x %zu @ %zu FPS (%f bps) FilamentRecorder...", width, height, fps, bitRate);
 }
 
@@ -31,11 +32,9 @@ void FilamentRecorder::loadHybridMethods() {
   registerHybridMethod("addOnReadyForMoreDataListener", &FilamentRecorder::addOnReadyForMoreDataListener, this);
 }
 
-
 std::shared_ptr<Listener> FilamentRecorder::addOnReadyForMoreDataListener(ReadyForMoreDataCallback callback) {
   return _listenerManager->add(callback);
 }
-
 
 bool FilamentRecorder::onReadyForMoreData() {
   // notify all JS listeners

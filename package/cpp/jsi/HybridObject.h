@@ -79,7 +79,7 @@ private:
 private:
   template <typename Derived, typename ReturnType, typename... Args, size_t... Is>
   static inline jsi::Value callMethod(Derived* obj, ReturnType (Derived::*method)(Args...), jsi::Runtime& runtime, const jsi::Value* args,
-                               std::index_sequence<Is...>) {
+                                      std::index_sequence<Is...>) {
     if constexpr (std::is_same_v<ReturnType, void>) {
       // It's a void method.
       (obj->*method)(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
@@ -94,9 +94,7 @@ private:
   template <typename Derived, typename ReturnType, typename... Args>
   static jsi::HostFunctionType createHybridMethod(ReturnType (Derived::*method)(Args...), Derived* derivedInstance) {
 
-    return [derivedInstance, method](jsi::Runtime &runtime, const jsi::Value &thisVal,
-                                     const jsi::Value *args,
-                                     size_t count) -> jsi::Value {
+    return [derivedInstance, method](jsi::Runtime& runtime, const jsi::Value& thisVal, const jsi::Value* args, size_t count) -> jsi::Value {
       if constexpr (std::is_same_v<ReturnType, jsi::Value>) {
         // If the return type is a jsi::Value, we assume the user wants full JSI code control.
         // The signature must be identical to jsi::HostFunction (jsi::Runtime&, jsi::Value& this, ...)
@@ -104,8 +102,7 @@ private:
       } else {
         // Call the actual method with JSI values as arguments and return a JSI value again.
         // Internally, this method converts the JSI values to C++ values.
-        return callMethod(derivedInstance, method, runtime, args,
-                          std::index_sequence_for<Args...>{});
+        return callMethod(derivedInstance, method, runtime, args, std::index_sequence_for<Args...>{});
       }
     };
   }
