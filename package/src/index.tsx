@@ -16,6 +16,7 @@ export * from './hooks/useLightEntity'
 export * from './hooks/useDisposableResource'
 export * from './hooks/useSkybox'
 export * from './hooks/useRecorder'
+export * from './hooks/useRecorderRenderLoop'
 
 // utilities
 export * from './utilities/runOnJS'

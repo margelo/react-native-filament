@@ -179,14 +179,10 @@ export function FilamentProvider({ children, fallback, config, backend, frameRat
   const engine = useEngine({ config, backend, context })
   const rendererProps = useMemo(() => ({ frameRateOptions }), [frameRateOptions])
   const choreographer = useDisposableResource(
-    useWorklet(
-      context,
-      () => {
-        'worklet'
-        return FilamentProxy.createChoreographer()
-      },
-      []
-    )
+    useWorklet(context, () => {
+      'worklet'
+      return FilamentProxy.createChoreographer()
+    })
   )
 
   if (engine == null || choreographer == null) return fallback ?? null

@@ -43,24 +43,21 @@ function PhysicsCoinRenderer() {
   const [coinABody, coinAEntity] = useCoin(
     world,
     [0, 3, 0.0],
-    useWorkletCallback(
-      (_thisBody, collidedWith) => {
-        'worklet'
+    useWorkletCallback((_thisBody, collidedWith) => {
+      'worklet'
 
-        if (hasNotifiedTouchedFloor.value) {
-          // TODO: This keeps getting called. Maybe we want to add a unsubscribe mechanism?
-          return
-        }
+      if (hasNotifiedTouchedFloor.value) {
+        // TODO: This keeps getting called. Maybe we want to add a unsubscribe mechanism?
+        return
+      }
 
-        if (collidedWith.id !== 'floor') {
-          return
-        }
+      if (collidedWith.id !== 'floor') {
+        return
+      }
 
-        hasNotifiedTouchedFloor.value = true
-        console.log('Coin touched the floor!')
-      },
-      [hasNotifiedTouchedFloor]
-    )
+      hasNotifiedTouchedFloor.value = true
+      console.log('Coin touched the floor!')
+    })
   )
 
   const prevAspectRatio = useRef(0)
