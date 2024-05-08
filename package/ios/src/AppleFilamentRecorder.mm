@@ -197,6 +197,13 @@ std::future<void> AppleFilamentRecorder::startRecording() {
 
 std::future<std::string> AppleFilamentRecorder::stopRecording() {
   Logger::log(TAG, "Stopping recording...");
+  
+  if (!_isRecording) {
+    throw std::runtime_error("Cannot call stopRecording() when isRecording is false!");
+  }
+  if (_assetWriter.status != AVAssetWriterStatusWriting) {
+    throw std::runtime_error("Cannot call stopRecording() when AssetWriter status is " + std::to_string(_assetWriter.status) + "!");
+  }
 
   auto promise = std::make_shared<std::promise<std::string>>();
   auto self = shared<AppleFilamentRecorder>();

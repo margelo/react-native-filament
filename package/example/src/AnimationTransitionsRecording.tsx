@@ -91,8 +91,6 @@ function Renderer() {
   const { engine } = useFilamentContext()
 
   const onFinish = useRunOnJS(async () => {
-    await recorder.stopRecording()
-
     console.log('Stopping recording')
     const uri = await recorder.stopRecording()
     console.log('Recording stopped.')
@@ -107,10 +105,14 @@ function Renderer() {
     const framesToRender = DURATION * FPS
     const started = Date.now()
     let frameIndex = 0
+    let isStopping = false
     const listener = recorder.addOnReadyForMoreDataListener(() => {
       if (frameIndex > framesToRender) {
-        onFinish()
-        // listener.remove()
+        if (!isStopping) {
+          isStopping = true
+          onFinish()
+          // listener.remove()
+        }
         return
       }
 
