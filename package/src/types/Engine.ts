@@ -23,7 +23,7 @@ export interface Engine extends PointerHolder {
   setSwapChain(swapChain: SwapChain): void
 
   // TODO: Document
-  render(timestamp: number): void
+  render(timestamp?: number): void
 
   /**
    * Given a {@linkcode FilamentBuffer} (e.g. from a .glb file), load the asset into the engine.

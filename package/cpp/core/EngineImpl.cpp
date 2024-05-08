@@ -185,7 +185,7 @@ void EngineImpl::setSwapChain(std::shared_ptr<SwapChain> swapChain) {
   _swapChain = swapChain;
 }
 
-void EngineImpl::render(double timestamp) {
+void EngineImpl::render(std::optional<double> timestampOrNull) {
   std::unique_lock lock(_mutex);
 
   if (!_swapChain) {
@@ -199,11 +199,16 @@ void EngineImpl::render(double timestamp) {
 
   _resourceLoader->asyncUpdateLoad();
 
-  if (_renderer->beginFrame(_swapChain.get(), timestamp)) {
-    [[likely]];
-    _renderer->render(_view.get());
-    _renderer->endFrame();
+  double timestamp = timestampOrNull.value_or(0.0);
+  bool skipFrame = !_renderer->beginFrame(_swapChain.get(), timestamp);
+  if (timestampOrNull.has_value() && skipFrame) {
+    [[unlikely]];
+    // When we have a timestamp, we want to respect the result of beginFrame to use frame pacing
+    return;
   }
+
+  _renderer->render(_view.get());
+  _renderer->endFrame();
 }
 
 std::shared_ptr<Renderer> EngineImpl::createRenderer(float displayRefreshRate) {

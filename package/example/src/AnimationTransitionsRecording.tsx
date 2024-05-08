@@ -102,7 +102,7 @@ function Renderer() {
       // Update the scene:
       renderCallback(passedSeconds)
       // Create the commands for the GPU:
-      engine.render(nextTimestamp)
+      engine.render(undefined)
       // Wait for the GPU render to complete:
       engine.flushAndWait()
       // Render the current frame to the recorder:
