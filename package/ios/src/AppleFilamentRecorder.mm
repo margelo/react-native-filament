@@ -185,13 +185,14 @@ std::future<void> AppleFilamentRecorder::startRecording() {
                                                    usingBlock:[weakSelf]() {
       Logger::log(TAG, "Recorder is ready for more data.");
       auto self = weakSelf.lock();
-      if (self != nullptr) {
-        std::unique_lock lock(self->_mutex);
-        bool shouldContinueNext = self->onReadyForMoreData();
-        if (!shouldContinueNext) {
-          // stop the render queue
-          [self->_assetWriterInput markAsFinished];
-        }
+        if (self != nullptr) {
+        self->_renderThreadDispatcher->runAsync([self]() {
+            bool shouldContinueNext = self->onReadyForMoreData();
+            if (!shouldContinueNext) {
+              // stop the render queue
+              [self->_assetWriterInput markAsFinished];
+            }
+        });
       }
     }];
   });
