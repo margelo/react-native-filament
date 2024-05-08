@@ -13,10 +13,10 @@ void SurfaceProvider::loadHybridMethods() {
   registerHybridMethod("addOnSurfaceDestroyedListener", &SurfaceProvider::addOnSurfaceDestroyedListener, this);
 }
 
-std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceChangedListener(SurfaceProvider::Callbacks&& callback) {
+std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceChangedListener(SurfaceProvider::Callbacks&& callbacks) {
   std::unique_lock lock(_mutex);
 
-  return _listeners->add(std::move(callback));
+  return _listeners->add(std::move(callbacks));
 }
 
 // TODO: note, we are storing again a JSI function here. Potentially we need to make sure this gets destroyed on the same thread it was

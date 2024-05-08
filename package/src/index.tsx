@@ -13,7 +13,7 @@ export * from './hooks/useAssetAnimator'
 export * from './hooks/useConfigureAssetShadow'
 export * from './hooks/useEntityInScene'
 export * from './hooks/useLightEntity'
-export * from './hooks/useResource'
+export * from './hooks/useDisposableResource'
 export * from './hooks/useSkybox'
 export * from './hooks/useRecorder'
 

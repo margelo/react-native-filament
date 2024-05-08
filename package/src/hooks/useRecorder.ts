@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { useFilamentContext } from '../FilamentContext'
 import { FilamentProxy } from '../native/FilamentProxy'
-import { useResource } from './useResource'
+import { useDisposableResource } from './useDisposableResource'
 import { runOnWorklet } from '../utilities/runOnWorklet'
 import { useWorkletEffect } from './useWorkletEffect'
 
@@ -20,7 +20,7 @@ export function useRecorder(options: RecorderOptions) {
     return FilamentProxy.createRecorder(width, height, fps, bitRate)
   }, [bitRate, fps, height, width])
 
-  const swapChain = useResource(
+  const swapChain = useDisposableResource(
     runOnWorklet(() => {
       'worklet'
       return engine.createSwapChainForRecorder(recorder)
