@@ -1,4 +1,5 @@
 import { Listener } from '../types/Listener'
+import { Dispatcher } from './Dispatcher'
 
 export interface Surface {
   readonly width: number
@@ -16,12 +17,12 @@ export interface SurfaceProvider {
    * called almost immediately after the view is created).
    * @private
    */
-  addOnSurfaceCreatedListener(listener: (surface: Surface) => void): Listener
+  addOnSurfaceCreatedListener(listener: (surface: Surface) => void, dispatcher: Dispatcher): Listener
 
   /**
    * @private
    */
-  addOnSurfaceDestroyedListener(listener: () => void): Listener
+  addOnSurfaceDestroyedListener(listener: () => void, dispatcher: Dispatcher): Listener
 }
 
 export interface FilamentView {

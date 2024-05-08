@@ -32,8 +32,8 @@ public:
 
 public:
   std::shared_ptr<Listener> addOnSurfaceChangedListener(Callbacks&& callbacks);
-  std::shared_ptr<Listener> addOnSurfaceCreatedListener(TOnCreate callback);
-  std::shared_ptr<Listener> addOnSurfaceDestroyedListener(TOnDestroy callback);
+  std::shared_ptr<Listener> addOnSurfaceCreatedListener(TOnCreate callback, std::shared_ptr<Dispatcher> dispatcher);
+  std::shared_ptr<Listener> addOnSurfaceDestroyedListener(TOnDestroy callback, std::shared_ptr<Dispatcher> dispatcher);
 
   virtual std::shared_ptr<Surface> getSurfaceOrNull() = 0;
   std::optional<std::shared_ptr<Surface>> getSurface();

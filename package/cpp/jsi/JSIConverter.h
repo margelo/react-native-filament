@@ -8,7 +8,7 @@
 #include "HybridObject.h"
 #include "Promise.h"
 #include "PromiseFactory.h"
-#include <ReactCommon/CallInvoker.h>
+#include "threading/Dispatcher.h"
 #include <array>
 #include <future>
 #include <jsi/jsi.h>
@@ -347,6 +347,68 @@ template <typename T> struct JSIConverter<T, std::enable_if_t<is_shared_ptr_to_h
     }
 #endif
     return jsi::Object::createFromHostObject(runtime, arg);
+  }
+};
+
+// NativeState <> {}
+template <typename T> struct is_shared_ptr_to_native_state : std::false_type {};
+
+template <typename T> struct is_shared_ptr_to_native_state<std::shared_ptr<T>> : std::is_base_of<jsi::NativeState, T> {};
+
+template <typename T> struct JSIConverter<T, std::enable_if_t<is_shared_ptr_to_native_state<T>::value>> {
+  using TPointee = typename T::element_type;
+
+#if DEBUG
+  inline static std::string getFriendlyTypename() {
+    std::string name = std::string(typeid(TPointee).name());
+#if __has_include(<cxxabi.h>)
+    int status = 0;
+    char* demangled_name = abi::__cxa_demangle(name.c_str(), NULL, NULL, &status);
+    if (status == 0) {
+      name = demangled_name;
+      std::free(demangled_name);
+    }
+#endif
+    return name;
+  }
+
+  inline static std::string invalidTypeErrorMessage(const std::string& typeDescription, const std::string& reason) {
+    return "Cannot convert \"" + typeDescription + "\" to NativeState<" + getFriendlyTypename() + ">! " + reason;
+  }
+#endif
+
+  static T fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
+#if DEBUG
+    if (arg.isUndefined()) {
+      [[unlikely]];
+      throw jsi::JSError(runtime, invalidTypeErrorMessage("undefined", "It is undefined!"));
+    }
+    if (!arg.isObject()) {
+      [[unlikely]];
+      std::string stringRepresentation = arg.toString(runtime).utf8(runtime);
+      throw jsi::JSError(runtime, invalidTypeErrorMessage(stringRepresentation, "It is not an object!"));
+    }
+#endif
+    jsi::Object object = arg.getObject(runtime);
+#if DEBUG
+    if (!object.hasNativeState<TPointee>(runtime)) {
+      [[unlikely]];
+      std::string stringRepresentation = arg.toString(runtime).utf8(runtime);
+      throw jsi::JSError(runtime, invalidTypeErrorMessage(stringRepresentation, "It is a different NativeState<T>!"));
+    }
+#endif
+    return object.getNativeState<TPointee>(runtime);
+  }
+  static jsi::Value toJSI(jsi::Runtime& runtime, const T& arg) {
+#if DEBUG
+    if (arg == nullptr) {
+      [[unlikely]];
+      throw jsi::JSError(runtime, "Cannot convert nullptr to HostObject<" + getFriendlyTypename() + ">!");
+    }
+#endif
+    jsi::Object object(runtime);
+    object.setNativeState(runtime, arg);
+    return object;
   }
 };
 

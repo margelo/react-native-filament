@@ -23,8 +23,8 @@
 
 namespace margelo {
 
-AppleFilamentProxy::AppleFilamentProxy(jsi::Runtime* runtime, std::shared_ptr<react::CallInvoker> callInvoker)
-    : _runtime(runtime), _callInvoker(callInvoker) {}
+AppleFilamentProxy::AppleFilamentProxy(jsi::Runtime* runtime, std::shared_ptr<Dispatcher> jsDispatcher)
+    : _runtime(runtime), _jsDispatcher(jsDispatcher) {}
 
 AppleFilamentProxy::~AppleFilamentProxy() {
   // TODO(hanno): cleanup here?
@@ -55,6 +55,10 @@ std::shared_ptr<FilamentBuffer> AppleFilamentProxy::loadAsset(const std::string&
 
   auto managedBuffer = std::make_shared<AppleManagedBuffer>(bufferData);
   return std::make_shared<FilamentBuffer>(managedBuffer);
+}
+
+std::shared_ptr<Dispatcher> AppleFilamentProxy::getJSDispatcher() {
+  return _jsDispatcher;
 }
 
 std::shared_ptr<Dispatcher> AppleFilamentProxy::getRenderThreadDispatcher() {
@@ -99,10 +103,6 @@ jsi::Runtime& AppleFilamentProxy::getRuntime() {
     throw std::runtime_error("JSI Runtime was null!");
   }
   return *_runtime;
-}
-
-std::shared_ptr<react::CallInvoker> AppleFilamentProxy::getCallInvoker() {
-  return _callInvoker;
 }
 
 std::shared_ptr<FilamentView> AppleFilamentProxy::findFilamentView(int viewId) {
