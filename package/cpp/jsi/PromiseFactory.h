@@ -15,28 +15,9 @@
 
 namespace margelo {
 
-class DispatcherNativeState : public jsi::NativeState {
-public:
-  explicit DispatcherNativeState(std::shared_ptr<Dispatcher> dispatcher) : _dispatcher(dispatcher) {}
-  std::shared_ptr<Dispatcher> getDispatcher() {
-    return _dispatcher;
-  }
-
-private:
-  std::shared_ptr<Dispatcher> _dispatcher;
-};
-
 class PromiseFactory {
 public:
   using RunPromise = std::function<void(jsi::Runtime& runtime, std::shared_ptr<Promise> promise, std::shared_ptr<Dispatcher> dispatcher)>;
-
-  /**
-   Install the Promise Factory into the given Runtime.
-   This will inject a global property in the Runtime that will hold a Dispatcher to run code on the given Runtime.
-   For the default JS Context, this can be a CallInvokerDispatcher.
-   For a Worklet Context, this can be a WorkletContextDispatcher.
-   */
-  static void install(jsi::Runtime& runtime, std::shared_ptr<Dispatcher> dispatcher);
 
   /**
    Create a new promise and run the given function.
@@ -45,7 +26,6 @@ public:
   static jsi::Value createPromise(jsi::Runtime& runtime, RunPromise&& run);
 
 private:
-  static constexpr auto GLOBAL_PROMISE_FACTORY_DISPATCHER_HOLDER_NAME = "__promiseFactoryDispatcher";
   static constexpr auto TAG = "PromiseFactory";
 
 private:

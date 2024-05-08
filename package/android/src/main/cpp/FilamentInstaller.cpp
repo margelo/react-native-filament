@@ -17,15 +17,15 @@ void FilamentInstaller::install(
 
   std::shared_ptr<Dispatcher> jsDispatcher =
       std::make_shared<CallInvokerDispatcher>(callInvoker);
+  // global.__dispatcherHolder
+  Dispatcher::installRuntimeGlobalDispatcher(runtime, jsDispatcher);
+
   // global.FilamentProxy
   std::shared_ptr<AndroidFilamentProxy> filamentProxy =
       std::make_shared<AndroidFilamentProxy>(proxy, jsDispatcher);
   runtime.global().setProperty(
       runtime, "FilamentProxy",
       jsi::Object::createFromHostObject(runtime, filamentProxy));
-
-  // PromiseFactory
-  margelo::PromiseFactory::install(runtime, jsDispatcher);
 }
 
 void FilamentInstaller::registerNatives() {
