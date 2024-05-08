@@ -10,17 +10,18 @@
 #include <list>
 #include <memory>
 #include <mutex>
+#include <atomic>
 
 namespace margelo {
 
 template <typename Callback> class ListenerManager : public std::enable_shared_from_this<ListenerManager<Callback>> {
 private:
   std::list<Callback> _listeners;
-
-  // We use a recursive mutex here, because we might call remove() from within a forEach() block.
-  // This happens e.g. when a surface is destroyed and the onDestroy listener is called, which leads
-  // to a remove() call on the listener.
+  // recursive mutex allows listeners to be removed within their actual callback.
   std::recursive_mutex _mutex;
+  // this holds the amount of listeners that were just removed.
+  // this is used to allow listeners to be "automagically" removed within the forEach loop.
+  std::atomic_size_t _removedListenersCount;
 
 public:
   /**
@@ -42,6 +43,7 @@ public:
       if (sharedThis) {
         std::unique_lock lock(sharedThis->_mutex);
         sharedThis->_listeners.erase(id);
+        sharedThis->_removedListenersCount++;
       }
     });
   }
@@ -58,9 +60,30 @@ public:
   void forEach(std::function<LoopCallback>&& callback) {
     std::unique_lock lock(_mutex);
 
-    for (const auto& listener : _listeners) {
+    Logger::log("Listener", "Calling %zu listeners...", _listeners.size());
+
+    _removedListenersCount = 0;
+    for (auto iterator = _listeners.begin(); iterator != _listeners.end(); /* increment done manually */) {
+      Logger::log("Listener", "Calling this iter..");
+      const auto& listener = *iterator;
       callback(listener);
+
+      if (_removedListenersCount > 0) {
+        // do not increment iterator as one (or more) Listeners were just removed.
+        _removedListenersCount--;
+        Logger::log("Listener", "Skipping iter..");
+      } else {
+        // no Listeners were removed, we go to the next item in the list
+        iterator++;
+        Logger::log("Listener", "Going to next iter..");
+      }
     }
+  }
+
+  bool getHasListeners() {
+    std::unique_lock lock(_mutex);
+
+    return _listeners.size() > 0;
   }
 
 private:

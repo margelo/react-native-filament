@@ -4,11 +4,14 @@
 
 #include "JFilamentRecorder.h"
 #include <android/native_window_jni.h>
+#include "java-bindings/JDispatcher.h"
+#include "JNISharedPtr.h"
 
 namespace margelo {
 
-JFilamentRecorder::JFilamentRecorder(const jni::alias_ref<jhybridobject>& javaThis, int width, int height, int fps, double bitRate)
-    : FilamentRecorder(width, height, fps, bitRate), _javaPart(make_global(javaThis)) {}
+JFilamentRecorder::JFilamentRecorder(const jni::alias_ref<jhybridobject>& javaThis, std::shared_ptr<Dispatcher> rendererDispatcher, int width, int height, int fps, double bitRate)
+    : FilamentRecorder(rendererDispatcher, width, height, fps, bitRate), _javaPart(make_global(javaThis)) {
+}
 
 JFilamentRecorder::~JFilamentRecorder() {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Destroying JFilamentRecorder...");
@@ -19,7 +22,8 @@ JFilamentRecorder::~JFilamentRecorder() {
 
 void JFilamentRecorder::registerNatives() {
   registerHybrid({
-      makeNativeMethod("initHybrid", JFilamentRecorder::initHybrid),
+     makeNativeMethod("initHybrid", JFilamentRecorder::initHybrid),
+     makeNativeMethod("onReadyForMoreData", JFilamentRecorder::onReadyForMoreDataJava),
   });
 }
 
@@ -66,13 +70,17 @@ std::string JFilamentRecorder::getOutputFile() {
 }
 
 bool JFilamentRecorder::getIsRecording() {
-  throw std::runtime_error("isRecording is not yet implemented!");
+  static const auto method = javaClassLocal()->getMethod<jboolean()>("getIsRecording");
+  return method(_javaPart);
 }
 
 jni::local_ref<JFilamentRecorder::jhybriddata> JFilamentRecorder::initHybrid(jni::alias_ref<JFilamentRecorder::jhybridobject> jThis,
+                                                                             jni::alias_ref<JDispatcher::javaobject> rendererDispatcher,
                                                                              int width, int height, int fps, double bitRate) {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Initializing JFilamentRecorder...");
-  return makeCxxInstance(jThis, width, height, fps, bitRate);
+  jni::global_ref<JDispatcher::javaobject> globalRef = jni::make_global(rendererDispatcher);
+  std::shared_ptr<Dispatcher> dispatcher = JNISharedPtr::make_shared_from_jni<JDispatcher>(globalRef);
+  return makeCxxInstance(jThis, dispatcher, width, height, fps, bitRate);
 }
 
 } // namespace margelo

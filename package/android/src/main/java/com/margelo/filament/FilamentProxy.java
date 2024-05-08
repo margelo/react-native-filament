@@ -75,7 +75,7 @@ class FilamentProxy {
     @DoNotStrip
     @Keep
     FilamentRecorder createRecorder(int width, int height, int fps, double bitRate) throws IOException {
-        return new FilamentRecorder(reactContext, width, height, fps, bitRate);
+        return new FilamentRecorder(reactContext, renderThreadDispatcher, width, height, fps, bitRate);
     }
 
     private static byte[] readAllBytes(InputStream inputStream) throws IOException {

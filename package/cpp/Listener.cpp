@@ -7,7 +7,7 @@
 
 namespace margelo {
 
-Listener::Listener(const std::function<void()>& remove) : HybridObject(TAG), _remove(remove), _isRemoved(false) {
+Listener::Listener(ListenerRemover&& remove) : HybridObject(TAG), _remove(std::move(remove)), _isRemoved(false) {
   Logger::log(TAG, "Creating Listener...");
 }
 
@@ -28,7 +28,7 @@ void Listener::remove() {
   _isRemoved = true;
 }
 
-std::shared_ptr<Listener> Listener::create(margelo::Listener::ListenerRemover remover) {
+std::shared_ptr<Listener> Listener::create(ListenerRemover&& remover) {
   return std::shared_ptr<Listener>(new Listener(std::move(remover)));
 }
 

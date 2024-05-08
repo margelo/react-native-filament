@@ -11,10 +11,11 @@ import {
   useDisposableResource,
   useSkybox,
   useRecorder,
-  useWorkletCallback,
+  useRecorderRenderLoop,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
+import { useRunOnJS, useSharedValue } from 'react-native-worklets-core'
 import Video from 'react-native-video'
 
 const penguModelPath = getAssetPath('pengu.glb')
@@ -68,34 +69,58 @@ function Renderer() {
     [camera, pirateHatAnimator, penguAnimator]
   )
 
+  const framesToRender = DURATION * FPS
+  const started = Date.now()
+
   const [videoUri, setVideoUri] = React.useState<string>()
+
+  const { engine } = useFilamentContext()
   const recorder = useRecorder({
     bitRate: 2_000_000,
     fps: FPS,
     height: PixelRatio.getPixelSizeForLayoutSize(Dimensions.get('screen').height),
     width: PixelRatio.getPixelSizeForLayoutSize(Dimensions.get('screen').width),
   })
-  const { engine } = useFilamentContext()
-  const startRecording = useWorkletCallback(() => {
-    'worklet'
 
-    console.log('Starting rendering')
-    const framesToRender = DURATION * FPS
-    const started = Date.now()
-    for (let i = 0; i < framesToRender; i++) {
-      const nextTimestamp = started + i * (1 / FPS)
-      console.log(`Rendering frame #${i + 1} of ${framesToRender} at ${nextTimestamp}`)
-      const passedSeconds = nextTimestamp - started
-      // Update the scene:
-      renderCallback(passedSeconds)
-      // Create the commands for the GPU:
-      engine.render(nextTimestamp, false)
-      // Wait for the GPU render to complete:
-      engine.flushAndWait()
-      // Render the current frame to the recorder:
-      recorder.renderFrame(nextTimestamp)
+  const isStopping = React.useRef(false)
+  const onFinish = useRunOnJS(async () => {
+    if (isStopping.current) {
+      return
     }
-  }, [engine, recorder, renderCallback])
+    isStopping.current = true
+    console.log('Stopping recording')
+    const uri = await recorder.stopRecording()
+    console.log('Recording stopped.')
+    console.log('Video URI:', uri)
+    setVideoUri(uri)
+  }, [recorder])
+
+  useRecorderRenderLoop(recorder, ({ frameIndex }) => {
+    'worklet'
+    if (frameIndex > framesToRender) {
+      // stop rendering
+      onFinish()
+      return
+    }
+
+    const nextTimestamp = started + frameIndex * (1 / FPS)
+    console.log(`Rendering frame #${frameIndex + 1} of ${framesToRender} at ${nextTimestamp}`)
+    const passedSeconds = nextTimestamp - started
+    // Update the scene:
+    renderCallback(passedSeconds)
+    // Create the commands for the GPU:
+    engine.render(nextTimestamp, false)
+    // Wait for the GPU render to complete:
+    engine.flushAndWait()
+    // Render the current frame to the recorder:
+    recorder.renderFrame(nextTimestamp)
+  })
+
+  const onStartRecording = useCallback(async () => {
+    console.log('Starting recorder')
+    isStopping.current = false
+    await recorder.startRecording()
+  }, [recorder])
 
   // Configure camera
   React.useEffect(() => {
@@ -113,25 +138,12 @@ function Renderer() {
           repeat={true}
           controls={true}
           source={{ uri: videoUri }}
-          onError={() => console.error(e)}
+          onError={(e) => console.error(e)}
           onLoad={() => console.log('On load')}
           onEnd={() => console.log('On end')}
         />
       ) : null}
-      <Button
-        onPress={async () => {
-          console.log('Starting recording...')
-          await recorder.startRecording()
-          await startRecording()
-          // TODO: issue, we can't call stop when we don't know here if all frames have been processed yet
-          console.log('Stopping recording')
-          const uri = await recorder.stopRecording()
-          console.log('Recording stopped.')
-          console.log('Video URI:', uri)
-          setVideoUri(uri)
-        }}
-        title={'Start recording'}
-      />
+      <Button onPress={onStartRecording} title={'Start recording'} />
     </View>
   )
 }
