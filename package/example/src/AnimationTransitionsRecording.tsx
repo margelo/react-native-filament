@@ -124,8 +124,6 @@ function Renderer() {
     engine.flushAndWait()
     // Render the current frame to the recorder:
     recorder.renderFrame(nextTimestamp)
-
-    frameIndex++
   })
 
   const onStartRecording = useCallback(async () => {
