@@ -8,13 +8,13 @@
 #include "HybridObject.h"
 #include "Promise.h"
 #include "PromiseFactory.h"
-#include <ReactCommon/CallInvoker.h>
 #include <array>
 #include <future>
 #include <jsi/jsi.h>
 #include <memory>
 #include <type_traits>
 #include <unordered_map>
+#include "threading/Dispatcher.h"
 
 #if __has_include(<cxxabi.h>)
 #include <cxxabi.h>
