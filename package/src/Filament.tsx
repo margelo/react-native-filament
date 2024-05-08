@@ -55,7 +55,6 @@ export class Filament extends React.PureComponent<FilamentProps> {
 
   private updateRenderCallback = async (callback: RenderCallback, swapChain: SwapChain) => {
     const { renderer, view, _workletContext, _choreographer } = this.getContext()
-    this.swapChain
     return _workletContext.runAsync(() => {
       'worklet'
       _choreographer.setFrameCallback((frameInfo) => {
@@ -120,11 +119,11 @@ export class Filament extends React.PureComponent<FilamentProps> {
       this.surfaceCreatedListener = surfaceProvider.addOnSurfaceCreatedListener(() => {
         console.log('Surface created!')
         this.onSurfaceCreated(surfaceProvider)
-      })
+      }, FilamentProxy.getCurrentDispatcher())
       this.surfaceDestroyedListener = surfaceProvider.addOnSurfaceDestroyedListener(() => {
         console.log('Surface destroyed!')
         this.onSurfaceDestroyed()
-      })
+      }, FilamentProxy.getCurrentDispatcher())
       // Link the surface with the engine:
       console.log('Setting surface provider')
       context.engine.setSurfaceProvider(surfaceProvider)

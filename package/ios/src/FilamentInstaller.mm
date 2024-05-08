@@ -45,13 +45,13 @@ using namespace margelo;
     return NO;
   }
 
-  std::shared_ptr<Dispatcher> jsDispatcher = std::make_shared<CallInvokerDispatcher>(callInvoker);
+  // global.__globalDispatcher
+  std::shared_ptr<Dispatcher> jsDispatcher = std::make_shared<CallInvokerDispatcher>(callInvoker);\
+  Dispatcher::installRuntimeGlobalDispatcher(*runtime, jsDispatcher);
+
   // global.FilamentProxy
   auto filamentProxy = std::make_shared<margelo::AppleFilamentProxy>(runtime, jsDispatcher);
   runtime->global().setProperty(*runtime, "FilamentProxy", jsi::Object::createFromHostObject(*runtime, filamentProxy));
-
-  // PromiseFactory
-  margelo::PromiseFactory::install(*runtime, jsDispatcher);
 
   return YES;
 }

@@ -110,7 +110,7 @@ std::shared_ptr<FilamentView> AppleFilamentProxy::findFilamentView(int viewId) {
   RCTUIManager* uiManager = currentBridge.uiManager;    // <-- from <React/RCTUIManager.h>
   UIView* anonymousView = [uiManager viewForReactTag:[NSNumber numberWithInt:viewId]];
   FilamentMetalView* view = (FilamentMetalView*)anonymousView;
-  return std::make_shared<AppleFilamentView>(view, _jsDispatcher);
+  return std::make_shared<AppleFilamentView>(view);
 }
 
 std::shared_ptr<Choreographer> AppleFilamentProxy::createChoreographer() {
