@@ -35,8 +35,10 @@
     "update-submodule": "git submodule update --remote --merge",
     "patch-filament": "cd ../filament ; git apply ../package/filament_animator_feat.patch ; git apply ../package/filament_material_instance_getter.patch ; git apply ../package/filament_ios_simulator.patch ; cd -",
     "build-filament": "yarn patch-filament && scripts/build-filament.sh",
+    "build-filament:release": "yarn build-filament release",
+    "build-filament:debug": "yarn build-filament debug",
     "build-bullet3": "scripts/build-bullet3.sh",
-    "release": "yarn build-filament && yarn build-bullet3 && release-it && npm publish"
+    "release": "yarn build-filament:release && yarn build-bullet3 && release-it && npm publish"
   },
   "keywords": [
     "react-native",

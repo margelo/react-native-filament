@@ -15,7 +15,13 @@ cd ..
 cd ..
 cd filament
 
-target="release"
+target="$1"
+if [ -z "$target" ]; then
+  # Exit and print error message
+    echo "Missing build type (debug|release)"
+    echo "Usage: $0 <buildType>"
+    exit 1
+fi
 
 # On iOS, we already use Filament from CocoaPods.
 echo "Building Filament for iOS ($target)..."
