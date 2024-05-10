@@ -106,7 +106,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
   }
 
   // This registers the surface provider, which will be notified when the surface is ready to draw on:
-  onViewReady = async () => {
+  private onViewReady = async () => {
     console.log('On view ready')
     const context = this.getContext()
     try {
@@ -139,7 +139,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
   }
 
   // This will be called once the surface is created and ready to draw on:
-  onSurfaceCreated = async (surfaceProvider: SurfaceProvider) => {
+  private onSurfaceCreated = async (surfaceProvider: SurfaceProvider) => {
     const { engine, workletContext, _choreographer } = this.getContext()
     console.log('On surface created')
     // Create a swap chain …
@@ -159,11 +159,28 @@ export class Filament extends React.PureComponent<FilamentProps> {
     _choreographer.start()
   }
 
-  onSurfaceDestroyed = () => {
+  private onSurfaceDestroyed = () => {
     console.log('Surface destroyed')
     const { _choreographer } = this.getContext()
     _choreographer.stop()
     this.swapChain?.release()
+  }
+
+  /**
+   * Pauses the rendering of the Filament view.
+   */
+  public pause = (): void => {
+    const { _choreographer } = this.getContext()
+    _choreographer.stop()
+  }
+
+  /**
+   * Resumes the rendering of the Filament view.
+   * It's a no-op if the rendering is already running.
+   */
+  public resume = (): void => {
+    const { _choreographer } = this.getContext()
+    _choreographer.start()
   }
 
   /** @internal */
