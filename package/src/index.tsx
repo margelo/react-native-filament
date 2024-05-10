@@ -19,8 +19,6 @@ export * from './hooks/useRecorder'
 export * from './hooks/useRecorderRenderLoop'
 
 // utilities
-export * from './utilities/runOnJS'
-export * from './utilities/runOnWorklet'
 export * from './utilities/getAssetFromModel'
 export * from './utilities/withCleanupScope'
 

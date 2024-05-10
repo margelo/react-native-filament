@@ -5,10 +5,10 @@ import { getWorkletDependencies, isWorklet } from 'react-native-worklets-core'
 type CleanupFn = () => void
 
 export function useWorkletEffect(workletFunction: () => CleanupFn | void) {
-  const { _workletContext } = useFilamentContext()
+  const { workletContext } = useFilamentContext()
 
   useEffect(() => {
-    const cleanupPromise = _workletContext.runAsync(workletFunction)
+    const cleanupPromise = workletContext.runAsync(workletFunction)
     return () => {
       cleanupPromise.then((cleanup): void => {
         if (cleanup == null || typeof cleanup !== 'function') {
@@ -17,7 +17,7 @@ export function useWorkletEffect(workletFunction: () => CleanupFn | void) {
         }
         if (isWorklet(cleanup)) {
           // call cleanup function on Worklet context
-          _workletContext.runAsync(cleanup)
+          workletContext.runAsync(cleanup)
         } else {
           // call normal cleanup JS function on normal context
           cleanup()

@@ -50,7 +50,7 @@ export type FilamentModel =
  * ```
  */
 export function useModel({ path, shouldReleaseSourceData, addToScene = true, instanceCount }: ModelProps): FilamentModel {
-  const { engine, scene, _workletContext } = useFilamentContext()
+  const { engine, scene, workletContext } = useFilamentContext()
   const assetBuffer = useAsset({ path: path, releaseOnUnmount: false })
 
   // Note: the native cleanup of the asset will remove it automatically from the scene
@@ -60,7 +60,7 @@ export function useModel({ path, shouldReleaseSourceData, addToScene = true, ins
       throw new Error('instanceCount must be greater than 0')
     }
 
-    return _workletContext.runAsync(() => {
+    return workletContext.runAsync(() => {
       'worklet'
 
       let loadedAsset: FilamentAsset
@@ -75,7 +75,7 @@ export function useModel({ path, shouldReleaseSourceData, addToScene = true, ins
 
       return loadedAsset
     })
-  }, [assetBuffer, _workletContext, engine, instanceCount])
+  }, [assetBuffer, workletContext, engine, instanceCount])
 
   useWorkletEffect(() => {
     'worklet'
