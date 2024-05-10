@@ -30,8 +30,12 @@ export type FilamentContextType = {
   view: View
   camera: Camera
   renderer: Renderer
+  workletContext: IWorkletContext
+
   // TODO: put this in an "internal" separate context?
-  _workletContext: IWorkletContext
+  /**
+   * @private
+   */
   _choreographer: Choreographer
 }
 export const FilamentContext = React.createContext<FilamentContextType | undefined>(undefined)
@@ -88,7 +92,7 @@ function EngineAPIProvider({ children, engine, choreographer, viewProps, rendere
       view,
       camera,
       renderer,
-      _workletContext: workletContext,
+      workletContext,
       _choreographer: choreographer,
     }),
     [engine, transformManager, renderableManager, scene, lightManager, view, camera, renderer, workletContext, choreographer]

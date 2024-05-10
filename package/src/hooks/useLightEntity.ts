@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { LightConfig, LightManager } from '../types'
 import { ISharedValue } from 'react-native-worklets-core'
-import { runOnWorklet } from '../utilities/runOnWorklet'
+import { useFilamentContext } from '../FilamentContext'
 
 /**
  * Creates a new memoized light entity based on the given configuration.
@@ -58,6 +58,7 @@ export function useLightEntity(
   ])
 
   // Eventually subscribe to the intensity shared value
+  const { workletContext } = useFilamentContext()
   useEffect(() => {
     const intensity = config.intensity
     if (intensity == null) return
@@ -66,12 +67,12 @@ export function useLightEntity(
     const setIntensity = lightManager.setIntensity
 
     return intensity.addListener(
-      runOnWorklet(() => {
+      workletContext.createRunAsync(() => {
         'worklet'
         setIntensity(entity, intensity.value)
       })
     )
-  }, [config.intensity, entity, lightManager])
+  }, [config.intensity, entity, lightManager, workletContext])
 
   return entity
 }

@@ -54,8 +54,8 @@ export class Filament extends React.PureComponent<FilamentProps> {
   }
 
   private updateRenderCallback = async (callback: RenderCallback, swapChain: SwapChain) => {
-    const { renderer, view, _workletContext, _choreographer } = this.getContext()
-    return _workletContext.runAsync(() => {
+    const { renderer, view, workletContext, _choreographer } = this.getContext()
+    return workletContext.runAsync(() => {
       'worklet'
       _choreographer.setFrameCallback((frameInfo) => {
         'worklet'
@@ -140,11 +140,11 @@ export class Filament extends React.PureComponent<FilamentProps> {
 
   // This will be called once the surface is created and ready to draw on:
   onSurfaceCreated = async (surfaceProvider: SurfaceProvider) => {
-    const { engine, _workletContext, _choreographer } = this.getContext()
+    const { engine, workletContext, _choreographer } = this.getContext()
     console.log('On surface created')
     // Create a swap chain …
     const enableTransparentRendering = this.props.enableTransparentRendering ?? true
-    this.swapChain = await _workletContext.runAsync(() => {
+    this.swapChain = await workletContext.runAsync(() => {
       'worklet'
       return engine.createSwapChainForSurface(surfaceProvider, enableTransparentRendering)
     })

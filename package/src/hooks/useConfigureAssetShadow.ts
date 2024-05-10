@@ -17,7 +17,7 @@ export type UseAssetShadowProps = {
 }
 
 export function useConfigureAssetShadow({ renderableManager, asset, receiveShadow, castShadow }: UseAssetShadowProps) {
-  const { _workletContext } = useFilamentContext()
+  const { workletContext } = useFilamentContext()
 
   const renderableEntities = useMemo(() => asset?.getRenderableEntities(), [asset])
   const prevCastShadowRef = useRef<boolean>()
@@ -27,14 +27,14 @@ export function useConfigureAssetShadow({ renderableManager, asset, receiveShado
     }
     prevCastShadowRef.current = castShadow
 
-    _workletContext.runAsync(() => {
+    workletContext.runAsync(() => {
       'worklet'
 
       renderableEntities.forEach((entity) => {
         renderableManager.setCastShadow(entity, castShadow)
       })
     })
-  }, [castShadow, renderableManager, renderableEntities, _workletContext])
+  }, [castShadow, renderableManager, renderableEntities, workletContext])
 
   const prevReceiveShadowRef = useRef<boolean>()
   useEffect(() => {
@@ -43,12 +43,12 @@ export function useConfigureAssetShadow({ renderableManager, asset, receiveShado
     }
     prevReceiveShadowRef.current = receiveShadow
 
-    _workletContext.runAsync(() => {
+    workletContext.runAsync(() => {
       'worklet'
 
       renderableEntities.forEach((entity) => {
         renderableManager.setReceiveShadow(entity, receiveShadow)
       })
     })
-  }, [receiveShadow, renderableEntities, renderableManager, _workletContext])
+  }, [receiveShadow, renderableEntities, renderableManager, workletContext])
 }
