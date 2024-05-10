@@ -2,7 +2,6 @@ import { useMemo } from 'react'
 import { useFilamentContext } from '../FilamentContext'
 import { FilamentProxy } from '../native/FilamentProxy'
 import { useDisposableResource } from './useDisposableResource'
-import { runOnWorklet } from '../utilities/runOnWorklet'
 import { useWorkletEffect } from './useWorkletEffect'
 import { TFilamentRecorder } from '../native/FilamentRecorder'
 import { SwapChain } from '../types'
@@ -20,14 +19,14 @@ type Result = {
 }
 
 export function useRecorder({ width, height, fps, bitRate }: RecorderOptions): Result {
-  const { engine } = useFilamentContext()
+  const { engine, workletContext } = useFilamentContext()
   const recorder = useMemo(() => {
     console.log('Creating recorder JS')
     return FilamentProxy.createRecorder(width, height, fps, bitRate)
   }, [bitRate, fps, height, width])
 
   const swapChain = useDisposableResource(
-    runOnWorklet(() => {
+    workletContext.createRunAsync(() => {
       'worklet'
       return engine.createSwapChainForRecorder(recorder)
     }),
