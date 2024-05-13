@@ -6,6 +6,7 @@
 
 #include <jsi/jsi.h>
 
+#include "ChoreographerWrapper.h"
 #include "SurfaceProvider.h"
 #include "jsi/HybridObject.h"
 #include <string>
@@ -18,11 +19,19 @@ using namespace facebook;
 class FilamentView : public HybridObject {
 public:
   explicit FilamentView() : HybridObject("FilamentView") {}
+  ~FilamentView() override;
 
 public:
   virtual std::shared_ptr<SurfaceProvider> getSurfaceProvider() = 0;
 
   void loadHybridMethods() override;
-};
 
+private: // Exposed JS API
+  void setChoreographer(std::shared_ptr<ChoreographerWrapper> choreographerWrapper);
+
+private:
+  std::shared_ptr<Choreographer> _choreographer = nullptr;
+  std::shared_ptr<Listener> _onSurfaceDestroyedListener = nullptr;
+  static constexpr auto TAG = "FilamentView";
+};
 } // namespace margelo
