@@ -47,7 +47,7 @@ std::string HybridObject::toString(jsi::Runtime& runtime) {
 
 std::vector<jsi::PropNameID> HybridObject::getPropertyNames(facebook::jsi::Runtime& runtime) {
   std::unique_lock lock(_mutex);
-  ensureInitialized();
+  ensureInitialized(runtime);
 
   std::vector<jsi::PropNameID> result;
   size_t totalSize = _methods.size() + _getters.size() + _setters.size();
@@ -67,7 +67,7 @@ std::vector<jsi::PropNameID> HybridObject::getPropertyNames(facebook::jsi::Runti
 
 jsi::Value HybridObject::get(facebook::jsi::Runtime& runtime, const facebook::jsi::PropNameID& propName) {
   std::unique_lock lock(_mutex);
-  ensureInitialized();
+  ensureInitialized(runtime);
 
   std::string name = propName.utf8(runtime);
   auto& functionCache = _functionCache.get(runtime);
@@ -106,7 +106,7 @@ jsi::Value HybridObject::get(facebook::jsi::Runtime& runtime, const facebook::js
 
 void HybridObject::set(facebook::jsi::Runtime& runtime, const facebook::jsi::PropNameID& propName, const facebook::jsi::Value& value) {
   std::unique_lock lock(_mutex);
-  ensureInitialized();
+  ensureInitialized(runtime);
 
   std::string name = propName.utf8(runtime);
 
@@ -119,13 +119,21 @@ void HybridObject::set(facebook::jsi::Runtime& runtime, const facebook::jsi::Pro
   HostObject::set(runtime, propName, value);
 }
 
-void HybridObject::ensureInitialized() {
+void HybridObject::ensureInitialized(facebook::jsi::Runtime& runtime) {
   if (!_didLoadMethods) {
     [[unlikely]];
+    _runtime = &runtime;
     // lazy-load all exposed methods
     loadHybridMethods();
     _didLoadMethods = true;
   }
+}
+bool HybridObject::isRuntimeAlive() {
+  if (_runtime == nullptr) {
+    [[unlikely]];
+    return false;
+  }
+  return WorkletRuntimeRegistry::isRuntimeAlive(_runtime);
 }
 
 } // namespace margelo

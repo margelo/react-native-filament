@@ -6,6 +6,10 @@
 
 namespace margelo {
 
+ChoreographerWrapper::~ChoreographerWrapper() {
+  cleanup();
+}
+
 void ChoreographerWrapper::loadHybridMethods() {
   registerHybridMethod("start", &ChoreographerWrapper::start, this);
   registerHybridMethod("stop", &ChoreographerWrapper::stop, this);
@@ -28,7 +32,7 @@ void ChoreographerWrapper::stop() {
 void ChoreographerWrapper::setFrameCallback(RenderCallback onFrameCallback) {
   std::unique_lock lock(_mutex);
 
-  _renderCallback = onFrameCallback;
+  _renderCallback = std::make_unique<RenderCallback>(std::move(onFrameCallback));
 
   if (_listener) {
     _listener->remove();
@@ -56,6 +60,13 @@ void ChoreographerWrapper::renderCallback(double timestamp) {
     Logger::log(TAG, "⚠️ Calling Choreographer renderCallback without a valid renderCallback function!");
     return;
   }
+    
+    if (!isRuntimeAlive()) {
+        [[unlikely]];
+        // The renderCallback is a jsi function and it only makes sense to call it when its runtime is still alive
+        Logger::log(TAG, "⚠️ Runtime is not alive anymore, aborting renderCallback!");
+        return;
+    }
 
   double passedSeconds = (timestamp - _startTime) / 1e9;
   double timeSinceLastFrame = (timestamp - _lastFrameTime) / 1e9;
@@ -67,13 +78,21 @@ void ChoreographerWrapper::renderCallback(double timestamp) {
       {"timeSinceLastFrame", timeSinceLastFrame},
   };
 
-  _renderCallback(frameInfo);
+  (*_renderCallback)(frameInfo);
 }
 
 void ChoreographerWrapper::cleanup() {
   std::unique_lock lock(_mutex);
+  Logger::log(TAG, "Cleanup ChoreographerWrapper");
 
-  _renderCallback = nullptr;
+  if (isRuntimeAlive()) {
+    _renderCallback = nullptr;
+    Logger::log(TAG, "Runtime active, cleaning callback...");
+  } else {
+    _renderCallback.release();
+    Logger::log(TAG, "Runtime inactive, releasing callback...");
+  }
+
   // Its possible that the pointer was already released manually by the user
   if (getIsValid()) {
     pointee()->stop();
@@ -82,20 +101,10 @@ void ChoreographerWrapper::cleanup() {
     _listener->remove();
     _listener = nullptr;
   }
-}
-
-// This will be called when the runtime that created the EngineImpl gets destroyed.
-// The same runtime/thread that creates the EngineImpl is the one the renderCallback
-// jsi::Function has been created on, and needs to be destroyed on.
-// Additionally we want to stop and release the choreographer listener, so there is no
-// risk of it being called (and then calling the renderCallback which is invalid by then).
-void ChoreographerWrapper::onRuntimeDestroyed(jsi::Runtime*) {
-  Logger::log(TAG, "Runtime destroyed, stopping choreographer...");
-  cleanup();
+  Logger::log(TAG, "Cleanup ChoreographerWrapper done");
 }
 
 void ChoreographerWrapper::release() {
-  Logger::log(TAG, "Cleanup ChoreographerWrapper");
   cleanup();
   PointerHolder::release();
 }

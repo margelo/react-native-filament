@@ -34,7 +34,7 @@ using namespace facebook;
 
 class FilamentProxy : public HybridObject {
 public:
-  explicit FilamentProxy() : HybridObject("FilamentProxy") {}
+  explicit FilamentProxy() : HybridObject(TAG) {}
 
 private:
   // Platform-specific implementations
@@ -42,6 +42,10 @@ private:
   virtual std::shared_ptr<FilamentView> findFilamentView(int id) = 0;
   virtual std::shared_ptr<Choreographer> createChoreographer() = 0;
   virtual std::shared_ptr<FilamentRecorder> createRecorder(int width, int height, int fps, double bitRate) = 0;
+
+  /**
+   * Get the Dispatcher for the main react JS thread.
+   */
   virtual std::shared_ptr<Dispatcher> getJSDispatcher() = 0;
   /**
    * Get the Dispatcher that is responsible for rendering to Filament.
@@ -88,7 +92,6 @@ private:
 
 public:
   virtual jsi::Runtime& getRuntime() = 0;
-  //  virtual std::shared_ptr<react::CallInvoker> getCallInvoker() = 0;
 
 private:
   static constexpr auto TAG = "FilamentProxy";
