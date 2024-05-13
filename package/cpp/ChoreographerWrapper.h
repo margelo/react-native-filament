@@ -21,13 +21,8 @@ public:
   void loadHybridMethods() override;
 
 protected:
-  std::shared_ptr<Choreographer> getChoreographer() {
-    if (getIsValid()) {
-      return pointee();
-    }
-    return nullptr;
-  }
-  friend class FilamentView;
+  std::shared_ptr<Choreographer> getChoreographer();
+  friend class FilamentView; // Allow filament view to access protected method
 
 private: // Exposed JS API
   void start();

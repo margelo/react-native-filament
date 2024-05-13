@@ -111,4 +111,11 @@ void ChoreographerWrapper::onRuntimeDestroyed(jsi::Runtime*) {
   _renderCallback.release();
 }
 
+std::shared_ptr<Choreographer> ChoreographerWrapper::getChoreographer() {
+  if (getIsValid()) {
+    return pointee();
+  }
+  return nullptr;
+}
+
 } // namespace margelo
