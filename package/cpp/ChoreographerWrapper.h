@@ -16,9 +16,12 @@ using RenderCallback = std::function<void(FrameInfo)>;
 class ChoreographerWrapper : public PointerHolder<Choreographer>, public RuntimeLifecycleListener {
 public:
   explicit ChoreographerWrapper(std::shared_ptr<Choreographer> choreographer) : PointerHolder(TAG, choreographer) {}
-  ~ChoreographerWrapper();
 
   void loadHybridMethods() override;
+
+protected:
+  std::shared_ptr<Choreographer> getChoreographer();
+  friend class FilamentView; // Allow filament view to access protected method
 
 private: // Exposed JS API
   void start();
@@ -28,7 +31,7 @@ private: // Exposed JS API
   void release() override;
 
 private: // Internal
-  void cleanup(bool isRuntimeDestroyed);
+  void cleanup();
   void onRuntimeDestroyed(jsi::Runtime*) override;
   void renderCallback(double timestamp);
 

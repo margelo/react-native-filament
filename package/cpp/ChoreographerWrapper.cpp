@@ -6,10 +6,6 @@
 
 namespace margelo {
 
-ChoreographerWrapper::~ChoreographerWrapper() {
-  cleanup(false);
-}
-
 void ChoreographerWrapper::loadHybridMethods() {
   registerHybridMethod("start", &ChoreographerWrapper::start, this);
   registerHybridMethod("stop", &ChoreographerWrapper::stop, this);
@@ -74,17 +70,12 @@ void ChoreographerWrapper::renderCallback(double timestamp) {
   (*_renderCallback)(frameInfo);
 }
 
-void ChoreographerWrapper::cleanup(bool isRuntimeDestroyed) {
+void ChoreographerWrapper::cleanup() {
   std::unique_lock lock(_mutex);
   Logger::log(TAG, "Cleanup ChoreographerWrapper");
 
-  if (isRuntimeDestroyed) {
-    _renderCallback.release();
-    Logger::log(TAG, "Runtime inactive, releasing callback...");
-  } else {
-    _renderCallback = nullptr;
-    Logger::log(TAG, "Runtime active, cleaning callback...");
-  }
+  _renderCallback = nullptr;
+  Logger::log(TAG, "Runtime active, cleaning callback...");
 
   // Its possible that the pointer was already released manually by the user
   if (getIsValid()) {
@@ -98,13 +89,29 @@ void ChoreographerWrapper::cleanup(bool isRuntimeDestroyed) {
 }
 
 void ChoreographerWrapper::release() {
-  cleanup(false);
+  cleanup();
   PointerHolder::release();
 }
 
 void ChoreographerWrapper::onRuntimeDestroyed(jsi::Runtime*) {
-  Logger::log(TAG, "Runtime destroyed, stopping choreographer...");
-  cleanup(true);
+  std::unique_lock lock(_mutex);
+
+  if (getIsValid()) {
+    Logger::log(TAG, "Runtime destroyed, stopping choreographer...");
+    pointee()->stop();
+  }
+
+  // This will not delete the underlying pointer.
+  // When the runtime is destroyed we can't call the jsi::Value's destructor,
+  // as we would run into a crash (as the runtime is already gone).
+  _renderCallback.release();
+}
+
+std::shared_ptr<Choreographer> ChoreographerWrapper::getChoreographer() {
+  if (getIsValid()) {
+    return pointee();
+  }
+  return nullptr;
 }
 
 } // namespace margelo
