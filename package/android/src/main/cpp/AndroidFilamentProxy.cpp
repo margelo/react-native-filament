@@ -51,8 +51,8 @@ std::shared_ptr<Dispatcher> AndroidFilamentProxy::getBackgroundDispatcher() {
   return _proxy->cthis()->getBackgroundDispatcher();
 }
 
-jsi::Runtime& AndroidFilamentProxy::getRuntime() {
-  return _proxy->cthis()->getRuntime();
+jsi::Runtime& AndroidFilamentProxy::getMainJSRuntime() {
+  return _proxy->cthis()->getMainJSRuntime();
 }
 
 float AndroidFilamentProxy::getDisplayRefreshRate() {

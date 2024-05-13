@@ -1,5 +1,6 @@
 #include "Dispatcher.h"
 #include "Logger.h"
+#include "jsi/WorkletRuntimeCollector.h"
 
 namespace margelo {
 
@@ -9,6 +10,9 @@ static constexpr auto GLOBAL_DISPATCHER_HOLDER_NAME = "__globalDispatcher";
 
 void Dispatcher::installRuntimeGlobalDispatcher(jsi::Runtime& runtime, std::shared_ptr<Dispatcher> dispatcher) {
   Logger::log(TAG, "Installing global Dispatcher Holder...");
+
+  // Track the runtime's lifetime
+  WorkletRuntimeCollector::install(runtime);
 
   jsi::Object dispatcherHolder(runtime);
   dispatcherHolder.setNativeState(runtime, dispatcher);

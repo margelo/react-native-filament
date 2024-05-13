@@ -35,7 +35,7 @@ private:
   float getDensityPixelRatio() override;
 
 public:
-  jsi::Runtime& getRuntime() override;
+  jsi::Runtime& getMainJSRuntime() override;
 
 private:
   jni::global_ref<JFilamentProxy::javaobject> _proxy;
