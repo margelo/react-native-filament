@@ -19,17 +19,14 @@ using namespace facebook;
  */
 class AndroidFilamentProxy : public FilamentProxy {
 public:
-  explicit AndroidFilamentProxy(
-      jni::alias_ref<JFilamentProxy::javaobject> filamentProxy,
-      std::shared_ptr<Dispatcher> jsDispatcher);
+  explicit AndroidFilamentProxy(jni::alias_ref<JFilamentProxy::javaobject> filamentProxy, std::shared_ptr<Dispatcher> jsDispatcher);
   ~AndroidFilamentProxy();
 
 private:
-  std::shared_ptr<FilamentBuffer> loadAsset(const std::string &path) override;
+  std::shared_ptr<FilamentBuffer> loadAsset(const std::string& path) override;
   std::shared_ptr<FilamentView> findFilamentView(int id) override;
   std::shared_ptr<Choreographer> createChoreographer() override;
-  std::shared_ptr<FilamentRecorder>
-  createRecorder(int width, int height, int fps, double bitRate) override;
+  std::shared_ptr<FilamentRecorder> createRecorder(int width, int height, int fps, double bitRate) override;
   std::shared_ptr<Dispatcher> getJSDispatcher() override;
   std::shared_ptr<Dispatcher> getRenderThreadDispatcher() override;
   std::shared_ptr<Dispatcher> getUIDispatcher() override;
@@ -38,7 +35,7 @@ private:
   float getDensityPixelRatio() override;
 
 public:
-  jsi::Runtime &getMainJSRuntime() override;
+  jsi::Runtime& getMainJSRuntime() override;
 
 private:
   jni::global_ref<JFilamentProxy::javaobject> _proxy;
