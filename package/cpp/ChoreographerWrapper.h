@@ -19,6 +19,15 @@ public:
   ~ChoreographerWrapper();
 
   void loadHybridMethods() override;
+    
+protected:
+    std::shared_ptr<Choreographer> getChoreographer() {
+        if (getIsValid()) {
+            return pointee();
+        }
+        return nullptr;
+    }
+    friend class FilamentView;
 
 private: // Exposed JS API
   void start();

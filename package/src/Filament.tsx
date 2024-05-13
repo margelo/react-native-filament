@@ -115,6 +115,10 @@ export class Filament extends React.PureComponent<FilamentProps> {
       if (view == null) {
         throw new Error(`Failed to find FilamentView #${handle}!`)
       }
+      // Link the view with the choreographer.
+      // When the view gets destroyed, the choreographer will be stopped.
+      view.setChoreographer(context._choreographer)
+
       const surfaceProvider = view.getSurfaceProvider()
       this.surfaceCreatedListener = surfaceProvider.addOnSurfaceCreatedListener(() => {
         console.log('Surface created!')

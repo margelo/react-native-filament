@@ -1,3 +1,4 @@
+import { Choreographer } from '../types'
 import { Listener } from '../types/Listener'
 import { Dispatcher } from './Dispatcher'
 
@@ -30,4 +31,6 @@ export interface FilamentView {
    * @private
    */
   getSurfaceProvider(): SurfaceProvider
+
+  setChoreographer(choreographer: Choreographer): void
 }
