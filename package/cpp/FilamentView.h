@@ -31,6 +31,7 @@ private: // Exposed JS API
 
 private:
   std::shared_ptr<Choreographer> _choreographer = nullptr;
+  std::shared_ptr<Listener> _onSurfaceDestroyedListener = nullptr;
   static constexpr auto TAG = "FilamentView";
 };
 } // namespace margelo

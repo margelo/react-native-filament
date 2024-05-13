@@ -20,7 +20,20 @@ void FilamentView::loadHybridMethods() {
 }
 
 void FilamentView::setChoreographer(std::shared_ptr<ChoreographerWrapper> choreographerWrapper) {
-  _choreographer = choreographerWrapper->getChoreographer();
+  auto choreographer = choreographerWrapper->getChoreographer();
+  _choreographer = choreographer;
+
+  // Note: This callback is mostly needed for android, as the FilamentView is held in a Java object and might gets
+  // destroyed long after the view has been actually removed
+  _onSurfaceDestroyedListener = getSurfaceProvider()->addOnSurfaceChangedListener({
+      .onSurfaceCreated = std::nullopt,
+      .onSurfaceSizeChanged = std::nullopt,
+      .onSurfaceDestroyed =
+          [choreographer](std::shared_ptr<Surface> surface) {
+            Logger::log(TAG, "Surface destroyed, stopping choreographer.");
+            choreographer->stop();
+          },
+  });
 }
 
 } // namespace margelo
