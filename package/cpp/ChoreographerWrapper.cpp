@@ -61,13 +61,6 @@ void ChoreographerWrapper::renderCallback(double timestamp) {
     return;
   }
 
-  if (!isRuntimeAlive()) {
-    [[unlikely]];
-    // The renderCallback is a jsi function and it only makes sense to call it when its runtime is still alive
-    Logger::log(TAG, "⚠️ Runtime is not alive anymore, aborting renderCallback!");
-    return;
-  }
-
   double passedSeconds = (timestamp - _startTime) / 1e9;
   double timeSinceLastFrame = (timestamp - _lastFrameTime) / 1e9;
   _lastFrameTime = timestamp;

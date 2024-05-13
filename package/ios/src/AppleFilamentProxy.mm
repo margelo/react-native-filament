@@ -14,7 +14,6 @@
 #import "FilamentMetalView.h"
 #import "FilamentView.h"
 #import "NSThreadDispatcher.h"
-#import "RuntimeCache.h"
 #import <Foundation/Foundation.h>
 #import <React/RCTBridge+Private.h>
 #import <React/RCTBridge.h>
@@ -25,10 +24,6 @@ namespace margelo {
 
 AppleFilamentProxy::AppleFilamentProxy(jsi::Runtime* runtime, std::shared_ptr<Dispatcher> jsDispatcher)
     : _runtime(runtime), _jsDispatcher(jsDispatcher) {}
-
-AppleFilamentProxy::~AppleFilamentProxy() {
-  // TODO(hanno): cleanup here?
-}
 
 std::shared_ptr<FilamentBuffer> AppleFilamentProxy::loadAsset(const std::string& path) {
   NSString* filePath = [NSString stringWithUTF8String:path.c_str()];

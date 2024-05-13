@@ -6,7 +6,6 @@
 
 #include "JSIConverter.h"
 #include "Logger.h"
-#include "RuntimeCache.h"
 #include "jsi/WorkletRuntimeRegistry.h"
 #include <functional>
 #include <jsi/jsi.h>
@@ -72,7 +71,7 @@ private:
   std::unordered_map<std::string, HybridFunction> _methods;
   std::unordered_map<std::string, jsi::HostFunctionType> _getters;
   std::unordered_map<std::string, jsi::HostFunctionType> _setters;
-  RuntimeAwareCache<std::unordered_map<std::string, std::shared_ptr<jsi::Function>>> _functionCache;
+  std::unordered_map<jsi::Runtime*, std::unordered_map<std::string, std::shared_ptr<jsi::Function>>> _functionCache;
   // Store a pointer to the runtime. Needed for checking if the runtime is still active, see WorkletRuntimeRegistry.
   jsi::Runtime* _runtime = nullptr;
 

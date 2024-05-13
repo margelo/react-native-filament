@@ -21,7 +21,6 @@ namespace margelo {
 class AppleFilamentProxy : public FilamentProxy {
 public:
   explicit AppleFilamentProxy(jsi::Runtime* runtime, std::shared_ptr<Dispatcher> jsDispatcher);
-  ~AppleFilamentProxy();
 
 public:
   std::shared_ptr<FilamentBuffer> loadAsset(const std::string& path) override;
@@ -38,6 +37,7 @@ public:
   jsi::Runtime& getRuntime() override;
 
 private:
+  // The runtime the proxy has been installed on
   jsi::Runtime* _runtime;
   std::shared_ptr<Dispatcher> _jsDispatcher;
   std::shared_ptr<Dispatcher> _renderThreadDispatcher;
