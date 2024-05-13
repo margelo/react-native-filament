@@ -16,7 +16,7 @@ AppleChoreographer::AppleChoreographer() {
 }
 
 AppleChoreographer::~AppleChoreographer() {
-    NSLog(@"Invalidating choreographer");
+  NSLog(@"Invalidating choreographer");
   [_displayLink invalidate];
 }
 

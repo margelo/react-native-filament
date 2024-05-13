@@ -7,7 +7,7 @@
 namespace margelo {
 
 ChoreographerWrapper::~ChoreographerWrapper() {
-//  cleanup(false);
+  //  cleanup(false);
 }
 
 void ChoreographerWrapper::loadHybridMethods() {
@@ -98,17 +98,17 @@ void ChoreographerWrapper::release() {
 }
 
 void ChoreographerWrapper::onRuntimeDestroyed(jsi::Runtime*) {
-    std::unique_lock lock(_mutex);
+  std::unique_lock lock(_mutex);
 
   Logger::log(TAG, "Runtime destroyed, stopping choreographer...");
-    if (getIsValid()) {
-      pointee()->stop();
-    }
-    
-    // This will not delete the underlying pointer.
-    // When the runtime is destroyed we can't call the jsi::Value's destructor,
-    // as we would run into a crash (as the runtime is already gone).
-    _renderCallback.release();
+  if (getIsValid()) {
+    pointee()->stop();
+  }
+
+  // This will not delete the underlying pointer.
+  // When the runtime is destroyed we can't call the jsi::Value's destructor,
+  // as we would run into a crash (as the runtime is already gone).
+  _renderCallback.release();
 }
 
 } // namespace margelo
