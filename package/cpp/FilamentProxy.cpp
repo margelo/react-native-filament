@@ -145,7 +145,22 @@ std::shared_ptr<BulletWrapper> FilamentProxy::createBullet() {
 std::shared_ptr<ChoreographerWrapper> FilamentProxy::createChoreographerWrapper() {
   Logger::log(TAG, "Creating Choreographer...");
   std::shared_ptr<Choreographer> choreographer = createChoreographer();
-  return std::make_shared<ChoreographerWrapper>(choreographer);
+
+  ChoreographerWrapper* choreographerWrapperPtr = new ChoreographerWrapper(choreographer);
+
+  // The ChoreographerWrapper is interested in the event of the Runtime creating it being destroyed, so we need to add it as a listener:
+  jsi::Runtime& runtime = getRuntime();
+  RuntimeLifecycleMonitor::addListener(runtime, choreographerWrapperPtr);
+
+  // Wrap the ChoreographerWrapper in a shared_ptr with a custom deleter that removes the listener from the RuntimeLifecycleMonitor:
+  std::shared_ptr<ChoreographerWrapper> choreographerWrapper =
+      std::shared_ptr<ChoreographerWrapper>(choreographerWrapperPtr, [&runtime](ChoreographerWrapper* ptr) {
+        // Remove the ChoreographerWrapper from the RuntimeLifecycleMonitor when it gets destroyed.
+        RuntimeLifecycleMonitor::removeListener(runtime, ptr);
+        delete ptr;
+      });
+
+  return choreographerWrapper;
 }
 
 } // namespace margelo

@@ -102,4 +102,9 @@ void ChoreographerWrapper::release() {
   PointerHolder::release();
 }
 
+void ChoreographerWrapper::onRuntimeDestroyed(jsi::Runtime*) {
+  Logger::log(TAG, "Runtime destroyed, stopping choreographer...");
+  cleanup();
+}
+
 } // namespace margelo

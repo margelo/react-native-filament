@@ -6,13 +6,14 @@
 
 #include "Choreographer.h"
 #include "jsi/PointerHolder.h"
+#include "jsi/RuntimeCache.h"
 
 namespace margelo {
 
 using FrameInfo = std::unordered_map<std::string, double>;
 using RenderCallback = std::function<void(FrameInfo)>;
 
-class ChoreographerWrapper : public PointerHolder<Choreographer> {
+class ChoreographerWrapper : public PointerHolder<Choreographer>, public RuntimeLifecycleListener {
 public:
   explicit ChoreographerWrapper(std::shared_ptr<Choreographer> choreographer) : PointerHolder(TAG, choreographer) {}
   ~ChoreographerWrapper();
@@ -28,6 +29,7 @@ private: // Exposed JS API
 
 private: // Internal
   void cleanup();
+  void onRuntimeDestroyed(jsi::Runtime*) override;
   void renderCallback(double timestamp);
 
 private:
