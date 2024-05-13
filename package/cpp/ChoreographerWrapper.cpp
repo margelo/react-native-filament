@@ -6,10 +6,6 @@
 
 namespace margelo {
 
-ChoreographerWrapper::~ChoreographerWrapper() {
-  //  cleanup(false);
-}
-
 void ChoreographerWrapper::loadHybridMethods() {
   registerHybridMethod("start", &ChoreographerWrapper::start, this);
   registerHybridMethod("stop", &ChoreographerWrapper::stop, this);
@@ -74,7 +70,7 @@ void ChoreographerWrapper::renderCallback(double timestamp) {
   (*_renderCallback)(frameInfo);
 }
 
-void ChoreographerWrapper::cleanup(bool isRuntimeDestroyed) {
+void ChoreographerWrapper::cleanup() {
   std::unique_lock lock(_mutex);
   Logger::log(TAG, "Cleanup ChoreographerWrapper");
 
@@ -93,15 +89,15 @@ void ChoreographerWrapper::cleanup(bool isRuntimeDestroyed) {
 }
 
 void ChoreographerWrapper::release() {
-  cleanup(false);
+  cleanup();
   PointerHolder::release();
 }
 
 void ChoreographerWrapper::onRuntimeDestroyed(jsi::Runtime*) {
   std::unique_lock lock(_mutex);
 
-  Logger::log(TAG, "Runtime destroyed, stopping choreographer...");
   if (getIsValid()) {
+    Logger::log(TAG, "Runtime destroyed, stopping choreographer...");
     pointee()->stop();
   }
 

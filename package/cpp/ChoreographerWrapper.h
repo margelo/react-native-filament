@@ -16,7 +16,6 @@ using RenderCallback = std::function<void(FrameInfo)>;
 class ChoreographerWrapper : public PointerHolder<Choreographer>, public RuntimeLifecycleListener {
 public:
   explicit ChoreographerWrapper(std::shared_ptr<Choreographer> choreographer) : PointerHolder(TAG, choreographer) {}
-  ~ChoreographerWrapper();
 
   void loadHybridMethods() override;
 
@@ -32,7 +31,7 @@ private: // Exposed JS API
   void release() override;
 
 private: // Internal
-  void cleanup(bool isRuntimeDestroyed);
+  void cleanup();
   void onRuntimeDestroyed(jsi::Runtime*) override;
   void renderCallback(double timestamp);
 
