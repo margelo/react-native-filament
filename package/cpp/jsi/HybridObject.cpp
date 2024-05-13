@@ -148,18 +148,18 @@ void HybridObject::set(facebook::jsi::Runtime& runtime, const facebook::jsi::Pro
 void HybridObject::ensureInitialized(facebook::jsi::Runtime& runtime) {
   if (!_didLoadMethods) {
     [[unlikely]];
-    _runtime = &runtime;
+    _creationRuntime = &runtime;
     // lazy-load all exposed methods
     loadHybridMethods();
     _didLoadMethods = true;
   }
 }
 bool HybridObject::isRuntimeAlive() {
-  if (_runtime == nullptr) {
+  if (_creationRuntime == nullptr) {
     [[unlikely]];
     return false;
   }
-  return WorkletRuntimeRegistry::isRuntimeAlive(_runtime);
+  return WorkletRuntimeRegistry::isRuntimeAlive(_creationRuntime);
 }
 
 } // namespace margelo

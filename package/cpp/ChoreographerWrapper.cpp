@@ -7,7 +7,7 @@
 namespace margelo {
 
 ChoreographerWrapper::~ChoreographerWrapper() {
-  cleanup();
+  cleanup(false);
 }
 
 void ChoreographerWrapper::loadHybridMethods() {
@@ -74,16 +74,16 @@ void ChoreographerWrapper::renderCallback(double timestamp) {
   (*_renderCallback)(frameInfo);
 }
 
-void ChoreographerWrapper::cleanup() {
+void ChoreographerWrapper::cleanup(bool isRuntimeDestroyed) {
   std::unique_lock lock(_mutex);
   Logger::log(TAG, "Cleanup ChoreographerWrapper");
 
-  if (isRuntimeAlive()) {
-    _renderCallback = nullptr;
-    Logger::log(TAG, "Runtime active, cleaning callback...");
-  } else {
+  if (isRuntimeDestroyed) {
     _renderCallback.release();
     Logger::log(TAG, "Runtime inactive, releasing callback...");
+  } else {
+    _renderCallback = nullptr;
+    Logger::log(TAG, "Runtime active, cleaning callback...");
   }
 
   // Its possible that the pointer was already released manually by the user
@@ -98,13 +98,13 @@ void ChoreographerWrapper::cleanup() {
 }
 
 void ChoreographerWrapper::release() {
-  cleanup();
+  cleanup(false);
   PointerHolder::release();
 }
 
 void ChoreographerWrapper::onRuntimeDestroyed(jsi::Runtime*) {
   Logger::log(TAG, "Runtime destroyed, stopping choreographer...");
-  cleanup();
+  cleanup(true);
 }
 
 } // namespace margelo

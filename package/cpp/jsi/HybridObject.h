@@ -73,7 +73,7 @@ private:
   std::unordered_map<std::string, jsi::HostFunctionType> _setters;
   std::unordered_map<jsi::Runtime*, std::unordered_map<std::string, std::shared_ptr<jsi::Function>>> _functionCache;
   // Store a pointer to the runtime. Needed for checking if the runtime is still active, see WorkletRuntimeRegistry.
-  jsi::Runtime* _runtime = nullptr;
+  jsi::Runtime* _creationRuntime = nullptr;
 
 private:
   inline void ensureInitialized(facebook::jsi::Runtime& runtime);

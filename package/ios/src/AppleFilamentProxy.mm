@@ -92,7 +92,7 @@ float AppleFilamentProxy::getDensityPixelRatio() {
   return scale;
 }
 
-jsi::Runtime& AppleFilamentProxy::getRuntime() {
+jsi::Runtime& AppleFilamentProxy::getMainJSRuntime() {
   if (_runtime == nullptr) {
     [[unlikely]];
     throw std::runtime_error("JSI Runtime was null!");

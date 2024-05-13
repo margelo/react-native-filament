@@ -34,7 +34,7 @@ public:
   float getDisplayRefreshRate() override;
   float getDensityPixelRatio() override;
 
-  jsi::Runtime& getRuntime() override;
+  jsi::Runtime& getMainJSRuntime() override;
 
 private:
   // The runtime the proxy has been installed on

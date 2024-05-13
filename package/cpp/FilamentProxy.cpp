@@ -52,7 +52,7 @@ std::shared_ptr<RNWorklet::JsiWorkletContext> FilamentProxy::getWorkletContext()
     auto runOnJS = [=](std::function<void()>&& function) { jsDispatcher->runAsync(std::move(function)); };
     auto renderThreadDispatcher = getRenderThreadDispatcher();
     auto runOnWorklet = [=](std::function<void()>&& function) { renderThreadDispatcher->runAsync(std::move(function)); };
-    auto& runtime = getRuntime();
+    auto& runtime = getMainJSRuntime();
     _workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("FilamentRenderer", &runtime, runOnJS, runOnWorklet);
     Logger::log(TAG, "Successfully created WorkletContext! Installing global Dispatcher...");
 
@@ -142,14 +142,13 @@ std::shared_ptr<BulletWrapper> FilamentProxy::createBullet() {
   return std::make_shared<BulletWrapper>();
 }
 
-std::shared_ptr<ChoreographerWrapper> FilamentProxy::createChoreographerWrapper() {
+jsi::Value FilamentProxy::createChoreographerWrapper(jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t) {
+
   Logger::log(TAG, "Creating Choreographer...");
   std::shared_ptr<Choreographer> choreographer = createChoreographer();
 
   ChoreographerWrapper* choreographerWrapperPtr = new ChoreographerWrapper(choreographer);
 
-  // The ChoreographerWrapper is interested in the event of the Runtime creating it being destroyed, so we need to add it as a listener:
-  jsi::Runtime& runtime = getRuntime();
   RuntimeLifecycleMonitor::addListener(runtime, choreographerWrapperPtr);
 
   // Wrap the ChoreographerWrapper in a shared_ptr with a custom deleter that removes the listener from the RuntimeLifecycleMonitor:
@@ -160,7 +159,7 @@ std::shared_ptr<ChoreographerWrapper> FilamentProxy::createChoreographerWrapper(
         delete ptr;
       });
 
-  return choreographerWrapper;
+  return JSIConverter<std::shared_ptr<ChoreographerWrapper>>::toJSI(runtime, choreographerWrapper);
 }
 
 } // namespace margelo

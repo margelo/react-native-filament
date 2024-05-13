@@ -9,7 +9,9 @@ namespace margelo {
 
 using namespace facebook;
 
-AndroidFilamentProxy::AndroidFilamentProxy(jni::alias_ref<JFilamentProxy::javaobject> proxy, std::shared_ptr<Dispatcher> jsDispatcher)
+AndroidFilamentProxy::AndroidFilamentProxy(
+    jni::alias_ref<JFilamentProxy::javaobject> proxy,
+    std::shared_ptr<Dispatcher> jsDispatcher)
     : _proxy(jni::make_global(proxy)), _jsDispatcher(jsDispatcher) {}
 
 AndroidFilamentProxy::~AndroidFilamentProxy() {
@@ -19,7 +21,8 @@ AndroidFilamentProxy::~AndroidFilamentProxy() {
   jni::ThreadScope::WithClassLoader([&] { _proxy.reset(); });
 }
 
-std::shared_ptr<FilamentBuffer> AndroidFilamentProxy::loadAsset(const std::string& path) {
+std::shared_ptr<FilamentBuffer>
+AndroidFilamentProxy::loadAsset(const std::string &path) {
   return _proxy->cthis()->loadAsset(path);
 }
 
@@ -31,7 +34,9 @@ std::shared_ptr<Choreographer> AndroidFilamentProxy::createChoreographer() {
   return _proxy->cthis()->createChoreographer();
 }
 
-std::shared_ptr<FilamentRecorder> AndroidFilamentProxy::createRecorder(int width, int height, int fps, double bitRate) {
+std::shared_ptr<FilamentRecorder>
+AndroidFilamentProxy::createRecorder(int width, int height, int fps,
+                                     double bitRate) {
   return _proxy->cthis()->createRecorder(width, height, fps, bitRate);
 }
 
@@ -51,8 +56,8 @@ std::shared_ptr<Dispatcher> AndroidFilamentProxy::getBackgroundDispatcher() {
   return _proxy->cthis()->getBackgroundDispatcher();
 }
 
-jsi::Runtime& AndroidFilamentProxy::getRuntime() {
-  return _proxy->cthis()->getRuntime();
+jsi::Runtime &AndroidFilamentProxy::getMainJSRuntime() {
+  return _proxy->cthis()->getMainJSRuntime();
 }
 
 float AndroidFilamentProxy::getDisplayRefreshRate() {

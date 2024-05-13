@@ -84,14 +84,16 @@ private:
                                               std::optional<std::unordered_map<std::string, int>> arguments = std::nullopt);
   std::shared_ptr<BulletWrapper> createBullet();
   bool getHasWorklets();
-  std::shared_ptr<ChoreographerWrapper> createChoreographerWrapper();
+  //  std::shared_ptr<ChoreographerWrapper> createChoreographerWrapper();
+  jsi::Value createChoreographerWrapper(jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* args, size_t count);
 
 #if HAS_WORKLETS
   std::shared_ptr<RNWorklet::JsiWorkletContext> getWorkletContext();
 #endif
 
 public:
-  virtual jsi::Runtime& getRuntime() = 0;
+  // Expected to return the runtime the FilamentProxy has been created on, which is the main JS runtime.
+  virtual jsi::Runtime& getMainJSRuntime() = 0;
 
 private:
   static constexpr auto TAG = "FilamentProxy";

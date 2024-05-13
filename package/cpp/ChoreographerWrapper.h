@@ -28,7 +28,7 @@ private: // Exposed JS API
   void release() override;
 
 private: // Internal
-  void cleanup();
+  void cleanup(bool isRuntimeDestroyed);
   void onRuntimeDestroyed(jsi::Runtime*) override;
   void renderCallback(double timestamp);
 
