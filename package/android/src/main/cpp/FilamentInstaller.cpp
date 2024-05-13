@@ -8,7 +8,7 @@
 namespace margelo {
 
 void FilamentInstaller::install(jni::alias_ref<jni::JClass> clazz, jni::alias_ref<JFilamentProxy::javaobject> proxy) {
-  jsi::Runtime& runtime = proxy->cthis()->getRuntime();
+  jsi::Runtime& runtime = proxy->cthis()->getMainJSRuntime();
   std::shared_ptr<react::CallInvoker> callInvoker = proxy->cthis()->getCallInvoker();
 
   std::shared_ptr<Dispatcher> jsDispatcher = std::make_shared<CallInvokerDispatcher>(callInvoker);
