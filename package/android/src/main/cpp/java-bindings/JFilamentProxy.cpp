@@ -94,7 +94,7 @@ float JFilamentProxy::getDensityPixelRatio() {
   return method(_javaPart);
 }
 
-jsi::Runtime& JFilamentProxy::getRuntime() {
+jsi::Runtime& JFilamentProxy::getMainJSRuntime() {
   if (_runtime == nullptr) {
     [[unlikely]];
     throw std::runtime_error("JSI Runtime was null!");

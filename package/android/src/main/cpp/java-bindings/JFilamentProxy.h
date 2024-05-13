@@ -36,7 +36,7 @@ public:
   float getDisplayRefreshRate();
   float getDensityPixelRatio();
 
-  jsi::Runtime& getRuntime();
+  jsi::Runtime& getMainJSRuntime();
   std::shared_ptr<react::CallInvoker> getCallInvoker();
 
 private:
