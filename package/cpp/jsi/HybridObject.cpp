@@ -33,6 +33,32 @@ HybridObject::~HybridObject() {
 #if DEBUG
   Logger::log(TAG, "(MEMORY) Deleting %s (#%i)... ❌", _name, _instanceId);
 #endif
+
+  // Only clear the function cache if the runtime is still alive.
+  // Otherwise leak memory. We do this on purpose, as sometimes we would keep
+  // references to JSI objects past the lifetime of its runtime (e.g.,
+  // shared values references from the RN VM holds reference to JSI objects
+  // on the UI runtime). When the UI runtime is terminated, the orphaned JSI
+  // objects would crash the app when their destructors are called, because
+  // they call into a memory that's managed by the terminated runtime. We
+  // accept the tradeoff of leaking memory here, as it has a limited impact.
+  // This scenario can only occur when the React instance is torn down which
+  // happens in development mode during app reloads, or in production when
+  // the app is being shut down gracefully by the system. An alternative
+  // solution would require us to keep track of all JSI values that are in
+  // use which would require additional data structure and compute spent on
+  // bookkeeping that only for the sake of destroying the values in time
+  // before the runtime is terminated. Note that the underlying memory that
+  // jsi::Value refers to is managed by the VM and gets freed along with the
+  // runtime.
+  std::for_each(_functionCache.begin(), _functionCache.end(), [&](auto& item) {
+    if (WorkletRuntimeRegistry::isRuntimeAlive(item.first)) {
+      item.second.clear();
+    } else {
+      auto leak = std::make_unique<std::unordered_map<std::string, std::shared_ptr<jsi::Function>>>(std::move(item.second));
+      leak.release();
+    }
+  });
 }
 
 std::string HybridObject::toString(jsi::Runtime& runtime) {
@@ -47,7 +73,7 @@ std::string HybridObject::toString(jsi::Runtime& runtime) {
 
 std::vector<jsi::PropNameID> HybridObject::getPropertyNames(facebook::jsi::Runtime& runtime) {
   std::unique_lock lock(_mutex);
-  ensureInitialized();
+  ensureInitialized(runtime);
 
   std::vector<jsi::PropNameID> result;
   size_t totalSize = _methods.size() + _getters.size() + _setters.size();
@@ -67,10 +93,10 @@ std::vector<jsi::PropNameID> HybridObject::getPropertyNames(facebook::jsi::Runti
 
 jsi::Value HybridObject::get(facebook::jsi::Runtime& runtime, const facebook::jsi::PropNameID& propName) {
   std::unique_lock lock(_mutex);
-  ensureInitialized();
+  ensureInitialized(runtime);
 
   std::string name = propName.utf8(runtime);
-  auto& functionCache = _functionCache.get(runtime);
+  auto& functionCache = _functionCache[&runtime];
 
   if (_getters.count(name) > 0) {
     // it's a property getter
@@ -106,7 +132,7 @@ jsi::Value HybridObject::get(facebook::jsi::Runtime& runtime, const facebook::js
 
 void HybridObject::set(facebook::jsi::Runtime& runtime, const facebook::jsi::PropNameID& propName, const facebook::jsi::Value& value) {
   std::unique_lock lock(_mutex);
-  ensureInitialized();
+  ensureInitialized(runtime);
 
   std::string name = propName.utf8(runtime);
 
@@ -119,13 +145,21 @@ void HybridObject::set(facebook::jsi::Runtime& runtime, const facebook::jsi::Pro
   HostObject::set(runtime, propName, value);
 }
 
-void HybridObject::ensureInitialized() {
+void HybridObject::ensureInitialized(facebook::jsi::Runtime& runtime) {
   if (!_didLoadMethods) {
     [[unlikely]];
+    _creationRuntime = &runtime;
     // lazy-load all exposed methods
     loadHybridMethods();
     _didLoadMethods = true;
   }
+}
+bool HybridObject::isRuntimeAlive() {
+  if (_creationRuntime == nullptr) {
+    [[unlikely]];
+    return false;
+  }
+  return WorkletRuntimeRegistry::isRuntimeAlive(_creationRuntime);
 }
 
 } // namespace margelo

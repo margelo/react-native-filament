@@ -34,7 +34,7 @@ using namespace facebook;
 
 class FilamentProxy : public HybridObject {
 public:
-  explicit FilamentProxy() : HybridObject("FilamentProxy") {}
+  explicit FilamentProxy() : HybridObject(TAG) {}
 
 private:
   // Platform-specific implementations
@@ -42,6 +42,10 @@ private:
   virtual std::shared_ptr<FilamentView> findFilamentView(int id) = 0;
   virtual std::shared_ptr<Choreographer> createChoreographer() = 0;
   virtual std::shared_ptr<FilamentRecorder> createRecorder(int width, int height, int fps, double bitRate) = 0;
+
+  /**
+   * Get the Dispatcher for the main react JS thread.
+   */
   virtual std::shared_ptr<Dispatcher> getJSDispatcher() = 0;
   /**
    * Get the Dispatcher that is responsible for rendering to Filament.
@@ -80,15 +84,16 @@ private:
                                               std::optional<std::unordered_map<std::string, int>> arguments = std::nullopt);
   std::shared_ptr<BulletWrapper> createBullet();
   bool getHasWorklets();
-  std::shared_ptr<ChoreographerWrapper> createChoreographerWrapper();
+  //  std::shared_ptr<ChoreographerWrapper> createChoreographerWrapper();
+  jsi::Value createChoreographerWrapper(jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* args, size_t count);
 
 #if HAS_WORKLETS
   std::shared_ptr<RNWorklet::JsiWorkletContext> getWorkletContext();
 #endif
 
 public:
-  virtual jsi::Runtime& getRuntime() = 0;
-  //  virtual std::shared_ptr<react::CallInvoker> getCallInvoker() = 0;
+  // Expected to return the runtime the FilamentProxy has been created on, which is the main JS runtime.
+  virtual jsi::Runtime& getMainJSRuntime() = 0;
 
 private:
   static constexpr auto TAG = "FilamentProxy";

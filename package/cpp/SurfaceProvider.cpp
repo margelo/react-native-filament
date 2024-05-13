@@ -19,8 +19,6 @@ std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceChangedListener(SurfacePr
   return _listeners->add(std::move(callbacks));
 }
 
-// TODO: note, we are storing again a JSI function here. Potentially we need to make sure this gets destroyed on the same thread it was
-//       created on, so we need to use the Runtime Listener here as well.
 std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceCreatedListener(SurfaceProvider::TOnCreate callback,
                                                                        std::shared_ptr<Dispatcher> dispatcher) {
   Logger::log(TAG, "Adding \"surface created\" listener");
