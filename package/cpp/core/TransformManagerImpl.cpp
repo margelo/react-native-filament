@@ -141,7 +141,7 @@ void TransformManagerImpl::updateTransformByRigidBody(Entity entity, std::shared
 /**
  * Sets up a root transform on the current model to make it fit into a unit cube.
  */
-void TransformManagerImpl::transformToUnitCube(std::shared_ptr<FilamentAsset> asset) {
+void TransformManagerImpl::transformToUnitCube(std::shared_ptr<gltfio::FilamentAsset> asset) {
   std::unique_lock lock(_mutex);
   TransformManager& transformManager = _engine->getTransformManager();
   Aabb aabb = asset->getBoundingBox();

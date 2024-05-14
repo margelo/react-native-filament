@@ -6,7 +6,9 @@
 
 namespace margelo {
 void AnimatorWrapper::loadHybridMethods() {
+  registerHybridMethod("addInstance", &AnimatorWrapper::addInstance, this);
   registerHybridMethod("applyAnimation", &AnimatorWrapper::applyAnimation, this);
+  registerHybridMethod("applyAnimationToAsset", &AnimatorWrapper::applyAnimationToAsset, this);
   registerHybridMethod("updateBoneMatrices", &AnimatorWrapper::updateBoneMatrices, this);
   registerHybridMethod("updateBoneMatricesForInstance", &AnimatorWrapper::updateBoneMatricesForInstance, this);
   registerHybridMethod("applyCrossFade", &AnimatorWrapper::applyCrossFade, this);
@@ -32,11 +34,37 @@ inline void assetAnimatorNotNull(Animator* animator) {
   }
 }
 
+void AnimatorWrapper::addInstance(std::shared_ptr<FilamentInstanceWrapper> instanceWrapper) {
+  std::unique_lock lock(_mutex);
+  assetAnimatorNotNull(_animator);
+
+  if (instanceWrapper == nullptr) {
+    [[unlikely]];
+    throw std::invalid_argument("Instance must not be null");
+  }
+
+  FilamentInstance* instance = instanceWrapper->getInstance();
+  _animator->addInstance(instance);
+}
+
 void AnimatorWrapper::applyAnimation(int animationIndex, double time) {
   std::unique_lock lock(_mutex);
   assetAnimatorNotNull(_animator);
   assertAnimationIndexSmallerThan(animationIndex, _animator->getAnimationCount());
   _animator->applyAnimation(animationIndex, time);
+}
+
+void AnimatorWrapper::applyAnimationToAsset(int animationIndex, double time, std::shared_ptr<FilamentAssetWrapper> assetWrapper) {
+  std::unique_lock lock(_mutex);
+  assetAnimatorNotNull(_animator);
+  assertAnimationIndexSmallerThan(animationIndex, _animator->getAnimationCount());
+
+  if (assetWrapper == nullptr) {
+    [[unlikely]];
+    throw std::invalid_argument("Asset must not be null");
+  }
+  std::shared_ptr<FilamentAsset> asset = assetWrapper->getAsset();
+  _animator->applyAnimation(animationIndex, time, asset.get());
 }
 
 void AnimatorWrapper::updateBoneMatrices() {

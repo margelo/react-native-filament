@@ -43,6 +43,11 @@ function Renderer() {
 
   const isPirateHatAdded = useRef(true) // assets are added by default to the scene
   const penguAnimator = useAssetAnimator(penguAsset)
+  React.useEffect(() => {
+    if (penguAnimator == null) return
+    if (pirateHatInstance == null) return
+    penguAnimator.addInstance(pirateHatInstance)
+  }, [penguAnimator, pirateHatInstance])
 
   const prevAnimationIndex = useSharedValue<number | undefined>(undefined)
   const prevAnimationStarted = useSharedValue<number | undefined>(undefined)
@@ -64,7 +69,7 @@ function Renderer() {
 
       camera.lookAt(cameraPosition, cameraTarget, cameraUp)
 
-      if (penguAnimator == null || pirateHatInstance == null) {
+      if (penguAnimator == null || pirateHatInstance == null || pirateHatAsset == null) {
         return
       }
 
@@ -99,6 +104,7 @@ function Renderer() {
       camera,
       penguAnimator,
       pirateHatInstance,
+      pirateHatAsset,
       currentAnimationIndex.value,
       prevAnimationIndex,
       prevAnimationStarted,

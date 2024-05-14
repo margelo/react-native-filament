@@ -1,9 +1,6 @@
 #pragma once
 
 #include "AABBWrapper.h"
-#include "AnimatorWrapper.h"
-#include "CopiedAnimatorWrapper.h"
-#include "FilamentInstanceWrapper.h"
 #include "core/utils/EntityWrapper.h"
 #include "jsi/PointerHolder.h"
 #include <filament/TransformManager.h>
@@ -12,6 +9,8 @@
 namespace margelo {
 
 class SceneWrapper;
+class AnimatorWrapper;
+class FilamentInstanceWrapper;
 
 using namespace filament;
 
