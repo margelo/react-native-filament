@@ -1,3 +1,5 @@
+import { FilamentInstance } from './FilamentInstance'
+
 /**
  * Updates matrices according to glTF animation and skin definitions.
  *
@@ -44,6 +46,8 @@ export interface Animator {
    * NOTE: this operation is independent of animation.
    */
   updateBoneMatrices(): void
+
+  updateBoneMatricesForInstance(instance: FilamentInstance): void
 
   /**
    * Pass the identity matrix into all bone nodes, useful for returning to the T pose.
