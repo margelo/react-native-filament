@@ -6,6 +6,15 @@
 
 namespace margelo {
 
+ChoreographerWrapper::~ChoreographerWrapper() {
+  if (!isRuntimeAlive()) {
+    // This will not delete the underlying pointer.
+    // When the runtime is destroyed we can't call the jsi::Value's destructor,
+    // as we would run into a crash (as the runtime is already gone).
+    _renderCallback.release();
+  }
+}
+
 void ChoreographerWrapper::loadHybridMethods() {
   registerHybridMethod("start", &ChoreographerWrapper::start, this);
   registerHybridMethod("stop", &ChoreographerWrapper::stop, this);
@@ -75,7 +84,6 @@ void ChoreographerWrapper::cleanup() {
   Logger::log(TAG, "Cleanup ChoreographerWrapper");
 
   _renderCallback = nullptr;
-  Logger::log(TAG, "Runtime active, cleaning callback...");
 
   // Its possible that the pointer was already released manually by the user
   if (getIsValid()) {
@@ -95,16 +103,13 @@ void ChoreographerWrapper::release() {
 
 void ChoreographerWrapper::onRuntimeDestroyed(jsi::Runtime*) {
   std::unique_lock lock(_mutex);
+  Logger::log(TAG, "Runtime destroyed, stopping choreographer...");
 
   if (getIsValid()) {
-    Logger::log(TAG, "Runtime destroyed, stopping choreographer...");
     pointee()->stop();
   }
 
-  // This will not delete the underlying pointer.
-  // When the runtime is destroyed we can't call the jsi::Value's destructor,
-  // as we would run into a crash (as the runtime is already gone).
-  _renderCallback.release();
+  _renderCallback = nullptr;
 }
 
 std::shared_ptr<Choreographer> ChoreographerWrapper::getChoreographer() {
