@@ -88,7 +88,15 @@ private:
   jsi::Value createChoreographerWrapper(jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* args, size_t count);
 
 #if HAS_WORKLETS
-  std::shared_ptr<RNWorklet::JsiWorkletContext> getWorkletContext();
+  /**
+   * Create a new Worklet Context that runs on the Filament Renderer Thread.
+   *
+   * The FilamentProxy does not hold a strong reference to the Worklet Context,
+   * because otherwise we would have a cyclic reference.
+   *
+   * The caller (JS) is responsible for keeping the returned reference strong.
+   */
+  std::shared_ptr<RNWorklet::JsiWorkletContext> createWorkletContext();
 #endif
 
 public:
@@ -97,11 +105,6 @@ public:
 
 private:
   static constexpr auto TAG = "FilamentProxy";
-
-private:
-#if HAS_WORKLETS
-  std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;
-#endif
 
 public:
   void loadHybridMethods() override;

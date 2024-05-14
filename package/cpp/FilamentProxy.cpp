@@ -31,7 +31,7 @@ void FilamentProxy::loadHybridMethods() {
   registerHybridMethod("getCurrentDispatcher", &FilamentProxy::getCurrentDispatcher, this);
   registerHybridGetter("hasWorklets", &FilamentProxy::getHasWorklets, this);
 #if HAS_WORKLETS
-  registerHybridMethod("getWorkletContext", &FilamentProxy::getWorkletContext, this);
+  registerHybridMethod("createWorkletContext", &FilamentProxy::createWorkletContext, this);
 #endif
 }
 
@@ -44,23 +44,22 @@ bool FilamentProxy::getHasWorklets() {
 }
 
 #if HAS_WORKLETS
-std::shared_ptr<RNWorklet::JsiWorkletContext> FilamentProxy::getWorkletContext() {
-  if (_workletContext == nullptr) {
-    Logger::log(TAG, "Creating Worklet Context...");
-    auto jsDispatcher = getJSDispatcher();
-    auto runOnJS = [=](std::function<void()>&& function) { jsDispatcher->runAsync(std::move(function)); };
-    auto renderThreadDispatcher = getRenderThreadDispatcher();
-    auto runOnWorklet = [=](std::function<void()>&& function) { renderThreadDispatcher->runAsync(std::move(function)); };
-    auto& runtime = getMainJSRuntime();
-    _workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("FilamentRenderer", &runtime, runOnJS, runOnWorklet);
-    Logger::log(TAG, "Successfully created WorkletContext! Installing global Dispatcher...");
+std::shared_ptr<RNWorklet::JsiWorkletContext> FilamentProxy::createWorkletContext() {
+  Logger::log(TAG, "Creating Worklet Context...");
+  auto jsDispatcher = getJSDispatcher();
+  auto runOnJS = [=](std::function<void()>&& function) { jsDispatcher->runAsync(std::move(function)); };
+  auto renderThreadDispatcher = getRenderThreadDispatcher();
+  auto runOnWorklet = [=](std::function<void()>&& function) { renderThreadDispatcher->runAsync(std::move(function)); };
+  auto& runtime = getMainJSRuntime();
+  auto workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("FilamentRenderer", &runtime, runOnJS, runOnWorklet);
+  Logger::log(TAG, "Successfully created WorkletContext! Installing global Dispatcher...");
 
-    _workletContext->invokeOnWorkletThread([=](RNWorklet::JsiWorkletContext*, jsi::Runtime& runtime) {
-      Dispatcher::installRuntimeGlobalDispatcher(runtime, renderThreadDispatcher);
-      Logger::log(TAG, "Successfully installed global Dispatcher in WorkletContext!");
-    });
-  }
-  return _workletContext;
+  workletContext->invokeOnWorkletThread([=](RNWorklet::JsiWorkletContext*, jsi::Runtime& runtime) {
+    Dispatcher::installRuntimeGlobalDispatcher(runtime, renderThreadDispatcher);
+    Logger::log(TAG, "Successfully installed global Dispatcher in WorkletContext!");
+  });
+
+  return workletContext;
 }
 #endif
 
