@@ -16,6 +16,7 @@ using RenderCallback = std::function<void(FrameInfo)>;
 class ChoreographerWrapper : public PointerHolder<Choreographer>, public RuntimeLifecycleListener {
 public:
   explicit ChoreographerWrapper(std::shared_ptr<Choreographer> choreographer) : PointerHolder(TAG, choreographer) {}
+  ~ChoreographerWrapper() override;
 
   void loadHybridMethods() override;
 
