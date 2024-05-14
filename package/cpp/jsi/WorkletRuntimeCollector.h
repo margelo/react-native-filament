@@ -1,6 +1,6 @@
 #pragma once
 
-#include "WorkletRuntimeRegistry.h"
+#include "RNFWorkletRuntimeRegistry.h"
 
 #include <jsi/jsi.h>
 
@@ -19,12 +19,12 @@ class WorkletRuntimeCollector : public jsi::HostObject {
 public:
   explicit WorkletRuntimeCollector(jsi::Runtime& runtime) : _runtime(runtime) {
     Logger::log("WorkletRuntimeCollector", "Registering WorkletRuntime %p", &runtime);
-    WorkletRuntimeRegistry::registerRuntime(_runtime);
+    RNFWorkletRuntimeRegistry::registerRuntime(_runtime);
   }
 
   ~WorkletRuntimeCollector() {
     Logger::log("WorkletRuntimeCollector", "Unregistering WorkletRuntime %p", &_runtime);
-    WorkletRuntimeRegistry::unregisterRuntime(_runtime);
+    RNFWorkletRuntimeRegistry::unregisterRuntime(_runtime);
   }
 
   static void install(jsi::Runtime& rt) {
