@@ -3,6 +3,7 @@
 //
 
 #include "RenderableManagerWrapper.h"
+#include "core/FilamentInstanceWrapper.h"
 #include "utils/Converter.h"
 
 namespace margelo {

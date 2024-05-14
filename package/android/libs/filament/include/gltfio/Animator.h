@@ -49,6 +49,9 @@ public:
      */
     void applyAnimation(size_t animationIndex, float time) const;
 
+    // NOTE: remove didn't work - need to map nodes
+    void applyAnimation(size_t animationIndex, float time, FilamentAsset* asset) const;
+
     /**
      * Computes root-to-node transforms for all bone nodes, then passes
      * the results into filament::RenderableManager::setBones.
@@ -102,7 +105,7 @@ public:
     const char* getAnimationName(size_t animationIndex) const;
 
     // For internal use only.
-    void addInstance(FFilamentInstance* instance);
+    void addInstance(FilamentInstance* instance);
 
 private:
 

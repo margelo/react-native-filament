@@ -1,3 +1,4 @@
+import { FilamentAsset } from './FilamentAsset'
 import { FilamentInstance } from './FilamentInstance'
 
 /**
@@ -10,6 +11,7 @@ import { FilamentInstance } from './FilamentInstance'
  * For a usage example, see the documentation for AssetLoader.
  */
 export interface Animator {
+  addInstance(instance: FilamentInstance): void
   /**
    * Applies rotation, translation, and scale to entities that have been targeted by the given
    * animation definition. Uses filament::TransformManager.
@@ -18,6 +20,8 @@ export interface Animator {
    * @param time Elapsed time of interest in seconds.
    */
   applyAnimation(animIndex: number, time: number): void
+
+  applyAnimationToAsset(animIndex: number, time: number, asset: FilamentAsset): void
 
   /**
    * Applies a blended transform to the union of nodes affected by two animations.

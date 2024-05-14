@@ -1,4 +1,5 @@
 #include "FilamentAssetWrapper.h"
+#include "AnimatorWrapper.h"
 #include "FilamentInstanceWrapper.h"
 #include "SceneWrapper.h"
 
