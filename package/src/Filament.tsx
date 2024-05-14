@@ -8,7 +8,9 @@ import { RenderCallback, SwapChain } from 'react-native-filament'
 import { SurfaceProvider } from './native/FilamentViewTypes'
 import { Listener } from './types/Listener'
 
-export interface FilamentProps extends NativeProps {
+type PublicNativeProps = Omit<NativeProps, 'onViewReady'>
+
+export interface FilamentProps extends PublicNativeProps {
   /**
    * This function will be called every frame. You can use it to update your scene.
    *
