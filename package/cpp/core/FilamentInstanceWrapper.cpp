@@ -3,6 +3,7 @@
 //
 
 #include "FilamentInstanceWrapper.h"
+#include "AnimatorWrapper.h"
 
 namespace margelo {
 

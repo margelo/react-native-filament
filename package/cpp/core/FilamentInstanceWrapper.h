@@ -5,7 +5,6 @@
 #pragma once
 
 #include "AABBWrapper.h"
-#include "AnimatorWrapper.h"
 #include "jsi/HybridObject.h"
 #include "utils/EntityWrapper.h"
 
@@ -15,6 +14,8 @@ namespace margelo {
 
 using namespace filament;
 using namespace gltfio;
+
+class AnimatorWrapper;
 
 class FilamentInstanceWrapper : public HybridObject {
 public:
