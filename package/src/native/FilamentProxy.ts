@@ -74,12 +74,14 @@ export interface TFilamentProxy {
   readonly hasWorklets: boolean
 
   /**
-   * Get the Worklet context used for Rendering to Filament.
+   * Create a Worklet context used for Rendering to Filament.
+   *
+   * This should only be called once, and the returned value should be kept strong.
    *
    * @example
    * ```ts
    * // 1. Get Render-Thread Worklet Context
-   * const context = FilamentProxy.getWorkletContext()
+   * const context = FilamentProxy.createWorkletContext()
    *
    * // 2. From now on, perform all Filament calls and operations in `context`
    * context.runAsync(() => {
@@ -88,7 +90,7 @@ export interface TFilamentProxy {
    * })
    * ```
    */
-  getWorkletContext: () => IWorkletContext
+  createWorkletContext: () => IWorkletContext
 
   createChoreographer(): Choreographer
 }
@@ -127,3 +129,5 @@ if (!proxy.hasWorklets) {
 }
 
 export const FilamentProxy = proxy
+
+export const FilamentWorkletContext = proxy.createWorkletContext()

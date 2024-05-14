@@ -15,7 +15,7 @@ import {
 } from './types'
 import { EngineProps, useEngine } from './hooks/useEngine'
 import { IWorkletContext, useWorklet } from 'react-native-worklets-core'
-import { FilamentProxy } from './native/FilamentProxy'
+import { FilamentProxy, FilamentWorkletContext } from './native/FilamentProxy'
 import { InteractionManager } from 'react-native'
 import { makeDynamicResolutionHostObject } from './utilities/makeDynamicResolutionHostObject'
 import { makeAmbientOcclusionHostObject } from './utilities/makeAmbientOcclusionHostObject'
@@ -80,7 +80,6 @@ function EngineAPIProvider({ children, engine, choreographer, viewProps, rendere
   const view = useMemo(() => engine.getView(), [engine])
   const camera = useMemo(() => engine.getCamera(), [engine])
   const renderer = useMemo(() => engine.createRenderer(), [engine])
-  const workletContext = useMemo(() => FilamentProxy.getWorkletContext(), [])
 
   const value = useMemo<FilamentContextType>(
     () => ({
@@ -92,10 +91,10 @@ function EngineAPIProvider({ children, engine, choreographer, viewProps, rendere
       view,
       camera,
       renderer,
-      workletContext,
+      workletContext: FilamentWorkletContext,
       _choreographer: choreographer,
     }),
-    [engine, transformManager, renderableManager, scene, lightManager, view, camera, renderer, workletContext, choreographer]
+    [engine, transformManager, renderableManager, scene, lightManager, view, camera, renderer, choreographer]
   )
 
   // Apply view configs
@@ -137,7 +136,7 @@ function EngineAPIProvider({ children, engine, choreographer, viewProps, rendere
         setTimeout(() => {
           // Cleanup in worklets context, as cleanup functions might also use the worklet context
           // and we want to queue our cleanup after all other worklets have run
-          workletContext.runAsync(() => {
+          FilamentWorkletContext.runAsync(() => {
             'worklet'
 
             camera.release()
@@ -152,7 +151,7 @@ function EngineAPIProvider({ children, engine, choreographer, viewProps, rendere
         }, 0)
       })
     }
-  }, [camera, engine, lightManager, renderableManager, renderer, scene, transformManager, view, workletContext])
+  }, [camera, engine, lightManager, renderableManager, renderer, scene, transformManager, view])
 
   return <FilamentContext.Provider value={value}>{children}</FilamentContext.Provider>
 }
@@ -179,11 +178,10 @@ type FilamentProviderProps = PropsWithChildren<
  * ```
  */
 export function FilamentProvider({ children, fallback, config, backend, frameRateOptions, ...viewProps }: FilamentProviderProps) {
-  const context = useMemo(() => FilamentProxy.getWorkletContext(), [])
-  const engine = useEngine({ config, backend, context })
+  const engine = useEngine({ config, backend, context: FilamentWorkletContext })
   const rendererProps = useMemo(() => ({ frameRateOptions }), [frameRateOptions])
   const choreographer = useDisposableResource(
-    useWorklet(context, () => {
+    useWorklet(FilamentWorkletContext, () => {
       'worklet'
       return FilamentProxy.createChoreographer()
     })

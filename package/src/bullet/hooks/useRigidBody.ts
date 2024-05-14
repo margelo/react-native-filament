@@ -1,11 +1,11 @@
 import { Float3 } from '../../types/float3'
 import { BulletAPI } from '../bulletApi'
 import { ActivationState, CollisionCallback, RigidBody } from '../types/RigidBody'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BaseShape } from '../types/Shapes'
 import { Mat4 } from '../../types/TransformManager'
 import { DiscreteDynamicWorld } from '../types/DiscreteDynamicWorld'
-import { FilamentProxy } from '../../native/FilamentProxy'
+import { FilamentWorkletContext } from '../../native/FilamentProxy'
 
 export type RigidBodyProps = {
   mass: number
@@ -40,12 +40,11 @@ export function useRigidBody(props: RigidBodyProps | undefined) {
 
   const [body, setBody] = useState<RigidBody>()
 
-  const context = useMemo(() => FilamentProxy.getWorkletContext(), [])
   useEffect(() => {
     if (mass == null || shape == null || id == null) {
       return
     }
-    const getBody = context.runAsync(() => {
+    const getBody = FilamentWorkletContext.runAsync(() => {
       'worklet'
 
       if (originX != null && originY != null && originZ != null) {
@@ -58,7 +57,7 @@ export function useRigidBody(props: RigidBodyProps | undefined) {
     })
 
     getBody.then(setBody)
-  }, [id, mass, originX, originY, originZ, collisionCallback, shape, transform, context])
+  }, [id, mass, originX, originY, originZ, collisionCallback, shape, transform])
 
   useEffect(() => {
     if (friction == null || body == null) {
