@@ -6,7 +6,7 @@
 
 #include "JSIConverter.h"
 #include "Logger.h"
-#include "jsi/WorkletRuntimeRegistry.h"
+#include "jsi/RNFWorkletRuntimeRegistry.h"
 #include <functional>
 #include <jsi/jsi.h>
 #include <memory>

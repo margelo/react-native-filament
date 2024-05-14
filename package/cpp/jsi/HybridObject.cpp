@@ -52,7 +52,7 @@ HybridObject::~HybridObject() {
   // jsi::Value refers to is managed by the VM and gets freed along with the
   // runtime.
   std::for_each(_functionCache.begin(), _functionCache.end(), [&](auto& item) {
-    if (WorkletRuntimeRegistry::isRuntimeAlive(item.first)) {
+    if (RNFWorkletRuntimeRegistry::isRuntimeAlive(item.first)) {
       item.second.clear();
     } else {
       auto leak = std::make_unique<std::unordered_map<std::string, std::shared_ptr<jsi::Function>>>(std::move(item.second));
@@ -159,7 +159,7 @@ bool HybridObject::isRuntimeAlive() {
     [[unlikely]];
     return false;
   }
-  return WorkletRuntimeRegistry::isRuntimeAlive(_creationRuntime);
+  return RNFWorkletRuntimeRegistry::isRuntimeAlive(_creationRuntime);
 }
 
 } // namespace margelo

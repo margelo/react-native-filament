@@ -11,12 +11,12 @@ namespace margelo {
 
 // From:
 // https://github.com/software-mansion/react-native-reanimated/blob/6cb1a66f1a68cac8079de2b6b305d22359847e51/Common/cpp/ReanimatedRuntime/WorkletRuntimeRegistry.h
-class WorkletRuntimeRegistry {
+class RNFWorkletRuntimeRegistry {
 private:
   static std::set<jsi::Runtime*> registry_;
   static std::mutex mutex_; // Protects `registry_`.
 
-  WorkletRuntimeRegistry() {} // private ctor
+  RNFWorkletRuntimeRegistry() {} // private ctor
 
   static void registerRuntime(jsi::Runtime& runtime) {
     std::lock_guard<std::mutex> lock(mutex_);
