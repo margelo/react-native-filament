@@ -38,6 +38,8 @@ function Renderer() {
   const pengu = useModel({ path: penguModelPath })
   const penguAsset = getAssetFromModel(pengu)
   const pirateHat = useModel({ path: pirateHatPath })
+  const pirateHatAsset = getAssetFromModel(pirateHat)
+  const pirateHatInstance = useMemo(() => pirateHatAsset?.getInstance(), [pirateHatAsset])
 
   const isPirateHatAdded = useRef(true) // assets are added by default to the scene
   const penguAnimator = useAssetAnimator(penguAsset)
@@ -62,7 +64,7 @@ function Renderer() {
 
       camera.lookAt(cameraPosition, cameraTarget, cameraUp)
 
-      if (penguAnimator == null) {
+      if (penguAnimator == null || pirateHatInstance == null) {
         return
       }
 
@@ -89,12 +91,14 @@ function Renderer() {
       }
 
       penguAnimator.updateBoneMatrices()
+      penguAnimator.updateBoneMatricesForInstance(pirateHatInstance)
     },
     [
       view,
       prevAspectRatio,
       camera,
       penguAnimator,
+      pirateHatInstance,
       currentAnimationIndex.value,
       prevAnimationIndex,
       prevAnimationStarted,

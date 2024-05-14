@@ -21,11 +21,6 @@ export interface FilamentAsset extends PointerHolder {
   releaseSourceData(): void
 
   /**
-   * Creates a new animator with the animations from the given asset.
-   */
-  createAnimatorWithAnimationsFrom(asset: FilamentAsset): CopiedAnimator
-
-  /**
    * Gets the list of entities, one for each glTF node. All of these have a Transform component.
    * Some of the returned entities may also have a Renderable component and/or a Light component.
    */
