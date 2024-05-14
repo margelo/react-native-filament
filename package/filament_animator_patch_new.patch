@@ -1,0 +1,166 @@
+diff --git a/libs/gltfio/include/gltfio/Animator.h b/libs/gltfio/include/gltfio/Animator.h
+index 199555a40..9c2ed51ac 100644
+--- a/libs/gltfio/include/gltfio/Animator.h
++++ b/libs/gltfio/include/gltfio/Animator.h
+@@ -20,6 +20,8 @@
+ #include <gltfio/FilamentAsset.h>
+ #include <gltfio/FilamentInstance.h>
+ 
++#define HAS_FILAMENT_ANIMATOR_PATCH 1
++
+ namespace filament::gltfio {
+ 
+ struct FFilamentAsset;
+@@ -47,6 +49,9 @@ public:
+      */
+     void applyAnimation(size_t animationIndex, float time) const;
+ 
++    // NOTE: remove didn't work - need to map nodes
++    void applyAnimation(size_t animationIndex, float time, FilamentAsset* asset) const;
++
+     /**
+      * Computes root-to-node transforms for all bone nodes, then passes
+      * the results into filament::RenderableManager::setBones.
+@@ -56,6 +61,11 @@ public:
+      */
+     void updateBoneMatrices();
+ 
++    // Will update the bone matrices for a instance using the current state of the animator.
++    // Assumes that the instance has the same asset as the animator.
++    // This is useful for animating clothes that are separate from the main model.
++    void updateBoneMatricesForInstance(FilamentInstance* instance);
++
+     /**
+      * Applies a blended transform to the union of nodes affected by two animations.
+      * Used for cross-fading from a previous skinning-based animation or rigid body animation.
+@@ -95,7 +105,7 @@ public:
+     const char* getAnimationName(size_t animationIndex) const;
+ 
+     // For internal use only.
+-    void addInstance(FFilamentInstance* instance);
++    void addInstance(FilamentInstance* instance);
+ 
+ private:
+ 
+diff --git a/libs/gltfio/src/Animator.cpp b/libs/gltfio/src/Animator.cpp
+index 6e53b705c..4a8e83f61 100644
+--- a/libs/gltfio/src/Animator.cpp
++++ b/libs/gltfio/src/Animator.cpp
+@@ -80,7 +80,7 @@ struct AnimatorImpl {
+     FixedCapacityVector<mat4f> crossFade;
+     void addChannels(const FixedCapacityVector<Entity>& nodeMap, const cgltf_animation& srcAnim,
+             Animation& dst);
+-    void applyAnimation(const Channel& channel, float t, size_t prevIndex, size_t nextIndex);
++    void applyAnimation(const Channel& channel, float t, size_t prevIndex, size_t nextIndex, TrsTransformManager* trsTransformManager);
+     void stashCrossFade();
+     void applyCrossFade(float alpha);
+     void resetBoneMatrices(FFilamentInstance* instance);
+@@ -244,13 +244,14 @@ void Animator::applyCrossFade(size_t previousAnimIndex, float previousAnimTime,
+     mImpl->applyCrossFade(alpha);
+ }
+ 
+-void Animator::addInstance(FFilamentInstance* instance) {
++void Animator::addInstance(FilamentInstance* instance) {
++    FFilamentInstance* fInstance = downcast(instance);
+     const cgltf_data* srcAsset = mImpl->asset->mSourceAsset->hierarchy;
+     const cgltf_animation* srcAnims = srcAsset->animations;
+     for (cgltf_size i = 0, len = srcAsset->animations_count; i < len; ++i) {
+         const cgltf_animation& srcAnim = srcAnims[i];
+         Animation& dstAnim = mImpl->animations[i];
+-        mImpl->addChannels(instance->mNodeMap, srcAnim, dstAnim);
++        mImpl->addChannels(fInstance->mNodeMap, srcAnim, dstAnim);
+     }
+ }
+ 
+@@ -305,7 +306,57 @@ void Animator::applyAnimation(size_t animationIndex, float time) const {
+             t = 0.0f;
+         }
+ 
+-        mImpl->applyAnimation(channel, t, prevIndex, nextIndex);
++        mImpl->applyAnimation(channel, t, prevIndex, nextIndex, mImpl->trsTransformManager);
++    }
++    transformManager.commitLocalTransformTransaction();
++}
++
++void Animator::applyAnimation(size_t animationIndex, float time, FilamentAsset* asset) const {
++    const Animation& anim = mImpl->animations[animationIndex];
++    time = fmod(time, anim.duration);
++    TransformManager& transformManager = *mImpl->transformManager;
++    transformManager.openLocalTransformTransaction();
++    for (const auto& channel : anim.channels) {
++        const Sampler* sampler = channel.sourceData;
++        if (sampler->times.size() < 2) {
++            continue;
++        }
++
++        const TimeValues& times = sampler->times;
++
++        // Find the first keyframe after the given time, or the keyframe that matches it exactly.
++        TimeValues::const_iterator iter = times.lower_bound(time);
++
++        // Compute the interpolant (between 0 and 1) and determine the keyframe pair.
++        float t = 0.0f;
++        size_t nextIndex;
++        size_t prevIndex;
++        if (iter == times.end()) {
++            nextIndex = times.size() - 1;
++            prevIndex = nextIndex;
++        } else if (iter == times.begin()) {
++            nextIndex = 0;
++            prevIndex = 0;
++        } else {
++            TimeValues::const_iterator prev = iter; --prev;
++            nextIndex = iter->second;
++            prevIndex = prev->second;
++            const float nextTime = iter->first;
++            const float prevTime = prev->first;
++            float deltaTime = nextTime - prevTime;
++            assert(deltaTime >= 0);
++            if (deltaTime > 0) {
++                t = (time - prevTime) / deltaTime;
++            }
++        }
++
++        if (sampler->interpolation == Sampler::STEP) {
++            t = 0.0f;
++        }
++
++        FFilamentAsset* fAsset = downcast(asset);
++        TrsTransformManager* trsTransformManager = fAsset->getTrsTransformManager();
++        mImpl->applyAnimation(channel, t, prevIndex, nextIndex, trsTransformManager);
+     }
+     transformManager.commitLocalTransformTransaction();
+ }
+@@ -336,6 +387,10 @@ void Animator::updateBoneMatrices() {
+     }
+ }
+ 
++void Animator::updateBoneMatricesForInstance(FilamentInstance* instance) {
++    mImpl->updateBoneMatrices(downcast(instance));
++}
++
+ float Animator::getAnimationDuration(size_t animationIndex) const {
+     return mImpl->animations[animationIndex].duration;
+ }
+@@ -408,7 +463,11 @@ void AnimatorImpl::addChannels(const FixedCapacityVector<Entity>& nodeMap,
+     const Sampler* samplers = dst.samplers.data();
+     for (cgltf_size j = 0, nchans = srcAnim.channels_count; j < nchans; ++j) {
+         const cgltf_animation_channel& srcChannel = srcChannels[j];
+-        Entity targetEntity = nodeMap[srcChannel.target_node - nodes];
++        long position = srcChannel.target_node - nodes;
++        Entity targetEntity;
++        if (UTILS_LIKELY(position < nodeMap.size())) { // avoid assert error on debug
++            targetEntity = nodeMap[position];
++        }
+         if (UTILS_UNLIKELY(!targetEntity)) {
+             if (GLTFIO_VERBOSE) {
+                 slog.w << "No scene root contains node ";
+@@ -432,7 +491,7 @@ void AnimatorImpl::addChannels(const FixedCapacityVector<Entity>& nodeMap,
+ }
+ 
+ void AnimatorImpl::applyAnimation(const Channel& channel, float t, size_t prevIndex,
+-        size_t nextIndex) {
++        size_t nextIndex, TrsTransformManager* trsTransformManager) {
+     const Sampler* sampler = channel.sourceData;
+     const TimeValues& times = sampler->times;
+     TrsTransformManager::Instance trsNode = trsTransformManager->getInstance(channel.targetEntity);
