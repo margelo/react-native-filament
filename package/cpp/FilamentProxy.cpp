@@ -10,7 +10,6 @@
 #include "core/EngineConfigHelper.h"
 #include "jsi/Promise.h"
 #include "threading/Dispatcher.h"
-#include "threading/WorkletContextDispatcher.h"
 
 #include <memory>
 #include <string>
