@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "FilamentInstanceWrapper.h"
 #include "jsi/HybridObject.h"
 #include <gltfio/Animator.h>
 
@@ -17,10 +18,11 @@ public:
 
   void loadHybridMethods() override;
 
-private:
+private: // Exposed JS API
   void applyAnimation(int animationIndex, double time);
   void applyCrossFade(int previousAnimationIndex, double previousAnimationTime, double alpha);
   void updateBoneMatrices();
+  void updateBoneMatricesForInstance(std::shared_ptr<FilamentInstanceWrapper> instanceWrapper);
   void resetBoneMatrices();
   int getAnimationCount();
   double getAnimationDuration(int animationIndex);

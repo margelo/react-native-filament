@@ -8,6 +8,7 @@ namespace margelo {
 void AnimatorWrapper::loadHybridMethods() {
   registerHybridMethod("applyAnimation", &AnimatorWrapper::applyAnimation, this);
   registerHybridMethod("updateBoneMatrices", &AnimatorWrapper::updateBoneMatrices, this);
+  registerHybridMethod("updateBoneMatricesForInstance", &AnimatorWrapper::updateBoneMatricesForInstance, this);
   registerHybridMethod("applyCrossFade", &AnimatorWrapper::applyCrossFade, this);
   registerHybridMethod("resetBoneMatrices", &AnimatorWrapper::resetBoneMatrices, this);
   registerHybridMethod("getAnimationCount", &AnimatorWrapper::getAnimationCount, this);
@@ -42,6 +43,19 @@ void AnimatorWrapper::updateBoneMatrices() {
   std::unique_lock lock(_mutex);
   assetAnimatorNotNull(_animator);
   _animator->updateBoneMatrices();
+}
+
+void AnimatorWrapper::updateBoneMatricesForInstance(std::shared_ptr<FilamentInstanceWrapper> instanceWrapper) {
+  std::unique_lock lock(_mutex);
+  assetAnimatorNotNull(_animator);
+
+  if (instanceWrapper == nullptr) {
+    [[unlikely]];
+    throw std::invalid_argument("Instance must not be null");
+  }
+
+  FilamentInstance* instance = instanceWrapper->getInstance();
+  _animator->updateBoneMatricesForInstance(instance);
 }
 
 void AnimatorWrapper::applyCrossFade(int previousAnimationIndex, double previousAnimationTime, double alpha) {
