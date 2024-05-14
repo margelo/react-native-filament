@@ -36,7 +36,7 @@ add_library(
     ../cpp/jsi/Promise.cpp
     ../cpp/jsi/PromiseFactory.cpp
     ../cpp/jsi/RuntimeCache.cpp
-    ../cpp/jsi/WorkletRuntimeRegistry.cpp
+    ../cpp/jsi/RNFWorkletRuntimeRegistry.cpp
     ../cpp/threading/Dispatcher.cpp
     ../cpp/test/TestHybridObject.cpp
 
