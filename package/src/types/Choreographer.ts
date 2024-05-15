@@ -1,3 +1,4 @@
+import { Listener } from './Listener'
 import { PointerHolder } from './PointerHolder'
 
 export type FrameInfo = {
@@ -22,5 +23,5 @@ export type RenderCallback = (frameInfo: FrameInfo) => void
 export interface Choreographer extends PointerHolder {
   start(): void
   stop(): void
-  setFrameCallback(callback: RenderCallback): void
+  addFrameCallbackListener(callback: RenderCallback): Listener
 }
