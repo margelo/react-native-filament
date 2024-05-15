@@ -14,4 +14,5 @@ export interface FilamentInstance {
   getRoot(): Entity
   createAnimator(): Animator
   getBoundingBox(): AABB
+  syncWithInstance(instance: FilamentInstance): void
 }
