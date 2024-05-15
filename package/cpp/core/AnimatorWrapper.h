@@ -9,31 +9,42 @@
 #include "jsi/HybridObject.h"
 #include <gltfio/Animator.h>
 
+#include <map>
+
 namespace margelo {
 
 using namespace filament::gltfio;
 
 class AnimatorWrapper : public HybridObject {
 public:
-  explicit AnimatorWrapper(Animator* animator) : HybridObject("AnimatorWrapper"), _animator(animator) {}
+  explicit AnimatorWrapper(Animator* animator, FilamentInstance* instance)
+      : HybridObject("AnimatorWrapper"), _animator(animator), _instance(instance) {}
 
   void loadHybridMethods() override;
 
 private: // Exposed JS API
-  void addInstance(std::shared_ptr<FilamentInstanceWrapper> instanceWrapper);
   void applyAnimation(int animationIndex, double time);
-  void applyAnimationToAsset(int animationIndex, double time, std::shared_ptr<FilamentAssetWrapper> assetWrapper);
   void applyCrossFade(int previousAnimationIndex, double previousAnimationTime, double alpha);
   void updateBoneMatrices();
-  void updateBoneMatricesForInstance(std::shared_ptr<FilamentInstanceWrapper> instanceWrapper);
   void resetBoneMatrices();
   int getAnimationCount();
   double getAnimationDuration(int animationIndex);
   std::string getAnimationName(int animationIndex);
+  int addToSyncList(std::shared_ptr<FilamentInstanceWrapper> instanceWrapper);
+  void removeFromSyncList(int instanceId);
+
+private: // Internal
+  void applyAnimationToInstance(FilamentInstance* instanceToSync);
 
 protected:
   std::mutex _mutex;
   Animator* _animator;
+  FilamentInstance* _instance;
+  int _syncId = 0;
+  std::map<int, FilamentInstance*> _syncMap;
+
+private:
+  static auto constexpr TAG = "AnimatorWrapper";
 };
 
 } // namespace margelo

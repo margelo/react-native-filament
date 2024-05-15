@@ -37,18 +37,21 @@ function Renderer() {
 
   const pengu = useModel({ path: penguModelPath })
   const penguAsset = getAssetFromModel(pengu)
-  const penguInstance = useMemo(() => penguAsset?.getInstance(), [penguAsset])
+  const penguAnimator = useAssetAnimator(penguAsset)
   const pirateHat = useModel({ path: pirateHatPath })
   const pirateHatAsset = getAssetFromModel(pirateHat)
   const pirateHatInstance = useMemo(() => pirateHatAsset?.getInstance(), [pirateHatAsset])
 
+  // Sync pirate hat animation with pengu
+  React.useEffect(() => {
+    if (penguAnimator == null || pirateHatInstance == null) return
+    const id = penguAnimator.addToSyncList(pirateHatInstance)
+    return () => {
+      penguAnimator.removeFromSyncList(id)
+    }
+  }, [penguAnimator, pirateHatInstance])
+
   const isPirateHatAdded = useRef(true) // assets are added by default to the scene
-  const penguAnimator = useAssetAnimator(penguAsset)
-  // React.useEffect(() => {
-  //   if (penguAnimator == null) return
-  //   if (pirateHatInstance == null) return
-  //   penguAnimator.addInstance(pirateHatInstance)
-  // }, [penguAnimator, pirateHatInstance])
 
   const prevAnimationIndex = useSharedValue<number | undefined>(undefined)
   const prevAnimationStarted = useSharedValue<number | undefined>(undefined)
@@ -70,7 +73,7 @@ function Renderer() {
 
       camera.lookAt(cameraPosition, cameraTarget, cameraUp)
 
-      if (penguAnimator == null || pirateHatInstance == null || pirateHatAsset == null || penguInstance == null) {
+      if (penguAnimator == null) {
         return
       }
 
@@ -97,22 +100,8 @@ function Renderer() {
       }
 
       penguAnimator.updateBoneMatrices()
-      pirateHatInstance.syncWithInstance(penguInstance)
-      // penguAnimator.updateBoneMatricesForInstance(pirateHatInstance)
     },
-    [
-      view,
-      prevAspectRatio,
-      camera,
-      penguAnimator,
-      pirateHatInstance,
-      pirateHatAsset,
-      penguInstance,
-      currentAnimationIndex.value,
-      prevAnimationIndex,
-      prevAnimationStarted,
-      animationInterpolation,
-    ]
+    [view, prevAspectRatio, camera, penguAnimator, currentAnimationIndex, prevAnimationIndex, prevAnimationStarted, animationInterpolation]
   )
 
   const animations = useMemo(() => {
