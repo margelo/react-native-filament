@@ -56,11 +56,7 @@ void AnimatorWrapper::updateBoneMatrices() {
   std::unique_lock lock(_mutex);
   assertAnimatorNotNull(_animator);
   _animator->updateBoneMatrices();
-
-  // Sync the instances
-  for (auto const& [id, entitiesToSync] : _syncMap) {
-    applyAnimationToEntities(entitiesToSync);
-  }
+  syncInstances();
 }
 
 void AnimatorWrapper::applyCrossFade(int previousAnimationIndex, double previousAnimationTime, double alpha) {
@@ -74,11 +70,7 @@ void AnimatorWrapper::resetBoneMatrices() {
   std::unique_lock lock(_mutex);
   assertAnimatorNotNull(_animator);
   _animator->resetBoneMatrices();
-
-  // Sync the instances
-  for (auto const& [id, entitiesToSync] : _syncMap) {
-    applyAnimationToEntities(instanceToSync);
-  }
+  syncInstances();
 }
 
 int AnimatorWrapper::getAnimationCount() {
@@ -110,7 +102,7 @@ int AnimatorWrapper::addToSyncList(std::shared_ptr<FilamentInstanceWrapper> inst
   int id = _syncId++;
   FilamentInstance* instance = instanceWrapper->getInstance();
   std::map<std::string, Entity> entityMap = getEntityNameMap(instance);
-  _syncMap.insert({id, entityMap});
+  _syncMap.insert({id, instance});
 
   Logger::log(TAG, "Added instance with id %d to sync list", id);
   return id;
@@ -147,40 +139,18 @@ EntityNameMap AnimatorWrapper::getEntityNameMap(FilamentInstance* instance) {
   return entityMap;
 }
 
-void AnimatorWrapper::applyAnimationToEntities(EntityNameMap entitiesToSync) {
+void AnimatorWrapper::applyAnimationTo(EntityNameMap entitiesNameMap) {
   assertInstanceNotNull(_instance);
 
-  FilamentInstance* masterInstance = _instance;
-
-  const FilamentAsset* asset = _instance->getAsset();
-  Engine* engine = asset->getEngine();
-  TransformManager& transformManager = engine->getTransformManager();
-  Animator* masterAnimator = masterInstance->getAnimator();
+  TransformManager& transformManager = getTransformManager();
 
   // Syncing the entities
   // TODO: we are not syncing the morph weights here yet
-  // TODO: Put the name map generation into a function
-  // TODO: Calculate the name map only once
   // TODO: Refactor the global name component manager pattern?
-  // TODO: Wrap in transform transaction?
-
-  // Get name map for master instance
-  size_t masterEntitiesCount = masterInstance->getEntityCount();
-  const Entity* masterEntities = masterInstance->getEntities();
-  std::map<std::string, Entity> masterEntityMap;
-  for (size_t entityIndex = 0; entityIndex < masterEntitiesCount; entityIndex++) {
-    const Entity masterEntity = masterEntities[entityIndex];
-    NameComponentManager::Instance masterNameInstance = GlobalNameComponentManager::getInstance()->getInstance(masterEntity);
-    if (!masterNameInstance.isValid()) {
-      continue;
-    }
-    auto masterInstanceName = GlobalNameComponentManager::getInstance()->getName(masterNameInstance);
-    masterEntityMap[masterInstanceName] = masterEntity;
-  }
 
   // Sync the same named entities:
-  for (auto const& [name, masterEntity] : masterEntityMap) {
-    auto instanceEntity = entitiesToSync[name];
+  for (auto const& [name, masterEntity] : _entityMap) {
+    auto instanceEntity = entitiesNameMap[name];
     if (instanceEntity.isNull()) {
       continue;
     }
@@ -197,9 +167,34 @@ void AnimatorWrapper::applyAnimationToEntities(EntityNameMap entitiesToSync) {
     math::mat4f masterTransform = transformManager.getTransform(masterTransformInstance);
     transformManager.setTransform(instanceTransformInstance, masterTransform);
   }
+}
 
-  // Syncing the bones / joints
-  masterAnimator->updateBoneMatricesForInstance(instanceToSync);
+void AnimatorWrapper::syncInstances() {
+  TransformManager& transformManager = getTransformManager();
+  transformManager.openLocalTransformTransaction();
+
+  for (auto const& [id, instanceToSync] : _syncMap) {
+    EntityNameMap entityNameMap = getEntityNameMap(instanceToSync);
+    if (entityNameMap.empty()) {
+      [[unlikely]];
+      continue;
+    }
+
+    applyAnimationTo(entityNameMap);
+
+#if HAS_FILAMENT_ANIMATOR_PATCH
+    Animator* masterAnimator = _instance->getAnimator();
+    masterAnimator->updateBoneMatricesForInstance(instanceToSync);
+#endif
+  }
+
+  transformManager.commitLocalTransformTransaction();
+}
+
+TransformManager& AnimatorWrapper::getTransformManager() {
+  const FilamentAsset* asset = _instance->getAsset();
+  Engine* engine = asset->getEngine();
+  return engine->getTransformManager();
 }
 
 } // namespace margelo
