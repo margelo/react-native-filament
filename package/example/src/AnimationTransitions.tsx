@@ -98,7 +98,7 @@ function Renderer() {
 
       penguAnimator.updateBoneMatrices()
       pirateHatInstance.syncWithInstance(penguInstance)
-      penguAnimator.updateBoneMatricesForInstance(pirateHatInstance)
+      // penguAnimator.updateBoneMatricesForInstance(pirateHatInstance)
     },
     [
       view,
