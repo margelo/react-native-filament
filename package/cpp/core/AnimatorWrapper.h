@@ -14,6 +14,7 @@
 namespace margelo {
 
 using namespace filament::gltfio;
+using EntityNameMap = std::map<std::string, Entity>;
 
 class AnimatorWrapper : public HybridObject {
 public:
@@ -34,7 +35,9 @@ private: // Exposed JS API
   void removeFromSyncList(int instanceId);
 
 private: // Internal
-  void applyAnimationToInstance(FilamentInstance* instanceToSync);
+  // Creates a map of entities and their names
+  EntityNameMap getEntityNameMap(FilamentInstance* instance);
+  void applyAnimationToEntities(EntityNameMap entitiesToSync);
 
 protected:
   std::mutex _mutex;
@@ -42,6 +45,7 @@ protected:
   FilamentInstance* _instance;
   int _syncId = 0;
   std::map<int, FilamentInstance*> _syncMap;
+  std::map<int, EntityNameMap> _instanceEntityMap;
 
 private:
   static auto constexpr TAG = "AnimatorWrapper";
