@@ -33,32 +33,7 @@ HybridObject::~HybridObject() {
 #if DEBUG
   Logger::log(TAG, "(MEMORY) Deleting %s (#%i)... ❌", _name, _instanceId);
 #endif
-
-  // Only clear the function cache if the runtime is still alive.
-  // Otherwise leak memory. We do this on purpose, as sometimes we would keep
-  // references to JSI objects past the lifetime of its runtime (e.g.,
-  // shared values references from the RN VM holds reference to JSI objects
-  // on the UI runtime). When the UI runtime is terminated, the orphaned JSI
-  // objects would crash the app when their destructors are called, because
-  // they call into a memory that's managed by the terminated runtime. We
-  // accept the tradeoff of leaking memory here, as it has a limited impact.
-  // This scenario can only occur when the React instance is torn down which
-  // happens in development mode during app reloads, or in production when
-  // the app is being shut down gracefully by the system. An alternative
-  // solution would require us to keep track of all JSI values that are in
-  // use which would require additional data structure and compute spent on
-  // bookkeeping that only for the sake of destroying the values in time
-  // before the runtime is terminated. Note that the underlying memory that
-  // jsi::Value refers to is managed by the VM and gets freed along with the
-  // runtime.
-  std::for_each(_functionCache.begin(), _functionCache.end(), [&](auto& item) {
-    if (RNFWorkletRuntimeRegistry::isRuntimeAlive(item.first)) {
-      item.second.clear();
-    } else {
-      auto leak = std::make_unique<std::unordered_map<std::string, std::shared_ptr<jsi::Function>>>(std::move(item.second));
-      leak.release();
-    }
-  });
+  _functionCache.clear();
 }
 
 std::string HybridObject::toString(jsi::Runtime& runtime) {
@@ -154,6 +129,7 @@ void HybridObject::ensureInitialized(facebook::jsi::Runtime& runtime) {
     _didLoadMethods = true;
   }
 }
+
 bool HybridObject::isRuntimeAlive() {
   if (_creationRuntime == nullptr) {
     [[unlikely]];
