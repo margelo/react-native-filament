@@ -1,5 +1,5 @@
 import { AABB } from './Boxes'
-import type { Animator, CopiedAnimator } from './Animator'
+import type { Animator } from './Animator'
 import type { Entity } from './Entity'
 import { FilamentInstance } from './FilamentInstance'
 import { PointerHolder } from './PointerHolder'
@@ -19,11 +19,6 @@ export interface FilamentAsset extends PointerHolder {
    * Reclaims CPU-side memory for URI strings, binding lists, and raw animation data.
    */
   releaseSourceData(): void
-
-  /**
-   * Creates a new animator with the animations from the given asset.
-   */
-  createAnimatorWithAnimationsFrom(asset: FilamentAsset): CopiedAnimator
 
   /**
    * Gets the list of entities, one for each glTF node. All of these have a Transform component.

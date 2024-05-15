@@ -61,7 +61,7 @@ void TransformManagerWrapper::updateTransformByRigidBody(std::shared_ptr<EntityW
   pointee()->updateTransformByRigidBody(entity, rigidBody);
 }
 void TransformManagerWrapper::transformToUnitCube(std::shared_ptr<FilamentAssetWrapper> assetWrapper) {
-  std::shared_ptr<FilamentAsset> asset = assetWrapper->getAsset();
+  std::shared_ptr<gltfio::FilamentAsset> asset = assetWrapper->getAsset();
   pointee()->transformToUnitCube(asset);
 }
 

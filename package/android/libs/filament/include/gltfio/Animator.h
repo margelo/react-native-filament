@@ -59,6 +59,16 @@ public:
     void updateBoneMatrices();
 
     /**
+     * Updates the bone matrices of the specified instance using the state of this animation.
+     * This is useful if you have other instances that have the same skeleton as the animator
+     * from this asset, and you want those instances to be animated by the same animation (e.g. clothing).
+     * Usually you don't need this and using updateBoneMatrices() is enough.
+     * 
+     * @param instance The instance to update.
+     */
+    void updateBoneMatricesForInstance(FilamentInstance* instance);
+
+    /**
      * Applies a blended transform to the union of nodes affected by two animations.
      * Used for cross-fading from a previous skinning-based animation or rigid body animation.
      *
@@ -99,12 +109,6 @@ public:
     // For internal use only.
     void addInstance(FFilamentInstance* instance);
 
-    // Public constructor for creating an animator with the animations from an asset
-    // and applying the animations to a different instance.
-    Animator(FilamentAsset *asset, FilamentInstance *instance);
-
-    ~Animator();
-
 private:
 
     /*! \cond PRIVATE */
@@ -114,6 +118,7 @@ private:
 
     // If "instance" is null, then this is the primary animator.
     Animator(FFilamentAsset const* asset, FFilamentInstance* instance);
+    ~Animator();
 
     Animator(const Animator& animator) = delete;
     Animator(Animator&& animator) = delete;
