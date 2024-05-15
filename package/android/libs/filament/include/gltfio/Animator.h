@@ -59,10 +59,12 @@ public:
     void updateBoneMatrices();
 
     /**
-     * Updates the bone matrices of the specified instance using the state of this animation.
-     * This is useful if you have other instances that have the same skeleton as the animator
-     * from this asset, and you want those instances to be animated by the same animation (e.g. clothing).
-     * Usually you don't need this and using updateBoneMatrices() is enough.
+     * Updates the bone matrices of the specified instance using the state of this animatior.
+     * This is useful if you have another instance that has the same skeleton as the asset of this animator,
+     * and you wish to apply the same animation to those instances (e.g. clothing).
+     * 
+     * NOTE: In most cases, you only need to use the updateBoneMatrices() method. This method is necessary
+     * only when you need to synchronize animations across multiple instances with the same skeleton.
      * 
      * @param instance The instance to update.
      */
