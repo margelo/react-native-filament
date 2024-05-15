@@ -25,6 +25,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
   private readonly ref: React.RefObject<RefType>
   private surfaceCreatedListener: Listener | undefined
   private surfaceDestroyedListener: Listener | undefined
+  private renderCallbackListener: Listener | undefined
   private swapChain: SwapChain | undefined
 
   /**
@@ -57,21 +58,26 @@ export class Filament extends React.PureComponent<FilamentProps> {
 
   private updateRenderCallback = async (callback: RenderCallback, swapChain: SwapChain) => {
     const { renderer, view, workletContext, _choreographer } = this.getContext()
-    return workletContext.runAsync(() => {
-      'worklet'
-      _choreographer.setFrameCallback((frameInfo) => {
+    this.renderCallbackListener?.remove()
+    return workletContext
+      .runAsync(() => {
         'worklet'
-        try {
-          callback(frameInfo)
-          if (renderer.beginFrame(swapChain, frameInfo.timestamp)) {
-            renderer.render(view)
-            renderer.endFrame()
+        return _choreographer.addFrameCallbackListener((frameInfo) => {
+          'worklet'
+          try {
+            callback(frameInfo)
+            if (renderer.beginFrame(swapChain, frameInfo.timestamp)) {
+              renderer.render(view)
+              renderer.endFrame()
+            }
+          } catch (e) {
+            reportWorkletError(e)
           }
-        } catch (e) {
-          reportWorkletError(e)
-        }
+        })
       })
-    })
+      .then((listener) => {
+        this.renderCallbackListener = listener
+      })
   }
 
   private getContext = () => {
@@ -123,11 +129,9 @@ export class Filament extends React.PureComponent<FilamentProps> {
 
       const surfaceProvider = view.getSurfaceProvider()
       this.surfaceCreatedListener = surfaceProvider.addOnSurfaceCreatedListener(() => {
-        console.log('Surface created!')
         this.onSurfaceCreated(surfaceProvider)
       }, FilamentProxy.getCurrentDispatcher())
       this.surfaceDestroyedListener = surfaceProvider.addOnSurfaceDestroyedListener(() => {
-        console.log('Surface destroyed!')
         this.onSurfaceDestroyed()
       }, FilamentProxy.getCurrentDispatcher())
       // Link the surface with the engine:
@@ -169,7 +173,9 @@ export class Filament extends React.PureComponent<FilamentProps> {
     console.log('Surface destroyed')
     const { _choreographer } = this.getContext()
     _choreographer.stop()
+    this.renderCallbackListener?.remove()
     this.swapChain?.release()
+    this.swapChain = undefined
   }
 
   /**

@@ -16,7 +16,6 @@ using RenderCallback = std::function<void(FrameInfo)>;
 class ChoreographerWrapper : public PointerHolder<Choreographer>, public RuntimeLifecycleListener {
 public:
   explicit ChoreographerWrapper(std::shared_ptr<Choreographer> choreographer) : PointerHolder(TAG, choreographer) {}
-  ~ChoreographerWrapper() override;
 
   void loadHybridMethods() override;
 
@@ -27,8 +26,7 @@ protected:
 private: // Exposed JS API
   void start();
   void stop();
-  // TODO: refactor to addOnFrameListener and support multiple listeners, expose Listener as JS object
-  void setFrameCallback(RenderCallback onFrameCallback);
+  std::shared_ptr<Listener> addFrameCallbackListener(RenderCallback onFrameCallback);
   void release() override;
 
 private: // Internal
@@ -40,8 +38,8 @@ private:
   std::mutex _mutex;
   double _startTime = 0;
   double _lastFrameTime = 0;
-  std::shared_ptr<Listener> _listener = nullptr;
-  std::unique_ptr<RenderCallback> _renderCallback = nullptr;
+  std::shared_ptr<Listener> _choreographerListener = nullptr;
+  std::shared_ptr<ListenerManager<RenderCallback>> _renderCallbackListeners = ListenerManager<RenderCallback>::create();
 
 private:
   static constexpr auto TAG = "ChoreographerWrapper";
