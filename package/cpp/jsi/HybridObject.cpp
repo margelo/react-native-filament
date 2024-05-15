@@ -89,7 +89,8 @@ jsi::Value HybridObject::get(facebook::jsi::Runtime& runtime, const facebook::js
     HybridFunction& hybridFunction = _methods.at(name);
     jsi::Function function = jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, name),
                                                                    hybridFunction.parameterCount, hybridFunction.function);
-    functionCache[name] = std::make_shared<jsi::Function>(std::move(function));
+
+    functionCache[name] = JSIHelper::createSharedJsiFunction(runtime, std::move(function));
     return jsi::Value(runtime, *functionCache[name]);
   }
 
