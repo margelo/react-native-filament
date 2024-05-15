@@ -10,28 +10,6 @@
 
 namespace margelo {
 
-template <typename R, typename... Args> class ShareableJsiFunction {
-public:
-  ShareableJsiFunction(std::function<R(Args...)>&& function, jsi::Runtime* runtime)
-      : _function(std::make_unique<std::function<R(Args...)>>(std::move(function))), _runtime(runtime) {}
-  ~ShareableJsiFunction() {
-    if (!RNFWorkletRuntimeRegistry::isRuntimeAlive(_runtime)) {
-      // This will not delete the underlying pointer.
-      // When the runtime is destroyed we can't call the jsi::Value's destructor,
-      // as we would run into a crash (as the runtime is already gone).
-      _function.release();
-    }
-  }
-
-  R operator()(Args... args) const {
-    (*_function)(std::forward<Args>(args)...);
-  }
-
-private:
-  std::unique_ptr<std::function<R(Args...)>> _function;
-  jsi::Runtime* _runtime;
-};
-
 using FrameInfo = std::unordered_map<std::string, double>;
 using RenderCallback = std::function<void(FrameInfo)>;
 
