@@ -60,6 +60,7 @@ protected:
   int _syncId = 0;
   std::map<int, FilamentInstance*> _syncMap;
   std::map<int, EntityNameMap> _instanceEntityMap;
+  TransformManager& _transformManager = getTransformManager();
 
 private:
   static auto constexpr TAG = "AnimatorWrapper";
