@@ -1,4 +1,3 @@
-import { FilamentAsset } from './FilamentAsset'
 import { FilamentInstance } from './FilamentInstance'
 
 /**
@@ -11,7 +10,6 @@ import { FilamentInstance } from './FilamentInstance'
  * For a usage example, see the documentation for AssetLoader.
  */
 export interface Animator {
-  addInstance(instance: FilamentInstance): void
   /**
    * Applies rotation, translation, and scale to entities that have been targeted by the given
    * animation definition. Uses filament::TransformManager.
@@ -20,8 +18,6 @@ export interface Animator {
    * @param time Elapsed time of interest in seconds.
    */
   applyAnimation(animIndex: number, time: number): void
-
-  applyAnimationToAsset(animIndex: number, time: number, asset: FilamentAsset): void
 
   /**
    * Applies a blended transform to the union of nodes affected by two animations.
@@ -51,7 +47,21 @@ export interface Animator {
    */
   updateBoneMatrices(): void
 
-  updateBoneMatricesForInstance(instance: FilamentInstance): void
+  /**
+   * Will apply all transforms of the animation to the same entities/bones when calling {@linkcode updateBoneMatrices}.
+   * This is useful if you have multiple assets sharing the same skeleton and you want to animate them in sync (e.g. clothing).
+   * Internally calls {@linkcode applyAnimationToInstance}.
+   *
+   * @note Entities / bones are identified by name.
+   *
+   * @returns The id of the instance in the sync list.
+   */
+  addToSyncList(instance: FilamentInstance): number
+
+  /**
+   * Will remove the instance from the sync list.
+   */
+  removeFromSyncList(instanceId: number): void
 
   /**
    * Pass the identity matrix into all bone nodes, useful for returning to the T pose.

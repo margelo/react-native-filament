@@ -29,7 +29,7 @@ inline void assertAnimationIndexSmallerThan(int animationIndex, int max) {
   }
 }
 
-inline void assetAnimatorNotNull(Animator* animator) {
+inline void assertAnimatorNotNull(Animator* animator) {
   if (animator == nullptr) {
     [[unlikely]];
     throw std::runtime_error("Failed to call animator method, as the internal animator was null. You probably tried to access the animator "
@@ -37,7 +37,7 @@ inline void assetAnimatorNotNull(Animator* animator) {
   }
 }
 
-inline void assetInstanceNotNull(FilamentInstance* instance) {
+inline void assertInstanceNotNull(FilamentInstance* instance) {
   if (instance == nullptr) {
     [[unlikely]];
     throw std::runtime_error("Failed to call animator method, as the internal instance was null. You probably tried to access the animator "
@@ -47,57 +47,55 @@ inline void assetInstanceNotNull(FilamentInstance* instance) {
 
 void AnimatorWrapper::applyAnimation(int animationIndex, double time) {
   std::unique_lock lock(_mutex);
-  assetAnimatorNotNull(_animator);
+  assertAnimatorNotNull(_animator);
   assertAnimationIndexSmallerThan(animationIndex, _animator->getAnimationCount());
   _animator->applyAnimation(animationIndex, time);
 }
 
 void AnimatorWrapper::updateBoneMatrices() {
   std::unique_lock lock(_mutex);
-  assetAnimatorNotNull(_animator);
+  assertAnimatorNotNull(_animator);
   _animator->updateBoneMatrices();
 
   // Sync the instances
-  for (auto const& [id, instanceToSync] : _syncMap) {
-    assetInstanceNotNull(instanceToSync);
-    applyAnimationToInstance(instanceToSync);
+  for (auto const& [id, entitiesToSync] : _syncMap) {
+    applyAnimationToEntities(entitiesToSync);
   }
 }
 
 void AnimatorWrapper::applyCrossFade(int previousAnimationIndex, double previousAnimationTime, double alpha) {
   std::unique_lock lock(_mutex);
-  assetAnimatorNotNull(_animator);
+  assertAnimatorNotNull(_animator);
   assertAnimationIndexSmallerThan(previousAnimationIndex, _animator->getAnimationCount());
   _animator->applyCrossFade(previousAnimationIndex, previousAnimationTime, alpha);
 }
 
 void AnimatorWrapper::resetBoneMatrices() {
   std::unique_lock lock(_mutex);
-  assetAnimatorNotNull(_animator);
+  assertAnimatorNotNull(_animator);
   _animator->resetBoneMatrices();
 
   // Sync the instances
-  for (auto const& [id, instanceToSync] : _syncMap) {
-    assetInstanceNotNull(instanceToSync);
-    applyAnimationToInstance(instanceToSync);
+  for (auto const& [id, entitiesToSync] : _syncMap) {
+    applyAnimationToEntities(instanceToSync);
   }
 }
 
 int AnimatorWrapper::getAnimationCount() {
   std::unique_lock lock(_mutex);
-  assetAnimatorNotNull(_animator);
+  assertAnimatorNotNull(_animator);
   return _animator->getAnimationCount();
 }
 
 double AnimatorWrapper::getAnimationDuration(int animationIndex) {
   std::unique_lock lock(_mutex);
-  assetAnimatorNotNull(_animator);
+  assertAnimatorNotNull(_animator);
   return _animator->getAnimationDuration(animationIndex);
 }
 
 std::string AnimatorWrapper::getAnimationName(int animationIndex) {
   std::unique_lock lock(_mutex);
-  assetAnimatorNotNull(_animator);
+  assertAnimatorNotNull(_animator);
   return _animator->getAnimationName(animationIndex);
 }
 
@@ -111,7 +109,8 @@ int AnimatorWrapper::addToSyncList(std::shared_ptr<FilamentInstanceWrapper> inst
 
   int id = _syncId++;
   FilamentInstance* instance = instanceWrapper->getInstance();
-  _syncMap.insert({id, instance});
+  std::map<std::string, Entity> entityMap = getEntityNameMap(instance);
+  _syncMap.insert({id, entityMap});
 
   Logger::log(TAG, "Added instance with id %d to sync list", id);
   return id;
@@ -129,13 +128,31 @@ void AnimatorWrapper::removeFromSyncList(int instanceId) {
   _syncMap.erase(instanceId);
 }
 
-void AnimatorWrapper::applyAnimationToInstance(FilamentInstance* instanceToSync) {
-  assetInstanceNotNull(instanceToSync);
-  assetInstanceNotNull(_instance);
+EntityNameMap AnimatorWrapper::getEntityNameMap(FilamentInstance* instance) {
+  assertInstanceNotNull(instance);
+
+  size_t masterEntitiesCount = instance->getEntityCount();
+  const Entity* masterEntities = instance->getEntities();
+  std::map<std::string, Entity> entityMap;
+  for (size_t entityIndex = 0; entityIndex < masterEntitiesCount; entityIndex++) {
+    const Entity masterEntity = masterEntities[entityIndex];
+    NameComponentManager::Instance masterNameInstance = GlobalNameComponentManager::getInstance()->getInstance(masterEntity);
+    if (!masterNameInstance.isValid()) {
+      continue;
+    }
+    auto masterInstanceName = GlobalNameComponentManager::getInstance()->getName(masterNameInstance);
+    entityMap[masterInstanceName] = masterEntity;
+  }
+
+  return entityMap;
+}
+
+void AnimatorWrapper::applyAnimationToEntities(EntityNameMap entitiesToSync) {
+  assertInstanceNotNull(_instance);
 
   FilamentInstance* masterInstance = _instance;
 
-  const FilamentAsset* asset = instanceToSync->getAsset();
+  const FilamentAsset* asset = _instance->getAsset();
   Engine* engine = asset->getEngine();
   TransformManager& transformManager = engine->getTransformManager();
   Animator* masterAnimator = masterInstance->getAnimator();
@@ -147,7 +164,7 @@ void AnimatorWrapper::applyAnimationToInstance(FilamentInstance* instanceToSync)
   // TODO: Refactor the global name component manager pattern?
   // TODO: Wrap in transform transaction?
 
-  // Get name map for master instanceToSync
+  // Get name map for master instance
   size_t masterEntitiesCount = masterInstance->getEntityCount();
   const Entity* masterEntities = masterInstance->getEntities();
   std::map<std::string, Entity> masterEntityMap;
@@ -161,23 +178,9 @@ void AnimatorWrapper::applyAnimationToInstance(FilamentInstance* instanceToSync)
     masterEntityMap[masterInstanceName] = masterEntity;
   }
 
-  // Get name map for instanceToSync
-  size_t instanceEntitiesCount = instanceToSync->getEntityCount();
-  const Entity* instanceEntities = instanceToSync->getEntities();
-  std::map<std::string, Entity> instanceEntityMap;
-  for (size_t entityIndex = 0; entityIndex < instanceEntitiesCount; entityIndex++) {
-    const Entity instanceEntity = instanceEntities[entityIndex];
-    NameComponentManager::Instance instanceNameInstance = GlobalNameComponentManager::getInstance()->getInstance(instanceEntity);
-    if (!instanceNameInstance.isValid()) {
-      continue;
-    }
-    auto instanceName = GlobalNameComponentManager::getInstance()->getName(instanceNameInstance);
-    instanceEntityMap[instanceName] = instanceEntity;
-  }
-
   // Sync the same named entities:
   for (auto const& [name, masterEntity] : masterEntityMap) {
-    auto instanceEntity = instanceEntityMap[name];
+    auto instanceEntity = entitiesToSync[name];
     if (instanceEntity.isNull()) {
       continue;
     }

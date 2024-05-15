@@ -1,5 +1,5 @@
 import { AABB } from './Boxes'
-import type { Animator, CopiedAnimator } from './Animator'
+import type { Animator } from './Animator'
 import type { Entity } from './Entity'
 import { FilamentInstance } from './FilamentInstance'
 import { PointerHolder } from './PointerHolder'
