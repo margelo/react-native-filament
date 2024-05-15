@@ -49,9 +49,6 @@ public:
      */
     void applyAnimation(size_t animationIndex, float time) const;
 
-    // NOTE: remove didn't work - need to map nodes
-    void applyAnimation(size_t animationIndex, float time, FilamentAsset* asset) const;
-
     /**
      * Computes root-to-node transforms for all bone nodes, then passes
      * the results into filament::RenderableManager::setBones.
@@ -61,9 +58,14 @@ public:
      */
     void updateBoneMatrices();
 
-    // Will update the bone matrices for a instance using the current state of the animator.
-    // Assumes that the instance has the same asset as the animator.
-    // This is useful for animating clothes that are separate from the main model.
+    /**
+     * Updates the bone matrices of the specified instance using the state of this animation.
+     * This is useful if you have other instances that have the same skeleton as the animator
+     * from this asset, and you want those instances to be animated by the same animation (e.g. clothing).
+     * Usually you don't need this and using updateBoneMatrices() is enough.
+     * 
+     * @param instance The instance to update the bone matrices for.
+     */
     void updateBoneMatricesForInstance(FilamentInstance* instance);
 
     /**
@@ -105,7 +107,7 @@ public:
     const char* getAnimationName(size_t animationIndex) const;
 
     // For internal use only.
-    void addInstance(FilamentInstance* instance);
+    void addInstance(FFilamentInstance* instance);
 
 private:
 

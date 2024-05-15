@@ -37,7 +37,7 @@ void FilamentAssetWrapper::releaseSourceData() {
 std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::createAnimator() {
   FilamentInstance* instance = pointee()->getInstance();
   Animator* animator = instance->getAnimator();
-  return std::make_shared<AnimatorWrapper>(animator);
+  return std::make_shared<AnimatorWrapper>(animator, instance);
 }
 
 std::vector<std::shared_ptr<EntityWrapper>> FilamentAssetWrapper::getEntities() {
