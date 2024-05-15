@@ -103,6 +103,7 @@ int AnimatorWrapper::addToSyncList(std::shared_ptr<FilamentInstanceWrapper> inst
   FilamentInstance* instance = instanceWrapper->getInstance();
   std::map<std::string, Entity> entityMap = getEntityNameMap(instance);
   _syncMap.insert({id, instance});
+  _instanceEntityMap.insert({id, entityMap});
 
   Logger::log(TAG, "Added instance with id %d to sync list", id);
   return id;
@@ -118,6 +119,7 @@ void AnimatorWrapper::removeFromSyncList(int instanceId) {
 
   Logger::log(TAG, "Removed instance with id %d from sync list", instanceId);
   _syncMap.erase(instanceId);
+  _instanceEntityMap.erase(instanceId);
 }
 
 EntityNameMap AnimatorWrapper::getEntityNameMap(FilamentInstance* instance) {
@@ -142,8 +144,6 @@ EntityNameMap AnimatorWrapper::getEntityNameMap(FilamentInstance* instance) {
 void AnimatorWrapper::applyAnimationTo(EntityNameMap entitiesNameMap) {
   assertInstanceNotNull(_instance);
 
-  TransformManager& transformManager = getTransformManager();
-
   // Syncing the entities
   // TODO: we are not syncing the morph weights here yet
   // TODO: Refactor the global name component manager pattern?
@@ -152,29 +152,30 @@ void AnimatorWrapper::applyAnimationTo(EntityNameMap entitiesNameMap) {
   for (auto const& [name, masterEntity] : _entityMap) {
     auto instanceEntity = entitiesNameMap[name];
     if (instanceEntity.isNull()) {
+      [[unlikely]];
       continue;
     }
 
     // Sync the transform
-    TransformManager::Instance masterTransformInstance = transformManager.getInstance(masterEntity);
-    TransformManager::Instance instanceTransformInstance = transformManager.getInstance(instanceEntity);
+    TransformManager::Instance masterTransformInstance = _transformManager.getInstance(masterEntity);
+    TransformManager::Instance instanceTransformInstance = _transformManager.getInstance(instanceEntity);
 
     if (!masterTransformInstance.isValid() || !instanceTransformInstance.isValid()) {
+      [[unlikely]];
       Logger::log(TAG, "Transform instanceToSync is for entity named %s is invalid", name.c_str());
       continue;
     }
 
-    math::mat4f masterTransform = transformManager.getTransform(masterTransformInstance);
-    transformManager.setTransform(instanceTransformInstance, masterTransform);
+    math::mat4f masterTransform = _transformManager.getTransform(masterTransformInstance);
+      _transformManager.setTransform(instanceTransformInstance, masterTransform);
   }
 }
 
 void AnimatorWrapper::syncInstances() {
-  TransformManager& transformManager = getTransformManager();
-  transformManager.openLocalTransformTransaction();
+    _transformManager.openLocalTransformTransaction();
 
   for (auto const& [id, instanceToSync] : _syncMap) {
-    EntityNameMap entityNameMap = getEntityNameMap(instanceToSync);
+    EntityNameMap entityNameMap = _instanceEntityMap[id];
     if (entityNameMap.empty()) {
       [[unlikely]];
       continue;
@@ -188,7 +189,7 @@ void AnimatorWrapper::syncInstances() {
 #endif
   }
 
-  transformManager.commitLocalTransformTransaction();
+    _transformManager.commitLocalTransformTransaction();
 }
 
 TransformManager& AnimatorWrapper::getTransformManager() {
