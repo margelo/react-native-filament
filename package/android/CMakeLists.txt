@@ -64,6 +64,7 @@ add_library(
     ../cpp/core/FilamentInstanceWrapper.cpp
     ../cpp/core/LightManagerWrapper.cpp
     ../cpp/core/RendererWrapper.cpp
+    ../cpp/core/GlobalNameComponentManager.cpp
 
     # Filament Utils
     ../cpp/core/utils/EntityWrapper.cpp

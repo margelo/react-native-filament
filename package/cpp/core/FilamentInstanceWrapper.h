@@ -41,6 +41,7 @@ private: // Public JS API
    */
   std::shared_ptr<AnimatorWrapper> createAnimator();
   std::shared_ptr<AABBWrapper> getBoundingBox();
+  void syncWithInstance(std::shared_ptr<FilamentInstanceWrapper> instanceWrapper);
 
 private:
   FilamentInstance* _instance;
