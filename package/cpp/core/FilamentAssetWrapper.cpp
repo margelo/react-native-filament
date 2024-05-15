@@ -1,4 +1,5 @@
 #include "FilamentAssetWrapper.h"
+#include "AnimatorWrapper.h"
 #include "FilamentInstanceWrapper.h"
 #include "SceneWrapper.h"
 
@@ -13,7 +14,6 @@ void FilamentAssetWrapper::loadHybridMethods() {
   registerHybridMethod("getRoot", &FilamentAssetWrapper::getRoot, this);
   registerHybridMethod("releaseSourceData", &FilamentAssetWrapper::releaseSourceData, this);
   registerHybridMethod("createAnimator", &FilamentAssetWrapper::createAnimator, this);
-  registerHybridMethod("createAnimatorWithAnimationsFrom", &FilamentAssetWrapper::createAnimatorWithAnimationsFrom, this);
   registerHybridGetter("entityCount", &FilamentAssetWrapper::getEntityCount, this);
   registerHybridMethod("getEntities", &FilamentAssetWrapper::getEntities, this);
   registerHybridGetter("renderableEntityCount", &FilamentAssetWrapper::getRenderableEntityCount, this);
@@ -37,19 +37,7 @@ void FilamentAssetWrapper::releaseSourceData() {
 std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::createAnimator() {
   FilamentInstance* instance = pointee()->getInstance();
   Animator* animator = instance->getAnimator();
-  return std::make_shared<AnimatorWrapper>(animator);
-}
-
-std::shared_ptr<CopiedAnimatorWrapper>
-FilamentAssetWrapper::createAnimatorWithAnimationsFrom(std::shared_ptr<FilamentAssetWrapper> otherAsset) {
-#ifdef HAS_FILAMENT_ANIMATOR_PATCH
-  // TODO(copy-animations): We currently copy animations from an asset onto another instance (different model than the original asset), we
-  // should replace this with once we found a good solution discussed here: https://github.com/google/filament/issues/7622
-  std::shared_ptr<Animator> animator = std::make_shared<gltfio::Animator>(otherAsset->pointee().get(), pointee()->getInstance());
-  return std::make_shared<CopiedAnimatorWrapper>(animator);
-#else
-  return getAnimator();
-#endif
+  return std::make_shared<AnimatorWrapper>(animator, instance);
 }
 
 std::vector<std::shared_ptr<EntityWrapper>> FilamentAssetWrapper::getEntities() {

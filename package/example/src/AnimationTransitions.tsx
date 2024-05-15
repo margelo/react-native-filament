@@ -10,7 +10,6 @@ import {
   getAssetFromModel,
   FilamentProvider,
   useFilamentContext,
-  useDisposableResource,
   useSkybox,
   RenderCallback,
 } from 'react-native-filament'
@@ -38,17 +37,21 @@ function Renderer() {
 
   const pengu = useModel({ path: penguModelPath })
   const penguAsset = getAssetFromModel(pengu)
+  const penguAnimator = useAssetAnimator(penguAsset)
   const pirateHat = useModel({ path: pirateHatPath })
   const pirateHatAsset = getAssetFromModel(pirateHat)
-  const pirateHatAnimator = useDisposableResource(() => {
-    if (pirateHatAsset == null || penguAsset == null) {
-      return undefined
+  const pirateHatInstance = useMemo(() => pirateHatAsset?.getInstance(), [pirateHatAsset])
+
+  // Sync pirate hat animation with pengu
+  React.useEffect(() => {
+    if (penguAnimator == null || pirateHatInstance == null) return
+    const id = penguAnimator.addToSyncList(pirateHatInstance)
+    return () => {
+      penguAnimator.removeFromSyncList(id)
     }
-    return Promise.resolve(pirateHatAsset.createAnimatorWithAnimationsFrom(penguAsset))
-  }, [pirateHatAsset, penguAsset])
+  }, [penguAnimator, pirateHatInstance])
 
   const isPirateHatAdded = useRef(true) // assets are added by default to the scene
-  const penguAnimator = useAssetAnimator(penguAsset)
 
   const prevAnimationIndex = useSharedValue<number | undefined>(undefined)
   const prevAnimationStarted = useSharedValue<number | undefined>(undefined)
@@ -70,13 +73,12 @@ function Renderer() {
 
       camera.lookAt(cameraPosition, cameraTarget, cameraUp)
 
-      if (pirateHatAnimator == null || penguAnimator == null) {
+      if (penguAnimator == null) {
         return
       }
 
       // Update the animators to play the current animation
       penguAnimator.applyAnimation(currentAnimationIndex.value, passedSeconds)
-      pirateHatAnimator.applyAnimation(currentAnimationIndex.value, passedSeconds)
 
       // Eventually apply a cross fade
       if (prevAnimationIndex.value != null) {
@@ -88,7 +90,6 @@ function Renderer() {
 
         // Blend animations using a cross fade
         penguAnimator.applyCrossFade(prevAnimationIndex.value, prevAnimationStarted.value!, alpha)
-        pirateHatAnimator.applyCrossFade(prevAnimationIndex.value, prevAnimationStarted.value!, alpha)
 
         // Reset the prev animation once the transition is completed
         if (alpha >= 1) {
@@ -99,19 +100,8 @@ function Renderer() {
       }
 
       penguAnimator.updateBoneMatrices()
-      pirateHatAnimator.updateBoneMatrices()
     },
-    [
-      view,
-      prevAspectRatio,
-      camera,
-      pirateHatAnimator,
-      penguAnimator,
-      currentAnimationIndex.value,
-      prevAnimationIndex,
-      prevAnimationStarted,
-      animationInterpolation,
-    ]
+    [view, prevAspectRatio, camera, penguAnimator, currentAnimationIndex, prevAnimationIndex, prevAnimationStarted, animationInterpolation]
   )
 
   const animations = useMemo(() => {

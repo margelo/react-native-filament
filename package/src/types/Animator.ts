@@ -1,3 +1,5 @@
+import { FilamentInstance } from './FilamentInstance'
+
 /**
  * Updates matrices according to glTF animation and skin definitions.
  *
@@ -46,6 +48,22 @@ export interface Animator {
   updateBoneMatrices(): void
 
   /**
+   * Will apply all transforms of the animation to the same entities/bones when calling {@linkcode updateBoneMatrices}.
+   * This is useful if you have multiple assets sharing the same skeleton and you want to animate them in sync (e.g. clothing).
+   * Internally calls {@linkcode applyAnimationToInstance}.
+   *
+   * @note Entities / bones are identified by name.
+   *
+   * @returns The id of the instance in the sync list.
+   */
+  addToSyncList(instance: FilamentInstance): number
+
+  /**
+   * Will remove the instance from the sync list.
+   */
+  removeFromSyncList(instanceId: number): void
+
+  /**
    * Pass the identity matrix into all bone nodes, useful for returning to the T pose.
    *
    * NOTE: this operation is independent of animation.
@@ -63,19 +81,4 @@ export interface Animator {
    * empty string if none was specified.
    */
   getAnimationName(animIndex: number): string
-}
-
-/**
- * Usually the animator is coming directly from the asset.
- * In that case the animators memory is managed by the asset.
- * If you create an animator with {@linkcode FilamentAsset.createAnimatorWithAnimationsFrom}
- * you have to release the memory manually.
- * Make sure to use the `useResource()` for creating the animator.
- */
-export interface CopiedAnimator extends Animator {
-  /**
-   * If your animator has been created with by a specific asset using {@linkcode FilamentAsset.createAnimatorWithAnimationsFrom}
-   * the memory used for the animations will be released.
-   */
-  release(): void
 }

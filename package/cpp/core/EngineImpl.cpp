@@ -4,6 +4,7 @@
 
 #include "EngineImpl.h"
 
+#include "GlobalNameComponentManager.h"
 #include "References.h"
 #include "utils/Converter.h"
 
@@ -51,9 +52,11 @@ EngineImpl::EngineImpl(std::shared_ptr<Dispatcher> rendererDispatcher, std::shar
         rendererDispatcher->runAsync([ncm, assetLoader]() {
           Logger::log(TAG, "Destroying asset loader...");
           delete ncm;
+          GlobalNameComponentManager::setGlobalNameComponentManager(nullptr);
           gltfio::AssetLoader::destroy(const_cast<gltfio::AssetLoader**>(&assetLoader));
         });
       });
+  GlobalNameComponentManager::setGlobalNameComponentManager(ncm);
 
   filament::gltfio::ResourceConfiguration resourceConfig{.engine = engine.get(), .normalizeSkinningWeights = true};
   auto* resourceLoaderPtr = new filament::gltfio::ResourceLoader(resourceConfig);

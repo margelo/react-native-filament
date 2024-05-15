@@ -3,6 +3,10 @@
 //
 
 #include "FilamentInstanceWrapper.h"
+#include "AnimatorWrapper.h"
+#include "GlobalNameComponentManager.h"
+
+#include <map>
 
 namespace margelo {
 
@@ -30,7 +34,7 @@ std::shared_ptr<EntityWrapper> FilamentInstanceWrapper::getRoot() {
 
 std::shared_ptr<AnimatorWrapper> FilamentInstanceWrapper::createAnimator() {
   Animator* animator = _instance->getAnimator();
-  return std::make_shared<AnimatorWrapper>(animator);
+  return std::make_shared<AnimatorWrapper>(animator, _instance);
 }
 std::shared_ptr<AABBWrapper> FilamentInstanceWrapper::getBoundingBox() {
   auto box = _instance->getBoundingBox();

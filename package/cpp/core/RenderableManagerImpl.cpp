@@ -5,6 +5,7 @@
 #include "RenderableManagerImpl.h"
 #include "EngineWrapper.h"
 #include "TextureFlagsEnum.h"
+#include "core/FilamentInstanceWrapper.h"
 
 #include <cmath>
 
