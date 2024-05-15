@@ -29,10 +29,12 @@ std::shared_ptr<Listener> ChoreographerWrapper::addFrameCallbackListener(RenderC
   std::unique_lock lock(_mutex);
 
   // Add the user-provided callback to the list of callbacks that we will call on each frame
+  Logger::log(TAG, "Adding frame callback listener");
   std::shared_ptr<Listener> listener = _renderCallbackListeners->add(onFrameCallback);
 
   // We only keep one listener for the choreographer itself
   if (!_choreographerListener) {
+    Logger::log(TAG, "Setting up choreographer listener");
     std::weak_ptr<ChoreographerWrapper> weakThis = shared<ChoreographerWrapper>();
     _choreographerListener = pointee()->addOnFrameListener([weakThis](double timestamp) {
       auto sharedThis = weakThis.lock();
