@@ -1,0 +1,45 @@
+diff --git a/libs/gltfio/include/gltfio/Animator.h b/libs/gltfio/include/gltfio/Animator.h
+index 199555a40..dd550938c 100644
+--- a/libs/gltfio/include/gltfio/Animator.h
++++ b/libs/gltfio/include/gltfio/Animator.h
+@@ -20,6 +20,8 @@
+ #include <gltfio/FilamentAsset.h>
+ #include <gltfio/FilamentInstance.h>
+ 
++#define HAS_FILAMENT_ANIMATOR_PATCH 1
++
+ namespace filament::gltfio {
+ 
+ struct FFilamentAsset;
+@@ -56,6 +58,16 @@ public:
+      */
+     void updateBoneMatrices();
+ 
++    /**
++     * Updates the bone matrices of the specified instance using the state of this animation.
++     * This is useful if you have other instances that have the same skeleton as the animator
++     * from this asset, and you want those instances to be animated by the same animation (e.g. clothing).
++     * Usually you don't need this and using updateBoneMatrices() is enough.
++     * 
++     * @param instance The instance to update.
++     */
++    void updateBoneMatricesForInstance(FilamentInstance* instance);
++
+     /**
+      * Applies a blended transform to the union of nodes affected by two animations.
+      * Used for cross-fading from a previous skinning-based animation or rigid body animation.
+diff --git a/libs/gltfio/src/Animator.cpp b/libs/gltfio/src/Animator.cpp
+index 6e53b705c..ff41bdf59 100644
+--- a/libs/gltfio/src/Animator.cpp
++++ b/libs/gltfio/src/Animator.cpp
+@@ -336,6 +336,10 @@ void Animator::updateBoneMatrices() {
+     }
+ }
+ 
++void Animator::updateBoneMatricesForInstance(FilamentInstance* instance) {
++    mImpl->updateBoneMatrices(downcast(instance));
++}
++
+ float Animator::getAnimationDuration(size_t animationIndex) const {
+     return mImpl->animations[animationIndex].duration;
+ }
