@@ -6,19 +6,10 @@
 
 namespace margelo {
 
-ChoreographerWrapper::~ChoreographerWrapper() {
-  if (!isRuntimeAlive()) {
-    // This will not delete the underlying pointer.
-    // When the runtime is destroyed we can't call the jsi::Value's destructor,
-    // as we would run into a crash (as the runtime is already gone).
-    _renderCallback.release();
-  }
-}
-
 void ChoreographerWrapper::loadHybridMethods() {
   registerHybridMethod("start", &ChoreographerWrapper::start, this);
   registerHybridMethod("stop", &ChoreographerWrapper::stop, this);
-  registerHybridMethod("setFrameCallback", &ChoreographerWrapper::setFrameCallback, this);
+  registerHybridMethod("addFrameCallbackListener", &ChoreographerWrapper::addFrameCallbackListener, this);
   registerHybridMethod("release", &ChoreographerWrapper::release, this, true);
 }
 
@@ -34,22 +25,26 @@ void ChoreographerWrapper::stop() {
   pointee()->stop();
 }
 
-void ChoreographerWrapper::setFrameCallback(RenderCallback onFrameCallback) {
+std::shared_ptr<Listener> ChoreographerWrapper::addFrameCallbackListener(RenderCallback onFrameCallback) {
   std::unique_lock lock(_mutex);
 
-  _renderCallback = std::make_unique<RenderCallback>(std::move(onFrameCallback));
+  // Add the user-provided callback to the list of callbacks that we will call on each frame
+  Logger::log(TAG, "Adding frame callback listener");
+  std::shared_ptr<Listener> listener = _renderCallbackListeners->add(onFrameCallback);
 
-  if (_listener) {
-    _listener->remove();
+  // We only keep one listener for the choreographer itself
+  if (!_choreographerListener) {
+    Logger::log(TAG, "Setting up choreographer listener");
+    std::weak_ptr<ChoreographerWrapper> weakThis = shared<ChoreographerWrapper>();
+    _choreographerListener = pointee()->addOnFrameListener([weakThis](double timestamp) {
+      auto sharedThis = weakThis.lock();
+      if (sharedThis) {
+        sharedThis->renderCallback(timestamp);
+      }
+    });
   }
 
-  std::weak_ptr<ChoreographerWrapper> weakThis = shared<ChoreographerWrapper>();
-  _listener = pointee()->addOnFrameListener([onFrameCallback, weakThis](double timestamp) {
-    auto sharedThis = weakThis.lock();
-    if (sharedThis) {
-      sharedThis->renderCallback(timestamp);
-    }
-  });
+  return listener;
 }
 
 void ChoreographerWrapper::renderCallback(double timestamp) {
@@ -58,12 +53,6 @@ void ChoreographerWrapper::renderCallback(double timestamp) {
   if (_startTime == 0) {
     [[unlikely]];
     _startTime = timestamp;
-  }
-
-  if (_renderCallback == nullptr) {
-    [[unlikely]];
-    Logger::log(TAG, "⚠️ Calling Choreographer renderCallback without a valid renderCallback function!");
-    return;
   }
 
   double passedSeconds = (timestamp - _startTime) / 1e9;
@@ -76,23 +65,22 @@ void ChoreographerWrapper::renderCallback(double timestamp) {
       {"timeSinceLastFrame", timeSinceLastFrame},
   };
 
-  (*_renderCallback)(frameInfo);
+  _renderCallbackListeners->forEach([frameInfo](const RenderCallback& callback) { callback(frameInfo); });
 }
 
 void ChoreographerWrapper::cleanup() {
   std::unique_lock lock(_mutex);
   Logger::log(TAG, "Cleanup ChoreographerWrapper");
 
-  _renderCallback = nullptr;
-
   // Its possible that the pointer was already released manually by the user
   if (getIsValid()) {
     pointee()->stop();
   }
-  if (_listener) {
-    _listener->remove();
-    _listener = nullptr;
+  if (_choreographerListener) {
+    _choreographerListener->remove();
+    _choreographerListener = nullptr;
   }
+  _renderCallbackListeners = nullptr;
   Logger::log(TAG, "Cleanup ChoreographerWrapper done");
 }
 
@@ -109,7 +97,9 @@ void ChoreographerWrapper::onRuntimeDestroyed(jsi::Runtime*) {
     pointee()->stop();
   }
 
-  _renderCallback = nullptr;
+  // Clear all listeners now - that will cause the listeners function destructors to be called
+  // When onRuntimeDestroyed gets called we still have time to cleanup our jsi functions:
+  _renderCallbackListeners = nullptr;
 }
 
 std::shared_ptr<Choreographer> ChoreographerWrapper::getChoreographer() {
