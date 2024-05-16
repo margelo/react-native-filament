@@ -109,6 +109,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
     const { _choreographer } = this.getContext()
     this.surfaceCreatedListener?.remove()
     this.surfaceDestroyedListener?.remove()
+    this.renderCallbackListener?.remove()
     this.swapChain?.release()
     _choreographer.stop()
   }
