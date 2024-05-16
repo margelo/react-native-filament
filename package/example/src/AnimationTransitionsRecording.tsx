@@ -4,7 +4,7 @@ import { Button, Dimensions, PixelRatio, StyleSheet, View } from 'react-native'
 import {
   Float3,
   useModel,
-  useAssetAnimator,
+  useAnimator,
   getAssetFromModel,
   FilamentProvider,
   useFilamentContext,
@@ -48,7 +48,7 @@ function Renderer() {
     return Promise.resolve(pirateHatAsset.createAnimatorWithAnimationsFrom(penguAsset))
   }, [pirateHatAsset, penguAsset])
 
-  const penguAnimator = useAssetAnimator(penguAsset)
+  const penguAnimator = useAnimator(penguAsset)
 
   const renderCallback = useCallback(
     (passedSeconds: number) => {
