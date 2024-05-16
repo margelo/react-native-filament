@@ -8,6 +8,7 @@
 #include "FilamentInstanceWrapper.h"
 #include "jsi/HybridObject.h"
 #include <gltfio/Animator.h>
+#include <utils/NameComponentManager.h>
 
 #include <map>
 
@@ -18,8 +19,9 @@ using EntityNameMap = std::map<std::string, Entity>;
 
 class AnimatorWrapper : public HybridObject {
 public:
-  explicit AnimatorWrapper(Animator* animator, FilamentInstance* instance)
-      : HybridObject("AnimatorWrapper"), _animator(animator), _instance(instance), _entityMap(getEntityNameMap(instance)) {}
+  explicit AnimatorWrapper(Animator* animator, FilamentInstance* instance, std::shared_ptr<NameComponentManager> nameComponentManager)
+      : HybridObject("AnimatorWrapper"), _animator(animator), _instance(instance), _nameComponentManager(nameComponentManager),
+        _entityMap(getEntityNameMap(instance)) {}
 
   void loadHybridMethods() override;
 
@@ -55,6 +57,7 @@ protected:
   std::mutex _mutex;
   Animator* _animator;
   FilamentInstance* _instance;
+  std::shared_ptr<NameComponentManager> _nameComponentManager;
   // The entity map of this class's FilamentInstance
   EntityNameMap _entityMap;
   int _syncId = 0;

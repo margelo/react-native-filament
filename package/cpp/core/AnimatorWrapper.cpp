@@ -3,7 +3,6 @@
 //
 
 #include "AnimatorWrapper.h"
-#include "GlobalNameComponentManager.h"
 #include <filament/Engine.h>
 #include <filament/TransformManager.h>
 #include <utils/NameComponentManager.h>
@@ -146,7 +145,6 @@ void AnimatorWrapper::applyAnimationTo(EntityNameMap entitiesNameMap) {
 
   // Syncing the entities
   // TODO: we are not syncing the morph weights here yet
-  // TODO: Refactor the global name component manager pattern?
 
   // Sync the same named entities:
   for (auto const& [name, masterEntity] : _entityMap) {
@@ -167,12 +165,12 @@ void AnimatorWrapper::applyAnimationTo(EntityNameMap entitiesNameMap) {
     }
 
     math::mat4f masterTransform = _transformManager.getTransform(masterTransformInstance);
-      _transformManager.setTransform(instanceTransformInstance, masterTransform);
+    _transformManager.setTransform(instanceTransformInstance, masterTransform);
   }
 }
 
 void AnimatorWrapper::syncInstances() {
-    _transformManager.openLocalTransformTransaction();
+  _transformManager.openLocalTransformTransaction();
 
   for (auto const& [id, instanceToSync] : _syncMap) {
     EntityNameMap entityNameMap = _instanceEntityMap[id];
@@ -189,7 +187,7 @@ void AnimatorWrapper::syncInstances() {
 #endif
   }
 
-    _transformManager.commitLocalTransformTransaction();
+  _transformManager.commitLocalTransformTransaction();
 }
 
 TransformManager& AnimatorWrapper::getTransformManager() {

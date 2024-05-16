@@ -13,6 +13,7 @@ import { LightManager } from './LightManager'
 import { PointerHolder } from './PointerHolder'
 import { TFilamentRecorder } from '../native/FilamentRecorder'
 import { SwapChain } from './SwapChain'
+import { NameComponentManager } from './NameComponentManager'
 
 export interface Engine extends PointerHolder {
   setSurfaceProvider(surfaceProvider: SurfaceProvider): void
@@ -53,6 +54,10 @@ export interface Engine extends PointerHolder {
   getCamera(): Camera
   getView(): View
   getCameraManipulator(): Manipulator
+  /**
+   * @private
+   */
+  createNameComponentManager(): NameComponentManager
 
   /**
    * Per engine instance you only need one {@linkcode TransformManager}.

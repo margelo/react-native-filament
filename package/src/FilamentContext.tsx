@@ -7,6 +7,7 @@ import {
   Engine,
   FrameRateOptions,
   LightManager,
+  NameComponentManager,
   RenderableManager,
   Renderer,
   Scene,
@@ -30,6 +31,7 @@ export type FilamentContextType = {
   view: View
   camera: Camera
   renderer: Renderer
+  nameComponentManager: NameComponentManager
   workletContext: IWorkletContext
 
   // TODO: put this in an "internal" separate context?
@@ -80,6 +82,7 @@ function EngineAPIProvider({ children, engine, choreographer, viewProps, rendere
   const view = useMemo(() => engine.getView(), [engine])
   const camera = useMemo(() => engine.getCamera(), [engine])
   const renderer = useMemo(() => engine.createRenderer(), [engine])
+  const nameComponentManager = useMemo(() => engine.createNameComponentManager(), [engine])
 
   const value = useMemo<FilamentContextType>(
     () => ({
@@ -91,10 +94,11 @@ function EngineAPIProvider({ children, engine, choreographer, viewProps, rendere
       view,
       camera,
       renderer,
+      nameComponentManager,
       workletContext: FilamentWorkletContext,
       _choreographer: choreographer,
     }),
-    [engine, transformManager, renderableManager, scene, lightManager, view, camera, renderer, choreographer]
+    [engine, transformManager, renderableManager, scene, lightManager, view, camera, renderer, nameComponentManager, choreographer]
   )
 
   // Apply view configs
@@ -139,6 +143,7 @@ function EngineAPIProvider({ children, engine, choreographer, viewProps, rendere
           FilamentWorkletContext.runAsync(() => {
             'worklet'
 
+            nameComponentManager.release()
             camera.release()
             view.release()
             scene.release()
@@ -151,7 +156,7 @@ function EngineAPIProvider({ children, engine, choreographer, viewProps, rendere
         }, 0)
       })
     }
-  }, [camera, engine, lightManager, renderableManager, renderer, scene, transformManager, view])
+  }, [camera, engine, lightManager, nameComponentManager, renderableManager, renderer, scene, transformManager, view])
 
   return <FilamentContext.Provider value={value}>{children}</FilamentContext.Provider>
 }
