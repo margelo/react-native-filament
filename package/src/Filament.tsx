@@ -5,7 +5,7 @@ import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
 import { reportFatalError, reportWorkletError } from './ErrorUtils'
 import { FilamentContext } from './FilamentContext'
 import { RenderCallback, SwapChain } from 'react-native-filament'
-import { SurfaceProvider } from './native/FilamentViewTypes'
+import { FilamentView, SurfaceProvider } from './native/FilamentViewTypes'
 import { Listener } from './types/Listener'
 
 type PublicNativeProps = Omit<NativeProps, 'onViewReady'>
@@ -27,6 +27,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
   private surfaceDestroyedListener: Listener | undefined
   private renderCallbackListener: Listener | undefined
   private swapChain: SwapChain | undefined
+  private view: FilamentView | undefined
 
   /**
    * Uses the context in class.
@@ -105,13 +106,25 @@ export class Filament extends React.PureComponent<FilamentProps> {
     }
   }
 
-  componentWillUnmount(): void {
+  /**
+   * Calling this signals that this FilamentView will be removed, and it should release all its resources and listeners.
+   */
+  cleanupResources() {
     const { _choreographer } = this.getContext()
-    this.surfaceCreatedListener?.remove()
-    this.surfaceDestroyedListener?.remove()
+    _choreographer.stop()
+
     this.renderCallbackListener?.remove()
     this.swapChain?.release()
-    _choreographer.stop()
+    this.swapChain = undefined // Note: important to set it to undefined, as this might be called twice (onSurfaceDestroyed and componentWillUnmount), and we can only release once
+
+    // Unlink the view from the choreographer. The native view might be destroyed later, after another FilamentView is created using the same choreographer (and then it would stop the rendering)
+    this.view?.setChoreographer(undefined)
+  }
+
+  componentWillUnmount(): void {
+    this.surfaceCreatedListener?.remove()
+    this.surfaceDestroyedListener?.remove()
+    this.cleanupResources()
   }
 
   // This registers the surface provider, which will be notified when the surface is ready to draw on:
@@ -120,15 +133,15 @@ export class Filament extends React.PureComponent<FilamentProps> {
     const context = this.getContext()
     try {
       const handle = this.handle
-      const view = await FilamentProxy.findFilamentView(handle)
-      if (view == null) {
+      this.view = await FilamentProxy.findFilamentView(handle)
+      if (this.view == null) {
         throw new Error(`Failed to find FilamentView #${handle}!`)
       }
       // Link the view with the choreographer.
       // When the view gets destroyed, the choreographer will be stopped.
-      view.setChoreographer(context._choreographer)
+      this.view.setChoreographer(context._choreographer)
 
-      const surfaceProvider = view.getSurfaceProvider()
+      const surfaceProvider = this.view.getSurfaceProvider()
       this.surfaceCreatedListener = surfaceProvider.addOnSurfaceCreatedListener(() => {
         this.onSurfaceCreated(surfaceProvider)
       }, FilamentProxy.getCurrentDispatcher())
@@ -170,13 +183,15 @@ export class Filament extends React.PureComponent<FilamentProps> {
     _choreographer.start()
   }
 
+  /**
+   * On surface destroyed might be called multiple times for the same native view (FilamentView).
+   * On android if a surface is destroyed, it can be recreated, while the view stays alive.
+   */
   private onSurfaceDestroyed = () => {
     console.log('Surface destroyed')
     const { _choreographer } = this.getContext()
     _choreographer.stop()
-    this.renderCallbackListener?.remove()
-    this.swapChain?.release()
-    this.swapChain = undefined
+    this.cleanupResources()
   }
 
   /**
