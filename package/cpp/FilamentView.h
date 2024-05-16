@@ -27,7 +27,7 @@ public:
   void loadHybridMethods() override;
 
 private: // Exposed JS API
-  void setChoreographer(std::shared_ptr<ChoreographerWrapper> choreographerWrapper);
+  void setChoreographer(std::optional<std::shared_ptr<ChoreographerWrapper>> choreographerWrapperOrNull);
 
 private:
   std::shared_ptr<Choreographer> _choreographer = nullptr;
