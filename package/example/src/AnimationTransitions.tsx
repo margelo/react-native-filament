@@ -6,7 +6,7 @@ import {
   Filament,
   Float3,
   useModel,
-  useAssetAnimator,
+  useAnimator,
   getAssetFromModel,
   FilamentProvider,
   useFilamentContext,
@@ -37,7 +37,7 @@ function Renderer() {
 
   const pengu = useModel({ path: penguModelPath })
   const penguAsset = getAssetFromModel(pengu)
-  const penguAnimator = useAssetAnimator(penguAsset)
+  const penguAnimator = useAnimator(penguAsset)
   const pirateHat = useModel({ path: pirateHatPath })
   const pirateHatAsset = getAssetFromModel(pirateHat)
   const pirateHatInstance = useMemo(() => pirateHatAsset?.getInstance(), [pirateHatAsset])
@@ -186,10 +186,16 @@ function Renderer() {
 }
 
 export function AnimationTransitions() {
+  const [count, setCount] = React.useState(0)
+  const increment = () => setCount((c) => c + 1)
+
   return (
-    <FilamentProvider>
-      <Renderer />
-    </FilamentProvider>
+    <View style={styles.container}>
+      <FilamentProvider key={count}>
+        <Renderer />
+      </FilamentProvider>
+      <Button title="Create a new react element" onPress={increment} />
+    </View>
   )
 }
 
