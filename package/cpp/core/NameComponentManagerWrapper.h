@@ -9,6 +9,8 @@
 
 namespace margelo {
 
+using namespace utils;
+
 class NameComponentManagerWrapper : public PointerHolder<NameComponentManager> {
 public:
   explicit NameComponentManagerWrapper(std::shared_ptr<NameComponentManager> nameComponentManager)

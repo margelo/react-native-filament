@@ -129,11 +129,11 @@ EntityNameMap AnimatorWrapper::getEntityNameMap(FilamentInstance* instance) {
   std::map<std::string, Entity> entityMap;
   for (size_t entityIndex = 0; entityIndex < masterEntitiesCount; entityIndex++) {
     const Entity masterEntity = masterEntities[entityIndex];
-    NameComponentManager::Instance masterNameInstance = GlobalNameComponentManager::getInstance()->getInstance(masterEntity);
+    NameComponentManager::Instance masterNameInstance = _nameComponentManager->getInstance(masterEntity);
     if (!masterNameInstance.isValid()) {
       continue;
     }
-    auto masterInstanceName = GlobalNameComponentManager::getInstance()->getName(masterNameInstance);
+    auto masterInstanceName = _nameComponentManager->getName(masterNameInstance);
     entityMap[masterInstanceName] = masterEntity;
   }
 
