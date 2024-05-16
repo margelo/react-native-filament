@@ -36,5 +36,5 @@ export interface FilamentView {
    * @private
    * Links the surface with the choreographer. When the view gets destroyed, the choreographer will be stopped.
    */
-  setChoreographer(choreographer: Choreographer): void
+  setChoreographer(choreographer?: Choreographer): void
 }

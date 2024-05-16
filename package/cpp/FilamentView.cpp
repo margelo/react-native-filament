@@ -19,7 +19,15 @@ void FilamentView::loadHybridMethods() {
   registerHybridMethod("setChoreographer", &FilamentView::setChoreographer, this);
 }
 
-void FilamentView::setChoreographer(std::shared_ptr<ChoreographerWrapper> choreographerWrapper) {
+void FilamentView::setChoreographer(std::optional<std::shared_ptr<ChoreographerWrapper>> choreographerWrapperOrNull) {
+  if (!choreographerWrapperOrNull.has_value()) {
+    Logger::log(TAG, "Removing reference to choreographer.");
+    _choreographer = nullptr;
+    _onSurfaceDestroyedListener = nullptr;
+    return;
+  }
+
+  std::shared_ptr<ChoreographerWrapper> choreographerWrapper = choreographerWrapperOrNull.value();
   auto choreographer = choreographerWrapper->getChoreographer();
   _choreographer = choreographer;
 
