@@ -47,6 +47,7 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("createMaterial", &EngineWrapper::createMaterial, this);
   registerHybridMethod("createLightManager", &EngineWrapper::createLightManager, this);
   registerHybridMethod("createRenderer", &EngineWrapper::createRenderer, this);
+  registerHybridMethod("createNameComponentManager", &EngineWrapper::createNameComponentManager, this);
   registerHybridMethod("createAndSetSkyboxByColor", &EngineWrapper::createAndSetSkyboxByColor, this);
   registerHybridMethod("createAndSetSkyboxByTexture", &EngineWrapper::createAndSetSkyboxByTexture, this);
   registerHybridMethod("clearSkybox", &EngineWrapper::clearSkybox, this);
@@ -127,6 +128,9 @@ std::shared_ptr<RendererWrapper> EngineWrapper::createRenderer() {
 }
 std::shared_ptr<RenderableManagerWrapper> EngineWrapper::createRenderableManager() {
   return pointee()->createRenderableManager();
+}
+std::shared_ptr<NameComponentManagerWrapper> EngineWrapper::createNameComponentManager() {
+  return pointee()->createNameComponentManager();
 }
 std::shared_ptr<MaterialWrapper> EngineWrapper::createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer) {
   return pointee()->createMaterial(materialBuffer);

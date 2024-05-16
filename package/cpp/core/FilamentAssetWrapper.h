@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AABBWrapper.h"
+#include "NameComponentManagerWrapper.h"
 #include "core/utils/EntityWrapper.h"
 #include "jsi/PointerHolder.h"
 #include <filament/TransformManager.h>
@@ -27,7 +28,7 @@ public:
 private: // Public API functions:
   std::shared_ptr<EntityWrapper> getRoot();
   void releaseSourceData();
-  std::shared_ptr<AnimatorWrapper> createAnimator();
+  std::shared_ptr<AnimatorWrapper> createAnimator(std::shared_ptr<NameComponentManagerWrapper> nameComponentManagerWrapper);
   int getEntityCount() {
     return pointee()->getEntityCount();
   }

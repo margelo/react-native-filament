@@ -4,7 +4,6 @@
 
 #include "EngineImpl.h"
 
-#include "GlobalNameComponentManager.h"
 #include "References.h"
 #include "utils/Converter.h"
 
@@ -44,19 +43,18 @@ EngineImpl::EngineImpl(std::shared_ptr<Dispatcher> rendererDispatcher, std::shar
       });
 
   EntityManager& entityManager = engine->getEntityManager();
-  NameComponentManager* ncm = new NameComponentManager(entityManager);
-  gltfio::AssetConfiguration assetConfig{.engine = engine.get(), .materials = _materialProvider.get(), .names = ncm};
+  _nameComponentManager = std::make_shared<NameComponentManager>(entityManager);
+  gltfio::AssetConfiguration assetConfig{
+      .engine = engine.get(), .materials = _materialProvider.get(), .names = _nameComponentManager.get()};
   gltfio::AssetLoader* assetLoaderPtr = gltfio::AssetLoader::create(assetConfig);
+  auto nameComponentManager = _nameComponentManager; // The assetLoader holds a reference to the nameComponentManager
   _assetLoader = References<gltfio::AssetLoader>::adoptEngineRef(
-      engine, assetLoaderPtr, [ncm, rendererDispatcher](std::shared_ptr<Engine> engine, gltfio::AssetLoader* assetLoader) {
-        rendererDispatcher->runAsync([ncm, assetLoader]() {
+      engine, assetLoaderPtr, [nameComponentManager, rendererDispatcher](std::shared_ptr<Engine> engine, gltfio::AssetLoader* assetLoader) {
+        rendererDispatcher->runAsync([nameComponentManager, assetLoader]() {
           Logger::log(TAG, "Destroying asset loader...");
-          delete ncm;
-          GlobalNameComponentManager::setGlobalNameComponentManager(nullptr);
           gltfio::AssetLoader::destroy(const_cast<gltfio::AssetLoader**>(&assetLoader));
         });
       });
-  GlobalNameComponentManager::setGlobalNameComponentManager(ncm);
 
   filament::gltfio::ResourceConfiguration resourceConfig{.engine = engine.get(), .normalizeSkinningWeights = true};
   auto* resourceLoaderPtr = new filament::gltfio::ResourceLoader(resourceConfig);
@@ -328,6 +326,10 @@ std::shared_ptr<TransformManagerWrapper> EngineImpl::createTransformManager() {
   std::unique_lock lock(_mutex);
   std::shared_ptr<TransformManagerImpl> transformManagerImpl = std::make_shared<TransformManagerImpl>(_engine);
   return std::make_shared<TransformManagerWrapper>(transformManagerImpl);
+}
+
+std::shared_ptr<NameComponentManagerWrapper> EngineImpl::createNameComponentManager() {
+  return std::make_shared<NameComponentManagerWrapper>(_nameComponentManager);
 }
 
 void EngineImpl::synchronizePendingFrames() {

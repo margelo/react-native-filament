@@ -3,6 +3,7 @@ import type { Animator } from './Animator'
 import type { Entity } from './Entity'
 import { FilamentInstance } from './FilamentInstance'
 import { PointerHolder } from './PointerHolder'
+import { NameComponentManager } from './NameComponentManager'
 
 export interface FilamentAsset extends PointerHolder {
   /**
@@ -14,7 +15,7 @@ export interface FilamentAsset extends PointerHolder {
    */
   getRoot(): Entity
 
-  createAnimator(): Animator
+  createAnimator(nameComponentManager: NameComponentManager): Animator
   /**
    * Reclaims CPU-side memory for URI strings, binding lists, and raw animation data.
    */

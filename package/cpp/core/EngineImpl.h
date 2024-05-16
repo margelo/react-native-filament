@@ -13,6 +13,7 @@
 #include "FilamentRecorder.h"
 #include "LightManagerWrapper.h"
 #include "MaterialWrapper.h"
+#include "NameComponentManagerWrapper.h"
 #include "RenderableManagerWrapper.h"
 #include "RendererWrapper.h"
 #include "SceneWrapper.h"
@@ -64,6 +65,7 @@ public:
   std::shared_ptr<LightManagerWrapper> createLightManager();
   std::shared_ptr<RenderableManagerWrapper> createRenderableManager();
   std::shared_ptr<TransformManagerWrapper> createTransformManager();
+  std::shared_ptr<NameComponentManagerWrapper> createNameComponentManager();
   std::shared_ptr<MaterialWrapper> createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer);
   void createAndSetSkybox(std::string hexColor, std::optional<bool> showSun, std::optional<float> envIntensity);
   void createAndSetSkybox(std::optional<std::shared_ptr<FilamentBuffer>> textureBuffer, std::optional<bool> showSun,
@@ -98,6 +100,7 @@ private:
   std::shared_ptr<View> _view;
   std::shared_ptr<Camera> _camera;
   std::shared_ptr<ManipulatorWrapper> _cameraManipulator;
+  std::shared_ptr<NameComponentManager> _nameComponentManager;
 
 private:
   void synchronizePendingFrames();

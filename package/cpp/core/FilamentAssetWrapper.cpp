@@ -34,10 +34,12 @@ void FilamentAssetWrapper::releaseSourceData() {
   pointee()->releaseSourceData();
 }
 
-std::shared_ptr<AnimatorWrapper> FilamentAssetWrapper::createAnimator() {
+std::shared_ptr<AnimatorWrapper>
+FilamentAssetWrapper::createAnimator(std::shared_ptr<NameComponentManagerWrapper> nameComponentManagerWrapper) {
   FilamentInstance* instance = pointee()->getInstance();
   Animator* animator = instance->getAnimator();
-  return std::make_shared<AnimatorWrapper>(animator, instance);
+  std::shared_ptr<NameComponentManager> manager = nameComponentManagerWrapper->getManager();
+  return std::make_shared<AnimatorWrapper>(animator, instance, manager);
 }
 
 std::vector<std::shared_ptr<EntityWrapper>> FilamentAssetWrapper::getEntities() {

@@ -4,7 +4,6 @@
 
 #include "FilamentInstanceWrapper.h"
 #include "AnimatorWrapper.h"
-#include "GlobalNameComponentManager.h"
 
 #include <map>
 
@@ -32,9 +31,11 @@ std::shared_ptr<EntityWrapper> FilamentInstanceWrapper::getRoot() {
   return std::make_shared<EntityWrapper>(rootEntity);
 }
 
-std::shared_ptr<AnimatorWrapper> FilamentInstanceWrapper::createAnimator() {
+std::shared_ptr<AnimatorWrapper>
+FilamentInstanceWrapper::createAnimator(std::shared_ptr<NameComponentManagerWrapper> nameComponentManager) {
   Animator* animator = _instance->getAnimator();
-  return std::make_shared<AnimatorWrapper>(animator, _instance);
+  std::shared_ptr<NameComponentManager> manager = nameComponentManager->getManager();
+  return std::make_shared<AnimatorWrapper>(animator, _instance, manager);
 }
 std::shared_ptr<AABBWrapper> FilamentInstanceWrapper::getBoundingBox() {
   auto box = _instance->getBoundingBox();

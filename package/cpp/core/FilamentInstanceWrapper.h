@@ -5,6 +5,7 @@
 #pragma once
 
 #include "AABBWrapper.h"
+#include "NameComponentManagerWrapper.h"
 #include "jsi/HybridObject.h"
 #include "utils/EntityWrapper.h"
 
@@ -39,7 +40,7 @@ private: // Public JS API
    * instances. If individual control is desired, users must obtain the animator from the
    * individual instances.
    */
-  std::shared_ptr<AnimatorWrapper> createAnimator();
+  std::shared_ptr<AnimatorWrapper> createAnimator(std::shared_ptr<NameComponentManagerWrapper> nameComponentManager);
   std::shared_ptr<AABBWrapper> getBoundingBox();
 
 private:
