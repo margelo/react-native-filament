@@ -185,23 +185,13 @@ function Renderer() {
   )
 }
 
-const taaOptions: TemporalAntiAliasingOptions = {
-  enabled: true,
-  feedback: 1.0, // no TAA
-  filterHistory: false,
-  filterInput: false,
-  boxClipping: 'NONE',
-  jitterPattern: 'RGSS_X4', // cheapest one
-  historyReprojection: false,
-}
-
 export function AnimationTransitions() {
   const [count, setCount] = React.useState(0)
   const increment = () => setCount((c) => c + 1)
 
   return (
     <View style={styles.container}>
-      <FilamentProvider key={count} temporalAntiAliasingOptions={taaOptions}>
+      <FilamentProvider key={count}>
         <Renderer />
       </FilamentProvider>
       <Button title="Create a new react element" onPress={increment} />
