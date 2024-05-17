@@ -1,3 +1,6 @@
+# Logs are enabled by default even without explicitly setting this flag. Its here to demonstrate how to control the logs flag.
+$RNFEnableLogs = true
+
 # Resolve react_native_pods.rb with node to allow for hoisting
 require Pod::Executable.execute_command('node', ['-p',
   'require.resolve(

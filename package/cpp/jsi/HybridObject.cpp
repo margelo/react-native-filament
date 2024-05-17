@@ -8,7 +8,7 @@
 
 namespace margelo {
 
-#if DEBUG
+#if DEBUG && RNF_ENABLE_LOGS
 static std::unordered_map<const char*, int> _instanceIds;
 static std::mutex _mutex;
 
@@ -23,14 +23,14 @@ static int getId(const char* name) {
 #endif
 
 HybridObject::HybridObject(const char* name) : _name(name) {
-#if DEBUG
+#if DEBUG && RNF_ENABLE_LOGS
   _instanceId = getId(name);
   Logger::log(TAG, "(MEMORY) Creating %s (#%i)... ✅", _name, _instanceId);
 #endif
 }
 
 HybridObject::~HybridObject() {
-#if DEBUG
+#if DEBUG && RNF_ENABLE_LOGS
   Logger::log(TAG, "(MEMORY) Deleting %s (#%i)... ❌", _name, _instanceId);
 #endif
   _functionCache.clear();
