@@ -22,7 +22,6 @@
 #include "threading/Dispatcher.h"
 
 #include <ReactCommon/CallInvoker.h>
-#include <jsi/jsi.h>
 
 #ifdef HAS_WORKLETS
 #include <react-native-worklets-core/WKTJsiWorkletContext.h>

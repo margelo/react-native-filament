@@ -8,6 +8,13 @@ workletsPath = File.join(nodeModules, "react-native-worklets-core")
 hasWorklets = File.exist?(workletsPath)
 Pod::UI.puts("[react-native-filament] react-native-worklets-core #{hasWorklets ? "found" : "not found"}!")
 
+# Logs are enabled by default, however they use NSLog and if you have a lot of logs it can slow down your app.
+enableLogs = true
+if defined?($RNFEnableLogs)
+  Pod::UI.puts "[react-native-filament] $RNFEnableLogs is set to #{$RNFEnableLogs}!"
+  enableLogs = $RNFEnableLogs
+end
+
 Pod::Spec.new do |s|
   s.name         = "react-native-filament"
   s.version      = package["version"]
@@ -20,16 +27,10 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/margelo/react-native-filament.git", :tag => "#{s.version}" }
 
   s.pod_target_xcconfig = {
-    "GCC_PREPROCESSOR_DEFINITIONS" => "FILAMENT_APP_USE_METAL=1 HAS_WORKLETS=#{hasWorklets} $(inherited)",
+    "GCC_PREPROCESSOR_DEFINITIONS" => "FILAMENT_APP_USE_METAL=1 HAS_WORKLETS=#{hasWorklets} RNF_ENABLE_LOGS=#{enableLogs} $(inherited)",
     "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
     "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/**\" \"$(PODS_TARGET_SRCROOT)/ios/libs/bullet3/**\""
   }
-
-  # Fix linking error with Xcode 12; we do not yet support the simulator on Apple silicon.
-  # s.pod_target_xcconfig = {
-  #   'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'
-  # }
-  # s.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
 
   # Configure sub podspecs for filament
   s.subspec "filament" do |ss|

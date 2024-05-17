@@ -55,6 +55,17 @@ static def findNodeModules(baseDir) {
 
 def nodeModules = findNodeModules(projectDir)
 
+def safeExtGet(prop, fallback) {
+  rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+
+def safeExtGetBool(prop, fallback) {
+  Boolean.parseBoolean("${safeExtGet(prop, fallback)}")
+}
+
+def enableLogs = safeExtGetBool('RNF_enableLogs', true)
+logger.warn("[react-native-filament] RNF_enableLogs is set to $enableLogs!")
+
 android {
   if (supportsNamespace()) {
     namespace "com.margelo.filament"
@@ -77,7 +88,8 @@ android {
       cmake {
         cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
         arguments "-DANDROID_STL=c++_shared",
-                "-DNODE_MODULES_DIR=${nodeModules}"
+            "-DRNF_ENABLE_LOGS=${enableLogs ? "ON" : "OFF"}",
+            "-DNODE_MODULES_DIR=${nodeModules}"
       }
     }
   }
@@ -90,21 +102,21 @@ android {
 
   packagingOptions {
     excludes = [
-            "META-INF",
-            "META-INF/**",
-            "**/libc++_shared.so",
-            "**/libfbjni.so",
-            "**/libjsi.so",
-            "**/libfolly_json.so",
-            "**/libfolly_runtime.so",
-            "**/libglog.so",
-            "**/libhermes.so",
-            "**/libhermes-executor-debug.so",
-            "**/libhermes_executor.so",
-            "**/libreactnativejni.so",
-            "**/libturbomodulejsijni.so",
-            "**/libreact_nativemodule_core.so",
-            "**/libjscexecutor.so"
+        "META-INF",
+        "META-INF/**",
+        "**/libc++_shared.so",
+        "**/libfbjni.so",
+        "**/libjsi.so",
+        "**/libfolly_json.so",
+        "**/libfolly_runtime.so",
+        "**/libglog.so",
+        "**/libhermes.so",
+        "**/libhermes-executor-debug.so",
+        "**/libhermes_executor.so",
+        "**/libreactnativejni.so",
+        "**/libturbomodulejsijni.so",
+        "**/libreact_nativemodule_core.so",
+        "**/libjscexecutor.so"
     ]
   }
 
@@ -132,9 +144,9 @@ android {
     main {
       if (isNewArchitectureEnabled()) {
         java.srcDirs += [
-          "src/newarch",
-          // This is needed to build Kotlin project with NewArch enabled
-          "${project.buildDir}/generated/source/codegen/java"
+            "src/newarch",
+            // This is needed to build Kotlin project with NewArch enabled
+            "${project.buildDir}/generated/source/codegen/java"
         ]
       } else {
         java.srcDirs += ["src/oldarch"]

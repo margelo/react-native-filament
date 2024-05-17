@@ -28,8 +28,10 @@ public:
   static void log(const std::string& tag, const std::string& message);
 
   template <typename... Args> inline static void log(const std::string& tag, const std::string& formatString, Args&&... args) {
+#if RNF_ENABLE_LOGS
     std::string formattedString = string_format(formatString, std::forward<Args>(args)...);
     log(tag, formattedString);
+#endif
   }
 };
 
