@@ -8,7 +8,6 @@
 #include "utils/Converter.h"
 
 #include <filament/Color.h>
-#include <filament/ColorGrading.h>
 #include <filament/Engine.h>
 #include <filament/Fence.h>
 #include <filament/IndirectLight.h>
