@@ -118,7 +118,6 @@ export class Filament extends React.PureComponent<FilamentProps> {
     }
     if (prevProps.renderCallback !== this.props.renderCallback && this.swapChain != null) {
       // Note: if swapChain was null, the renderCallback will be set/updated in onSurfaceCreated, which uses the latest renderCallback prop
-      console.log('Updating render callback')
       this.updateRenderCallback(this.props.renderCallback, this.swapChain)
     }
   }
