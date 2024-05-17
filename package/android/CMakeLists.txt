@@ -13,6 +13,12 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DDEBUG=1)
 endif()
 
+if(RNF_ENABLE_LOGS)
+    add_definitions(-DRNF_ENABLE_LOGS=1)
+else()
+    add_definitions(-DRNF_ENABLE_LOGS=0)
+endif()
+
 # Third party libraries (Prefabs)
 find_package(ReactAndroid REQUIRED CONFIG)
 find_package(fbjni REQUIRED CONFIG)
