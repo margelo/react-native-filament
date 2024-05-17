@@ -57,28 +57,43 @@ export class Filament extends React.PureComponent<FilamentProps> {
     renderer.setClearContent(enable)
   }
 
+  private latestToken = 0
   private updateRenderCallback = async (callback: RenderCallback, swapChain: SwapChain) => {
+    const currentToken = ++this.latestToken
     const { renderer, view, workletContext, _choreographer } = this.getContext()
+
+    // When requesting to update the render callback we have to assume that the previous one is not valid anymore
+    // ie. its pointing to already released resources from useDisposableResource:
     this.renderCallbackListener?.remove()
-    return workletContext
-      .runAsync(() => {
+
+    // Adding a new render callback listener is an async operation
+    const listener = await workletContext.runAsync(() => {
+      'worklet'
+
+      // We need to create the function we pass to addFrameCallbackListener on the worklet thread, so that the
+      // underlying JSI function is owned by that thread. Only then can we call it on the worklet thread when
+      // the choreographer is calling its listeners.
+      return _choreographer.addFrameCallbackListener((frameInfo) => {
         'worklet'
-        return _choreographer.addFrameCallbackListener((frameInfo) => {
-          'worklet'
-          try {
-            callback(frameInfo)
-            if (renderer.beginFrame(swapChain, frameInfo.timestamp)) {
-              renderer.render(view)
-              renderer.endFrame()
-            }
-          } catch (e) {
-            reportWorkletError(e)
+        try {
+          callback(frameInfo)
+          if (renderer.beginFrame(swapChain, frameInfo.timestamp)) {
+            renderer.render(view)
+            renderer.endFrame()
           }
-        })
+        } catch (e) {
+          reportWorkletError(e)
+        }
       })
-      .then((listener) => {
-        this.renderCallbackListener = listener
-      })
+    })
+
+    if (currentToken !== this.latestToken) {
+      console.log('Ignoring outdated render callback')
+      listener.remove()
+      return
+    }
+
+    this.renderCallbackListener = listener
   }
 
   private getContext = () => {
@@ -102,6 +117,7 @@ export class Filament extends React.PureComponent<FilamentProps> {
     }
     if (prevProps.renderCallback !== this.props.renderCallback && this.swapChain != null) {
       // Note: if swapChain was null, the renderCallback will be set/updated in onSurfaceCreated, which uses the latest renderCallback prop
+      console.log('Updating render callback')
       this.updateRenderCallback(this.props.renderCallback, this.swapChain)
     }
   }
