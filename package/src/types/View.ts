@@ -109,4 +109,10 @@ export interface View extends PointerHolder {
    * Returns undefined if no entity is found.
    */
   pickEntity(x: number, y: number): Entity | null
+
+  /**
+   * This type is the raw expected valeu for JSI.
+   * The type is encoded in {@linkcode TemporalAntiAliasingOptions}
+   */
+  temporalAntiAliasingOptions: Record<string, number>
 }

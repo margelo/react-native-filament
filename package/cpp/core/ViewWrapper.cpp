@@ -10,6 +10,7 @@ void ViewWrapper::loadHybridMethods() {
   registerHybridMethod("createDynamicResolutionOptions", &ViewWrapper::createDynamicResolutionOptions, this);
   registerHybridMethod("setDynamicResolutionOptions", &ViewWrapper::setDynamicResolutionOptions, this);
   registerHybridMethod("getDynamicResolutionOptions", &ViewWrapper::getDynamicResolutionOptions, this);
+  registerHybridSetter("temporalAntiAliasingOptions", &ViewWrapper::setTemporalAntiAliasingOptions, this);
   registerHybridGetter("screenSpaceRefraction", &ViewWrapper::isScreenSpaceRefractionEnabled, this);
   registerHybridSetter("screenSpaceRefraction", &ViewWrapper::setScreenSpaceRefractionEnabled, this);
   registerHybridGetter("postProcessing", &ViewWrapper::isPostProcessingEnabled, this);
@@ -69,6 +70,75 @@ void ViewWrapper::setDynamicResolutionOptions(std::shared_ptr<DynamicResolutionO
 
 std::shared_ptr<DynamicResolutionOptionsWrapper> ViewWrapper::getDynamicResolutionOptions() {
   return std::make_shared<DynamicResolutionOptionsWrapper>(pointee()->getDynamicResolutionOptions());
+}
+
+void ViewWrapper::setTemporalAntiAliasingOptions(std::unordered_map<std::string, double> options) {
+  TemporalAntiAliasingOptions temporalAntiAliasingOptions;
+  if (options.find("enabled") != options.end()) {
+    temporalAntiAliasingOptions.enabled = options["enabled"] == 1.0;
+  }
+  if (options.find("upscaling") != options.end()) {
+    temporalAntiAliasingOptions.upscaling = options["upscaling"] == 1.0;
+  }
+  if (options.find("filterInput") != options.end()) {
+    temporalAntiAliasingOptions.filterInput = options["filterInput"] == 1.0;
+  }
+  if (options.find("filterHistory") != options.end()) {
+    temporalAntiAliasingOptions.filterHistory = options["filterHistory"] == 1.0;
+  }
+  if (options.find("useYCoCg") != options.end()) {
+    temporalAntiAliasingOptions.useYCoCg = options["useYCoCg"] == 1.0;
+  }
+  if (options.find("boxClipping") != options.end()) {
+    if (options["boxClipping"] == 0.0) {
+      temporalAntiAliasingOptions.boxClipping = TemporalAntiAliasingOptions::BoxClipping::ACCURATE;
+    } else if (options["boxClipping"] == 1.0) {
+      temporalAntiAliasingOptions.boxClipping = TemporalAntiAliasingOptions::BoxClipping::CLAMP;
+    } else if (options["boxClipping"] == 2.0) {
+      temporalAntiAliasingOptions.boxClipping = TemporalAntiAliasingOptions::BoxClipping::NONE;
+    } else {
+      [[unlikely]];
+      throw std::invalid_argument("Invalid boxClipping value");
+    }
+  }
+  if (options.find("jitterPattern") != options.end()) {
+    if (options["jitterPattern"] == 0.0) {
+      temporalAntiAliasingOptions.jitterPattern = TemporalAntiAliasingOptions::JitterPattern::RGSS_X4;
+    } else if (options["jitterPattern"] == 1.0) {
+      temporalAntiAliasingOptions.jitterPattern = TemporalAntiAliasingOptions::JitterPattern::UNIFORM_HELIX_X4;
+    } else if (options["jitterPattern"] == 2.0) {
+      temporalAntiAliasingOptions.jitterPattern = TemporalAntiAliasingOptions::JitterPattern::HALTON_23_X8;
+    } else if (options["jitterPattern"] == 3.0) {
+      temporalAntiAliasingOptions.jitterPattern = TemporalAntiAliasingOptions::JitterPattern::HALTON_23_X16;
+    } else if (options["jitterPattern"] == 4.0) {
+      temporalAntiAliasingOptions.jitterPattern = TemporalAntiAliasingOptions::JitterPattern::HALTON_23_X32;
+    } else {
+      [[unlikely]];
+      throw std::invalid_argument("Invalid boxClipping value");
+    }
+  }
+  if (options.find("feedback") != options.end()) {
+    temporalAntiAliasingOptions.feedback = options["feedback"];
+  }
+  if (options.find("lodBias") != options.end()) {
+    temporalAntiAliasingOptions.lodBias = options["lodBias"];
+  }
+  if (options.find("sharpness") != options.end()) {
+    temporalAntiAliasingOptions.sharpness = options["sharpness"];
+  }
+  if (options.find("upscaling") != options.end()) {
+    temporalAntiAliasingOptions.upscaling = options["upscaling"];
+  }
+  if (options.find("preventFlickering") != options.end()) {
+    temporalAntiAliasingOptions.preventFlickering = options["preventFlickering"] == 1.0;
+  }
+  if (options.find("varianceGamma") != options.end()) {
+    temporalAntiAliasingOptions.varianceGamma = options["varianceGamma"] == 1.0;
+  }
+  if (options.find("historyReprojection") != options.end()) {
+    temporalAntiAliasingOptions.historyReprojection = options["historyReprojection"] == 1.0;
+  }
+  pointee()->setTemporalAntiAliasingOptions(temporalAntiAliasingOptions);
 }
 
 void ViewWrapper::setPostProcessingEnabled(bool enabled) {
