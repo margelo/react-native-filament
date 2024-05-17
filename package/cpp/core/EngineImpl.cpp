@@ -205,15 +205,6 @@ std::shared_ptr<View> EngineImpl::createView() {
           engine->destroy(view);
         });
       });
-  view->setTemporalAntiAliasingOptions({.feedback = 1.0f,
-                                        .enabled = true,
-                                        .filterHistory = false,
-                                        .filterInput = false,
-                                        .boxClipping = TemporalAntiAliasingOptions::BoxClipping::NONE,
-                                        .jitterPattern = TemporalAntiAliasingOptions::JitterPattern::RGSS_X4,
-                                        .historyReprojection = false});
-  //  view->setMultiSampleAntiAliasingOptions({.enabled = true, .sampleCount = 2});
-  //  view->setColorGrading(ColorGrading::Builder().build(*_engine));
 
   return view;
 }

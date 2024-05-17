@@ -89,6 +89,34 @@ void ViewWrapper::setTemporalAntiAliasingOptions(std::unordered_map<std::string,
   if (options.find("useYCoCg") != options.end()) {
     temporalAntiAliasingOptions.useYCoCg = options["useYCoCg"] == 1.0;
   }
+  if (options.find("boxClipping") != options.end()) {
+    if (options["boxClipping"] == 0.0) {
+      temporalAntiAliasingOptions.boxClipping = TemporalAntiAliasingOptions::BoxClipping::ACCURATE;
+    } else if (options["boxClipping"] == 1.0) {
+      temporalAntiAliasingOptions.boxClipping = TemporalAntiAliasingOptions::BoxClipping::CLAMP;
+    } else if (options["boxClipping"] == 2.0) {
+      temporalAntiAliasingOptions.boxClipping = TemporalAntiAliasingOptions::BoxClipping::NONE;
+    } else {
+      [[unlikely]];
+      throw std::invalid_argument("Invalid boxClipping value");
+    }
+  }
+  if (options.find("jitterPattern") != options.end()) {
+    if (options["jitterPattern"] == 0.0) {
+      temporalAntiAliasingOptions.jitterPattern = TemporalAntiAliasingOptions::JitterPattern::RGSS_X4;
+    } else if (options["jitterPattern"] == 1.0) {
+      temporalAntiAliasingOptions.jitterPattern = TemporalAntiAliasingOptions::JitterPattern::UNIFORM_HELIX_X4;
+    } else if (options["jitterPattern"] == 2.0) {
+      temporalAntiAliasingOptions.jitterPattern = TemporalAntiAliasingOptions::JitterPattern::HALTON_23_X8;
+    } else if (options["jitterPattern"] == 3.0) {
+      temporalAntiAliasingOptions.jitterPattern = TemporalAntiAliasingOptions::JitterPattern::HALTON_23_X16;
+    } else if (options["jitterPattern"] == 4.0) {
+      temporalAntiAliasingOptions.jitterPattern = TemporalAntiAliasingOptions::JitterPattern::HALTON_23_X32;
+    } else {
+      [[unlikely]];
+      throw std::invalid_argument("Invalid boxClipping value");
+    }
+  }
   if (options.find("feedback") != options.end()) {
     temporalAntiAliasingOptions.feedback = options["feedback"];
   }

@@ -11,8 +11,10 @@ import {
   RenderableManager,
   Renderer,
   Scene,
+  TemporalAntiAliasingOptions,
   TransformManager,
   View,
+  optionsToJSI,
 } from './types'
 import { EngineProps, useEngine } from './hooks/useEngine'
 import { IWorkletContext, useWorklet } from 'react-native-worklets-core'
@@ -60,6 +62,7 @@ export function FilamentConsumer({ children }: { children: (value: FilamentConte
 type ViewProps = Partial<Pick<View, 'antiAliasing' | 'screenSpaceRefraction' | 'postProcessing' | 'dithering' | 'shadowing'>> & {
   ambientOcclusionOptions?: AmbientOcclusionOptions
   dynamicResolutionOptions?: DynamicResolutionOptions
+  temporalAntiAliasingOptions?: TemporalAntiAliasingOptions
 }
 
 type RendererProps = {
@@ -102,8 +105,16 @@ function EngineAPIProvider({ children, engine, choreographer, viewProps, rendere
   )
 
   // Apply view configs
-  const { ambientOcclusionOptions, antiAliasing, dithering, dynamicResolutionOptions, postProcessing, screenSpaceRefraction, shadowing } =
-    viewProps
+  const {
+    ambientOcclusionOptions,
+    antiAliasing,
+    dithering,
+    dynamicResolutionOptions,
+    postProcessing,
+    screenSpaceRefraction,
+    shadowing,
+    temporalAntiAliasingOptions,
+  } = viewProps
   useEffect(() => {
     if (ambientOcclusionOptions != null) {
       const options = makeAmbientOcclusionHostObject(view, ambientOcclusionOptions)
@@ -118,7 +129,18 @@ function EngineAPIProvider({ children, engine, choreographer, viewProps, rendere
     if (postProcessing != null) view.postProcessing = postProcessing
     if (screenSpaceRefraction != null) view.screenSpaceRefraction = screenSpaceRefraction
     if (shadowing != null) view.shadowing = shadowing
-  }, [view, ambientOcclusionOptions, antiAliasing, dithering, dynamicResolutionOptions, postProcessing, screenSpaceRefraction, shadowing])
+    if (temporalAntiAliasingOptions != null) view.temporalAntiAliasingOptions = optionsToJSI(temporalAntiAliasingOptions)
+  }, [
+    view,
+    ambientOcclusionOptions,
+    antiAliasing,
+    dithering,
+    dynamicResolutionOptions,
+    postProcessing,
+    screenSpaceRefraction,
+    shadowing,
+    temporalAntiAliasingOptions,
+  ])
 
   // Apply renderer configs
   const { frameRateOptions } = rendererProps ?? {}
