@@ -33,6 +33,7 @@ private:
   std::shared_ptr<DynamicResolutionOptionsWrapper> createDynamicResolutionOptions();
   void setDynamicResolutionOptions(std::shared_ptr<DynamicResolutionOptionsWrapper> options);
   std::shared_ptr<DynamicResolutionOptionsWrapper> getDynamicResolutionOptions();
+  void setTemporalAntiAliasingOptions(std::unordered_map<std::string, double> options);
   void setPostProcessingEnabled(bool enabled);
   bool isPostProcessingEnabled();
   void setScreenSpaceRefractionEnabled(bool enabled);
