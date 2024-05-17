@@ -34,8 +34,7 @@ function Renderer() {
   useDefaultLight()
 
   const pengu = useModel({ path: penguModelPath })
-  const penguAsset = getAssetFromModel(pengu)
-  const penguAnimator = useAnimator(penguAsset)
+  const penguAnimator = useAnimator(pengu)
   const pirateHat = useModel({ path: pirateHatPath })
   const pirateHatAsset = getAssetFromModel(pirateHat)
   const pirateHatInstance = useMemo(() => pirateHatAsset?.getInstance(), [pirateHatAsset])
@@ -114,6 +113,7 @@ function Renderer() {
 
   const navigation = useNavigation()
 
+  const penguAsset = getAssetFromModel(pengu)
   const renderableEntities = useMemo(() => {
     if (penguAsset == null) return []
     return penguAsset.getRenderableEntities()
