@@ -87,8 +87,9 @@ export class Filament extends React.PureComponent<FilamentProps> {
       })
     })
 
+    // As setting the listener is async, we have to check updateRenderCallback was called meanwhile.
+    // In that case we have to assume that the listener we just set is not valid anymore:
     if (currentToken !== this.latestToken) {
-      console.log('Ignoring outdated render callback')
       listener.remove()
       return
     }
