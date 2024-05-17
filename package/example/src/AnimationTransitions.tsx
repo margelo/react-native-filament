@@ -12,6 +12,7 @@ import {
   useFilamentContext,
   useSkybox,
   RenderCallback,
+  TemporalAntiAliasingOptions,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
@@ -33,7 +34,6 @@ const animationInterpolationTime = 5
 function Renderer() {
   const { camera, view, scene } = useFilamentContext()
   useDefaultLight()
-  useSkybox({ color: '#88defb' })
 
   const pengu = useModel({ path: penguModelPath })
   const penguAsset = getAssetFromModel(pengu)
@@ -146,7 +146,7 @@ function Renderer() {
 
   return (
     <View style={styles.container} onTouchStart={onTouchStart}>
-      <Filament style={styles.filamentView} enableTransparentRendering={false} renderCallback={renderCallback} />
+      <Filament style={styles.filamentView} renderCallback={renderCallback} />
       <ScrollView style={styles.btnContainer}>
         <Button
           title="Navigate to test screen"

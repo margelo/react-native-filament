@@ -148,3 +148,150 @@ export interface DynamicResolutionOptions {
    */
   quality?: QualityLevel
 }
+
+/**
+ * Options for Temporal Anti-aliasing (TAA)
+ * Most TAA parameters are extremely costly to change, as they will trigger the TAA post-process
+ * shaders to be recompiled. These options should be changed or set during initialization.
+ * `filterWidth`, `feedback` and `jitterPattern`, however, can be changed at any time.
+ *
+ * `feedback` of 0.1 effectively accumulates a maximum of 19 samples in steady state.
+ * see "A Survey of Temporal Antialiasing Techniques" by Lei Yang and all for more information.
+ */
+export interface TemporalAntiAliasingOptions {
+  /**
+   * Reconstruction filter width typically between 0.2 (sharper, aliased) and 1.5 (smoother)
+   * @default 1.0
+   */
+  filterWidth?: number
+  /**
+   * History feedback, between 0 (maximum temporal AA) and 1 (no temporal AA).
+   * @default 0.12
+   */
+  feedback?: number
+  /**
+   * Texturing lod bias (typically -1 or -2)
+   * @default -1.0
+   */
+  lodBias?: number
+  /**
+   * Post-TAA sharpen, especially useful when upscaling is true.
+   * @default 0.0
+   */
+  sharpness?: number
+  /**
+   * Enable or disable TAA
+   * @default false
+   */
+  enabled: boolean
+  /**
+   * Enable or disable upscaling
+   * @default false
+   */
+  upscaling?: boolean
+
+  /**
+   * Clipping algorithm:
+   * - NONE: no rejections (use for debugging)
+   * - CLAMP: clamping
+   * - ACCURATE: accurate box clipping
+   *
+   * @default 'ACCURATE'
+   */
+  boxClipping?: 'ACCURATE' | 'CLAMP' | 'NONE'
+
+  /**
+   * Jitter Pattern:
+   * - RGSS_X4: 4-samples, rotated grid sampling
+   * - UNIFORM_HELIX_X4: 4-samples, uniform grid in helix sequence
+   * - HALTON_23_X8: 8-samples of halton 2,3
+   * - HALTON_23_X16: 16-samples of halton 2,3
+   * - HALTON_23_X32: 32-samples of halton 2,3
+   *
+   * @default 'HALTON_23_X16'
+   */
+  jitterPattern?: 'RGSS_X4' | 'UNIFORM_HELIX_X4' | 'HALTON_23_X8' | 'HALTON_23_X16' | 'HALTON_23_X32'
+
+  /**
+   * Whether to filter the history buffer
+   * @default true
+   */
+  filterHistory?: boolean
+  /**
+   * Whether to apply the reconstruction filter to the input
+   * @default true
+   */
+  filterInput?: boolean
+  /**
+   * Whether to use the YcoCg color-space for history rejection
+   * @default false
+   */
+  useYCoCg?: boolean
+  /**
+   * High values increases ghosting artefact, lower values increases jittering, range [0.75, 1.25]
+   * @default 1.0
+   */
+  varianceGamma?: number
+  /**
+   * Adjust the feedback dynamically to reduce flickering
+   * @default false
+   */
+  preventFlickering?: boolean
+  /**
+   * Whether to apply history reprojection (debug option)
+   * @default true
+   */
+  historyReprojection?: boolean
+}
+
+type Entries<T, K extends keyof T = keyof T> = (K extends unknown ? [K, T[K]] : never)[]
+const getEntries = <T extends object>(obj: T) => Object.entries(obj) as unknown as Entries<T>
+
+function boxClippingToNumber(boxClipping: TemporalAntiAliasingOptions['boxClipping']): number {
+  switch (boxClipping) {
+    case 'ACCURATE':
+      return 0
+    case 'CLAMP':
+      return 1
+    case 'NONE':
+      return 2
+  }
+  throw new Error(`Unknown boxClipping: ${boxClipping}`)
+}
+function jitterPatternToNumber(jitterPattern: TemporalAntiAliasingOptions['jitterPattern']): number {
+  switch (jitterPattern) {
+    case 'RGSS_X4':
+      return 0
+    case 'UNIFORM_HELIX_X4':
+      return 1
+    case 'HALTON_23_X8':
+      return 2
+    case 'HALTON_23_X16':
+      return 3
+    case 'HALTON_23_X32':
+      return 4
+  }
+  throw new Error(`Unknown jitterPattern: ${jitterPattern}`)
+}
+
+// Currently on JSi we don't support passing arbitrary objects.
+// The method for receiving the options is expected to receive a Record<string, number>, where booleans are
+// represented as 0.0 or 1.0.
+export function optionsToJSI(options: TemporalAntiAliasingOptions): Record<string, number> {
+  const result: Record<string, number> = {}
+  const entries = getEntries(options)
+  entries.forEach(([key, value]) => {
+    if (typeof value === 'boolean') {
+      result[key] = value ? 1.0 : 0.0
+    } else {
+      if (key === 'boxClipping') {
+        result[key] = boxClippingToNumber(value)
+      } else if (key === 'jitterPattern') {
+        result[key] = jitterPatternToNumber(value)
+      } else if (value != null) {
+        result[key] = value
+      }
+    }
+  })
+  return result
+}
