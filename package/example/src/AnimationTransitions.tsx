@@ -10,9 +10,7 @@ import {
   getAssetFromModel,
   FilamentProvider,
   useFilamentContext,
-  useSkybox,
   RenderCallback,
-  TemporalAntiAliasingOptions,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
 import { getAssetPath } from './utils/getAssetPasth'
