@@ -1,7 +1,7 @@
 import React, { PropsWithChildren, useEffect, useMemo } from 'react'
 import {
   AmbientOcclusionOptions,
-  Camera,
+  RNFCamera,
   Choreographer,
   DynamicResolutionOptions,
   Engine,
@@ -31,7 +31,7 @@ export type FilamentContextType = {
   scene: Scene
   lightManager: LightManager
   view: View
-  camera: Camera
+  camera: RNFCamera
   renderer: Renderer
   nameComponentManager: NameComponentManager
   workletContext: IWorkletContext
@@ -183,7 +183,7 @@ function EngineAPIProvider({ children, engine, choreographer, viewProps, rendere
   return <FilamentContext.Provider value={value}>{children}</FilamentContext.Provider>
 }
 
-type FilamentProviderProps = PropsWithChildren<
+export type FilamentProviderProps = PropsWithChildren<
   Omit<EngineProps, 'context'> &
     ViewProps &
     RendererProps & {

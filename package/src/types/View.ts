@@ -1,4 +1,4 @@
-import { Camera } from './Camera'
+import { RNFCamera } from './Camera'
 import { Entity } from './Entity'
 import { AmbientOcclusionOptions, DynamicResolutionOptions } from './Options'
 import { PointerHolder } from './PointerHolder'
@@ -25,7 +25,7 @@ import { Float3 } from './Math'
  **/
 
 export interface View extends PointerHolder {
-  camera: Camera
+  camera: RNFCamera
   scene: Scene
   // Can return 0 if the view isn't ready yet.
   getAspectRatio(): number

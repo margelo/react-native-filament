@@ -1,6 +1,16 @@
 import React, { useEffect, useMemo, useRef } from 'react'
 import { Platform, StyleSheet, View } from 'react-native'
-import { Filament, Float3, useBuffer, useCamera, useEngine, useModel, useRenderCallback, useScene, useView } from 'react-native-filament'
+import {
+  FilamentView,
+  Float3,
+  useBuffer,
+  useCamera,
+  useEngine,
+  useModel,
+  useRenderCallback,
+  useScene,
+  useView,
+} from 'react-native-filament'
 
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',
@@ -98,7 +108,7 @@ export function MultipleInstances() {
 
   return (
     <View style={styles.container}>
-      <Filament style={styles.filamentView} engine={engine} />
+      <FilamentView style={styles.filamentView} engine={engine} />
     </View>
   )
 }

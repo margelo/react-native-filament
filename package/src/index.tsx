@@ -13,6 +13,7 @@ export * from './hooks/useDisposableResource'
 export * from './hooks/useSkybox'
 export * from './hooks/useRecorder'
 export * from './hooks/useRecorderRenderLoop'
+export * from './hooks/useCameraManipulator'
 
 // utilities
 export * from './utilities/getAssetFromModel'
@@ -25,3 +26,4 @@ export * from './bullet'
 export * from './react/FilamentContext'
 export * from './react/Filament'
 export * from './react/Model'
+export * from './react/Camera'

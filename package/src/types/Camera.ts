@@ -80,7 +80,7 @@ import { CameraManipulator } from './CameraManipulator'
  * @see View
  */
 
-export interface Camera extends PointerHolder {
+export interface RNFCamera extends PointerHolder {
   // Convenience method
   lookAtCameraManipulator(cameraManipulator: CameraManipulator): void
   /**
