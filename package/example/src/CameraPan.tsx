@@ -1,6 +1,6 @@
 import { Filament, FilamentProvider, Float3, RenderCallback, getAssetFromModel, useFilamentContext, useModel } from 'react-native-filament'
 import { getAssetPath } from './utils/getAssetPasth'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import { LayoutChangeEvent, StyleSheet, View } from 'react-native'
 import { useSharedValue } from 'react-native-worklets-core'
@@ -33,24 +33,21 @@ function Renderer() {
   )
 
   const prevAspectRatio = useSharedValue(0)
-  const renderCallback: RenderCallback = useCallback(
-    ({ passedSeconds }) => {
-      'worklet'
+  const renderCallback: RenderCallback = useCallback(() => {
+    'worklet'
 
-      const aspectRatio = view.getAspectRatio()
-      if (prevAspectRatio.value !== aspectRatio) {
-        prevAspectRatio.value = aspectRatio
-        // Setup camera lens:
-        camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
-        console.log('Setting up camera lens with aspect ratio:', aspectRatio)
-      }
+    const aspectRatio = view.getAspectRatio()
+    if (prevAspectRatio.value !== aspectRatio) {
+      prevAspectRatio.value = aspectRatio
+      // Setup camera lens:
+      camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
+      console.log('Setting up camera lens with aspect ratio:', aspectRatio)
+    }
 
-      //   camera.lookAt(cameraPosition, cameraTarget, cameraUp)
-      //   const [cameraPosition, cameraTarget, cameraUp] = cameraManipulator.getLookAt()
-      camera.lookAtCameraManipulator(cameraManipulator)
-    },
-    [view, prevAspectRatio, cameraManipulator, camera]
-  )
+    //   camera.lookAt(cameraPosition, cameraTarget, cameraUp)
+    //   const [cameraPosition, cameraTarget, cameraUp] = cameraManipulator.getLookAt()
+    camera.lookAtCameraManipulator(cameraManipulator)
+  }, [view, prevAspectRatio, cameraManipulator, camera])
 
   useEffect(() => {
     if (asset == null) return
@@ -62,19 +59,32 @@ function Renderer() {
     .onBegin((event) => {
       if (viewHeight == null) return
 
-      const yCorrected = viewHeight - event.y
-      cameraManipulator.grabBegin(event.x, yCorrected, event.numberOfPointers === 2)
+      const yCorrected = viewHeight - event.translationY
+      cameraManipulator.grabBegin(event.translationX, yCorrected, false)
     })
     .onUpdate((event) => {
       if (viewHeight == null) return
 
-      const yCorrected = viewHeight - event.y
-      cameraManipulator.grabUpdate(event.x, yCorrected)
+      const yCorrected = viewHeight - event.translationY
+      cameraManipulator.grabUpdate(event.translationX, yCorrected)
     })
+    .maxPointers(1)
     .onEnd(() => {
       cameraManipulator.grabEnd()
     })
     .enabled(viewHeight != null)
+  const previousScale = useSharedValue(1)
+  const scaleMultiplier = 100
+  const pinchGesture = Gesture.Pinch()
+    .onBegin(({ scale }) => {
+      previousScale.value = scale
+    })
+    .onUpdate(({ scale, focalX, focalY }) => {
+      const delta = scale - previousScale.value
+      cameraManipulator.scroll(focalX, focalY, -delta * scaleMultiplier)
+      previousScale.value = scale
+    })
+  const combinedGesture = Gesture.Race(pinchGesture, panGesture)
 
   const onLayout = useCallback((event: LayoutChangeEvent) => {
     setViewHeight(event.nativeEvent.layout.height)
@@ -82,7 +92,7 @@ function Renderer() {
 
   return (
     <View style={{ flex: 1 }}>
-      <GestureDetector gesture={panGesture}>
+      <GestureDetector gesture={combinedGesture}>
         <View onLayout={onLayout} style={styles.container}>
           <Filament style={styles.container} renderCallback={renderCallback} />
         </View>
