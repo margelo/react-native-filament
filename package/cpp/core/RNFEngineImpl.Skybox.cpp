@@ -5,6 +5,8 @@
 #include "RNFEngineImpl.h"
 #include "RNFReferences.h"
 #include "utils/RNFConverter.h"
+#include <filament/Scene.h>
+#include <filament/Skybox.h>
 
 namespace margelo {
 void EngineImpl::createAndSetSkybox(std::string hexColor, std::optional<bool> showSun, std::optional<float> envIntensity) {
