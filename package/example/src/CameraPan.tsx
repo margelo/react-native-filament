@@ -14,10 +14,10 @@ const focalLengthInMillimeters = 28
 const near = 0.1
 const far = 1000
 
-const penguModelPath = getAssetPath('pengu.glb')
+const modelPath = 'https://raw.githubusercontent.com/google/filament/main/third_party/models/DamagedHelmet/DamagedHelmet.glb'
 
 function Renderer() {
-  const pengu = useModel({ path: penguModelPath })
+  const pengu = useModel({ path: modelPath })
   const asset = getAssetFromModel(pengu)
   const { engine, view, camera, transformManager } = useFilamentContext()
   useDefaultLight()
