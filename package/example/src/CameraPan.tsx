@@ -11,17 +11,18 @@ function Scene() {
   useDefaultLight()
 
   const cameraManipulator = useCameraManipulator({
-    orbitHomePosition: [0, 0, 8],
+    orbitHomePosition: [0, 0, 8], // "Camera location"
+    targetPosition: [0, 0, 0], // "Looking at"
   })
 
   // Pan gesture
-  const [viewHeight, setViewHeight] = useState<number>()
+  const [viewHeight, setViewHeight] = useState<number>() // As we need to invert the Y axis we must know the view height
   const panGesture = Gesture.Pan()
     .onBegin((event) => {
       if (viewHeight == null) return
 
       const yCorrected = viewHeight - event.translationY
-      cameraManipulator?.grabBegin(event.translationX, yCorrected, false)
+      cameraManipulator?.grabBegin(event.translationX, yCorrected, false) // false means rotation instead of translation
     })
     .onUpdate((event) => {
       if (viewHeight == null) return
