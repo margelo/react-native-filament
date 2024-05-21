@@ -11,7 +11,7 @@ import {
   useEngine,
   Float3,
   useRenderCallback,
-  useAsset,
+  useBuffer,
   useModel,
   useView,
   useCamera,
@@ -45,7 +45,7 @@ export function ScaleEffect() {
   const camera = useCamera(engine)
   const scene = useScene(engine)
 
-  const model = useModel({ engine: engine, path: modelPath, addToScene: false })
+  const model = useModel({ engine: engine, source: modelPath, addToScene: false })
   const modelAsset = model.state === 'loaded' ? model.asset : null
   const originalTransformRef = useRef<Mat4 | null>(null)
 
@@ -81,7 +81,7 @@ export function ScaleEffect() {
   }
 
   //#region Setup lights
-  const light = useAsset({ path: indirectLightPath })
+  const light = useBuffer({ source: indirectLightPath })
   useEffect(() => {
     if (light == null) return
     // create a default light

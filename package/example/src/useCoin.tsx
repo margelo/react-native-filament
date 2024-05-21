@@ -18,7 +18,7 @@ const scale = 0.3
 // A coin with a random rotation, that will be added to the physics world
 export function useCoin(world: DiscreteDynamicWorld, origin: Float3, collisionCallback: CollisionCallback) {
   const { transformManager } = useFilamentContext()
-  const coin = useModel({ path: coinPath })
+  const coin = useModel({ source: coinPath })
 
   const originX = origin[0]
   const originY = origin[1]

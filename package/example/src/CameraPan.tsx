@@ -1,5 +1,4 @@
 import { Filament, FilamentProvider, Float3, RenderCallback, getAssetFromModel, useFilamentContext, useModel } from 'react-native-filament'
-import { getAssetPath } from './utils/getAssetPasth'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import { LayoutChangeEvent, StyleSheet, View } from 'react-native'
@@ -17,8 +16,8 @@ const far = 1000
 const modelPath = 'https://raw.githubusercontent.com/google/filament/main/third_party/models/DamagedHelmet/DamagedHelmet.glb'
 
 function Renderer() {
-  const pengu = useModel({ path: modelPath })
-  const asset = getAssetFromModel(pengu)
+  const model = useModel({ uri: modelPath })
+  const asset = getAssetFromModel(model)
   const { engine, view, camera, transformManager } = useFilamentContext()
   useDefaultLight()
 

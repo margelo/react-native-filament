@@ -26,7 +26,7 @@ const cameraUp: Float3 = [0, 1, 0]
 function Renderer() {
   const { camera, view, scene, lightManager } = useFilamentContext()
   useDefaultLight(false)
-  const model = useModel({ path: penguModelPath })
+  const model = useModel({ source: penguModelPath })
 
   const prevAspectRatio = useSharedValue(0)
   const assetAnimator = useAssetAnimator(getAssetFromModel(model))

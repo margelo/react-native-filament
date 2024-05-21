@@ -1,4 +1,4 @@
-import { AssetProps, useAsset } from './useAsset'
+import { type BufferSource, useBuffer } from './useBuffer'
 import { FilamentAsset } from '../types/FilamentAsset'
 import { useFilamentContext } from '../FilamentContext'
 import { useDisposableResource } from './useDisposableResource'
@@ -7,7 +7,7 @@ import { useWorkletEffect } from './useWorkletEffect'
 import { AABB } from '../types'
 import { useMemo } from 'react'
 
-interface ModelProps extends AssetProps {
+interface ModelProps {
   /**
    * Whether source data of the model should be released after loading, or not.
    * @default false
@@ -41,17 +41,22 @@ export type FilamentModel =
     }
 
 /**
- * Use a Filament Model that gets asynchronously loaded into the given Engine.
+ * Loads a model from the given source.
+ *
+ *
+ * If you are passing in a `.glb` model or similar from your app's bundle using `require(..)`, make sure to add `glb` as an asset extension to `metro.config.js`!
+ * If you are passing in a `{ url: ... }`, make sure the URL points directly to a `.glb` model. This can either be a web URL (`http://..`/`https://..`), a local file (`file://..`), or an native asset path (`path/to/asset.glb`)
+ *
  * @worklet
  * @example
  * ```ts
- * const engine = useEngine()
- * const pengu = useModel({ engine: engine, path: PENGU_PATH })
+ * const model = useModel(require('model.glb'))
  * ```
  */
-export function useModel({ path, shouldReleaseSourceData, addToScene = true, instanceCount }: ModelProps): FilamentModel {
+export function useModel(source: BufferSource, props?: ModelProps): FilamentModel {
+  const { shouldReleaseSourceData, addToScene = true, instanceCount } = props ?? {}
   const { engine, scene, workletContext } = useFilamentContext()
-  const assetBuffer = useAsset({ path: path, releaseOnUnmount: false })
+  const assetBuffer = useBuffer({ source: source, releaseOnUnmount: false })
 
   // Note: the native cleanup of the asset will remove it automatically from the scene
   const asset = useDisposableResource(() => {
