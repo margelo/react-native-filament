@@ -21,7 +21,7 @@ class AnimatorWrapper : public HybridObject {
 public:
   explicit AnimatorWrapper(Animator* animator, FilamentInstance* instance, std::shared_ptr<NameComponentManager> nameComponentManager)
       : HybridObject("AnimatorWrapper"), _animator(animator), _instance(instance), _nameComponentManager(nameComponentManager),
-        _entityMap(getEntityNameMap(instance)) {}
+        _entityMap(createEntityNameMap(instance)) {}
 
   void loadHybridMethods() override;
 
@@ -40,7 +40,7 @@ private: // Internal
   /**
    * Creates a map of entities and their names
    */
-  EntityNameMap getEntityNameMap(FilamentInstance* instance);
+  EntityNameMap createEntityNameMap(FilamentInstance* instance);
   /**
    * Will take all entities associates with this animator instance and apply it to the provided entities
    */
