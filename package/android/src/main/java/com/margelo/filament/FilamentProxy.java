@@ -2,6 +2,7 @@ package com.margelo.filament;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -27,6 +28,10 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 /**
  * @noinspection JavaJniMissingFunction
  */
@@ -41,6 +46,8 @@ class FilamentProxy {
     private final Dispatcher uiThreadDispatcher;
     private final Dispatcher backgroundThreadDispatcher;
     private final Dispatcher renderThreadDispatcher;
+    private static final String NAME = "FilamentProxy";
+    private static final OkHttpClient client = new OkHttpClient();
 
     FilamentProxy(@NonNull ReactApplicationContext context) {
         JavaScriptContextHolder jsRuntimeHolder = context.getJavaScriptContextHolder();
@@ -93,19 +100,57 @@ class FilamentProxy {
         }
     }
 
+    private ByteBuffer streamToDirectByteBuffer(InputStream stream) throws IOException {
+        byte[] bytes = readAllBytes(stream);
+        ByteBuffer buffer = ByteBuffer.allocateDirect(bytes.length);
+
+        buffer.put(bytes, 0, bytes.length);
+        buffer.rewind();
+        return buffer;
+    }
+
     /**
      * @noinspection unused
      */
     @DoNotStrip
     @Keep
-    ByteBuffer loadAsset(String assetName) throws IOException {
-        try (InputStream inputStream = reactContext.getAssets().open(assetName)) {
-            byte[] bytes = readAllBytes(inputStream);
-            ByteBuffer buffer = ByteBuffer.allocateDirect(bytes.length);
+    ByteBuffer loadAsset(String url) throws Exception {
+        Log.i(NAME, "Loading byte data from URL: " + url + "...");
 
-            buffer.put(bytes, 0, bytes.length);
-            buffer.rewind();
-            return buffer;
+        Uri uri = null;
+        String assetName = null;
+        if (url.contains("://")) {
+            Log.i(NAME, "Parsing URL...");
+            uri = Uri.parse(url);
+            Log.i(NAME, "Parsed URL: " + uri.toString());
+        } else {
+            assetName = url;
+            Log.i(NAME, "Assumed assetName: " + assetName);
+        }
+
+        if (uri != null) {
+            // It's a URL/http resource
+            Request request = new Request.Builder().url(uri.toString()).build();
+            try (Response response = client.newCall(request).execute()) {
+                if (response.isSuccessful() && response.body() != null) {
+                    InputStream stream = response.body().byteStream();
+                    return streamToDirectByteBuffer(stream);
+                } else {
+                    throw new RuntimeException("Response was not successful!");
+                }
+            } catch (Exception ex) {
+                Log.e(NAME, "Failed to fetch URL " + url + "!", ex);
+                throw ex;
+            }
+        } else if (assetName != null) {
+            // It's bundled into the Android resources/assets
+            try (InputStream stream = reactContext.getAssets().open(assetName)) {
+                return streamToDirectByteBuffer(stream);
+            }
+        } else {
+            // It's a bird? it's a plane? not it's an error
+            throw new Exception("Input is neither a valid URL, nor an asset path - " +
+                    "cannot load asset! (Input: " + url + ")");
         }
     }
 

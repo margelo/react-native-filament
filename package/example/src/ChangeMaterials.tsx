@@ -6,7 +6,7 @@ import {
   Filament,
   Float3,
   useRenderCallback,
-  useAsset,
+  useBuffer,
   useModel,
   FilamentProvider,
   useFilamentContext,
@@ -32,9 +32,9 @@ function Renderer() {
 
   useDefaultLight()
 
-  const pengu = useModel({ path: penguModelPath })
-  const blueLeftEyeBuffer = useAsset({ path: leftEyeTexturePath })
-  const blueRightEyeBuffer = useAsset({ path: rightEyeTexturePath })
+  const pengu = useModel({ source: penguModelPath })
+  const blueLeftEyeBuffer = useBuffer({ source: leftEyeTexturePath })
+  const blueRightEyeBuffer = useBuffer({ source: rightEyeTexturePath })
 
   const penguAsset = pengu.state === 'loaded' ? pengu.asset : undefined
   const changeEyes = useWorkletCallback(() => {

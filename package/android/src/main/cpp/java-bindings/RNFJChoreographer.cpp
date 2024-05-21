@@ -14,11 +14,9 @@ void JChoreographer::registerNatives() {
   });
 }
 
-JChoreographer::JChoreographer(const jni::alias_ref<jhybridobject> &javaThis)
-    : _javaPart(jni::make_global(javaThis)) {}
+JChoreographer::JChoreographer(const jni::alias_ref<jhybridobject>& javaThis) : _javaPart(jni::make_global(javaThis)) {}
 
-jni::local_ref<JChoreographer::jhybriddata>
-JChoreographer::initHybrid(jni::alias_ref<jhybridobject> javaThis) {
+jni::local_ref<JChoreographer::jhybriddata> JChoreographer::initHybrid(jni::alias_ref<jhybridobject> javaThis) {
   return makeCxxInstance(javaThis);
 }
 

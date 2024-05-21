@@ -6,7 +6,7 @@ import {
   Filament,
   Float3,
   useRenderCallback,
-  useAsset,
+  useBuffer,
   useModel,
   useAssetAnimator,
   getAssetFromModel,
@@ -37,10 +37,10 @@ function Renderer() {
   const { engine, camera, view, renderableManager, transformManager, scene } = useFilamentContext()
   useDefaultLight()
 
-  const pengu = useModel({ path: penguModelPath })
+  const pengu = useModel({ source: penguModelPath })
 
   //#region Setup shadow plane
-  const shadowMaterialBuffer = useAsset({ path: shadowMaterialPath })
+  const shadowMaterialBuffer = useBuffer({ source: shadowMaterialPath })
   const [shadowMaterial, setShadowMaterial] = React.useState<Material | undefined>(undefined)
   React.useEffect(() => {
     if (shadowMaterialBuffer == null) return undefined

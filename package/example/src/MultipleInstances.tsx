@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef } from 'react'
 import { Platform, StyleSheet, View } from 'react-native'
-import { Filament, Float3, useAsset, useCamera, useEngine, useModel, useRenderCallback, useScene, useView } from 'react-native-filament'
+import { Filament, Float3, useBuffer, useCamera, useEngine, useModel, useRenderCallback, useScene, useView } from 'react-native-filament'
 
 const penguModelPath = Platform.select({
   android: 'custom/pengu.glb',
@@ -27,7 +27,7 @@ export function MultipleInstances() {
   const scene = useScene(engine)
 
   //#region Setup lights
-  const light = useAsset({ path: indirectLightPath })
+  const light = useBuffer({ source: indirectLightPath })
   useEffect(() => {
     if (light == null) return
     // create a default light
@@ -42,7 +42,7 @@ export function MultipleInstances() {
   }, [engine, light])
   //#endregion
 
-  const pengu = useModel({ engine: engine, path: penguModelPath, instanceCount: 4 })
+  const pengu = useModel({ engine: engine, source: penguModelPath, instanceCount: 4 })
   const penguAsset = pengu.state === 'loaded' ? pengu.asset : undefined
   useEffect(() => {
     if (penguAsset == null) return

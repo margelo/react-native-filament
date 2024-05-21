@@ -13,11 +13,9 @@ import {
   RenderCallback,
 } from 'react-native-filament'
 import { useDefaultLight } from './hooks/useDefaultLight'
-import { getAssetPath } from './utils/getAssetPasth'
 import { useSharedValue } from 'react-native-worklets-core'
-
-const penguModelPath = getAssetPath('pengu.glb')
-const pirateHatPath = getAssetPath('pirate.glb')
+import PenguGlb from '../assets/pengu.glb'
+import PirateGlb from '../assets/pirate.glb'
 
 // Camera config:
 const cameraPosition: Float3 = [0, 0, 8]
@@ -33,9 +31,9 @@ function Renderer() {
   const { camera, view, scene } = useFilamentContext()
   useDefaultLight()
 
-  const pengu = useModel({ path: penguModelPath })
+  const pengu = useModel(PenguGlb)
   const penguAnimator = useAnimator(pengu)
-  const pirateHat = useModel({ path: pirateHatPath })
+  const pirateHat = useModel(PirateGlb)
   const pirateHatAsset = getAssetFromModel(pirateHat)
   const pirateHatInstance = useMemo(() => pirateHatAsset?.getInstance(), [pirateHatAsset])
 

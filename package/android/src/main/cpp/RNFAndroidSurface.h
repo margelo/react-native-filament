@@ -22,7 +22,7 @@ public:
   explicit AndroidSurface(jni::alias_ref<jobject> javaSurface);
   ~AndroidSurface();
 
-  void *getSurface() override;
+  void* getSurface() override;
   int getWidth() override;
   int getHeight() override;
 
@@ -30,7 +30,7 @@ public:
 
 private:
   jni::global_ref<jobject> _javaSurface;
-  ANativeWindow *_surface;
+  ANativeWindow* _surface;
 };
 
 } // namespace margelo

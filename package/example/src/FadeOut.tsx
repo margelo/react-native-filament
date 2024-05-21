@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useEffect, useRef } from 'react'
 
 import { Animated, Button, Platform, StyleSheet, View } from 'react-native'
-import { Filament, useEngine, Float3, useRenderCallback, useAsset, useModel, useRenderableManager } from 'react-native-filament'
+import { Filament, useEngine, Float3, useRenderCallback, useBuffer, useModel, useRenderableManager } from 'react-native-filament'
 
 const indirectLightPath = Platform.select({
   android: 'custom/default_env_ibl.ktx',
@@ -26,8 +26,8 @@ export function FadeOut() {
   const engine = useEngine()
   const renderableManager = useRenderableManager(engine)
 
-  const light = useAsset({ path: indirectLightPath })
-  const asset = useModel({ engine: engine, path: assetPath })
+  const light = useBuffer({ source: indirectLightPath })
+  const asset = useModel({ engine: engine, source: assetPath })
 
   useEffect(() => {
     if (asset.state !== 'loaded') return
