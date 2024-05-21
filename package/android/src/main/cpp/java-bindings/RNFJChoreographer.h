@@ -11,8 +11,7 @@ namespace margelo {
 
 using namespace facebook;
 
-class JChoreographer : public jni::HybridClass<JChoreographer>,
-                       public Choreographer {
+class JChoreographer : public jni::HybridClass<JChoreographer>, public Choreographer {
 public:
   static void registerNatives();
 
@@ -24,13 +23,11 @@ private:
   friend HybridBase;
   jni::global_ref<JChoreographer::javaobject> _javaPart;
   static auto constexpr TAG = "JChoreographer";
-  static auto constexpr kJavaDescriptor =
-      "Lcom/margelo/filament/FilamentChoreographer;";
+  static auto constexpr kJavaDescriptor = "Lcom/margelo/filament/FilamentChoreographer;";
 
 private:
-  explicit JChoreographer(const jni::alias_ref<jhybridobject> &javaThis);
-  static jni::local_ref<jhybriddata>
-  initHybrid(jni::alias_ref<jhybridobject> javaThis);
+  explicit JChoreographer(const jni::alias_ref<jhybridobject>& javaThis);
+  static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> javaThis);
 };
 
 } // namespace margelo
