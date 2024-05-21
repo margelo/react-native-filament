@@ -53,16 +53,14 @@ function Scene() {
   }, [])
 
   return (
-    <View onLayout={onLayout} style={styles.container}>
-      <GestureDetector gesture={combinedGesture}>
-        <View style={styles.container}>
-          <Camera cameraManipulator={cameraManipulator} />
-          <DefaultLight />
+    <GestureDetector gesture={combinedGesture}>
+      <View onLayout={onLayout} style={styles.container}>
+        <Camera cameraManipulator={cameraManipulator} />
+        <DefaultLight />
 
-          <Model source={{ uri: modelPath }} transformToUnitCube />
-        </View>
-      </GestureDetector>
-    </View>
+        <Model source={{ uri: modelPath }} transformToUnitCube />
+      </View>
+    </GestureDetector>
   )
 }
 
