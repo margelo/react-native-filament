@@ -16,6 +16,7 @@
 #include "RNFSurfaceProvider.h"
 #include "RNFSwapChainWrapper.h"
 #include "RNFViewWrapper.h"
+#include "RNFRendererWrapper.h"
 #include "bullet/RNFRigidBodyWrapper.h"
 #include "core/utils/RNFEntityWrapper.h"
 #include "core/utils/RNFManipulatorWrapper.h"

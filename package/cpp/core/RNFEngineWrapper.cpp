@@ -5,6 +5,7 @@
 #include "RNFEngineWrapper.h"
 
 #include "RNFReferences.h"
+#include "RNFRendererWrapper.h"
 #include "utils/RNFConverter.h"
 
 #include <filament/Color.h>
@@ -106,16 +107,22 @@ std::shared_ptr<FilamentAssetWrapper> EngineWrapper::loadInstancedAsset(std::sha
   return pointee()->loadInstancedAsset(modelBuffer, instanceCount);
 }
 std::shared_ptr<SceneWrapper> EngineWrapper::getScene() {
-  return pointee()->getScene();
+  std::shared_ptr<Scene> scene = pointee()->_scene;
+  return std::make_shared<SceneWrapper>(scene);
 }
 std::shared_ptr<ViewWrapper> EngineWrapper::getView() {
-  return pointee()->getView();
+  std::shared_ptr<View> view = pointee()->_view;
+  float pixelDensityRatio = pointee()->_densityPixelRatio;
+  return std::make_shared<ViewWrapper>(view, pixelDensityRatio);
 }
 std::shared_ptr<CameraWrapper> EngineWrapper::getCamera() {
-  return pointee()->getCamera();
+  std::shared_ptr<Camera> camera = pointee()->_camera;
+  return std::make_shared<CameraWrapper>(camera);
 }
 std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator() {
-  return pointee()->getCameraManipulator();
+  std::shared_ptr<Manipulator<float>> manipulator = pointee()->createCameraManipulator();
+  float pixelDensityRatio = pointee()->_densityPixelRatio;
+  return std::make_shared<ManipulatorWrapper>(manipulator, pixelDensityRatio);
 }
 std::shared_ptr<TransformManagerWrapper> EngineWrapper::createTransformManager() {
   return pointee()->createTransformManager();
@@ -124,7 +131,8 @@ std::shared_ptr<LightManagerWrapper> EngineWrapper::createLightManager() {
   return pointee()->createLightManager();
 }
 std::shared_ptr<RendererWrapper> EngineWrapper::createRenderer() {
-  return pointee()->getRenderer();
+  std::shared_ptr<Renderer> renderer = pointee()->_renderer;
+  return std::make_shared<RendererWrapper>(renderer);
 }
 std::shared_ptr<RenderableManagerWrapper> EngineWrapper::createRenderableManager() {
   return pointee()->createRenderableManager();

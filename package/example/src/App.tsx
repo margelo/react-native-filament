@@ -5,7 +5,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { AnimationTransitions } from './AnimationTransitions'
 import { PhysicsCoin } from './PhysicsCoin'
 import { FadeOut } from './FadeOut'
-import { ChangeMaterials } from './ChangeMaterials'
 import { CastShadow } from './CastShadow'
 import { MultipleInstances } from './MultipleInstances'
 import { WorkletExample } from './WorkletExample'
@@ -13,6 +12,8 @@ import { ScaleEffect } from './ScaleEffect'
 import { FadingLightExample } from './FadingLightExample'
 import { ChangeGoldenMaterials } from './ChangeGoldenMaterial'
 import { AnimationTransitionsRecording } from './AnimationTransitionsRecording'
+import { CameraPan } from './CameraPan'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 function NavigationItem(props: { name: string; route: string }) {
   const navigation = useNavigation()
@@ -45,6 +46,7 @@ function HomeScreen() {
     <ScrollView style={{ flex: 1 }}>
       <NavigationItem name="▶️ Animation Transitions" route="AnimationTransitions" />
       <NavigationItem name="📹 Offscreen recording" route="AnimationTransitionsRecording" />
+      <NavigationItem name="📸 Camera Pan" route="CameraPan" />
       <NavigationItem name="💰 Physics Coin" route="PhysicsCoin" />
       <NavigationItem name="😶‍🌫️ Fade Out" route="FadeOut" />
       <NavigationItem name="🎨 Change Materials" route="ChangeMaterials" />
@@ -69,28 +71,31 @@ const Stack = createNativeStackNavigator()
 
 function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="AnimationTransitions">
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen
-          name="AnimationTransitions"
-          component={AnimationTransitions}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen name="AnimationTransitionsRecording" component={AnimationTransitionsRecording} />
-        <Stack.Screen name="PhysicsCoin" component={PhysicsCoin} />
-        <Stack.Screen name="FadeOut" component={FadeOut} />
-        <Stack.Screen name="ChangeMaterials" component={ChangeGoldenMaterials} />
-        <Stack.Screen name="CastShadow" component={CastShadow} />
-        <Stack.Screen name="MultipleInstances" component={MultipleInstances} />
-        <Stack.Screen name="WorkletExample" component={WorkletExample} />
-        <Stack.Screen name="ScaleEffect" component={ScaleEffect} />
-        <Stack.Screen name="FadingLight" component={FadingLightExample} />
-        <Stack.Screen name="Test" component={TestScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen
+            name="AnimationTransitions"
+            component={AnimationTransitions}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen name="CameraPan" component={CameraPan} />
+          <Stack.Screen name="AnimationTransitionsRecording" component={AnimationTransitionsRecording} />
+          <Stack.Screen name="PhysicsCoin" component={PhysicsCoin} />
+          <Stack.Screen name="FadeOut" component={FadeOut} />
+          <Stack.Screen name="ChangeMaterials" component={ChangeGoldenMaterials} />
+          <Stack.Screen name="CastShadow" component={CastShadow} />
+          <Stack.Screen name="MultipleInstances" component={MultipleInstances} />
+          <Stack.Screen name="WorkletExample" component={WorkletExample} />
+          <Stack.Screen name="ScaleEffect" component={ScaleEffect} />
+          <Stack.Screen name="FadingLight" component={FadingLightExample} />
+          <Stack.Screen name="Test" component={TestScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </GestureHandlerRootView>
   )
 }
 

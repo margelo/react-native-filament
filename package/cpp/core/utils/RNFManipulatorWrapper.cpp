@@ -11,11 +11,11 @@ void ManipulatorWrapper::loadHybridMethods() {
 }
 
 void ManipulatorWrapper::grabBegin(float x, float y, bool strafe) {
-  pointee()->grabBegin(x, y, strafe);
+  pointee()->grabBegin(x * _pixelDensityRatio, y * _pixelDensityRatio, strafe);
 }
 
 void ManipulatorWrapper::grabUpdate(float x, float y) {
-  pointee()->grabUpdate(x, y);
+  pointee()->grabUpdate(x * _pixelDensityRatio, y * _pixelDensityRatio);
 }
 
 void ManipulatorWrapper::grabEnd() {
@@ -23,7 +23,7 @@ void ManipulatorWrapper::grabEnd() {
 }
 
 void ManipulatorWrapper::scroll(float x, float y, float delta) {
-  pointee()->scroll(x, y, delta);
+  pointee()->scroll(x * _pixelDensityRatio, y * _pixelDensityRatio, delta);
 }
 
 void ManipulatorWrapper::update(float dt) {

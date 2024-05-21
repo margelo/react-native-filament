@@ -7,14 +7,18 @@
 #include "RNFReferences.h"
 #include "utils/RNFConverter.h"
 
+#include <filament/Camera.h>
 #include <filament/Color.h>
 #include <filament/Engine.h>
 #include <filament/Fence.h>
 #include <filament/IndirectLight.h>
 #include <filament/LightManager.h>
 #include <filament/RenderableManager.h>
+#include <filament/Scene.h>
 #include <filament/SwapChain.h>
 #include <filament/TransformManager.h>
+#include <filament/View.h>
+#include <filament/Viewport.h>
 #include <utils/Entity.h>
 #include <utils/EntityManager.h>
 
@@ -134,7 +138,7 @@ void EngineImpl::surfaceSizeChanged(int width, int height) {
 
   if (!_cameraManipulator) {
     Logger::log(TAG, "(surfaceSizeChanged) Updating viewport size to %d x %d", width, height);
-    _cameraManipulator->getManipulator()->setViewport(width, height);
+    _cameraManipulator->setViewport(width, height);
   }
   if (_view) {
     _view->setViewport({0, 0, static_cast<uint32_t>(width), static_cast<uint32_t>(height)});
@@ -310,14 +314,13 @@ void EngineImpl::setIndirectLight(std::shared_ptr<FilamentBuffer> iblBuffer, std
   _scene->setIndirectLight(_indirectLight);
 }
 
-std::shared_ptr<ManipulatorWrapper> EngineImpl::createCameraManipulator() {
+std::shared_ptr<Manipulator<float>> EngineImpl::createCameraManipulator() {
   ManipulatorBuilder builder;
   // Position of the camera:
   builder.orbitHomePosition(defaultCameraPosition.x, defaultCameraPosition.y, defaultCameraPosition.z);
   // Position the camera points to:
   builder.targetPosition(defaultObjectPosition.x, defaultObjectPosition.y, defaultObjectPosition.z);
-  std::shared_ptr<Manipulator<float>> manipulator = std::shared_ptr<Manipulator<float>>(builder.build(Mode::ORBIT));
-  return std::make_shared<ManipulatorWrapper>(manipulator);
+  return std::shared_ptr<Manipulator<float>>(builder.build(Mode::ORBIT));
 }
 
 std::shared_ptr<TransformManagerWrapper> EngineImpl::createTransformManager() {

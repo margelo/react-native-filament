@@ -10,7 +10,8 @@ using namespace camutils;
 
 class ManipulatorWrapper : public PointerHolder<Manipulator<float>> {
 public:
-  explicit ManipulatorWrapper(std::shared_ptr<Manipulator<float>> manipulator) : PointerHolder("ManipulatorWrapper", manipulator) {}
+  explicit ManipulatorWrapper(std::shared_ptr<Manipulator<float>> manipulator, float pixelDensityRatio)
+      : PointerHolder("ManipulatorWrapper", manipulator), _pixelDensityRatio(pixelDensityRatio) {}
 
   void loadHybridMethods() override;
 
@@ -25,6 +26,9 @@ private: // Exposed JS API
   void grabEnd();
   void scroll(float x, float y, float delta);
   void update(float dt);
+
+private:
+  float _pixelDensityRatio;
 
 private:
   const static constexpr auto TAG = "ManipulatorWrapper";
