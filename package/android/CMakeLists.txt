@@ -30,73 +30,73 @@ add_library(
     SHARED
 
     # Shared C++
-    ../cpp/FilamentView.cpp
-    ../cpp/FilamentProxy.cpp
-    ../cpp/FilamentRecorder.cpp
-    ../cpp/Surface.cpp
-    ../cpp/SurfaceProvider.cpp
-    ../cpp/Choreographer.cpp
-    ../cpp/ChoreographerWrapper.cpp
-    ../cpp/Listener.cpp
-    ../cpp/jsi/HybridObject.cpp
-    ../cpp/jsi/Promise.cpp
-    ../cpp/jsi/PromiseFactory.cpp
-    ../cpp/jsi/RuntimeCache.cpp
+    ../cpp/RNFFilamentView.cpp
+    ../cpp/RNFFilamentProxy.cpp
+    ../cpp/RNFFilamentRecorder.cpp
+    ../cpp/RNFSurface.cpp
+    ../cpp/RNFSurfaceProvider.cpp
+    ../cpp/RNFChoreographer.cpp
+    ../cpp/RNFChoreographerWrapper.cpp
+    ../cpp/RNFListener.cpp
+    ../cpp/jsi/RNFHybridObject.cpp
+    ../cpp/jsi/RNFPromise.cpp
+    ../cpp/jsi/RNFPromiseFactory.cpp
+    ../cpp/jsi/RNFRuntimeCache.cpp
     ../cpp/jsi/RNFWorkletRuntimeRegistry.cpp
-    ../cpp/threading/Dispatcher.cpp
-    ../cpp/test/TestHybridObject.cpp
+    ../cpp/threading/RNFDispatcher.cpp
+    ../cpp/test/RNFTestHybridObject.cpp
 
     # Filament Core
-    ../cpp/core/EngineImpl.cpp
-    ../cpp/core/EngineImpl.Skybox.cpp
-    ../cpp/core/EngineWrapper.cpp
-    ../cpp/core/EngineConfigHelper.cpp
-    ../cpp/core/SceneWrapper.cpp
-    ../cpp/core/CameraWrapper.cpp
-    ../cpp/core/ViewWrapper.cpp
-    ../cpp/core/SwapChainWrapper.cpp
-    ../cpp/core/FilamentAssetWrapper.cpp
-    ../cpp/core/AnimatorWrapper.cpp
-    ../cpp/core/TransformManagerImpl.cpp
-    ../cpp/core/TransformManagerWrapper.cpp
-    ../cpp/core/AABBWrapper.cpp
-    ../cpp/core/BoxWrapper.cpp
-    ../cpp/core/MaterialInstanceWrapper.cpp
-    ../cpp/core/RenderableManagerImpl.cpp
-    ../cpp/core/RenderableManagerImpl.DebugHelpers.cpp
-    ../cpp/core/RenderableManagerWrapper.cpp
-    ../cpp/core/MaterialImpl.cpp
-    ../cpp/core/MaterialWrapper.cpp
-    ../cpp/core/FilamentInstanceWrapper.cpp
-    ../cpp/core/LightManagerWrapper.cpp
-    ../cpp/core/RendererWrapper.cpp
+    ../cpp/core/RNFEngineImpl.cpp
+    ../cpp/core/RNFEngineImpl.Skybox.cpp
+    ../cpp/core/RNFEngineWrapper.cpp
+    ../cpp/core/RNFEngineConfigHelper.cpp
+    ../cpp/core/RNFSceneWrapper.cpp
+    ../cpp/core/RNFCameraWrapper.cpp
+    ../cpp/core/RNFViewWrapper.cpp
+    ../cpp/core/RNFSwapChainWrapper.cpp
+    ../cpp/core/RNFFilamentAssetWrapper.cpp
+    ../cpp/core/RNFAnimatorWrapper.cpp
+    ../cpp/core/RNFTransformManagerImpl.cpp
+    ../cpp/core/RNFTransformManagerWrapper.cpp
+    ../cpp/core/RNFAABBWrapper.cpp
+    ../cpp/core/RNFBoxWrapper.cpp
+    ../cpp/core/RNFMaterialInstanceWrapper.cpp
+    ../cpp/core/RNFRenderableManagerImpl.cpp
+    ../cpp/core/RNFRenderableManagerImpl.DebugHelpers.cpp
+    ../cpp/core/RNFRenderableManagerWrapper.cpp
+    ../cpp/core/RNFMaterialImpl.cpp
+    ../cpp/core/RNFMaterialWrapper.cpp
+    ../cpp/core/RNFFilamentInstanceWrapper.cpp
+    ../cpp/core/RNFLightManagerWrapper.cpp
+    ../cpp/core/RNFRendererWrapper.cpp
 
     # Filament Utils
-    ../cpp/core/utils/EntityWrapper.cpp
-    ../cpp/core/utils/ManipulatorWrapper.cpp
+    ../cpp/core/utils/RNFEntityWrapper.cpp
+    ../cpp/core/utils/RNFManipulatorWrapper.cpp
 
     # Filament math
-    ../cpp/core/math/TMat44Wrapper.cpp
+    ../cpp/core/math/RNFTMat44Wrapper.cpp
 
     # Bullet Physics Engine
-    ../cpp/bullet/BulletWrapper.cpp
-    ../cpp/bullet/DiscreteDynamicWorldWrapper.cpp
-    ../cpp/bullet/RigidBodyWrapper.cpp
-    ../cpp/bullet/ShapeWrapper.cpp
+    ../cpp/bullet/RNFBulletWrapper.cpp
+    ../cpp/bullet/RNFDiscreteDynamicWorldWrapper.cpp
+    ../cpp/bullet/RNFRigidBodyWrapper.cpp
+    ../cpp/bullet/RNFShapeWrapper.cpp
 
     # Java JNI
-    src/main/cpp/AndroidFilamentProxy.cpp
-    src/main/cpp/AndroidSurface.cpp
-    src/main/cpp/Filament.cpp
-    src/main/cpp/AndroidLogger.cpp
-    src/main/cpp/JNISharedPtr.cpp
-    src/main/cpp/FilamentInstaller.cpp
-    src/main/cpp/java-bindings/JFilamentProxy.cpp
-    src/main/cpp/java-bindings/JFilamentRecorder.cpp
-    src/main/cpp/java-bindings/JChoreographer.cpp
-    src/main/cpp/java-bindings/JFilamentView.cpp
-    src/main/cpp/java-bindings/JDispatcher.cpp
-    src/main/cpp/java-bindings/JSurfaceProvider.cpp
+    src/main/cpp/RNFAndroidFilamentProxy.cpp
+    src/main/cpp/RNFAndroidSurface.cpp
+    src/main/cpp/RNFFilament.cpp
+    src/main/cpp/RNFAndroidLogger.cpp
+    src/main/cpp/RNFJNISharedPtr.cpp
+    src/main/cpp/RNFFilamentInstaller.cpp
+    src/main/cpp/java-bindings/RNFJFilamentProxy.cpp
+    src/main/cpp/java-bindings/RNFJFilamentRecorder.cpp
+    src/main/cpp/java-bindings/RNFJChoreographer.cpp
+    src/main/cpp/java-bindings/RNFJFilamentView.cpp
+    src/main/cpp/java-bindings/RNFJDispatcher.cpp
+    src/main/cpp/java-bindings/RNFJSurfaceProvider.cpp
 )
 
 # Header Search Paths (includes)
