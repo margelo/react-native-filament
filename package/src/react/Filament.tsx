@@ -3,12 +3,16 @@ import { FilamentProvider, FilamentProviderProps } from './FilamentContext'
 import { RenderCallbackContext } from './RenderCallbackContext'
 import { FilamentView, PublicNativeProps } from './FilamentView'
 import { RenderCallback } from '../types'
-import { StyleSheet } from 'react-native'
+import { StyleSheet, ViewStyle } from 'react-native'
 
-type Props = PropsWithChildren<FilamentProviderProps & PublicNativeProps>
+type ForwardProps = PublicNativeProps & {
+  style?: ViewStyle
+}
+
+type Props = PropsWithChildren<FilamentProviderProps & ForwardProps>
 
 // Purpose: provide a render callback to the FilamentView by combining all render callbacks from the context
-function FilamentViewWithRenderCallbacks({ children, enableTransparentRendering }: PropsWithChildren<PublicNativeProps>) {
+function FilamentViewWithRenderCallbacks({ children, ...forwardProps }: PropsWithChildren<ForwardProps>) {
   const renderCallbacks = RenderCallbackContext.useRenderCallbacks()
   const renderCallback: RenderCallback = useCallback(
     (frameInfo) => {
@@ -22,7 +26,7 @@ function FilamentViewWithRenderCallbacks({ children, enableTransparentRendering 
   )
 
   return (
-    <FilamentView style={styles.container} renderCallback={renderCallback} enableTransparentRendering={enableTransparentRendering}>
+    <FilamentView renderCallback={renderCallback} {...forwardProps} style={[styles.container, forwardProps.style]}>
       {children}
     </FilamentView>
   )
@@ -30,7 +34,7 @@ function FilamentViewWithRenderCallbacks({ children, enableTransparentRendering 
 
 // The public Filament component as the user imports it:
 /**
- * Renders a filament view with styles of `flex: 1`.
+ * Renders a filament view with default styles of `flex: 1`.
  *
  * @example
  *
@@ -40,11 +44,11 @@ function FilamentViewWithRenderCallbacks({ children, enableTransparentRendering 
  *  </Filament>
  * ```
  */
-export function Filament({ children, enableTransparentRendering, ...props }: Props) {
+export function Filament({ children, enableTransparentRendering, style, ...props }: Props) {
   return (
     <FilamentProvider {...props}>
       <RenderCallbackContext.RenderContextProvider>
-        <FilamentViewWithRenderCallbacks enableTransparentRendering={enableTransparentRendering}>
+        <FilamentViewWithRenderCallbacks enableTransparentRendering={enableTransparentRendering} style={style}>
           {children}
         </FilamentViewWithRenderCallbacks>
       </RenderCallbackContext.RenderContextProvider>
