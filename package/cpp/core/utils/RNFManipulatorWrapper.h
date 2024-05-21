@@ -1,6 +1,6 @@
 #pragma once
 
-#include "jsi/RNFHybridObject.h"
+#include "jsi/RNFPointerHolder.h"
 
 #include <camutils/Manipulator.h>
 
@@ -19,6 +19,7 @@ public:
   }
 
 private: // Exposed JS API
+  std::vector<std::vector<double>> getLookAt();
   void grabBegin(float x, float y, bool strafe);
   void grabUpdate(float x, float y);
   void grabEnd();

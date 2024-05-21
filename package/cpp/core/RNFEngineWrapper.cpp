@@ -41,7 +41,7 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("getScene", &EngineWrapper::getScene, this);
   registerHybridMethod("getView", &EngineWrapper::getView, this);
   registerHybridMethod("getCamera", &EngineWrapper::getCamera, this);
-  registerHybridMethod("getCameraManipulator", &EngineWrapper::getCameraManipulator, this);
+  registerHybridMethod("createCameraManipulator", &EngineWrapper::createCameraManipulator, this);
   registerHybridMethod("createTransformManager", &EngineWrapper::createTransformManager, this);
   registerHybridMethod("createRenderableManager", &EngineWrapper::createRenderableManager, this);
   registerHybridMethod("createMaterial", &EngineWrapper::createMaterial, this);
@@ -114,7 +114,7 @@ std::shared_ptr<ViewWrapper> EngineWrapper::getView() {
 std::shared_ptr<CameraWrapper> EngineWrapper::getCamera() {
   return pointee()->getCamera();
 }
-std::shared_ptr<ManipulatorWrapper> EngineWrapper::getCameraManipulator() {
+std::shared_ptr<ManipulatorWrapper> EngineWrapper::createCameraManipulator() {
   return pointee()->getCameraManipulator();
 }
 std::shared_ptr<TransformManagerWrapper> EngineWrapper::createTransformManager() {

@@ -7,6 +7,7 @@ void ManipulatorWrapper::loadHybridMethods() {
   registerHybridMethod("grabEnd", &ManipulatorWrapper::grabEnd, this);
   registerHybridMethod("scroll", &ManipulatorWrapper::scroll, this);
   registerHybridMethod("update", &ManipulatorWrapper::update, this);
+  registerHybridMethod("getLookAt", &ManipulatorWrapper::getLookAt, this);
 }
 
 void ManipulatorWrapper::grabBegin(float x, float y, bool strafe) {
@@ -27,6 +28,16 @@ void ManipulatorWrapper::scroll(float x, float y, float delta) {
 
 void ManipulatorWrapper::update(float dt) {
   pointee()->update(dt);
+}
+
+std::vector<std::vector<double>> ManipulatorWrapper::getLookAt() {
+  math::float3 eye, center, up;
+  pointee()->getLookAt(&eye, &center, &up);
+  return {
+      {eye.x, eye.y, eye.z},
+      {center.x, center.y, center.z},
+      {up.x, up.y, up.z},
+  };
 }
 
 } // namespace margelo
