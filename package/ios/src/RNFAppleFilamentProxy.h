@@ -43,6 +43,9 @@ private:
   std::shared_ptr<Dispatcher> _renderThreadDispatcher;
   std::shared_ptr<Dispatcher> _uiDispatcher;
   std::shared_ptr<Dispatcher> _backgroundDispatcher;
+
+private:
+  static auto constexpr TAG = "AppleFilamentProxy";
 };
 
 } // namespace margelo
