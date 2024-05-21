@@ -10,7 +10,7 @@ import { useMemo } from 'react'
 export interface ModelProps {
   /**
    * Whether source data of the model should be released after loading, or not.
-   * @default false
+   * @default true
    */
   shouldReleaseSourceData?: boolean
 
@@ -54,7 +54,7 @@ export type FilamentModel =
  * ```
  */
 export function useModel(source: BufferSource, props?: ModelProps): FilamentModel {
-  const { shouldReleaseSourceData, addToScene = true, instanceCount } = props ?? {}
+  const { shouldReleaseSourceData = true, addToScene = true, instanceCount } = props ?? {}
   const { engine, scene, workletContext } = useFilamentContext()
   const assetBuffer = useBuffer({ source: source, releaseOnUnmount: false })
 
