@@ -1,6 +1,6 @@
-import { Manipulator } from './Manipulator'
 import { PointerHolder } from './PointerHolder'
 import { Float3 } from './Math'
+import { CameraManipulator } from './CameraManipulator'
 
 /**
  * Camera represents the eye through which the scene is viewed.
@@ -82,7 +82,7 @@ import { Float3 } from './Math'
 
 export interface Camera extends PointerHolder {
   // Convenience method
-  lookAtCameraManipulator(cameraManipulator: Manipulator): void
+  lookAtCameraManipulator(cameraManipulator: CameraManipulator): void
   /**
    *
    * @param eye The position of the camera in space
