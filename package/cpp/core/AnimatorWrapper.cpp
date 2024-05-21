@@ -100,7 +100,7 @@ int AnimatorWrapper::addToSyncList(std::shared_ptr<FilamentInstanceWrapper> inst
 
   int id = _syncId++;
   FilamentInstance* instance = instanceWrapper->getInstance();
-  std::map<std::string, Entity> entityMap = getEntityNameMap(instance);
+  std::map<std::string, Entity> entityMap = createEntityNameMap(instance);
   _syncMap.insert({id, instance});
   _instanceEntityMap.insert({id, entityMap});
 
@@ -121,7 +121,7 @@ void AnimatorWrapper::removeFromSyncList(int instanceId) {
   _instanceEntityMap.erase(instanceId);
 }
 
-EntityNameMap AnimatorWrapper::getEntityNameMap(FilamentInstance* instance) {
+EntityNameMap AnimatorWrapper::createEntityNameMap(FilamentInstance* instance) {
   assertInstanceNotNull(instance);
 
   size_t masterEntitiesCount = instance->getEntityCount();
@@ -134,6 +134,9 @@ EntityNameMap AnimatorWrapper::getEntityNameMap(FilamentInstance* instance) {
       continue;
     }
     auto masterInstanceName = _nameComponentManager->getName(masterNameInstance);
+    if (masterInstanceName == nullptr) {
+      continue;
+    }
     entityMap[masterInstanceName] = masterEntity;
   }
 
