@@ -13,7 +13,7 @@
 #import "RNFAppleManagedBuffer.h"
 #import "RNFFilamentMetalView.h"
 #import "RNFFilamentView.h"
-#import "NSThreadDispatcher.h"
+#import "RNFNSThreadDispatcher.h"
 #import <Foundation/Foundation.h>
 #import <React/RCTBridge+Private.h>
 #import <React/RCTBridge.h>

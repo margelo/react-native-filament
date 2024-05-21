@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "RNFthreading/Dispatcher.h"
+#include "threading/RNFDispatcher.h"
 #include <Foundation/Foundation.h>
 
 namespace margelo {
