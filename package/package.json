@@ -1,6 +1,6 @@
 {
   "name": "react-native-filament",
-  "version": "0.40.1",
+  "version": "0.40.2",
   "description": "A real-time physically based 3D rendering engine for React Native",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
