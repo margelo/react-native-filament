@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useEffect, useRef } from 'react'
 
 import { Animated, Button, Platform, StyleSheet, View } from 'react-native'
-import { Filament, useEngine, Float3, useRenderCallback, useBuffer, useModel, useRenderableManager } from 'react-native-filament'
+import { FilamentView, useEngine, Float3, useRenderCallback, useBuffer, useModel, useRenderableManager } from 'react-native-filament'
 
 const indirectLightPath = Platform.select({
   android: 'custom/default_env_ibl.ktx',
@@ -65,7 +65,7 @@ export function FadeOut() {
 
   return (
     <View style={styles.container}>
-      <Filament style={styles.filamentView} engine={engine} />
+      <FilamentView style={styles.filamentView} engine={engine} />
       <Button
         title="Fade out"
         onPress={() => {

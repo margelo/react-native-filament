@@ -3,7 +3,7 @@ import { useCallback, useRef } from 'react'
 
 import { Button, StyleSheet, View } from 'react-native'
 import {
-  Filament,
+  FilamentView,
   Float3,
   useRenderCallback,
   useBuffer,
@@ -76,7 +76,7 @@ function Renderer() {
 
   return (
     <View style={styles.container}>
-      <Filament style={styles.filamentView} />
+      <FilamentView style={styles.filamentView} />
       <Button
         title="Change Eyes"
         onPress={() => {

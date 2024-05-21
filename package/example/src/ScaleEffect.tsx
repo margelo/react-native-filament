@@ -7,7 +7,7 @@ import { useEffect, useRef } from 'react'
 
 import { Animated, Button, Platform, StyleSheet, View } from 'react-native'
 import {
-  Filament,
+  FilamentView,
   useEngine,
   Float3,
   useRenderCallback,
@@ -110,7 +110,7 @@ export function ScaleEffect() {
 
   return (
     <View style={styles.container}>
-      <Filament style={styles.filamentView} engine={engine} />
+      <FilamentView style={styles.filamentView} engine={engine} />
       <Button title="Scale" onPress={onScale} />
     </View>
   )

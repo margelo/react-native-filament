@@ -1,14 +1,14 @@
 import React from 'react'
 import { findNodeHandle, NativeMethods } from 'react-native'
-import { FilamentProxy } from './native/FilamentProxy'
-import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
-import { reportFatalError, reportWorkletError } from './ErrorUtils'
+import { FilamentProxy } from '../native/FilamentProxy'
+import { FilamentNativeView, NativeProps } from '../native/FilamentNativeView'
+import { reportFatalError, reportWorkletError } from '../ErrorUtils'
 import { FilamentContext } from './FilamentContext'
 import { RenderCallback, SwapChain } from 'react-native-filament'
-import { FilamentView, SurfaceProvider } from './native/FilamentViewTypes'
-import { Listener } from './types/Listener'
+import { FilamentView as RNFFilamentView, SurfaceProvider } from '../native/FilamentViewTypes'
+import { Listener } from '../types/Listener'
 
-type PublicNativeProps = Omit<NativeProps, 'onViewReady'>
+export type PublicNativeProps = Omit<NativeProps, 'onViewReady'>
 
 export interface FilamentProps extends PublicNativeProps {
   /**
@@ -21,13 +21,17 @@ export interface FilamentProps extends PublicNativeProps {
 
 type RefType = React.Component<NativeProps> & Readonly<NativeMethods>
 
-export class Filament extends React.PureComponent<FilamentProps> {
+/**
+ * The component that wraps the native view.
+ * @private
+ */
+export class FilamentView extends React.PureComponent<FilamentProps> {
   private readonly ref: React.RefObject<RefType>
   private surfaceCreatedListener: Listener | undefined
   private surfaceDestroyedListener: Listener | undefined
   private renderCallbackListener: Listener | undefined
   private swapChain: SwapChain | undefined
-  private view: FilamentView | undefined
+  private view: RNFFilamentView | undefined
 
   /**
    * Uses the context in class.
@@ -234,6 +238,6 @@ export class Filament extends React.PureComponent<FilamentProps> {
 }
 
 // @ts-expect-error Not in the types
-Filament.defaultProps = {
+FilamentView.defaultProps = {
   enableTransparentRendering: true,
 }

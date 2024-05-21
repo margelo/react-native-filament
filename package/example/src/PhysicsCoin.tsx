@@ -3,7 +3,7 @@ import { useRef } from 'react'
 
 import { StyleSheet, View } from 'react-native'
 import {
-  Filament,
+  FilamentView,
   Float3,
   useRenderCallback,
   useWorld,
@@ -87,7 +87,7 @@ function PhysicsCoinRenderer() {
 
   return (
     <View style={styles.container}>
-      <Filament style={styles.filamentView} />
+      <FilamentView style={styles.filamentView} />
     </View>
   )
 }

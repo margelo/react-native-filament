@@ -1,9 +1,5 @@
 export * from './types'
 
-// react components
-export * from './Filament'
-export * from './FilamentContext'
-
 // hooks
 export * from './hooks/useWorkletEffect'
 export * from './hooks/useWorkletCallback'
@@ -17,6 +13,7 @@ export * from './hooks/useDisposableResource'
 export * from './hooks/useSkybox'
 export * from './hooks/useRecorder'
 export * from './hooks/useRecorderRenderLoop'
+export * from './hooks/useCameraManipulator'
 
 // utilities
 export * from './utilities/getAssetFromModel'
@@ -24,3 +21,13 @@ export * from './utilities/withCleanupScope'
 
 // Bullet 3
 export * from './bullet'
+
+// React API
+export * from './react/FilamentContext'
+export * from './react/Filament'
+export * from './react/Model'
+export * from './react/Camera'
+export * from './react/RenderCallbackContext'
+export * from './react/EnvironmentalLight'
+export * from './react/Light'
+export * from './react/Skybox'

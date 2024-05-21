@@ -16,7 +16,7 @@ module.exports = {
     'react-hooks/exhaustive-deps': [
       'error',
       {
-        additionalHooks: '(useDerivedValue|useAnimatedStyle|useAnimatedProps|useWorkletEffect)',
+        additionalHooks: '(useDerivedValue|useAnimatedStyle|useAnimatedProps|useWorkletEffect|useRenderCallback|useDisposableResource)',
       },
     ],
   },

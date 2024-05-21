@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'
 import { useSharedValue } from 'react-native-worklets-core'
 import { Animated, Button, SafeAreaView, StyleSheet } from 'react-native'
 import {
-  Filament,
+  FilamentView,
   FilamentProvider,
   Float3,
   getAssetFromModel,
@@ -70,7 +70,7 @@ function Renderer() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Filament style={styles.filamentView} />
+      <FilamentView style={styles.filamentView} />
       <Button
         title="Toggle light"
         onPress={() => {
