@@ -14,10 +14,23 @@ react-native-filament is a powerful 3D rendering engine for React Native. It fea
 
 * ⚡ List features here with emojis
 
-Install react-native-filament from npm:
+### Installation
+
+1. Install `react-native-filament` from npm:
 
 ```sh
 npm i react-native-filament
+```
+
+2. `react-native-filament` depends on `react-native-worklets-core`:
+
+```sh
+npm i react-native-worklets-core
+```
+
+3. Update your pods:
+
+```sh
 cd ios && pod install
 ```
 
@@ -26,14 +39,19 @@ cd ios && pod install
 ### Example
 
 ```tsx
-function App() {
-  const model = useModel('duck.gltf')
+import { Filament, Model, Camera } from 'react-native-filament'
 
+function App() {
   return (
     <Filament
       style={{ width: 100, height: 100 }}
       model={model}
-    />
+    >
+      // Render with the default camera:
+      <Camera /> 
+      // Add a model to the scene (only glb supported yet):
+      <Model source={require('./duck.glb')}>
+    </Filament>
   )
 }
 ```
