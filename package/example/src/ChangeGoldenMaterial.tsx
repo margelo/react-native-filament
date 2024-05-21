@@ -6,7 +6,7 @@ import {
   Filament,
   Float3,
   useRenderCallback,
-  useAsset,
+  useBuffer,
   useModel,
   FilamentProvider,
   useFilamentContext,
@@ -33,14 +33,14 @@ function Renderer() {
 
   useDefaultLight()
 
-  const pengu = useModel({ path: penguModelPath })
-  const baseColorBuffer = useAsset({ path: getAssetPath('Pengu_Skin_Gold.jpg'), releaseOnUnmount: false })
-  const normalBuffer = useAsset({ path: getAssetPath('Pengu_Skin_Gold_Normal.jpg'), releaseOnUnmount: false })
-  const metallicRoughnessBuffer = useAsset({
-    path: getAssetPath('Pengu_Skin_Gold_Roughness.jpg'),
+  const pengu = useModel({ source: penguModelPath })
+  const baseColorBuffer = useBuffer({ source: getAssetPath('Pengu_Skin_Gold.jpg'), releaseOnUnmount: false })
+  const normalBuffer = useBuffer({ source: getAssetPath('Pengu_Skin_Gold_Normal.jpg'), releaseOnUnmount: false })
+  const metallicRoughnessBuffer = useBuffer({
+    source: getAssetPath('Pengu_Skin_Gold_Roughness.jpg'),
     releaseOnUnmount: false,
   })
-  const customMaterial = useAsset({ path: getAssetPath('test.matc'), releaseOnUnmount: false })
+  const customMaterial = useBuffer({ source: getAssetPath('test.matc'), releaseOnUnmount: false })
 
   const penguAsset = pengu.state === 'loaded' ? pengu.asset : undefined
   const changeGoldenSkin = React.useEffect(() => {

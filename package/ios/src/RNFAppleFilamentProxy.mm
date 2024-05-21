@@ -27,6 +27,17 @@ AppleFilamentProxy::AppleFilamentProxy(jsi::Runtime* runtime, std::shared_ptr<Di
 
 std::shared_ptr<FilamentBuffer> AppleFilamentProxy::loadAsset(const std::string& path) {
   NSString* filePath = [NSString stringWithUTF8String:path.c_str()];
+  // Check if its a web uri, if so load using NSData
+  if ([filePath hasPrefix:@"http://"] || [filePath hasPrefix:@"https://"]) {
+    Logger::log(TAG, "Fetching %s...", [filePath cStringUsingEncoding:NSUTF8StringEncoding]);
+    NSURL* url = [NSURL URLWithString:filePath];
+    NSData* data = [NSData dataWithContentsOfURL:url];
+    if (data == nil) {
+      throw std::runtime_error("Could not load file from URL");
+    }
+    auto managedBuffer = std::make_shared<AppleManagedBuffer>(data);
+    return std::make_shared<FilamentBuffer>(managedBuffer);
+  }
 
   // Split the path at the last dot to separate name and extension
   NSArray<NSString*>* pathComponents = [filePath componentsSeparatedByString:@"."];

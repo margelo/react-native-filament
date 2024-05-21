@@ -14,8 +14,7 @@ namespace margelo {
 
 using namespace facebook;
 
-class JFilamentView : public jni::HybridClass<JFilamentView>,
-                      public FilamentView {
+class JFilamentView : public jni::HybridClass<JFilamentView>, public FilamentView {
 public:
   ~JFilamentView();
   static void registerNatives();
@@ -32,12 +31,10 @@ private:
   static auto constexpr kJavaDescriptor = "Lcom/margelo/filament/FilamentView;";
 
 private:
-  explicit JFilamentView(
-      const jni::alias_ref<jhybridobject> &javaThis,
-      const jni::alias_ref<JSurfaceProvider::javaobject> &surfaceProvider);
-  static jni::local_ref<jhybriddata> initHybrid(
-      jni::alias_ref<jhybridobject> javaThis,
-      const jni::alias_ref<JSurfaceProvider::javaobject> &surfaceProvider);
+  explicit JFilamentView(const jni::alias_ref<jhybridobject>& javaThis,
+                         const jni::alias_ref<JSurfaceProvider::javaobject>& surfaceProvider);
+  static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> javaThis,
+                                                const jni::alias_ref<JSurfaceProvider::javaobject>& surfaceProvider);
 };
 
 } // namespace margelo

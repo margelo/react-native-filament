@@ -7,7 +7,7 @@ export * from './FilamentContext'
 // hooks
 export * from './hooks/useWorkletEffect'
 export * from './hooks/useWorkletCallback'
-export * from './hooks/useAsset'
+export * from './hooks/useBuffer'
 export * from './hooks/useModel'
 export * from './hooks/useAnimator'
 export * from './hooks/useConfigureAssetShadow'

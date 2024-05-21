@@ -9,7 +9,7 @@ import {
   Float3,
   Material,
   runOnWorklet,
-  useAsset,
+  useBuffer,
   useFilamentContext,
   withCleanupScope,
 } from 'react-native-filament'
@@ -42,7 +42,7 @@ function Renderer() {
   }, [camera, prevAspectRatio, view])
 
   // TODO: check if we can replace material
-  const materialBuffer = useAsset({ path: getAssetPath('baked_color.filamat') })
+  const materialBuffer = useBuffer({ source: getAssetPath('baked_color.filamat') })
   useEffect(() => {
     'worklet'
 

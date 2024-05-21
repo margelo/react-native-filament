@@ -37,9 +37,9 @@ function Renderer() {
   useDefaultLight()
   useSkybox({ color: '#88defb' })
 
-  const pengu = useModel({ path: penguModelPath })
+  const pengu = useModel({ source: penguModelPath })
   const penguAsset = getAssetFromModel(pengu)
-  const pirateHat = useModel({ path: pirateHatPath })
+  const pirateHat = useModel({ source: pirateHatPath })
   const pirateHatAsset = getAssetFromModel(pirateHat)
   const pirateHatAnimator = useDisposableResource(() => {
     if (pirateHatAsset == null || penguAsset == null) {

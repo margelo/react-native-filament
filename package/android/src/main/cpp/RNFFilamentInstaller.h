@@ -12,11 +12,9 @@ using namespace facebook;
 
 class FilamentInstaller : public jni::JavaClass<FilamentInstaller> {
 public:
-  static auto constexpr kJavaDescriptor =
-      "Lcom/margelo/filament/FilamentInstaller;";
+  static auto constexpr kJavaDescriptor = "Lcom/margelo/filament/FilamentInstaller;";
   static void registerNatives();
-  static void install(jni::alias_ref<jni::JClass> clazz,
-                      jni::alias_ref<JFilamentProxy::javaobject> proxy);
+  static void install(jni::alias_ref<jni::JClass> clazz, jni::alias_ref<JFilamentProxy::javaobject> proxy);
 };
 
 }; // namespace margelo
