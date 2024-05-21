@@ -8,7 +8,7 @@ import { RenderCallback, SwapChain } from 'react-native-filament'
 import { FilamentView as RNFFilamentView, SurfaceProvider } from '../native/FilamentViewTypes'
 import { Listener } from '../types/Listener'
 
-type PublicNativeProps = Omit<NativeProps, 'onViewReady'>
+export type PublicNativeProps = Omit<NativeProps, 'onViewReady'>
 
 export interface FilamentProps extends PublicNativeProps {
   /**
