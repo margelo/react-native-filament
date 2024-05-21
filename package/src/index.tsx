@@ -1,9 +1,5 @@
 export * from './types'
 
-// react components
-export * from './Filament'
-export * from './FilamentContext'
-
 // hooks
 export * from './hooks/useWorkletEffect'
 export * from './hooks/useWorkletCallback'
@@ -24,3 +20,8 @@ export * from './utilities/withCleanupScope'
 
 // Bullet 3
 export * from './bullet'
+
+// React API
+export * from './react/FilamentContext'
+export * from './react/Filament'
+export * from './react/Model'

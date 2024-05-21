@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { LightConfig, LightManager } from '../types'
 import { ISharedValue } from 'react-native-worklets-core'
-import { useFilamentContext } from '../FilamentContext'
+import { useFilamentContext } from '../react/FilamentContext'
 
 /**
  * Creates a new memoized light entity based on the given configuration.

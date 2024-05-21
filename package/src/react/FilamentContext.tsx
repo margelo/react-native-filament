@@ -15,14 +15,14 @@ import {
   TransformManager,
   View,
   optionsToJSI,
-} from './types'
-import { EngineProps, useEngine } from './hooks/useEngine'
+} from '../types'
+import { EngineProps, useEngine } from '../hooks/useEngine'
 import { IWorkletContext, useWorklet } from 'react-native-worklets-core'
-import { FilamentProxy, FilamentWorkletContext } from './native/FilamentProxy'
+import { FilamentProxy, FilamentWorkletContext } from '../native/FilamentProxy'
 import { InteractionManager } from 'react-native'
-import { makeDynamicResolutionHostObject } from './utilities/makeDynamicResolutionHostObject'
-import { makeAmbientOcclusionHostObject } from './utilities/makeAmbientOcclusionHostObject'
-import { useDisposableResource } from './hooks/useDisposableResource'
+import { makeDynamicResolutionHostObject } from '../utilities/makeDynamicResolutionHostObject'
+import { makeAmbientOcclusionHostObject } from '../utilities/makeAmbientOcclusionHostObject'
+import { useDisposableResource } from '../hooks/useDisposableResource'
 
 export type FilamentContextType = {
   engine: Engine

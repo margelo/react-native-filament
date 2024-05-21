@@ -1,5 +1,5 @@
-import { Filament, FilamentProvider, Float3, RenderCallback, getAssetFromModel, useFilamentContext, useModel } from 'react-native-filament'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Filament, FilamentProvider, Float3, Model, RenderCallback, useFilamentContext } from 'react-native-filament'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import { LayoutChangeEvent, StyleSheet, View } from 'react-native'
 import { useSharedValue } from 'react-native-worklets-core'
@@ -16,9 +16,7 @@ const far = 1000
 const modelPath = 'https://raw.githubusercontent.com/google/filament/main/third_party/models/DamagedHelmet/DamagedHelmet.glb'
 
 function Renderer() {
-  const model = useModel({ uri: modelPath })
-  const asset = getAssetFromModel(model)
-  const { engine, view, camera, transformManager } = useFilamentContext()
+  const { engine, view, camera } = useFilamentContext()
   useDefaultLight()
 
   const cameraManipulator = useMemo(
@@ -43,15 +41,8 @@ function Renderer() {
       console.log('Setting up camera lens with aspect ratio:', aspectRatio)
     }
 
-    //   camera.lookAt(cameraPosition, cameraTarget, cameraUp)
-    //   const [cameraPosition, cameraTarget, cameraUp] = cameraManipulator.getLookAt()
     camera.lookAtCameraManipulator(cameraManipulator)
   }, [view, prevAspectRatio, cameraManipulator, camera])
-
-  useEffect(() => {
-    if (asset == null) return
-    transformManager.transformToUnitCube(asset)
-  }, [asset, transformManager])
 
   const [viewHeight, setViewHeight] = useState<number>()
   const panGesture = Gesture.Pan()
@@ -90,10 +81,12 @@ function Renderer() {
   }, [])
 
   return (
-    <View style={{ flex: 1 }}>
+    <View onLayout={onLayout} style={styles.container}>
       <GestureDetector gesture={combinedGesture}>
-        <View onLayout={onLayout} style={styles.container}>
+        <View style={styles.container}>
           <Filament style={styles.container} renderCallback={renderCallback} />
+
+          <Model source={{ uri: modelPath }} transformToUnitCube />
         </View>
       </GestureDetector>
     </View>

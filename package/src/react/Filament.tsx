@@ -1,12 +1,12 @@
 import React from 'react'
 import { findNodeHandle, NativeMethods } from 'react-native'
-import { FilamentProxy } from './native/FilamentProxy'
-import { FilamentNativeView, NativeProps } from './native/FilamentNativeView'
-import { reportFatalError, reportWorkletError } from './ErrorUtils'
+import { FilamentProxy } from '../native/FilamentProxy'
+import { FilamentNativeView, NativeProps } from '../native/FilamentNativeView'
+import { reportFatalError, reportWorkletError } from '../ErrorUtils'
 import { FilamentContext } from './FilamentContext'
 import { RenderCallback, SwapChain } from 'react-native-filament'
-import { FilamentView, SurfaceProvider } from './native/FilamentViewTypes'
-import { Listener } from './types/Listener'
+import { FilamentView, SurfaceProvider } from '../native/FilamentViewTypes'
+import { Listener } from '../types/Listener'
 
 type PublicNativeProps = Omit<NativeProps, 'onViewReady'>
 

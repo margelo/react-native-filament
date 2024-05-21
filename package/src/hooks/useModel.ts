@@ -1,13 +1,13 @@
 import { type BufferSource, useBuffer } from './useBuffer'
 import { FilamentAsset } from '../types/FilamentAsset'
-import { useFilamentContext } from '../FilamentContext'
+import { useFilamentContext } from '../react/FilamentContext'
 import { useDisposableResource } from './useDisposableResource'
 import usePrevious from './usePrevious'
 import { useWorkletEffect } from './useWorkletEffect'
 import { AABB } from '../types'
 import { useMemo } from 'react'
 
-interface ModelProps {
+export interface ModelProps {
   /**
    * Whether source data of the model should be released after loading, or not.
    * @default false

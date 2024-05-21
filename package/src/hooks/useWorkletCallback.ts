@@ -1,5 +1,5 @@
 import { useWorklet } from 'react-native-worklets-core'
-import { useFilamentContext } from '../FilamentContext'
+import { useFilamentContext } from '../react/FilamentContext'
 
 /**
  * Creates a callback that can be executed in he separate worklet thread of the engine.
