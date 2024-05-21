@@ -69,6 +69,16 @@ export function Camera({ cameraManipulator, ...cameraConfig }: CameraProps) {
     focalLengthInMillimeters = defaultFocalLengthInMillimeters,
   } = cameraConfig
 
+  const cameraPositionX = cameraPosition[0]
+  const cameraPositionY = cameraPosition[1]
+  const cameraPositionZ = cameraPosition[2]
+  const cameraTargetX = cameraTarget[0]
+  const cameraTargetY = cameraTarget[1]
+  const cameraTargetZ = cameraTarget[2]
+  const cameraUpX = cameraUp[0]
+  const cameraUpY = cameraUp[1]
+  const cameraUpZ = cameraUp[2]
+
   const prevAspectRatio = useSharedValue(0)
   RenderCallbackContext.useRenderCallback(() => {
     'worklet'
@@ -84,9 +94,31 @@ export function Camera({ cameraManipulator, ...cameraConfig }: CameraProps) {
     if (cameraManipulator != null) {
       camera.lookAtCameraManipulator(cameraManipulator)
     } else {
-      camera.lookAt(cameraPosition, cameraTarget, cameraUp)
+      camera.lookAt(
+        [cameraPositionX, cameraPositionY, cameraPositionZ],
+        [cameraTargetX, cameraTargetY, cameraTargetZ],
+        [cameraUpX, cameraUpY, cameraUpZ]
+      )
     }
-  }, [prevAspectRatio, camera, view, focalLengthInMillimeters, aspect, near, far])
+  }, [
+    prevAspectRatio,
+    camera,
+    view,
+    focalLengthInMillimeters,
+    aspect,
+    near,
+    far,
+    cameraManipulator,
+    cameraPositionX,
+    cameraPositionY,
+    cameraPositionZ,
+    cameraTargetX,
+    cameraTargetY,
+    cameraTargetZ,
+    cameraUpX,
+    cameraUpY,
+    cameraUpZ,
+  ])
 
   return null
 }

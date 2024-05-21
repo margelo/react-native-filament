@@ -3,13 +3,11 @@ import React, { useCallback, useState } from 'react'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import { LayoutChangeEvent, StyleSheet, View } from 'react-native'
 import { useSharedValue } from 'react-native-worklets-core'
-import { useDefaultLight } from './hooks/useDefaultLight'
+import { DefaultLight } from './components/DefaultLight'
 
 const modelPath = 'https://raw.githubusercontent.com/google/filament/main/third_party/models/DamagedHelmet/DamagedHelmet.glb'
 
 function Scene() {
-  useDefaultLight()
-
   const cameraManipulator = useCameraManipulator({
     orbitHomePosition: [0, 0, 8], // "Camera location"
     targetPosition: [0, 0, 0], // "Looking at"
@@ -59,6 +57,7 @@ function Scene() {
       <GestureDetector gesture={combinedGesture}>
         <View style={styles.container}>
           <Camera cameraManipulator={cameraManipulator} />
+          <DefaultLight />
 
           <Model source={{ uri: modelPath }} transformToUnitCube />
         </View>

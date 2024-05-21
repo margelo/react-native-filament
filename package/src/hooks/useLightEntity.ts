@@ -3,17 +3,16 @@ import { LightConfig, LightManager } from '../types'
 import { ISharedValue } from 'react-native-worklets-core'
 import { useFilamentContext } from '../react/FilamentContext'
 
+export type UseLightEntityProps =
+  | LightConfig
+  | (Omit<LightConfig, 'intensity'> & {
+      intensity?: ISharedValue<number>
+    })
+
 /**
  * Creates a new memoized light entity based on the given configuration.
  */
-export function useLightEntity(
-  lightManager: LightManager,
-  config:
-    | LightConfig
-    | (Omit<LightConfig, 'intensity'> & {
-        intensity?: ISharedValue<number>
-      })
-) {
+export function useLightEntity(lightManager: LightManager, config: UseLightEntityProps) {
   const falloffRadius = 'falloffRadius' in config ? config.falloffRadius : undefined
   const spotLightCone = 'spotLightCone' in config ? config.spotLightCone : undefined
 
