@@ -14,6 +14,6 @@ module.exports = {
         },
       },
     ],
-    ['react-native-worklets-core/plugin', { processNestedWorklets: true }],
+    ['react-native-reanimated/plugin', { processNestedWorklets: true }],
   ],
 }

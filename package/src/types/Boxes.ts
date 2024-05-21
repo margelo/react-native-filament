@@ -1,4 +1,4 @@
-import { Float3 } from './float3'
+import { Float3 } from './Math'
 
 export interface BaseBox {
   /**

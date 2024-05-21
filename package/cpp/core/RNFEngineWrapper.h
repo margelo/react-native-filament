@@ -11,6 +11,7 @@
 #include "RNFFilamentAssetWrapper.h"
 #include "RNFFilamentBuffer.h"
 #include "RNFRenderableManagerWrapper.h"
+#include "RNFRendererWrapper.h"
 #include "RNFSceneWrapper.h"
 #include "RNFSurface.h"
 #include "RNFSurfaceProvider.h"
@@ -70,7 +71,7 @@ private: // Exposed public JS API
   std::shared_ptr<SceneWrapper> getScene();
   std::shared_ptr<ViewWrapper> getView();
   std::shared_ptr<CameraWrapper> getCamera();
-  std::shared_ptr<ManipulatorWrapper> getCameraManipulator();
+  std::shared_ptr<ManipulatorWrapper> createOrbitCameraManipulator(std::unordered_map<std::string, std::vector<double>> config);
   std::shared_ptr<TransformManagerWrapper> createTransformManager();
   std::shared_ptr<LightManagerWrapper> createLightManager();
   std::shared_ptr<RendererWrapper> createRenderer();

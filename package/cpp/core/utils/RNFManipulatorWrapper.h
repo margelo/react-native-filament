@@ -1,6 +1,6 @@
 #pragma once
 
-#include "jsi/RNFHybridObject.h"
+#include "jsi/RNFPointerHolder.h"
 
 #include <camutils/Manipulator.h>
 
@@ -8,18 +8,29 @@ namespace margelo {
 using namespace filament;
 using namespace camutils;
 
-class ManipulatorWrapper : public HybridObject {
+class ManipulatorWrapper : public PointerHolder<Manipulator<float>> {
 public:
-  explicit ManipulatorWrapper(std::shared_ptr<Manipulator<float>> manipulator)
-      : HybridObject("ManipulatorWrapper"), _manipulator(manipulator) {}
+  explicit ManipulatorWrapper(std::shared_ptr<Manipulator<float>> manipulator, float pixelDensityRatio)
+      : PointerHolder("ManipulatorWrapper", manipulator), _pixelDensityRatio(pixelDensityRatio) {}
 
   void loadHybridMethods() override;
 
   std::shared_ptr<Manipulator<float>> getManipulator() {
-    return _manipulator;
+    return pointee();
   }
 
+private: // Exposed JS API
+  std::vector<std::vector<double>> getLookAt();
+  void grabBegin(float x, float y, bool strafe);
+  void grabUpdate(float x, float y);
+  void grabEnd();
+  void scroll(float x, float y, float delta);
+  void update(float dt);
+
 private:
-  std::shared_ptr<Manipulator<float>> _manipulator;
+  float _pixelDensityRatio;
+
+private:
+  const static constexpr auto TAG = "ManipulatorWrapper";
 };
 } // namespace margelo

@@ -6,7 +6,6 @@
 
 #include "jsi/RNFPointerHolder.h"
 
-#include "RNFCameraWrapper.h"
 #include "RNFChoreographer.h"
 #include "RNFFilamentAssetWrapper.h"
 #include "RNFFilamentBuffer.h"
@@ -15,13 +14,9 @@
 #include "RNFMaterialWrapper.h"
 #include "RNFNameComponentManagerWrapper.h"
 #include "RNFRenderableManagerWrapper.h"
-#include "RNFRendererWrapper.h"
-#include "RNFSceneWrapper.h"
 #include "RNFSurface.h"
 #include "RNFSurfaceProvider.h"
-#include "RNFSwapChainWrapper.h"
 #include "RNFTransformManagerWrapper.h"
-#include "RNFViewWrapper.h"
 #include "bullet/RNFRigidBodyWrapper.h"
 #include "core/utils/RNFEntityWrapper.h"
 #include "core/utils/RNFManipulatorWrapper.h"
@@ -86,21 +81,19 @@ private:
   std::shared_ptr<gltfio::ResourceLoader> _resourceLoader;
   std::shared_ptr<Skybox> _skybox = nullptr;
 
-  const math::float3 defaultObjectPosition = {0.0f, 0.0f, 0.0f};
-  const math::float3 defaultCameraPosition = {0.0f, 0.0f, 0.0f};
-
   std::function<void(double)> _frameCompletedCallback;
-  float _densityPixelRatio;
 
 private:
   // Internals we create, but share the access with the user
+  float _densityPixelRatio;
   std::shared_ptr<Renderer> _renderer;
   std::shared_ptr<SwapChain> _swapChain;
   std::shared_ptr<Scene> _scene;
   std::shared_ptr<View> _view;
   std::shared_ptr<Camera> _camera;
-  std::shared_ptr<ManipulatorWrapper> _cameraManipulator;
+  std::shared_ptr<Manipulator<float>> _cameraManipulator;
   std::shared_ptr<NameComponentManager> _nameComponentManager;
+  friend class EngineWrapper; // Share those internals with the EngineWrapper
 
 private:
   void synchronizePendingFrames();
@@ -108,27 +101,8 @@ private:
   std::shared_ptr<Scene> createScene();
   std::shared_ptr<View> createView();
   std::shared_ptr<Camera> createCamera();
-  std::shared_ptr<ManipulatorWrapper> createCameraManipulator(int windowWidth, int windowHeight);
   // Internal helper method to turn an FilamentAsset ptr into a FilamentAssetWrapper
   std::shared_ptr<FilamentAssetWrapper> makeAssetWrapper(FilamentAsset* assetPtr);
-
-public:
-  // Getters for shared objects
-  std::shared_ptr<SceneWrapper> getScene() {
-    return std::make_shared<SceneWrapper>(_scene);
-  }
-  std::shared_ptr<ViewWrapper> getView() {
-    return std::make_shared<ViewWrapper>(_view, _densityPixelRatio);
-  }
-  std::shared_ptr<CameraWrapper> getCamera() {
-    return std::make_shared<CameraWrapper>(_camera);
-  }
-  std::shared_ptr<ManipulatorWrapper> getCameraManipulator() {
-    return _cameraManipulator;
-  }
-  std::shared_ptr<RendererWrapper> getRenderer() {
-    return std::make_shared<RendererWrapper>(_renderer);
-  }
 
 private:
   static constexpr auto TAG = "EngineImpl";

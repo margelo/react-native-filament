@@ -1,4 +1,4 @@
-import { Float3 } from '../../types/float3'
+import { Float3 } from '../../types/Math'
 import { BulletAPI } from '../bulletApi'
 import { ActivationState, CollisionCallback, RigidBody } from '../types/RigidBody'
 import { useEffect, useState } from 'react'
