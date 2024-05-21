@@ -84,7 +84,6 @@ EngineImpl::EngineImpl(std::shared_ptr<Dispatcher> rendererDispatcher, std::shar
   _scene = createScene();
   _view = createView();
   _camera = createCamera();
-  _cameraManipulator = createCameraManipulator();
 
   _view->setScene(_scene.get());
   _view->setCamera(_camera.get());
@@ -136,12 +135,12 @@ void EngineImpl::surfaceSizeChanged(int width, int height) {
     return;
   }
 
-  if (!_cameraManipulator) {
-    Logger::log(TAG, "(surfaceSizeChanged) Updating viewport size to %d x %d", width, height);
-    _cameraManipulator->setViewport(width, height);
-  }
   if (_view) {
     _view->setViewport({0, 0, static_cast<uint32_t>(width), static_cast<uint32_t>(height)});
+  }
+  if (_cameraManipulator) {
+    Logger::log(TAG, "(surfaceSizeChanged) Updating viewport size to %d x %d", width, height);
+    _cameraManipulator->setViewport(width, height);
   }
 }
 
@@ -312,15 +311,6 @@ void EngineImpl::setIndirectLight(std::shared_ptr<FilamentBuffer> iblBuffer, std
 
   IndirectLight* _indirectLight = builder.build(*_engine);
   _scene->setIndirectLight(_indirectLight);
-}
-
-std::shared_ptr<Manipulator<float>> EngineImpl::createCameraManipulator() {
-  ManipulatorBuilder builder;
-  // Position of the camera:
-  builder.orbitHomePosition(defaultCameraPosition.x, defaultCameraPosition.y, defaultCameraPosition.z);
-  // Position the camera points to:
-  builder.targetPosition(defaultObjectPosition.x, defaultObjectPosition.y, defaultObjectPosition.z);
-  return std::shared_ptr<Manipulator<float>>(builder.build(Mode::ORBIT));
 }
 
 std::shared_ptr<TransformManagerWrapper> EngineImpl::createTransformManager() {

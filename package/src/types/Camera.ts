@@ -1,6 +1,6 @@
 import { Manipulator } from './Manipulator'
 import { PointerHolder } from './PointerHolder'
-import { Float3 } from './float3'
+import { Float3 } from './Math'
 
 /**
  * Camera represents the eye through which the scene is viewed.

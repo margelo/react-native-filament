@@ -2,7 +2,7 @@ import { RigidBody } from '../bullet'
 import { Entity } from './Entity'
 import { FilamentAsset } from './FilamentAsset'
 import { PointerHolder } from './PointerHolder'
-import { Float3 } from './float3'
+import { Float3 } from './Math'
 
 /**
  * A 4x4 column-major matrix.

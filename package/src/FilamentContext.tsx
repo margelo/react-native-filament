@@ -2,7 +2,6 @@ import React, { PropsWithChildren, useEffect, useMemo } from 'react'
 import {
   AmbientOcclusionOptions,
   Camera,
-  CameraManipulator,
   Choreographer,
   DynamicResolutionOptions,
   Engine,
@@ -36,7 +35,6 @@ export type FilamentContextType = {
   renderer: Renderer
   nameComponentManager: NameComponentManager
   workletContext: IWorkletContext
-  cameraManipulator: CameraManipulator
 
   // TODO: put this in an "internal" separate context?
   /**
@@ -88,7 +86,6 @@ function EngineAPIProvider({ children, engine, choreographer, viewProps, rendere
   const camera = useMemo(() => engine.getCamera(), [engine])
   const renderer = useMemo(() => engine.createRenderer(), [engine])
   const nameComponentManager = useMemo(() => engine.createNameComponentManager(), [engine])
-  const cameraManipulator = useMemo(() => engine.createCameraManipulator(), [engine])
 
   const value = useMemo<FilamentContextType>(
     () => ({
@@ -101,23 +98,10 @@ function EngineAPIProvider({ children, engine, choreographer, viewProps, rendere
       camera,
       renderer,
       nameComponentManager,
-      cameraManipulator,
       workletContext: FilamentWorkletContext,
       _choreographer: choreographer,
     }),
-    [
-      engine,
-      transformManager,
-      renderableManager,
-      scene,
-      lightManager,
-      view,
-      camera,
-      renderer,
-      nameComponentManager,
-      cameraManipulator,
-      choreographer,
-    ]
+    [engine, transformManager, renderableManager, scene, lightManager, view, camera, renderer, nameComponentManager, choreographer]
   )
 
   // Apply view configs
@@ -189,13 +173,12 @@ function EngineAPIProvider({ children, engine, choreographer, viewProps, rendere
             lightManager.release()
             renderableManager.release()
             transformManager.release()
-            cameraManipulator.release()
             engine.release()
           })
         }, 0)
       })
     }
-  }, [camera, cameraManipulator, engine, lightManager, nameComponentManager, renderableManager, renderer, scene, transformManager, view])
+  }, [camera, engine, lightManager, nameComponentManager, renderableManager, renderer, scene, transformManager, view])
 
   return <FilamentContext.Provider value={value}>{children}</FilamentContext.Provider>
 }

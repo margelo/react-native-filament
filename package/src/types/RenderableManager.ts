@@ -5,7 +5,7 @@ import { FilamentInstance } from './FilamentInstance'
 import type { Material } from './Material'
 import type { MaterialInstance } from './MaterialInstance'
 import { PointerHolder } from './PointerHolder'
-import { Float3 } from './float3'
+import { Float3 } from './Math'
 import { TextureFlags } from './TextureFlags'
 import { Box } from './Boxes'
 

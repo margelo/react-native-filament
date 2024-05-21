@@ -1,4 +1,5 @@
 import { PointerHolder } from './PointerHolder'
+import { Float2, Float3 } from './Math'
 
 /**
  * Helper that enables camera interaction similar to sketchfab or Google Maps.
@@ -53,4 +54,34 @@ export interface CameraManipulator extends PointerHolder {
    * Ends a grabbing session.
    */
   grabEnd(): void
+
+  getLookAt(): [eye: Float3, center: Float3, up: Float3]
+}
+
+export interface OrbitCameraManipulatorConfig {
+  /**
+   * Initial eye position in world space
+   * @default (0,0,1)
+   */
+  orbitHomePosition?: Float3
+  /**
+   * World-space position of interest
+   * @default (0,0,0)
+   */
+  targetPosition?: Float3
+  /**
+   * Orientation for the home position
+   * @default (0,1,0)
+   */
+  upVector?: Float3
+  /**
+   * Multiplied with scroll delta
+   * @default 0.01
+   */
+  zoomSpeed?: [number]
+  /**
+   * Multiplied with viewport delta
+   * @default 0.01
+   */
+  orbitSpeed?: Float2
 }

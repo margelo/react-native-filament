@@ -1,8 +1,8 @@
 import { Filament, FilamentProvider, Float3, RenderCallback, getAssetFromModel, useFilamentContext, useModel } from 'react-native-filament'
 import { getAssetPath } from './utils/getAssetPasth'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
-import { StyleSheet } from 'react-native'
+import { LayoutChangeEvent, StyleSheet, View } from 'react-native'
 import { useSharedValue } from 'react-native-worklets-core'
 import { useDefaultLight } from './hooks/useDefaultLight'
 
@@ -19,8 +19,18 @@ const penguModelPath = getAssetPath('pengu.glb')
 function Renderer() {
   const pengu = useModel({ path: penguModelPath })
   const asset = getAssetFromModel(pengu)
-  const { view, camera, transformManager } = useFilamentContext()
+  const { engine, view, camera, transformManager } = useFilamentContext()
   useDefaultLight()
+
+  const cameraManipulator = useMemo(
+    () =>
+      engine.createOrbitCameraManipulator({
+        orbitHomePosition: cameraPosition,
+        targetPosition: cameraTarget,
+        upVector: cameraUp,
+      }),
+    [engine]
+  )
 
   const prevAspectRatio = useSharedValue(0)
   const renderCallback: RenderCallback = useCallback(
@@ -35,9 +45,11 @@ function Renderer() {
         console.log('Setting up camera lens with aspect ratio:', aspectRatio)
       }
 
-      camera.lookAt(cameraPosition, cameraTarget, cameraUp)
+      //   camera.lookAt(cameraPosition, cameraTarget, cameraUp)
+      //   const [cameraPosition, cameraTarget, cameraUp] = cameraManipulator.getLookAt()
+      camera.lookAtCameraManipulator(cameraManipulator)
     },
-    [view, prevAspectRatio, camera]
+    [view, prevAspectRatio, cameraManipulator, camera]
   )
 
   useEffect(() => {
@@ -45,12 +57,37 @@ function Renderer() {
     transformManager.transformToUnitCube(asset)
   }, [asset, transformManager])
 
+  const [viewHeight, setViewHeight] = useState<number>()
   const panGesture = Gesture.Pan()
+    .onBegin((event) => {
+      if (viewHeight == null) return
+
+      const yCorrected = viewHeight - event.y
+      cameraManipulator.grabBegin(event.x, yCorrected, event.numberOfPointers === 2)
+    })
+    .onUpdate((event) => {
+      if (viewHeight == null) return
+
+      const yCorrected = viewHeight - event.y
+      cameraManipulator.grabUpdate(event.x, yCorrected)
+    })
+    .onEnd(() => {
+      cameraManipulator.grabEnd()
+    })
+    .enabled(viewHeight != null)
+
+  const onLayout = useCallback((event: LayoutChangeEvent) => {
+    setViewHeight(event.nativeEvent.layout.height)
+  }, [])
 
   return (
-    <GestureDetector gesture={panGesture}>
-      <Filament style={styles.container} renderCallback={renderCallback} />
-    </GestureDetector>
+    <View style={{ flex: 1 }}>
+      <GestureDetector gesture={panGesture}>
+        <View onLayout={onLayout} style={styles.container}>
+          <Filament style={styles.container} renderCallback={renderCallback} />
+        </View>
+      </GestureDetector>
+    </View>
   )
 }
 

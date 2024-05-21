@@ -81,9 +81,6 @@ private:
   std::shared_ptr<gltfio::ResourceLoader> _resourceLoader;
   std::shared_ptr<Skybox> _skybox = nullptr;
 
-  const math::float3 defaultObjectPosition = {0.0f, 0.0f, 0.0f};
-  const math::float3 defaultCameraPosition = {0.0f, 0.0f, 0.0f};
-
   std::function<void(double)> _frameCompletedCallback;
 
 private:
@@ -104,7 +101,6 @@ private:
   std::shared_ptr<Scene> createScene();
   std::shared_ptr<View> createView();
   std::shared_ptr<Camera> createCamera();
-  std::shared_ptr<Manipulator<float>> createCameraManipulator();
   // Internal helper method to turn an FilamentAsset ptr into a FilamentAssetWrapper
   std::shared_ptr<FilamentAssetWrapper> makeAssetWrapper(FilamentAsset* assetPtr);
 

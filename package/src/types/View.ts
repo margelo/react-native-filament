@@ -3,7 +3,7 @@ import { Entity } from './Entity'
 import { AmbientOcclusionOptions, DynamicResolutionOptions } from './Options'
 import { PointerHolder } from './PointerHolder'
 import { Scene } from './Scene'
-import { Float3 } from './float3'
+import { Float3 } from './Math'
 
 /**
  * Encompasses all the state needed for rendering a {@link Scene}.

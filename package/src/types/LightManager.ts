@@ -1,7 +1,7 @@
 import { Entity } from './Entity'
 import { LightConfig, LightType, SpotLightExtraConfig } from './LightConfig'
 import { PointerHolder } from './PointerHolder'
-import { Float3 } from './float3'
+import { Float3 } from './Math'
 
 /**
  * LightManager allows to create a light source in the scene, such as a sun or street lights.

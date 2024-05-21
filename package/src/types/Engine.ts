@@ -13,7 +13,7 @@ import { PointerHolder } from './PointerHolder'
 import { TFilamentRecorder } from '../native/FilamentRecorder'
 import { SwapChain } from './SwapChain'
 import { NameComponentManager } from './NameComponentManager'
-import { CameraManipulator } from './CameraManipulator'
+import { CameraManipulator, OrbitCameraManipulatorConfig } from './CameraManipulator'
 
 export interface Engine extends PointerHolder {
   setSurfaceProvider(surfaceProvider: SurfaceProvider): void
@@ -53,7 +53,7 @@ export interface Engine extends PointerHolder {
   getScene(): Scene
   getCamera(): Camera
   getView(): View
-  createCameraManipulator(): CameraManipulator
+  createOrbitCameraManipulator(config: OrbitCameraManipulatorConfig): CameraManipulator
   /**
    * @private
    */
