@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useFilamentContext } from '../FilamentContext'
+import { useFilamentContext } from '../react/FilamentContext'
 import { getWorkletDependencies, isWorklet } from 'react-native-worklets-core'
 
 type CleanupFn = () => void

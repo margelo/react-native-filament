@@ -1,6 +1,9 @@
 import { useBuffer, useEntityInScene, useFilamentContext, useLightEntity, useWorkletEffect } from 'react-native-filament'
 import DefaultLightIBL from '../../assets/default_env_ibl.ktx'
 
+/**
+ * @deprecated use `<DefaultLights />` instead. (delete once migrated)
+ */
 export function useDefaultLight(enableDirectionalLight = true) {
   const lightBuffer = useBuffer({ source: DefaultLightIBL, releaseOnUnmount: false })
   const { engine, scene, lightManager } = useFilamentContext()

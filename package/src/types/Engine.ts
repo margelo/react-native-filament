@@ -1,4 +1,4 @@
-import { Camera } from './Camera'
+import { RNFCamera } from './Camera'
 import { SurfaceProvider } from '../native/FilamentViewTypes'
 import { Renderer } from './Renderer'
 import { Scene } from './Scene'
@@ -51,7 +51,7 @@ export interface Engine extends PointerHolder {
 
   createRenderer(): Renderer
   getScene(): Scene
-  getCamera(): Camera
+  getCamera(): RNFCamera
   getView(): View
   createOrbitCameraManipulator(config: OrbitCameraManipulatorConfig): CameraManipulator
   /**

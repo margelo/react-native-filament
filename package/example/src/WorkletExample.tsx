@@ -4,7 +4,7 @@ import { Button, SafeAreaView, StyleSheet, View } from 'react-native'
 import {
   DynamicResolutionOptions,
   Entity,
-  Filament,
+  FilamentView,
   FilamentProvider,
   Float3,
   Material,
@@ -77,7 +77,7 @@ function Renderer() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Filament style={styles.filamentView} enableTransparentRendering={false} renderCallback={renderCallback} />
+      <FilamentView style={styles.filamentView} enableTransparentRendering={false} renderCallback={renderCallback} />
     </SafeAreaView>
   )
 }
