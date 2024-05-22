@@ -32,14 +32,12 @@ private: // Exposed JS API
 private: // Internal
   void cleanup();
   void onRuntimeDestroyed(jsi::Runtime*) override;
-  void renderCallback(double timestamp);
+  FrameInfo createFrameInfo(double timestamp);
 
 private:
   std::mutex _mutex;
   double _startTime = 0;
   double _lastFrameTime = 0;
-  std::shared_ptr<Listener> _choreographerListener = nullptr;
-  std::shared_ptr<ListenerManager<RenderCallback>> _renderCallbackListeners = ListenerManager<RenderCallback>::create();
 
 private:
   static constexpr auto TAG = "ChoreographerWrapper";

@@ -15,4 +15,10 @@ void Choreographer::onFrame(double timestamp) {
   _listeners->forEach([=](const OnFrameCallback& callback) { callback(timestamp); });
 }
 
+void Choreographer::removeAllListeners() {
+  Logger::log(TAG, "Removing all listeners");
+  // Simply create a new ListenerManager, so the memory of the old one gets freed.
+  _listeners = ListenerManager<OnFrameCallback>::create();
+}
+
 } // namespace margelo
