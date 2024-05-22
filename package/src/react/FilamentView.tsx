@@ -81,6 +81,14 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
         'worklet'
         try {
           callback(frameInfo)
+
+          if (!swapChain.isValid) {
+            console.warn(
+              '[react-native-filamet] SwapChain is invalid, cannot render frame.\nThis should never happen, please report an issue with reproduction steps.'
+            )
+            return
+          }
+
           if (renderer.beginFrame(swapChain, frameInfo.timestamp)) {
             renderer.render(view)
             renderer.endFrame()
@@ -149,7 +157,6 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
 
   // This registers the surface provider, which will be notified when the surface is ready to draw on:
   private onViewReady = async () => {
-    console.log('On view ready')
     const context = this.getContext()
     try {
       const handle = this.handle
@@ -185,7 +192,6 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
   // This will be called once the surface is created and ready to draw on:
   private onSurfaceCreated = async (surfaceProvider: SurfaceProvider) => {
     const { engine, workletContext, _choreographer } = this.getContext()
-    console.log('On surface created')
     // Create a swap chain …
     const enableTransparentRendering = this.props.enableTransparentRendering ?? true
     this.swapChain = await workletContext.runAsync(() => {
@@ -208,9 +214,6 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
    * On android if a surface is destroyed, it can be recreated, while the view stays alive.
    */
   private onSurfaceDestroyed = () => {
-    console.log('Surface destroyed')
-    const { _choreographer } = this.getContext()
-    _choreographer.stop()
     this.cleanupResources()
   }
 
