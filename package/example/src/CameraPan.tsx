@@ -11,6 +11,7 @@ function Scene() {
   const cameraManipulator = useCameraManipulator({
     orbitHomePosition: [0, 0, 8], // "Camera location"
     targetPosition: [0, 0, 0], // "Looking at"
+    orbitSpeed: [0.003, 0.003],
   })
 
   // Pan gesture

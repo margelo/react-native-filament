@@ -53,8 +53,6 @@ public:
   /**
    * Iterate through all listeners.
    * This method is thread-safe.
-   * Make sure to not add or delete any listeners while inside a forEach() block,
-   * otherwise this could dead-lock.
    * @param callback The callback to run for each listener.
    */
   void forEach(std::function<LoopCallback>&& callback) {
