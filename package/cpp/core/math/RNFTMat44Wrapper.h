@@ -12,11 +12,11 @@ using namespace filament;
 
 class TMat44Wrapper : public HybridObject {
 public:
-  explicit TMat44Wrapper(const math::mat4f& matrix) : HybridObject("TMat44Wrapper"), _matrix(matrix) {}
+  explicit TMat44Wrapper(math::mat4f matrix) : HybridObject("TMat44Wrapper"), _matrix(matrix) {}
 
   void loadHybridMethods() override;
 
-  const filament::math::mat4f& getMat() {
+  filament::math::mat4f getMat() {
     return _matrix;
   }
 
