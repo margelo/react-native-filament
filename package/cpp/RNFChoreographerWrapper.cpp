@@ -6,6 +6,12 @@
 
 namespace margelo {
 
+// Will be called on automatic removal (can happen when the runtime gets destroyed, and onRuntimeDestroyed would be called later)
+ChoreographerWrapper::~ChoreographerWrapper() {
+  std::unique_lock lock(_mutex);
+  stopAndRemoveListeners();
+}
+
 void ChoreographerWrapper::loadHybridMethods() {
   registerHybridMethod("start", &ChoreographerWrapper::start, this);
   registerHybridMethod("stop", &ChoreographerWrapper::stop, this);
@@ -59,29 +65,30 @@ FrameInfo ChoreographerWrapper::createFrameInfo(double timestamp) {
   };
 }
 
-void ChoreographerWrapper::cleanup() {
-  Logger::log(TAG, "Cleanup ChoreographerWrapper");
-
+void ChoreographerWrapper::stopAndRemoveListeners() {
   // Its possible that the pointer was already released manually by the user
-  if (getIsValid()) {
-    pointee()->stop();
-    // Clear all listeners now - that will cause the listeners function destructors to be called
-    // When onRuntimeDestroyed gets called we still have time to cleanup our jsi functions (RenderCallback):
-    pointee()->removeAllListeners();
+  if (!getIsValid()) {
+    Logger::log(TAG, "stopAndRemoveListeners() called but Choreographer is invalid already!");
+    return;
   }
-  Logger::log(TAG, "Cleanup ChoreographerWrapper done");
+
+  Logger::log(TAG, "Stopping choreographer and removing listeners...");
+  pointee()->stop();
+  // Clear all listeners now - that will cause the listeners function destructors to be called
+  // When onRuntimeDestroyed gets called we still have time to stopAndRemoveListeners our jsi functions (RenderCallback):
+  pointee()->removeAllListeners();
 }
 
 void ChoreographerWrapper::release() {
   std::unique_lock lock(_mutex);
-  cleanup();
+  stopAndRemoveListeners();
   PointerHolder::release();
 }
 
 void ChoreographerWrapper::onRuntimeDestroyed(jsi::Runtime*) {
   std::unique_lock lock(_mutex);
   Logger::log(TAG, "Runtime destroyed...");
-  cleanup();
+  stopAndRemoveListeners();
 }
 
 std::shared_ptr<Choreographer> ChoreographerWrapper::getChoreographer() {
