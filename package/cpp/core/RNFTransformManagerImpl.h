@@ -32,6 +32,7 @@ public:
 
 private: // Internal
   void updateTransform(math::mat4 transform, Entity entity, bool multiplyCurrent);
+  TransformManager::Instance getInstance(Entity entity, TransformManager& transformManager);
 
 private:
   std::mutex _mutex;
