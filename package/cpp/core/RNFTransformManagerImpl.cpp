@@ -11,21 +11,15 @@
 namespace margelo {
 
 std::shared_ptr<TMat44Wrapper> TransformManagerImpl::getTransform(Entity entity) {
-  if (!entity) {
-    [[unlikely]];
-    throw std::invalid_argument("Entity is null");
-  }
-
   TransformManager& transformManager = _engine->getTransformManager();
-  EntityInstance<filament::TransformManager> entityInstance = transformManager.getInstance(entity);
-  const math::mat4f& transform = transformManager.getTransform(entityInstance);
+  TransformManager::Instance instance = getInstance(entity, transformManager);
+  const math::mat4f& transform = transformManager.getTransform(instance);
   return std::make_shared<TMat44Wrapper>(transform);
 }
 std::shared_ptr<TMat44Wrapper> TransformManagerImpl::getWorldTransform(Entity entity) {
-
   TransformManager& transformManager = _engine->getTransformManager();
-  EntityInstance<filament::TransformManager> entityInstance = transformManager.getInstance(entity);
-  const math::mat4f& transform = transformManager.getWorldTransform(entityInstance);
+  TransformManager::Instance instance = getInstance(entity, transformManager);
+  const math::mat4f& transform = transformManager.getWorldTransform(instance);
   return std::make_shared<TMat44Wrapper>(transform);
 }
 
@@ -47,8 +41,8 @@ void TransformManagerImpl::setTransform(Entity entity, std::shared_ptr<TMat44Wra
 
   TransformManager& transformManager = _engine->getTransformManager();
   const math::mat4f& mat = transform->getMat();
-  EntityInstance<filament::TransformManager> entityInstance = transformManager.getInstance(entity);
-  transformManager.setTransform(entityInstance, mat);
+  TransformManager::Instance instance = getInstance(entity, transformManager);
+  transformManager.setTransform(instance, mat);
 }
 
 std::shared_ptr<TMat44Wrapper> TransformManagerImpl::createIdentityMatrix() {
@@ -65,10 +59,10 @@ void TransformManagerImpl::updateTransform(math::mat4 transform, Entity entity, 
   std::unique_lock lock(_mutex);
 
   TransformManager& transformManager = _engine->getTransformManager();
-  EntityInstance<TransformManager> entityInstance = transformManager.getInstance(entity);
-  auto currentTransform = transformManager.getTransform(entityInstance);
+  TransformManager::Instance instance = getInstance(entity, transformManager);
+  auto currentTransform = transformManager.getTransform(instance);
   auto newTransform = multiplyCurrent ? (transform * currentTransform) : transform;
-  transformManager.setTransform(entityInstance, newTransform);
+  transformManager.setTransform(instance, newTransform);
 }
 
 void TransformManagerImpl::setEntityPosition(Entity entity, std::vector<double> positionVec, bool multiplyCurrent) {
@@ -117,8 +111,8 @@ void TransformManagerImpl::updateTransformByRigidBody(Entity entity, std::shared
 
   // Get the current transform of the filament entity
   TransformManager& transformManager = _engine->getTransformManager();
-  EntityInstance<TransformManager> entityInstance = transformManager.getInstance(entity);
-  math::mat4f currentTransform = transformManager.getTransform(entityInstance);
+  TransformManager::Instance instance = getInstance(entity, transformManager);
+  math::mat4f currentTransform = transformManager.getTransform(instance);
 
   // Get the current scale of the filament entity
   float scaleX = std::sqrt(currentTransform[0][0] * currentTransform[0][0] + currentTransform[0][1] * currentTransform[0][1] +
@@ -135,7 +129,7 @@ void TransformManagerImpl::updateTransformByRigidBody(Entity entity, std::shared
   auto newTransform = filamentTranslation * filamentRotation * filamentScale;
 
   // Set the new transform
-  transformManager.setTransform(entityInstance, newTransform);
+  transformManager.setTransform(instance, newTransform);
 }
 
 /**
@@ -150,8 +144,25 @@ void TransformManagerImpl::transformToUnitCube(std::shared_ptr<gltfio::FilamentA
   float maxExtent = max(halfExtent) * 2.0f;
   float scaleFactor = 2.0f / maxExtent;
   math::mat4f transform = math::mat4f::scaling(scaleFactor) * math::mat4f::translation(-center);
-  EntityInstance<TransformManager> transformInstance = transformManager.getInstance(asset->getRoot());
-  transformManager.setTransform(transformInstance, transform);
+
+  Entity rootEntity = asset->getRoot();
+  TransformManager::Instance instance = getInstance(rootEntity, transformManager);
+  transformManager.setTransform(instance, transform);
+}
+
+TransformManager::Instance TransformManagerImpl::getInstance(Entity entity, TransformManager& transformManager) {
+  if (!entity) {
+    [[unlikely]];
+    throw std::invalid_argument("Entity is null");
+  }
+  
+  TransformManager::Instance instance = transformManager.getInstance(entity);
+  if (!instance.isValid()) {
+    [[unlikely]];
+    throw std::invalid_argument("Entity is not valid / has no transform!");
+  }
+
+  return instance;
 }
 
 } // namespace margelo
