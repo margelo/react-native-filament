@@ -82,9 +82,10 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
         try {
           callback(frameInfo)
 
+          // TODO: investigate the root cause of this. This should never happen, but we've seen sentry reports of it.
           if (!swapChain.isValid) {
             console.warn(
-              '[react-native-filamet] SwapChain is invalid, cannot render frame.\nThis should never happen, please report an issue with reproduction steps.'
+              '[react-native-filament] SwapChain is invalid, cannot render frame.\nThis should never happen, please report an issue with reproduction steps.'
             )
             return
           }
