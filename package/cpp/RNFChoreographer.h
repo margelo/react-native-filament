@@ -19,6 +19,7 @@ public:
   using OnFrameCallback = std::function<void(double timestamp)>;
 
   std::shared_ptr<Listener> addOnFrameListener(OnFrameCallback onFrameCallback);
+  void removeAllListeners();
 
   virtual void start() = 0;
   virtual void stop() = 0;
@@ -28,6 +29,9 @@ protected:
 
 private:
   std::shared_ptr<ListenerManager<OnFrameCallback>> _listeners = ListenerManager<OnFrameCallback>::create();
+
+private:
+  static constexpr auto TAG = "Choreographer";
 };
 
 } // namespace margelo
