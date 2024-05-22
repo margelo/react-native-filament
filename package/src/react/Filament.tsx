@@ -1,5 +1,5 @@
 import React, { PropsWithChildren, useCallback } from 'react'
-import { FilamentProvider, FilamentProviderProps } from './FilamentContext'
+import { FilamentProvider, FilamentProviderProps } from './FilamentContextProvider'
 import { RenderCallbackContext } from './RenderCallbackContext'
 import { FilamentView, PublicNativeProps } from './FilamentView'
 import { RenderCallback } from '../types'

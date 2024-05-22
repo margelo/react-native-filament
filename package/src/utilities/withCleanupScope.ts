@@ -22,7 +22,10 @@ import { InteractionManager } from 'react-native'
  */
 export function withCleanupScope(cleanupFunction: Function) {
   return () => {
+    // runAfterInteractions to make sure its called after all children have run their cleanup and all interactions are done
     InteractionManager.runAfterInteractions(() => {
+      // Cleanup in worklets context, as cleanup functions might also use the worklet context
+      // and we want to queue our cleanup after all other worklets have run
       setTimeout(() => {
         cleanupFunction()
       }, 0)

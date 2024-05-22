@@ -3,33 +3,23 @@ import * as React from 'react'
 import { useCallback, useMemo, useRef } from 'react'
 import { Button, GestureResponderEvent, ScrollView, StyleSheet, View } from 'react-native'
 import {
-  FilamentView,
-  Float3,
   useModel,
   useAnimator,
   getAssetFromModel,
-  FilamentProvider,
   useFilamentContext,
-  RenderCallback,
+  Filament,
+  RenderCallbackContext,
+  Camera,
 } from 'react-native-filament'
-import { useDefaultLight } from './hooks/useDefaultLight'
 import { useSharedValue } from 'react-native-worklets-core'
 import PenguGlb from '../assets/pengu.glb'
 import PirateGlb from '../assets/pirate.glb'
-
-// Camera config:
-const cameraPosition: Float3 = [0, 0, 8]
-const cameraTarget: Float3 = [0, 0, 0]
-const cameraUp: Float3 = [0, 1, 0]
-const focalLengthInMillimeters = 28
-const near = 0.1
-const far = 1000
+import { DefaultLight } from './components/DefaultLight'
 
 const animationInterpolationTime = 5
 
 function Renderer() {
   const { camera, view, scene } = useFilamentContext()
-  useDefaultLight()
 
   const pengu = useModel(PenguGlb)
   const penguAnimator = useAnimator(pengu)
@@ -53,20 +43,9 @@ function Renderer() {
   const animationInterpolation = useSharedValue(0)
   const currentAnimationIndex = useSharedValue(0)
 
-  const prevAspectRatio = useSharedValue(0)
-  const renderCallback: RenderCallback = useCallback(
+  RenderCallbackContext.useRenderCallback(
     ({ passedSeconds }) => {
       'worklet'
-
-      const aspectRatio = view.getAspectRatio()
-      if (prevAspectRatio.value !== aspectRatio) {
-        prevAspectRatio.value = aspectRatio
-        // Setup camera lens:
-        camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
-        console.log('Setting up camera lens with aspect ratio:', aspectRatio)
-      }
-
-      camera.lookAt(cameraPosition, cameraTarget, cameraUp)
 
       if (penguAnimator == null) {
         return
@@ -96,7 +75,7 @@ function Renderer() {
 
       penguAnimator.updateBoneMatrices()
     },
-    [view, prevAspectRatio, camera, penguAnimator, currentAnimationIndex, prevAnimationIndex, prevAnimationStarted, animationInterpolation]
+    [view, camera, penguAnimator, currentAnimationIndex, prevAnimationIndex, prevAnimationStarted, animationInterpolation]
   )
 
   const animations = useMemo(() => {
@@ -142,7 +121,9 @@ function Renderer() {
 
   return (
     <View style={styles.container} onTouchStart={onTouchStart}>
-      <FilamentView style={styles.filamentView} renderCallback={renderCallback} />
+      <Camera />
+      <DefaultLight />
+
       <ScrollView style={styles.btnContainer}>
         <Button
           title="Navigate to test screen"
@@ -187,9 +168,9 @@ export function AnimationTransitions() {
 
   return (
     <View style={styles.container}>
-      <FilamentProvider key={count}>
+      <Filament style={styles.filamentView} key={count}>
         <Renderer />
-      </FilamentProvider>
+      </Filament>
       <Button title="Create a new react element" onPress={increment} />
     </View>
   )
@@ -203,6 +184,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   btnContainer: {
+    position: 'absolute',
+    bottom: 0,
     maxHeight: 120,
     width: '100%',
   },
