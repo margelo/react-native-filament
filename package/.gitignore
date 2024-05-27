@@ -85,3 +85,11 @@ lib/
 # Ignore bullet3 library code
 android/libs/bullet3
 ios/libs/bullet3
+
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

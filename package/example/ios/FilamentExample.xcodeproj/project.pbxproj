@@ -18,6 +18,7 @@
 		279D0EC5EF2A4391BD041C64 /* box.glb in Resources */ = {isa = PBXBuildFile; fileRef = 9241FD2E35834E6CBD6537B9 /* box.glb */; };
 		343E4A420AF7440ABE4350BB /* coffeeshop_seating_level03.glb in Resources */ = {isa = PBXBuildFile; fileRef = 522DEB41EC874A35A439C833 /* coffeeshop_seating_level03.glb */; };
 		46934575911A4001BD968302 /* baked_color.filamat in Resources */ = {isa = PBXBuildFile; fileRef = F68FC94B930D4A17B43374B4 /* baked_color.filamat */; };
+		4A0B2F26270547A3F712EDB5 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8E37C26183FDE94D6A6F55F4 /* PrivacyInfo.xcprivacy */; };
 		4F84B0412C634799AEFB1D85 /* eye_full_texture_left_blue.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 134904F01F7041DFA331FD27 /* eye_full_texture_left_blue.jpg */; };
 		528C81FF39B74300851828B7 /* coffeeshop_plant_level03.glb in Resources */ = {isa = PBXBuildFile; fileRef = 1780677BE48D41E894B8837F /* coffeeshop_plant_level03.glb */; };
 		59249653BB174593BEDB9F3D /* pengu.glb in Resources */ = {isa = PBXBuildFile; fileRef = 3E2439B417DA497E83EB1F05 /* pengu.glb */; };
@@ -77,6 +78,7 @@
 		7A69823713B34897AF31CAF0 /* default_env_ibl.ktx */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = default_env_ibl.ktx; path = ../assets/default_env_ibl.ktx; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = FilamentExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-FilamentExample-FilamentExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FilamentExample-FilamentExampleTests.release.xcconfig"; path = "Target Support Files/Pods-FilamentExample-FilamentExampleTests/Pods-FilamentExample-FilamentExampleTests.release.xcconfig"; sourceTree = "<group>"; };
+		8E37C26183FDE94D6A6F55F4 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = FilamentExample/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		9241FD2E35834E6CBD6537B9 /* box.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = box.glb; path = ../assets/box.glb; sourceTree = "<group>"; };
 		A947E59D16164B19982D8EC8 /* default_env_skybox.ktx */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = default_env_skybox.ktx; path = ../assets/default_env_skybox.ktx; sourceTree = "<group>"; };
 		BE173E0B3B23427D84C92C91 /* pijamas.glb */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = pijamas.glb; path = ../assets/pijamas.glb; sourceTree = "<group>"; };
@@ -132,6 +134,7 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				8E37C26183FDE94D6A6F55F4 /* PrivacyInfo.xcprivacy */,
 			);
 			name = FilamentExample;
 			sourceTree = "<group>";
@@ -331,6 +334,7 @@
 				46934575911A4001BD968302 /* baked_color.filamat in Resources */,
 				782EADEC8F044578BBAFDEFD /* test.mat in Resources */,
 				5A22489558ED45E29E00143B /* test.matc in Resources */,
+				4A0B2F26270547A3F712EDB5 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -351,7 +355,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"../node_modules/react-native/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"../node_modules/react-native/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
+			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
 		};
 		00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -605,6 +609,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CC = "";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -632,6 +637,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				CXX = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
@@ -651,6 +657,8 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
+				LD = "";
+				LDPLUSPLUS = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",
@@ -669,6 +677,7 @@
 					"-DFOLLY_MOBILE=1",
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
+					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -684,6 +693,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CC = "";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -711,6 +721,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
+				CXX = "";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
@@ -723,6 +734,8 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
+				LD = "";
+				LDPLUSPLUS = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",
@@ -740,6 +753,7 @@
 					"-DFOLLY_MOBILE=1",
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
+					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
