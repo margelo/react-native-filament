@@ -39,7 +39,7 @@
     "build-filament:debug": "yarn build-filament debug",
     "build-bullet3": "scripts/build-bullet3.sh",
     "release": "yarn build-filament:release && yarn build-bullet3 && release-it && npm publish",
-    "script:test-codegen": "node example/node_modules/react-native/scripts/generate-codegen-artifacts.js --path example --outputPath ./generated"
+    "codegen": "react-native codegen"
   },
   "keywords": [
     "react-native",
