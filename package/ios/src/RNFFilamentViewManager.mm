@@ -1,5 +1,6 @@
 #import "RNFFilamentMetalView.h"
 #import <Foundation/Foundation.h>
+#import <React/RCTUIManager.h>
 #import <React/RCTViewManager.h>
 
 @interface FilamentViewManager : RCTViewManager

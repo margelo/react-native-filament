@@ -26,16 +26,39 @@ using namespace facebook::react;
     FilamentMetalView *_filamentMetaiView;
 }
 
++ (ComponentDescriptorProvider)componentDescriptorProvider
+{
+  return concreteComponentDescriptorProvider<FilamentViewComponentDescriptor>();
+}
+
 - (instancetype)initWithFrame:(CGRect)frame
 {
   if (self = [super initWithFrame:frame]) {
     static const auto defaultProps = std::make_shared<const FilamentViewProps>();
     _props = defaultProps;
     _filamentMetaiView = [[FilamentMetalView alloc] initWithFrame:self.bounds];
+    
+    [self setupOnViewReady];
+    
     self.contentView = _filamentMetaiView;
   }
 
   return self;
+}
+
+- (void)setupOnViewReady {
+  // Get a weak self reference to avoid retain cycles
+  __weak FilamentView *weakSelf = self;
+    
+  // Assign the onViewReady block
+  _filamentMetaiView.onViewReady = ^(NSDictionary *eventInfo) {
+    FilamentView *strongSelf = weakSelf;
+    if (!strongSelf) {
+      return;
+    }
+    const FilamentViewEventEmitter& eventEmitter = static_cast<const FilamentViewEventEmitter&>(*strongSelf->_eventEmitter);
+    eventEmitter.onViewReady(FilamentViewEventEmitter::OnViewReady{});
+  };
 }
 
 - (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &)oldProps

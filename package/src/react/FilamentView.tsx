@@ -159,34 +159,32 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
   // This registers the surface provider, which will be notified when the surface is ready to draw on:
   private onViewReady = async () => {
     const context = this.getContext()
-    try {
-      const handle = this.handle
-      this.view = await FilamentProxy.findFilamentView(handle)
-      if (this.view == null) {
-        throw new Error(`Failed to find FilamentView #${handle}!`)
-      }
-      // Link the view with the choreographer.
-      // When the view gets destroyed, the choreographer will be stopped.
-      this.view.setChoreographer(context._choreographer)
+    const handle = this.handle
+    console.log('Finding FilamentView with handle', handle)
+    this.view = await FilamentProxy.findFilamentView(handle)
+    if (this.view == null) {
+      throw new Error(`Failed to find FilamentView #${handle}!`)
+    }
+    console.log('Found FilamentView!')
+    // Link the view with the choreographer.
+    // When the view gets destroyed, the choreographer will be stopped.
+    this.view.setChoreographer(context._choreographer)
 
-      const surfaceProvider = this.view.getSurfaceProvider()
-      this.surfaceCreatedListener = surfaceProvider.addOnSurfaceCreatedListener(() => {
-        this.onSurfaceCreated(surfaceProvider)
-      }, FilamentProxy.getCurrentDispatcher())
-      this.surfaceDestroyedListener = surfaceProvider.addOnSurfaceDestroyedListener(() => {
-        this.onSurfaceDestroyed()
-      }, FilamentProxy.getCurrentDispatcher())
-      // Link the surface with the engine:
-      console.log('Setting surface provider')
-      context.engine.setSurfaceProvider(surfaceProvider)
-      // Its possible that the surface is already created, then our callback wouldn't be called
-      // (we still keep the callback as on android a surface can be destroyed and recreated, while the view stays alive)
-      if (surfaceProvider.getSurface() != null) {
-        console.log('Surface already created!')
-        this.onSurfaceCreated(surfaceProvider)
-      }
-    } catch (e) {
-      reportFatalError(e)
+    const surfaceProvider = this.view.getSurfaceProvider()
+    this.surfaceCreatedListener = surfaceProvider.addOnSurfaceCreatedListener(() => {
+      this.onSurfaceCreated(surfaceProvider)
+    }, FilamentProxy.getCurrentDispatcher())
+    this.surfaceDestroyedListener = surfaceProvider.addOnSurfaceDestroyedListener(() => {
+      this.onSurfaceDestroyed()
+    }, FilamentProxy.getCurrentDispatcher())
+    // Link the surface with the engine:
+    console.log('Setting surface provider')
+    context.engine.setSurfaceProvider(surfaceProvider)
+    // Its possible that the surface is already created, then our callback wouldn't be called
+    // (we still keep the callback as on android a surface can be destroyed and recreated, while the view stays alive)
+    if (surfaceProvider.getSurface() != null) {
+      console.log('Surface already created!')
+      this.onSurfaceCreated(surfaceProvider)
     }
   }
 
