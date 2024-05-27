@@ -1,11 +1,12 @@
 import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent'
 import type { HostComponent, ViewProps } from 'react-native'
+import type { DirectEventHandler } from 'react-native/Libraries/Types/CodegenTypes'
 
 export interface NativeProps extends ViewProps {
   /**
    * Called when the native view has been attached to the window.
    */
-  onViewReady: () => void
+  onViewReady: DirectEventHandler<null>
 
   /**
    * Every pixel of the view that is not covered by the Filament scene will be transparent.
@@ -17,4 +18,4 @@ export interface NativeProps extends ViewProps {
   enableTransparentRendering?: boolean
 }
 
-export const FilamentNativeView = codegenNativeComponent<NativeProps>('FilamentView') as HostComponent<NativeProps>
+export default codegenNativeComponent<NativeProps>('FilamentView') as HostComponent<NativeProps>
