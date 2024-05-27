@@ -7,7 +7,7 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "typescript": "tsc --noEmit",
-    "pods": "cd ios && bundle install && bundle exec pod install",
+    "pods": "cd ios && bundle install && RCT_NEW_ARCH_ENABLED=1 bundle exec pod install",
     "build:android": "cd android && ./gradlew assembleDebug --no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a",
     "build:ios": "cd ios && xcodebuild -workspace FilamentExample.xcworkspace -scheme FilamentExample -configuration Debug -sdk iphonesimulator CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ GCC_OPTIMIZATION_LEVEL=0 GCC_PRECOMPILE_PREFIX_HEADER=YES ASSETCATALOG_COMPILER_OPTIMIZATION=time DEBUG_INFORMATION_FORMAT=dwarf COMPILER_INDEX_STORE_ENABLE=NO",
     "postinstall": "npx react-native-asset"
@@ -18,7 +18,9 @@
     "react-native-gesture-handler": "^2.16.2",
     "react-native-reanimated": "^3.11.0",
     "react-native-video": "^6.1.2",
-    "react-native-worklets-core": "^1.3.3"
+    "react-native-worklets-core": "^1.3.3",
+    "react-native-safe-area-context": "^4.10.1",
+    "react-native-screens": "^3.31.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
@@ -30,8 +32,6 @@
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/native-stack": "^6.9.26",
     "babel-plugin-module-resolver": "^5.0.0",
-    "react-native-safe-area-context": "^4.9.0",
-    "react-native-screens": "^3.29.0",
     "typescript": "5.2.2"
   },
   "engines": {
