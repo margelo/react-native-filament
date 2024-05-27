@@ -29,12 +29,6 @@ using namespace facebook;
 
 RCT_EXPORT_MODULE()
 
-+ (BOOL)requiresMainQueueSetup
-{
-  // TODO: check if this is really needed
-  return YES;
-}
-
 /*
  * Taken from RCTNativeAnimatedTurboModule:
  * This selector is invoked via BridgelessTurboModuleSetup.
