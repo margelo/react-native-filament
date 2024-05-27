@@ -8,10 +8,10 @@
 #ifdef RCT_NEW_ARCH_ENABLED
 #import "RNFFilamentView.h"
 
-#import <react/renderer/components/RNFilamentViewSpec/ComponentDescriptors.h>
-#import <react/renderer/components/RNFilamentViewSpec/EventEmitters.h>
-#import <react/renderer/components/RNFilamentViewSpec/Props.h>
-#import <react/renderer/components/RNFilamentViewSpec/RCTComponentViewHelpers.h>
+#import <react/renderer/components/rnfilament/ComponentDescriptors.h>
+#import <react/renderer/components/rnfilament/EventEmitters.h>
+#import <react/renderer/components/rnfilament/Props.h>
+#import <react/renderer/components/rnfilament/RCTComponentViewHelpers.h>
 
 #import "RCTFabricComponentsPlugins.h"
 

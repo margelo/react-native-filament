@@ -9,9 +9,14 @@
 
 #import <Foundation/Foundation.h>
 #import <React/RCTBridge.h>
+#import <ReactCommon/CallInvoker.h>
+#import <memory>
+#import <jsi/jsi.h>
+
+using namespace facebook;
 
 @interface FilamentInstaller : NSObject
 
-+ (BOOL)installToBridge:(RCTBridge*)bridge;
++ (BOOL)installToBridge:(jsi::Runtime*)runtime callInvoker:(std::shared_ptr<react::CallInvoker>)callInvoker;
 
 @end
