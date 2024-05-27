@@ -38,7 +38,8 @@
     "build-filament:release": "yarn build-filament release",
     "build-filament:debug": "yarn build-filament debug",
     "build-bullet3": "scripts/build-bullet3.sh",
-    "release": "yarn build-filament:release && yarn build-bullet3 && release-it && npm publish"
+    "release": "yarn build-filament:release && yarn build-bullet3 && release-it && npm publish",
+    "script:test-codegen": "node example/node_modules/react-native/scripts/generate-codegen-artifacts.js --path example --outputPath ./generated"
   },
   "keywords": [
     "react-native",
@@ -159,7 +160,7 @@
   "codegenConfig": {
     "name": "RNFilamentViewSpec",
     "type": "components",
-    "jsSrcsDir": "src"
+    "jsSrcsDir": "src/native"
   },
   "packageManager": "yarn@1.22.19+sha1.4ba7fc5c6e704fce2066ecbfb0b0d8976fe62447"
 }

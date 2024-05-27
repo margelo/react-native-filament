@@ -1,7 +1,7 @@
 import React from 'react'
 import { findNodeHandle, NativeMethods } from 'react-native'
 import { FilamentProxy } from '../native/FilamentProxy'
-import { FilamentNativeView, NativeProps } from '../native/FilamentNativeView'
+import { FilamentNativeView, NativeProps } from '../native/FilamentNativeComponent'
 import { reportFatalError, reportWorkletError } from '../ErrorUtils'
 import { FilamentContext } from './FilamentContext'
 import { RenderCallback, SwapChain } from 'react-native-filament'
