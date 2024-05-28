@@ -126,7 +126,7 @@ target_link_libraries(
 )
 
 # Try to find react-native-worklets-core
-find_package(react-native-worklets-core REQUIRED CONFIG)
+find_package(react-native-worklets-core CONFIG)
 
 if(react-native-worklets-core_FOUND)
     message("RN Filament: react-native-worklets core found! Enabling Worklets support...")
