@@ -1,15 +1,12 @@
 import React from 'react'
 import { FilamentProxy } from '../native/FilamentProxy'
-import FilamentNativeView, {
-  FilamentViewCommands,
-  type FilamentViewNativeType,
-  type NativeProps,
-} from '../native/specs/FilamentViewNativeComponent'
+import FilamentNativeView, { type FilamentViewNativeType, type NativeProps } from '../native/specs/FilamentViewNativeComponent'
 import { reportWorkletError } from '../ErrorUtils'
 import { FilamentContext } from './FilamentContext'
 import { RenderCallback, SwapChain } from 'react-native-filament'
-import type { SurfaceProvider } from '../native/FilamentViewTypes'
+import type { SurfaceProvider, FilamentView as RNFFilamentView } from '../native/FilamentViewTypes'
 import { Listener } from '../types/Listener'
+import { findNodeHandle } from 'react-native'
 
 export type PublicNativeProps = Omit<NativeProps, 'onViewReady'>
 
@@ -34,7 +31,7 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
   private surfaceDestroyedListener: Listener | undefined
   private renderCallbackListener: Listener | undefined
   private swapChain: SwapChain | undefined
-  // private view: RNFFilamentView | undefined
+  private view: RNFFilamentView | undefined
 
   /**
    * Uses the context in class.
@@ -49,15 +46,14 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
     this.ref = React.createRef<RefType>()
   }
 
-  // TODO: Do we need this, or are the view commands backwards compatible?
-  // private get handle(): number {
-  //   const nodeHandle = findNodeHandle(this.ref.current)
-  //   if (nodeHandle == null || nodeHandle === -1) {
-  //     throw new Error("Could not get the FilamentView's native view tag! Does the FilamentView exist in the native view-tree?")
-  //   }
+  private get handle(): number {
+    const nodeHandle = findNodeHandle(this.ref.current)
+    if (nodeHandle == null || nodeHandle === -1) {
+      throw new Error("Could not get the FilamentView's native view tag! Does the FilamentView exist in the native view-tree?")
+    }
 
-  //   return nodeHandle
-  // }
+    return nodeHandle
+  }
 
   private updateTransparentRendering = (enable: boolean) => {
     const { renderer } = this.getContext()
@@ -150,7 +146,7 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
     this.swapChain = undefined // Note: important to set it to undefined, as this might be called twice (onSurfaceDestroyed and componentWillUnmount), and we can only release once
 
     // Unlink the view from the choreographer. The native view might be destroyed later, after another FilamentView is created using the same choreographer (and then it would stop the rendering)
-    // TODO: this.view?.setChoreographer(undefined)
+    this.view?.setChoreographer(undefined)
   }
 
   componentWillUnmount(): void {
@@ -159,25 +155,25 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
     this.cleanupResources()
   }
 
-  // TODO: i think we don't need onViewReady anymore - this could happen in componentDidMount now
   // This registers the surface provider, which will be notified when the surface is ready to draw on:
   private onViewReady = async () => {
     const context = this.getContext()
-    // console.log('Finding FilamentView with handle', handle)
-    // this.view = await FilamentProxy.findFilamentView(handle)
-    // if (this.view == null) {
-    //   throw new Error(`Failed to find FilamentView #${handle}!`)
-    // }
-    // console.log('Found FilamentView!')
+    const handle = this.handle
+    console.log('Finding FilamentView with handle', handle)
+    this.view = await FilamentProxy.findFilamentView(handle)
+    if (this.view == null) {
+      throw new Error(`Failed to find FilamentView #${handle}!`)
+    }
+    console.log('Found FilamentView!')
     // Link the view with the choreographer.
     // When the view gets destroyed, the choreographer will be stopped.
-    // this.view.setChoreographer(context._choreographer)
+    this.view.setChoreographer(context._choreographer)
 
     if (this.ref.current == null) {
       throw new Error('Ref is not set!')
     }
 
-    const surfaceProvider = FilamentViewCommands.getSurfaceProvider(this.ref.current) as SurfaceProvider
+    const surfaceProvider = this.view.getSurfaceProvider()
     this.surfaceCreatedListener = surfaceProvider.addOnSurfaceCreatedListener(() => {
       this.onSurfaceCreated(surfaceProvider)
     }, FilamentProxy.getCurrentDispatcher())

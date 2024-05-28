@@ -6,7 +6,7 @@
 //
 
 #ifdef RCT_NEW_ARCH_ENABLED
-#import "RNFFilamentView.h"
+#import "RNFFilamentComponent.h"
 
 #import <react/renderer/components/rnfilament/ComponentDescriptors.h>
 #import <react/renderer/components/rnfilament/EventEmitters.h>
@@ -15,15 +15,13 @@
 
 #import "RCTFabricComponentsPlugins.h"
 
-#import "RNFFilamentMetalView.h"
-
 using namespace facebook::react;
 
-@interface FilamentView () <RCTFilamentViewViewProtocol>
+@interface FilamentComponent () <RCTFilamentViewViewProtocol>
 @end
 
-@implementation FilamentView {
-    FilamentMetalView *_filamentMetaiView;
+@implementation FilamentComponent {
+    FilamentMetalView *_filamentMetalView;
 }
 
 + (ComponentDescriptorProvider)componentDescriptorProvider
@@ -31,16 +29,21 @@ using namespace facebook::react;
   return concreteComponentDescriptorProvider<FilamentViewComponentDescriptor>();
 }
 
+- (FilamentMetalView *)filamentMetalView
+{
+  return _filamentMetalView;
+}
+
 - (instancetype)initWithFrame:(CGRect)frame
 {
   if (self = [super initWithFrame:frame]) {
     static const auto defaultProps = std::make_shared<const FilamentViewProps>();
     _props = defaultProps;
-    _filamentMetaiView = [[FilamentMetalView alloc] initWithFrame:self.bounds];
+    _filamentMetalView = [[FilamentMetalView alloc] initWithFrame:self.bounds];
     
     [self setupOnViewReady];
     
-    self.contentView = _filamentMetaiView;
+    self.contentView = _filamentMetalView;
   }
 
   return self;
@@ -48,11 +51,11 @@ using namespace facebook::react;
 
 - (void)setupOnViewReady {
   // Get a weak self reference to avoid retain cycles
-  __weak FilamentView *weakSelf = self;
+  __weak FilamentComponent *weakSelf = self;
     
   // Assign the onViewReady block
-  _filamentMetaiView.onViewReady = ^(NSDictionary *eventInfo) {
-    FilamentView *strongSelf = weakSelf;
+  _filamentMetalView.onViewReady = ^(NSDictionary *eventInfo) {
+    FilamentComponent *strongSelf = weakSelf;
     if (!strongSelf) {
       return;
     }
@@ -68,7 +71,7 @@ using namespace facebook::react;
 
   // TODO: Not sure if we need to update the onViewReady callback here, but we don't get it as a prop?
   if (oldViewProps.enableTransparentRendering != newViewProps.enableTransparentRendering) {
-    _filamentMetaiView.enableTransparentRendering = newViewProps.enableTransparentRendering;
+    _filamentMetalView.enableTransparentRendering = newViewProps.enableTransparentRendering;
   }
 
   [super updateProps:props oldProps:oldProps];
@@ -78,7 +81,7 @@ using namespace facebook::react;
 
 Class<RCTComponentViewProtocol> FilamentViewCls(void)
 {
-    return FilamentView.class;
+    return FilamentComponent.class;
 }
 
 #endif

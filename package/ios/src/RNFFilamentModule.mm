@@ -14,6 +14,7 @@
 #import <React/RCTSurfacePresenter.h>
 #import <React/RCTScheduler.h>
 #import <React/RCTUIManager.h>
+#import <react/renderer/components/rnfilament/ShadowNodes.h>
 
 using namespace facebook;
 
@@ -27,7 +28,7 @@ using namespace facebook;
   BOOL _isBridgeless;
 }
 
-@synthesize runtimeExecutor = _runtimeExecutor;
+@synthesize runtimeExecutor = _runtimeExecutor; // TODO: I think thats not needed anymore?
 
 RCT_EXPORT_MODULE()
 
@@ -49,15 +50,10 @@ RCT_EXPORT_MODULE()
     RCTCxxBridge *cxxBridge = (RCTCxxBridge *)self.bridge;
     jsiRuntime = (jsi::Runtime *)cxxBridge.runtime;
     jsCallInvoker = cxxBridge.jsCallInvoker;
-    RCTScheduler *scheduler = [_surfacePresenter scheduler];
-    std::shared_ptr<react::UIManager> uiManager = scheduler.uiManager;
-    
   } else {
     // TODO: I haven't tested bridge mode w/ new arch yet
     jsiRuntime = [self.bridge respondsToSelector:@selector(runtime)] ? reinterpret_cast<jsi::Runtime *>(self.bridge.runtime) : nullptr;
     jsCallInvoker = self.bridge.jsCallInvoker;
-    // TODO: how to get the UI Manager in none bridgeless mode?
-    RCTUIManager* uiManager = self.bridge.uiManager;
   }
 
   if (jsiRuntime == nullptr) {
@@ -69,7 +65,7 @@ RCT_EXPORT_MODULE()
     return [NSNumber numberWithBool:NO];
   }
     
-  BOOL result = [FilamentInstaller installToBridge:jsiRuntime callInvoker:jsCallInvoker];
+  BOOL result = [FilamentInstaller installToBridge:jsiRuntime callInvoker:jsCallInvoker surfacePresenter:_surfacePresenter];
   return [NSNumber numberWithBool:result];
 }
 

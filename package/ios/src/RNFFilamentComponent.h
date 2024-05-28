@@ -11,11 +11,13 @@
 #ifdef RCT_NEW_ARCH_ENABLED
 #import <React/RCTViewComponentView.h>
 #import <UIKit/UIKit.h>
+#import "RNFFilamentMetalView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 // This is the View component used by Fabric
-@interface FilamentView : RCTViewComponentView
+@interface FilamentComponent : RCTViewComponentView
+- (FilamentMetalView *)filamentMetalView;
 @end
 
 NS_ASSUME_NONNULL_END
