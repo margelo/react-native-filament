@@ -89,7 +89,7 @@
     "react": "18.2.0",
     "react-native": "0.74.1",
     "react-native-builder-bob": "^0.20.0",
-    "react-native-worklets-core": "^1.3.2",
+    "react-native-worklets-core": "^2.0.0-beta.3",
     "release-it": "^15.0.0",
     "typescript": "^5.2.2"
   },
