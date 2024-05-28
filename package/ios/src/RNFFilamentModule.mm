@@ -12,7 +12,8 @@
 
 #ifdef RCT_NEW_ARCH_ENABLED
 #import <React/RCTSurfacePresenter.h>
-// Implementation for new arch
+#import <React/RCTScheduler.h>
+#import <React/RCTUIManager.h>
 
 using namespace facebook;
 
@@ -22,6 +23,7 @@ using namespace facebook;
 @end
 
 @implementation FilamentModule {
+  __weak RCTSurfacePresenter *_surfacePresenter;
   BOOL _isBridgeless;
 }
 
@@ -35,6 +37,7 @@ RCT_EXPORT_MODULE()
  */
 - (void)setSurfacePresenter:(id<RCTSurfacePresenterStub>)surfacePresenter
 {
+  _surfacePresenter = surfacePresenter;
   _isBridgeless = true;
 }
 
@@ -46,10 +49,15 @@ RCT_EXPORT_MODULE()
     RCTCxxBridge *cxxBridge = (RCTCxxBridge *)self.bridge;
     jsiRuntime = (jsi::Runtime *)cxxBridge.runtime;
     jsCallInvoker = cxxBridge.jsCallInvoker;
+    RCTScheduler *scheduler = [_surfacePresenter scheduler];
+    std::shared_ptr<react::UIManager> uiManager = scheduler.uiManager;
+    
   } else {
     // TODO: I haven't tested bridge mode w/ new arch yet
     jsiRuntime = [self.bridge respondsToSelector:@selector(runtime)] ? reinterpret_cast<jsi::Runtime *>(self.bridge.runtime) : nullptr;
     jsCallInvoker = self.bridge.jsCallInvoker;
+    // TODO: how to get the UI Manager in none bridgeless mode?
+    RCTUIManager* uiManager = self.bridge.uiManager;
   }
 
   if (jsiRuntime == nullptr) {
@@ -61,9 +69,8 @@ RCT_EXPORT_MODULE()
     return [NSNumber numberWithBool:NO];
   }
     
-    BOOL result = [FilamentInstaller installToBridge:jsiRuntime callInvoker:jsCallInvoker];
-    return [NSNumber numberWithBool:result];
-
+  BOOL result = [FilamentInstaller installToBridge:jsiRuntime callInvoker:jsCallInvoker];
+  return [NSNumber numberWithBool:result];
 }
 
 - (std::shared_ptr<react::TurboModule>)getTurboModule:(const react::ObjCTurboModule::InitParams &)params {

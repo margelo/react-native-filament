@@ -1,6 +1,8 @@
 import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent'
 import type { HostComponent, ViewProps } from 'react-native'
-import type { DirectEventHandler } from 'react-native/Libraries/Types/CodegenTypes'
+import type { DirectEventHandler, Float } from 'react-native/Libraries/Types/CodegenTypes'
+import codegenNativeCommands from 'react-native/Libraries/Utilities/codegenNativeCommands'
+import type { UnsafeObject } from 'react-native/Libraries/Types/CodegenTypes'
 
 export interface NativeProps extends ViewProps {
   /**
@@ -18,4 +20,16 @@ export interface NativeProps extends ViewProps {
   enableTransparentRendering?: boolean
 }
 
-export default codegenNativeComponent<NativeProps>('FilamentView') as HostComponent<NativeProps>
+export type FilamentViewNativeType = HostComponent<NativeProps>
+
+export default codegenNativeComponent<NativeProps>('FilamentView') as FilamentViewNativeType
+
+export interface FilamentViewNativeCommands {
+  // TODO: implement linking choreographer / is this really still needed?
+  // setChoreographer: (viewRef: React.ElementRef<ComponentType>, choreographer: UnsafeObject) => void
+  getSurfaceProvider: (viewRef: React.ElementRef<FilamentViewNativeType>) => Float
+}
+
+export const FilamentViewCommands: FilamentViewNativeCommands = codegenNativeCommands<FilamentViewNativeCommands>({
+  supportedCommands: ['getSurfaceProvider'],
+})

@@ -111,9 +111,11 @@ jsi::Runtime& AppleFilamentProxy::getMainJSRuntime() {
   return *_runtime;
 }
 
+// TODO: I feel that for the new arch we shouldn't do that anymore, and instead call a method directly on the view?
 std::shared_ptr<FilamentView> AppleFilamentProxy::findFilamentView(int viewId) {
   RCTBridge* currentBridge = [RCTBridge currentBridge]; // <-- from <React/RCTBridge+Private.h>
   RCTUIManager* uiManager = currentBridge.uiManager;    // <-- from <React/RCTUIManager.h>
+
   UIView* anonymousView = [uiManager viewForReactTag:[NSNumber numberWithInt:viewId]];
   FilamentMetalView* view = (FilamentMetalView*)anonymousView;
   return std::make_shared<AppleFilamentView>(view);
