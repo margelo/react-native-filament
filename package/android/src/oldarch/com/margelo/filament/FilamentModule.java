@@ -11,6 +11,7 @@ import com.facebook.react.bridge.ReactMethod;
 public class FilamentModule extends ReactContextBaseJavaModule {
     private @Nullable FilamentProxy proxy = null;
     private final ReactApplicationContext context;
+    public static final String NAME = "FilamentModule";
 
     public FilamentModule(ReactApplicationContext reactContext) {
         context = reactContext;

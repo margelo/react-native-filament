@@ -25,6 +25,7 @@ public class FilamentViewManager extends ViewGroupManager<FilamentView> implemen
     private final FilamentViewManagerDelegate<FilamentView, FilamentViewManager> mDelegate;
 
     public FilamentViewManager(ReactApplicationContext reactContext) {
+        super();
         mDelegate = new FilamentViewManagerDelegate<>(this);
     }
 

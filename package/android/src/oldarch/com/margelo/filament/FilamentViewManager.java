@@ -3,6 +3,7 @@ package com.margelo.filament;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.uimanager.ThemedReactContext;
@@ -15,6 +16,10 @@ import java.util.Map;
 public class FilamentViewManager extends ViewGroupManager<FilamentView> {
     static {
         System.loadLibrary("RNFilament");
+    }
+
+    public FilamentViewManager(ReactApplicationContext reactContext) {
+        super();
     }
 
     public static final String NAME = "FilamentView";
