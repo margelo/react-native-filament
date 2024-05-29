@@ -17,7 +17,7 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
-target 'FilamentExample' do
+target 'RNFFabric' do
   config = use_native_modules!
 
   use_react_native!(
@@ -26,7 +26,7 @@ target 'FilamentExample' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  target 'FilamentExampleTests' do
+  target 'RNFFabricTests' do
     inherit! :complete
     # Pods for testing
   end

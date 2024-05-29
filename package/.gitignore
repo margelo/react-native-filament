@@ -31,7 +31,7 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
-FilamentExample.xcworkspace
+RNFFabric.xcworkspace
 .xcode.env.local
 
 # Android/IJ

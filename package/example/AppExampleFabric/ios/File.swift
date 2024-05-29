@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  FilamentExample
+//  RNFFabric
 //
 
 import Foundation

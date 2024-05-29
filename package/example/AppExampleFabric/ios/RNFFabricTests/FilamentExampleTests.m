@@ -7,11 +7,11 @@
 #define TIMEOUT_SECONDS 600
 #define TEXT_TO_LOOK_FOR @"Welcome to React"
 
-@interface FilamentExampleTests : XCTestCase
+@interface RNFFabricTests : XCTestCase
 
 @end
 
-@implementation FilamentExampleTests
+@implementation RNFFabricTests
 
 - (BOOL)findSubviewInView:(UIView *)view matching:(BOOL (^)(UIView *view))test
 {

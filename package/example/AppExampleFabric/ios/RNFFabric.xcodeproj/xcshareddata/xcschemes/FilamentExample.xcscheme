@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "FilamentExample.app"
-               BlueprintName = "FilamentExample"
-               ReferencedContainer = "container:FilamentExample.xcodeproj">
+               BuildableName = "RNFFabric.app"
+               BlueprintName = "RNFFabric"
+               ReferencedContainer = "container:RNFFabric.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "FilamentExampleTests.xctest"
-               BlueprintName = "FilamentExampleTests"
-               ReferencedContainer = "container:FilamentExample.xcodeproj">
+               BuildableName = "RNFFabricTests.xctest"
+               BlueprintName = "RNFFabricTests"
+               ReferencedContainer = "container:RNFFabric.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "FilamentExample.app"
-            BlueprintName = "FilamentExample"
-            ReferencedContainer = "container:FilamentExample.xcodeproj">
+            BuildableName = "RNFFabric.app"
+            BlueprintName = "RNFFabric"
+            ReferencedContainer = "container:RNFFabric.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "FilamentExample.app"
-            BlueprintName = "FilamentExample"
-            ReferencedContainer = "container:FilamentExample.xcodeproj">
+            BuildableName = "RNFFabric.app"
+            BlueprintName = "RNFFabric"
+            ReferencedContainer = "container:RNFFabric.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

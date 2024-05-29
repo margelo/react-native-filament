@@ -1,4 +1,4 @@
-package com.filamentexample
+package com.rnffabric
 
 import android.app.Application
 import com.facebook.react.PackageList

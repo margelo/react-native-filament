@@ -74,9 +74,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.filamentexample"
+    namespace "com.rnffabric"
     defaultConfig {
-        applicationId "com.filamentexample"
+        applicationId "com.rnffabric"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
