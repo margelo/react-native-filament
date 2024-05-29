@@ -1,5 +1,6 @@
 {
-  "name": "Shared",
+  "name": "shared",
+  "react-native": "src/",
   "packageManager": "yarn@3.6.4",
   "dependencies": {
     "@react-navigation/native": "^6.1.17",

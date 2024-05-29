@@ -7,6 +7,6 @@
       "~/assets/*": ["./assets/*"]
     }
   },
-  "include": ["src", "../src/types/CustomFileExtensions.d.ts"],
+  "include": ["src", "../../src/types/CustomFileExtensions.d.ts"],
   "exclude": ["node_modules"]
 }
