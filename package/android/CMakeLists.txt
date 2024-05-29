@@ -134,11 +134,6 @@ target_link_libraries(
     ${PACKAGE_NAME}
     react-native-worklets-core::rnworklets # <-- react-native-worklets-core
 )
-file(GLOB RNWC_LIB "/Users/hannomargelo/Documents/Github/react-native-filament/package/example/node_modules/react-native-worklets-core/android/build/intermediates/prefab_package/debug/prefab/modules/rnworklets/libs/android.arm64-v8a/librnworklets.so")
-target_link_libraries(
-    ${PACKAGE_NAME}
-    ${RNWC_LIB}
-)
 add_definitions(-DHAS_WORKLETS=1)
 
 # Filament (local CMake project as a git submodule)
