@@ -10,6 +10,11 @@
 #import <Foundation/Foundation.h>
 #import <React/RCTBridge+Private.h>
 
+#ifndef RCT_NEW_ARCH_ENABLED
+#import <ReactCommon/CallInvoker.h>
+#import <React/RCTBridge.h>
+#endif
+
 #ifdef RCT_NEW_ARCH_ENABLED
 #import <React/RCTSurfacePresenter.h>
 #import <React/RCTScheduler.h>
@@ -76,19 +81,35 @@ RCT_EXPORT_MODULE()
 @end
 
 #else
-
 // Implementation for old arch
+
+// This is defined in RCTCxxBridge.mm, and we are technically using a private API here.
+@interface RCTCxxBridge (CallInvoker)
+- (std::shared_ptr<react::CallInvoker>)jsCallInvoker;
+@end
+
 @implementation FilamentModule
 
 // TODO: Figure out how to get jsi::Runtime and CallInvoker in bridge-less mode.
 RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install) {
-  RCTBridge* bridge = [RCTBridge currentBridge];
-  if (bridge == nil) {
-    NSLog(@"Failed to install react-native-filament: RCTBridge is nil!");
+  RCTCxxBridge* cxxBridge = (RCTCxxBridge*)[RCTBridge currentBridge];
+  if (!cxxBridge.runtime) {
+    NSLog(@"Failed to install react-native-filament: RCTBridge is not a RCTCxxBridge!");
     return [NSNumber numberWithBool:NO];
   }
-  BOOL result = [FilamentInstaller installToBridge:bridge];
-  // TODO: Can we return a bool here instead? Or maybe even throw errors?
+
+  jsi::Runtime* runtime = (jsi::Runtime*)cxxBridge.runtime;
+  if (!runtime) {
+    NSLog(@"Failed to install react-native-filament: jsi::Runtime* was null!");
+    return [NSNumber numberWithBool:NO];
+  }
+  std::shared_ptr<react::CallInvoker> callInvoker = cxxBridge.jsCallInvoker;
+  if (!callInvoker) {
+    NSLog(@"Failed to install react-native-filament: react::CallInvoker was null!");
+    return [NSNumber numberWithBool:NO];
+  }
+  
+  BOOL result = [FilamentInstaller installToBridge:runtime callInvoker:callInvoker];
   return [NSNumber numberWithBool:result];
 }
 
