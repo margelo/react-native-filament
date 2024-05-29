@@ -2,6 +2,9 @@
   "name": "shared",
   "react-native": "src/",
   "packageManager": "yarn@3.6.4",
+  "scripts": {
+    "start": "react-native start"
+  },
   "dependencies": {
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/native-stack": "^6.9.26",
