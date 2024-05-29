@@ -9293,7 +9293,7 @@ __metadata:
     react: 18.2.0
     react-native: 0.74.1
     react-native-builder-bob: ^0.20.0
-    react-native-worklets-core: ^2.0.0-beta.3
+    react-native-worklets-core: ^1.3.3
     release-it: ^15.0.0
     typescript: ^5.2.2
   peerDependencies:
@@ -9303,15 +9303,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"react-native-worklets-core@npm:^2.0.0-beta.3":
-  version: 2.0.0-beta.3
-  resolution: "react-native-worklets-core@npm:2.0.0-beta.3"
+"react-native-worklets-core@npm:^1.3.3":
+  version: 1.3.3
+  resolution: "react-native-worklets-core@npm:1.3.3"
   dependencies:
     string-hash-64: ^1.0.3
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: b236c5c4a099bece23d604cbf74a350cfde51287922e0e9ff5df997af00c19f9b86f7ed4b7eb44fbc39b0ae2854a5aab25ff4cb213bc4c45a907ffb9a59edc29
+  checksum: bf2f0eb5852ac1e4f58e20fd5912bed46c0f2bd5a671dadb596b7edf2aa5816874c694f472adaaefdb9ef19e5355c05ceb2877946bfaa0cd081c9cc0c95aa404
   languageName: node
   linkType: hard
 

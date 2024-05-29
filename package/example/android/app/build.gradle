@@ -74,9 +74,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.margelo.filamentexample"
+    namespace "com.filamentexample"
     defaultConfig {
-        applicationId "com.margelo.filamentexample"
+        applicationId "com.filamentexample"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
