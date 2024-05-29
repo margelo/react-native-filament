@@ -41,12 +41,12 @@ export function useBuffer({ source: source, releaseOnUnmount = true }: BufferPro
 
     const asset = Image.resolveAssetSource(source)
     let assetUri = asset.uri
+
     if (__DEV__ && assetUri.includes('assets/../Shared/assets/')) {
       // Note: this is a workaround for our example app setup, where the assets are shared between multiple apps.
       assetUri = assetUri.replace('assets/../Shared/assets/', 'assets/')
     }
 
-    console.log('requesting asset:', assetUri)
     return assetUri
   }, [source])
 
