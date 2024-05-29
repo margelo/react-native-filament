@@ -18,4 +18,13 @@ buildscript {
     }
 }
 
+//allprojects {
+//    project.pluginManager.withPlugin("com.facebook.react") {
+//        react {
+//            reactNativeDir = rootProject.file("../../../node_modules/react-native/")
+//            codegenDir = rootProject.file("../../../node_modules/react-native-codegen/")
+//        }
+//    }
+//}
+
 apply plugin: "com.facebook.react.rootproject"
