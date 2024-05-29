@@ -2,18 +2,19 @@ import * as React from 'react'
 import { StyleSheet, Pressable, Text, View, ScrollView } from 'react-native'
 import { NavigationContainer, useNavigation } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { AnimationTransitions } from './AnimationTransitions'
-import { PhysicsCoin } from './PhysicsCoin'
-import { FadeOut } from './FadeOut'
-import { CastShadow } from './CastShadow'
-import { MultipleInstances } from './MultipleInstances'
-import { WorkletExample } from './WorkletExample'
-import { ScaleEffect } from './ScaleEffect'
-import { FadingLightExample } from './FadingLightExample'
-import { ChangeGoldenMaterials } from './ChangeGoldenMaterial'
-import { AnimationTransitionsRecording } from './AnimationTransitionsRecording'
-import { CameraPan } from './CameraPan'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
+
+import { AnimationTransitions } from './AnimationTransitions'
+import { CameraPan } from './CameraPan'
+// import { PhysicsCoin } from './PhysicsCoin'
+// import { FadeOut } from './FadeOut'
+// import { CastShadow } from './CastShadow'
+// import { MultipleInstances } from './MultipleInstances'
+// import { WorkletExample } from './WorkletExample'
+// import { ScaleEffect } from './ScaleEffect'
+// import { FadingLightExample } from './FadingLightExample'
+// import { ChangeGoldenMaterials } from './ChangeGoldenMaterial'
+// import { AnimationTransitionsRecording } from './AnimationTransitionsRecording'
 
 function NavigationItem(props: { name: string; route: string }) {
   const navigation = useNavigation()
@@ -45,8 +46,8 @@ function HomeScreen() {
   return (
     <ScrollView style={{ flex: 1 }}>
       <NavigationItem name="▶️ Animation Transitions" route="AnimationTransitions" />
-      <NavigationItem name="📹 Offscreen recording" route="AnimationTransitionsRecording" />
       <NavigationItem name="📸 Camera Pan" route="CameraPan" />
+      {/* <NavigationItem name="📹 Offscreen recording" route="AnimationTransitionsRecording" />
       <NavigationItem name="💰 Physics Coin" route="PhysicsCoin" />
       <NavigationItem name="😶‍🌫️ Fade Out" route="FadeOut" />
       <NavigationItem name="🎨 Change Materials" route="ChangeMaterials" />
@@ -54,7 +55,7 @@ function HomeScreen() {
       <NavigationItem name="🤖 Multiple Instances" route="MultipleInstances" />
       <NavigationItem name="↕️ Scale Effect" route="ScaleEffect" />
       <NavigationItem name="🧠 Worklet Example" route="WorkletExample" />
-      <NavigationItem name="💡 Fading Light" route="FadingLight" />
+      <NavigationItem name="💡 Fading Light" route="FadingLight" /> */}
     </ScrollView>
   )
 }
@@ -83,7 +84,8 @@ function App() {
             }}
           />
           <Stack.Screen name="CameraPan" component={CameraPan} />
-          <Stack.Screen name="AnimationTransitionsRecording" component={AnimationTransitionsRecording} />
+          {/* TODO: Migrate */}
+          {/* <Stack.Screen name="AnimationTransitionsRecording" component={AnimationTransitionsRecording} />
           <Stack.Screen name="PhysicsCoin" component={PhysicsCoin} />
           <Stack.Screen name="FadeOut" component={FadeOut} />
           <Stack.Screen name="ChangeMaterials" component={ChangeGoldenMaterials} />
@@ -91,7 +93,7 @@ function App() {
           <Stack.Screen name="MultipleInstances" component={MultipleInstances} />
           <Stack.Screen name="WorkletExample" component={WorkletExample} />
           <Stack.Screen name="ScaleEffect" component={ScaleEffect} />
-          <Stack.Screen name="FadingLight" component={FadingLightExample} />
+          <Stack.Screen name="FadingLight" component={FadingLightExample} /> */}
           <Stack.Screen name="Test" component={TestScreen} />
         </Stack.Navigator>
       </NavigationContainer>

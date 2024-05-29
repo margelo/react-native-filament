@@ -1,6 +1,6 @@
 import React from 'react'
 import { EnvironmentalLight, Light } from 'react-native-filament'
-import DefaultLightIBL from '../../assets/default_env_ibl.ktx'
+import DefaultLightIBL from '~/assets/default_env_ibl.ktx'
 
 export function DefaultLight() {
   return (

@@ -12,8 +12,8 @@ import {
   Camera,
 } from 'react-native-filament'
 import { useSharedValue } from 'react-native-worklets-core'
-import PenguGlb from '../assets/pengu.glb'
-import PirateGlb from '../assets/pirate.glb'
+import PenguGlb from '~/assets/pengu.glb'
+import PirateGlb from '~/assets/pirate.glb'
 import { DefaultLight } from './components/DefaultLight'
 
 const animationInterpolationTime = 5

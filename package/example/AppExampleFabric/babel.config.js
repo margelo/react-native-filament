@@ -11,6 +11,7 @@ module.exports = {
         alias: {
           [pak.name]: path.join(__dirname, '..', '..', pak.source),
           [pak.name + '-test']: path.join(__dirname, '..', '..', pak.test),
+          '~/assets': path.join(__dirname, 'assets'),
         },
       },
     ],

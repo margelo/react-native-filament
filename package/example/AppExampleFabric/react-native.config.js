@@ -10,5 +10,5 @@ module.exports = {
       root: path.join(__dirname, 'node_modules', 'react-native-worklets-core'),
     },
   },
-  assets: ['../assets'],
+  assets: ['./assets'],
 }

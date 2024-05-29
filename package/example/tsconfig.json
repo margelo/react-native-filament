@@ -3,7 +3,8 @@
   "compilerOptions": {
     "paths": {
       "react-native-filament": ["../src/index"],
-      "react-native-filament-test": ["../src/test/RunTests"]
+      "react-native-filament-test": ["../src/test/RunTests"],
+      "~/assets/*": ["./assets/*"]
     }
   },
   "include": ["src", "../src/types/CustomFileExtensions.d.ts"],
