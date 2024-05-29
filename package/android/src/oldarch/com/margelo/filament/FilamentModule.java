@@ -7,11 +7,8 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 
+// TODO: finish migration here for backwards compatibility
 public class FilamentModule extends ReactContextBaseJavaModule {
-    static {
-        System.loadLibrary("RNFilament");
-    }
-
     private @Nullable FilamentProxy proxy = null;
     private final ReactApplicationContext context;
 

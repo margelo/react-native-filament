@@ -8,7 +8,7 @@ import com.facebook.react.uimanager.events.Event;
 
 public class FilamentViewReadyEvent extends Event<FilamentViewReadyEvent> {
 
-    public static final String EVENT_NAME = "filamentViewReady";
+    public static final String EVENT_NAME = "topViewReady";
 
     FilamentViewReadyEvent(int surfaceId, int viewTag) {
         super(surfaceId, viewTag);
