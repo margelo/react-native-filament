@@ -54,9 +54,9 @@ RCT_EXPORT_MODULE()
     jsiRuntime = (jsi::Runtime *)cxxBridge.runtime;
     jsCallInvoker = cxxBridge.jsCallInvoker;
   } else {
-    // TODO: I haven't tested bridge mode w/ new arch yet
     jsiRuntime = [self.bridge respondsToSelector:@selector(runtime)] ? reinterpret_cast<jsi::Runtime *>(self.bridge.runtime) : nullptr;
     jsCallInvoker = self.bridge.jsCallInvoker;
+    _surfacePresenter = self.bridge.surfacePresenter;
   }
 
   if (jsiRuntime == nullptr) {
