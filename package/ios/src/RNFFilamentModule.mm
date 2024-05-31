@@ -33,8 +33,6 @@ using namespace facebook;
   BOOL _isBridgeless;
 }
 
-@synthesize runtimeExecutor = _runtimeExecutor; // TODO: I think thats not needed anymore?
-
 RCT_EXPORT_MODULE()
 
 /*

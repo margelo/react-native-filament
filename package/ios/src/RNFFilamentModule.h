@@ -20,10 +20,6 @@
 #ifdef RCT_NEW_ARCH_ENABLED
 #import <rnfilament/rnfilament.h>
 
-// TODO: Note, only available in RN 0.74 ?!
-#import <React/RCTRuntimeExecutorModule.h>
-#import <ReactCommon/RCTRuntimeExecutor.h>
-
-@interface FilamentModule () <NativeFilamentModuleSpec, RCTRuntimeExecutorModule>
+@interface FilamentModule () <NativeFilamentModuleSpec>
 @end
 #endif
