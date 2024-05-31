@@ -7,7 +7,6 @@ const LINKING_ERROR =
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo Go\n'
 
-// TODO: test if this reall works with the old arch
 const RCTFilamentModule = require('./specs/NativeFilamentModule').default
 export const FilamentModule = (
   RCTFilamentModule
