@@ -1,5 +1,4 @@
 import { FilamentBuffer } from './FilamentBuffer'
-import { FilamentNativeModule } from './FilamentNativeModule'
 import type { Engine } from '../types/Engine'
 import { FilamentView } from './FilamentViewTypes'
 import type { BulletAPI } from '../bullet/types/api'
@@ -8,6 +7,7 @@ import { EngineBackend, EngineConfig } from '../types'
 import { TFilamentRecorder } from './FilamentRecorder'
 import { Choreographer } from '../types/Choreographer'
 import { Dispatcher } from './Dispatcher'
+import { FilamentModule } from './FilamentModule'
 
 interface TestHybridObject {
   int: number
@@ -95,18 +95,7 @@ export interface TFilamentProxy {
   createChoreographer(): Choreographer
 }
 
-// Check if we are running on-device (JSI)
-// @ts-expect-error JSI functions aren't typed
-if (global.nativeCallSyncHook == null) {
-  throw new Error(
-    'Failed to initialize react-native-filament: React Native is not running on-device. Filament can only be used when synchronous method invocations (JSI) are possible. If you are using a remote debugger (e.g. Chrome), switch to an on-device debugger (e.g. Flipper) instead.'
-  )
-}
-
-// TODO(hanno): Figure out how to call the native install method. I couldn't get codegen to properly generate that static method.
-// In Bridge architecture there was a separate Module and View, but now it's all a View - how do I add static methods on that?
-// Maybe we need to create a separate FilamentModule as well (in addition to the FilamentView).
-const successful = FilamentNativeModule.install()
+const successful = FilamentModule.install()
 if (!successful) {
   throw new Error(
     'Failed to initialize react-native-filament! The install() method returned false - check the native logs (adb logcat or Xcode logs) for more information.'

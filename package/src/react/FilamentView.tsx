@@ -1,12 +1,12 @@
 import React from 'react'
-import { findNodeHandle, NativeMethods } from 'react-native'
 import { FilamentProxy } from '../native/FilamentProxy'
-import { FilamentNativeView, NativeProps } from '../native/FilamentNativeView'
-import { reportFatalError, reportWorkletError } from '../ErrorUtils'
+import FilamentNativeView, { type FilamentViewNativeType, type NativeProps } from '../native/specs/FilamentViewNativeComponent'
+import { reportWorkletError } from '../ErrorUtils'
 import { FilamentContext } from './FilamentContext'
 import { RenderCallback, SwapChain } from 'react-native-filament'
-import { FilamentView as RNFFilamentView, SurfaceProvider } from '../native/FilamentViewTypes'
+import type { SurfaceProvider, FilamentView as RNFFilamentView } from '../native/FilamentViewTypes'
 import { Listener } from '../types/Listener'
+import { findNodeHandle } from 'react-native'
 
 export type PublicNativeProps = Omit<NativeProps, 'onViewReady'>
 
@@ -19,7 +19,7 @@ export interface FilamentProps extends PublicNativeProps {
   renderCallback: RenderCallback
 }
 
-type RefType = React.Component<NativeProps> & Readonly<NativeMethods>
+type RefType = InstanceType<FilamentViewNativeType>
 
 /**
  * The component that wraps the native view.
@@ -46,7 +46,6 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
     this.ref = React.createRef<RefType>()
   }
 
-  // TODO: Does this also work for Fabric?
   private get handle(): number {
     const nodeHandle = findNodeHandle(this.ref.current)
     if (nodeHandle == null || nodeHandle === -1) {
@@ -159,34 +158,36 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
   // This registers the surface provider, which will be notified when the surface is ready to draw on:
   private onViewReady = async () => {
     const context = this.getContext()
-    try {
-      const handle = this.handle
-      this.view = await FilamentProxy.findFilamentView(handle)
-      if (this.view == null) {
-        throw new Error(`Failed to find FilamentView #${handle}!`)
-      }
-      // Link the view with the choreographer.
-      // When the view gets destroyed, the choreographer will be stopped.
-      this.view.setChoreographer(context._choreographer)
+    const handle = this.handle
+    console.log('Finding FilamentView with handle', handle)
+    this.view = await FilamentProxy.findFilamentView(handle)
+    if (this.view == null) {
+      throw new Error(`Failed to find FilamentView #${handle}!`)
+    }
+    console.log('Found FilamentView!')
+    // Link the view with the choreographer.
+    // When the view gets destroyed, the choreographer will be stopped.
+    this.view.setChoreographer(context._choreographer)
 
-      const surfaceProvider = this.view.getSurfaceProvider()
-      this.surfaceCreatedListener = surfaceProvider.addOnSurfaceCreatedListener(() => {
-        this.onSurfaceCreated(surfaceProvider)
-      }, FilamentProxy.getCurrentDispatcher())
-      this.surfaceDestroyedListener = surfaceProvider.addOnSurfaceDestroyedListener(() => {
-        this.onSurfaceDestroyed()
-      }, FilamentProxy.getCurrentDispatcher())
-      // Link the surface with the engine:
-      console.log('Setting surface provider')
-      context.engine.setSurfaceProvider(surfaceProvider)
-      // Its possible that the surface is already created, then our callback wouldn't be called
-      // (we still keep the callback as on android a surface can be destroyed and recreated, while the view stays alive)
-      if (surfaceProvider.getSurface() != null) {
-        console.log('Surface already created!')
-        this.onSurfaceCreated(surfaceProvider)
-      }
-    } catch (e) {
-      reportFatalError(e)
+    if (this.ref.current == null) {
+      throw new Error('Ref is not set!')
+    }
+
+    const surfaceProvider = this.view.getSurfaceProvider()
+    this.surfaceCreatedListener = surfaceProvider.addOnSurfaceCreatedListener(() => {
+      this.onSurfaceCreated(surfaceProvider)
+    }, FilamentProxy.getCurrentDispatcher())
+    this.surfaceDestroyedListener = surfaceProvider.addOnSurfaceDestroyedListener(() => {
+      this.onSurfaceDestroyed()
+    }, FilamentProxy.getCurrentDispatcher())
+    // Link the surface with the engine:
+    console.log('Setting surface provider')
+    context.engine.setSurfaceProvider(surfaceProvider)
+    // Its possible that the surface is already created, then our callback wouldn't be called
+    // (we still keep the callback as on android a surface can be destroyed and recreated, while the view stays alive)
+    if (surfaceProvider.getSurface() != null) {
+      console.log('Surface already created!')
+      this.onSurfaceCreated(surfaceProvider)
     }
   }
 

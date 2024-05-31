@@ -16,11 +16,22 @@
 #include <ReactCommon/CallInvoker.h>
 #include <jsi/jsi.h>
 
+#ifdef RCT_NEW_ARCH_ENABLED
+#import <React/RCTSurfacePresenter.h>
+#endif
+
 namespace margelo {
 
 class AppleFilamentProxy : public FilamentProxy {
 public:
-  explicit AppleFilamentProxy(jsi::Runtime* runtime, std::shared_ptr<Dispatcher> jsDispatcher);
+#ifdef RCT_NEW_ARCH_ENABLED
+  explicit AppleFilamentProxy(jsi::Runtime* runtime,
+                              std::shared_ptr<Dispatcher> jsDispatcher,
+                              __weak RCTSurfacePresenter *surfacePresenter);
+#else
+  explicit AppleFilamentProxy(jsi::Runtime* runtime,
+                              std::shared_ptr<Dispatcher> jsDispatcher);
+#endif
 
 public:
   std::shared_ptr<FilamentBuffer> loadAsset(const std::string& path) override;
@@ -43,6 +54,9 @@ private:
   std::shared_ptr<Dispatcher> _renderThreadDispatcher;
   std::shared_ptr<Dispatcher> _uiDispatcher;
   std::shared_ptr<Dispatcher> _backgroundDispatcher;
+#ifdef RCT_NEW_ARCH_ENABLED
+  __weak RCTSurfacePresenter *_surfacePresenter;
+#endif
 
 private:
   static auto constexpr TAG = "AppleFilamentProxy";

@@ -3,6 +3,7 @@ package com.margelo.filament;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 import android.widget.FrameLayout;
@@ -14,6 +15,7 @@ import androidx.annotation.Nullable;
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
 import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.UIManagerHelper;
 import com.facebook.react.uimanager.events.Event;
 import com.facebook.react.uimanager.events.EventDispatcher;
@@ -87,9 +89,10 @@ public class FilamentView extends FrameLayout implements TextureView.SurfaceText
     }
 
     private void sendEvent(Event<?> event) {
-        ReactContext reactContext = (ReactContext) getContext();
+        ThemedReactContext reactContext = (ThemedReactContext) getContext();
         EventDispatcher dispatcher = UIManagerHelper.getEventDispatcherForReactTag(reactContext, getId());
         if (dispatcher != null) {
+            Log.d(TAG, "Sending event: " + event.getEventName());
             dispatcher.dispatchEvent(event);
         }
     }

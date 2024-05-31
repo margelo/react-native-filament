@@ -20,10 +20,23 @@
 #import <React/RCTUIManager.h>
 #import <React/RCTUtils.h>
 
+#ifdef RCT_NEW_ARCH_ENABLED
+#import <React/RCTSurfacePresenter.h>
+#import "RNFFilamentComponent.h"
+#endif
+
 namespace margelo {
 
-AppleFilamentProxy::AppleFilamentProxy(jsi::Runtime* runtime, std::shared_ptr<Dispatcher> jsDispatcher)
+#ifdef RCT_NEW_ARCH_ENABLED
+AppleFilamentProxy::AppleFilamentProxy(jsi::Runtime* runtime,
+                                       std::shared_ptr<Dispatcher> jsDispatcher,
+                                       __weak RCTSurfacePresenter *surfacePresenter)
+    : _runtime(runtime), _jsDispatcher(jsDispatcher), _surfacePresenter(surfacePresenter) {}
+#else
+AppleFilamentProxy::AppleFilamentProxy(jsi::Runtime* runtime,
+                                       std::shared_ptr<Dispatcher> jsDispatcher)
     : _runtime(runtime), _jsDispatcher(jsDispatcher) {}
+#endif
 
 std::shared_ptr<FilamentBuffer> AppleFilamentProxy::loadAsset(const std::string& path) {
   NSString* filePath = [NSString stringWithUTF8String:path.c_str()];
@@ -111,13 +124,28 @@ jsi::Runtime& AppleFilamentProxy::getMainJSRuntime() {
   return *_runtime;
 }
 
+#ifdef RCT_NEW_ARCH_ENABLED
+std::shared_ptr<FilamentView> AppleFilamentProxy::findFilamentView(int viewId) {
+  UIView* anonymousView = [_surfacePresenter findComponentViewWithTag_DO_NOT_USE_DEPRECATED:viewId];
+  
+  if (anonymousView == nil) {
+    throw std::runtime_error("Could not find view with given tag");
+  }
+  
+  FilamentComponent* view = (FilamentComponent*)anonymousView;   // The UIView is a FilamentComponent
+  FilamentMetalView* filamentMetalView = view.filamentMetalView; // Get the underlying FilamentMetalView
+  return std::make_shared<AppleFilamentView>(filamentMetalView);
+}
+#else
 std::shared_ptr<FilamentView> AppleFilamentProxy::findFilamentView(int viewId) {
   RCTBridge* currentBridge = [RCTBridge currentBridge]; // <-- from <React/RCTBridge+Private.h>
   RCTUIManager* uiManager = currentBridge.uiManager;    // <-- from <React/RCTUIManager.h>
+
   UIView* anonymousView = [uiManager viewForReactTag:[NSNumber numberWithInt:viewId]];
   FilamentMetalView* view = (FilamentMetalView*)anonymousView;
   return std::make_shared<AppleFilamentView>(view);
 }
+#endif
 
 std::shared_ptr<Choreographer> AppleFilamentProxy::createChoreographer() {
   std::shared_ptr<AppleChoreographer> choreographer = std::make_shared<AppleChoreographer>();
