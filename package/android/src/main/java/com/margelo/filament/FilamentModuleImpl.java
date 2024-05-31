@@ -25,4 +25,8 @@ public class FilamentModuleImpl {
             throw new RuntimeException("Failed to initialize react-native-filament! Reason: " + cause.getMessage(), cause);
         }
     }
+
+    public void reset() {
+        proxy = null;
+    }
 }
