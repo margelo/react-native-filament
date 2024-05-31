@@ -15,7 +15,7 @@ const emptyStaticArray: DependencyList = []
  * cases properly.
  */
 export const useDisposableResource = <T extends ReleasingResource>(
-  initialize: () => Promise<T> | undefined,
+  initialize: () => Promise<T | undefined> | undefined,
   deps?: DependencyList
 ): T | undefined => {
   const [resource, setResource] = useState<T>()
@@ -24,6 +24,8 @@ export const useDisposableResource = <T extends ReleasingResource>(
     let isValid = true
     let currentAsset: T | undefined
     initialize()?.then((a) => {
+      if (a == null) return
+
       if (isValid) {
         // this useEffect is still mounted
         setResource(a)
