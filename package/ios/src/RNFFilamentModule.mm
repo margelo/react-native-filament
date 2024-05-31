@@ -88,7 +88,6 @@ RCT_EXPORT_MODULE()
 
 @implementation FilamentModule
 
-// TODO: Figure out how to get jsi::Runtime and CallInvoker in bridge-less mode.
 RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install) {
   RCTCxxBridge* cxxBridge = (RCTCxxBridge*)[RCTBridge currentBridge];
   if (!cxxBridge.runtime) {
