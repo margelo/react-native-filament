@@ -29,6 +29,15 @@ using namespace facebook::react;
   return concreteComponentDescriptorProvider<FilamentViewComponentDescriptor>();
 }
 
+// Components in fabric are reused (recycled). The same instance can/will be reused
+// when the component is removed from the view hierarchy and added again.
+// We're opting out of recycling for now, as there is no way to reset the metal layer
+// and you'd experience content flashes otherwise.
++ (BOOL)shouldBeRecycled
+{
+  return NO;
+}
+
 - (FilamentMetalView *)filamentMetalView
 {
   return _filamentMetalView;
@@ -37,6 +46,7 @@ using namespace facebook::react;
 - (instancetype)initWithFrame:(CGRect)frame
 {
   if (self = [super initWithFrame:frame]) {
+    NSLog(@"[RNF/FilamentComponent] initWithFrame");
     static const auto defaultProps = std::make_shared<const FilamentViewProps>();
     _props = defaultProps;
     _filamentMetalView = [[FilamentMetalView alloc] initWithFrame:self.bounds];
@@ -50,6 +60,7 @@ using namespace facebook::react;
 }
 
 - (void)setupOnViewReady {
+  NSLog(@"[RNF/FilamentComponent] setupOnViewReady");
   // Get a weak self reference to avoid retain cycles
   __weak FilamentComponent *weakSelf = self;
     
@@ -66,10 +77,11 @@ using namespace facebook::react;
 
 - (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &)oldProps
 {
+  NSLog(@"[RNF/FilamentComponent] updateProps");
+  
   const auto &oldViewProps = *std::static_pointer_cast<FilamentViewProps const>(_props);
   const auto &newViewProps = *std::static_pointer_cast<FilamentViewProps const>(props);
 
-  // TODO: Not sure if we need to update the onViewReady callback here, but we don't get it as a prop?
   if (oldViewProps.enableTransparentRendering != newViewProps.enableTransparentRendering) {
     _filamentMetalView.enableTransparentRendering = newViewProps.enableTransparentRendering;
   }
