@@ -27,19 +27,16 @@ using namespace margelo;
 
 @implementation FilamentInstaller
 
-+ (BOOL)installToBridge:(RCTBridge*)bridge {
-  RCTCxxBridge* cxxBridge = (RCTCxxBridge*)[RCTBridge currentBridge];
-  if (!cxxBridge.runtime) {
-    NSLog(@"Failed to install react-native-filament: RCTBridge is not a RCTCxxBridge!");
-    return NO;
-  }
-
-  jsi::Runtime* runtime = (jsi::Runtime*)cxxBridge.runtime;
+#ifdef RCT_NEW_ARCH_ENABLED
++ (BOOL)installToBridge:(jsi::Runtime*)runtime callInvoker:(std::shared_ptr<react::CallInvoker>)callInvoker surfacePresenter:(RCTSurfacePresenter*)surfacePresenter
+#else
++ (BOOL)installToBridge:(jsi::Runtime*)runtime callInvoker:(std::shared_ptr<react::CallInvoker>)callInvoker
+#endif
+{
   if (!runtime) {
     NSLog(@"Failed to install react-native-filament: jsi::Runtime* was null!");
     return NO;
   }
-  std::shared_ptr<react::CallInvoker> callInvoker = cxxBridge.jsCallInvoker;
   if (!callInvoker) {
     NSLog(@"Failed to install react-native-filament: react::CallInvoker was null!");
     return NO;
@@ -50,7 +47,11 @@ using namespace margelo;
   Dispatcher::installRuntimeGlobalDispatcher(*runtime, jsDispatcher);
 
   // global.FilamentProxy
+#ifdef RCT_NEW_ARCH_ENABLED
+  auto filamentProxy = std::make_shared<margelo::AppleFilamentProxy>(runtime, jsDispatcher, surfacePresenter);
+#else
   auto filamentProxy = std::make_shared<margelo::AppleFilamentProxy>(runtime, jsDispatcher);
+#endif
   runtime->global().setProperty(*runtime, "FilamentProxy", jsi::Object::createFromHostObject(*runtime, filamentProxy));
 
   return YES;

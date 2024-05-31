@@ -1,5 +1,5 @@
 import React, { PropsWithChildren, useCallback } from 'react'
-import { FilamentProvider, FilamentProviderProps } from './FilamentContextProvider'
+import { FilamentAPIContextProvider, FilamentProviderProps } from './FilamentAPIContextProvider'
 import { RenderCallbackContext } from './RenderCallbackContext'
 import { FilamentView, PublicNativeProps } from './FilamentView'
 import { RenderCallback } from '../types'
@@ -46,13 +46,13 @@ function FilamentViewWithRenderCallbacks({ children, ...forwardProps }: PropsWit
  */
 export function Filament({ children, enableTransparentRendering, style, ...props }: Props) {
   return (
-    <FilamentProvider {...props}>
+    <FilamentAPIContextProvider {...props}>
       <RenderCallbackContext.RenderContextProvider>
         <FilamentViewWithRenderCallbacks enableTransparentRendering={enableTransparentRendering} style={style}>
           {children}
         </FilamentViewWithRenderCallbacks>
       </RenderCallbackContext.RenderContextProvider>
-    </FilamentProvider>
+    </FilamentAPIContextProvider>
   )
 }
 

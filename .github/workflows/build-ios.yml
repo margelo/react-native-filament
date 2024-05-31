@@ -5,18 +5,18 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/build-ios.yml'
-      - 'package/cpp/**'
-      - 'package/ios/**'
-      - 'package/*.podspec'
-      - 'package/example/ios/**'
+      - ".github/workflows/build-ios.yml"
+      - "package/cpp/**"
+      - "package/ios/**"
+      - "package/*.podspec"
+      - "package/example/ios/**"
   pull_request:
     paths:
-      - '.github/workflows/build-ios.yml'
-      - 'package/cpp/**'
-      - 'package/ios/**'
-      - 'package/*.podspec'
-      - 'package/example/ios/**'
+      - ".github/workflows/build-ios.yml"
+      - "package/cpp/**"
+      - "package/ios/**"
+      - "package/*.podspec"
+      - "package/example/ios/**"
 
 jobs:
   build:
@@ -68,8 +68,8 @@ jobs:
         run: "set -o pipefail && xcodebuild \
           CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ \
           -derivedDataPath build -UseModernBuildSystem=YES \
-          -workspace FilamentExample.xcworkspace \
-          -scheme FilamentExample \
+          -workspace RNFFabric.xcworkspace \
+          -scheme RNFFabric \
           -sdk iphonesimulator \
           -configuration Debug \
           -destination 'platform=iOS Simulator,name=iPhone 11 Pro' \
