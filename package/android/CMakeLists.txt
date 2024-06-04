@@ -120,14 +120,12 @@ target_link_libraries(
     android # <-- Android JNI core
     ReactAndroid::jsi # <-- RN: JSI
     ReactAndroid::reactnativejni # <-- RN: React Native JNI bindings
-    react_codegen_rnfilament
-    react-native-worklets-core
+    react_codegen_rnfilament # link against the codegen generated library of rnf
+    react-native-worklets-core # Currently we expect RNF to be built with worklets
     fbjni::fbjni # <-- fbjni
     GLESv3 # <-- OpenGL (Core)
     EGL # <-- OpenGL (EGL)
 )
-
-# We have a hard dependency on react-native-worklets-core, so fail if its not found
 add_definitions(-DHAS_WORKLETS=1)
 
 # Filament (local CMake project as a git submodule)
