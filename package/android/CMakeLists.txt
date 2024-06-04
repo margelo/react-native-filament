@@ -1,7 +1,7 @@
 project(RNFilament)
 cmake_minimum_required(VERSION 3.9.0)
 
-set(PACKAGE_NAME "RNFilament")
+set(PACKAGE_NAME "react-native-filament")
 set(BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 17)
@@ -120,20 +120,14 @@ target_link_libraries(
     android # <-- Android JNI core
     ReactAndroid::jsi # <-- RN: JSI
     ReactAndroid::reactnativejni # <-- RN: React Native JNI bindings
+    react_codegen_rnfilament
+    react-native-worklets-core
     fbjni::fbjni # <-- fbjni
     GLESv3 # <-- OpenGL (Core)
     EGL # <-- OpenGL (EGL)
 )
 
 # We have a hard dependency on react-native-worklets-core, so fail if its not found
-find_package(react-native-worklets-core REQUIRED CONFIG)
-message("RN Filament: react-native-worklets core found! Enabling Worklets support...")
-message("RN Filament: react-native-worklets-core found in ${react-native-worklets-core_DIR}")
-
-target_link_libraries(
-    ${PACKAGE_NAME}
-    react-native-worklets-core::rnworklets # <-- react-native-worklets-core
-)
 add_definitions(-DHAS_WORKLETS=1)
 
 # Filament (local CMake project as a git submodule)
