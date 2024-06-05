@@ -6,6 +6,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import { AnimationTransitions } from './AnimationTransitions'
 import { CameraPan } from './CameraPan'
+import { AnimationTransitionsRecording } from './AnimationTransitionsRecording'
 // import { PhysicsCoin } from './PhysicsCoin'
 // import { FadeOut } from './FadeOut'
 // import { CastShadow } from './CastShadow'
@@ -14,7 +15,6 @@ import { CameraPan } from './CameraPan'
 // import { ScaleEffect } from './ScaleEffect'
 // import { FadingLightExample } from './FadingLightExample'
 // import { ChangeGoldenMaterials } from './ChangeGoldenMaterial'
-// import { AnimationTransitionsRecording } from './AnimationTransitionsRecording'
 
 function NavigationItem(props: { name: string; route: string }) {
   const navigation = useNavigation()
@@ -47,8 +47,8 @@ function HomeScreen() {
     <ScrollView style={{ flex: 1 }}>
       <NavigationItem name="▶️ Animation Transitions" route="AnimationTransitions" />
       <NavigationItem name="📸 Camera Pan" route="CameraPan" />
-      {/* <NavigationItem name="📹 Offscreen recording" route="AnimationTransitionsRecording" />
-      <NavigationItem name="💰 Physics Coin" route="PhysicsCoin" />
+      <NavigationItem name="📹 Offscreen recording" route="AnimationTransitionsRecording" />
+      {/* <NavigationItem name="💰 Physics Coin" route="PhysicsCoin" />
       <NavigationItem name="😶‍🌫️ Fade Out" route="FadeOut" />
       <NavigationItem name="🎨 Change Materials" route="ChangeMaterials" />
       <NavigationItem name="🌑 Cast Shadow" route="CastShadow" />
@@ -84,9 +84,9 @@ function App() {
             }}
           />
           <Stack.Screen name="CameraPan" component={CameraPan} />
+          <Stack.Screen name="AnimationTransitionsRecording" component={AnimationTransitionsRecording} />
           {/* TODO: Migrate */}
-          {/* <Stack.Screen name="AnimationTransitionsRecording" component={AnimationTransitionsRecording} />
-          <Stack.Screen name="PhysicsCoin" component={PhysicsCoin} />
+          {/* <Stack.Screen name="PhysicsCoin" component={PhysicsCoin} />
           <Stack.Screen name="FadeOut" component={FadeOut} />
           <Stack.Screen name="ChangeMaterials" component={ChangeGoldenMaterials} />
           <Stack.Screen name="CastShadow" component={CastShadow} />

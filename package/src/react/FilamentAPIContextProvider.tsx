@@ -6,6 +6,7 @@ import { useWorklet } from 'react-native-worklets-core'
 import React from 'react'
 import { Configurator, RendererConfigProps, ViewConfigProps } from './Configurator'
 import { FilamentContext, FilamentContextType } from './FilamentContext'
+import { RenderCallbackContext } from './RenderCallbackContext'
 
 export type FilamentProviderProps = PropsWithChildren<
   Omit<EngineProps, 'context'> &
@@ -18,7 +19,7 @@ export type FilamentProviderProps = PropsWithChildren<
 /**
  * Creates an engine and all filament APIs and provides them to the children using the react context.
  *
- * @private
+ * @note You only need this for doing offscreen recording. For an on-screen surface use the `Filament` component.
  */
 export function FilamentAPIContextProvider({ children, fallback, config, backend, frameRateOptions, ...viewProps }: FilamentProviderProps) {
   // First create the engine, which we need to create (almost) all other filament APIs
@@ -81,7 +82,7 @@ export function FilamentAPIContextProvider({ children, fallback, config, backend
   return (
     <FilamentContext.Provider value={value}>
       <Configurator rendererProps={rendererProps} viewProps={viewProps}>
-        {children}
+        <RenderCallbackContext.RenderContextProvider>{children}</RenderCallbackContext.RenderContextProvider>
       </Configurator>
     </FilamentContext.Provider>
   )

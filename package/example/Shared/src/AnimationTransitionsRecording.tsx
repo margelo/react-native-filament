@@ -1,25 +1,23 @@
 import * as React from 'react'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Button, Dimensions, PixelRatio, StyleSheet, View } from 'react-native'
 import {
   Float3,
   useModel,
   useAnimator,
   getAssetFromModel,
-  FilamentProvider,
   useFilamentContext,
-  useDisposableResource,
   useSkybox,
   useRecorder,
   useRecorderRenderLoop,
+  Camera,
+  FilamentAPIContextProvider,
 } from 'react-native-filament'
-import { useDefaultLight } from './hooks/useDefaultLight'
-import { getAssetPath } from './utils/getAssetPasth'
 import { useRunOnJS, useSharedValue } from 'react-native-worklets-core'
+import PenguGlb from '~/assets/pengu.glb'
+import PirateGlb from '~/assets/pirate.glb'
+import { DefaultLight } from './components/DefaultLight'
 import Video from 'react-native-video'
-
-const penguModelPath = getAssetPath('pengu.glb')
-const pirateHatPath = getAssetPath('pirate.glb')
 
 // Camera config:
 const cameraPosition: Float3 = [0, 0, 8]
@@ -34,39 +32,37 @@ const DURATION = 3 // seconds
 
 function Renderer() {
   const { camera } = useFilamentContext()
-  useDefaultLight()
   useSkybox({ color: '#88defb' })
 
-  const pengu = useModel({ source: penguModelPath })
-  const penguAsset = getAssetFromModel(pengu)
-  const pirateHat = useModel({ source: pirateHatPath })
+  const pengu = useModel(PenguGlb)
+  const penguAnimator = useAnimator(pengu)
+  const pirateHat = useModel(PirateGlb)
   const pirateHatAsset = getAssetFromModel(pirateHat)
-  const pirateHatAnimator = useDisposableResource(() => {
-    if (pirateHatAsset == null || penguAsset == null) {
-      return undefined
-    }
-    return Promise.resolve(pirateHatAsset.createAnimatorWithAnimationsFrom(penguAsset))
-  }, [pirateHatAsset, penguAsset])
+  const pirateHatInstance = useMemo(() => pirateHatAsset?.getInstance(), [pirateHatAsset])
 
-  const penguAnimator = useAnimator(penguAsset)
+  // Sync pirate hat animation with pengu
+  React.useEffect(() => {
+    if (penguAnimator == null || pirateHatInstance == null) return
+    const id = penguAnimator.addToSyncList(pirateHatInstance)
+    return () => {
+      penguAnimator.removeFromSyncList(id)
+    }
+  }, [penguAnimator, pirateHatInstance])
 
   const renderCallback = useCallback(
     (passedSeconds: number) => {
       'worklet'
       camera.lookAt(cameraPosition, cameraTarget, cameraUp)
 
-      if (pirateHatAnimator == null || penguAnimator == null) {
+      if (penguAnimator == null) {
         return
       }
 
       // Update the animators to play the current animation
       penguAnimator.applyAnimation(0, passedSeconds)
-      pirateHatAnimator.applyAnimation(0, passedSeconds)
-
       penguAnimator.updateBoneMatrices()
-      pirateHatAnimator.updateBoneMatrices()
     },
-    [camera, pirateHatAnimator, penguAnimator]
+    [camera, penguAnimator]
   )
 
   const framesToRender = DURATION * FPS
@@ -145,7 +141,13 @@ function Renderer() {
 
   return (
     <View style={styles.container}>
-      {videoUri != null ? (
+      {videoUri == null ? (
+        // Render our scene that we want to record
+        <>
+          <Camera />
+          <DefaultLight />
+        </>
+      ) : (
         <Video
           style={{ flex: 1 }}
           paused={false}
@@ -156,7 +158,7 @@ function Renderer() {
           onLoad={() => console.log('On load')}
           onEnd={() => console.log('On end')}
         />
-      ) : null}
+      )}
       <Button onPress={onStartRecording} title={'Start recording'} />
     </View>
   )
@@ -164,9 +166,10 @@ function Renderer() {
 
 export function AnimationTransitionsRecording() {
   return (
-    <FilamentProvider>
+    // Provide the API necessary for recording (accessing the RNF apis) in a react context
+    <FilamentAPIContextProvider>
       <Renderer />
-    </FilamentProvider>
+    </FilamentAPIContextProvider>
   )
 }
 

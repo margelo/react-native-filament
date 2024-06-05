@@ -47,11 +47,9 @@ function FilamentViewWithRenderCallbacks({ children, ...forwardProps }: PropsWit
 export function Filament({ children, enableTransparentRendering, style, ...props }: Props) {
   return (
     <FilamentAPIContextProvider {...props}>
-      <RenderCallbackContext.RenderContextProvider>
-        <FilamentViewWithRenderCallbacks enableTransparentRendering={enableTransparentRendering} style={style}>
-          {children}
-        </FilamentViewWithRenderCallbacks>
-      </RenderCallbackContext.RenderContextProvider>
+      <FilamentViewWithRenderCallbacks enableTransparentRendering={enableTransparentRendering} style={style}>
+        {children}
+      </FilamentViewWithRenderCallbacks>
     </FilamentAPIContextProvider>
   )
 }
