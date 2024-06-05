@@ -28,7 +28,7 @@
 // Old arch & CocoaPod headers on apple
 #include <react-native-worklets-core/WKTJsiWorkletContext.h>
 #else
-// New arch, where RNWC and RNF c++ modules are build inside the app's project
+// New arch android, where RNWC and RNF c++ modules are build inside the app's project
 #include "WKTJsiWorkletContext.h"
 #endif
 #endif // HAS_WORKLETS
