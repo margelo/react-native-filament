@@ -101,7 +101,7 @@ android {
           arguments "-DANDROID_STL=c++_shared",
                   "-DRNF_ENABLE_LOGS=${enableLogs ? "ON" : "OFF"}",
                   "-DNODE_MODULES_DIR=${nodeModules}",
-                  "-DIS_NEW_ARCHITECTURE_ENABLED=${isNewArchitectureEnabled()}"
+                  "-DIS_OLD_ARCHITECTURE_ENABLED=ON"
         }
       }
     }

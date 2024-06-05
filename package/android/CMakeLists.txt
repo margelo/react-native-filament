@@ -126,19 +126,20 @@ target_link_libraries(
 )
 
 # Link with RNWC:
-if (IS_NEW_ARCHITECTURE_ENABLED)
-    target_link_libraries(
-        ${PACKAGE_NAME}
-        react_codegen_rnfilament # link against the codegen generated library of rnf (needed so this module is compiled correctly)
-        react-native-worklets-core
-    )
-else () # On the old arch RNWC publishes a prefab that we need to find (and it has a different name):
+if (IS_OLD_ARCHITECTURE_ENABLED)
+    # On the old arch RNWC publishes a prefab that we need to find (and it has a different name):
     find_package(react-native-worklets-core REQUIRED CONFIG)
     message("RN Filament: react-native-worklets core found! Enabling Worklets support...")
     message("RN Filament: react-native-worklets-core found in ${react-native-worklets-core_DIR}")
     target_link_libraries(
         ${PACKAGE_NAME}
         react-native-worklets-core::rnworklets
+    )
+else ()
+    target_link_libraries(
+            ${PACKAGE_NAME}
+            react_codegen_rnfilament # link against the codegen generated library of rnf (needed so this module is compiled correctly)
+            react-native-worklets-core
     )
 endif()
 add_definitions(-DHAS_WORKLETS=1)
