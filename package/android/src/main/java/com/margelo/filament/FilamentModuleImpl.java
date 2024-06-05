@@ -6,7 +6,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 
 public class FilamentModuleImpl {
     static {
-        System.loadLibrary("RNFilament");
+        System.loadLibrary("react-native-filament");
     }
 
     private @Nullable FilamentProxy proxy = null;
