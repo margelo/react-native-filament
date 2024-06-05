@@ -142,6 +142,7 @@ function Renderer() {
   return (
     <View style={styles.container}>
       {videoUri == null ? (
+        // Render our scene that we want to record
         <>
           <Camera />
           <DefaultLight />
