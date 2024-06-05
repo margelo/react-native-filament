@@ -8,6 +8,7 @@ import { TFilamentRecorder } from './FilamentRecorder'
 import { Choreographer } from '../types/Choreographer'
 import { Dispatcher } from './Dispatcher'
 import { FilamentModule } from './FilamentModule'
+import { Worklets } from 'react-native-worklets-core'
 
 interface TestHybridObject {
   int: number
@@ -119,4 +120,9 @@ if (!proxy.hasWorklets) {
 
 export const FilamentProxy = proxy
 
+// We must make sure that the Worklets API (module) is initialized (as its possible a lazy-loaded CxxTurboModule),
+// to initialize we must only call any property of the module:
+Worklets.defaultContext
+
+// Create our custom RNF worklet context:
 export const FilamentWorkletContext = proxy.createWorkletContext()
