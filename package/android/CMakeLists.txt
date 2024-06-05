@@ -120,12 +120,27 @@ target_link_libraries(
     android # <-- Android JNI core
     ReactAndroid::jsi # <-- RN: JSI
     ReactAndroid::reactnativejni # <-- RN: React Native JNI bindings
-    react_codegen_rnfilament # link against the codegen generated library of rnf
-    react-native-worklets-core # Currently we expect RNF to be built with worklets
     fbjni::fbjni # <-- fbjni
     GLESv3 # <-- OpenGL (Core)
     EGL # <-- OpenGL (EGL)
 )
+
+# Link with RNWC:
+if (IS_NEW_ARCHITECTURE_ENABLED)
+    target_link_libraries(
+        ${PACKAGE_NAME}
+        react_codegen_rnfilament # link against the codegen generated library of rnf (needed so this module is compiled correctly)
+        react-native-worklets-core
+    )
+else () # On the old arch RNWC publishes a prefab that we need to find (and it has a different name):
+    find_package(react-native-worklets-core REQUIRED CONFIG)
+    message("RN Filament: react-native-worklets core found! Enabling Worklets support...")
+    message("RN Filament: react-native-worklets-core found in ${react-native-worklets-core_DIR}")
+    target_link_libraries(
+        ${PACKAGE_NAME}
+        react-native-worklets-core::rnworklets
+    )
+endif()
 add_definitions(-DHAS_WORKLETS=1)
 
 # Filament (local CMake project as a git submodule)

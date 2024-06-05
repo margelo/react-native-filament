@@ -24,8 +24,14 @@
 #include <ReactCommon/CallInvoker.h>
 
 #ifdef HAS_WORKLETS
+#if __has_include(<react-native-worklets-core/WKTJsiWorkletContext.h>)
+// Old arch & CocoaPod headers on apple
 #include <react-native-worklets-core/WKTJsiWorkletContext.h>
+#else
+// New arch, where RNWC and RNF c++ modules are build inside the app's project
+#include "WKTJsiWorkletContext.h"
 #endif
+#endif // HAS_WORKLETS
 
 namespace margelo {
 
@@ -83,7 +89,6 @@ private:
                                               std::optional<std::unordered_map<std::string, int>> arguments = std::nullopt);
   std::shared_ptr<BulletWrapper> createBullet();
   bool getHasWorklets();
-  //  std::shared_ptr<ChoreographerWrapper> createChoreographerWrapper();
   jsi::Value createChoreographerWrapper(jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* args, size_t count);
 
 #if HAS_WORKLETS
