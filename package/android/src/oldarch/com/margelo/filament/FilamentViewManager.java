@@ -14,10 +14,6 @@ import java.util.Map;
 
 @ReactModule(name = FilamentViewManager.NAME)
 public class FilamentViewManager extends ViewGroupManager<FilamentView> {
-    static {
-        System.loadLibrary("RNFilament");
-    }
-
     public FilamentViewManager(ReactApplicationContext reactContext) {
         super();
     }
