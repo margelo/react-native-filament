@@ -5,7 +5,7 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "start": "react-native start",
+    "start": "cd ../Shared && IS_NEW_ARCH=false yarn start",
     "typescript": "tsc --noEmit",
     "pods": "cd ios && bundle install && RCT_NEW_ARCH_ENABLED=0 bundle exec pod install",
     "build:android": "cd android && ./gradlew assembleDebug --no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a",
@@ -15,7 +15,6 @@
   "dependencies": {
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/native-stack": "^6.9.26",
-    "react": "18.2.0",
     "react-native": "0.74.1",
     "react-native-gesture-handler": "^2.16.2",
     "react-native-reanimated": "^3.11.0",
