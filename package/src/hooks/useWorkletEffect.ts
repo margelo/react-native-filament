@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useFilamentContext } from '../react/FilamentContext'
 import { getWorkletDependencies, isWorklet } from 'react-native-worklets-core'
+import { reportFatalError } from '../ErrorUtils'
 
 type CleanupFn = () => void
 
@@ -8,7 +9,15 @@ export function useWorkletEffect(workletFunction: () => CleanupFn | void) {
   const { workletContext } = useFilamentContext()
 
   useEffect(() => {
-    const cleanupPromise = workletContext.runAsync(workletFunction)
+    const cleanupPromise = workletContext.runAsync(() => {
+      'worklet'
+      try {
+        return workletFunction()
+      } catch (error) {
+        reportFatalError(error)
+        throw error
+      }
+    })
     return () => {
       cleanupPromise.then((cleanup): void => {
         if (cleanup == null || typeof cleanup !== 'function') {
