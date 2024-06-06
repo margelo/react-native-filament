@@ -6,6 +6,8 @@
 #include "RNFEngineWrapper.h"
 #include "RNFTextureFlagsEnum.h"
 #include "core/RNFFilamentInstanceWrapper.h"
+#include "VertexEntity.h"
+#include "RNFReferences.h"
 
 #include <cmath>
 
@@ -235,18 +237,15 @@ static constexpr float4 sFullScreenTriangleVertices[3] = {{-1.0f, -1.0f, 1.0f, 1
 
 static const uint16_t sFullScreenTriangleIndices[3] = {0, 1, 2};
 
-Entity RenderableManagerImpl::createImageBackground(MaterialInstance* materialInstance) {
-
+VertexEntity RenderableManagerImpl::createImageBackground(MaterialInstance* materialInstance) {
   VertexBuffer* vertexBuffer = VertexBuffer::Builder()
                                    .vertexCount(3)
                                    .bufferCount(1)
                                    .attribute(VertexAttribute::POSITION, 0, VertexBuffer::AttributeType::FLOAT4, 0)
                                    .build(*_engine);
-
   vertexBuffer->setBufferAt(*_engine, 0, {sFullScreenTriangleVertices, sizeof(sFullScreenTriangleVertices)});
 
   IndexBuffer* indexBuffer = IndexBuffer::Builder().indexCount(3).bufferType(IndexBuffer::IndexType::USHORT).build(*_engine);
-
   indexBuffer->setBuffer(*_engine, {sFullScreenTriangleIndices, sizeof(sFullScreenTriangleIndices)});
 
   auto& em = utils::EntityManager::get();
@@ -258,7 +257,15 @@ Entity RenderableManagerImpl::createImageBackground(MaterialInstance* materialIn
       .culling(false)
       .build(*_engine, imageEntity);
 
-  return imageEntity;
+  // TODO: enable this pattern once EntityWrappers are PointerHolders!
+//  std::shared_ptr<VertexBuffer> sharedVertexBuffer = References<VertexBuffer>::adoptEngineRefAuto(_engine, vertexBuffer);
+//  std::shared_ptr<IndexBuffer> sharedIndexBuffer = References<IndexBuffer>::adoptEngineRefAuto(_engine, indexBuffer);
+
+  return {
+      .entity = imageEntity,
+      .vertexBuffer = nullptr,
+      .indexBuffer = nullptr,
+  };
 }
 
 void RenderableManagerImpl::scaleBoundingBox(std::shared_ptr<FilamentAssetWrapper> assetWrapper, double scaleFactor) {

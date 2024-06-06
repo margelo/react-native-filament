@@ -5,6 +5,8 @@
 #include "RNFRenderableManagerWrapper.h"
 #include "core/RNFFilamentInstanceWrapper.h"
 #include "utils/RNFConverter.h"
+#include "RNFReferences.h"
+#include "VertexEntity.h"
 
 namespace margelo {
 void RenderableManagerWrapper::loadHybridMethods() {
@@ -59,7 +61,7 @@ std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createImageBackgroundSh
   std::shared_ptr<MaterialInstanceWrapper> defaultMaterialInstanceWrapper = materialWrapper->getDefaultInstance();
   MaterialInstance* defaultMaterialInstance = defaultMaterialInstanceWrapper->getMaterialInstance();
 
-  Entity entity = pointee()->createImageBackground(defaultMaterialInstance);
+  VertexEntity entity = pointee()->createImageBackground(defaultMaterialInstance);
 
   return std::make_shared<EntityWrapper>(entity);
 }

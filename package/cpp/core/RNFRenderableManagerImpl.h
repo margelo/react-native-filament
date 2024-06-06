@@ -10,6 +10,7 @@
 #include "RNFMaterialWrapper.h"
 #include "core/utils/RNFEntityWrapper.h"
 #include "jsi/RNFPointerHolder.h"
+#include "VertexEntity.h"
 
 #include <filament/RenderableManager.h>
 #include <gltfio/TextureProvider.h>
@@ -61,7 +62,7 @@ public: // Public API
 
   std::shared_ptr<EntityWrapper> createPlane(std::shared_ptr<MaterialWrapper> materialWrapper, double halfExtendX, double halfExtendY,
                                              double halfExtendZ);
-  Entity createImageBackground(MaterialInstance* materialInstance);
+  VertexEntity createImageBackground(MaterialInstance* materialInstance);
   std::shared_ptr<EntityWrapper> createDebugCubeWireframe(float halfExtentX, float halfExtentY, float halfExtentZ,
                                                           std::optional<std::shared_ptr<MaterialWrapper>> materialWrapper,
                                                           std::optional<double> colorHexCode);
@@ -73,6 +74,8 @@ public: // Public API
   void scaleBoundingBox(std::shared_ptr<FilamentAssetWrapper> assetWrapper, double scaleFactor);
 
   Box getAxisAlignedBoundingBox(std::shared_ptr<EntityWrapper> entityWrapper);
+
+  std::shared_ptr<Engine> getEngine() { return _engine; }
 
 private:
   // Calls the TextureProvider to start loading the resource
