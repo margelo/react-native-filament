@@ -12,7 +12,6 @@
 #include <filament/IndexBuffer.h>
 #include <gltfio/TextureProvider.h>
 #include <filament/MaterialInstance.h>
-#include <image/LinearImage.h>
 #include <math/norm.h>
 
 namespace margelo {
@@ -210,25 +209,23 @@ std::shared_ptr<EntityWrapper> RenderableManagerImpl::createPlane(std::shared_pt
 
   VertexBuffer* vertexBuffer = VertexBuffer::Builder()
                                    .vertexCount(4)
-                                   .bufferCount(1)
+                                   .bufferCount(2)
                                    .attribute(VertexAttribute::POSITION, 0, VertexBuffer::AttributeType::FLOAT3)
-//                                   .attribute(VertexAttribute::TANGENTS, 1, VertexBuffer::AttributeType::SHORT4)
-//                                   .normalized(VertexAttribute::TANGENTS)
+                                   .attribute(VertexAttribute::TANGENTS, 1, VertexBuffer::AttributeType::SHORT4)
+                                   .normalized(VertexAttribute::TANGENTS)
                                    .build(*_engine);
   vertexBuffer->setBufferAt(*_engine, 0, VertexBuffer::BufferDescriptor(vertices, vertexBuffer->getVertexCount() * sizeof(vertices[0])));
-  // vertexBuffer->setBufferAt(*_engine, 1, VertexBuffer::BufferDescriptor(normals, vertexBuffer->getVertexCount() * sizeof(normals[0])));
+  vertexBuffer->setBufferAt(*_engine, 1, VertexBuffer::BufferDescriptor(normals, vertexBuffer->getVertexCount() * sizeof(normals[0])));
   IndexBuffer* indexBuffer = IndexBuffer::Builder().indexCount(6).build(*_engine);
   indexBuffer->setBuffer(*_engine, IndexBuffer::BufferDescriptor(indices, indexBuffer->getIndexCount() * sizeof(uint32_t)));
 
   auto& em = utils::EntityManager::get();
   utils::Entity renderable = em.create();
-  std::shared_ptr<MaterialInstanceWrapper> instance = materialWrapper->getDefaultInstance();
-  MaterialInstance* materialInstance = instance->getMaterialInstance();
+  std::shared_ptr<MaterialInstanceWrapper> instance = materialWrapper->createInstance();
   RenderableManager::Builder(1)
       .boundingBox({{0, 0, 0}, {halfExtendX, halfExtendY, halfExtendZ}})
-      .material(0, materialInstance)
+      .material(0, instance->getMaterialInstance())
       .geometry(0, RenderableManager::PrimitiveType::TRIANGLES, vertexBuffer, indexBuffer, 0, 6)
-      .culling(false)
       .build(*_engine, renderable);
 
   return std::make_shared<EntityWrapper>(renderable);
