@@ -41,7 +41,7 @@ export function useCameraManipulator({
       localConfig.orbitSpeed = [orbitSpeedX, orbitSpeedY]
     }
 
-    return engine.createOrbitCameraManipulator(localConfig)
+    return Promise.resolve(engine.createOrbitCameraManipulator(localConfig))
   }, [
     engine,
     orbitHomePositionX,
