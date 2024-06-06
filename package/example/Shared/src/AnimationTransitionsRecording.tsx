@@ -19,8 +19,6 @@ import PenguGlb from '~/assets/pengu.glb'
 import PirateGlb from '~/assets/pirate.glb'
 import { DefaultLight } from './components/DefaultLight'
 import Video from 'react-native-video'
-import BackgroundImageMaterial from '~/assets/background_image.matc'
-const imageResource = require('~/assets/example_background.jpeg')
 
 // Camera config:
 const cameraPosition: Float3 = [0, 0, 8]
@@ -149,7 +147,6 @@ function Renderer() {
         <>
           <Camera />
           <DefaultLight />
-          <BackgroundImage source={imageResource} materialSource={BackgroundImageMaterial} resizeMode="cover" />
         </>
       ) : (
         <Video
