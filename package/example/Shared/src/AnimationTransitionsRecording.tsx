@@ -12,6 +12,7 @@ import {
   useRecorderRenderLoop,
   Camera,
   FilamentAPIContextProvider,
+  BackgroundImage,
 } from 'react-native-filament'
 import { useRunOnJS, useSharedValue } from 'react-native-worklets-core'
 import PenguGlb from '~/assets/pengu.glb'

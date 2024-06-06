@@ -31,3 +31,15 @@ export function reportWorkletError(error: unknown): void {
   const message = safeError != null && 'message' in safeError ? safeError.message : 'Filament threw an error.'
   throwErrorOnJS(message, safeError?.stack)
 }
+
+export function wrapWithErrorHandler<T extends (...args: any[]) => any>(callback: T): (...args: Parameters<T>) => ReturnType<T> {
+  return (...args: Parameters<T>): ReturnType<T> => {
+    'worklet'
+    try {
+      return callback(...args)
+    } catch (error) {
+      reportFatalError(error)
+      throw error
+    }
+  }
+}

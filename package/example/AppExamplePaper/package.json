@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "android": "react-native run-android",
-    "ios": "react-native run-ios",
+    "android": "react-native run-android --no-packager",
+    "ios": "react-native run-ios --no-packager --scheme FilamentExample --simulator \"iPhone 15 Pro Max\"",
     "start": "cd ../Shared && IS_NEW_ARCH=false yarn start --reset-cache",
     "typescript": "tsc --noEmit",
     "pods": "cd ios && bundle install && RCT_NEW_ARCH_ENABLED=0 bundle exec pod install",

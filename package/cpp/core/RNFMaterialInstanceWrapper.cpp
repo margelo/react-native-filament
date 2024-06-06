@@ -13,7 +13,7 @@ void MaterialInstanceWrapper::loadHybridMethods() {
   registerHybridMethod("setTransparencyMode", &MaterialInstanceWrapper::setTransparencyMode, this);
   registerHybridMethod("changeAlpha", &MaterialInstanceWrapper::changeAlpha, this);
   registerHybridMethod("setParameter", &MaterialInstanceWrapper::setParameter, this);
-  registerHybridMethod("setBaseColorSRGB", &MaterialInstanceWrapper::setBaseColorSRGB, this);
+  registerHybridMethod("setDefaultFloat4Parameter", &MaterialInstanceWrapper::setBaseColorSRGB, this);
   registerHybridGetter("getName", &MaterialInstanceWrapper::getName, this);
 }
 
@@ -66,7 +66,7 @@ void MaterialInstanceWrapper::setBaseColorSRGB(std::vector<double> rgba) {
   std::unique_lock lock(_mutex);
 
   if (rgba.size() != 4) {
-    throw std::runtime_error("MaterialInstanceWrapper::setBaseColorSRGB: RGBA vector must have 4 elements!");
+    throw std::runtime_error("MaterialInstanceWrapper::setDefaultFloat4Parameter: RGBA vector must have 4 elements!");
   }
 
   double r = rgba[0];

@@ -15,7 +15,7 @@ const config = {
   watchFolders: [root],
 
   resolver: {
-    assetExts: ['glb', 'ktx', ...defaultConfig.resolver.assetExts],
+    assetExts: ['glb', 'ktx', 'matc', ...defaultConfig.resolver.assetExts],
   },
 
   transformer: {

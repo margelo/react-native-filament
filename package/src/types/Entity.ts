@@ -5,3 +5,5 @@
 export interface Entity {
   id: number
 }
+
+// TODO: make a pointer holder

@@ -34,6 +34,7 @@ private: // Exposed JS API
 
   std::shared_ptr<EntityWrapper> createPlane(std::shared_ptr<MaterialWrapper> materialWrapper, double halfExtendX, double halfExtendY,
                                              double halfExtendZ);
+  std::shared_ptr<EntityWrapper> createImageBackgroundShape(std::shared_ptr<MaterialWrapper> materialWrapper);
   void scaleBoundingBox(std::shared_ptr<FilamentAssetWrapper> assetWrapper, double scaleFactor);
   std::shared_ptr<EntityWrapper> createDebugCubeWireframe(std::vector<double> halfExtent,
                                                           std::optional<std::shared_ptr<MaterialWrapper>> materialWrapper,
