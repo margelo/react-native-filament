@@ -23,6 +23,7 @@ void ViewWrapper::loadHybridMethods() {
   registerHybridSetter("antiAliasing", &ViewWrapper::setAntiAliasing, this);
   registerHybridMethod("projectWorldToScreen", &ViewWrapper::projectWorldToScreen, this);
   registerHybridMethod("pickEntity", &ViewWrapper::pickEntity, this);
+  registerHybridMethod("getViewport", &ViewWrapper::getViewport, this);
 }
 
 double ViewWrapper::getAspectRatio() {
@@ -253,6 +254,16 @@ std::future<std::optional<std::shared_ptr<EntityWrapper>>> ViewWrapper::pickEnti
   });
 
   return future;
+}
+
+std::unordered_map<std::string, int> ViewWrapper::getViewport() {
+  std::unordered_map<std::string, int> viewport;
+  Viewport vp = pointee()->getViewport();
+  viewport["width"] = vp.width;
+  viewport["height"] = vp.height;
+  viewport["bottom"] = vp.bottom;
+  viewport["left"] = vp.left;
+  return viewport;
 }
 
 } // namespace margelo
