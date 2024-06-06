@@ -54,18 +54,39 @@ void MaterialImpl::setDefaultTextureParameter(std::string name, Texture* texture
   _material->setDefaultParameter(name.c_str(), texture, sampler);
 }
 
-void MaterialImpl::setBaseColorSRGB(std::vector<double> rgba) {
+void MaterialImpl::setDefaultFloat3Parameter(std::string name, std::vector<double> vector) {
+    std::unique_lock lock(_mutex);
+    if (vector.size() != 3) {
+        throw std::runtime_error("setDefaultFloat3Parameter: RGB vector must have 3 elements!");
+    }
+
+    if (!_material->hasParameter(name.c_str())) {
+        throw std::runtime_error("setDefaultFloat3Parameter: Material does not have parameter \"" + name + "\"!");
+    }
+
+    float x = vector[0];
+    float y = vector[1];
+    float z = vector[2];
+
+    _material->setDefaultParameter(name.c_str(), math::float3({x, y, z}));
+}
+
+void MaterialImpl::setDefaultFloat4Parameter(std::string name, std::vector<double> vector) {
   std::unique_lock lock(_mutex);
-  if (rgba.size() != 4) {
-    throw std::runtime_error("MaterialInstanceWrapper::setBaseColorSRGB: RGBA vector must have 4 elements!");
+  if (vector.size() != 4) {
+    throw std::runtime_error("setDefaultFloat4Parameter: RGBA vector must have 4 elements!");
+  }
+  
+  if (!_material->hasParameter(name.c_str())) {
+    throw std::runtime_error("setDefaultFloat4Parameter: Material does not have parameter \"" + name + "\"!");
   }
 
-  double r = rgba[0];
-  double g = rgba[1];
-  double b = rgba[2];
-  double a = rgba[3];
+  double r = vector[0];
+  double g = vector[1];
+  double b = vector[2];
+  double a = vector[3];
 
-  _material->setDefaultParameter("baseColorFactor", math::float4({r, g, b, a}));
+  _material->setDefaultParameter(name.c_str(), math::float4({r, g, b, a}));
 }
 std::string MaterialImpl::getName() {
   std::unique_lock lock(_mutex);

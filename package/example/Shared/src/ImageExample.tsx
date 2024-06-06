@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { StyleSheet } from 'react-native'
 import {
+  BufferSource,
   Camera,
   Filament,
   Mat3f,
+  Model,
   useBuffer,
   useDisposableResource,
   useEntityInScene,
@@ -14,57 +16,60 @@ import {
 import { DefaultLight } from './components/DefaultLight'
 import ImageMaterial from '~/assets/image.matc'
 
-const imageResource = require('~/assets/example_background.jpeg')
+type ImageProps = {
+  source: BufferSource
+}
 
-function Image() {
-  const { engine, renderableManager, scene, view } = useFilamentContext()
+export function Image({ source }: ImageProps) {
+  const { engine, renderableManager, scene, view, transformManager } = useFilamentContext()
 
   // Create the material which will be used to render the image
-  const imageMaterialBuffer = useBuffer({ source: ImageMaterial })
-  const imageBuffer = useBuffer({ source: imageResource })
+  const imageMaterialBuffer = useBuffer({ source: ImageMaterial, releaseOnUnmount: false })
+  const imageBuffer = useBuffer({ source: source, releaseOnUnmount: false })
   const material = useDisposableResource(
     useWorkletCallback(() => {
       'worklet'
       if (imageMaterialBuffer == null || imageBuffer == null) return undefined
 
-      const mat = engine.createMaterial(imageMaterialBuffer)
-      const textureInfo = mat.setDefaultTextureParameter(renderableManager, 'image', imageBuffer, 'sRGB')
-      mat.setDefaultIntParameter('showImage', 1)
+      const newMaterial = engine.createMaterial(imageMaterialBuffer)
+      //   const textureInfo = mat.setDefaultTextureParameter(renderableManager, 'image', imageBuffer, 'sRGB')
+      newMaterial.setDefaultIntParameter('showImage', 0)
 
-      // Transform calculation
-      const srcWidth = textureInfo.width
-      const srcHeight = textureInfo.height
-      const viewport = view.getViewport()
-      const dstWidth = viewport.width
-      const dstHeight = viewport.height
+      //   // Transform calculation
+      //   const srcWidth = textureInfo.width
+      //   const srcHeight = textureInfo.height
+      //   const viewport = view.getViewport()
+      //   const dstWidth = viewport.width
+      //   const dstHeight = viewport.height
 
-      const srcRatio = srcWidth / srcHeight
-      const dstRatio = dstWidth / dstHeight
+      //   const srcRatio = srcWidth / srcHeight
+      //   const dstRatio = dstWidth / dstHeight
 
-      const xMajor = dstWidth / srcWidth > dstHeight / srcHeight
+      //   const xMajor = dstWidth / srcWidth > dstHeight / srcHeight
 
-      let sx = 1.0
-      let sy = dstRatio / srcRatio
+      //   let sx = 1.0
+      //   let sy = dstRatio / srcRatio
 
-      let tx = 0.0
-      let ty = ((1.0 - sy) * 0.5) / sy
+      //   let tx = 0.0
+      //   let ty = ((1.0 - sy) * 0.5) / sy
 
-      if (xMajor) {
-        sx = srcRatio / dstRatio
-        sy = 1.0
-        tx = ((1.0 - sx) * 0.5) / sx
-        ty = 0.0
-      }
+      //   if (xMajor) {
+      //     sx = srcRatio / dstRatio
+      //     sy = 1.0
+      //     tx = ((1.0 - sx) * 0.5) / sx
+      //     ty = 0.0
+      //   }
 
-      // eslint-disable-next-line prettier/prettier
-      const transform: Mat3f = [
-        1.0 / sx,   0.0,        0.0,
-        0.0,        1.0 / sy,   0.0,
-        -tx,        -ty,        1.0
-      ]
-      mat.setDefaultMat3fParameter('transform', transform)
+      //   // eslint-disable-next-line prettier/prettier
+      //   const transform: Mat3f = [
+      //     1.0 / sx,   0.0,        0.0,
+      //     0.0,        1.0 / sy,   0.0,
+      //     -tx,        -ty,        1.0
+      //   ]
+      //   mat.setDefaultMat3fParameter('transform', transform)
+      newMaterial.setDefaultFloat3Parameter('backgroundColor', [0.0, 0.0, 0.0])
 
-      return mat
+      return newMaterial
     }),
     [engine, imageMaterialBuffer, imageBuffer]
   )
@@ -75,20 +80,30 @@ function Image() {
 
     if (material == null) return
 
-    return renderableManager.createPlane(material, 3, 0.0001, 3)
-  }, [])
+    const newEntity = renderableManager.createPlane(material, 10, 1, 10)
+    renderableManager.setReceiveShadow(newEntity, true)
+    renderableManager.setCastShadow(newEntity, true)
+    return newEntity
+  }, [material, renderableManager])
   useEntityInScene(scene, entity)
+
+  useEffect(() => {
+    if (entity == null) return
+    transformManager.setEntityPosition(entity, [0, -1.2, 0], false)
+  }, [entity, transformManager])
 
   return null
 }
 
+const imageResource = require('~/assets/example_background.jpeg')
 function Renderer() {
   return (
     <>
       <Camera />
       <DefaultLight />
+      <Model source={require('~/assets/pengu.glb')} transformToUnitCube />
 
-      <Image />
+      <Image source={imageResource} />
     </>
   )
 }

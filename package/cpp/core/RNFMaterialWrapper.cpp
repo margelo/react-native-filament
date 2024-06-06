@@ -13,9 +13,10 @@ void MaterialWrapper::loadHybridMethods() {
   registerHybridMethod("setDefaultFloatParameter", &MaterialWrapper::setDefaultFloatParameter, this);
   registerHybridMethod("setDefaultTextureParameter", &MaterialWrapper::setDefaultTextureParameter, this);
   registerHybridMethod("getDefaultInstance", &MaterialWrapper::getDefaultInstance, this);
-  registerHybridMethod("setBaseColorSRGB", &MaterialWrapper::setBaseColorSRGB, this);
-  registerHybridMethod("setDefaultIntParameter", &MaterialWrapper::setDefaultIntParameter, this);
   registerHybridMethod("setDefaultMat3fParameter", &MaterialWrapper::setDefaultMat3fParameter, this);
+  registerHybridMethod("setDefaultFloat3Parameter", &MaterialWrapper::setDefaultFloat3Parameter, this);
+  registerHybridMethod("setDefaultFloat4Parameter", &MaterialWrapper::setDefaultFloat4Parameter, this);
+  registerHybridMethod("setDefaultIntParameter", &MaterialWrapper::setDefaultIntParameter, this);
 }
 std::shared_ptr<MaterialInstanceWrapper> MaterialWrapper::createInstance() {
   return pointee()->createInstance();
@@ -44,18 +45,21 @@ MaterialWrapper::setDefaultTextureParameter(std::shared_ptr<RenderableManagerWra
   textureSize["height"] = texture->getHeight();
   return textureSize;
 }
-void MaterialWrapper::setBaseColorSRGB(std::vector<double> rgba) {
-  pointee()->setBaseColorSRGB(rgba);
-}
-std::string MaterialWrapper::getName() {
-  return pointee()->getName();
-}
 
 void MaterialWrapper::setDefaultIntParameter(std::string name, int value) {
-  pointee()->setDefaultIntParameter(name, value);
+    pointee()->setDefaultIntParameter(name, value);
+}
+void MaterialWrapper::setDefaultFloat3Parameter(std::string name, std::vector<double> vector) {
+    pointee()->setDefaultFloat3Parameter(name, vector);
+}
+void MaterialWrapper::setDefaultFloat4Parameter(std::string name, std::vector<double> vector) {
+    pointee()->setDefaultFloat4Parameter(name, vector);
 }
 
 void MaterialWrapper::setDefaultMat3fParameter(std::string name, std::vector<double> value) {
   pointee()->setDefaultMat3fParameter(name, value);
+}
+std::string MaterialWrapper::getName() {
+    return pointee()->getName();
 }
 } // namespace margelo

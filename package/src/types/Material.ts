@@ -1,10 +1,9 @@
 import type { MaterialInstance } from './MaterialInstance'
-import type { RGBA } from './Color'
 import type { PointerHolder } from './PointerHolder'
 import type { RenderableManager } from './RenderableManager'
 import type { FilamentBuffer } from '../native/FilamentBuffer'
 import type { TextureFlags } from './TextureFlags'
-import type { Mat3f } from './Math'
+import type { Float3, Float4, Mat3f } from './Math'
 
 export interface TextureInfo {
   width: number
@@ -23,10 +22,11 @@ export interface Material extends PointerHolder {
     textureFlags: TextureFlags
   ): TextureInfo
   setDefaultMat3fParameter(name: string, value: Mat3f): void
+  setDefaultFloat3Parameter(name: string, vector: Float3): void
   /**
    * Changes the base color of the material.
    * Assumes linear (0-1) linear sRGB color space.
    */
-  setBaseColorSRGB(color: RGBA): void
+  setDefaultFloat4Parameter(name: string, vector: Float4): void
   readonly name: string
 }
