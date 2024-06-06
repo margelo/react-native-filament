@@ -18,7 +18,7 @@ import ImageMaterial from '~/assets/image.matc'
 
 type ImageProps = {
   source: BufferSource
-  resizeMode?: 'contain' | 'cover'
+  resizeMode?: 'contain' | 'cover' | 'scale'
 }
 
 export function Image({ source, resizeMode = 'contain' }: ImageProps) {
@@ -27,16 +27,11 @@ export function Image({ source, resizeMode = 'contain' }: ImageProps) {
   // Create the material which will be used to render the image
   const imageMaterialBuffer = useBuffer({ source: ImageMaterial })
   const imageBuffer = useBuffer({ source: source })
-  console.log({
-    imageMaterialBuffer,
-    imageBuffer,
-  })
+
   const material = useDisposableResource(
     useWorkletCallback(() => {
       'worklet'
-      console.log('herst bist deppert?')
       if (imageMaterialBuffer == null || imageBuffer == null) return undefined
-      console.log('debug 2')
 
       const newMaterial = engine.createMaterial(imageMaterialBuffer)
       const textureInfo = newMaterial.setDefaultTextureParameter(renderableManager, 'image', imageBuffer, 'sRGB')
@@ -57,41 +52,53 @@ export function Image({ source, resizeMode = 'contain' }: ImageProps) {
       let tx: number
       let ty: number
 
-      if (resizeMode === 'contain') {
-        if (dstRatio > srcRatio) {
-          // Viewport is wider than the image's aspect ratio
-          sx = sy = srcHeight / dstHeight
-          tx = (dstWidth - srcWidth * sy) / (2 * dstWidth)
-          ty = 0
+      const xMajor = dstWidth / srcWidth > dstHeight / srcHeight
+      if (resizeMode === 'scale') {
+        sx = 1.0
+        sy = 1.0
+        tx = 0.0
+        ty = 0.0
+      } else if (resizeMode === 'contain') {
+        if (xMajor) {
+          sx = srcRatio / dstRatio
+          sy = 1.0
+          tx = ((1.0 - sx) * 0.5) / sx
+          ty = 0.0
         } else {
-          // Viewport is narrower than the image's aspect ratio
-          sx = sy = srcWidth / dstWidth
-          tx = 0
-          ty = (dstHeight - srcHeight * sx) / (2 * dstHeight)
+          sx = 1.0
+          sy = dstRatio / srcRatio
+          tx = 0.0
+          ty = ((1.0 - sy) * 0.5) / sy
         }
       } else if (resizeMode === 'cover') {
-        if (dstRatio > srcRatio) {
-          // Viewport is wider than the image's aspect ratio
-          sx = sy = dstWidth / srcWidth
-          tx = 0
-          ty = (dstHeight - srcHeight * sx) / (2 * dstHeight)
-        } else {
-          // Viewport is taller than the image's aspect ratio
-          sx = sy = dstHeight / srcHeight
-          tx = (dstWidth - srcWidth * sy) / (2 * dstWidth)
-          ty = 0
-        }
+        /**
+         * Scale the image uniformly (maintain the image’s aspect ratio) so that
+         * both dimensions (width and height) of the image will be equal to or larger than
+         * the corresponding dimension of the view (minus padding).
+         */
+
+        tx = 0.0
+        ty = 0.0
+
+        const widthScale = dstWidth / srcWidth
+        const heightScale = dstHeight / srcHeight
+        const scale = Math.max(widthScale, heightScale)
+
+        const scaledWidth = srcWidth * scale
+        const scaledHeight = srcHeight * scale
+
+        sx = scaledWidth / dstWidth
+        sy = scaledHeight / dstHeight
       } else {
-        console.log(`Invalid resizeMode: ${resizeMode}`)
         throw new Error(`Invalid resizeMode: ${resizeMode}`)
       }
 
       // eslint-disable-next-line prettier/prettier
-        const transform: Mat3f = [
-          1.0 / sx,   0.0,        0.0,
-          0.0,        1.0 / sy,   0.0,
-          -tx,         -ty,        1.0
-        ];
+      const transform: Mat3f = [
+        1.0 / sx,   0.0,        0.0,
+        0.0,        1.0 / sy,   0.0,
+        -tx,         -ty,        1.0
+      ];
       console.log({
         sx,
         sy,
