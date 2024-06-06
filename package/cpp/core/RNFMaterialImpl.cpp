@@ -19,9 +19,11 @@ std::shared_ptr<MaterialInstanceWrapper> MaterialImpl::getDefaultInstance() {
   std::unique_lock lock(_mutex);
 
   MaterialInstance* materialInstance = _material->getDefaultInstance();
-  auto instance = std::make_shared<MaterialInstanceWrapper>(materialInstance);
-  _instances.push_back(instance);
-  return instance;
+  // Note: the default material instance isn't added to the list of instances.
+  // We only keep track of that list to destroy a material correctly (ie. all
+  // its instances have to be destroyed first). However, the default instance
+  // is not destroyable, so it can be ignored.
+  return std::make_shared<MaterialInstanceWrapper>(materialInstance);
 }
 
 void MaterialImpl::setDefaultFloatParameter(std::string name, double value) {
