@@ -24,7 +24,9 @@ public: // Public JS API
   void setDefaultFloatParameter(std::string name, double value);
   void setDefaultTextureParameter(std::shared_ptr<RenderableManagerWrapper> renderableManager, std::string name,
                                   std::shared_ptr<FilamentBuffer> buffer, const std::string& textureFlags);
+  void setDefaultIntParameter(std::string name, int value);
   void setBaseColorSRGB(std::vector<double> rgba);
+    void setDefaultMat3fParameter(std::string name, std::vector<double> value);
   std::string getName();
 };
 

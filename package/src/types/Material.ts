@@ -8,6 +8,7 @@ import type { TextureFlags } from './TextureFlags'
 export interface Material extends PointerHolder {
   createInstance(): MaterialInstance
   getDefaultInstance(): MaterialInstance
+  setDefaultIntParameter(name: string, value: number): void
   setDefaultFloatParameter(name: string, value: number): void
   setDefaultTextureParameter(
     renderableManager: RenderableManager,

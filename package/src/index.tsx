@@ -3,6 +3,7 @@ export * from './types'
 // hooks
 export * from './hooks/useWorkletEffect'
 export * from './hooks/useWorkletCallback'
+export * from './hooks/useWorkletMemo'
 export * from './hooks/useBuffer'
 export * from './hooks/useModel'
 export * from './hooks/useAnimator'

@@ -39,4 +39,12 @@ void MaterialWrapper::setBaseColorSRGB(std::vector<double> rgba) {
 std::string MaterialWrapper::getName() {
   return pointee()->getName();
 }
+
+void MaterialWrapper::setDefaultIntParameter(std::string name, int value) {
+    pointee()->setDefaultIntParameter(name, value);
+}
+
+void MaterialWrapper::setDefaultMat3fParameter(std::string name, std::vector<double> value) {
+    pointee()->setDefaultMat3fParameter(name, value);
+}
 } // namespace margelo

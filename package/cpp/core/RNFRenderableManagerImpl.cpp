@@ -12,6 +12,7 @@
 #include <filament/IndexBuffer.h>
 #include <gltfio/TextureProvider.h>
 #include <math/norm.h>
+#include <image/LinearImage.h>
 
 namespace margelo {
 using namespace gltfio;
