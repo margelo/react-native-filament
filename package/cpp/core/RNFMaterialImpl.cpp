@@ -34,15 +34,15 @@ void MaterialImpl::setDefaultFloatParameter(std::string name, double value) {
   _material->setDefaultParameter(name.c_str(), (float)value);
 }
 
-    void MaterialImpl::setDefaultIntParameter(std::string name, int value) {
-        std::unique_lock lock(_mutex);
+void MaterialImpl::setDefaultIntParameter(std::string name, int value) {
+  std::unique_lock lock(_mutex);
 
-        if (!_material->hasParameter(name.c_str())) {
-            throw std::runtime_error("MaterialWrapper::setDefaultIntParameter: Material does not have parameter \"" + name + "\"!");
-        }
+  if (!_material->hasParameter(name.c_str())) {
+    throw std::runtime_error("MaterialWrapper::setDefaultIntParameter: Material does not have parameter \"" + name + "\"!");
+  }
 
-        _material->setDefaultParameter(name.c_str(), value);
-    }
+  _material->setDefaultParameter(name.c_str(), value);
+}
 
 void MaterialImpl::setDefaultTextureParameter(std::string name, Texture* texture, TextureSampler sampler) {
   std::unique_lock lock(_mutex);
@@ -55,20 +55,20 @@ void MaterialImpl::setDefaultTextureParameter(std::string name, Texture* texture
 }
 
 void MaterialImpl::setDefaultFloat3Parameter(std::string name, std::vector<double> vector) {
-    std::unique_lock lock(_mutex);
-    if (vector.size() != 3) {
-        throw std::runtime_error("setDefaultFloat3Parameter: RGB vector must have 3 elements!");
-    }
+  std::unique_lock lock(_mutex);
+  if (vector.size() != 3) {
+    throw std::runtime_error("setDefaultFloat3Parameter: RGB vector must have 3 elements!");
+  }
 
-    if (!_material->hasParameter(name.c_str())) {
-        throw std::runtime_error("setDefaultFloat3Parameter: Material does not have parameter \"" + name + "\"!");
-    }
+  if (!_material->hasParameter(name.c_str())) {
+    throw std::runtime_error("setDefaultFloat3Parameter: Material does not have parameter \"" + name + "\"!");
+  }
 
-    float x = vector[0];
-    float y = vector[1];
-    float z = vector[2];
+  float x = vector[0];
+  float y = vector[1];
+  float z = vector[2];
 
-    _material->setDefaultParameter(name.c_str(), math::float3({x, y, z}));
+  _material->setDefaultParameter(name.c_str(), math::float3({x, y, z}));
 }
 
 void MaterialImpl::setDefaultFloat4Parameter(std::string name, std::vector<double> vector) {
@@ -76,7 +76,7 @@ void MaterialImpl::setDefaultFloat4Parameter(std::string name, std::vector<doubl
   if (vector.size() != 4) {
     throw std::runtime_error("setDefaultFloat4Parameter: RGBA vector must have 4 elements!");
   }
-  
+
   if (!_material->hasParameter(name.c_str())) {
     throw std::runtime_error("setDefaultFloat4Parameter: Material does not have parameter \"" + name + "\"!");
   }
@@ -94,7 +94,7 @@ std::string MaterialImpl::getName() {
 }
 
 void MaterialImpl::setDefaultMat3fParameter(std::string name, std::vector<double> value) {
-std::unique_lock lock(_mutex);
+  std::unique_lock lock(_mutex);
 
   if (!_material->hasParameter(name.c_str())) {
     throw std::runtime_error("MaterialWrapper::setDefaultMat3fParameter: Material does not have parameter \"" + name + "\"!");
@@ -104,9 +104,8 @@ std::unique_lock lock(_mutex);
     throw std::runtime_error("MaterialWrapper::setDefaultMat3fParameter: Value vector must have 9 elements!");
   }
 
-  math::mat3f matrix = math::mat3f((float)value[0], (float)value[1], (float)value[2],
-                                    (float)value[3], (float)value[4], (float)value[5],
-                                    (float)value[6], (float)value[7], (float)value[8]);
+  math::mat3f matrix = math::mat3f((float)value[0], (float)value[1], (float)value[2], (float)value[3], (float)value[4], (float)value[5],
+                                   (float)value[6], (float)value[7], (float)value[8]);
   _material->setDefaultParameter(name.c_str(), matrix);
 }
 

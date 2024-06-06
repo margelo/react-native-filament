@@ -17,8 +17,7 @@ void RenderableManagerWrapper::loadHybridMethods() {
   registerHybridMethod("setCastShadow", &RenderableManagerWrapper::setCastShadow, this);
   registerHybridMethod("setReceiveShadow", &RenderableManagerWrapper::setReceiveShadow, this);
   registerHybridMethod("createPlane", &RenderableManagerWrapper::createPlane, this);
-  registerHybridMethod("createImageBackgroundShape",
-                       &RenderableManagerWrapper::createImageBackgroundShape, this);
+  registerHybridMethod("createImageBackgroundShape", &RenderableManagerWrapper::createImageBackgroundShape, this);
   registerHybridMethod("scaleBoundingBox", &RenderableManagerWrapper::scaleBoundingBox, this);
   registerHybridMethod("createDebugCubeWireframe", &RenderableManagerWrapper::createDebugCubeWireframe, this);
   registerHybridMethod("getAxisAlignedBoundingBox", &RenderableManagerWrapper::getAxisAlignedBoundingBox, this);
@@ -54,15 +53,15 @@ std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createPlane(std::shared
   return pointee()->createPlane(materialWrapper, halfExtendX, halfExtendY, halfExtendZ);
 }
 std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createImageBackgroundShape(std::shared_ptr<MaterialWrapper> materialWrapper) {
-    if (materialWrapper == nullptr) {
-        throw std::invalid_argument("Material is null");
-    }
-    std::shared_ptr<MaterialInstanceWrapper> defaultMaterialInstanceWrapper = materialWrapper->getDefaultInstance();
-    MaterialInstance* defaultMaterialInstance = defaultMaterialInstanceWrapper->getMaterialInstance();
+  if (materialWrapper == nullptr) {
+    throw std::invalid_argument("Material is null");
+  }
+  std::shared_ptr<MaterialInstanceWrapper> defaultMaterialInstanceWrapper = materialWrapper->getDefaultInstance();
+  MaterialInstance* defaultMaterialInstance = defaultMaterialInstanceWrapper->getMaterialInstance();
 
-    Entity entity = pointee()->createImageBackground(defaultMaterialInstance);
+  Entity entity = pointee()->createImageBackground(defaultMaterialInstance);
 
-    return std::make_shared<EntityWrapper>(entity);
+  return std::make_shared<EntityWrapper>(entity);
 }
 void RenderableManagerWrapper::scaleBoundingBox(std::shared_ptr<FilamentAssetWrapper> assetWrapper, double scaleFactor) {
   pointee()->scaleBoundingBox(assetWrapper, scaleFactor);

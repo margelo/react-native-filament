@@ -11,25 +11,25 @@
 #import <React/RCTBridge+Private.h>
 
 #ifndef RCT_NEW_ARCH_ENABLED
-#import <ReactCommon/CallInvoker.h>
 #import <React/RCTBridge.h>
+#import <ReactCommon/CallInvoker.h>
 #endif
 
 #ifdef RCT_NEW_ARCH_ENABLED
-#import <React/RCTSurfacePresenter.h>
 #import <React/RCTScheduler.h>
+#import <React/RCTSurfacePresenter.h>
 #import <React/RCTUIManager.h>
 #import <react/renderer/components/rnfilament/ShadowNodes.h>
 
 using namespace facebook;
 
 @interface RCTBridge (JSIRuntime)
-- (void *)runtime;
+- (void*)runtime;
 - (std::shared_ptr<react::CallInvoker>)jsCallInvoker;
 @end
 
 @implementation FilamentModule {
-  __weak RCTSurfacePresenter *_surfacePresenter;
+  __weak RCTSurfacePresenter* _surfacePresenter;
   BOOL _isBridgeless;
 }
 
@@ -39,22 +39,21 @@ RCT_EXPORT_MODULE()
  * Taken from RCTNativeAnimatedTurboModule:
  * This selector is invoked via BridgelessTurboModuleSetup.
  */
-- (void)setSurfacePresenter:(id<RCTSurfacePresenterStub>)surfacePresenter
-{
+- (void)setSurfacePresenter:(id<RCTSurfacePresenterStub>)surfacePresenter {
   _surfacePresenter = surfacePresenter;
   _isBridgeless = true;
 }
 
 - (NSNumber*)install {
-  jsi::Runtime *jsiRuntime = nullptr;
+  jsi::Runtime* jsiRuntime = nullptr;
   std::shared_ptr<react::CallInvoker> jsCallInvoker = nullptr;
   if (_isBridgeless) {
     // If we are in bridgless mode we can cast directly to RCTCxxBridge to get our properties:
-    RCTCxxBridge *cxxBridge = (RCTCxxBridge *)self.bridge;
-    jsiRuntime = (jsi::Runtime *)cxxBridge.runtime;
+    RCTCxxBridge* cxxBridge = (RCTCxxBridge*)self.bridge;
+    jsiRuntime = (jsi::Runtime*)cxxBridge.runtime;
     jsCallInvoker = cxxBridge.jsCallInvoker;
   } else {
-    jsiRuntime = [self.bridge respondsToSelector:@selector(runtime)] ? reinterpret_cast<jsi::Runtime *>(self.bridge.runtime) : nullptr;
+    jsiRuntime = [self.bridge respondsToSelector:@selector(runtime)] ? reinterpret_cast<jsi::Runtime*>(self.bridge.runtime) : nullptr;
     jsCallInvoker = self.bridge.jsCallInvoker;
     _surfacePresenter = self.bridge.surfacePresenter;
   }
@@ -67,12 +66,12 @@ RCT_EXPORT_MODULE()
     NSLog(@"Failed to install react-native-filament: react::CallInvoker is nil (bridgless: %@)!", _isBridgeless ? @"YES" : @"NO");
     return [NSNumber numberWithBool:NO];
   }
-    
+
   BOOL result = [FilamentInstaller installToBridge:jsiRuntime callInvoker:jsCallInvoker surfacePresenter:_surfacePresenter];
   return [NSNumber numberWithBool:result];
 }
 
-- (std::shared_ptr<react::TurboModule>)getTurboModule:(const react::ObjCTurboModule::InitParams &)params {
+- (std::shared_ptr<react::TurboModule>)getTurboModule:(const react::ObjCTurboModule::InitParams&)params {
   return std::make_shared<react::NativeFilamentModuleSpecJSI>(params);
 }
 
@@ -105,7 +104,7 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install) {
     NSLog(@"Failed to install react-native-filament: react::CallInvoker was null!");
     return [NSNumber numberWithBool:NO];
   }
-  
+
   BOOL result = [FilamentInstaller installToBridge:runtime callInvoker:callInvoker];
   return [NSNumber numberWithBool:result];
 }

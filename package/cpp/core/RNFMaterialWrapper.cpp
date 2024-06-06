@@ -47,19 +47,19 @@ MaterialWrapper::setDefaultTextureParameter(std::shared_ptr<RenderableManagerWra
 }
 
 void MaterialWrapper::setDefaultIntParameter(std::string name, int value) {
-    pointee()->setDefaultIntParameter(name, value);
+  pointee()->setDefaultIntParameter(name, value);
 }
 void MaterialWrapper::setDefaultFloat3Parameter(std::string name, std::vector<double> vector) {
-    pointee()->setDefaultFloat3Parameter(name, vector);
+  pointee()->setDefaultFloat3Parameter(name, vector);
 }
 void MaterialWrapper::setDefaultFloat4Parameter(std::string name, std::vector<double> vector) {
-    pointee()->setDefaultFloat4Parameter(name, vector);
+  pointee()->setDefaultFloat4Parameter(name, vector);
 }
 
 void MaterialWrapper::setDefaultMat3fParameter(std::string name, std::vector<double> value) {
   pointee()->setDefaultMat3fParameter(name, value);
 }
 std::string MaterialWrapper::getName() {
-    return pointee()->getName();
+  return pointee()->getName();
 }
 } // namespace margelo
