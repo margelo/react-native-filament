@@ -8,9 +8,9 @@
 #include "RNFFilamentBuffer.h"
 #include "RNFMaterialInstanceWrapper.h"
 #include "RNFMaterialWrapper.h"
+#include "VertexEntity.h"
 #include "core/utils/RNFEntityWrapper.h"
 #include "jsi/RNFPointerHolder.h"
-#include "VertexEntity.h"
 
 #include <filament/RenderableManager.h>
 #include <gltfio/TextureProvider.h>
@@ -75,7 +75,9 @@ public: // Public API
 
   Box getAxisAlignedBoundingBox(std::shared_ptr<EntityWrapper> entityWrapper);
 
-  std::shared_ptr<Engine> getEngine() { return _engine; }
+  std::shared_ptr<Engine> getEngine() {
+    return _engine;
+  }
 
 private:
   // Calls the TextureProvider to start loading the resource

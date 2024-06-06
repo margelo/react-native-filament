@@ -4,10 +4,10 @@
 
 #include "RNFRenderableManagerImpl.h"
 #include "RNFEngineWrapper.h"
-#include "RNFTextureFlagsEnum.h"
-#include "core/RNFFilamentInstanceWrapper.h"
-#include "VertexEntity.h"
 #include "RNFReferences.h"
+#include "RNFTextureFlagsEnum.h"
+#include "VertexEntity.h"
+#include "core/RNFFilamentInstanceWrapper.h"
 
 #include <cmath>
 
@@ -258,8 +258,8 @@ VertexEntity RenderableManagerImpl::createImageBackground(MaterialInstance* mate
       .build(*_engine, imageEntity);
 
   // TODO: enable this pattern once EntityWrappers are PointerHolders!
-//  std::shared_ptr<VertexBuffer> sharedVertexBuffer = References<VertexBuffer>::adoptEngineRefAuto(_engine, vertexBuffer);
-//  std::shared_ptr<IndexBuffer> sharedIndexBuffer = References<IndexBuffer>::adoptEngineRefAuto(_engine, indexBuffer);
+  //  std::shared_ptr<VertexBuffer> sharedVertexBuffer = References<VertexBuffer>::adoptEngineRefAuto(_engine, vertexBuffer);
+  //  std::shared_ptr<IndexBuffer> sharedIndexBuffer = References<IndexBuffer>::adoptEngineRefAuto(_engine, indexBuffer);
 
   return {
       .entity = imageEntity,

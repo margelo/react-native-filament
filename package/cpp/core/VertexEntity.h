@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <utils/Entity.h>
-#include <filament/VertexBuffer.h>
 #include <filament/IndexBuffer.h>
+#include <filament/VertexBuffer.h>
+#include <utils/Entity.h>
 
 #include <memory>
 

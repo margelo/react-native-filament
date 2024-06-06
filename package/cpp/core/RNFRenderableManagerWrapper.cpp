@@ -3,10 +3,10 @@
 //
 
 #include "RNFRenderableManagerWrapper.h"
-#include "core/RNFFilamentInstanceWrapper.h"
-#include "utils/RNFConverter.h"
 #include "RNFReferences.h"
 #include "VertexEntity.h"
+#include "core/RNFFilamentInstanceWrapper.h"
+#include "utils/RNFConverter.h"
 
 namespace margelo {
 void RenderableManagerWrapper::loadHybridMethods() {
