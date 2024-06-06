@@ -366,6 +366,7 @@ std::shared_ptr<MaterialWrapper> EngineImpl::createMaterial(std::shared_ptr<Fila
           for (auto& materialInstanceWrapper : pMaterialImpl->getInstances()) {
             std::unique_lock lock(sharedThis->_mutex);
             MaterialInstance* materialInstance = materialInstanceWrapper->getMaterialInstance();
+            // Note: we should only destroy a material instance when no-one is using it anymore
             engine->destroy(materialInstance);
           }
 

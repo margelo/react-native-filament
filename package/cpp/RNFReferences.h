@@ -46,6 +46,13 @@ public:
   static std::shared_ptr<T> adoptEngineRef(std::shared_ptr<filament::Engine> engine, T* value, CleanupEngineRefFunction&& cleanup) {
     return adoptRef(value, [engine = engine, cleanup = std::move(cleanup)](T* ref) { cleanup(engine, ref); });
   }
+
+  /**
+   * Same as `adoptEngineRef` but with an automatic cleanup function that calls `Engine::destroy` on the reference.
+   */
+  static std::shared_ptr<T> adoptEngineRefAuto(std::shared_ptr<filament::Engine> engine, T* value) {
+    return adoptEngineRef(engine, value, [](std::shared_ptr<filament::Engine> engine, T* ref) { engine->destroy(ref); });
+  }
 };
 
 } // namespace margelo

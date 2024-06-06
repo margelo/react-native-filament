@@ -12,8 +12,8 @@
 
 @interface FilamentModule : NSObject <RCTBridgeModule>
 
-@property (nonatomic, weak) RCTBridge *bridge;
-@property (nonatomic, weak) RCTModuleRegistry *moduleRegistry;
+@property(nonatomic, weak) RCTBridge* bridge;
+@property(nonatomic, weak) RCTModuleRegistry* moduleRegistry;
 
 @end
 

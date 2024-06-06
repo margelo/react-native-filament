@@ -28,9 +28,12 @@ using namespace margelo;
 @implementation FilamentInstaller
 
 #ifdef RCT_NEW_ARCH_ENABLED
-+ (BOOL)installToBridge:(jsi::Runtime*)runtime callInvoker:(std::shared_ptr<react::CallInvoker>)callInvoker surfacePresenter:(RCTSurfacePresenter*)surfacePresenter
++ (BOOL)installToBridge:(jsi::Runtime*)runtime
+            callInvoker:(std::shared_ptr<react::CallInvoker>)callInvoker
+       surfacePresenter:(RCTSurfacePresenter*)surfacePresenter
 #else
-+ (BOOL)installToBridge:(jsi::Runtime*)runtime callInvoker:(std::shared_ptr<react::CallInvoker>)callInvoker
++ (BOOL)installToBridge:(jsi::Runtime*)runtime
+            callInvoker:(std::shared_ptr<react::CallInvoker>)callInvoker
 #endif
 {
   if (!runtime) {

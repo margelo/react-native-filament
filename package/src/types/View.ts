@@ -5,6 +5,13 @@ import { PointerHolder } from './PointerHolder'
 import { Scene } from './Scene'
 import { Float3 } from './Math'
 
+export interface Viewport {
+  bottom: number
+  left: number
+  width: number
+  height: number
+}
+
 /**
  * Encompasses all the state needed for rendering a {@link Scene}.
  *
@@ -23,13 +30,12 @@ import { Float3 } from './Math'
  * the game's user interface. More `View` instances could be used for creating special
  * effects (e.g. a `View` is akin to a rendering pass).
  **/
-
 export interface View extends PointerHolder {
   camera: RNFCamera
   scene: Scene
   // Can return 0 if the view isn't ready yet.
   getAspectRatio(): number
-  setViewport(x: number, y: number, width: number, height: number): void
+  getViewport(): Viewport
   setAmbientOcclusionOptions(options: AmbientOcclusionOptions): void
   getAmbientOcclusionOptions(): AmbientOcclusionOptions
   setDynamicResolutionOptions(options: DynamicResolutionOptions): void

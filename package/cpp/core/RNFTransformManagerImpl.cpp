@@ -155,7 +155,7 @@ TransformManager::Instance TransformManagerImpl::getInstance(Entity entity, Tran
     [[unlikely]];
     throw std::invalid_argument("Entity is null");
   }
-  
+
   TransformManager::Instance instance = transformManager.getInstance(entity);
   if (!instance.isValid()) {
     [[unlikely]];

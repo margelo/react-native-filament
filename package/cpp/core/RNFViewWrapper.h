@@ -46,6 +46,7 @@ private:
   void setAntiAliasing(const std::string& antiAliasing);
   std::vector<double> projectWorldToScreen(std::vector<double> worldCoordinates);
   std::future<std::optional<std::shared_ptr<EntityWrapper>>> pickEntity(double x, double y);
+  std::unordered_map<std::string, int> getViewport();
 
 private:
   std::mutex _mutex;

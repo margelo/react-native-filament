@@ -84,6 +84,9 @@ export interface RenderableManager extends PointerHolder {
    */
   createPlane(shadowMaterial: Material, halfExtendX: number, halfExtendY: number, halfExtendZ: number): Entity
 
+  // TODO: document (its fullscreen)
+  createImageBackgroundShape(material: Material): Entity
+
   /**
    * Takes an asset, gets the bounding box of all renderable entities and updates the bounding box to be multiplied by the given scale
    * factor.

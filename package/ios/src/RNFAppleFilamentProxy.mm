@@ -21,20 +21,18 @@
 #import <React/RCTUtils.h>
 
 #ifdef RCT_NEW_ARCH_ENABLED
-#import <React/RCTSurfacePresenter.h>
 #import "RNFFilamentComponent.h"
+#import <React/RCTSurfacePresenter.h>
 #endif
 
 namespace margelo {
 
 #ifdef RCT_NEW_ARCH_ENABLED
-AppleFilamentProxy::AppleFilamentProxy(jsi::Runtime* runtime,
-                                       std::shared_ptr<Dispatcher> jsDispatcher,
-                                       __weak RCTSurfacePresenter *surfacePresenter)
+AppleFilamentProxy::AppleFilamentProxy(jsi::Runtime* runtime, std::shared_ptr<Dispatcher> jsDispatcher,
+                                       __weak RCTSurfacePresenter* surfacePresenter)
     : _runtime(runtime), _jsDispatcher(jsDispatcher), _surfacePresenter(surfacePresenter) {}
 #else
-AppleFilamentProxy::AppleFilamentProxy(jsi::Runtime* runtime,
-                                       std::shared_ptr<Dispatcher> jsDispatcher)
+AppleFilamentProxy::AppleFilamentProxy(jsi::Runtime* runtime, std::shared_ptr<Dispatcher> jsDispatcher)
     : _runtime(runtime), _jsDispatcher(jsDispatcher) {}
 #endif
 
@@ -127,11 +125,11 @@ jsi::Runtime& AppleFilamentProxy::getMainJSRuntime() {
 #ifdef RCT_NEW_ARCH_ENABLED
 std::shared_ptr<FilamentView> AppleFilamentProxy::findFilamentView(int viewId) {
   UIView* anonymousView = [_surfacePresenter findComponentViewWithTag_DO_NOT_USE_DEPRECATED:viewId];
-  
+
   if (anonymousView == nil) {
     throw std::runtime_error("Could not find view with given tag");
   }
-  
+
   FilamentComponent* view = (FilamentComponent*)anonymousView;   // The UIView is a FilamentComponent
   FilamentMetalView* filamentMetalView = view.filamentMetalView; // Get the underlying FilamentMetalView
   return std::make_shared<AppleFilamentView>(filamentMetalView);

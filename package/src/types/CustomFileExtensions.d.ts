@@ -5,3 +5,7 @@ declare module '*.ktx' {
 declare module '*.glb' {
   export default number
 }
+
+declare module '*.matc' {
+  export default number
+}

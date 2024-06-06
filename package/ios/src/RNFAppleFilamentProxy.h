@@ -25,12 +25,10 @@ namespace margelo {
 class AppleFilamentProxy : public FilamentProxy {
 public:
 #ifdef RCT_NEW_ARCH_ENABLED
-  explicit AppleFilamentProxy(jsi::Runtime* runtime,
-                              std::shared_ptr<Dispatcher> jsDispatcher,
-                              __weak RCTSurfacePresenter *surfacePresenter);
+  explicit AppleFilamentProxy(jsi::Runtime* runtime, std::shared_ptr<Dispatcher> jsDispatcher,
+                              __weak RCTSurfacePresenter* surfacePresenter);
 #else
-  explicit AppleFilamentProxy(jsi::Runtime* runtime,
-                              std::shared_ptr<Dispatcher> jsDispatcher);
+  explicit AppleFilamentProxy(jsi::Runtime* runtime, std::shared_ptr<Dispatcher> jsDispatcher);
 #endif
 
 public:
@@ -55,7 +53,7 @@ private:
   std::shared_ptr<Dispatcher> _uiDispatcher;
   std::shared_ptr<Dispatcher> _backgroundDispatcher;
 #ifdef RCT_NEW_ARCH_ENABLED
-  __weak RCTSurfacePresenter *_surfacePresenter;
+  __weak RCTSurfacePresenter* _surfacePresenter;
 #endif
 
 private:

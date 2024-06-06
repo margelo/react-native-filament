@@ -35,6 +35,10 @@ export const useDisposableResource = <T extends ReleasingResource>(
         a.release()
       }
     })
+    // TODO: catch is broken
+    // .catch((e) => {
+    //   console.error('Error while loading resource', e)
+    // })
     return () => {
       setResource(undefined)
       isValid = false
