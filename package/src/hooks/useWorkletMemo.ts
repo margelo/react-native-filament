@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useFilamentContext } from '../react/FilamentContext'
+import { wrapWithErrorHandler } from '../ErrorUtils'
 
 export function useWorkletMemo<T>(workletFunction: () => T, dependencies: any[]): T | undefined {
   const { workletContext } = useFilamentContext()
@@ -8,7 +9,7 @@ export function useWorkletMemo<T>(workletFunction: () => T, dependencies: any[])
   useEffect(
     () => {
       async function loadAsync() {
-        const result = await workletContext.runAsync(workletFunction)
+        const result = await workletContext.runAsync(wrapWithErrorHandler(workletFunction))
         setValue(result)
       }
 
