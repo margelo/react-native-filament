@@ -1,6 +1,6 @@
 import { useSharedValue } from 'react-native-worklets-core'
 import { CameraManipulator, Float3 } from '../types'
-import { useFilamentContext } from './FilamentContext'
+import { useFilamentContext } from './Context'
 import { RenderCallbackContext } from './RenderCallbackContext'
 
 export type CameraProps = {

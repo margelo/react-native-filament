@@ -1,4 +1,4 @@
-import { useFilamentContext } from '../react/FilamentContext'
+import { useFilamentContext } from '../react/Context'
 import { FilamentBuffer } from '../native/FilamentBuffer'
 import { useWorkletEffect } from './useWorkletEffect'
 

@@ -7,7 +7,7 @@ import {
   View,
   optionsToJSI,
 } from '../types'
-import { useFilamentContext } from './FilamentContext'
+import { useFilamentContext } from './Context'
 import { makeAmbientOcclusionHostObject } from '../utilities/makeAmbientOcclusionHostObject'
 import { makeDynamicResolutionHostObject } from '../utilities/makeDynamicResolutionHostObject'
 

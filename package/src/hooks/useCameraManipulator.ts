@@ -1,4 +1,4 @@
-import { useFilamentContext } from '../react/FilamentContext'
+import { useFilamentContext } from '../react/Context'
 import { Float3, OrbitCameraManipulatorConfig } from '../types'
 import { useDisposableResource } from './useDisposableResource'
 

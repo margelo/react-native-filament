@@ -4,7 +4,7 @@ import { ModelProps as UseModelProps, useModel } from '../hooks/useModel'
 import { ParentModelAssetContext } from './ParentModelAssetContex'
 import { ParentEntityContext } from './ParentEntityContex'
 import { getAssetFromModel } from '../utilities/getAssetFromModel'
-import { useFilamentContext } from './FilamentContext'
+import { useFilamentContext } from './Context'
 
 type ModelProps = UseModelProps & {
   source: BufferSource

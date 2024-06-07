@@ -1,6 +1,6 @@
 import React, { PropsWithChildren } from 'react'
 import { UseLightEntityProps, useLightEntity } from '../hooks/useLightEntity'
-import { useFilamentContext } from './FilamentContext'
+import { useFilamentContext } from './Context'
 import { ParentEntityContext } from './ParentEntityContex'
 import { useEntityInScene } from '../hooks/useEntityInScene'
 

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useFilamentContext } from '../react/FilamentContext'
+import { useFilamentContext } from '../react/Context'
 import { FilamentProxy } from '../native/FilamentProxy'
 import { useDisposableResource } from './useDisposableResource'
 import { useWorkletEffect } from './useWorkletEffect'
