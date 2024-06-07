@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { TFilamentRecorder } from '../native/FilamentRecorder'
+import { TFilamentRecorder } from '../types/FilamentRecorder'
 import { useWorkletEffect } from './useWorkletEffect'
 import { getWorkletDependencies } from 'react-native-worklets-core'
 

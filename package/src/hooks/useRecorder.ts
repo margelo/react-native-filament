@@ -3,7 +3,7 @@ import { useFilamentContext } from '../react/FilamentContext'
 import { FilamentProxy } from '../native/FilamentProxy'
 import { useDisposableResource } from './useDisposableResource'
 import { useWorkletEffect } from './useWorkletEffect'
-import { TFilamentRecorder } from '../native/FilamentRecorder'
+import { TFilamentRecorder } from '../types/FilamentRecorder'
 import { SwapChain } from '../types'
 
 export type RecorderOptions = {
