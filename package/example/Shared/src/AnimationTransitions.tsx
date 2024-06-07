@@ -7,9 +7,10 @@ import {
   useAnimator,
   getAssetFromModel,
   useFilamentContext,
-  Filament,
-  RenderCallbackContext,
+  FilamentContext,
+  FilamentView,
   Camera,
+  RenderCallback,
 } from 'react-native-filament'
 import { useSharedValue } from 'react-native-worklets-core'
 import PenguGlb from '~/assets/pengu.glb'
@@ -19,7 +20,7 @@ import { DefaultLight } from './components/DefaultLight'
 const animationInterpolationTime = 5
 
 function Renderer() {
-  const { camera, view, scene } = useFilamentContext()
+  const { view, scene } = useFilamentContext()
 
   const pengu = useModel(PenguGlb)
   const penguAnimator = useAnimator(pengu)
@@ -43,7 +44,7 @@ function Renderer() {
   const animationInterpolation = useSharedValue(0)
   const currentAnimationIndex = useSharedValue(0)
 
-  RenderCallbackContext.useRenderCallback(
+  const renderCallback: RenderCallback = useCallback(
     ({ passedSeconds }) => {
       'worklet'
 
@@ -75,7 +76,7 @@ function Renderer() {
 
       penguAnimator.updateBoneMatrices()
     },
-    [view, camera, penguAnimator, currentAnimationIndex, prevAnimationIndex, prevAnimationStarted, animationInterpolation]
+    [penguAnimator, currentAnimationIndex, prevAnimationIndex, prevAnimationStarted, animationInterpolation]
   )
 
   const animations = useMemo(() => {
@@ -121,8 +122,10 @@ function Renderer() {
 
   return (
     <View style={styles.container} onTouchStart={onTouchStart}>
-      <Camera />
-      <DefaultLight />
+      <FilamentView style={styles.filamentView} renderCallback={renderCallback}>
+        <Camera />
+        <DefaultLight />
+      </FilamentView>
 
       <ScrollView style={styles.btnContainer}>
         <Button
@@ -168,9 +171,9 @@ export function AnimationTransitions() {
 
   return (
     <View style={styles.container}>
-      <Filament style={styles.filamentView} key={count}>
+      <FilamentContext key={count}>
         <Renderer />
-      </Filament>
+      </FilamentContext>
       <Button title="Create a new react element" onPress={increment} />
     </View>
   )

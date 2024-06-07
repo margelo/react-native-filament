@@ -1,5 +1,5 @@
 import { BufferSource, useBuffer } from '../hooks/useBuffer'
-import { useFilamentContext } from './FilamentContext'
+import { useFilamentContext } from './Context'
 import { useWorkletEffect } from '../hooks/useWorkletEffect'
 
 export type EnvironmentalLightProps = {

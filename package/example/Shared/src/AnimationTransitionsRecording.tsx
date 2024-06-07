@@ -11,8 +11,7 @@ import {
   useRecorder,
   useRecorderRenderLoop,
   Camera,
-  FilamentAPIContextProvider,
-  BackgroundImage,
+  FilamentContext,
 } from 'react-native-filament'
 import { useRunOnJS, useSharedValue } from 'react-native-worklets-core'
 import PenguGlb from '~/assets/pengu.glb'
@@ -168,9 +167,9 @@ function Renderer() {
 export function AnimationTransitionsRecording() {
   return (
     // Provide the API necessary for recording (accessing the RNF apis) in a react context
-    <FilamentAPIContextProvider>
+    <FilamentContext>
       <Renderer />
-    </FilamentAPIContextProvider>
+    </FilamentContext>
   )
 }
 
