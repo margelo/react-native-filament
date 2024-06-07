@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { Animator, FilamentAsset, FilamentInstance } from '../types'
-import { useFilamentContext } from '../react/FilamentContext'
+import { useFilamentContext } from '../react/Context'
 import { FilamentModel } from './useModel'
 
 function isFilamentModel(asset: FilamentAsset | FilamentInstance | FilamentModel): asset is FilamentModel {

@@ -1,7 +1,7 @@
-import { Camera, Filament, Model, useCameraManipulator } from 'react-native-filament'
-import React, { useCallback, useState } from 'react'
+import React from 'react'
+import { Camera, FilamentContext, FilamentView, Model, useCameraManipulator } from 'react-native-filament'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
-import { LayoutChangeEvent, StyleSheet, View } from 'react-native'
+import { Dimensions, StyleSheet, View } from 'react-native'
 import { useSharedValue } from 'react-native-worklets-core'
 import { DefaultLight } from './components/DefaultLight'
 
@@ -15,17 +15,13 @@ function Scene() {
   })
 
   // Pan gesture
-  const [viewHeight, setViewHeight] = useState<number>() // As we need to invert the Y axis we must know the view height
+  const viewHeight = Dimensions.get('window').height
   const panGesture = Gesture.Pan()
     .onBegin((event) => {
-      if (viewHeight == null) return
-
       const yCorrected = viewHeight - event.translationY
       cameraManipulator?.grabBegin(event.translationX, yCorrected, false) // false means rotation instead of translation
     })
     .onUpdate((event) => {
-      if (viewHeight == null) return
-
       const yCorrected = viewHeight - event.translationY
       cameraManipulator?.grabUpdate(event.translationX, yCorrected)
     })
@@ -49,27 +45,25 @@ function Scene() {
     })
   const combinedGesture = Gesture.Race(pinchGesture, panGesture)
 
-  const onLayout = useCallback((event: LayoutChangeEvent) => {
-    setViewHeight(event.nativeEvent.layout.height)
-  }, [])
-
   return (
     <GestureDetector gesture={combinedGesture}>
-      <View onLayout={onLayout} style={styles.container}>
+      <FilamentView style={styles.container}>
         <Camera cameraManipulator={cameraManipulator} />
         <DefaultLight />
 
         <Model source={{ uri: modelPath }} transformToUnitCube />
-      </View>
+      </FilamentView>
     </GestureDetector>
   )
 }
 
 export function CameraPan() {
   return (
-    <Filament>
-      <Scene />
-    </Filament>
+    <View style={styles.container}>
+      <FilamentContext>
+        <Scene />
+      </FilamentContext>
+    </View>
   )
 }
 

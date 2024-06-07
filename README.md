@@ -39,19 +39,21 @@ cd ios && pod install
 ### Example
 
 ```tsx
-import { Filament, Model, Camera } from 'react-native-filament'
+import { FilamentContext, FilamentView, Model, Camera } from 'react-native-filament'
 
 function App() {
   return (
-    <Filament
-      style={{ width: 100, height: 100 }}
-      model={model}
-    >
-      // Render with the default camera:
-      <Camera /> 
-      // Add a model to the scene (only glb supported yet):
-      <Model source={require('./duck.glb')}>
-    </Filament>
+    <FilamentContext>
+      <FilamentView
+        style={{ width: 100, height: 100 }}
+        model={model}
+      >
+        // Render with the default camera:
+        <Camera /> 
+        // Add a model to the scene (only glb supported yet):
+        <Model source={require('./duck.glb')}>
+      </FilamentView>
+    </FilamentContext>
   )
 }
 ```
