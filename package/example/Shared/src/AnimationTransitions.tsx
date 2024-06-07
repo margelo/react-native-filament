@@ -20,7 +20,7 @@ import { DefaultLight } from './components/DefaultLight'
 const animationInterpolationTime = 5
 
 function Renderer() {
-  const { camera, view, scene } = useFilamentContext()
+  const { view, scene } = useFilamentContext()
 
   const pengu = useModel(PenguGlb)
   const penguAnimator = useAnimator(pengu)
