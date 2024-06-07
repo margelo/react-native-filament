@@ -1,4 +1,4 @@
-import { Listener } from '../types/Listener'
+import { Listener } from './Listener'
 
 export interface TFilamentRecorder {
   /**
