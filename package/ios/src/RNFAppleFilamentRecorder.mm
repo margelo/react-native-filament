@@ -29,8 +29,12 @@ AppleFilamentRecorder::AppleFilamentRecorder(std::shared_ptr<Dispatcher> renderT
     (NSString*)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA),
     (NSString*)kCVPixelBufferMetalCompatibilityKey : @(YES)
   };
-  CVReturn result =
-      CVPixelBufferCreate(nil, width, height, kCVPixelFormatType_32BGRA, (__bridge CFDictionaryRef)pixelBufferAttributes, &_pixelBuffer);
+  CVReturn result = CVPixelBufferCreate(nil,
+                                        width,
+                                        height,
+                                        kCVPixelFormatType_32BGRA,
+                                        (__bridge CFDictionaryRef)pixelBufferAttributes,
+                                        &_pixelBuffer);
   if (result != kCVReturnSuccess) {
     throw std::runtime_error("Failed to create input texture CVPixelBuffer!");
   }
