@@ -7,6 +7,8 @@
 
 #include "RNFAppleFilamentRecorder.h"
 #include <VideoToolbox/VTCompressionProperties.h>
+#include <CoreVideo/CoreVideo.h>
+#include <CoreFoundation/CoreFoundation.h>
 #include <memory>
 #include <mutex>
 
@@ -18,28 +20,19 @@ AppleFilamentRecorder::AppleFilamentRecorder(std::shared_ptr<Dispatcher> renderT
   dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, -1);
   _queue = dispatch_queue_create("filament.recorder.queue", qos);
 
-  Logger::log(TAG, "Creating CVPixelBufferPool...");
-  int maxBufferCount = 30;
-  NSDictionary* poolAttributes = @{(NSString*)kCVPixelBufferPoolMinimumBufferCountKey : @(maxBufferCount)};
+  Logger::log(TAG, "Creating CVPixelBuffer target texture...");
   NSDictionary* pixelBufferAttributes = @{
     (NSString*)kCVPixelBufferWidthKey : @(width),
     (NSString*)kCVPixelBufferHeightKey : @(height),
     (NSString*)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA),
     (NSString*)kCVPixelBufferMetalCompatibilityKey : @(YES)
   };
-  CVReturn result = CVPixelBufferPoolCreate(kCFAllocatorDefault, (__bridge CFDictionaryRef)poolAttributes,
-                                            (__bridge CFDictionaryRef)pixelBufferAttributes, &_pixelBufferPool);
-  if (result != kCVReturnSuccess) {
-    throw std::runtime_error("Failed to create " + std::to_string(width) + "x" + std::to_string(height) +
-                             " CVPixelBufferPool! Status: " + std::to_string(result));
-  }
-
-  Logger::log(TAG, "Creating CVPixelBuffer target texture...");
-  result = CVPixelBufferPoolCreatePixelBuffer(kCFAllocatorDefault, _pixelBufferPool, &_pixelBuffer);
-  if (result != kCVReturnSuccess) {
-    throw std::runtime_error("Failed to create " + std::to_string(width) + "x" + std::to_string(height) +
-                             " CVPixelBuffer texture! Status: " + std::to_string(result));
-  }
+  CVReturn result = CVPixelBufferCreate(nil,
+                               width,
+                               height,
+                               kCVPixelFormatType_32BGRA,
+                               (__bridge CFDictionaryRef)pixelBufferAttributes,
+                               &_pixelBuffer);
 
   Logger::log(TAG, "Creating temporary file...");
   NSString* tempDirectory = NSTemporaryDirectory();
@@ -83,7 +76,7 @@ AppleFilamentRecorder::AppleFilamentRecorder(std::shared_ptr<Dispatcher> renderT
   _assetWriterInput.performsMultiPassEncodingIfSupported = YES;
 
   _pixelBufferAdaptor = [AVAssetWriterInputPixelBufferAdaptor assetWriterInputPixelBufferAdaptorWithAssetWriterInput:_assetWriterInput
-                                                                                         sourcePixelBufferAttributes:nil];
+                                                                                         sourcePixelBufferAttributes:pixelBufferAttributes];
 
   Logger::log(TAG, "Adding AVAssetWriterInput...");
   [_assetWriter addInput:_assetWriterInput];
@@ -111,35 +104,24 @@ void AppleFilamentRecorder::renderFrame(double timestamp) {
     //       that only renders when isReadyForMoreMediaData turns true?
     throw std::runtime_error("AVAssetWriterInput was not ready for more data!");
   }
+  
+  // TODO: Do we even need to lock the base address? We dont do CPU.
+  // TODO: Do we need to create a copy of the CVPixelBuffer?
 
-  CVPixelBufferRef targetBuffer;
-  CVReturn result = CVPixelBufferPoolCreatePixelBuffer(kCFAllocatorDefault, _pixelBufferPool, &targetBuffer);
-  if (result != kCVReturnSuccess) {
-    throw std::runtime_error("Failed to create CVPixelBuffer for writing! Status: " + std::to_string(result));
-  }
-
-  result = CVPixelBufferLockBaseAddress(targetBuffer, /* write flag */ 0);
-  if (result != kCVReturnSuccess) {
-    throw std::runtime_error("Failed to lock target buffer for write access!");
-  }
-  result = CVPixelBufferLockBaseAddress(_pixelBuffer, kCVPixelBufferLock_ReadOnly);
+  // 1. Lock CVPixelBuffer for CPU access
+  CVReturn result = CVPixelBufferLockBaseAddress(_pixelBuffer, kCVPixelBufferLock_ReadOnly);
   if (result != kCVReturnSuccess) {
     throw std::runtime_error("Failed to lock input buffer for read access!");
   }
-
-  size_t bytesPerRow = CVPixelBufferGetBytesPerRow(_pixelBuffer);
-  size_t height = CVPixelBufferGetHeight(_pixelBuffer);
-
-  void* destination = CVPixelBufferGetBaseAddress(targetBuffer);
-  void* source = CVPixelBufferGetBaseAddress(_pixelBuffer);
-
-  memcpy(destination, source, bytesPerRow * height);
-
-  CVPixelBufferUnlockBaseAddress(targetBuffer, /* write flag */ 0);
-  CVPixelBufferUnlockBaseAddress(_pixelBuffer, kCVPixelBufferLock_ReadOnly);
-
+  
+  // 2. Append CVPixelBuffer to input pool
   CMTime time = CMTimeMake(_frameCount++, getFps());
-  BOOL success = [_pixelBufferAdaptor appendPixelBuffer:targetBuffer withPresentationTime:time];
+  BOOL success = [_pixelBufferAdaptor appendPixelBuffer:_pixelBuffer withPresentationTime:time];
+  
+  // 3. Unlock CVPixelBuffer access again
+  CVPixelBufferUnlockBaseAddress(_pixelBuffer, kCVPixelBufferLock_ReadOnly);
+  
+  // 4. Check if everything went successfully
   if (!success || _assetWriter.status != AVAssetWriterStatusWriting) {
     std::string errorMessage = "Unknown error (status " + std::to_string(_assetWriter.status) + ")";
     NSError* error = _assetWriter.error;
@@ -235,7 +217,6 @@ std::future<std::string> AppleFilamentRecorder::stopRecording() {
     }];
 
     self->_isRecording = false;
-    CVPixelBufferPoolFlush(self->_pixelBufferPool, 0);
   });
 
   return promise->get_future();

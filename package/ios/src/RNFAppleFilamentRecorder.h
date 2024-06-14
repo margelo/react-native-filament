@@ -37,7 +37,6 @@ private:
 private:
   // Render Target is a single PixelBuffer that acts as a 32BGRA Metal Texture
   CVPixelBufferRef _pixelBuffer;
-  CVPixelBufferPoolRef _pixelBufferPool;
   // Actual recorder instance
   AVAssetWriter* _assetWriter;
   AVAssetWriterInput* _assetWriterInput;
