@@ -72,19 +72,19 @@ AppleFilamentRecorder::AppleFilamentRecorder(std::shared_ptr<Dispatcher> renderT
     AVVideoHeightKey : @(height)
   };
   _assetWriterInput = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeVideo outputSettings:outputSettings];
+  _assetWriterInput.expectsMediaDataInRealTime = NO;
+  _assetWriterInput.performsMultiPassEncodingIfSupported = YES;
   if (![_assetWriter canAddInput:_assetWriterInput]) {
     std::string settingsJson = outputSettings.description.UTF8String;
     throw std::runtime_error("Failed to add AVAssetWriterInput to AVAssetWriter! Settings used: " + settingsJson);
   }
 
-  _assetWriterInput.expectsMediaDataInRealTime = NO;
-  _assetWriterInput.performsMultiPassEncodingIfSupported = YES;
-
-  _pixelBufferAdaptor = [AVAssetWriterInputPixelBufferAdaptor assetWriterInputPixelBufferAdaptorWithAssetWriterInput:_assetWriterInput
-                                                                                         sourcePixelBufferAttributes:pixelBufferAttributes];
-
   Logger::log(TAG, "Adding AVAssetWriterInput...");
   [_assetWriter addInput:_assetWriterInput];
+      
+  Logger::log(TAG, "Creating AVAssetWriterInputPixelBufferAdaptor...");
+  _pixelBufferAdaptor = [AVAssetWriterInputPixelBufferAdaptor assetWriterInputPixelBufferAdaptorWithAssetWriterInput:_assetWriterInput
+                                                                                         sourcePixelBufferAttributes:pixelBufferAttributes];
 }
 
 bool AppleFilamentRecorder::getSupportsHEVC() {
