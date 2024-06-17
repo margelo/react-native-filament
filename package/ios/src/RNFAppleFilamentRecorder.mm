@@ -196,14 +196,17 @@ std::future<void> AppleFilamentRecorder::startRecording() {
                                                      Logger::log(TAG, "Recorder is ready for more data.");
                                                      auto self = weakSelf.lock();
                                                      if (self != nullptr) {
-                                                       self->_renderThreadDispatcher->runAsync([self]() {
-                                                         bool shouldContinueNext = self->onReadyForMoreData();
-                                                         if (!shouldContinueNext) {
-                                                           // stop the render queue
-                                                           [self->_assetWriterInput markAsFinished];
-                                                         }
-                                                       });
-                                                     }
+                                                         auto futurePromise = self->_renderThreadDispatcher->runAsyncAwaitable<void>([self]() {
+                                                           while([self->_assetWriterInput isReadyForMoreMediaData]) {
+                                                             bool shouldContinueNext = self->onReadyForMoreData();
+                                                             if (!shouldContinueNext) {
+                                                               // stop the render queue
+                                                               [self->_assetWriterInput markAsFinished];
+                                                             }
+                                                           }
+                                                         });
+                                                         futurePromise.get();
+                                                       }
                                                    }];
   });
 }
