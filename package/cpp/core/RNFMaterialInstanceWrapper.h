@@ -28,8 +28,16 @@ public: // Public API
   void setTransparencyMode(std::string mode);
   // Convenience method for updating baseColorFactor parameter
   void changeAlpha(double alpha);
-  void setParameter(std::string name, double value);
-  void setBaseColorSRGB(std::vector<double> rgba);
+  void setFloatParameter(std::string name, double value);
+  void setIntParameter(std::string name, int value);
+  void setFloat3Parameter(std::string name, std::vector<double> vector);
+  void setFloat4Parameter(std::string name, std::vector<double> vector);
+  void setMat3fParameter(std::string name, std::vector<double> value);
+  double getFloatParameter(std::string name);
+  int getIntParameter(std::string name);
+  std::vector<double> getFloat3Parameter(std::string name);
+  std::vector<double> getFloat4Parameter(std::string name);
+  std::vector<double> getMat3fParameter(std::string name);
   std::string getName();
 
 public: // Internal API
