@@ -62,7 +62,8 @@ void MaterialInstanceWrapper::changeAlpha(double alpha) {
 void MaterialInstanceWrapper::setFloatParameter(std::string name, double value) {
   std::unique_lock lock(_mutex);
 
-  if (!_materialInstance->getMaterial()->hasParameter(name.c_str())) {
+  const Material* material = _materialInstance->getMaterial();
+  if (!material->hasParameter(name.c_str())) {
     throw std::runtime_error("MaterialInstanceWrapper::setFloatParameter: Material does not have parameter \"" + name + "\"!");
   }
 
@@ -72,7 +73,8 @@ void MaterialInstanceWrapper::setFloatParameter(std::string name, double value) 
 void MaterialInstanceWrapper::setIntParameter(std::string name, int value) {
   std::unique_lock lock(_mutex);
 
-  if (!_materialInstance->getMaterial()->hasParameter(name.c_str())) {
+  const Material* material = _materialInstance->getMaterial();
+  if (!material->hasParameter(name.c_str())) {
     throw std::runtime_error("MaterialInstanceWrapper::setIntParameter: Material does not have parameter \"" + name + "\"!");
   }
 
@@ -85,7 +87,8 @@ void MaterialInstanceWrapper::setFloat3Parameter(std::string name, std::vector<d
     throw std::runtime_error("MaterialInstanceWrapper::setFloat3Parameter: RGB vector must have 3 elements!");
   }
 
-  if (!_materialInstance->getMaterial()->hasParameter(name.c_str())) {
+  const Material* material = _materialInstance->getMaterial();
+  if (!material->hasParameter(name.c_str())) {
     throw std::runtime_error("MaterialInstanceWrapper::setFloat3Parameter: Material does not have parameter \"" + name + "\"!");
   }
 
@@ -102,7 +105,8 @@ void MaterialInstanceWrapper::setFloat4Parameter(std::string name, std::vector<d
     throw std::runtime_error("MaterialInstanceWrapper::setFloat4Parameter: RGBA vector must have 4 elements!");
   }
 
-  if (!_materialInstance->getMaterial()->hasParameter(name.c_str())) {
+  const Material* material = _materialInstance->getMaterial();
+  if (!material->hasParameter(name.c_str())) {
     throw std::runtime_error("MaterialInstanceWrapper::setFloat4Parameter: Material does not have parameter \"" + name + "\"!");
   }
 
@@ -117,7 +121,8 @@ void MaterialInstanceWrapper::setFloat4Parameter(std::string name, std::vector<d
 void MaterialInstanceWrapper::setMat3fParameter(std::string name, std::vector<double> value) {
   std::unique_lock lock(_mutex);
 
-  if (!_materialInstance->getMaterial()->hasParameter(name.c_str())) {
+  const Material* material = _materialInstance->getMaterial();
+  if (!material->hasParameter(name.c_str())) {
     throw std::runtime_error("MaterialInstanceWrapper::setMat3fParameter: Material does not have parameter \"" + name + "\"!");
   }
 
@@ -137,7 +142,8 @@ std::string MaterialInstanceWrapper::getName() {
 }
 
 double MaterialInstanceWrapper::getFloatParameter(std::string name) {
-  if (!_materialInstance->getMaterial()->hasParameter(name.c_str())) {
+  const Material* material = _materialInstance->getMaterial();
+  if (!material->hasParameter(name.c_str())) {
     throw std::runtime_error("MaterialInstanceWrapper::getFloatParameter: Material does not have parameter \"" + name + "\"!");
   }
 
@@ -145,7 +151,8 @@ double MaterialInstanceWrapper::getFloatParameter(std::string name) {
 }
 
 int MaterialInstanceWrapper::getIntParameter(std::string name) {
-  if (!_materialInstance->getMaterial()->hasParameter(name.c_str())) {
+  const Material* material = _materialInstance->getMaterial();
+  if (!material->hasParameter(name.c_str())) {
     throw std::runtime_error("MaterialInstanceWrapper::getIntParameter: Material does not have parameter \"" + name + "\"!");
   }
 
@@ -153,7 +160,8 @@ int MaterialInstanceWrapper::getIntParameter(std::string name) {
 }
 
 std::vector<double> MaterialInstanceWrapper::getFloat3Parameter(std::string name) {
-  if (!_materialInstance->getMaterial()->hasParameter(name.c_str())) {
+  const Material* material = _materialInstance->getMaterial();
+  if (!material->hasParameter(name.c_str())) {
     throw std::runtime_error("MaterialInstanceWrapper::getFloat3Parameter: Material does not have parameter \"" + name + "\"!");
   }
 
@@ -162,7 +170,8 @@ std::vector<double> MaterialInstanceWrapper::getFloat3Parameter(std::string name
 }
 
 std::vector<double> MaterialInstanceWrapper::getFloat4Parameter(std::string name) {
-  if (!_materialInstance->getMaterial()->hasParameter(name.c_str())) {
+  const Material* material = _materialInstance->getMaterial();
+  if (!material->hasParameter(name.c_str())) {
     throw std::runtime_error("MaterialInstanceWrapper::getFloat4Parameter: Material does not have parameter \"" + name + "\"!");
   }
 
@@ -171,7 +180,8 @@ std::vector<double> MaterialInstanceWrapper::getFloat4Parameter(std::string name
 }
 
 std::vector<double> MaterialInstanceWrapper::getMat3fParameter(std::string name) {
-  if (!_materialInstance->getMaterial()->hasParameter(name.c_str())) {
+  const Material* material = _materialInstance->getMaterial();
+  if (!material->hasParameter(name.c_str())) {
     throw std::runtime_error("MaterialInstanceWrapper::getMat3fParameter: Material does not have parameter \"" + name + "\"!");
   }
 
