@@ -1,5 +1,6 @@
 package com.margelo.filament;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -22,6 +23,8 @@ import com.facebook.react.turbomodule.core.interfaces.CallInvokerHolder;
 import com.facebook.react.uimanager.UIManagerHelper;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -114,17 +117,32 @@ class FilamentProxy {
      */
     @DoNotStrip
     @Keep
-    ByteBuffer loadAsset(String url) throws Exception {
-        Log.i(NAME, "Loading byte data from URL: " + url + "...");
+    ByteBuffer loadAsset(String uriString) throws Exception {
+        Log.i(NAME, "Loading byte data from URL: " + uriString + "...");
+
+        if (uriString.contains("file://")) {
+            String filePath = uriString.replace("file://", "");
+            // Read from file system:
+            File file = new File(filePath);
+            if (!file.exists()) {
+                throw new Exception("File does not exist: " + filePath);
+            }
+            try (FileInputStream stream = new FileInputStream(file)) {
+                return streamToDirectByteBuffer(stream);
+            } catch (Exception e) {
+                Log.e(NAME, "Failed to read file: " + filePath, e);
+                throw e;
+            }
+        }
 
         Uri uri = null;
         String assetName = null;
-        if (url.contains("://")) {
+        if (uriString.contains("http://") || uriString.contains("https://")) {
             Log.i(NAME, "Parsing URL...");
-            uri = Uri.parse(url);
+            uri = Uri.parse(uriString);
             Log.i(NAME, "Parsed URL: " + uri.toString());
         } else {
-            assetName = url;
+            assetName = uriString;
             Log.i(NAME, "Assumed assetName: " + assetName);
         }
 
@@ -139,7 +157,7 @@ class FilamentProxy {
                     throw new RuntimeException("Response was not successful!");
                 }
             } catch (Exception ex) {
-                Log.e(NAME, "Failed to fetch URL " + url + "!", ex);
+                Log.e(NAME, "Failed to fetch URL " + uriString + "!", ex);
                 throw ex;
             }
         } else if (assetName != null) {
@@ -150,7 +168,7 @@ class FilamentProxy {
         } else {
             // It's a bird? it's a plane? not it's an error
             throw new Exception("Input is neither a valid URL, nor an asset path - " +
-                    "cannot load asset! (Input: " + url + ")");
+                    "cannot load asset! (Input: " + uriString + ")");
         }
     }
 
