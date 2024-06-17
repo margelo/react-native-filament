@@ -6,14 +6,18 @@
 #include "RNFCullingModeEnum.h"
 #include "RNFTransparencyModeEnum.h"
 #include <filament/Material.h>
+#include <math/mat3.h>
 
 namespace margelo {
 void MaterialInstanceWrapper::loadHybridMethods() {
   registerHybridMethod("setCullingMode", &MaterialInstanceWrapper::setCullingMode, this);
   registerHybridMethod("setTransparencyMode", &MaterialInstanceWrapper::setTransparencyMode, this);
   registerHybridMethod("changeAlpha", &MaterialInstanceWrapper::changeAlpha, this);
-  registerHybridMethod("setParameter", &MaterialInstanceWrapper::setParameter, this);
-  registerHybridMethod("setDefaultFloat4Parameter", &MaterialInstanceWrapper::setBaseColorSRGB, this);
+  registerHybridMethod("setFloat4Parameter", &MaterialInstanceWrapper::setFloatParameter, this);
+  registerHybridMethod("setIntParameter", &MaterialInstanceWrapper::setIntParameter, this);
+  registerHybridMethod("setFloat3Parameter", &MaterialInstanceWrapper::setFloat3Parameter, this);
+  registerHybridMethod("setFloat4Parameter", &MaterialInstanceWrapper::setFloat4Parameter, this);
+  registerHybridMethod("setMat3fParameter", &MaterialInstanceWrapper::setMat3fParameter, this);
   registerHybridGetter("getName", &MaterialInstanceWrapper::getName, this);
 }
 
@@ -50,31 +54,75 @@ void MaterialInstanceWrapper::changeAlpha(double alpha) {
   changeAlpha(_materialInstance, alpha);
 }
 
-void MaterialInstanceWrapper::setParameter(std::string name, double value) {
+void MaterialInstanceWrapper::setFloatParameter(std::string name, double value) {
   std::unique_lock lock(_mutex);
 
-  const Material* material = _materialInstance->getMaterial();
-
-  if (!material->hasParameter(name.c_str())) {
-    throw std::runtime_error("MaterialInstanceWrapper::setParameter: Material does not have parameter \"" + name + "\"!");
+  if (!_materialInstance->getMaterial()->hasParameter(name.c_str())) {
+    throw std::runtime_error("MaterialInstanceWrapper::setFloatParameter: Material does not have parameter \"" + name + "\"!");
   }
 
   _materialInstance->setParameter(name.c_str(), (float)value);
 }
 
-void MaterialInstanceWrapper::setBaseColorSRGB(std::vector<double> rgba) {
+void MaterialInstanceWrapper::setIntParameter(std::string name, int value) {
   std::unique_lock lock(_mutex);
 
-  if (rgba.size() != 4) {
-    throw std::runtime_error("MaterialInstanceWrapper::setDefaultFloat4Parameter: RGBA vector must have 4 elements!");
+  if (!_materialInstance->getMaterial()->hasParameter(name.c_str())) {
+    throw std::runtime_error("MaterialInstanceWrapper::setIntParameter: Material does not have parameter \"" + name + "\"!");
   }
 
-  double r = rgba[0];
-  double g = rgba[1];
-  double b = rgba[2];
-  double a = rgba[3];
+  _materialInstance->setParameter(name.c_str(), value);
+}
 
-  _materialInstance->setParameter("baseColorFactor", math::float4({r, g, b, a}));
+void MaterialInstanceWrapper::setFloat3Parameter(std::string name, std::vector<double> vector) {
+  std::unique_lock lock(_mutex);
+  if (vector.size() != 3) {
+    throw std::runtime_error("MaterialInstanceWrapper::setFloat3Parameter: RGB vector must have 3 elements!");
+  }
+
+  if (!_materialInstance->getMaterial()->hasParameter(name.c_str())) {
+    throw std::runtime_error("MaterialInstanceWrapper::setFloat3Parameter: Material does not have parameter \"" + name + "\"!");
+  }
+
+  float x = vector[0];
+  float y = vector[1];
+  float z = vector[2];
+
+  _materialInstance->setParameter(name.c_str(), math::float3({x, y, z}));
+}
+
+void MaterialInstanceWrapper::setFloat4Parameter(std::string name, std::vector<double> vector) {
+  std::unique_lock lock(_mutex);
+  if (vector.size() != 4) {
+    throw std::runtime_error("MaterialInstanceWrapper::setFloat4Parameter: RGBA vector must have 4 elements!");
+  }
+
+  if (!_materialInstance->getMaterial()->hasParameter(name.c_str())) {
+    throw std::runtime_error("MaterialInstanceWrapper::setFloat4Parameter: Material does not have parameter \"" + name + "\"!");
+  }
+
+  double r = vector[0];
+  double g = vector[1];
+  double b = vector[2];
+  double a = vector[3];
+
+  _materialInstance->setParameter(name.c_str(), math::float4({r, g, b, a}));
+}
+
+void MaterialInstanceWrapper::setMat3fParameter(std::string name, std::vector<double> value) {
+  std::unique_lock lock(_mutex);
+
+  if (!_materialInstance->getMaterial()->hasParameter(name.c_str())) {
+    throw std::runtime_error("MaterialInstanceWrapper::setMat3fParameter: Material does not have parameter \"" + name + "\"!");
+  }
+
+  if (value.size() != 9) {
+    throw std::runtime_error("MaterialInstanceWrapper::setMat3fParameter: Value vector must have 9 elements!");
+  }
+
+  math::mat3f matrix = math::mat3f((float)value[0], (float)value[1], (float)value[2], (float)value[3], (float)value[4], (float)value[5],
+                                   (float)value[6], (float)value[7], (float)value[8]);
+  _materialInstance->setParameter(name.c_str(), matrix);
 }
 
 std::string MaterialInstanceWrapper::getName() {
