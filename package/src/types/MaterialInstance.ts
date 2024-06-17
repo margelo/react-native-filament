@@ -1,5 +1,4 @@
-import { RGBA } from './Color'
-import { Float3, Mat3f } from './Math'
+import { Float3, Float4, Mat3f } from './Math'
 
 export type CullingMode = 'none' | 'back' | 'front' | 'frontAndBack'
 
@@ -13,10 +12,11 @@ export interface MaterialInstance {
   setIntParameter(name: string, value: number): void
   setMat3fParameter(name: string, value: Mat3f): void
   setFloat3Parameter(name: string, vector: Float3): void
-  /**
-   * Changes the base color of the material.
-   * Assumes linear (0-1) linear sRGB color space.
-   */
-  setFloat4Parameter(color: RGBA): void
+  setFloat4Parameter(name: string, vector: Float4): void
+  getFloatParameter(name: string): number
+  getIntParameter(name: string): number
+  getMat3fParameter(name: string): Mat3f
+  getFloat3Parameter(name: string): Float3
+  getFloat4Parameter(name: string): Float4
   readonly name: string
 }

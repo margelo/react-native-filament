@@ -33,6 +33,11 @@ public: // Public API
   void setFloat3Parameter(std::string name, std::vector<double> vector);
   void setFloat4Parameter(std::string name, std::vector<double> vector);
   void setMat3fParameter(std::string name, std::vector<double> value);
+  double getFloatParameter(std::string name);
+  int getIntParameter(std::string name);
+  std::vector<double> getFloat3Parameter(std::string name);
+  std::vector<double> getFloat4Parameter(std::string name);
+  std::vector<double> getMat3fParameter(std::string name);
   std::string getName();
 
 public: // Internal API

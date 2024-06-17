@@ -18,6 +18,11 @@ void MaterialInstanceWrapper::loadHybridMethods() {
   registerHybridMethod("setFloat3Parameter", &MaterialInstanceWrapper::setFloat3Parameter, this);
   registerHybridMethod("setFloat4Parameter", &MaterialInstanceWrapper::setFloat4Parameter, this);
   registerHybridMethod("setMat3fParameter", &MaterialInstanceWrapper::setMat3fParameter, this);
+  registerHybridMethod("getFloatParameter", &MaterialInstanceWrapper::getFloatParameter, this);
+  registerHybridMethod("getIntParameter", &MaterialInstanceWrapper::getIntParameter, this);
+  registerHybridMethod("getFloat3Parameter", &MaterialInstanceWrapper::getFloat3Parameter, this);
+  registerHybridMethod("getFloat4Parameter", &MaterialInstanceWrapper::getFloat4Parameter, this);
+  registerHybridMethod("getMat3fParameter", &MaterialInstanceWrapper::getMat3fParameter, this);
   registerHybridGetter("getName", &MaterialInstanceWrapper::getName, this);
 }
 
@@ -129,6 +134,51 @@ std::string MaterialInstanceWrapper::getName() {
   std::unique_lock lock(_mutex);
 
   return _materialInstance->getName();
+}
+
+double MaterialInstanceWrapper::getFloatParameter(std::string name) {
+  if (!_materialInstance->getMaterial()->hasParameter(name.c_str())) {
+    throw std::runtime_error("MaterialInstanceWrapper::getFloatParameter: Material does not have parameter \"" + name + "\"!");
+  }
+
+  return _materialInstance->getParameter<float>(name.c_str());
+}
+
+int MaterialInstanceWrapper::getIntParameter(std::string name) {
+  if (!_materialInstance->getMaterial()->hasParameter(name.c_str())) {
+    throw std::runtime_error("MaterialInstanceWrapper::getIntParameter: Material does not have parameter \"" + name + "\"!");
+  }
+
+  return _materialInstance->getParameter<int>(name.c_str());
+}
+
+std::vector<double> MaterialInstanceWrapper::getFloat3Parameter(std::string name) {
+  if (!_materialInstance->getMaterial()->hasParameter(name.c_str())) {
+    throw std::runtime_error("MaterialInstanceWrapper::getFloat3Parameter: Material does not have parameter \"" + name + "\"!");
+  }
+
+  math::float3 vector = _materialInstance->getParameter<math::float3>(name.c_str());
+  return {vector.x, vector.y, vector.z};
+}
+
+std::vector<double> MaterialInstanceWrapper::getFloat4Parameter(std::string name) {
+  if (!_materialInstance->getMaterial()->hasParameter(name.c_str())) {
+    throw std::runtime_error("MaterialInstanceWrapper::getFloat4Parameter: Material does not have parameter \"" + name + "\"!");
+  }
+
+  math::float4 vector = _materialInstance->getParameter<math::float4>(name.c_str());
+  return {vector.r, vector.g, vector.b, vector.a};
+}
+
+std::vector<double> MaterialInstanceWrapper::getMat3fParameter(std::string name) {
+  if (!_materialInstance->getMaterial()->hasParameter(name.c_str())) {
+    throw std::runtime_error("MaterialInstanceWrapper::getMat3fParameter: Material does not have parameter \"" + name + "\"!");
+  }
+
+  math::mat3f matrix = _materialInstance->getParameter<math::mat3f>(name.c_str());
+  const float* matrixArray = matrix.asArray();
+  return {matrixArray[0], matrixArray[1], matrixArray[2], matrixArray[3], matrixArray[4],
+          matrixArray[5], matrixArray[6], matrixArray[7], matrixArray[8]};
 }
 
 } // namespace margelo
