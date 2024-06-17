@@ -120,9 +120,9 @@ class FilamentProxy {
     ByteBuffer loadAsset(String uriString) throws Exception {
         Log.i(NAME, "Loading byte data from URL: " + uriString + "...");
 
+        // It's a file path, read the file system directly
         if (uriString.contains("file://")) {
             String filePath = uriString.replace("file://", "");
-            // Read from file system:
             File file = new File(filePath);
             if (!file.exists()) {
                 throw new Exception("File does not exist: " + filePath);
@@ -135,19 +135,12 @@ class FilamentProxy {
             }
         }
 
-        Uri uri = null;
-        String assetName = null;
+        // It's a URL/http resource
         if (uriString.contains("http://") || uriString.contains("https://")) {
             Log.i(NAME, "Parsing URL...");
-            uri = Uri.parse(uriString);
+            Uri uri = Uri.parse(uriString);
             Log.i(NAME, "Parsed URL: " + uri.toString());
-        } else {
-            assetName = uriString;
-            Log.i(NAME, "Assumed assetName: " + assetName);
-        }
 
-        if (uri != null) {
-            // It's a URL/http resource
             Request request = new Request.Builder().url(uri.toString()).build();
             try (Response response = client.newCall(request).execute()) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -160,15 +153,12 @@ class FilamentProxy {
                 Log.e(NAME, "Failed to fetch URL " + uriString + "!", ex);
                 throw ex;
             }
-        } else if (assetName != null) {
-            // It's bundled into the Android resources/assets
-            try (InputStream stream = reactContext.getAssets().open(assetName)) {
-                return streamToDirectByteBuffer(stream);
-            }
-        } else {
-            // It's a bird? it's a plane? not it's an error
-            throw new Exception("Input is neither a valid URL, nor an asset path - " +
-                    "cannot load asset! (Input: " + uriString + ")");
+        }
+
+        // It's bundled into the Android resources/assets
+        Log.i(NAME, "Assumed assetName: " + uriString);
+        try (InputStream stream = reactContext.getAssets().open(uriString)) {
+            return streamToDirectByteBuffer(stream);
         }
     }
 
