@@ -23,6 +23,7 @@
     "react-native-screens": "^3.31.1",
     "react-native-video": "^6.1.2",
     "react-native-worklets-core": "^2.0.0-beta.4",
+    "rn-fetch-blob": "^0.12.0",
     "shared": "workspace:^"
   },
   "devDependencies": {
