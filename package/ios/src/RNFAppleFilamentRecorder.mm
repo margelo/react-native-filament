@@ -154,6 +154,9 @@ void AppleFilamentRecorder::renderFrame(double timestamp) {
     }
     throw std::runtime_error("Failed to append buffer to AVAssetWriter! " + errorMessage);
   }
+  
+  // 6. Release the pixel buffer
+  CFRelease(targetBuffer);
 }
 
 void* AppleFilamentRecorder::getNativeWindow() {
