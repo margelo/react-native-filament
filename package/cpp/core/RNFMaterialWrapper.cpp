@@ -10,13 +10,13 @@
 namespace margelo {
 void MaterialWrapper::loadHybridMethods() {
   registerHybridMethod("createInstance", &MaterialWrapper::createInstance, this);
-  registerHybridMethod("setDefaultFloatParameter", &MaterialWrapper::setDefaultFloatParameter, this);
+  registerHybridMethod("setFloatParameter", &MaterialWrapper::setDefaultFloatParameter, this);
   registerHybridMethod("setDefaultTextureParameter", &MaterialWrapper::setDefaultTextureParameter, this);
   registerHybridMethod("getDefaultInstance", &MaterialWrapper::getDefaultInstance, this);
-  registerHybridMethod("setDefaultMat3fParameter", &MaterialWrapper::setDefaultMat3fParameter, this);
-  registerHybridMethod("setDefaultFloat3Parameter", &MaterialWrapper::setDefaultFloat3Parameter, this);
-  registerHybridMethod("setDefaultFloat4Parameter", &MaterialWrapper::setDefaultFloat4Parameter, this);
-  registerHybridMethod("setDefaultIntParameter", &MaterialWrapper::setDefaultIntParameter, this);
+  registerHybridMethod("setMat3fParameter", &MaterialWrapper::setDefaultMat3fParameter, this);
+  registerHybridMethod("setFloat3Parameter", &MaterialWrapper::setDefaultFloat3Parameter, this);
+  registerHybridMethod("setFloat4Parameter", &MaterialWrapper::setDefaultFloat4Parameter, this);
+  registerHybridMethod("setIntParameter", &MaterialWrapper::setDefaultIntParameter, this);
 }
 std::shared_ptr<MaterialInstanceWrapper> MaterialWrapper::createInstance() {
   return pointee()->createInstance();
