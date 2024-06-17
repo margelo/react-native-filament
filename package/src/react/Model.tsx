@@ -21,7 +21,7 @@ type ModelProps = UseModelProps & {
  *
  *
  * If you are passing in a `.glb` model or similar from your app's bundle using `require(..)`, make sure to add `glb` as an asset extension to `metro.config.js`!
- * If you are passing in a `{ url: ... }`, make sure the URL points directly to a `.glb` model. This can either be a web URL (`http://..`/`https://..`), a local file (`file://..`), or an native asset path (`path/to/asset.glb`)
+ * If you are passing in a `{ uri: ... }`, make sure the URL points directly to a `.glb` model. This can either be a web URL (`http://..`/`https://..`), a local file (`file://..`), or an native asset path (`path/to/asset.glb`)
  */
 export function Model({ children, source, transformToUnitCube, ...modelProps }: PropsWithChildren<ModelProps>) {
   const model = useModel(source, modelProps)

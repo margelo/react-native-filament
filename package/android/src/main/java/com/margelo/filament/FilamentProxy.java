@@ -1,5 +1,6 @@
 package com.margelo.filament;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -22,6 +23,8 @@ import com.facebook.react.turbomodule.core.interfaces.CallInvokerHolder;
 import com.facebook.react.uimanager.UIManagerHelper;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -114,22 +117,30 @@ class FilamentProxy {
      */
     @DoNotStrip
     @Keep
-    ByteBuffer loadAsset(String url) throws Exception {
-        Log.i(NAME, "Loading byte data from URL: " + url + "...");
+    ByteBuffer loadAsset(String uriString) throws Exception {
+        Log.i(NAME, "Loading byte data from URL: " + uriString + "...");
 
-        Uri uri = null;
-        String assetName = null;
-        if (url.contains("://")) {
-            Log.i(NAME, "Parsing URL...");
-            uri = Uri.parse(url);
-            Log.i(NAME, "Parsed URL: " + uri.toString());
-        } else {
-            assetName = url;
-            Log.i(NAME, "Assumed assetName: " + assetName);
+        // It's a file path, read the file system directly
+        if (uriString.contains("file://")) {
+            String filePath = uriString.replace("file://", "");
+            File file = new File(filePath);
+            if (!file.exists()) {
+                throw new Exception("File does not exist: " + filePath);
+            }
+            try (FileInputStream stream = new FileInputStream(file)) {
+                return streamToDirectByteBuffer(stream);
+            } catch (Exception e) {
+                Log.e(NAME, "Failed to read file: " + filePath, e);
+                throw e;
+            }
         }
 
-        if (uri != null) {
-            // It's a URL/http resource
+        // It's a URL/http resource
+        if (uriString.contains("http://") || uriString.contains("https://")) {
+            Log.i(NAME, "Parsing URL...");
+            Uri uri = Uri.parse(uriString);
+            Log.i(NAME, "Parsed URL: " + uri.toString());
+
             Request request = new Request.Builder().url(uri.toString()).build();
             try (Response response = client.newCall(request).execute()) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -139,18 +150,15 @@ class FilamentProxy {
                     throw new RuntimeException("Response was not successful!");
                 }
             } catch (Exception ex) {
-                Log.e(NAME, "Failed to fetch URL " + url + "!", ex);
+                Log.e(NAME, "Failed to fetch URL " + uriString + "!", ex);
                 throw ex;
             }
-        } else if (assetName != null) {
-            // It's bundled into the Android resources/assets
-            try (InputStream stream = reactContext.getAssets().open(assetName)) {
-                return streamToDirectByteBuffer(stream);
-            }
-        } else {
-            // It's a bird? it's a plane? not it's an error
-            throw new Exception("Input is neither a valid URL, nor an asset path - " +
-                    "cannot load asset! (Input: " + url + ")");
+        }
+
+        // It's bundled into the Android resources/assets
+        Log.i(NAME, "Assumed assetName: " + uriString);
+        try (InputStream stream = reactContext.getAssets().open(uriString)) {
+            return streamToDirectByteBuffer(stream);
         }
     }
 
