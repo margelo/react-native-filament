@@ -13,7 +13,7 @@ void MaterialInstanceWrapper::loadHybridMethods() {
   registerHybridMethod("setCullingMode", &MaterialInstanceWrapper::setCullingMode, this);
   registerHybridMethod("setTransparencyMode", &MaterialInstanceWrapper::setTransparencyMode, this);
   registerHybridMethod("changeAlpha", &MaterialInstanceWrapper::changeAlpha, this);
-  registerHybridMethod("setFloat4Parameter", &MaterialInstanceWrapper::setFloatParameter, this);
+  registerHybridMethod("setFloatParameter", &MaterialInstanceWrapper::setFloatParameter, this);
   registerHybridMethod("setIntParameter", &MaterialInstanceWrapper::setIntParameter, this);
   registerHybridMethod("setFloat3Parameter", &MaterialInstanceWrapper::setFloat3Parameter, this);
   registerHybridMethod("setFloat4Parameter", &MaterialInstanceWrapper::setFloat4Parameter, this);
