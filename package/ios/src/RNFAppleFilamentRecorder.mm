@@ -29,12 +29,8 @@ AppleFilamentRecorder::AppleFilamentRecorder(std::shared_ptr<Dispatcher> renderT
     (NSString*)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA),
     (NSString*)kCVPixelBufferMetalCompatibilityKey : @(YES)
   };
-  CVReturn result = CVPixelBufferCreate(nil,
-                                        width,
-                                        height,
-                                        kCVPixelFormatType_32BGRA,
-                                        (__bridge CFDictionaryRef)pixelBufferAttributes,
-                                        &_pixelBuffer);
+  CVReturn result =
+      CVPixelBufferCreate(nil, width, height, kCVPixelFormatType_32BGRA, (__bridge CFDictionaryRef)pixelBufferAttributes, &_pixelBuffer);
   if (result != kCVReturnSuccess) {
     throw std::runtime_error("Failed to create input texture CVPixelBuffer!");
   }
@@ -81,7 +77,7 @@ AppleFilamentRecorder::AppleFilamentRecorder(std::shared_ptr<Dispatcher> renderT
 
   Logger::log(TAG, "Adding AVAssetWriterInput...");
   [_assetWriter addInput:_assetWriterInput];
-      
+
   Logger::log(TAG, "Creating AVAssetWriterInputPixelBufferAdaptor...");
   _pixelBufferAdaptor = [AVAssetWriterInputPixelBufferAdaptor assetWriterInputPixelBufferAdaptorWithAssetWriterInput:_assetWriterInput
                                                                                          sourcePixelBufferAttributes:pixelBufferAttributes];
@@ -154,7 +150,7 @@ void AppleFilamentRecorder::renderFrame(double timestamp) {
     }
     throw std::runtime_error("Failed to append buffer to AVAssetWriter! " + errorMessage);
   }
-  
+
   // 6. Release the pixel buffer
   CFRelease(targetBuffer);
 }
@@ -196,21 +192,23 @@ std::future<void> AppleFilamentRecorder::startRecording() {
                                                      Logger::log(TAG, "Recorder is ready for more data.");
                                                      auto self = weakSelf.lock();
                                                      if (self != nullptr) {
-                                                         auto futurePromise = self->_renderThreadDispatcher->runAsyncAwaitable<void>([self]() {
-                                                           while([self->_assetWriterInput isReadyForMoreMediaData]) {
-                                                             // This will cause our JS render callbacks to be called, which will call renderFrame
-                                                             // renderFrame will call appendPixelBuffer, and we should call appendPixelBuffer
-                                                             // as long as isReadyForMoreMediaData is true.
-                                                             bool shouldContinueNext = self->onReadyForMoreData();
-                                                             if (!shouldContinueNext) {
-                                                               // stop the render queue
-                                                               [self->_assetWriterInput markAsFinished];
+                                                       auto futurePromise =
+                                                           self->_renderThreadDispatcher->runAsyncAwaitable<void>([self]() {
+                                                             while ([self->_assetWriterInput isReadyForMoreMediaData]) {
+                                                               // This will cause our JS render callbacks to be called, which will call
+                                                               // renderFrame renderFrame will call appendPixelBuffer, and we should call
+                                                               // appendPixelBuffer as long as isReadyForMoreMediaData is true.
+                                                               bool shouldContinueNext = self->onReadyForMoreData();
+                                                               if (!shouldContinueNext) {
+                                                                 // stop the render queue
+                                                                 [self->_assetWriterInput markAsFinished];
+                                                               }
                                                              }
-                                                           }
-                                                         });
-                                                         // The block in requestMediaDataWhenReadyOnQueue needs to call appendPixelBuffer synchronously
-                                                         futurePromise.get();
-                                                       }
+                                                           });
+                                                       // The block in requestMediaDataWhenReadyOnQueue needs to call appendPixelBuffer
+                                                       // synchronously
+                                                       futurePromise.get();
+                                                     }
                                                    }];
   });
 }

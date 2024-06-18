@@ -16,7 +16,7 @@ public:
   explicit NameComponentManagerWrapper(std::shared_ptr<NameComponentManager> nameComponentManager)
       : PointerHolder(TAG, nameComponentManager) {}
 
-  void loadHybridMethods() override {};
+  void loadHybridMethods() override{};
 
   std::shared_ptr<NameComponentManager> getManager() {
     return pointee();
