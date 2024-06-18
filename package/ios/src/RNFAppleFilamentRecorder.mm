@@ -198,6 +198,9 @@ std::future<void> AppleFilamentRecorder::startRecording() {
                                                      if (self != nullptr) {
                                                          auto futurePromise = self->_renderThreadDispatcher->runAsyncAwaitable<void>([self]() {
                                                            while([self->_assetWriterInput isReadyForMoreMediaData]) {
+                                                             // This will cause our JS render callbacks to be called, which will call renderFrame
+                                                             // renderFrame will call appendPixelBuffer, and we should call appendPixelBuffer
+                                                             // as long as isReadyForMoreMediaData is true.
                                                              bool shouldContinueNext = self->onReadyForMoreData();
                                                              if (!shouldContinueNext) {
                                                                // stop the render queue
@@ -205,6 +208,7 @@ std::future<void> AppleFilamentRecorder::startRecording() {
                                                              }
                                                            }
                                                          });
+                                                         // The block in requestMediaDataWhenReadyOnQueue needs to call appendPixelBuffer synchronously
                                                          futurePromise.get();
                                                        }
                                                    }];
