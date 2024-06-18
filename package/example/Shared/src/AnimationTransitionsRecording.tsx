@@ -28,7 +28,7 @@ const near = 0.1
 const far = 1000
 
 const FPS = 60
-const DURATION = 3 // seconds
+const DURATION = 10 // seconds
 
 function Renderer() {
   const { camera } = useFilamentContext()
@@ -154,7 +154,7 @@ function Renderer() {
           repeat={true}
           controls={true}
           source={{ uri: videoUri }}
-          onError={(e) => console.error(e)}
+          onError={(e) => console.error('Video error', e)}
           onLoad={() => console.log('On load')}
           onEnd={() => console.log('On end')}
         />

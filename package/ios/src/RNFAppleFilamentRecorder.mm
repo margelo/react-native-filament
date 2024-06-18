@@ -6,11 +6,15 @@
 //
 
 #include "RNFAppleFilamentRecorder.h"
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreVideo/CoreVideo.h>
 #include <VideoToolbox/VTCompressionProperties.h>
 #include <memory>
 #include <mutex>
 
 namespace margelo {
+
+static int kCVPixelBufferLock_Write = 0;
 
 AppleFilamentRecorder::AppleFilamentRecorder(std::shared_ptr<Dispatcher> renderThreadDispatcher, int width, int height, int fps,
                                              double bitRate)
@@ -18,27 +22,17 @@ AppleFilamentRecorder::AppleFilamentRecorder(std::shared_ptr<Dispatcher> renderT
   dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, -1);
   _queue = dispatch_queue_create("filament.recorder.queue", qos);
 
-  Logger::log(TAG, "Creating CVPixelBufferPool...");
-  int maxBufferCount = 30;
-  NSDictionary* poolAttributes = @{(NSString*)kCVPixelBufferPoolMinimumBufferCountKey : @(maxBufferCount)};
+  Logger::log(TAG, "Creating CVPixelBuffer target texture...");
   NSDictionary* pixelBufferAttributes = @{
     (NSString*)kCVPixelBufferWidthKey : @(width),
     (NSString*)kCVPixelBufferHeightKey : @(height),
     (NSString*)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA),
     (NSString*)kCVPixelBufferMetalCompatibilityKey : @(YES)
   };
-  CVReturn result = CVPixelBufferPoolCreate(kCFAllocatorDefault, (__bridge CFDictionaryRef)poolAttributes,
-                                            (__bridge CFDictionaryRef)pixelBufferAttributes, &_pixelBufferPool);
+  CVReturn result =
+      CVPixelBufferCreate(nil, width, height, kCVPixelFormatType_32BGRA, (__bridge CFDictionaryRef)pixelBufferAttributes, &_pixelBuffer);
   if (result != kCVReturnSuccess) {
-    throw std::runtime_error("Failed to create " + std::to_string(width) + "x" + std::to_string(height) +
-                             " CVPixelBufferPool! Status: " + std::to_string(result));
-  }
-
-  Logger::log(TAG, "Creating CVPixelBuffer target texture...");
-  result = CVPixelBufferPoolCreatePixelBuffer(kCFAllocatorDefault, _pixelBufferPool, &_pixelBuffer);
-  if (result != kCVReturnSuccess) {
-    throw std::runtime_error("Failed to create " + std::to_string(width) + "x" + std::to_string(height) +
-                             " CVPixelBuffer texture! Status: " + std::to_string(result));
+    throw std::runtime_error("Failed to create input texture CVPixelBuffer!");
   }
 
   Logger::log(TAG, "Creating temporary file...");
@@ -74,19 +68,19 @@ AppleFilamentRecorder::AppleFilamentRecorder(std::shared_ptr<Dispatcher> renderT
     AVVideoHeightKey : @(height)
   };
   _assetWriterInput = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeVideo outputSettings:outputSettings];
+  _assetWriterInput.expectsMediaDataInRealTime = NO;
+  _assetWriterInput.performsMultiPassEncodingIfSupported = YES;
   if (![_assetWriter canAddInput:_assetWriterInput]) {
     std::string settingsJson = outputSettings.description.UTF8String;
     throw std::runtime_error("Failed to add AVAssetWriterInput to AVAssetWriter! Settings used: " + settingsJson);
   }
 
-  _assetWriterInput.expectsMediaDataInRealTime = NO;
-  _assetWriterInput.performsMultiPassEncodingIfSupported = YES;
-
-  _pixelBufferAdaptor = [AVAssetWriterInputPixelBufferAdaptor assetWriterInputPixelBufferAdaptorWithAssetWriterInput:_assetWriterInput
-                                                                                         sourcePixelBufferAttributes:nil];
-
   Logger::log(TAG, "Adding AVAssetWriterInput...");
   [_assetWriter addInput:_assetWriterInput];
+
+  Logger::log(TAG, "Creating AVAssetWriterInputPixelBufferAdaptor...");
+  _pixelBufferAdaptor = [AVAssetWriterInputPixelBufferAdaptor assetWriterInputPixelBufferAdaptorWithAssetWriterInput:_assetWriterInput
+                                                                                         sourcePixelBufferAttributes:pixelBufferAttributes];
 }
 
 bool AppleFilamentRecorder::getSupportsHEVC() {
@@ -106,38 +100,46 @@ void AppleFilamentRecorder::renderFrame(double timestamp) {
 
   Logger::log(TAG, "Rendering Frame with timestamp %f...", timestamp);
   if (!_assetWriterInput.isReadyForMoreMediaData) {
-    // TODO: Dropping this frame is probably not a good idea, as we are rendering from an offscreen context anyways
-    //       and could just wait until the input is ready for more data again. Maybe we can implement a mechanism
-    //       that only renders when isReadyForMoreMediaData turns true?
+    // This should never happen because we only poll Frames from the AVAssetWriter.
+    // Once it's ready, renderFrame will be called. But better safe than sorry.
     throw std::runtime_error("AVAssetWriterInput was not ready for more data!");
   }
 
-  CVPixelBufferRef targetBuffer;
-  CVReturn result = CVPixelBufferPoolCreatePixelBuffer(kCFAllocatorDefault, _pixelBufferPool, &targetBuffer);
-  if (result != kCVReturnSuccess) {
-    throw std::runtime_error("Failed to create CVPixelBuffer for writing! Status: " + std::to_string(result));
+  CVPixelBufferPoolRef pool = _pixelBufferAdaptor.pixelBufferPool;
+  if (pool == nil) {
+    // The pool should always be created once startSession has been called. So in theory that also shouldn't happen.
+    throw std::runtime_error("AVAssetWriterInputPixelBufferAdaptor's pixel buffer pool was nil! Cannot write Frame.");
   }
 
-  result = CVPixelBufferLockBaseAddress(targetBuffer, /* write flag */ 0);
-  if (result != kCVReturnSuccess) {
-    throw std::runtime_error("Failed to lock target buffer for write access!");
+  // 1. Get (or create) a pixel buffer from the cache pool
+  CVPixelBufferRef targetBuffer;
+  CVReturn result = CVPixelBufferPoolCreatePixelBuffer(nil, pool, &targetBuffer);
+  if (result != kCVReturnSuccess || targetBuffer == nil) {
+    throw std::runtime_error("Failed to get a new CVPixelBuffer from the CVPixelBufferPool!");
   }
+
+  // 2. Lock both pixel buffers for CPU access
   result = CVPixelBufferLockBaseAddress(_pixelBuffer, kCVPixelBufferLock_ReadOnly);
   if (result != kCVReturnSuccess) {
     throw std::runtime_error("Failed to lock input buffer for read access!");
   }
+  result = CVPixelBufferLockBaseAddress(targetBuffer, /* write flag */ 0);
+  if (result != kCVReturnSuccess) {
+    throw std::runtime_error("Failed to lock target buffer for write access!");
+  }
 
+  // 3. Copy over Frame data
   size_t bytesPerRow = CVPixelBufferGetBytesPerRow(_pixelBuffer);
   size_t height = CVPixelBufferGetHeight(_pixelBuffer);
-
   void* destination = CVPixelBufferGetBaseAddress(targetBuffer);
   void* source = CVPixelBufferGetBaseAddress(_pixelBuffer);
-
   memcpy(destination, source, bytesPerRow * height);
 
-  CVPixelBufferUnlockBaseAddress(targetBuffer, /* write flag */ 0);
+  // 4. Unlock pixel buffers again
+  CVPixelBufferUnlockBaseAddress(targetBuffer, kCVPixelBufferLock_Write);
   CVPixelBufferUnlockBaseAddress(_pixelBuffer, kCVPixelBufferLock_ReadOnly);
 
+  // 5. Append the new copy of the buffer to the pool
   CMTime time = CMTimeMake(_frameCount++, getFps());
   BOOL success = [_pixelBufferAdaptor appendPixelBuffer:targetBuffer withPresentationTime:time];
   if (!success || _assetWriter.status != AVAssetWriterStatusWriting) {
@@ -148,6 +150,9 @@ void AppleFilamentRecorder::renderFrame(double timestamp) {
     }
     throw std::runtime_error("Failed to append buffer to AVAssetWriter! " + errorMessage);
   }
+
+  // 6. Release the pixel buffer
+  CFRelease(targetBuffer);
 }
 
 void* AppleFilamentRecorder::getNativeWindow() {
@@ -187,13 +192,22 @@ std::future<void> AppleFilamentRecorder::startRecording() {
                                                      Logger::log(TAG, "Recorder is ready for more data.");
                                                      auto self = weakSelf.lock();
                                                      if (self != nullptr) {
-                                                       self->_renderThreadDispatcher->runAsync([self]() {
-                                                         bool shouldContinueNext = self->onReadyForMoreData();
-                                                         if (!shouldContinueNext) {
-                                                           // stop the render queue
-                                                           [self->_assetWriterInput markAsFinished];
-                                                         }
-                                                       });
+                                                       auto futurePromise =
+                                                           self->_renderThreadDispatcher->runAsyncAwaitable<void>([self]() {
+                                                             while ([self->_assetWriterInput isReadyForMoreMediaData]) {
+                                                               // This will cause our JS render callbacks to be called, which will call
+                                                               // renderFrame renderFrame will call appendPixelBuffer, and we should call
+                                                               // appendPixelBuffer as long as isReadyForMoreMediaData is true.
+                                                               bool shouldContinueNext = self->onReadyForMoreData();
+                                                               if (!shouldContinueNext) {
+                                                                 // stop the render queue
+                                                                 [self->_assetWriterInput markAsFinished];
+                                                               }
+                                                             }
+                                                           });
+                                                       // The block in requestMediaDataWhenReadyOnQueue needs to call appendPixelBuffer
+                                                       // synchronously
+                                                       futurePromise.get();
                                                      }
                                                    }];
   });
@@ -235,7 +249,6 @@ std::future<std::string> AppleFilamentRecorder::stopRecording() {
     }];
 
     self->_isRecording = false;
-    CVPixelBufferPoolFlush(self->_pixelBufferPool, 0);
   });
 
   return promise->get_future();
