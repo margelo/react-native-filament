@@ -196,14 +196,21 @@ std::future<void> AppleFilamentRecorder::startRecording() {
                                                      Logger::log(TAG, "Recorder is ready for more data.");
                                                      auto self = weakSelf.lock();
                                                      if (self != nullptr) {
-                                                       self->_renderThreadDispatcher->runAsync([self]() {
-                                                         bool shouldContinueNext = self->onReadyForMoreData();
-                                                         if (!shouldContinueNext) {
-                                                           // stop the render queue
-                                                           [self->_assetWriterInput markAsFinished];
-                                                         }
-                                                       });
-                                                     }
+                                                         auto futurePromise = self->_renderThreadDispatcher->runAsyncAwaitable<void>([self]() {
+                                                           while([self->_assetWriterInput isReadyForMoreMediaData]) {
+                                                             // This will cause our JS render callbacks to be called, which will call renderFrame
+                                                             // renderFrame will call appendPixelBuffer, and we should call appendPixelBuffer
+                                                             // as long as isReadyForMoreMediaData is true.
+                                                             bool shouldContinueNext = self->onReadyForMoreData();
+                                                             if (!shouldContinueNext) {
+                                                               // stop the render queue
+                                                               [self->_assetWriterInput markAsFinished];
+                                                             }
+                                                           }
+                                                         });
+                                                         // The block in requestMediaDataWhenReadyOnQueue needs to call appendPixelBuffer synchronously
+                                                         futurePromise.get();
+                                                       }
                                                    }];
   });
 }
