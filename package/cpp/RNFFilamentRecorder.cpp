@@ -38,7 +38,7 @@ std::shared_ptr<Listener> FilamentRecorder::addOnReadyForMoreDataListener(ReadyF
 
 bool FilamentRecorder::onReadyForMoreData() {
   // notify all JS listeners
-  bool shouldContinueNext = true;
+  bool shouldContinueNext = _listenerManager->getHasListeners();
   _listenerManager->forEach([&shouldContinueNext](const ReadyForMoreDataCallback& callback) {
     bool result = callback();
     if (!result) {
