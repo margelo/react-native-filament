@@ -139,6 +139,13 @@ function Renderer() {
     console.log('Camera configured')
   }, [camera, recorder.height, recorder.width])
 
+  React.useEffect(() => {
+    return () => {
+      console.log('On unmount: stop recording')
+      onFinish()
+    }
+  }, [onFinish])
+
   return (
     <View style={styles.container}>
       {videoUri == null ? (
