@@ -140,6 +140,7 @@ public:
      * @param values        Array of values to set to the named parameter array.
      * @param count         Size of the array to set.
      * @throws utils::PreConditionPanic if name doesn't exist or no-op if exceptions are disabled.
+     * @see Material::hasParameter
      */
     template<typename T, typename = is_supported_parameter_t<T>>
     void setParameter(const char* UTILS_NONNULL name, size_t nameLength,
@@ -237,9 +238,13 @@ public:
     /**
      * Gets the value of a parameter by name.
      * 
+     * Note: Only supports non-texture parameters such as numeric and math types.
+     * 
      * @param name          Name of the parameter as defined by Material. Cannot be nullptr.
      * @param nameLength    Length in `char` of the name parameter.
      * @throws utils::PreConditionPanic if name doesn't exist or no-op if exceptions are disabled.
+     * 
+     * @see Material::hasParameter
      */
     template<typename T>
     T getParameter(const char* UTILS_NONNULL name, size_t nameLength) const;
