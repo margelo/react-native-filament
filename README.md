@@ -60,6 +60,33 @@ function App() {
 
 > See the [example](./package/example/) app
 
+### Contributing
+
+We welcome contributions to react-native-filament! 🎉
+
+After cloning the repo make sure you have the submodules clones as well:
+
+```sh
+git submodule update --init --recursive --depth 1
+```
+
+Install all node modules (including the examples)
+
+```sh
+cd package
+yarn
+```
+
+And finally build filament and bullet3:
+
+```sh
+# Inside ./package
+yarn build-bullet3
+yarn build-filament:release # or yarn build-filament:debug
+```
+
+You can then build one of the example apps in `package/example/AppExamplePaper` or `package/example/AppExampleFabric`. 
+
 ### Adopting at scale
 
 react-native-filament is provided _as is_.
