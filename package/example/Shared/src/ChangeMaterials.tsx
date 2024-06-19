@@ -1,40 +1,19 @@
 import * as React from 'react'
-import { useCallback, useRef } from 'react'
 
 import { Button, StyleSheet, View } from 'react-native'
-import {
-  FilamentView,
-  Float3,
-  useRenderCallback,
-  useBuffer,
-  useModel,
-  FilamentProvider,
-  useFilamentContext,
-  useWorkletCallback,
-} from 'react-native-filament'
-import { getAssetPath } from './utils/getAssetPasth'
-import { useDefaultLight } from './hooks/useDefaultLight'
+import { FilamentView, useBuffer, useModel, useFilamentContext, useWorkletCallback, Camera, FilamentContext } from 'react-native-filament'
 
-const penguModelPath = getAssetPath('pengu.glb')
-const leftEyeTexturePath = getAssetPath('eye_full_texture_left_blue.jpg')
-const rightEyeTexturePath = getAssetPath('eye_full_texture_right_blue.jpg')
-
-// Camera config:
-const cameraPosition: Float3 = [0, 0, 8]
-const cameraTarget: Float3 = [0, 0, 0]
-const cameraUp: Float3 = [0, 1, 0]
-const focalLengthInMillimeters = 28
-const near = 0.1
-const far = 1000
+import PenguModel from '~/assets/pengu.glb'
+import LeftEyeTexture from '~/assets/eye_full_texture_left_blue.jpg'
+import RightEyeTexture from '~/assets/eye_full_texture_right_blue.jpg'
+import { DefaultLight } from './components/DefaultLight'
 
 function Renderer() {
-  const { camera, view, renderableManager } = useFilamentContext()
+  const { renderableManager } = useFilamentContext()
 
-  useDefaultLight()
-
-  const pengu = useModel({ source: penguModelPath })
-  const blueLeftEyeBuffer = useBuffer({ source: leftEyeTexturePath })
-  const blueRightEyeBuffer = useBuffer({ source: rightEyeTexturePath })
+  const pengu = useModel(PenguModel)
+  const blueLeftEyeBuffer = useBuffer({ source: LeftEyeTexture })
+  const blueRightEyeBuffer = useBuffer({ source: RightEyeTexture })
 
   const penguAsset = pengu.state === 'loaded' ? pengu.asset : undefined
   const changeEyes = useWorkletCallback(() => {
@@ -59,24 +38,12 @@ function Renderer() {
     renderableManager.changeMaterialTextureMap(rightEye, 'Eye_Right.002', blueRightEyeBuffer, 'sRGB')
   })
 
-  const prevAspectRatio = useRef(0)
-  useRenderCallback(
-    useCallback(() => {
-      'worklet'
-      const aspectRatio = view.getAspectRatio()
-      if (prevAspectRatio.current !== aspectRatio) {
-        prevAspectRatio.current = aspectRatio
-        // Setup camera lens:
-        camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
-      }
-
-      camera.lookAt(cameraPosition, cameraTarget, cameraUp)
-    }, [view, camera, prevAspectRatio])
-  )
-
   return (
     <View style={styles.container}>
-      <FilamentView style={styles.filamentView} />
+      <FilamentView style={styles.filamentView}>
+        <Camera />
+        <DefaultLight />
+      </FilamentView>
       <Button
         title="Change Eyes"
         onPress={() => {
@@ -89,9 +56,9 @@ function Renderer() {
 
 export function ChangeMaterials() {
   return (
-    <FilamentProvider>
+    <FilamentContext>
       <Renderer />
-    </FilamentProvider>
+    </FilamentContext>
   )
 }
 
