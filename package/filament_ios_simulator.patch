@@ -1,8 +1,8 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index ed32949873a..35c10e6717e 100644
+index 283778b32..4d4ddfc4b 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -611,7 +611,11 @@ endif()
+@@ -609,7 +609,11 @@ endif()
  string(TOLOWER "${DIST_ARCH}" DIST_ARCH)
  string(REPLACE "amd64" "x86_64" DIST_ARCH "${DIST_ARCH}")
  if (NOT DIST_DIR)
@@ -16,7 +16,7 @@ index ed32949873a..35c10e6717e 100644
  
  # ==================================================================================================
 diff --git a/NEW_RELEASE_NOTES.md b/NEW_RELEASE_NOTES.md
-index 4a1a9c7fa7e..aa2ee9c76e0 100644
+index 4a1a9c7fa..aa2ee9c76 100644
 --- a/NEW_RELEASE_NOTES.md
 +++ b/NEW_RELEASE_NOTES.md
 @@ -7,3 +7,4 @@ for next branch cut* header.
@@ -25,10 +25,10 @@ index 4a1a9c7fa7e..aa2ee9c76e0 100644
  ## Release notes for next branch cut
 +- ios: Add support for Apple Silicon (arm64) simulator
 diff --git a/build.sh b/build.sh
-index 56562cc1c6c..3cb660aa1f9 100755
+index ab6440f45..c817f5a8d 100755
 --- a/build.sh
 +++ b/build.sh
-@@ -581,9 +581,9 @@ function build_ios_target {
+@@ -593,9 +593,9 @@ function build_ios_target {
      local platform=$3
  
      echo "Building iOS ${lc_target} (${arch}) for ${platform}..."
@@ -40,9 +40,9 @@ index 56562cc1c6c..3cb660aa1f9 100755
  
      if [[ ! -d "CMakeFiles" ]] || [[ "${ISSUE_CMAKE_ALWAYS}" == "true" ]]; then
          cmake \
-@@ -598,14 +598,14 @@ function build_ios_target {
-             ${MATDBG_OPTION} \
+@@ -611,14 +611,14 @@ function build_ios_target {
              ${MATOPT_OPTION} \
+             ${STEREOSCOPIC_OPTION} \
              ../..
 -        ln -sf "out/cmake-ios-${lc_target}-${arch}/compile_commands.json" \
 +        ln -sf "out/cmake-ios-${lc_target}-${arch}-${platform}/compile_commands.json" \
@@ -57,7 +57,7 @@ index 56562cc1c6c..3cb660aa1f9 100755
          ${BUILD_COMMAND} ${INSTALL_COMMAND}
      fi
  
-@@ -640,16 +640,26 @@ function build_ios {
+@@ -653,16 +653,26 @@ function build_ios {
      if [[ "${ISSUE_DEBUG_BUILD}" == "true" ]]; then
          build_ios_target "Debug" "arm64" "iphoneos"
          if [[ "${IOS_BUILD_SIMULATOR}" == "true" ]]; then
@@ -90,7 +90,7 @@ index 56562cc1c6c..3cb660aa1f9 100755
          fi
  
          archive_ios "Debug"
-@@ -657,19 +667,39 @@ function build_ios {
+@@ -670,19 +680,39 @@ function build_ios {
  
      if [[ "${ISSUE_RELEASE_BUILD}" == "true" ]]; then
          build_ios_target "Release" "arm64" "iphoneos"
@@ -141,7 +141,7 @@ index 56562cc1c6c..3cb660aa1f9 100755
  }
 diff --git a/build/ios/create-xc-frameworks.sh b/build/ios/create-xc-frameworks.sh
 new file mode 100755
-index 00000000000..cf720cb7e4e
+index 000000000..cf720cb7e
 --- /dev/null
 +++ b/build/ios/create-xc-frameworks.sh
 @@ -0,0 +1,107 @@
@@ -253,12 +253,12 @@ index 00000000000..cf720cb7e4e
 +    eval $CMD
 +done
 diff --git a/ios/CocoaPods/Filament.podspec b/ios/CocoaPods/Filament.podspec
-index 3ed06a44db5..3ffe1632473 100644
+index 45fce3980..b9674ca59 100644
 --- a/ios/CocoaPods/Filament.podspec
 +++ b/ios/CocoaPods/Filament.podspec
 @@ -8,12 +8,6 @@ Pod::Spec.new do |spec|
    spec.platform = :ios, "11.0"
-   spec.source = { :http => "https://github.com/google/filament/releases/download/v1.51.3/filament-v1.51.3-ios.tgz" }
+   spec.source = { :http => "https://github.com/google/filament/releases/download/v1.53.0/filament-v1.53.0-ios.tgz" }
  
 -  # Fix linking error with Xcode 12; we do not yet support the simulator on Apple silicon.
 -  spec.pod_target_xcconfig = {
@@ -402,7 +402,7 @@ index 3ed06a44db5..3ffe1632473 100644
      ss.dependency "Filament/filamat"
      ss.dependency "Filament/tsl"
 diff --git a/ios/samples/README.md b/ios/samples/README.md
-index 4c132849ee4..6c9c165eabb 100644
+index 4c132849e..6c9c165ea 100644
 --- a/ios/samples/README.md
 +++ b/ios/samples/README.md
 @@ -47,7 +47,7 @@ build Filament in Release mode, replace `debug` with `release` in the above `bui
@@ -415,7 +415,7 @@ index 4c132849ee4..6c9c165eabb 100644
  ```
  $ ./build.sh -s -p ios -i debug
 diff --git a/ios/samples/app-template.yml b/ios/samples/app-template.yml
-index e8e14c50715..9c407448d16 100644
+index e8e14c507..9c407448d 100644
 --- a/ios/samples/app-template.yml
 +++ b/ios/samples/app-template.yml
 @@ -17,25 +17,27 @@ targetTemplates:
@@ -457,7 +457,7 @@ index e8e14c50715..9c407448d16 100644
                      GCC_PREPROCESSOR_DEFINITIONS: ["FILAMENT_APP_USE_METAL=1", "$(inherited)"]
                  opengl:
 diff --git a/ios/samples/backend-test/backend-test.xcodeproj/project.pbxproj b/ios/samples/backend-test/backend-test.xcodeproj/project.pbxproj
-index b47f4c00e36..ea4c11fe046 100644
+index b47f4c00e..ea4c11fe0 100644
 --- a/ios/samples/backend-test/backend-test.xcodeproj/project.pbxproj
 +++ b/ios/samples/backend-test/backend-test.xcodeproj/project.pbxproj
 @@ -3,34 +3,112 @@
@@ -774,7 +774,7 @@ index b47f4c00e36..ea4c11fe046 100644
  				PRODUCT_BUNDLE_IDENTIFIER = "${SAMPLE_CODE_DISAMBIGUATOR}.google.filament.backend-test";
  				SAMPLE_CODE_DISAMBIGUATOR = "${DEVELOPMENT_TEAM}";
 diff --git a/ios/samples/backend-test/backend-test.xcodeproj/xcshareddata/xcschemes/backend-test Metal.xcscheme b/ios/samples/backend-test/backend-test.xcodeproj/xcshareddata/xcschemes/backend-test Metal.xcscheme
-index f4026437bcd..d6462758330 100644
+index f4026437b..d64627583 100644
 --- a/ios/samples/backend-test/backend-test.xcodeproj/xcshareddata/xcschemes/backend-test Metal.xcscheme	
 +++ b/ios/samples/backend-test/backend-test.xcodeproj/xcshareddata/xcschemes/backend-test Metal.xcscheme	
 @@ -1,6 +1,6 @@
@@ -786,7 +786,7 @@ index f4026437bcd..d6462758330 100644
     <BuildAction
        parallelizeBuildables = "YES"
 diff --git a/ios/samples/backend-test/backend-test.xcodeproj/xcshareddata/xcschemes/backend-test OpenGL.xcscheme b/ios/samples/backend-test/backend-test.xcodeproj/xcshareddata/xcschemes/backend-test OpenGL.xcscheme
-index f8b6433068d..7bf997e5a59 100644
+index f8b643306..7bf997e5a 100644
 --- a/ios/samples/backend-test/backend-test.xcodeproj/xcshareddata/xcschemes/backend-test OpenGL.xcscheme	
 +++ b/ios/samples/backend-test/backend-test.xcodeproj/xcshareddata/xcschemes/backend-test OpenGL.xcscheme	
 @@ -1,6 +1,6 @@
@@ -798,7 +798,7 @@ index f8b6433068d..7bf997e5a59 100644
     <BuildAction
        parallelizeBuildables = "YES"
 diff --git a/ios/samples/backend-test/project.yml b/ios/samples/backend-test/project.yml
-index 37c28b099fe..75c41abdccb 100644
+index 37c28b099..75c41abdc 100644
 --- a/ios/samples/backend-test/project.yml
 +++ b/ios/samples/backend-test/project.yml
 @@ -6,8 +6,11 @@ targets:
@@ -815,7 +815,7 @@ index 37c28b099fe..75c41abdccb 100644
 -                OTHER_LDFLAGS: ["-lfilamat", "-force_load ../../../out/ios-debug/filament/lib/arm64/libbackend_test.a"]
 +                OTHER_LDFLAGS: ["-force_load ../../../out/ios-release/filament/lib/arm64/libbackend_test.xcframework"]
 diff --git a/ios/samples/gltf-viewer/gltf-viewer.xcodeproj/project.pbxproj b/ios/samples/gltf-viewer/gltf-viewer.xcodeproj/project.pbxproj
-index 6ca453dd4fa..d8a7c70ada1 100644
+index 6ca453dd4..d8a7c70ad 100644
 --- a/ios/samples/gltf-viewer/gltf-viewer.xcodeproj/project.pbxproj
 +++ b/ios/samples/gltf-viewer/gltf-viewer.xcodeproj/project.pbxproj
 @@ -3,40 +3,168 @@
@@ -1241,7 +1241,7 @@ index 6ca453dd4fa..d8a7c70ada1 100644
  				SAMPLE_CODE_DISAMBIGUATOR = "${DEVELOPMENT_TEAM}";
  				SDKROOT = iphoneos;
 diff --git a/ios/samples/gltf-viewer/gltf-viewer.xcodeproj/xcshareddata/xcschemes/gltf-viewer Metal.xcscheme b/ios/samples/gltf-viewer/gltf-viewer.xcodeproj/xcshareddata/xcschemes/gltf-viewer Metal.xcscheme
-index dc8753c362b..f4eb36a1e27 100644
+index dc8753c36..f4eb36a1e 100644
 --- a/ios/samples/gltf-viewer/gltf-viewer.xcodeproj/xcshareddata/xcschemes/gltf-viewer Metal.xcscheme	
 +++ b/ios/samples/gltf-viewer/gltf-viewer.xcodeproj/xcshareddata/xcschemes/gltf-viewer Metal.xcscheme	
 @@ -1,6 +1,6 @@
@@ -1253,7 +1253,7 @@ index dc8753c362b..f4eb36a1e27 100644
     <BuildAction
        parallelizeBuildables = "YES"
 diff --git a/ios/samples/gltf-viewer/gltf-viewer.xcodeproj/xcshareddata/xcschemes/gltf-viewer OpenGL.xcscheme b/ios/samples/gltf-viewer/gltf-viewer.xcodeproj/xcshareddata/xcschemes/gltf-viewer OpenGL.xcscheme
-index a3e5a224dd5..5a741c2d841 100644
+index a3e5a224d..5a741c2d8 100644
 --- a/ios/samples/gltf-viewer/gltf-viewer.xcodeproj/xcshareddata/xcschemes/gltf-viewer OpenGL.xcscheme	
 +++ b/ios/samples/gltf-viewer/gltf-viewer.xcodeproj/xcshareddata/xcschemes/gltf-viewer OpenGL.xcscheme	
 @@ -1,6 +1,6 @@
@@ -1265,7 +1265,7 @@ index a3e5a224dd5..5a741c2d841 100644
     <BuildAction
        parallelizeBuildables = "YES"
 diff --git a/ios/samples/gltf-viewer/project.yml b/ios/samples/gltf-viewer/project.yml
-index 1f850dd45a0..9f1377396e1 100644
+index 1f850dd45..9f1377396 100644
 --- a/ios/samples/gltf-viewer/project.yml
 +++ b/ios/samples/gltf-viewer/project.yml
 @@ -17,11 +17,20 @@ targets:
@@ -1295,7 +1295,7 @@ index 1f850dd45a0..9f1377396e1 100644
              - path: build-resources.sh
                name: Build Resources
 diff --git a/ios/samples/hello-ar/hello-ar.xcodeproj/project.pbxproj b/ios/samples/hello-ar/hello-ar.xcodeproj/project.pbxproj
-index 4dad82057cb..f698d8b2617 100644
+index 4dad82057..f698d8b26 100644
 --- a/ios/samples/hello-ar/hello-ar.xcodeproj/project.pbxproj
 +++ b/ios/samples/hello-ar/hello-ar.xcodeproj/project.pbxproj
 @@ -3,44 +3,105 @@
@@ -1622,7 +1622,7 @@ index 4dad82057cb..f698d8b2617 100644
  				SAMPLE_CODE_DISAMBIGUATOR = "${DEVELOPMENT_TEAM}";
  				SDKROOT = iphoneos;
 diff --git a/ios/samples/hello-ar/hello-ar.xcodeproj/xcshareddata/xcschemes/hello-ar Metal.xcscheme b/ios/samples/hello-ar/hello-ar.xcodeproj/xcshareddata/xcschemes/hello-ar Metal.xcscheme
-index ce9c36f2bb4..359677b453b 100644
+index ce9c36f2b..359677b45 100644
 --- a/ios/samples/hello-ar/hello-ar.xcodeproj/xcshareddata/xcschemes/hello-ar Metal.xcscheme	
 +++ b/ios/samples/hello-ar/hello-ar.xcodeproj/xcshareddata/xcschemes/hello-ar Metal.xcscheme	
 @@ -1,6 +1,6 @@
@@ -1634,7 +1634,7 @@ index ce9c36f2bb4..359677b453b 100644
     <BuildAction
        parallelizeBuildables = "YES"
 diff --git a/ios/samples/hello-ar/hello-ar.xcodeproj/xcshareddata/xcschemes/hello-ar OpenGL.xcscheme b/ios/samples/hello-ar/hello-ar.xcodeproj/xcshareddata/xcschemes/hello-ar OpenGL.xcscheme
-index 74d62ffb8cf..731b06cad99 100644
+index 74d62ffb8..731b06cad 100644
 --- a/ios/samples/hello-ar/hello-ar.xcodeproj/xcshareddata/xcschemes/hello-ar OpenGL.xcscheme	
 +++ b/ios/samples/hello-ar/hello-ar.xcodeproj/xcshareddata/xcschemes/hello-ar OpenGL.xcscheme	
 @@ -1,6 +1,6 @@
@@ -1646,7 +1646,7 @@ index 74d62ffb8cf..731b06cad99 100644
     <BuildAction
        parallelizeBuildables = "YES"
 diff --git a/ios/samples/hello-ar/project.yml b/ios/samples/hello-ar/project.yml
-index 483e824a253..a62612d7681 100644
+index 483e824a2..a62612d76 100644
 --- a/ios/samples/hello-ar/project.yml
 +++ b/ios/samples/hello-ar/project.yml
 @@ -7,10 +7,10 @@ targets:
@@ -1665,7 +1665,7 @@ index 483e824a253..a62612d7681 100644
              - path: build-resources.sh
                name: Build Resources
 diff --git a/ios/samples/hello-gltf/hello-gltf.xcodeproj/project.pbxproj b/ios/samples/hello-gltf/hello-gltf.xcodeproj/project.pbxproj
-index 9d87ed5702f..a5edb9121c5 100644
+index 9d87ed570..a5edb9121 100644
 --- a/ios/samples/hello-gltf/hello-gltf.xcodeproj/project.pbxproj
 +++ b/ios/samples/hello-gltf/hello-gltf.xcodeproj/project.pbxproj
 @@ -3,44 +3,157 @@
@@ -2068,7 +2068,7 @@ index 9d87ed5702f..a5edb9121c5 100644
  				SAMPLE_CODE_DISAMBIGUATOR = "${DEVELOPMENT_TEAM}";
  				SDKROOT = iphoneos;
 diff --git a/ios/samples/hello-gltf/hello-gltf.xcodeproj/xcshareddata/xcschemes/hello-gltf Metal.xcscheme b/ios/samples/hello-gltf/hello-gltf.xcodeproj/xcshareddata/xcschemes/hello-gltf Metal.xcscheme
-index 696c235f1b1..640ecf87e2e 100644
+index 696c235f1..640ecf87e 100644
 --- a/ios/samples/hello-gltf/hello-gltf.xcodeproj/xcshareddata/xcschemes/hello-gltf Metal.xcscheme	
 +++ b/ios/samples/hello-gltf/hello-gltf.xcodeproj/xcshareddata/xcschemes/hello-gltf Metal.xcscheme	
 @@ -1,6 +1,6 @@
@@ -2080,7 +2080,7 @@ index 696c235f1b1..640ecf87e2e 100644
     <BuildAction
        parallelizeBuildables = "YES"
 diff --git a/ios/samples/hello-gltf/hello-gltf.xcodeproj/xcshareddata/xcschemes/hello-gltf OpenGL.xcscheme b/ios/samples/hello-gltf/hello-gltf.xcodeproj/xcshareddata/xcschemes/hello-gltf OpenGL.xcscheme
-index 5536b9ac726..d8c4b065764 100644
+index 5536b9ac7..d8c4b0657 100644
 --- a/ios/samples/hello-gltf/hello-gltf.xcodeproj/xcshareddata/xcschemes/hello-gltf OpenGL.xcscheme	
 +++ b/ios/samples/hello-gltf/hello-gltf.xcodeproj/xcshareddata/xcschemes/hello-gltf OpenGL.xcscheme	
 @@ -1,6 +1,6 @@
@@ -2092,7 +2092,7 @@ index 5536b9ac726..d8c4b065764 100644
     <BuildAction
        parallelizeBuildables = "YES"
 diff --git a/ios/samples/hello-gltf/project.yml b/ios/samples/hello-gltf/project.yml
-index 377578053d3..adfa2896ed6 100644
+index 377578053..adfa2896e 100644
 --- a/ios/samples/hello-gltf/project.yml
 +++ b/ios/samples/hello-gltf/project.yml
 @@ -10,10 +10,16 @@ targets:
@@ -2117,7 +2117,7 @@ index 377578053d3..adfa2896ed6 100644
              - path: build-resources.sh
                name: Build Resources
 diff --git a/ios/samples/hello-pbr/hello-pbr.xcodeproj/project.pbxproj b/ios/samples/hello-pbr/hello-pbr.xcodeproj/project.pbxproj
-index c80979f4f3c..169ddb84c10 100644
+index c80979f4f..169ddb84c 100644
 --- a/ios/samples/hello-pbr/hello-pbr.xcodeproj/project.pbxproj
 +++ b/ios/samples/hello-pbr/hello-pbr.xcodeproj/project.pbxproj
 @@ -3,43 +3,126 @@
@@ -2457,7 +2457,7 @@ index c80979f4f3c..169ddb84c10 100644
  				SAMPLE_CODE_DISAMBIGUATOR = "${DEVELOPMENT_TEAM}";
  				SDKROOT = iphoneos;
 diff --git a/ios/samples/hello-pbr/hello-pbr.xcodeproj/xcshareddata/xcschemes/hello-pbr Metal.xcscheme b/ios/samples/hello-pbr/hello-pbr.xcodeproj/xcshareddata/xcschemes/hello-pbr Metal.xcscheme
-index 545457ca8e3..93d88313fd9 100644
+index 545457ca8..93d88313f 100644
 --- a/ios/samples/hello-pbr/hello-pbr.xcodeproj/xcshareddata/xcschemes/hello-pbr Metal.xcscheme	
 +++ b/ios/samples/hello-pbr/hello-pbr.xcodeproj/xcshareddata/xcschemes/hello-pbr Metal.xcscheme	
 @@ -1,6 +1,6 @@
@@ -2469,7 +2469,7 @@ index 545457ca8e3..93d88313fd9 100644
     <BuildAction
        parallelizeBuildables = "YES"
 diff --git a/ios/samples/hello-pbr/hello-pbr.xcodeproj/xcshareddata/xcschemes/hello-pbr OpenGL.xcscheme b/ios/samples/hello-pbr/hello-pbr.xcodeproj/xcshareddata/xcschemes/hello-pbr OpenGL.xcscheme
-index 0135777b7ec..96f3d5bab3e 100644
+index 0135777b7..96f3d5bab 100644
 --- a/ios/samples/hello-pbr/hello-pbr.xcodeproj/xcshareddata/xcschemes/hello-pbr OpenGL.xcscheme	
 +++ b/ios/samples/hello-pbr/hello-pbr.xcodeproj/xcshareddata/xcschemes/hello-pbr OpenGL.xcscheme	
 @@ -1,6 +1,6 @@
@@ -2481,7 +2481,7 @@ index 0135777b7ec..96f3d5bab3e 100644
     <BuildAction
        parallelizeBuildables = "YES"
 diff --git a/ios/samples/hello-pbr/project.yml b/ios/samples/hello-pbr/project.yml
-index 36a6fd26a3e..f7daeac3e48 100644
+index 36a6fd26a..f7daeac3e 100644
 --- a/ios/samples/hello-pbr/project.yml
 +++ b/ios/samples/hello-pbr/project.yml
 @@ -6,9 +6,10 @@ targets:
@@ -2499,7 +2499,7 @@ index 36a6fd26a3e..f7daeac3e48 100644
              - path: build-resources.sh
                name: Build Resources
 diff --git a/ios/samples/hello-triangle/hello-triangle.xcodeproj/project.pbxproj b/ios/samples/hello-triangle/hello-triangle.xcodeproj/project.pbxproj
-index fbc8f752c75..6e99ba2c111 100644
+index fbc8f752c..6e99ba2c1 100644
 --- a/ios/samples/hello-triangle/hello-triangle.xcodeproj/project.pbxproj
 +++ b/ios/samples/hello-triangle/hello-triangle.xcodeproj/project.pbxproj
 @@ -3,35 +3,103 @@
@@ -2794,7 +2794,7 @@ index fbc8f752c75..6e99ba2c111 100644
  				SAMPLE_CODE_DISAMBIGUATOR = "${DEVELOPMENT_TEAM}";
  				SDKROOT = iphoneos;
 diff --git a/ios/samples/hello-triangle/hello-triangle.xcodeproj/xcshareddata/xcschemes/hello-triangle Metal.xcscheme b/ios/samples/hello-triangle/hello-triangle.xcodeproj/xcshareddata/xcschemes/hello-triangle Metal.xcscheme
-index 23e5ca4268e..d0463c46d2f 100644
+index 23e5ca426..d0463c46d 100644
 --- a/ios/samples/hello-triangle/hello-triangle.xcodeproj/xcshareddata/xcschemes/hello-triangle Metal.xcscheme	
 +++ b/ios/samples/hello-triangle/hello-triangle.xcodeproj/xcshareddata/xcschemes/hello-triangle Metal.xcscheme	
 @@ -1,6 +1,6 @@
@@ -2806,7 +2806,7 @@ index 23e5ca4268e..d0463c46d2f 100644
     <BuildAction
        parallelizeBuildables = "YES"
 diff --git a/ios/samples/hello-triangle/hello-triangle.xcodeproj/xcshareddata/xcschemes/hello-triangle OpenGL.xcscheme b/ios/samples/hello-triangle/hello-triangle.xcodeproj/xcshareddata/xcschemes/hello-triangle OpenGL.xcscheme
-index 47405d4e237..94f0142df99 100644
+index 47405d4e2..94f0142df 100644
 --- a/ios/samples/hello-triangle/hello-triangle.xcodeproj/xcshareddata/xcschemes/hello-triangle OpenGL.xcscheme	
 +++ b/ios/samples/hello-triangle/hello-triangle.xcodeproj/xcshareddata/xcschemes/hello-triangle OpenGL.xcscheme	
 @@ -1,6 +1,6 @@
@@ -2818,7 +2818,7 @@ index 47405d4e237..94f0142df99 100644
     <BuildAction
        parallelizeBuildables = "YES"
 diff --git a/ios/samples/transparent-rendering/transparent-rendering.xcodeproj/project.pbxproj b/ios/samples/transparent-rendering/transparent-rendering.xcodeproj/project.pbxproj
-index 331fbf6b90c..9aa01d735d7 100644
+index 331fbf6b9..9aa01d735 100644
 --- a/ios/samples/transparent-rendering/transparent-rendering.xcodeproj/project.pbxproj
 +++ b/ios/samples/transparent-rendering/transparent-rendering.xcodeproj/project.pbxproj
 @@ -3,34 +3,102 @@
@@ -3114,7 +3114,7 @@ index 331fbf6b90c..9aa01d735d7 100644
  				SAMPLE_CODE_DISAMBIGUATOR = "${DEVELOPMENT_TEAM}";
  				SDKROOT = iphoneos;
 diff --git a/ios/samples/transparent-rendering/transparent-rendering.xcodeproj/xcshareddata/xcschemes/transparent-rendering Metal.xcscheme b/ios/samples/transparent-rendering/transparent-rendering.xcodeproj/xcshareddata/xcschemes/transparent-rendering Metal.xcscheme
-index 56fb8a1a6cb..ec840707f0d 100644
+index 56fb8a1a6..ec840707f 100644
 --- a/ios/samples/transparent-rendering/transparent-rendering.xcodeproj/xcshareddata/xcschemes/transparent-rendering Metal.xcscheme	
 +++ b/ios/samples/transparent-rendering/transparent-rendering.xcodeproj/xcshareddata/xcschemes/transparent-rendering Metal.xcscheme	
 @@ -1,6 +1,6 @@
@@ -3126,7 +3126,7 @@ index 56fb8a1a6cb..ec840707f0d 100644
     <BuildAction
        parallelizeBuildables = "YES"
 diff --git a/ios/samples/transparent-rendering/transparent-rendering.xcodeproj/xcshareddata/xcschemes/transparent-rendering OpenGL.xcscheme b/ios/samples/transparent-rendering/transparent-rendering.xcodeproj/xcshareddata/xcschemes/transparent-rendering OpenGL.xcscheme
-index 60f7cdd5c6e..2a670e47961 100644
+index 60f7cdd5c..2a670e479 100644
 --- a/ios/samples/transparent-rendering/transparent-rendering.xcodeproj/xcshareddata/xcschemes/transparent-rendering OpenGL.xcscheme	
 +++ b/ios/samples/transparent-rendering/transparent-rendering.xcodeproj/xcshareddata/xcschemes/transparent-rendering OpenGL.xcscheme	
 @@ -1,6 +1,6 @@
@@ -3138,7 +3138,7 @@ index 60f7cdd5c6e..2a670e47961 100644
     <BuildAction
        parallelizeBuildables = "YES"
 diff --git a/third_party/clang/iOS.cmake b/third_party/clang/iOS.cmake
-index a5619558834..6153cf8641e 100644
+index e9ea75e7a..ae970bdca 100644
 --- a/third_party/clang/iOS.cmake
 +++ b/third_party/clang/iOS.cmake
 @@ -103,7 +103,12 @@ IF (NOT DEFINED IOS_MIN_TARGET)
@@ -3155,4 +3155,3 @@ index a5619558834..6153cf8641e 100644
  
  SET(CMAKE_C_FLAGS_INIT "${IOS_COMMON_FLAGS}")
  SET(CMAKE_CXX_FLAGS_INIT "${IOS_COMMON_FLAGS}")
- 

@@ -315,7 +315,7 @@ public:
          *
          * @see View::setStereoscopicOptions
          */
-        StereoscopicType stereoscopicType = StereoscopicType::INSTANCED;
+        StereoscopicType stereoscopicType = StereoscopicType::NONE;
 
         /*
          * The number of eyes to render when stereoscopic rendering is enabled. Supported values are
@@ -340,6 +340,35 @@ public:
          * Disable backend handles use-after-free checks.
          */
         bool disableHandleUseAfterFreeCheck = false;
+
+        /*
+         * Sets a preferred shader language for Filament to use.
+         *
+         * The Metal backend supports two shader languages: MSL (Metal Shading Language) and
+         * METAL_LIBRARY (precompiled .metallib). This option controls which shader language is
+         * used when materials contain both.
+         *
+         * By default, when preferredShaderLanguage is unset, Filament will prefer METAL_LIBRARY
+         * shaders if present within a material, falling back to MSL. Setting
+         * preferredShaderLanguage to ShaderLanguage::MSL will instead instruct Filament to check
+         * for the presence of MSL in a material first, falling back to METAL_LIBRARY if MSL is not
+         * present.
+         *
+         * When using a non-Metal backend, setting this has no effect.
+         */
+        enum class ShaderLanguage {
+            DEFAULT = 0,
+            MSL = 1,
+            METAL_LIBRARY = 2,
+        };
+        ShaderLanguage preferredShaderLanguage = ShaderLanguage::DEFAULT;
+
+        /*
+         * When the OpenGL ES backend is used, setting this value to true will force a GLES2.0
+         * context if supported by the Platform, or if not, will have the backend pretend
+         * it's a GLES2 context. Ignored on other backends.
+         */
+        bool forceGLES2Context = false;
     };
 
 
@@ -800,24 +829,51 @@ public:
     bool destroy(const InstanceBuffer* UTILS_NULLABLE p);   //!< Destroys an InstanceBuffer object.
     void destroy(utils::Entity e);    //!< Destroys all filament-known components from this entity
 
-    bool isValid(const BufferObject* UTILS_NULLABLE p);        //!< Tells whether a BufferObject object is valid
-    bool isValid(const VertexBuffer* UTILS_NULLABLE p);        //!< Tells whether an VertexBuffer object is valid
-    bool isValid(const Fence* UTILS_NULLABLE p);               //!< Tells whether a Fence object is valid
-    bool isValid(const IndexBuffer* UTILS_NULLABLE p);         //!< Tells whether an IndexBuffer object is valid
-    bool isValid(const SkinningBuffer* UTILS_NULLABLE p);      //!< Tells whether a SkinningBuffer object is valid
-    bool isValid(const MorphTargetBuffer* UTILS_NULLABLE p);   //!< Tells whether a MorphTargetBuffer object is valid
-    bool isValid(const IndirectLight* UTILS_NULLABLE p);       //!< Tells whether an IndirectLight object is valid
-    bool isValid(const Material* UTILS_NULLABLE p);            //!< Tells whether an IndirectLight object is valid
-    bool isValid(const Renderer* UTILS_NULLABLE p);            //!< Tells whether a Renderer object is valid
-    bool isValid(const Scene* UTILS_NULLABLE p);               //!< Tells whether a Scene object is valid
-    bool isValid(const Skybox* UTILS_NULLABLE p);              //!< Tells whether a SkyBox object is valid
-    bool isValid(const ColorGrading* UTILS_NULLABLE p);        //!< Tells whether a ColorGrading object is valid
-    bool isValid(const SwapChain* UTILS_NULLABLE p);           //!< Tells whether a SwapChain object is valid
-    bool isValid(const Stream* UTILS_NULLABLE p);              //!< Tells whether a Stream object is valid
-    bool isValid(const Texture* UTILS_NULLABLE p);             //!< Tells whether a Texture object is valid
-    bool isValid(const RenderTarget* UTILS_NULLABLE p);        //!< Tells whether a RenderTarget object is valid
-    bool isValid(const View* UTILS_NULLABLE p);                //!< Tells whether a View object is valid
-    bool isValid(const InstanceBuffer* UTILS_NULLABLE p);      //!< Tells whether an InstanceBuffer object is valid
+    /** Tells whether a BufferObject object is valid */
+    bool isValid(const BufferObject* UTILS_NULLABLE p) const;
+    /** Tells whether an VertexBuffer object is valid */
+    bool isValid(const VertexBuffer* UTILS_NULLABLE p) const;
+    /** Tells whether a Fence object is valid */
+    bool isValid(const Fence* UTILS_NULLABLE p) const;
+    /** Tells whether an IndexBuffer object is valid */
+    bool isValid(const IndexBuffer* UTILS_NULLABLE p) const;
+    /** Tells whether a SkinningBuffer object is valid */
+    bool isValid(const SkinningBuffer* UTILS_NULLABLE p) const;
+    /** Tells whether a MorphTargetBuffer object is valid */
+    bool isValid(const MorphTargetBuffer* UTILS_NULLABLE p) const;
+    /** Tells whether an IndirectLight object is valid */
+    bool isValid(const IndirectLight* UTILS_NULLABLE p) const;
+    /** Tells whether an Material object is valid */
+    bool isValid(const Material* UTILS_NULLABLE p) const;
+    /** Tells whether an MaterialInstance object is valid. Use this if you already know
+     * which Material this MaterialInstance belongs to. DO NOT USE getMaterial(), this would
+     * defeat the purpose of validating the MaterialInstance.
+     */
+    bool isValid(const Material* UTILS_NONNULL m, const MaterialInstance* UTILS_NULLABLE p) const;
+    /** Tells whether an MaterialInstance object is valid. Use this if the Material the
+     * MaterialInstance belongs to is not known. This method can be expensive.
+     */
+    bool isValidExpensive(const MaterialInstance* UTILS_NULLABLE p) const;
+    /** Tells whether a Renderer object is valid */
+    bool isValid(const Renderer* UTILS_NULLABLE p) const;
+    /** Tells whether a Scene object is valid */
+    bool isValid(const Scene* UTILS_NULLABLE p) const;
+    /** Tells whether a SkyBox object is valid */
+    bool isValid(const Skybox* UTILS_NULLABLE p) const;
+    /** Tells whether a ColorGrading object is valid */
+    bool isValid(const ColorGrading* UTILS_NULLABLE p) const;
+    /** Tells whether a SwapChain object is valid */
+    bool isValid(const SwapChain* UTILS_NULLABLE p) const;
+    /** Tells whether a Stream object is valid */
+    bool isValid(const Stream* UTILS_NULLABLE p) const;
+    /** Tells whether a Texture object is valid */
+    bool isValid(const Texture* UTILS_NULLABLE p) const;
+    /** Tells whether a RenderTarget object is valid */
+    bool isValid(const RenderTarget* UTILS_NULLABLE p) const;
+    /** Tells whether a View object is valid */
+    bool isValid(const View* UTILS_NULLABLE p) const;
+    /** Tells whether an InstanceBuffer object is valid */
+    bool isValid(const InstanceBuffer* UTILS_NULLABLE p) const;
 
     /**
      * Kicks the hardware thread (e.g. the OpenGL, Vulkan or Metal thread) and blocks until
@@ -839,6 +895,15 @@ public:
      * queue which has a limited size.</p>
       */
     void flush();
+
+    /**
+     * Get paused state of rendering thread.
+     *
+     * <p>Warning: This is an experimental API.
+     *
+     * @see setPaused
+     */
+    bool isPaused() const noexcept;
 
     /**
      * Pause or resume rendering thread.
@@ -864,6 +929,14 @@ public:
      * which may increase latency in certain applications.</p>
      */
     void pumpMessageQueues();
+
+    /**
+     * Switch the command queue to unprotected mode. Protected mode can be activated via
+     * Renderer::beginFrame() using a protected SwapChain.
+     * @see Renderer
+     * @see SwapChain
+     */
+    void unprotected() noexcept;
 
     /**
      * Returns the default Material.

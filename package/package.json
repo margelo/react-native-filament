@@ -33,7 +33,7 @@
     "clean": "rm -rf android/build example/android/build example/android/app/build example/ios/build lib",
     "prepare": "git submodule update --init --recursive && yarn patch-filament && bob build",
     "update-submodule": "git submodule update --remote --merge",
-    "patch-filament": "cd ../filament ; git apply ../package/filament_animator_feat.patch ; git apply ../package/filament_material_instance_getter.patch ; git apply ../package/filament_ios_simulator.patch ; cd ../package",
+    "patch-filament": "cd ../filament ; git apply ../package/filament_animator_feat.patch ; git apply ../package/filament_ios_simulator.patch ; cd ../package",
     "build-filament": "yarn patch-filament && scripts/build-filament.sh",
     "build-filament:release": "yarn build-filament release",
     "build-filament:debug": "yarn build-filament debug",
