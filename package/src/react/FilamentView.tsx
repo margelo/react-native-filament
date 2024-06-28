@@ -94,6 +94,7 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
           'worklet'
 
           if (!swapChain.isValid) {
+            // TODO: Supposedly fixed in https://github.com/margelo/react-native-filament/pull/210, remove this once proven
             reportWorkletError(
               new Error(
                 '[react-native-filament] SwapChain is invalid, cannot render frame.\nThis should never happen, please report an issue with reproduction steps.'
