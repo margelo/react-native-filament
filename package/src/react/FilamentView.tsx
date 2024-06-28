@@ -1,12 +1,12 @@
 import React from 'react'
 import { FilamentProxy } from '../native/FilamentProxy'
-import FilamentNativeView, { type FilamentViewNativeType, type NativeProps } from '../native/specs/FilamentViewNativeComponent'
+import FilamentNativeView, { type NativeProps } from '../native/specs/FilamentViewNativeComponent'
 import { reportWorkletError } from '../ErrorUtils'
 import { Context } from './Context'
 import { RenderCallback, SwapChain } from 'react-native-filament'
 import type { SurfaceProvider, FilamentView as RNFFilamentView } from '../native/FilamentViewTypes'
 import { Listener } from '../types/Listener'
-import { findNodeHandle } from 'react-native'
+import { NativeSyntheticEvent } from 'react-native'
 
 export type PublicNativeProps = Omit<NativeProps, 'onViewReady'>
 
@@ -19,14 +19,11 @@ export interface FilamentProps extends PublicNativeProps {
   renderCallback: RenderCallback
 }
 
-type RefType = InstanceType<FilamentViewNativeType>
-
 /**
  * The component that wraps the native view.
  * @private
  */
 export class FilamentView extends React.PureComponent<FilamentProps> {
-  private readonly ref: React.RefObject<RefType>
   private surfaceCreatedListener: Listener | undefined
   private surfaceDestroyedListener: Listener | undefined
   private renderCallbackListener: Listener | undefined
@@ -43,16 +40,6 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
 
   constructor(props: FilamentProps) {
     super(props)
-    this.ref = React.createRef<RefType>()
-  }
-
-  private get handle(): number {
-    const nodeHandle = findNodeHandle(this.ref.current)
-    if (nodeHandle == null || nodeHandle === -1) {
-      throw new Error("Could not get the FilamentView's native view tag! Does the FilamentView exist in the native view-tree?")
-    }
-
-    return nodeHandle
   }
 
   private updateTransparentRendering = (enable: boolean) => {
@@ -156,22 +143,23 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
   }
 
   // This registers the surface provider, which will be notified when the surface is ready to draw on:
-  private onViewReady = async () => {
+  private onViewReady = async (event: NativeSyntheticEvent<null>) => {
+    // @ts-expect-error Not in the types, _nativeTag is old arch, nativeEvent.target is new arch
+    const nativeTag = event.target._nativeTag ?? event.nativeEvent.target
+    if (typeof nativeTag !== 'number') {
+      throw new Error(`Expected a native tag, but got ${nativeTag}, typeof ${typeof nativeTag}!`)
+    }
+
     const context = this.getContext()
-    const handle = this.handle
-    console.log('Finding FilamentView with handle', handle)
-    this.view = await FilamentProxy.findFilamentView(handle)
+    console.log('Finding FilamentView with handle', nativeTag)
+    this.view = await FilamentProxy.findFilamentView(nativeTag)
     if (this.view == null) {
-      throw new Error(`Failed to find FilamentView #${handle}!`)
+      throw new Error(`Failed to find FilamentView #${nativeTag}!`)
     }
     console.log('Found FilamentView!')
     // Link the view with the choreographer.
     // When the view gets destroyed, the choreographer will be stopped.
     this.view.setChoreographer(context._choreographer)
-
-    if (this.ref.current == null) {
-      throw new Error('Ref is not set!')
-    }
 
     const surfaceProvider = this.view.getSurfaceProvider()
     this.surfaceCreatedListener = surfaceProvider.addOnSurfaceCreatedListener(() => {
@@ -238,7 +226,7 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
 
   /** @internal */
   public render(): React.ReactNode {
-    return <FilamentNativeView ref={this.ref} onViewReady={this.onViewReady} {...this.props} />
+    return <FilamentNativeView onViewReady={this.onViewReady} {...this.props} />
   }
 }
 
