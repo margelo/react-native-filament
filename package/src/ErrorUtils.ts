@@ -38,7 +38,7 @@ export function wrapWithErrorHandler<T extends (...args: any[]) => any>(callback
     try {
       return callback(...args)
     } catch (error) {
-      reportFatalError(error)
+      reportWorkletError(error)
       throw error
     }
   }
