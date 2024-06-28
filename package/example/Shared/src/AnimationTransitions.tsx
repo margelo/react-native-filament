@@ -19,7 +19,7 @@ import { DefaultLight } from './components/DefaultLight'
 const animationInterpolationTime = 5
 
 function Renderer() {
-  const { view, scene } = useFilamentContext()
+  const { view } = useFilamentContext()
 
   const model = useModel(DroneGlb)
   const modelAnimator = useAnimator(model)

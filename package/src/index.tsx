@@ -19,6 +19,8 @@ export * from './hooks/useCameraManipulator'
 // utilities
 export * from './utilities/getAssetFromModel'
 export * from './utilities/withCleanupScope'
+export * from './utilities/logger/LoggingInterface'
+export { setLogger } from './utilities/logger/Logger'
 
 // Bullet 3
 export * from './bullet'
