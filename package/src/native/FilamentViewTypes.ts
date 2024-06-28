@@ -14,7 +14,7 @@ export interface SurfaceProvider {
   getSurface(): Surface | undefined
 
   /**
-   * Called nce the surface is available to draw (android: onSurfaceTextureAvailable, ios:
+   * Called once the surface is available to draw (android: onSurfaceTextureAvailable, ios:
    * called almost immediately after the view is created).
    * @private
    */
