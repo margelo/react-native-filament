@@ -6,10 +6,10 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import { AnimationTransitions } from './AnimationTransitions'
 import { CameraPan } from './CameraPan'
-import { AnimationTransitionsRecording } from './AnimationTransitionsRecording'
-import { ImageExample } from './ImageExample'
-import { LoadFromFile } from './LoadFromFile'
-import { ChangeMaterials } from './ChangeMaterials'
+// import { AnimationTransitionsRecording } from './AnimationTransitionsRecording'
+// import { ImageExample } from './ImageExample'
+// import { LoadFromFile } from './LoadFromFile'
+// import { ChangeMaterials } from './ChangeMaterials'
 // import { PhysicsCoin } from './PhysicsCoin'
 // import { FadeOut } from './FadeOut'
 // import { CastShadow } from './CastShadow'
@@ -50,11 +50,11 @@ function HomeScreen() {
     <ScrollView style={{ flex: 1 }}>
       <NavigationItem name="▶️ Animation Transitions" route="AnimationTransitions" />
       <NavigationItem name="📸 Camera Pan" route="CameraPan" />
-      <NavigationItem name="📹 Offscreen recording" route="AnimationTransitionsRecording" />
+      {/* <NavigationItem name="📹 Offscreen recording" route="AnimationTransitionsRecording" />
       <NavigationItem name="🏞️ Image" route="ImageExample" />
       <NavigationItem name="📦 Load from file" route="LoadFromFile" />
       <NavigationItem name="🎨 Change Materials" route="ChangeMaterials" />
-      {/* <NavigationItem name="💰 Physics Coin" route="PhysicsCoin" />
+      <NavigationItem name="💰 Physics Coin" route="PhysicsCoin" />
       <NavigationItem name="😶‍🌫️ Fade Out" route="FadeOut" />
       <NavigationItem name="🎨 Change Materials" route="ChangeMaterials" />
       <NavigationItem name="🌑 Cast Shadow" route="CastShadow" />
@@ -90,12 +90,12 @@ function App() {
             }}
           />
           <Stack.Screen name="CameraPan" component={CameraPan} />
-          <Stack.Screen name="AnimationTransitionsRecording" component={AnimationTransitionsRecording} />
+          {/* TODO: Migrate */}
+          {/* <Stack.Screen name="AnimationTransitionsRecording" component={AnimationTransitionsRecording} />
           <Stack.Screen name="ImageExample" component={ImageExample} />
           <Stack.Screen name="LoadFromFile" component={LoadFromFile} />
           <Stack.Screen name="ChangeMaterials" component={ChangeMaterials} />
-          {/* TODO: Migrate */}
-          {/* <Stack.Screen name="PhysicsCoin" component={PhysicsCoin} />
+          <Stack.Screen name="PhysicsCoin" component={PhysicsCoin} />
           <Stack.Screen name="FadeOut" component={FadeOut} />
           <Stack.Screen name="ChangeMaterials" component={ChangeGoldenMaterials} />
           <Stack.Screen name="CastShadow" component={CastShadow} />
