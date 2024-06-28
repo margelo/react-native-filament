@@ -174,12 +174,13 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
     }
 
     const surfaceProvider = this.view.getSurfaceProvider()
+    const filamentDispatcher = FilamentProxy.getCurrentDispatcher()
     this.surfaceCreatedListener = surfaceProvider.addOnSurfaceCreatedListener(() => {
       this.onSurfaceCreated(surfaceProvider)
-    }, FilamentProxy.getCurrentDispatcher())
+    }, filamentDispatcher)
     this.surfaceDestroyedListener = surfaceProvider.addOnSurfaceDestroyedListener(() => {
       this.onSurfaceDestroyed()
-    }, FilamentProxy.getCurrentDispatcher())
+    }, filamentDispatcher)
     // Link the surface with the engine:
     console.log('Setting surface provider')
     context.engine.setSurfaceProvider(surfaceProvider)
