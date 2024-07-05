@@ -4,14 +4,14 @@ import { BackgroundImage, Camera, FilamentContext, FilamentView, Model } from 'r
 import { DefaultLight } from './components/DefaultLight'
 import BackgroundImageMaterial from '~/assets/background_image.matc'
 
-const imageResource = require('~/assets/example_background.jpeg')
+const imageResource = require('~/assets/background.jpg')
 
 function Renderer() {
   return (
     <FilamentView style={styles.container}>
       <Camera />
       <DefaultLight />
-      <Model source={require('~/assets/pengu.glb')} transformToUnitCube />
+      <Model source={require('~/assets/buster_drone.glb')} transformToUnitCube />
 
       <BackgroundImage source={imageResource} materialSource={BackgroundImageMaterial} resizeMode="cover" />
     </FilamentView>

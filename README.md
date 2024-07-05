@@ -97,3 +97,9 @@ If you need help with integrating react-native-filament in your app or have addi
 
 * 🐦 [**Follow us on Twitter**](https://twitter.com/margelo) for updates
 * 💬 [**Join the Margelo Community Discord**](https://discord.gg/6CSHz2qAvA) for chatting about react-native-filament
+
+#### Attributions
+
+The example app in this project uses several free assets:
+- <a href="https://www.freepik.com/free-ai-image/space-travel-collage-design_94964745.htm#fromView=search&page=1&position=1&uuid=cf66f9c3-2d56-4228-a3cf-de7c07d418fb">Image by freepik</a>
+- "Buster Drone" (https://skfb.ly/TBnX) by LaVADraGoN is licensed under Creative Commons Attribution-NonCommercial (http://creativecommons.org/licenses/by-nc/4.0/).

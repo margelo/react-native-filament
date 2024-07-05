@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native'
 import * as React from 'react'
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Button, GestureResponderEvent, ScrollView, StyleSheet, View } from 'react-native'
 import {
   useModel,

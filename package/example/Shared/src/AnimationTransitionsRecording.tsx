@@ -1,11 +1,10 @@
 import * as React from 'react'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { Button, Dimensions, PixelRatio, StyleSheet, View } from 'react-native'
 import {
   Float3,
   useModel,
   useAnimator,
-  getAssetFromModel,
   useFilamentContext,
   useSkybox,
   useRecorder,
@@ -14,10 +13,9 @@ import {
   FilamentContext,
 } from 'react-native-filament'
 import { useRunOnJS, useSharedValue } from 'react-native-worklets-core'
-import PenguGlb from '~/assets/pengu.glb'
-import PirateGlb from '~/assets/pirate.glb'
 import { DefaultLight } from './components/DefaultLight'
 import Video from 'react-native-video'
+import DroneGlb from '~/assets/buster_drone.glb'
 
 // Camera config:
 const cameraPosition: Float3 = [0, 0, 8]
@@ -34,35 +32,23 @@ function Renderer() {
   const { camera } = useFilamentContext()
   useSkybox({ color: '#88defb' })
 
-  const pengu = useModel(PenguGlb)
-  const penguAnimator = useAnimator(pengu)
-  const pirateHat = useModel(PirateGlb)
-  const pirateHatAsset = getAssetFromModel(pirateHat)
-  const pirateHatInstance = useMemo(() => pirateHatAsset?.getInstance(), [pirateHatAsset])
-
-  // Sync pirate hat animation with pengu
-  React.useEffect(() => {
-    if (penguAnimator == null || pirateHatInstance == null) return
-    const id = penguAnimator.addToSyncList(pirateHatInstance)
-    return () => {
-      penguAnimator.removeFromSyncList(id)
-    }
-  }, [penguAnimator, pirateHatInstance])
+  const model = useModel(DroneGlb)
+  const modelAnimator = useAnimator(model)
 
   const renderCallback = useCallback(
     (passedSeconds: number) => {
       'worklet'
       camera.lookAt(cameraPosition, cameraTarget, cameraUp)
 
-      if (penguAnimator == null) {
+      if (modelAnimator == null) {
         return
       }
 
       // Update the animators to play the current animation
-      penguAnimator.applyAnimation(0, passedSeconds)
-      penguAnimator.updateBoneMatrices()
+      modelAnimator.applyAnimation(0, passedSeconds)
+      modelAnimator.updateBoneMatrices()
     },
-    [camera, penguAnimator]
+    [camera, modelAnimator]
   )
 
   const framesToRender = DURATION * FPS
