@@ -1,34 +1,37 @@
 import * as React from 'react'
-import { useCallback } from 'react'
 import { StyleSheet } from 'react-native'
-import { useModel, useAnimator, FilamentContext, FilamentView, Camera, RenderCallback, Skybox } from 'react-native-filament'
+import { useModel, FilamentContext, FilamentView, Camera, Skybox, Model, Animator } from 'react-native-filament'
 import DroneGlb from '~/assets/buster_drone.glb'
 import { DefaultLight } from './components/DefaultLight'
 
 function Renderer() {
   const model = useModel(DroneGlb)
-  const modelAnimator = useAnimator(model)
+  // const modelAnimator = useAnimator(model)
 
-  const renderCallback: RenderCallback = useCallback(
-    ({ passedSeconds }) => {
-      'worklet'
+  // const renderCallback: RenderCallback = useCallback(
+  //   ({ passedSeconds }) => {
+  //     'worklet'
 
-      if (modelAnimator == null) {
-        return
-      }
+  //     if (modelAnimator == null) {
+  //       return
+  //     }
 
-      // Update the animators to play the current animation
-      modelAnimator.applyAnimation(0, passedSeconds)
-      modelAnimator.updateBoneMatrices()
-    },
-    [modelAnimator]
-  )
+  //     // Update the animators to play the current animation
+  //     modelAnimator.applyAnimation(0, passedSeconds)
+  //     modelAnimator.updateBoneMatrices()
+  //   },
+  //   [modelAnimator]
+  // )
 
   return (
-    <FilamentView style={styles.filamentView} renderCallback={renderCallback} enableTransparentRendering={false}>
+    <FilamentView style={styles.filamentView} enableTransparentRendering={false}>
       <Camera />
       <DefaultLight />
       <Skybox colorInHex="#88defb" />
+
+      <Model source={DroneGlb}>
+        <Animator />
+      </Model>
     </FilamentView>
   )
 }
