@@ -9,6 +9,7 @@ import { CameraPan } from './CameraPan'
 import { AnimationTransitionsRecording } from './AnimationTransitionsRecording'
 import { ImageExample } from './ImageExample'
 import { LoadFromFile } from './LoadFromFile'
+import { NoneTransparent } from './NoneTransparent'
 // import { ChangeMaterials } from './ChangeMaterials'
 // import { PhysicsCoin } from './PhysicsCoin'
 // import { FadeOut } from './FadeOut'
@@ -53,6 +54,7 @@ function HomeScreen() {
       <NavigationItem name="📹 Offscreen recording" route="AnimationTransitionsRecording" />
       <NavigationItem name="🏞️ Image" route="ImageExample" />
       <NavigationItem name="📦 Load from file" route="LoadFromFile" />
+      <NavigationItem name="🫥 None Transparent rendering" route="NoneTransparent" />
       {/* <NavigationItem name="💰 Physics Coin" route="PhysicsCoin" />
       <NavigationItem name="🌑 Cast Shadow" route="CastShadow" />
       <NavigationItem name="🤖 Multiple Instances" route="MultipleInstances" />
@@ -89,6 +91,7 @@ function App() {
           <Stack.Screen name="AnimationTransitionsRecording" component={AnimationTransitionsRecording} />
           <Stack.Screen name="ImageExample" component={ImageExample} />
           <Stack.Screen name="LoadFromFile" component={LoadFromFile} />
+          <Stack.Screen name="NoneTransparent" component={NoneTransparent} />
           {/* TODO: Migrate */}
           {/* <Stack.Screen name="ChangeMaterials" component={ChangeMaterials} />
           <Stack.Screen name="PhysicsCoin" component={PhysicsCoin} />

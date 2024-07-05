@@ -26,7 +26,7 @@ const near = 0.1
 const far = 1000
 
 const FPS = 60
-const DURATION = 10 // seconds
+const DURATION = 5 // seconds
 
 function Renderer() {
   const { camera } = useFilamentContext()

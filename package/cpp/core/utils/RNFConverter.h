@@ -28,7 +28,7 @@ public:
    */
   static math::float4 hexColorToSRGBLinear(std::string hexColor) {
     if (hexColor.front() != '#' || (hexColor.length() != 7 && hexColor.length() != 9)) {
-      throw new std::invalid_argument("Invalid hex color format");
+      throw std::invalid_argument("Invalid hex color format. Expected format: #RRGGBB or #RRGGBBAA");
     }
 
     // Extract color components
