@@ -30,7 +30,7 @@ type TextureProps = BaseProps & {
 type ColorProps = BaseProps & {
   /**
    * The color of the skybox.
-   * @example 0xff0000
+   * @example #ff0000
    */
   colorInHex: string
 }
