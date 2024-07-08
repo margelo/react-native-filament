@@ -1,35 +1,66 @@
-import React from 'react'
-import { FilamentModel } from '../hooks/useModel'
+import React, { useEffect } from 'react'
 import { ParentModelAssetContext } from './ParentModelAssetContext'
-import { getAssetFromModel } from '../utilities/getAssetFromModel'
 import { FilamentAsset } from '../types'
+import { RenderCallbackContext } from './RenderCallbackContext'
+import { useAnimator } from '../hooks/useAnimator'
+
+export type AnimationItem = {
+  index: number
+  duration: number
+  name: string
+}
 
 type Props = {
-  model?: FilamentModel
+  animationIndex?: number
+  onAnimationsLoaded?: (animations: AnimationItem[]) => unknown
 }
 
-export function Animator({ model: propModel, ...props }: Props) {
-  const parentModel = React.useContext(ParentModelAssetContext)
-  const model = propModel ?? parentModel
+export function Animator(props: Props) {
+  const parentAsset = React.useContext(ParentModelAssetContext)
 
-  if (model == null) {
-    throw new Error('Animator must be used inside a <Model> component (or receive a model prop)')
+  if (parentAsset == null) {
+    throw new Error('Animator must be used inside a <Model> component.')
   }
 
-  const asset = 'state' in model ? getAssetFromModel(model) : model
-
-  if (asset == null) {
-    // User provided model which is still loading
-    return null
-  }
-
-  return <AnimatorImpl asset={asset} {...props} />
+  return <AnimatorImpl asset={parentAsset} {...props} />
 }
 
-type ImplProps = {
+type ImplProps = Props & {
   asset: FilamentAsset
 }
 
-function AnimatorImpl({ asset }: ImplProps) {
+function AnimatorImpl({ asset, animationIndex = 0, onAnimationsLoaded }: ImplProps) {
+  const animator = useAnimator(asset)
+
+  RenderCallbackContext.useRenderCallback(
+    ({ passedSeconds }) => {
+      'worklet'
+      if (animator == null) {
+        return
+      }
+
+      animator.applyAnimation(animationIndex, passedSeconds)
+      animator.updateBoneMatrices()
+    },
+    [animator]
+  )
+
+  useEffect(() => {
+    if (animator == null || onAnimationsLoaded == null) {
+      return
+    }
+
+    const animations: AnimationItem[] = []
+    for (let i = 0; i < animator.getAnimationCount(); i++) {
+      animations.push({
+        index: i,
+        duration: animator.getAnimationDuration(i),
+        name: animator.getAnimationName(i),
+      })
+    }
+
+    onAnimationsLoaded(animations)
+  }, [animator, onAnimationsLoaded])
+
   return null
 }
