@@ -1,6 +1,6 @@
 import React from 'react'
 import { FilamentModel } from '../hooks/useModel'
-import { ParentModelAssetContext } from './ParentModelAssetContex'
+import { ParentModelAssetContext } from './ParentModelAssetContext'
 import { getAssetFromModel } from '../utilities/getAssetFromModel'
 import { FilamentAsset } from '../types'
 
