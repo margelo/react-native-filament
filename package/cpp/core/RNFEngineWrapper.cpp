@@ -68,7 +68,6 @@ std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChainForSurface(std::
   }
 
   void* nativeWindow = surface->getSurface();
-  // TODO: make flags configurable
   uint64_t flags = enableTransparentRendering ? SwapChain::CONFIG_TRANSPARENT : 0;
   std::shared_ptr<SwapChain> swapChain = pointee()->createSwapChain(nativeWindow, flags);
 

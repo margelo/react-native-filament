@@ -31,7 +31,7 @@ void EngineImpl::createAndSetSkybox(std::string hexColor, std::optional<bool> sh
 
 void EngineImpl::createAndSetSkybox(std::optional<std::shared_ptr<FilamentBuffer>> textureBuffer, std::optional<bool> showSun,
                                     std::optional<float> envIntensity) {
-  throw new std::runtime_error("Not implemented yet");
+  throw std::runtime_error("Not implemented yet");
 }
 
 void EngineImpl::clearSkybox() {
