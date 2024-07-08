@@ -3,17 +3,22 @@ import { Worklets } from 'react-native-worklets-core'
 /**
  * Report an error to react native's `ErrorUtils` if available, or log to console otherwise.
  */
-export function reportFatalError(error: unknown): void {
+export function reportError(error: unknown, fatal: boolean): void {
   // @ts-expect-error this is defined by react-native.
   if (global.ErrorUtils != null) {
-    // @ts-expect-error this is defined by react-native.
-    global.ErrorUtils.reportFatalError(error)
+    if (fatal) {
+      // @ts-expect-error this is defined by react-native.
+      global.ErrorUtils.reportFatalError(error)
+    } else {
+      // @ts-expect-error this is defined by react-native.
+      global.ErrorUtils.reportError(error)
+    }
   } else {
     console.error(`An unknown Filament error occurred!`, error)
   }
 }
 
-const throwErrorOnJS = Worklets.createRunOnJS((message: string, stack: string | undefined) => {
+const throwErrorOnJS = Worklets.createRunOnJS((message: string, stack: string | undefined, fatal: boolean) => {
   const error = new Error()
   error.message = message
   error.stack = stack
@@ -21,15 +26,14 @@ const throwErrorOnJS = Worklets.createRunOnJS((message: string, stack: string | 
   // @ts-expect-error this is react-native specific
   error.jsEngine = 'Filament'
   // From react-native:
-  // @ts-ignore the reportFatalError method is an internal method of ErrorUtils not exposed in the type definitions
-  reportFatalError(error)
+  reportError(error, fatal)
 })
 
-export function reportWorkletError(error: unknown): void {
+export function reportWorkletError(error: unknown, fatal = true): void {
   'worklet'
   const safeError = error as Error | undefined
   const message = safeError != null && 'message' in safeError ? safeError.message : 'Filament threw an error.'
-  throwErrorOnJS(message, safeError?.stack)
+  throwErrorOnJS(message, safeError?.stack, fatal)
 }
 
 export function wrapWithErrorHandler<T extends (...args: any[]) => any>(callback: T): (...args: Parameters<T>) => ReturnType<T> {
