@@ -117,7 +117,7 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
       })
     )
 
-    // It can happen that after the listener was set, the surface was already destroyed:
+    // It can happen that after the listener was set the surface got destroyed already:
     if (!this.isComponentMounted || !this.isSurfaceAlive.value) {
       Logger.debug('🚧 Component is already unmounted or surface is no longer alive, removing choreographer listener')
       listener.remove()
@@ -133,6 +133,10 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
 
     this.renderCallbackListener = listener
     Logger.debug('Render callback set!')
+
+    // Calling this here ensures that only after the latest successful call for attaching a listener, the choreographer is started.
+    Logger.debug('Starting choreographer')
+    _choreographer.start()
   }
 
   private getContext = () => {
@@ -234,23 +238,29 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
     Logger.debug('Surface created!')
     const isSurfaceAlive = this.isSurfaceAlive
     isSurfaceAlive.value = true
-    const { engine, workletContext, _choreographer } = this.getContext()
+    const { engine, workletContext } = this.getContext()
     // Create a swap chain …
     const enableTransparentRendering = this.props.enableTransparentRendering ?? true
     Logger.debug('Creating swap chain')
-    const swapChain = await workletContext.runAsync(
-      wrapWithErrorHandler(() => {
-        'worklet'
+    const swapChain = await workletContext.runAsync(() => {
+      'worklet'
 
-        if (!isSurfaceAlive.value) {
-          return null
-        }
+      if (!isSurfaceAlive.value) {
+        return null
+      }
 
+      try {
         return engine.createSwapChainForSurface(surfaceProvider, enableTransparentRendering)
-      })
-    )
+      } catch (error) {
+        // Report this error as none-fatal. We only throw in createSwapChainForSurface if the surface is already released.
+        // There is the chance of a race condition where the surface is destroyed but our JS onDestroy listener hasn't been called yet.
+        reportWorkletError(error, false)
+        return null
+      }
+    })
 
     if (swapChain == null) {
+      isSurfaceAlive.value = false
       Logger.info('🚧 Swap chain is null, surface was already destroyed while we tried to create a swapchain from it.')
       return
     }
@@ -263,10 +273,6 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
     // Set the render callback in the choreographer:
     const { renderCallback } = this.props
     await this.updateRenderCallback(renderCallback, this.swapChain)
-
-    // Start the choreographer …
-    Logger.debug('Starting choreographer')
-    _choreographer.start()
   }
 
   /**
