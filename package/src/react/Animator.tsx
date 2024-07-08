@@ -11,10 +11,28 @@ export type AnimationItem = {
 }
 
 type Props = {
+  /**
+   * The index of the animation to play. To find out the index for the animation you want to play, you can use the `onAnimationsLoaded` callback.
+   * @default 0
+   **/
   animationIndex?: number
+
+  /**
+   * Returns a list of all animations for the model.
+   */
   onAnimationsLoaded?: (animations: AnimationItem[]) => unknown
 }
 
+/**
+ * Can be used to control the animation of a Model.
+ * For pausing, playing, it is recommended to conditionally render the Animator component.
+ *
+ * @example
+ * ```jsx
+ * <Model source={DroneGlb}>
+ *  <Animator animationIndex={2} />
+ * </Model>
+ */
 export function Animator(props: Props) {
   const parentAsset = React.useContext(ParentModelAssetContext)
 
