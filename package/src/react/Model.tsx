@@ -1,7 +1,7 @@
 import React, { PropsWithChildren, useEffect, useMemo } from 'react'
 import { BufferSource } from '../hooks/useBuffer'
 import { ModelProps as UseModelProps, useModel } from '../hooks/useModel'
-import { ParentModelAssetContext } from './ParentModelAssetContex'
+import { ParentModelAssetContext } from './ParentModelAssetContext'
 import { ParentEntityContext } from './ParentEntityContex'
 import { getAssetFromModel } from '../utilities/getAssetFromModel'
 import { useFilamentContext } from './Context'

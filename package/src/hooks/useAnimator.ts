@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Animator, FilamentAsset, FilamentInstance } from '../types'
+import { FilamentAnimator, FilamentAsset, FilamentInstance } from '../types'
 import { useFilamentContext } from '../react/Context'
 import { FilamentModel } from './useModel'
 
@@ -13,7 +13,7 @@ function isFilamentModel(asset: FilamentAsset | FilamentInstance | FilamentModel
  *
  * @note For each asset/instance you should only have one animator.
  */
-export function useAnimator(modelOrAsset?: FilamentAsset | FilamentInstance | FilamentModel): Animator | undefined {
+export function useAnimator(modelOrAsset?: FilamentAsset | FilamentInstance | FilamentModel): FilamentAnimator | undefined {
   const { nameComponentManager } = useFilamentContext()
   const animator = useMemo(() => {
     if (modelOrAsset == null) return undefined
