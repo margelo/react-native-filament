@@ -6,9 +6,10 @@ import { Context } from './Context'
 import { RenderCallback, SwapChain } from 'react-native-filament'
 import type { SurfaceProvider, FilamentView as RNFFilamentView } from '../native/FilamentViewTypes'
 import { Listener } from '../types/Listener'
-import { findNodeHandle } from 'react-native'
+import { findNodeHandle, GestureResponderEvent } from 'react-native'
 import { Worklets } from 'react-native-worklets-core'
 import { getLogger } from '../utilities/logger/Logger'
+import { getTouchHandlers } from './TouchHandlerContext'
 
 const Logger = getLogger()
 
@@ -304,9 +305,24 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
     _choreographer.start()
   }
 
+  private onTouchStart = (event: GestureResponderEvent) => {
+    if (this.props.onTouchStart != null) {
+      this.props.onTouchStart(event)
+    }
+
+    // Gets the registered callbacks from the TouchHandlerContext
+    // This way we only have one real gesture responder event handler
+    const touchHandlers = getTouchHandlers()
+    const callbacks = Object.values(touchHandlers)
+    Logger.debug('onTouchStart, handlers count:', callbacks.length)
+    for (const handler of callbacks) {
+      handler(event)
+    }
+  }
+
   /** @internal */
   public render(): React.ReactNode {
-    return <FilamentNativeView ref={this.ref} onViewReady={this.onViewReady} {...this.props} />
+    return <FilamentNativeView ref={this.ref} onViewReady={this.onViewReady} {...this.props} onTouchStart={this.onTouchStart} />
   }
 }
 
