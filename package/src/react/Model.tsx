@@ -9,6 +9,7 @@ import { GestureResponderEvent } from 'react-native'
 import { Logger } from '../utilities/logger/Logger'
 import { Entity } from '../types'
 import { TouchHandlerContext } from './TouchHandlerContext'
+import { ApplyTransformations } from './internal/ApplyTransformations'
 
 type ModelProps = UseModelProps & {
   source: BufferSource
@@ -102,7 +103,10 @@ export function Model({ children, source, transformToUnitCube, onPress, ...model
   }
   return (
     <ParentModelAssetContext.Provider value={asset}>
-      <ParentEntityContext.Provider value={rootEntity}>{children}</ParentEntityContext.Provider>
+      <ParentEntityContext.Provider value={rootEntity}>
+        <ApplyTransformations />
+        {children}
+      </ParentEntityContext.Provider>
     </ParentModelAssetContext.Provider>
   )
 }
