@@ -13,21 +13,22 @@ import {
   RenderCallback,
 } from 'react-native-filament'
 import { useSharedValue } from 'react-native-worklets-core'
-import DroneGlb from '~/assets/buster_drone.glb'
+import HipHopGirlGlb from '~/assets/hiphopgirl.glb'
 import { DefaultLight } from './components/DefaultLight'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const animationInterpolationTime = 5
 
 function Renderer() {
   const { view } = useFilamentContext()
 
-  const model = useModel(DroneGlb)
+  const model = useModel(HipHopGirlGlb)
   const modelAnimator = useAnimator(model)
 
   const prevAnimationIndex = useSharedValue<number | undefined>(undefined)
   const prevAnimationStarted = useSharedValue<number | undefined>(undefined)
   const animationInterpolation = useSharedValue(0)
-  const currentAnimationIndex = useSharedValue(0)
+  const currentAnimationIndex = useSharedValue(1)
 
   const renderCallback: RenderCallback = useCallback(
     ({ passedSeconds }) => {
@@ -108,7 +109,7 @@ function Renderer() {
   return (
     <View style={styles.container} onTouchStart={onTouchStart}>
       <FilamentView style={styles.filamentView} renderCallback={renderCallback}>
-        <Camera />
+        <Camera cameraPosition={[0, 1, 4]} cameraTarget={[0, 1, 0]} />
         <DefaultLight />
       </FilamentView>
 
@@ -139,12 +140,12 @@ export function AnimationTransitions() {
   const increment = () => setCount((c) => c + 1)
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <FilamentContext key={count}>
         <Renderer />
       </FilamentContext>
-      <Button title="Create a new react element" onPress={increment} />
-    </View>
+      <Button title="Rerender" onPress={increment} />
+    </SafeAreaView>
   )
 }
 
