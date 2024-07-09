@@ -15,3 +15,5 @@ export const TouchHandlerContext = React.createContext({
     }
   },
 })
+
+export const getTouchHandlers = () => touchHandlers
