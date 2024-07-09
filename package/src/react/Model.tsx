@@ -41,30 +41,7 @@ export function Model({ children, source, onPress, ...restProps }: PropsWithChil
     return asset.getRoot()
   }, [asset])
 
-  // TODO: useApplyTransformationsOrContext ?
-  const transformPropsFromContext = useContext(TransformContext)
-  const mergedTransformProps = useMemo((): TransformationProps => {
-    return {
-      position: transformProps.position ?? transformPropsFromContext?.position,
-      scale: transformProps.scale ?? transformPropsFromContext?.scale,
-      rotate: transformProps.rotate ?? transformPropsFromContext?.rotate,
-      multiplyWithCurrentTransform: transformProps.multiplyWithCurrentTransform ?? transformPropsFromContext?.multiplyWithCurrentTransform,
-      transformToUnitCube: transformProps.transformToUnitCube ?? transformPropsFromContext?.transformToUnitCube,
-    }
-  }, [
-    transformProps.multiplyWithCurrentTransform,
-    transformProps.position,
-    transformProps.rotate,
-    transformProps.scale,
-    transformProps.transformToUnitCube,
-    transformPropsFromContext?.multiplyWithCurrentTransform,
-    transformPropsFromContext?.position,
-    transformPropsFromContext?.rotate,
-    transformPropsFromContext?.scale,
-    transformPropsFromContext?.transformToUnitCube,
-  ])
-
-  useApplyTransformations({ transformProps: mergedTransformProps, to: rootEntity })
+  useApplyTransformations({ transformProps: transformProps, to: rootEntity })
 
   const renderableEntities = useMemo(() => {
     // The entities are only needed for touch events, so only load them if a touch handler is provided

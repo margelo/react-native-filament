@@ -24,7 +24,15 @@ function Renderer() {
         <Camera cameraPosition={[0, 1, 4]} cameraTarget={[0, 1, 0]} />
         <DefaultLight />
 
-        <Model source={HipHopGirlGlb} onPress={onPressModel}>
+        <Model
+          source={HipHopGirlGlb}
+          onPress={onPressModel}
+          position={[-0.5, 0, 0]}
+          scale={[1, 1.7, 1]}
+          rotate={{
+            angleInRadians: Math.PI,
+            axis: [0, 1, 0],
+          }}>
           <Animator
             animationIndex={currentAnimationIndex}
             transitionDuration={animationInterpolationTime}
