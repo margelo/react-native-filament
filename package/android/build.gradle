@@ -73,7 +73,9 @@ def safeExtGetBool(prop, fallback) {
 }
 
 def enableLogs = safeExtGetBool('RNF_enableLogs', true)
+def excludeAssets = safeExtGetBool('RNF_excludeAssets', false)
 logger.warn("[react-native-filament] RNF_enableLogs is set to $enableLogs!")
+logger.warn("[react-native-filament] RNF_excludeAssets is set to $excludeAssets!")
 
 android {
   if (supportsNamespace()) {
@@ -166,6 +168,10 @@ android {
         ]
       } else {
         java.srcDirs += ["src/oldarch"]
+      }
+
+      if (!excludeAssets) {
+        assets.srcDirs += ["../assets"]
       }
     }
   }

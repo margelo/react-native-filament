@@ -1,9 +1,8 @@
 import React from 'react'
-import { Camera, FilamentContext, FilamentView, Model, useCameraManipulator } from 'react-native-filament'
+import { Camera, DefaultLight, FilamentContext, FilamentView, Model, useCameraManipulator } from 'react-native-filament'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import { Dimensions, StyleSheet, View } from 'react-native'
 import { useSharedValue } from 'react-native-worklets-core'
-import { DefaultLight } from './components/DefaultLight'
 
 const modelPath = 'https://raw.githubusercontent.com/google/filament/main/third_party/models/DamagedHelmet/DamagedHelmet.glb'
 
