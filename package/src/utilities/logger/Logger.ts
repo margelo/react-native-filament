@@ -6,16 +6,23 @@ export const setLogger = (logger: LoggerInterface) => {
   loggerInstance = logger
 }
 
+const noopLogger: LoggerInterface = {
+  debug: () => {},
+  info: () => {},
+  warn: () => {},
+  error: () => {},
+}
+
 export const getLogger = (): LoggerInterface => {
   if (loggerInstance == null) {
-    const noopLogger: LoggerInterface = {
-      debug: () => {},
-      info: () => {},
-      warn: () => {},
-      error: () => {},
-    }
     return noopLogger
   }
 
   return loggerInstance
 }
+
+export const Logger = new Proxy(noopLogger, {
+  get: (_target, prop) => {
+    return getLogger()[prop as keyof LoggerInterface]
+  },
+})
