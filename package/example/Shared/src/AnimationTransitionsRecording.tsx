@@ -11,9 +11,9 @@ import {
   useRecorderRenderLoop,
   Camera,
   FilamentContext,
+  DefaultLight,
 } from 'react-native-filament'
 import { useRunOnJS, useSharedValue } from 'react-native-worklets-core'
-import { DefaultLight } from './components/DefaultLight'
 import Video from 'react-native-video'
 import DroneGlb from '~/assets/buster_drone.glb'
 

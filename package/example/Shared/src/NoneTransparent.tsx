@@ -1,8 +1,7 @@
 import * as React from 'react'
 import { StyleSheet } from 'react-native'
-import { FilamentContext, FilamentView, Camera, Skybox, Model, Animator, AnimationItem } from 'react-native-filament'
+import { FilamentContext, FilamentView, Camera, Skybox, Model, Animator, AnimationItem, DefaultLight } from 'react-native-filament'
 import DroneGlb from '~/assets/buster_drone.glb'
-import { DefaultLight } from './components/DefaultLight'
 import { useCallback } from 'react'
 
 function Renderer() {

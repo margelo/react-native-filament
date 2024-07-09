@@ -1,8 +1,7 @@
 import * as React from 'react'
 import { useCallback, useState } from 'react'
 import { Button, StyleSheet, View } from 'react-native'
-import { FilamentContext, FilamentView, Camera, Model } from 'react-native-filament'
-import { DefaultLight } from './components/DefaultLight'
+import { FilamentContext, FilamentView, Camera, Model, DefaultLight } from 'react-native-filament'
 import RNFetchBlob from 'rn-fetch-blob'
 
 function Renderer({ assetPath }: { assetPath: string }) {
