@@ -114,7 +114,7 @@ export interface View extends PointerHolder {
    * Given 2D screen coordinates, returns the entity at that position.
    * Returns undefined if no entity is found.
    */
-  pickEntity(x: number, y: number): Entity | null
+  pickEntity(x: number, y: number): Promise<Entity | null>
 
   /**
    * This type is the raw expected valeu for JSI.
