@@ -24,15 +24,13 @@ function Renderer() {
         <Camera cameraPosition={[0, 1, 4]} cameraTarget={[0, 1, 0]} />
         <DefaultLight />
 
-        <Group>
-          <Model source={HipHopGirlGlb} onPress={onPressModel}>
-            <Animator
-              animationIndex={currentAnimationIndex}
-              transitionDuration={animationInterpolationTime}
-              onAnimationsLoaded={setAnimations}
-            />
-          </Model>
-        </Group>
+        <Model source={HipHopGirlGlb} onPress={onPressModel}>
+          <Animator
+            animationIndex={currentAnimationIndex}
+            transitionDuration={animationInterpolationTime}
+            onAnimationsLoaded={setAnimations}
+          />
+        </Model>
       </FilamentView>
 
       <ScrollView style={styles.btnContainer}>
