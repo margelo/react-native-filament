@@ -1,14 +1,14 @@
-import React, { PropsWithChildren, useCallback, useEffect, useMemo } from 'react'
+import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo } from 'react'
 import { BufferSource } from '../hooks/useBuffer'
 import { ModelProps as UseModelProps, useModel } from '../hooks/useModel'
 import { ParentModelAssetContext } from './ParentModelAssetContext'
 import { ParentEntityContext } from './ParentEntityContex'
 import { getAssetFromModel } from '../utilities/getAssetFromModel'
 import { useFilamentContext } from './Context'
-import { GestureResponderEvent, StyleSheet, View } from 'react-native'
-import { getLogger } from '../utilities/logger/Logger'
+import { GestureResponderEvent } from 'react-native'
+import { Logger } from '../utilities/logger/Logger'
 import { Entity } from '../types'
-const Logger = getLogger()
+import { TouchHandlerContext } from './TouchHandlerContext'
 
 type ModelProps = UseModelProps & {
   source: BufferSource
@@ -73,35 +73,36 @@ export function Model({ children, source, transformToUnitCube, onPress, ...model
       // Check if the model was picked
       for (const renderableEntity of renderableEntities) {
         if (entity?.id === renderableEntity.id) {
+          console.log('entity', entity.id, 'renderableEntity', renderableEntity.id)
           onPress(entity, renderableEntities)
           return
         }
       }
-      Logger.debug('No renderable entity of the model was picked')
+      Logger.debug('No renderable entity of the model was picked:', renderableEntities)
     },
     [onPress, renderableEntities, view]
   )
+
+  const { addTouchHandler } = useContext(TouchHandlerContext)
+  useEffect(() => {
+    if (onPress == null) return
+
+    const id = Math.random().toString(36).substring(7)
+    Logger.debug('Adding touch handler', id)
+    const removeHandler = addTouchHandler(onTouchStart)
+
+    return () => {
+      Logger.debug('Removing touch handler', id)
+      removeHandler()
+    }
+  }, [addTouchHandler, onPress, onTouchStart])
 
   if (asset == null || rootEntity == null) {
     return null
   }
   return (
     <ParentModelAssetContext.Provider value={asset}>
-      <ParentEntityContext.Provider value={rootEntity}>
-        {onPress == null ? (
-          children
-        ) : (
-          <View style={styles.flex1} onTouchStart={onTouchStart}>
-            {children}
-          </View>
-        )}
-      </ParentEntityContext.Provider>
+      <ParentEntityContext.Provider value={rootEntity}>{children}</ParentEntityContext.Provider>
     </ParentModelAssetContext.Provider>
   )
 }
-
-const styles = StyleSheet.create({
-  flex1: {
-    flex: 1,
-  },
-})

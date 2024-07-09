@@ -9,6 +9,7 @@ import { Listener } from '../types/Listener'
 import { findNodeHandle } from 'react-native'
 import { Worklets } from 'react-native-worklets-core'
 import { getLogger } from '../utilities/logger/Logger'
+import { TouchHandlerContext } from './TouchHandlerContext'
 
 const Logger = getLogger()
 
@@ -306,7 +307,25 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
 
   /** @internal */
   public render(): React.ReactNode {
-    return <FilamentNativeView ref={this.ref} onViewReady={this.onViewReady} {...this.props} />
+    return (
+      <TouchHandlerContext.Consumer>
+        {({ touchHandlers }) => (
+          // Note: touch handlers is just an array and will never cause a rerender!
+          <FilamentNativeView
+            ref={this.ref}
+            onViewReady={this.onViewReady}
+            {...this.props}
+            onTouchStart={(event) => {
+              const callbacks = Object.values(touchHandlers)
+              Logger.debug('onTouchStart, handlers count:', callbacks.length)
+              for (const handler of callbacks) {
+                handler(event)
+              }
+            }}
+          />
+        )}
+      </TouchHandlerContext.Consumer>
+    )
   }
 }
 
