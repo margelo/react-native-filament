@@ -62,15 +62,15 @@ void TransformManagerWrapper::updateTransformByRigidBody(std::shared_ptr<EntityW
 }
 void TransformManagerWrapper::transformToUnitCube(std::shared_ptr<EntityWrapper> rootEntityWrapper,
                                                   std::shared_ptr<AABBWrapper> aabbWrapper) {
-    if (!aabbWrapper) {
-        [[unlikely]];
-        throw std::invalid_argument("AABB is null");
-    }
+  if (!aabbWrapper) {
+    [[unlikely]];
+    throw std::invalid_argument("AABB is null");
+  }
 
-    Aabb aabb = aabbWrapper->getAabb();
-    Entity rootEntity = getEntity(rootEntityWrapper);
+  Aabb aabb = aabbWrapper->getAabb();
+  Entity rootEntity = getEntity(rootEntityWrapper);
 
-    pointee()->transformToUnitCube(rootEntity, aabb);
+  pointee()->transformToUnitCube(rootEntity, aabb);
 }
 
 Entity TransformManagerWrapper::getEntity(std::shared_ptr<EntityWrapper> entityWrapper) {

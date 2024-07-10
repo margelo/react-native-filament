@@ -18,8 +18,8 @@ void FilamentInstanceWrapper::loadHybridMethods() {
 }
 
 int FilamentInstanceWrapper::getEntityCount() {
-    size_t count = _instance->getEntityCount();
-    return static_cast<int>(count);
+  size_t count = _instance->getEntityCount();
+  return static_cast<int>(count);
 }
 
 std::vector<std::shared_ptr<EntityWrapper>> FilamentInstanceWrapper::getEntities() {

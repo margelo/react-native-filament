@@ -136,8 +136,7 @@ void TransformManagerImpl::updateTransformByRigidBody(Entity entity, std::shared
 /**
  * Sets up a root transform on the root to make it fit into a cube of the size of 1 unit.
  */
-void TransformManagerImpl::transformToUnitCube(Entity rootEntity,
-                                               Aabb aabb) {
+void TransformManagerImpl::transformToUnitCube(Entity rootEntity, Aabb aabb) {
   std::unique_lock lock(_mutex);
   TransformManager& transformManager = _engine->getTransformManager();
   math::details::TVec3<float> center = aabb.center();
