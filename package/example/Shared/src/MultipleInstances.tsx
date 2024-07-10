@@ -1,70 +1,36 @@
-import React, { useEffect, useMemo, useRef } from 'react'
-import { Platform, StyleSheet, View } from 'react-native'
+import React, { useCallback, useMemo } from 'react'
+import { StyleSheet } from 'react-native'
 import {
+  Camera,
+  DefaultLight,
+  FilamentContext,
   FilamentView,
-  Float3,
-  useBuffer,
-  useCamera,
-  useEngine,
+  getAssetFromModel,
+  RenderCallback,
+  useFilamentContext,
   useModel,
-  useRenderCallback,
-  useScene,
-  useView,
+  useWorkletEffect,
 } from 'react-native-filament'
+// import HipHopGirlGlb from '~/assets/hiphopgirl.glb'
+import DroneGlb from '~/assets/buster_drone.glb'
 
-const penguModelPath = Platform.select({
-  android: 'custom/pengu.glb',
-  ios: 'pengu.glb',
-})!
+function Renderer() {
+  const { scene, transformManager, nameComponentManager } = useFilamentContext()
 
-const indirectLightPath = Platform.select({
-  android: 'custom/default_env_ibl.ktx',
-  ios: 'default_env_ibl.ktx',
-})!
-
-// Camera config:
-const cameraPosition: Float3 = [0, 1, 10]
-const cameraTarget: Float3 = [0, 0, 0]
-const cameraUp: Float3 = [0, 1, 0]
-const focalLengthInMillimeters = 28
-const near = 0.1
-const far = 1000
-
-export function MultipleInstances() {
-  const engine = useEngine()
-  const view = useView(engine)
-  const camera = useCamera(engine)
-  const scene = useScene(engine)
-
-  //#region Setup lights
-  const light = useBuffer({ source: indirectLightPath })
-  useEffect(() => {
-    if (light == null) return
-    // create a default light
-    engine.setIndirectLight(light)
-
-    // Create a directional light for supporting shadows
-    const directionalLight = engine.createLightEntity('directional', 6500, 10000, 0, -1, 0, true)
-    engine.getScene().addEntity(directionalLight)
-    return () => {
-      // TODO: Remove directionalLight from scene
-    }
-  }, [engine, light])
-  //#endregion
-
-  const pengu = useModel({ engine: engine, source: penguModelPath, instanceCount: 4 })
-  const penguAsset = pengu.state === 'loaded' ? pengu.asset : undefined
-  useEffect(() => {
-    if (penguAsset == null) return
+  const model = useModel(DroneGlb, { instanceCount: 4, addToScene: false })
+  const asset = getAssetFromModel(model)
+  useWorkletEffect(() => {
+    'worklet'
+    if (asset == null) return
 
     // This will apply to all instances
-    engine.transformToUnitCube(penguAsset)
+    transformManager.transformToUnitCube(asset)
 
     // Add all instances to the scene
-    const instances = penguAsset.getAssetInstances()
+    const instances = asset.getAssetInstances()
     for (let i = 0; i < instances.length; i++) {
-      const instance = instances[i]
-      const root = instance?.getRoot()
+      const instance = instances[i]!
+      const root = instance.getRoot()
 
       // Calculate positions for a 2x2 grid
       // Assuming each instance occupies a 1x1 area, adjust the multiplier for larger sizes
@@ -74,49 +40,50 @@ export function MultipleInstances() {
       const z = 0 // Keep z the same if you're not using it for depth positioning
 
       // Move the instance
-      engine.setEntityPosition(root!, [x, y, z], true)
+      transformManager.setEntityPosition(root!, [x, y, z], false)
 
-      scene.addEntity(root!)
+      const entities = instance.getEntities()
+      scene.addEntities(entities)
     }
-  }, [engine, penguAsset, scene])
-
-  const allAnimators = useMemo(() => {
-    if (penguAsset == null) return undefined
-
-    const instances = penguAsset.getAssetInstances()
-    return instances.map((instance) => instance.getAnimator())
-  }, [penguAsset])
-
-  const prevAspectRatio = useRef(0)
-
-  useRenderCallback(engine, (_timestamp, _startTime, passedSeconds) => {
-    const aspectRatio = view.aspectRatio
-    if (prevAspectRatio.current !== aspectRatio) {
-      prevAspectRatio.current = aspectRatio
-      // Setup camera lens:
-      camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
-    }
-
-    // Animate all instances
-    allAnimators?.forEach((animator, index) => {
-      animator?.applyAnimation(index, passedSeconds)
-      animator?.updateBoneMatrices()
-    })
-
-    camera.lookAt(cameraPosition, cameraTarget, cameraUp)
   })
 
+  const allAnimators = useMemo(() => {
+    if (asset == null) return undefined
+
+    const instances = asset.getAssetInstances()
+    return instances.map((instance) => instance.createAnimator(nameComponentManager))
+  }, [asset, nameComponentManager])
+
+  const renderCallback: RenderCallback = useCallback(
+    ({ passedSeconds }) => {
+      'worklet'
+
+      // Animate all instances
+      allAnimators?.forEach((animator) => {
+        animator?.applyAnimation(0, passedSeconds)
+        animator?.updateBoneMatrices()
+      })
+    },
+    [allAnimators]
+  )
+
   return (
-    <View style={styles.container}>
-      <FilamentView style={styles.filamentView} engine={engine} />
-    </View>
+    <FilamentView style={styles.filamentView} renderCallback={renderCallback}>
+      <Camera />
+      <DefaultLight />
+    </FilamentView>
+  )
+}
+
+export function MultipleInstances() {
+  return (
+    <FilamentContext>
+      <Renderer />
+    </FilamentContext>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   filamentView: {
     flex: 1,
     backgroundColor: 'lightblue',
