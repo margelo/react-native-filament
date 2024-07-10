@@ -102,8 +102,6 @@ export function Model({ children, source, onPress, ...restProps }: PropsWithChil
   }
   return (
     <ParentModelAssetContext.Provider value={asset}>
-      {/* TODO: do we need this? I think we should always work from the instances */}
-      {/* <ParentEntityContext.Provider value={rootEntity}>{children}</ParentEntityContext.Provider> */}
       <ParentInstancesContext.Provider value={instances}>{children}</ParentInstancesContext.Provider>
     </ParentModelAssetContext.Provider>
   )
