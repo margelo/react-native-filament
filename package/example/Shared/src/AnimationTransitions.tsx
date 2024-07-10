@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native'
 import * as React from 'react'
 import { Alert, Button, ScrollView, StyleSheet, View } from 'react-native'
-import { FilamentContext, FilamentView, Camera, Model, Animator, AnimationItem, Entity, DefaultLight } from 'react-native-filament'
+import { FilamentContext, FilamentView, Camera, Model, Animator, AnimationItem, Entity, DefaultLight, Group } from 'react-native-filament'
 import { useSharedValue } from 'react-native-worklets-core'
 import HipHopGirlGlb from '~/assets/hiphopgirl.glb'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -24,7 +24,15 @@ function Renderer() {
         <Camera cameraPosition={[0, 1, 4]} cameraTarget={[0, 1, 0]} />
         <DefaultLight />
 
-        <Model source={HipHopGirlGlb} onPress={onPressModel}>
+        <Model
+          source={HipHopGirlGlb}
+          onPress={onPressModel}
+          position={[-0.5, 0, 0]}
+          scale={[1, 1.7, 1]}
+          rotate={{
+            angleInRadians: Math.PI / 2,
+            axis: [0, 1, 0],
+          }}>
           <Animator
             animationIndex={currentAnimationIndex}
             transitionDuration={animationInterpolationTime}
