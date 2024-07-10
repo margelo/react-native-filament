@@ -5,6 +5,7 @@ import { useDisposableResource } from './useDisposableResource'
 import { useWorkletEffect } from './useWorkletEffect'
 import { TFilamentRecorder } from '../types/FilamentRecorder'
 import { SwapChain } from '../types'
+import { Logger } from '../utilities/logger/Logger'
 
 export type RecorderOptions = {
   width: number
@@ -21,7 +22,7 @@ type Result = {
 export function useRecorder({ width, height, fps, bitRate }: RecorderOptions): Result {
   const { engine, workletContext } = useFilamentContext()
   const recorder = useMemo(() => {
-    console.log('Creating recorder JS')
+    Logger.debug('Creating recorder JS')
     return FilamentProxy.createRecorder(width, height, fps, bitRate)
   }, [bitRate, fps, height, width])
 
@@ -39,7 +40,6 @@ export function useRecorder({ width, height, fps, bitRate }: RecorderOptions): R
       return
     }
 
-    console.log('JS setting swapchain')
     engine.setSwapChain(swapChain)
   })
 
