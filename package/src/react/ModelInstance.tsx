@@ -45,10 +45,13 @@ function ModelInstanceImpl({ instance, children, ...transformProps }: Props) {
   const rootEntity = useMemo(() => {
     return instance.getRoot()
   }, [instance])
+  const boundingBox = useMemo(() => {
+    return instance.getBoundingBox()
+  }, [instance])
 
   const instances = useMemo(() => [instance], [instance])
 
-  useApplyTransformations({ transformProps, to: rootEntity })
+  useApplyTransformations({ transformProps, to: rootEntity, aabb: boundingBox })
 
   return <ParentInstancesContext.Provider value={instances}>{children}</ParentInstancesContext.Provider>
 }

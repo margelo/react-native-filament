@@ -10,10 +10,16 @@
 namespace margelo {
 
 void FilamentInstanceWrapper::loadHybridMethods() {
+  registerHybridGetter("entityCount", &FilamentInstanceWrapper::getEntityCount, this);
   registerHybridMethod("getEntities", &FilamentInstanceWrapper::getEntities, this);
   registerHybridMethod("getRoot", &FilamentInstanceWrapper::getRoot, this);
   registerHybridMethod("createAnimator", &FilamentInstanceWrapper::createAnimator, this);
   registerHybridMethod("getBoundingBox", &FilamentInstanceWrapper::getBoundingBox, this);
+}
+
+int FilamentInstanceWrapper::getEntityCount() {
+    size_t count = _instance->getEntityCount();
+    return static_cast<int>(count);
 }
 
 std::vector<std::shared_ptr<EntityWrapper>> FilamentInstanceWrapper::getEntities() {

@@ -2,7 +2,6 @@ import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo }
 import { BufferSource } from '../hooks/useBuffer'
 import { ModelProps as UseModelProps, useModel } from '../hooks/useModel'
 import { ParentModelAssetContext } from './ParentModelAssetContext'
-import { ParentEntityContext } from './ParentEntityContex'
 import { getAssetFromModel } from '../utilities/getAssetFromModel'
 import { useFilamentContext } from './Context'
 import { GestureResponderEvent } from 'react-native'
@@ -10,7 +9,7 @@ import { Logger } from '../utilities/logger/Logger'
 import { Entity } from '../types'
 import { TouchHandlerContext } from './TouchHandlerContext'
 import { useApplyTransformations } from '../hooks/internal/useApplyTransformations'
-import { extractTransformationProps, TransformationProps, TransformContext } from './TransformContext'
+import { extractTransformationProps, TransformationProps } from './TransformContext'
 import { ParentInstancesContext } from './ParentInstancesContext'
 
 type ModelProps = TransformationProps &
@@ -35,22 +34,15 @@ export function Model({ children, source, onPress, ...restProps }: PropsWithChil
 
   const model = useModel(source, modelProps)
   const asset = getAssetFromModel(model)
+
   const rootEntity = useMemo(() => {
     if (asset === undefined) {
       return null
     }
     return asset.getRoot()
   }, [asset])
-
-  const instances = useMemo(() => {
-    if (asset === undefined) {
-      return null
-    }
-    return asset.getAssetInstances()
-  }, [asset])
-  console.log('instances', instances)
-
-  useApplyTransformations({ transformProps: transformProps, to: rootEntity })
+  const boundingBox = model.state === 'loaded' ? model.boundingBox : undefined
+  useApplyTransformations({ transformProps: transformProps, to: rootEntity, aabb: boundingBox })
 
   const renderableEntities = useMemo(() => {
     // The entities are only needed for touch events, so only load them if a touch handler is provided
@@ -97,6 +89,13 @@ export function Model({ children, source, onPress, ...restProps }: PropsWithChil
       removeHandler()
     }
   }, [addTouchHandler, onPress, onTouchStart])
+
+  const instances = useMemo(() => {
+    if (asset === undefined) {
+      return null
+    }
+    return asset.getAssetInstances()
+  }, [asset])
 
   if (asset == null || rootEntity == null) {
     return null

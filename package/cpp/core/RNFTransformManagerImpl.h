@@ -28,7 +28,8 @@ public:
   void setEntityRotation(Entity entity, double angleRadians, std::vector<double> axisVec, bool multiplyCurrent);
   void setEntityScale(Entity entity, std::vector<double> scaleVec, bool multiplyCurrent);
   void updateTransformByRigidBody(Entity entity, std::shared_ptr<RigidBodyWrapper> rigidBody);
-  void transformToUnitCube(std::shared_ptr<gltfio::FilamentAsset> asset);
+  void transformToUnitCube(Entity rootEntity,
+                           Aabb aabb);
 
 private: // Internal
   void updateTransform(math::mat4 transform, Entity entity, bool multiplyCurrent);

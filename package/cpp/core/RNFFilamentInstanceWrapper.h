@@ -30,6 +30,7 @@ public:
   }
 
 private: // Public JS API
+  int getEntityCount();
   std::vector<std::shared_ptr<EntityWrapper>> getEntities();
   std::shared_ptr<EntityWrapper> getRoot();
   /**

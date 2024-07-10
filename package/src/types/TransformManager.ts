@@ -1,8 +1,8 @@
 import { RigidBody } from '../bullet'
 import { Entity } from './Entity'
-import { FilamentAsset } from './FilamentAsset'
 import { PointerHolder } from './PointerHolder'
 import { Float3 } from './Math'
+import { AABB } from './Boxes'
 
 /**
  * A 4x4 column-major matrix.
@@ -102,7 +102,7 @@ export interface TransformManager extends PointerHolder {
    * Transforms the given entity to fit into a unit cube at the origin (0,0,0).
    * @param entity The entity to transform
    */
-  transformToUnitCube(entity: FilamentAsset): void
+  transformToUnitCube(rootEntity: Entity, boundingBox: AABB): void
 
   /**
    * Sets the position of an entity.

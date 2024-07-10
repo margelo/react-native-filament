@@ -3,6 +3,7 @@
 //
 
 #include "RNFTransformManagerImpl.h"
+#include "RNFAABBWrapper.h"
 #include "core/utils/RNFConverter.h"
 #include <filament/TransformManager.h>
 #include <math/mat4.h>
@@ -133,19 +134,18 @@ void TransformManagerImpl::updateTransformByRigidBody(Entity entity, std::shared
 }
 
 /**
- * Sets up a root transform on the current model to make it fit into a unit cube.
+ * Sets up a root transform on the root to make it fit into a cube of the size of 1 unit.
  */
-void TransformManagerImpl::transformToUnitCube(std::shared_ptr<gltfio::FilamentAsset> asset) {
+void TransformManagerImpl::transformToUnitCube(Entity rootEntity,
+                                               Aabb aabb) {
   std::unique_lock lock(_mutex);
   TransformManager& transformManager = _engine->getTransformManager();
-  Aabb aabb = asset->getBoundingBox();
   math::details::TVec3<float> center = aabb.center();
   math::details::TVec3<float> halfExtent = aabb.extent();
   float maxExtent = max(halfExtent) * 2.0f;
   float scaleFactor = 2.0f / maxExtent;
   math::mat4f transform = math::mat4f::scaling(scaleFactor) * math::mat4f::translation(-center);
 
-  Entity rootEntity = asset->getRoot();
   TransformManager::Instance instance = getInstance(rootEntity, transformManager);
   transformManager.setTransform(instance, transform);
 }

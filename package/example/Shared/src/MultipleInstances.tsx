@@ -12,7 +12,7 @@ function Renderer() {
       <Camera />
       <DefaultLight />
 
-      <Model source={DroneGlb} instanceCount={instanceCount}>
+      <Model source={DroneGlb} instanceCount={instanceCount} transformToUnitCube>
         {instances.map((index) => {
           // Calculate positions for a 2x2 grid
           // Assuming each instance occupies a 1x1 area, adjust the multiplier for larger sizes
@@ -22,7 +22,7 @@ function Renderer() {
           const z = 0 // Keep z the same if you're not using it for depth positioning
 
           return (
-            <ModelInstance key={index} index={index} position={[x, y, z]} transformToUnitCube>
+            <ModelInstance key={index} index={index} position={[x, y, z]}>
               <Animator />
             </ModelInstance>
           )

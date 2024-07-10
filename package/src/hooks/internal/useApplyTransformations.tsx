@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef } from 'react'
 import { TransformationProps, TransformContext } from '../../react/TransformContext'
 import { useFilamentContext } from '../../react/Context'
-import { Entity, Float3 } from '../../types'
+import { AABB, Entity, Float3 } from '../../types'
 import { areFloat3Equal } from '../../utilities/helper'
 import { useMergeTransformationProps } from './useMergeTransformationProps'
 
@@ -9,19 +9,22 @@ type Params = {
   // If null it will not take the entity from the context, as it indicates that it will be provided through the param
   to: Entity | null
   transformProps?: TransformationProps
+  // If transformToUnitCube is true, the aabb is required
+  aabb?: AABB
 }
 
 /**
  * Takes the next entity from the context and applies all transformations from the next
  * transformation context to it
  */
-export function useApplyTransformations({ to: entity, transformProps }: Params): void {
+export function useApplyTransformations({ to: entity, transformProps, aabb }: Params): void {
   const transformPropsFromContext = useContext(TransformContext)
 
   const {
     position,
     scale,
     rotate,
+    transformToUnitCube,
     multiplyWithCurrentTransform = true,
   } = useMergeTransformationProps(transformProps, transformPropsFromContext)
 
@@ -33,9 +36,12 @@ export function useApplyTransformations({ to: entity, transformProps }: Params):
   const prevRotate = useRef<typeof rotate>()
   const prevPosition = useRef<Float3 | null>(null)
 
-  console.log({ prevScale })
   useEffect(() => {
     if (entity == null) return
+
+    if (transformToUnitCube && aabb != null) {
+      transformManager.transformToUnitCube(entity, aabb)
+    }
 
     if (scale != null && (prevScale.current == null || !areFloat3Equal(scale, prevScale.current))) {
       transformManager.setEntityScale(entity, scale, multiplyWithCurrentTransform)
@@ -54,5 +60,17 @@ export function useApplyTransformations({ to: entity, transformProps }: Params):
       transformManager.setEntityPosition(entity, position, multiplyWithCurrentTransform)
       prevPosition.current = position
     }
-  }, [entity, multiplyWithCurrentTransform, position, prevPosition, prevRotate, prevScale, rotate, scale, transformManager])
+  }, [
+    aabb,
+    entity,
+    multiplyWithCurrentTransform,
+    position,
+    prevPosition,
+    prevRotate,
+    prevScale,
+    rotate,
+    scale,
+    transformManager,
+    transformToUnitCube,
+  ])
 }

@@ -108,7 +108,7 @@ export function useModel(source: BufferSource, props?: ModelProps): FilamentMode
 
   const boundingBox = useMemo(() => {
     if (asset == null) return undefined
-    return asset.boundingBox
+    return asset.getBoundingBox()
   }, [asset])
 
   if (assetBuffer == null || asset == null || boundingBox == null) {
