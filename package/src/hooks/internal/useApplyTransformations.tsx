@@ -17,16 +17,11 @@ type Params = {
  * Takes the next entity from the context and applies all transformations from the next
  * transformation context to it
  */
-export function useApplyTransformations({ to: entity, transformProps, aabb }: Params): void {
+export function useApplyTransformations({ to: entity, transformProps, aabb }: Params): TransformationProps {
   const transformPropsFromContext = useContext(TransformContext)
 
-  const {
-    position,
-    scale,
-    rotate,
-    transformToUnitCube,
-    multiplyWithCurrentTransform = true,
-  } = useMergeTransformationProps(transformProps, transformPropsFromContext)
+  const mergedTransformationProps = useMergeTransformationProps(transformProps, transformPropsFromContext)
+  const { position, scale, rotate, transformToUnitCube, multiplyWithCurrentTransform = true } = mergedTransformationProps
 
   const { transformManager } = useFilamentContext()
   // TODO: multiplying current transformations is a bit problematic with react.
@@ -73,4 +68,6 @@ export function useApplyTransformations({ to: entity, transformProps, aabb }: Pa
     transformManager,
     transformToUnitCube,
   ])
+
+  return mergedTransformationProps
 }

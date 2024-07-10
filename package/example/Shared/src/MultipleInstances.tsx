@@ -12,7 +12,8 @@ function Renderer() {
       <Camera />
       <DefaultLight />
 
-      <Model source={DroneGlb} instanceCount={instanceCount} transformToUnitCube>
+      {/* We transform the root model to a unit cube, meaning all instances will be scaled to unit cubes */}
+      <Model source={DroneGlb} instanceCount={instanceCount} transformToUnitCube multiplyWithCurrentTransform={false}>
         {instances.map((index) => {
           // Calculate positions for a 2x2 grid
           // Assuming each instance occupies a 1x1 area, adjust the multiplier for larger sizes
