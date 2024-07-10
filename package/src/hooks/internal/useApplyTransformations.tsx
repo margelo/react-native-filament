@@ -1,8 +1,9 @@
-import { useContext, useEffect, useMemo, useRef } from 'react'
+import { useContext, useEffect, useRef } from 'react'
 import { TransformationProps, TransformContext } from '../../react/TransformContext'
 import { useFilamentContext } from '../../react/Context'
 import { Entity, Float3 } from '../../types'
 import { areFloat3Equal } from '../../utilities/helper'
+import { useMergeTransformationProps } from './useMergeTransformationProps'
 
 type Params = {
   // If null it will not take the entity from the context, as it indicates that it will be provided through the param
@@ -17,52 +18,12 @@ type Params = {
 export function useApplyTransformations({ to: entity, transformProps }: Params): void {
   const transformPropsFromContext = useContext(TransformContext)
 
-  // TODO: useMergeTransformProps ?
-  const rotateAngle = transformProps?.rotate?.angleInRadians ?? transformPropsFromContext?.rotate?.angleInRadians
-  const rotateAxisX = transformProps?.rotate?.axis[0] ?? transformPropsFromContext?.rotate?.axis[0]
-  const rotateAxisY = transformProps?.rotate?.axis[1] ?? transformPropsFromContext?.rotate?.axis[1]
-  const rotateAxisZ = transformProps?.rotate?.axis[2] ?? transformPropsFromContext?.rotate?.axis[2]
-
-  const positonX = transformProps?.position?.[0] ?? transformPropsFromContext?.position?.[0]
-  const positonY = transformProps?.position?.[1] ?? transformPropsFromContext?.position?.[1]
-  const positonZ = transformProps?.position?.[2] ?? transformPropsFromContext?.position?.[2]
-
-  const scaleX = transformProps?.scale?.[0] ?? transformPropsFromContext?.scale?.[0]
-  const scaleY = transformProps?.scale?.[1] ?? transformPropsFromContext?.scale?.[1]
-  const scaleZ = transformProps?.scale?.[2] ?? transformPropsFromContext?.scale?.[2]
-
-  const mergedTransformProps = useMemo((): TransformationProps => {
-    return {
-      position: positonX != null && positonY != null && positonZ != null ? [positonX, positonY, positonZ] : undefined,
-      scale: scaleX != null && scaleY != null && scaleZ != null ? [scaleX, scaleY, scaleZ] : undefined,
-      rotate:
-        rotateAngle != null && rotateAxisX != null && rotateAxisY != null && rotateAxisZ != null
-          ? {
-              angleInRadians: rotateAngle,
-              axis: [rotateAxisX, rotateAxisY, rotateAxisZ],
-            }
-          : undefined,
-      multiplyWithCurrentTransform: transformProps?.multiplyWithCurrentTransform ?? transformPropsFromContext?.multiplyWithCurrentTransform,
-      transformToUnitCube: transformProps?.transformToUnitCube ?? transformPropsFromContext?.transformToUnitCube,
-    }
-  }, [
-    positonX,
-    positonY,
-    positonZ,
-    rotateAngle,
-    rotateAxisX,
-    rotateAxisY,
-    rotateAxisZ,
-    scaleX,
-    scaleY,
-    scaleZ,
-    transformProps?.multiplyWithCurrentTransform,
-    transformProps?.transformToUnitCube,
-    transformPropsFromContext?.multiplyWithCurrentTransform,
-    transformPropsFromContext?.transformToUnitCube,
-  ])
-
-  const { position, scale, rotate, multiplyWithCurrentTransform = true } = mergedTransformProps
+  const {
+    position,
+    scale,
+    rotate,
+    multiplyWithCurrentTransform = true,
+  } = useMergeTransformationProps(transformProps, transformPropsFromContext)
 
   const { transformManager } = useFilamentContext()
   // TODO: multiplying current transformations is a bit problematic with react.

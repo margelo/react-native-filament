@@ -30,7 +30,7 @@ function Renderer() {
           position={[-0.5, 0, 0]}
           scale={[1, 1.7, 1]}
           rotate={{
-            angleInRadians: Math.PI,
+            angleInRadians: Math.PI / 2,
             axis: [0, 1, 0],
           }}>
           <Animator
