@@ -10,10 +10,12 @@ console.log(`Using react-native-worklets-core@${version}`)
 import { setLogger } from 'react-native-filament'
 // A function that can wrap a console log call to add a prefix
 const prefix = '[filament-logger]'
-const prefixLog = (logFn) => (...messages) => {
-  const date = new Date()
-  logFn(prefix, `[${date.toLocaleTimeString()} ${date.getMilliseconds().toString().padStart(3, 0)}]`, ...messages)
-}
+const prefixLog =
+  (logFn) =>
+  (...messages) => {
+    const date = new Date()
+    logFn(prefix, `[${date.toLocaleTimeString()} ${date.getMilliseconds().toString().padStart(3, 0)}]`, ...messages)
+  }
 setLogger({
   debug: prefixLog(console.debug),
   log: prefixLog(console.log),

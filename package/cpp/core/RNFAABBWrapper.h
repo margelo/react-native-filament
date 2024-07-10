@@ -16,6 +16,10 @@ public:
   explicit AABBWrapper(const Aabb& aabb) : HybridObject("AABBWrapper"), _aabb(aabb) {}
   void loadHybridMethods() override;
 
+  Aabb getAabb() {
+    return _aabb;
+  }
+
 private: // Exposed JS api
   std::vector<double> getCenter();
   std::vector<double> getHalfExtent();

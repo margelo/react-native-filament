@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
-import { ParentModelAssetContext } from './ParentModelAssetContext'
-import { FilamentAsset } from '../types'
+import { FilamentInstance } from '../types'
 import { RenderCallbackContext } from './RenderCallbackContext'
 import { useAnimator } from '../hooks/useAnimator'
 import { ISharedValue, useSharedValue } from 'react-native-worklets-core'
 import usePrevious from '../hooks/usePrevious'
+import { ParentInstancesContext } from './ParentInstancesContext'
 
 export type AnimationItem = {
   index: number
@@ -43,21 +43,25 @@ type Props = {
  * </Model>
  */
 export function Animator(props: Props) {
-  const parentAsset = React.useContext(ParentModelAssetContext)
-
-  if (parentAsset == null) {
-    throw new Error('Animator must be used inside a <Model> component.')
+  const instances = React.useContext(ParentInstancesContext)
+  if (instances == null) {
+    throw new Error('Animator must be used inside a <Model> or <ModelInstance> component.')
+  }
+  const instance = instances[0]
+  if (instance == null) {
+    // Should never happen
+    throw new Error('No instances found for the parent Model component. This is a bug.')
   }
 
-  return <AnimatorImpl asset={parentAsset} {...props} />
+  return <AnimatorImpl instance={instance} {...props} />
 }
 
 type ImplProps = Props & {
-  asset: FilamentAsset
+  instance: FilamentInstance
 }
 
-function AnimatorImpl({ asset, animationIndex: animationIndexProp = 0, transitionDuration = 0, onAnimationsLoaded }: ImplProps) {
-  const animator = useAnimator(asset)
+function AnimatorImpl({ instance, animationIndex: animationIndexProp = 0, transitionDuration = 0, onAnimationsLoaded }: ImplProps) {
+  const animator = useAnimator(instance)
 
   // State for cross fading animations
   const prevAnimationIndex = useSharedValue<number | undefined>(undefined)

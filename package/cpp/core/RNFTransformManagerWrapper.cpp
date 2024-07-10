@@ -60,9 +60,17 @@ void TransformManagerWrapper::updateTransformByRigidBody(std::shared_ptr<EntityW
   Entity entity = getEntity(entityWrapper);
   pointee()->updateTransformByRigidBody(entity, rigidBody);
 }
-void TransformManagerWrapper::transformToUnitCube(std::shared_ptr<FilamentAssetWrapper> assetWrapper) {
-  std::shared_ptr<gltfio::FilamentAsset> asset = assetWrapper->getAsset();
-  pointee()->transformToUnitCube(asset);
+void TransformManagerWrapper::transformToUnitCube(std::shared_ptr<EntityWrapper> rootEntityWrapper,
+                                                  std::shared_ptr<AABBWrapper> aabbWrapper) {
+  if (!aabbWrapper) {
+    [[unlikely]];
+    throw std::invalid_argument("AABB is null");
+  }
+
+  Aabb aabb = aabbWrapper->getAabb();
+  Entity rootEntity = getEntity(rootEntityWrapper);
+
+  pointee()->transformToUnitCube(rootEntity, aabb);
 }
 
 Entity TransformManagerWrapper::getEntity(std::shared_ptr<EntityWrapper> entityWrapper) {

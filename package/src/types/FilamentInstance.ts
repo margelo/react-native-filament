@@ -1,7 +1,4 @@
-import { AABB } from './Boxes'
-import { Animator } from './Animator'
-import { Entity } from './Entity'
-import { NameComponentManager } from './NameComponentManager'
+import { FilamentInstanceBase } from './FilamentInstanceBase'
 
 /**
  * Every asset loaded has at least one FilamentInstance. You can load multiple instances of the same asset.
@@ -12,9 +9,4 @@ import { NameComponentManager } from './NameComponentManager'
  * Renderable components.
  *
  */
-export interface FilamentInstance {
-  getEntities(): Entity[]
-  getRoot(): Entity
-  createAnimator(nameComponentManager: NameComponentManager): Animator
-  getBoundingBox(): AABB
-}
+export interface FilamentInstance extends FilamentInstanceBase {}

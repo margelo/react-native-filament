@@ -10,10 +10,8 @@ export type TransformationProps = {
   }
   multiplyWithCurrentTransform?: boolean
 
-  // TODO: this only works on assets :thinking:
   /**
    * Transforms the given entity to fit into a unit cube (1,1,1) at the origin (0,0,0).
-   * @param entity The entity to transform
    */
   transformToUnitCube?: boolean
 }

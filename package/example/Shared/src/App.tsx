@@ -10,11 +10,11 @@ import { AnimationTransitionsRecording } from './AnimationTransitionsRecording'
 import { ImageExample } from './ImageExample'
 import { LoadFromFile } from './LoadFromFile'
 import { NoneTransparent } from './NoneTransparent'
+import { MultipleInstances } from './MultipleInstances'
 // import { ChangeMaterials } from './ChangeMaterials'
 // import { PhysicsCoin } from './PhysicsCoin'
 // import { FadeOut } from './FadeOut'
 // import { CastShadow } from './CastShadow'
-// import { MultipleInstances } from './MultipleInstances'
 // import { WorkletExample } from './WorkletExample'
 // import { ScaleEffect } from './ScaleEffect'
 // import { FadingLightExample } from './FadingLightExample'
@@ -55,9 +55,9 @@ function HomeScreen() {
       <NavigationItem name="🏞️ Image" route="ImageExample" />
       <NavigationItem name="📦 Load from file" route="LoadFromFile" />
       <NavigationItem name="🫥 None Transparent rendering" route="NoneTransparent" />
+      <NavigationItem name="🤖 Multiple Instances" route="MultipleInstances" />
       {/* <NavigationItem name="💰 Physics Coin" route="PhysicsCoin" />
       <NavigationItem name="🌑 Cast Shadow" route="CastShadow" />
-      <NavigationItem name="🤖 Multiple Instances" route="MultipleInstances" />
       <NavigationItem name="😶‍🌫️ Fade Out" route="FadeOut" />
       <NavigationItem name="↕️ Scale Effect" route="ScaleEffect" /> */}
     </ScrollView>
@@ -92,13 +92,13 @@ function App() {
           <Stack.Screen name="ImageExample" component={ImageExample} />
           <Stack.Screen name="LoadFromFile" component={LoadFromFile} />
           <Stack.Screen name="NoneTransparent" component={NoneTransparent} />
+          <Stack.Screen name="MultipleInstances" component={MultipleInstances} />
           {/* TODO: Migrate */}
           {/* <Stack.Screen name="ChangeMaterials" component={ChangeMaterials} />
           <Stack.Screen name="PhysicsCoin" component={PhysicsCoin} />
           <Stack.Screen name="FadeOut" component={FadeOut} />
           <Stack.Screen name="ChangeMaterials" component={ChangeGoldenMaterials} />
           <Stack.Screen name="CastShadow" component={CastShadow} />
-          <Stack.Screen name="MultipleInstances" component={MultipleInstances} />
           <Stack.Screen name="WorkletExample" component={WorkletExample} />
           <Stack.Screen name="ScaleEffect" component={ScaleEffect} />
           <Stack.Screen name="FadingLight" component={FadingLightExample} /> */}

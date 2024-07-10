@@ -27,7 +27,7 @@ private: // Exposed JS API:
   void setEntityRotation(std::shared_ptr<EntityWrapper> entity, double angleRadians, std::vector<double> axisVec, bool multiplyCurrent);
   void setEntityScale(std::shared_ptr<EntityWrapper> entity, std::vector<double> scaleVec, bool multiplyCurrent);
   void updateTransformByRigidBody(std::shared_ptr<EntityWrapper> entityWrapper, std::shared_ptr<RigidBodyWrapper> rigidBody);
-  void transformToUnitCube(std::shared_ptr<FilamentAssetWrapper> assetWrapper);
+  void transformToUnitCube(std::shared_ptr<EntityWrapper> rootEntityWrapper, std::shared_ptr<AABBWrapper> aabbWrapper);
 
 private: // Internal
   Entity getEntity(std::shared_ptr<EntityWrapper> entityWrapper);
