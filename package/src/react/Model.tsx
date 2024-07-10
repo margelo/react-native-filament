@@ -11,6 +11,7 @@ import { Entity } from '../types'
 import { TouchHandlerContext } from './TouchHandlerContext'
 import { useApplyTransformations } from '../hooks/internal/useApplyTransformations'
 import { extractTransformationProps, TransformationProps, TransformContext } from './TransformContext'
+import { ParentInstancesContext } from './ParentInstancesContext'
 
 type ModelProps = TransformationProps &
   UseModelProps & {
@@ -40,6 +41,14 @@ export function Model({ children, source, onPress, ...restProps }: PropsWithChil
     }
     return asset.getRoot()
   }, [asset])
+
+  const instances = useMemo(() => {
+    if (asset === undefined) {
+      return null
+    }
+    return asset.getAssetInstances()
+  }, [asset])
+  console.log('instances', instances)
 
   useApplyTransformations({ transformProps: transformProps, to: rootEntity })
 
@@ -94,7 +103,9 @@ export function Model({ children, source, onPress, ...restProps }: PropsWithChil
   }
   return (
     <ParentModelAssetContext.Provider value={asset}>
-      <ParentEntityContext.Provider value={rootEntity}>{children}</ParentEntityContext.Provider>
+      {/* TODO: do we need this? I think we should always work from the instances */}
+      {/* <ParentEntityContext.Provider value={rootEntity}>{children}</ParentEntityContext.Provider> */}
+      <ParentInstancesContext.Provider value={instances}>{children}</ParentInstancesContext.Provider>
     </ParentModelAssetContext.Provider>
   )
 }
