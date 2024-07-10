@@ -26,7 +26,9 @@ private:
 
 private: // Public JS API
   void addEntity(std::shared_ptr<EntityWrapper> entity);
+  void addEntities(std::vector<std::shared_ptr<EntityWrapper>> entities);
   void removeEntity(std::shared_ptr<EntityWrapper> entity);
+  void removeEntities(std::vector<std::shared_ptr<EntityWrapper>> entities);
   /**
    * Removed all entities associated with the provided asset from the scene.
    */
@@ -37,5 +39,8 @@ private: // Public JS API
   void addAssetEntities(std::shared_ptr<FilamentAssetWrapper> asset);
 
   int getEntityCount();
+
+private: // Internal
+  std::vector<Entity> entityWrapperVectorToEntityVector(std::vector<std::shared_ptr<EntityWrapper>> entities, size_t count);
 };
 } // namespace margelo

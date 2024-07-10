@@ -34,9 +34,19 @@ export interface Scene extends PointerHolder {
   addEntity(entity: Entity): void
 
   /**
+   * Adds multiple entities to the scene.
+   */
+  addEntities(entities: Entity[]): void
+
+  /**
    * Removes the Renderable from the Scene.
    **/
   removeEntity(entity: Entity): void
+
+  /**
+   * Removes multiple entities from the scene.
+   */
+  removeEntities(entities: Entity[]): void
 
   /**
    * Adds all entities associated with the given asset to the scene.
