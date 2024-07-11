@@ -20,9 +20,8 @@ jobs:
       # Enable corepack first:
       - name: Enable corepack
         run: |
-          yarn exec env
           corepack enable
-          yarn exec env
+          yarn | yes
 
       # As we use typedoc we need to install the node_modules in the package as well
       - uses: actions/setup-node@v4
