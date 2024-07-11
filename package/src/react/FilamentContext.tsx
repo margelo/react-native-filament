@@ -5,7 +5,7 @@ import { useDisposableResource } from '../hooks/useDisposableResource'
 import { useWorklet } from 'react-native-worklets-core'
 import React from 'react'
 import { Configurator, RendererConfigProps, ViewConfigProps } from './Configurator'
-import { Context, FilamentContextType } from './Context'
+import { Context, FilamentContextType } from '../hooks/useFilamentContext'
 import { RenderCallbackContext } from './RenderCallbackContext'
 
 export type FilamentProviderProps = PropsWithChildren<

@@ -1,5 +1,5 @@
 import { UseLightEntityProps, useLightEntity } from '../hooks/useLightEntity'
-import { useFilamentContext } from './Context'
+import { useFilamentContext } from '../hooks/useFilamentContext'
 import { useEntityInScene } from '../hooks/useEntityInScene'
 
 export type LightProps = UseLightEntityProps

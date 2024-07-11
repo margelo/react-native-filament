@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { LightConfig, LightManager } from '../types'
 import { ISharedValue } from 'react-native-worklets-core'
-import { useFilamentContext } from '../react/Context'
+import { useFilamentContext } from './useFilamentContext'
 
 export type UseLightEntityProps =
   | LightConfig

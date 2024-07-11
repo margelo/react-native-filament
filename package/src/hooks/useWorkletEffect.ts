@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useFilamentContext } from '../react/Context'
+import { useFilamentContext } from './useFilamentContext'
 import { getWorkletDependencies, isWorklet } from 'react-native-worklets-core'
 import { wrapWithErrorHandler } from '../ErrorUtils'
 

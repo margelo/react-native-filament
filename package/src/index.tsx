@@ -26,7 +26,7 @@ export { setLogger } from './utilities/logger/Logger'
 export * from './bullet'
 
 // React API
-export { useFilamentContext } from './react/Context'
+export { useFilamentContext } from './hooks/useFilamentContext'
 export { FilamentViewWithRenderCallbacks as FilamentView } from './react/FilamentViewWithRenderCallbacks'
 export * from './react/Model'
 export * from './react/ModelInstance'

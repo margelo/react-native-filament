@@ -1,5 +1,5 @@
 import { useContext, useMemo } from 'react'
-import { useFilamentContext } from './Context'
+import { useFilamentContext } from '../hooks/useFilamentContext'
 import { Float3 } from '../types'
 import { TransformationProps } from './TransformContext'
 import { useApplyTransformations } from '../hooks/internal/useApplyTransformations'

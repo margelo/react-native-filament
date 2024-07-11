@@ -4,7 +4,7 @@ import { useEntityInScene } from '../hooks/useEntityInScene'
 import { useWorkletCallback } from '../hooks/useWorkletCallback'
 import { useWorkletMemo } from '../hooks/useWorkletMemo'
 import { Mat3f } from '../types'
-import { useFilamentContext } from './Context'
+import { useFilamentContext } from '../hooks/useFilamentContext'
 
 export type BackgroundImageProps = {
   source: BufferSource
