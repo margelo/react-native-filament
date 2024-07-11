@@ -1,0 +1,85 @@
+---
+id: getting-started
+title: Getting Started
+sidebar_label: Getting Started
+slug: /guides
+---
+
+import Tabs from '@theme/Tabs'
+import TabItem from '@theme/TabItem'
+
+## Installing the library
+
+Install [react-native-filament](https://www.npmjs.com/package/react-native-filament) through npm:
+
+```bash
+npm i react-native-filament
+cd ios && pod install
+```
+
+## Configure metro
+
+You'll likely import 3D related files when using react-native-filament. To make sure metro can resolve these files, you need to add the following to your `metro.config.js`:
+
+```js
+const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
+
+/**
+ * Metro configuration
+ * https://metrobundler.dev/docs/configuration
+ *
+ * @type {import('metro-config').MetroConfig}
+ */
+const config = {
+    resolver: {
+        // This makes it possible to import .glb files in your code:
+        assetExts: ['glb']
+    }
+};
+
+const defaultConfig = getDefaultConfig(__dirname)
+
+module.exports = mergeConfig(defaultConfig, config);
+```
+
+:::info
+react-native-filament only supports loading .glb files for 3d models.
+:::
+
+## Basic example: Render your first 3D model
+
+For seeing some 3D content on the screen in your app, you need the following things:
+
+- 🏞️ A view to draw the 3D content to (the `<FilamentView>` component)
+- 💡 A light source, otherwise the scene will be black (the `<DefaultLight>` component)
+- 📦 A 3D model file (e.g. a .glb file)
+- 📹 A camera through which the scene is observed and projected onto the view (the `<Camera>` component)
+
+```jsx
+import { FilamentScene, FilamentView, DefaultLight, Model, Camera } from "react-native-filament";
+import MyModel from "./MyModel.glb";
+
+function MyScene() {
+  return (
+    <FilamentScene>
+
+      {/* 🏞️ A view to draw the 3D content to */}
+      <FilamentView style={{ flex: 1 }}>
+
+          {/* 💡 A light source, otherwise the scene will be black */}
+          <DefaultLight />
+
+          {/* 📦 A 3D model */}
+          <Model source={MyModel} />
+
+          {/* 📹 A camera through which the scene is observed and projected onto the view */}
+          <Camera />
+
+      </FilamentView>
+    </FilamentScene>
+  );
+}
+```
+
+Additionally you see that we use the `<FilamentScene>` component to wrap our scene. This is necessary to provide the necessary react context for the scene to work correctly.
+

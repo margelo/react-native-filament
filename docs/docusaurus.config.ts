@@ -59,9 +59,14 @@ const config: Config = {
       items: [
         {
           type: 'docSidebar',
-          sidebarId: 'tutorialSidebar',
+          sidebarId: 'sidebar',
           position: 'left',
           label: 'Docs',
+        },
+        {
+          to: 'docs/api',
+          label: 'API',
+          position: 'left'
         },
         {
           href: 'https://github.com/facebook/docusaurus',
@@ -73,6 +78,23 @@ const config: Config = {
     footer: {
       style: 'dark',
       links: [
+        {
+          title: 'Docs',
+          items: [
+            {
+              label: 'Guides',
+              to: 'docs/guides'
+            },
+            {
+              label: 'API',
+              to: 'docs/api',
+            },
+            {
+              label: 'Example App',
+              href: 'https://github.com/mrousavy/react-native-vision-camera/tree/main/package/example',
+            },
+          ],
+        },
         {
           title: 'Community',
           items: [
@@ -90,10 +112,6 @@ const config: Config = {
           title: 'More',
           items: [
             {
-              label: 'Blog',
-              to: '/blog',
-            },
-            {
               label: 'GitHub',
               href: 'https://github.com/margelo/react-native-filament',
             },
@@ -107,6 +125,25 @@ const config: Config = {
       darkTheme: prismThemes.dracula,
     },
   } satisfies Preset.ThemeConfig,
+  plugins: [
+    [
+      'docusaurus-plugin-typedoc',
+      {
+        name: "React Native Filament",
+        entryPoints: ['../package/src'],
+        tsconfig: '../package/tsconfig.json',
+        watch: process.env.TYPEDOC_WATCH,
+        excludePrivate: true,
+        excludeProtected: true,
+        excludeExternals: true,
+        excludeInternal: true,
+        readme: "none",
+        sidebar: {
+          indexLabel: 'Overview'
+        }
+      },
+    ],
+  ],
 };
 
 export default config;
