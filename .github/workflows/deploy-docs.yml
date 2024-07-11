@@ -17,19 +17,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Enable corepack first:
-      - name: Enable corepack
+      # As we use typedoc we need to install the node_modules in the package as well
+      - name: Install package/ deps
         working-directory: package
         run: |
           corepack enable
-          yes | yarn
-
-      # As we use typedoc we need to install the node_modules in the package as well
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: yarn
-          cache-dependency-path: package
+          yes | yarn install
 
       - uses: actions/setup-node@v4
         with:
