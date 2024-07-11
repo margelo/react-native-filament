@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { StyleSheet } from 'react-native'
 import {
-  FilamentContext,
+  FilamentScene,
   FilamentView,
   Camera,
   Skybox,
@@ -35,9 +35,9 @@ function Renderer() {
 
 export function NoneTransparent() {
   return (
-    <FilamentContext>
+    <FilamentScene>
       <Renderer />
-    </FilamentContext>
+    </FilamentScene>
   )
 }
 

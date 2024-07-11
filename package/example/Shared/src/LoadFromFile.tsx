@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useCallback, useState } from 'react'
 import { Button, StyleSheet, View } from 'react-native'
-import { FilamentContext, FilamentView, Camera, Model, DefaultLight } from 'react-native-filament'
+import { FilamentScene, FilamentView, Camera, Model, DefaultLight } from 'react-native-filament'
 import RNFetchBlob from 'rn-fetch-blob'
 
 function Renderer({ assetPath }: { assetPath: string }) {
@@ -41,9 +41,9 @@ export function LoadFromFile() {
     )
   }
   return (
-    <FilamentContext>
+    <FilamentScene>
       <Renderer assetPath={assetPath} />
-    </FilamentContext>
+    </FilamentScene>
   )
 }
 

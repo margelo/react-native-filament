@@ -1,5 +1,5 @@
 import React from 'react'
-import { Camera, DefaultLight, FilamentContext, FilamentView, Model, useCameraManipulator } from 'react-native-filament'
+import { Camera, DefaultLight, FilamentScene, FilamentView, Model, useCameraManipulator } from 'react-native-filament'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import { Dimensions, StyleSheet, View } from 'react-native'
 import { useSharedValue } from 'react-native-worklets-core'
@@ -59,9 +59,9 @@ function Scene() {
 export function CameraPan() {
   return (
     <View style={styles.container}>
-      <FilamentContext>
+      <FilamentScene>
         <Scene />
-      </FilamentContext>
+      </FilamentScene>
     </View>
   )
 }

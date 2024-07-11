@@ -39,21 +39,21 @@ cd ios && pod install
 ### Example
 
 ```tsx
-import { FilamentContext, FilamentView, Model, Camera } from 'react-native-filament'
+import { FilamentScene, FilamentView, Model, Camera } from 'react-native-filament'
 
 function App() {
   return (
-    <FilamentContext>
+    <FilamentScene>
       <FilamentView
         style={{ width: 100, height: 100 }}
         model={model}
       >
         // Render with the default camera:
-        <Camera /> 
+        <Camera />
         // Add a model to the scene (only glb supported yet):
         <Model source={require('./duck.glb')}>
       </FilamentView>
-    </FilamentContext>
+    </FilamentScene>
   )
 }
 ```
@@ -85,7 +85,7 @@ yarn build-bullet3
 yarn build-filament:release # or yarn build-filament:debug
 ```
 
-You can then build one of the example apps in `package/example/AppExamplePaper` or `package/example/AppExampleFabric`. 
+You can then build one of the example apps in `package/example/AppExamplePaper` or `package/example/AppExampleFabric`.
 
 ### Adopting at scale
 

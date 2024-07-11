@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { StyleSheet } from 'react-native'
-import { FilamentContext, FilamentView, Camera, Skybox, Model, DefaultLight, RenderCallback, ModelInstance } from 'react-native-filament'
+import { FilamentScene, FilamentView, Camera, Skybox, Model, DefaultLight, RenderCallback, ModelInstance } from 'react-native-filament'
 import DroneGlb from '~/assets/buster_drone.glb'
 import { useSharedValue } from 'react-native-worklets-core'
 import { useCallback } from 'react'
@@ -45,9 +45,9 @@ function Renderer() {
 
 export function AnimatedRotate() {
   return (
-    <FilamentContext>
+    <FilamentScene>
       <Renderer />
-    </FilamentContext>
+    </FilamentScene>
   )
 }
 

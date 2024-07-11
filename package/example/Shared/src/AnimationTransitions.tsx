@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native'
 import * as React from 'react'
 import { Alert, Button, ScrollView, StyleSheet, View } from 'react-native'
-import { FilamentContext, FilamentView, Camera, Model, Animator, AnimationItem, Entity, DefaultLight } from 'react-native-filament'
+import { FilamentScene, FilamentView, Camera, Model, Animator, AnimationItem, Entity, DefaultLight } from 'react-native-filament'
 import { useSharedValue } from 'react-native-worklets-core'
 import HipHopGirlGlb from '~/assets/hiphopgirl.glb'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -60,9 +60,9 @@ export function AnimationTransitions() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <FilamentContext key={count}>
+      <FilamentScene key={count}>
         <Renderer />
-      </FilamentContext>
+      </FilamentScene>
       <Button title="Rerender" onPress={increment} />
     </SafeAreaView>
   )
