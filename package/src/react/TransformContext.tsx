@@ -1,13 +1,18 @@
 import React from 'react'
 import { Float3 } from '../types'
+import { ISharedValue } from 'react-native-worklets-core'
 
+export type Rotation = {
+  angleInRadians: number
+  axis: Float3
+}
+
+// TODO: WithAnimatedProps ?
 export type TransformationProps = {
-  position?: Float3
-  scale?: Float3
-  rotate?: {
-    angleInRadians: number
-    axis: Float3
-  }
+  position?: Float3 | ISharedValue<Float3>
+  scale?: Float3 | ISharedValue<Float3>
+  rotate?: Rotation | ISharedValue<Rotation>
+
   multiplyWithCurrentTransform?: boolean
 
   /**

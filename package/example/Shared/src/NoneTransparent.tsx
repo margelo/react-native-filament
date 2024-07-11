@@ -25,7 +25,7 @@ function Renderer() {
       <DefaultLight />
       <Skybox colorInHex="#88defb" />
 
-      <Model source={DroneGlb}>
+      <Model source={DroneGlb} transformToUnitCube scale={[2, 2, 2]}>
         <Animator onAnimationsLoaded={onAnimationsLoaded} />
         <DebugBox />
       </Model>

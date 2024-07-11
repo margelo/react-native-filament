@@ -2,7 +2,7 @@ import React from 'react'
 import { PropsWithChildren, useMemo } from 'react'
 import { FilamentInstance } from '../types'
 import { ParentInstancesContext, useParentInstancesContext } from './ParentInstancesContext'
-import { TransformationProps, TransformContext } from './TransformContext'
+import { TransformationProps } from './TransformContext'
 import { useApplyTransformations } from '../hooks/internal/useApplyTransformations'
 
 type ModelInstanceProps = PropsWithChildren<
@@ -51,11 +51,7 @@ function ModelInstanceImpl({ instance, children, ...transformProps }: Props) {
 
   const instances = useMemo(() => [instance], [instance])
 
-  const mergedTransformationProps = useApplyTransformations({ transformProps, to: rootEntity, aabb: boundingBox })
+  useApplyTransformations({ transformProps, to: rootEntity, aabb: boundingBox })
 
-  return (
-    <ParentInstancesContext.Provider value={instances}>
-      <TransformContext.Provider value={mergedTransformationProps}>{children}</TransformContext.Provider>
-    </ParentInstancesContext.Provider>
-  )
+  return <ParentInstancesContext.Provider value={instances}>{children}</ParentInstancesContext.Provider>
 }

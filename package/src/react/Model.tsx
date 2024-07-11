@@ -9,7 +9,7 @@ import { Logger } from '../utilities/logger/Logger'
 import { Entity } from '../types'
 import { TouchHandlerContext } from './TouchHandlerContext'
 import { useApplyTransformations } from '../hooks/internal/useApplyTransformations'
-import { extractTransformationProps, TransformationProps, TransformContext } from './TransformContext'
+import { extractTransformationProps, TransformationProps } from './TransformContext'
 import { ParentInstancesContext } from './ParentInstancesContext'
 
 type ModelProps = TransformationProps &
@@ -42,7 +42,7 @@ export function Model({ children, source, onPress, ...restProps }: PropsWithChil
     return asset.getRoot()
   }, [asset])
   const boundingBox = model.state === 'loaded' ? model.boundingBox : undefined
-  const mergedTransformations = useApplyTransformations({ transformProps: transformProps, to: rootEntity, aabb: boundingBox })
+  useApplyTransformations({ transformProps: transformProps, to: rootEntity, aabb: boundingBox })
 
   const renderableEntities = useMemo(() => {
     // The entities are only needed for touch events, so only load them if a touch handler is provided
@@ -102,9 +102,7 @@ export function Model({ children, source, onPress, ...restProps }: PropsWithChil
   }
   return (
     <ParentModelAssetContext.Provider value={asset}>
-      <ParentInstancesContext.Provider value={instances}>
-        <TransformContext.Provider value={mergedTransformations}>{children}</TransformContext.Provider>
-      </ParentInstancesContext.Provider>
+      <ParentInstancesContext.Provider value={instances}>{children}</ParentInstancesContext.Provider>
     </ParentModelAssetContext.Provider>
   )
 }
