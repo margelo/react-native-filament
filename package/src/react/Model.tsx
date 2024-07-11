@@ -9,7 +9,7 @@ import { Logger } from '../utilities/logger/Logger'
 import { Entity } from '../types'
 import { TouchHandlerContext } from './TouchHandlerContext'
 import { useApplyTransformations } from '../hooks/internal/useApplyTransformations'
-import { extractTransformationProps, TransformationProps, TransformContext } from './TransformContext'
+import { extractTransformationProps, TransformationProps } from './TransformContext'
 import { ParentInstancesContext } from './ParentInstancesContext'
 
 type ModelProps = TransformationProps &
