@@ -172,8 +172,8 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
    */
   cleanupResources() {
     Logger.debug('Cleaning up resources')
-    const { choreographer: _choreographer } = this.getContext()
-    _choreographer.stop()
+    const { choreographer } = this.getContext()
+    choreographer.stop()
 
     this.renderCallbackListener?.remove()
     this.isSurfaceAlive.value = false
@@ -291,8 +291,8 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
    */
   public pause = (): void => {
     Logger.info('Pausing rendering')
-    const { choreographer: _choreographer } = this.getContext()
-    _choreographer.stop()
+    const { choreographer } = this.getContext()
+    choreographer.stop()
   }
 
   /**
@@ -301,8 +301,8 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
    */
   public resume = (): void => {
     Logger.info('Resuming rendering')
-    const { choreographer: _choreographer } = this.getContext()
-    _choreographer.start()
+    const { choreographer } = this.getContext()
+    choreographer.start()
   }
 
   private onTouchStart = (event: GestureResponderEvent) => {
