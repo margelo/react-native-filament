@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Rotation, TransformationProps } from '../../react/TransformContext'
-import { useFilamentContext } from '../../react/Context'
+import { useFilamentContext } from '../useFilamentContext'
 import { AABB, Entity, Float3 } from '../../types'
 import { areFloat3Equal, isWorkletSharedValue } from '../../utilities/helper'
 import { useWorkletEffect } from '../useWorkletEffect'

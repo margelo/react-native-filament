@@ -1,6 +1,6 @@
 import React from 'react'
 import { StyleSheet } from 'react-native'
-import { Animator, Camera, DefaultLight, FilamentContext, FilamentView, Model, ModelInstance } from 'react-native-filament'
+import { Animator, Camera, DefaultLight, FilamentScene, FilamentView, Model, ModelInstance } from 'react-native-filament'
 import DroneGlb from '~/assets/buster_drone.glb'
 
 const instances = [0, 1, 2, 3]
@@ -35,9 +35,9 @@ function Renderer() {
 
 export function MultipleInstances() {
   return (
-    <FilamentContext>
+    <FilamentScene>
       <Renderer />
-    </FilamentContext>
+    </FilamentScene>
   )
 }
 

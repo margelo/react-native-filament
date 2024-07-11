@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import { Button, StyleSheet, View } from 'react-native'
-import { FilamentView, useBuffer, useModel, useFilamentContext, useWorkletCallback, Camera, FilamentContext } from 'react-native-filament'
+import { FilamentView, useBuffer, useModel, useFilamentContext, useWorkletCallback, Camera, FilamentScene } from 'react-native-filament'
 
 import PenguModel from '~/assets/pengu.glb'
 import LeftEyeTexture from '~/assets/eye_full_texture_left_blue.jpg'
@@ -56,9 +56,9 @@ function Renderer() {
 
 export function ChangeMaterials() {
   return (
-    <FilamentContext>
+    <FilamentScene>
       <Renderer />
-    </FilamentContext>
+    </FilamentScene>
   )
 }
 

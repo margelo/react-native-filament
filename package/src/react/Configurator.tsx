@@ -7,7 +7,7 @@ import {
   View,
   optionsToJSI,
 } from '../types'
-import { useFilamentContext } from './Context'
+import { useFilamentContext } from '../hooks/useFilamentContext'
 import { makeAmbientOcclusionHostObject } from '../utilities/makeAmbientOcclusionHostObject'
 import { makeDynamicResolutionHostObject } from '../utilities/makeDynamicResolutionHostObject'
 
@@ -30,7 +30,7 @@ export type ConfiguratorProps = PropsWithChildren<{
 
 /**
  * Takes configurations as props and applies them using the imperative API.
- * Needs to have a valid `FilamentContext` in the tree.
+ * Needs to have a valid `FilamentScene` in the tree.
  *
  * @private
  */

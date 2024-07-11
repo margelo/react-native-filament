@@ -1,5 +1,5 @@
 import { useWorklet } from 'react-native-worklets-core'
-import { useFilamentContext } from '../react/Context'
+import { useFilamentContext } from './useFilamentContext'
 import { wrapWithErrorHandler } from '../ErrorUtils'
 
 /**

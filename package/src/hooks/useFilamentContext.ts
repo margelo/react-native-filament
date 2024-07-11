@@ -25,20 +25,19 @@ export type FilamentContextType = {
   nameComponentManager: NameComponentManager
   workletContext: IWorkletContext
 
-  // TODO: put this in an "internal" separate context?
   /**
+   * This is a private API, do not use this.
    * @private
+   * @internal
    */
-  _choreographer: Choreographer
+  choreographer: Choreographer
 }
-export const Context = React.createContext<FilamentContextType | undefined>(undefined)
+export const FilamentContext = React.createContext<FilamentContextType | undefined>(undefined)
 
 export function useFilamentContext() {
-  const context = React.useContext(Context)
+  const context = React.useContext(FilamentContext)
   if (context === undefined) {
-    throw new Error(
-      'useFilamentContext (and its hooks such as `useScene()`, components like `<Filament />` etc.) must be used within a `<FilamentProvider>` component!'
-    )
+    throw new Error('You tried to use a Filament hook/component without wrapping your component in a <FilamentScene> component!')
   }
   return context
 }

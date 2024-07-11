@@ -2,7 +2,7 @@ import React from 'react'
 import { FilamentProxy } from '../native/FilamentProxy'
 import FilamentNativeView, { type FilamentViewNativeType, type NativeProps } from '../native/specs/FilamentViewNativeComponent'
 import { reportWorkletError, wrapWithErrorHandler } from '../ErrorUtils'
-import { Context } from './Context'
+import { FilamentContext } from '../hooks/useFilamentContext'
 import { RenderCallback, SwapChain } from 'react-native-filament'
 import type { SurfaceProvider, FilamentView as RNFFilamentView } from '../native/FilamentViewTypes'
 import { Listener } from '../types/Listener'
@@ -49,9 +49,8 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
    * Uses the context in class.
    * @note Not available in the constructor!
    */
-  static contextType = Context
-  // @ts-ignore
-  context!: React.ContextType<typeof Context>
+  static contextType = FilamentContext
+  declare context: React.ContextType<typeof FilamentContext>
 
   constructor(props: FilamentProps) {
     super(props)
@@ -76,7 +75,7 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
   private latestToken = 0
   private updateRenderCallback = async (callback: RenderCallback, swapChain: SwapChain) => {
     const currentToken = ++this.latestToken
-    const { renderer, view, workletContext, _choreographer } = this.getContext()
+    const { renderer, view, workletContext, choreographer } = this.getContext()
 
     // When requesting to update the render callback we have to assume that the previous one is not valid anymore
     // ie. its pointing to already released resources from useDisposableResource:
@@ -91,7 +90,7 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
         // We need to create the function we pass to addFrameCallbackListener on the worklet thread, so that the
         // underlying JSI function is owned by that thread. Only then can we call it on the worklet thread when
         // the choreographer is calling its listeners.
-        return _choreographer.addFrameCallbackListener((frameInfo) => {
+        return choreographer.addFrameCallbackListener((frameInfo) => {
           'worklet'
 
           if (!swapChain.isValid) {
@@ -137,7 +136,7 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
 
     // Calling this here ensures that only after the latest successful call for attaching a listener, the choreographer is started.
     Logger.debug('Starting choreographer')
-    _choreographer.start()
+    choreographer.start()
   }
 
   private getContext = () => {
@@ -172,8 +171,8 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
    */
   cleanupResources() {
     Logger.debug('Cleaning up resources')
-    const { _choreographer } = this.getContext()
-    _choreographer.stop()
+    const { choreographer } = this.getContext()
+    choreographer.stop()
 
     this.renderCallbackListener?.remove()
     this.isSurfaceAlive.value = false
@@ -209,7 +208,7 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
     Logger.debug('Found FilamentView!')
     // Link the view with the choreographer.
     // When the view gets destroyed, the choreographer will be stopped.
-    this.view.setChoreographer(context._choreographer)
+    this.view.setChoreographer(context.choreographer)
 
     if (this.ref.current == null) {
       throw new Error('Ref is not set!')
@@ -291,8 +290,8 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
    */
   public pause = (): void => {
     Logger.info('Pausing rendering')
-    const { _choreographer } = this.getContext()
-    _choreographer.stop()
+    const { choreographer } = this.getContext()
+    choreographer.stop()
   }
 
   /**
@@ -301,8 +300,8 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
    */
   public resume = (): void => {
     Logger.info('Resuming rendering')
-    const { _choreographer } = this.getContext()
-    _choreographer.start()
+    const { choreographer } = this.getContext()
+    choreographer.start()
   }
 
   private onTouchStart = (event: GestureResponderEvent) => {

@@ -1,16 +1,6 @@
 import * as React from 'react'
 import { StyleSheet } from 'react-native'
-import {
-  FilamentContext,
-  FilamentView,
-  Camera,
-  Skybox,
-  Model,
-  Animator,
-  AnimationItem,
-  DefaultLight,
-  DebugBox,
-} from 'react-native-filament'
+import { FilamentScene, FilamentView, Camera, Skybox, Model, Animator, AnimationItem, DefaultLight, DebugBox } from 'react-native-filament'
 import DroneGlb from '~/assets/buster_drone.glb'
 import { useCallback } from 'react'
 
@@ -35,9 +25,9 @@ function Renderer() {
 
 export function NoneTransparent() {
   return (
-    <FilamentContext>
+    <FilamentScene>
       <Renderer />
-    </FilamentContext>
+    </FilamentScene>
   )
 }
 

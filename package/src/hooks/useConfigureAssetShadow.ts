@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { FilamentAsset, RenderableManager } from '../types'
-import { useFilamentContext } from '../react/Context'
+import { useFilamentContext } from './useFilamentContext'
 
 export type UseAssetShadowProps = {
   renderableManager: RenderableManager

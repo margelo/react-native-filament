@@ -5,7 +5,7 @@ import { useDisposableResource } from '../hooks/useDisposableResource'
 import { useWorklet } from 'react-native-worklets-core'
 import React from 'react'
 import { Configurator, RendererConfigProps, ViewConfigProps } from './Configurator'
-import { Context, FilamentContextType } from './Context'
+import { FilamentContext, FilamentContextType } from '../hooks/useFilamentContext'
 import { RenderCallbackContext } from './RenderCallbackContext'
 
 export type FilamentProviderProps = PropsWithChildren<
@@ -17,11 +17,35 @@ export type FilamentProviderProps = PropsWithChildren<
 >
 
 /**
- * Creates an engine and all filament APIs and provides them to the children using the react context.
+ * The `<FilamentScene>` holds contextual values for a Filament rendering scene.
  *
- * @note You only need this for doing offscreen recording. For an on-screen surface use the `Filament` component.
+ * You need to wrap your rendering scene (= a component that uses `<FilamentView>`, hooks or
+ * other Filament components) with a `<FilamentScene>`.
+ *
+ * @note Make sure to wrap your scene in a parent component, otherwise the React context cannot be inferred.
+ * @example
+ * ```tsx
+ * function Scene() {
+ *   // in here you can use Filament's hooks and components
+ *   return (
+ *    <FilamentView style={styles.container}>
+ *      <DefaultLight />
+ *      <Model source={{ uri: modelPath }} />
+ *    </FilamentView>
+ *  )
+ * }
+ *
+ * export function RocketModel() {
+ *   // in here you only need to wrap the child-component with <FilamentScene>
+ *   return (
+ *     <FilamentScene>
+ *       <Scene />
+ *     </FilamentScene>
+ *   )
+ * }
+ * ```
  */
-export function FilamentContext({ children, fallback, config, backend, frameRateOptions, ...viewProps }: FilamentProviderProps) {
+export function FilamentScene({ children, fallback, config, backend, frameRateOptions, ...viewProps }: FilamentProviderProps) {
   // First create the engine, which we need to create (almost) all other filament APIs
   const engine = useEngine({ config, backend, context: FilamentWorkletContext })
 
@@ -71,7 +95,7 @@ export function FilamentContext({ children, fallback, config, backend, frameRate
       renderer,
       nameComponentManager,
       workletContext: FilamentWorkletContext,
-      _choreographer: choreographer,
+      choreographer: choreographer,
     }
   }, [engine, transformManager, renderableManager, scene, lightManager, view, camera, renderer, nameComponentManager, choreographer])
 
@@ -80,10 +104,10 @@ export function FilamentContext({ children, fallback, config, backend, frameRate
   // If the APIs aren't ready yet render the fallback component (or nothing)
   if (value == null) return fallback ?? null
   return (
-    <Context.Provider value={value}>
+    <FilamentContext.Provider value={value}>
       <Configurator rendererProps={rendererProps} viewProps={viewProps}>
         <RenderCallbackContext.RenderContextProvider>{children}</RenderCallbackContext.RenderContextProvider>
       </Configurator>
-    </Context.Provider>
+    </FilamentContext.Provider>
   )
 }

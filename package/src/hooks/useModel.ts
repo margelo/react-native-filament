@@ -1,6 +1,6 @@
 import { type BufferSource, useBuffer } from './useBuffer'
 import { FilamentAsset } from '../types/FilamentAsset'
-import { useFilamentContext } from '../react/Context'
+import { useFilamentContext } from './useFilamentContext'
 import { useDisposableResource } from './useDisposableResource'
 import usePrevious from './usePrevious'
 import { useWorkletEffect } from './useWorkletEffect'

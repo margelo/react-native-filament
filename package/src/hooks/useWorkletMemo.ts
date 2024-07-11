@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useFilamentContext } from '../react/Context'
+import { useFilamentContext } from './useFilamentContext'
 import { wrapWithErrorHandler } from '../ErrorUtils'
 
 export function useWorkletMemo<T>(workletFunction: () => T, dependencies: any[]): T | undefined {

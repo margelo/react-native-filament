@@ -10,7 +10,7 @@ import {
   useRecorder,
   useRecorderRenderLoop,
   Camera,
-  FilamentContext,
+  FilamentScene,
   DefaultLight,
 } from 'react-native-filament'
 import { useRunOnJS, useSharedValue } from 'react-native-worklets-core'
@@ -160,9 +160,9 @@ function Renderer() {
 export function AnimationTransitionsRecording() {
   return (
     // Provide the API necessary for recording (accessing the RNF apis) in a react context
-    <FilamentContext>
+    <FilamentScene>
       <Renderer />
-    </FilamentContext>
+    </FilamentScene>
   )
 }
 
