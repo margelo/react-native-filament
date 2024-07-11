@@ -5,7 +5,7 @@ import { useDisposableResource } from '../hooks/useDisposableResource'
 import { useWorklet } from 'react-native-worklets-core'
 import React from 'react'
 import { Configurator, RendererConfigProps, ViewConfigProps } from './Configurator'
-import { Context, FilamentContextType } from '../hooks/useFilamentContext'
+import { FilamentContext, FilamentContextType } from '../hooks/useFilamentContext'
 import { RenderCallbackContext } from './RenderCallbackContext'
 
 export type FilamentProviderProps = PropsWithChildren<
@@ -104,10 +104,10 @@ export function FilamentScene({ children, fallback, config, backend, frameRateOp
   // If the APIs aren't ready yet render the fallback component (or nothing)
   if (value == null) return fallback ?? null
   return (
-    <Context.Provider value={value}>
+    <FilamentContext.Provider value={value}>
       <Configurator rendererProps={rendererProps} viewProps={viewProps}>
         <RenderCallbackContext.RenderContextProvider>{children}</RenderCallbackContext.RenderContextProvider>
       </Configurator>
-    </Context.Provider>
+    </FilamentContext.Provider>
   )
 }

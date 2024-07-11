@@ -2,7 +2,7 @@ import React from 'react'
 import { FilamentProxy } from '../native/FilamentProxy'
 import FilamentNativeView, { type FilamentViewNativeType, type NativeProps } from '../native/specs/FilamentViewNativeComponent'
 import { reportWorkletError, wrapWithErrorHandler } from '../ErrorUtils'
-import { Context } from '../hooks/useFilamentContext'
+import { FilamentContext } from '../hooks/useFilamentContext'
 import { RenderCallback, SwapChain } from 'react-native-filament'
 import type { SurfaceProvider, FilamentView as RNFFilamentView } from '../native/FilamentViewTypes'
 import { Listener } from '../types/Listener'
@@ -49,9 +49,8 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
    * Uses the context in class.
    * @note Not available in the constructor!
    */
-  static contextType = Context
-  // @ts-ignore
-  context!: React.ContextType<typeof Context>
+  static contextType = FilamentContext
+  declare context: React.ContextType<typeof FilamentContext>
 
   constructor(props: FilamentProps) {
     super(props)

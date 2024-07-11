@@ -32,10 +32,10 @@ export type FilamentContextType = {
    */
   choreographer: Choreographer
 }
-export const Context = React.createContext<FilamentContextType | undefined>(undefined)
+export const FilamentContext = React.createContext<FilamentContextType | undefined>(undefined)
 
 export function useFilamentContext() {
-  const context = React.useContext(Context)
+  const context = React.useContext(FilamentContext)
   if (context === undefined) {
     throw new Error(
       'useFilamentContext (and its hooks such as `useScene()`, components like `<Filament />` etc.) must be used within a `<FilamentProvider>` component!'
