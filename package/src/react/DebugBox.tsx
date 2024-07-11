@@ -27,7 +27,6 @@ export function DebugBox({ halfExtent: halfExtentProp, ...transformProps }: UseD
     // TODO: other colors are only supported by importing a material - i think it should be possible to create a material on the fly
     return renderableManager.createDebugCubeWireframe(halfExtent, undefined, undefined)
   }, [halfExtent, renderableManager])
-  console.log('boxEntity', boxEntity)
 
   useApplyTransformations({ to: boxEntity, transformProps })
 
