@@ -25,11 +25,12 @@ export type FilamentContextType = {
   nameComponentManager: NameComponentManager
   workletContext: IWorkletContext
 
-  // TODO: put this in an "internal" separate context?
   /**
+   * This is a private API, do not use this.
    * @private
+   * @internal
    */
-  _choreographer: Choreographer
+  choreographer: Choreographer
 }
 export const Context = React.createContext<FilamentContextType | undefined>(undefined)
 

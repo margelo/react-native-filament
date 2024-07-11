@@ -71,7 +71,7 @@ export function FilamentContext({ children, fallback, config, backend, frameRate
       renderer,
       nameComponentManager,
       workletContext: FilamentWorkletContext,
-      _choreographer: choreographer,
+      choreographer: choreographer,
     }
   }, [engine, transformManager, renderableManager, scene, lightManager, view, camera, renderer, nameComponentManager, choreographer])
 
