@@ -13,11 +13,11 @@ function Renderer() {
       <DefaultLight />
 
       {/* We transform the root model to a unit cube, meaning all instances will be scaled to unit cubes */}
-      <Model source={DroneGlb} instanceCount={instanceCount} transformToUnitCube multiplyWithCurrentTransform={false}>
+      <Model source={DroneGlb} instanceCount={instanceCount} transformToUnitCube>
         {instances.map((index) => {
           // Calculate positions for a 2x2 grid
           // Assuming each instance occupies a 1x1 area, adjust the multiplier for larger sizes
-          const spacingMultiplier = 4
+          const spacingMultiplier = 300
           const x = (index % 2) * spacingMultiplier - spacingMultiplier / 2
           const y = Math.floor(index / 2) * spacingMultiplier - spacingMultiplier / 2
           const z = 0 // Keep z the same if you're not using it for depth positioning

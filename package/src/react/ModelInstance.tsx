@@ -51,11 +51,7 @@ function ModelInstanceImpl({ instance, children, ...transformProps }: Props) {
 
   const instances = useMemo(() => [instance], [instance])
 
-  const mergedTransformationProps = useApplyTransformations({ transformProps, to: rootEntity, aabb: boundingBox })
+  useApplyTransformations({ transformProps, to: rootEntity, aabb: boundingBox })
 
-  return (
-    <ParentInstancesContext.Provider value={instances}>
-      <TransformContext.Provider value={mergedTransformationProps}>{children}</TransformContext.Provider>
-    </ParentInstancesContext.Provider>
-  )
+  return <ParentInstancesContext.Provider value={instances}>{children}</ParentInstancesContext.Provider>
 }
