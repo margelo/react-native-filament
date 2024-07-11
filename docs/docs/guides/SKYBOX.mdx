@@ -1,0 +1,34 @@
+---
+id: skybox
+title: Skybox / Backgrounds
+sidebar_label: Skybox
+slug: /guides/skybox
+---
+
+:::info
+By default the `<FilamentView>` renders the background transparent. So every pixel that has no content will be transparent.
+:::
+
+The "background" of your scene can be controlled using a [Skybox](https://en.wikipedia.org/wiki/Skybox_(video_games)). Every pixel that has no content will then
+be filled with the skybox. The Skybox can be rendered from either:
+
+### 🎨 A static color
+
+```tsx
+import { Skybox } from 'react-native-filament';
+
+<Skybox color="#00ff00" />
+```
+
+### 🏞️ A [cubemap texture](https://learnopengl.com/img/advanced/cubemaps_skybox.png)
+
+```tsx
+function Scene() {
+    const cubemap = useBuffer(require("./skybox_cubemap.ktx"))
+
+    return (
+        <FilamentView>
+            <Skybox texture={cubemap} />
+        </FilamentView>
+    )
+}

@@ -83,3 +83,10 @@ function MyScene() {
 
 Additionally you see that we use the `<FilamentScene>` component to wrap our scene. This is necessary to provide the necessary react context for the scene to work correctly.
 
+Everything that's part of your 3D scene should be rendered as part of the `<FilamentView>` component.
+
+:::warning
+Trying to render regular react-native components inside the `<FilamentView>` might work, but is not directly supported and might lead to unexpected behavior. Instead you can
+render on top of it by using a `position: absolute` view.
+:::
+

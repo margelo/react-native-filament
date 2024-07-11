@@ -1,0 +1,82 @@
+---
+id: asset-loading
+title: Asset loading
+sidebar_label: Asset loading
+slug: /guides/asset-loading
+---
+
+# Load from everywhere
+
+You can load assets from basically any source that comes to mind. Assets refer to anything that is not code, like 3D models, textures, material shaders, etc.
+There are many components which accept a `source` prop, for example the `<Model source={...} />` component. For these components, the `source` prop can be of the following types:
+
+## 🧑‍💻 From assets in your project / metro
+
+Files that live next to your code. For this to work make sure you followed the metro bundle configuration in the [Getting Started](/docs/guides#configure-metro) guide.
+
+```tsx
+import { Model } from 'react-native-filament';
+import BusterDrone from './BusterDrone.glb';
+
+<Model source={BusterDrone} />
+```
+
+### Debug
+
+In debug mode this will get the file from the metro bundler server, running on your machine. That means a network requests is made for example to `http://localhost:8081/assets/BusterDrone.glb`.
+
+:::warning
+If your files are big loading over network can introduce some delay until the file is loaded and displayed. Make sure to profile your app in release!
+:::
+
+### Release
+
+React Natives default behaviour is to bundle all assets into the app binary. This means that the file is not loaded over network but from the app binary itself, which is faster than in debug over network.
+
+:::warning
+If you put your assets into other directories than the default `/assets` dir, you need to specify the path to the assets in your `react-native.config.js` file:
+```js
+module.exports = {
+    assets: [
+        './app/assets/3d/assets',
+    ],
+}
+```
+
+See the [React Native documentation](https://github.com/react-native-community/cli/blob/main/docs/projects.md#projectandroidassets) for more information.
+:::
+
+## 📦 From native asset / bundle resources
+
+You can place assets directly in your native project and load them from there. This way the will load very fast, even in debug mode:
+
+- 🤖 android: place assets under `android/app/main/assets/BusterDrone.glb`
+- 🍏 ios: place assets under `ios/assets/BusterDrone.glb` and import them in your XCode project
+
+Then, you can simply load them by providing the name to the asset:
+
+```tsx
+<Model source={{ uri: "BusterDrone.glb" }}>
+
+// If the asset is in a subdirectory:
+<Model source={{ uri: "subdir/BusterDrone.glb" }}>
+```
+
+
+## 📁 From a local file path
+
+Files can also be loaded from the file directory on the device. This is useful if you load models from the web and want to cache them, by downloading them to your app's file directory.
+Note that if you want to open files from a public directory, such as the user's Downloads you might need to ask for permissions first.
+
+```tsx
+<Model source={{ uri: `file://${path}` }}>
+```
+
+
+## 🌐 From web urls
+
+You can also load assets from the web. This is useful if you want to load assets dynamically from a server or a CDN.
+
+```tsx
+<Model source={{ uri: "https://example.com/BusterDrone.glb" }}>
+```
