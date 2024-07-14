@@ -50,7 +50,8 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
    * @note Not available in the constructor!
    */
   static contextType = FilamentContext
-  declare context: React.ContextType<typeof FilamentContext>
+  // @ts-expect-error We can't use the declare keyword here as react-natives metro babel preset isn't able to handle it yet
+  context!: React.ContextType<typeof FilamentContext>
 
   constructor(props: FilamentProps) {
     super(props)
