@@ -12,6 +12,7 @@ import { LoadFromFile } from './LoadFromFile'
 import { NoneTransparent } from './NoneTransparent'
 import { MultipleInstances } from './MultipleInstances'
 import { AnimatedRotate } from './AnimatedRotate'
+import { AnimatedRotateSharedValues } from './AnimatedRotateSharedValues'
 // import { ChangeMaterials } from './ChangeMaterials'
 // import { PhysicsCoin } from './PhysicsCoin'
 // import { FadeOut } from './FadeOut'
@@ -58,6 +59,7 @@ function HomeScreen() {
       <NavigationItem name="🫥 None Transparent rendering" route="NoneTransparent" />
       <NavigationItem name="🤖 Multiple Instances" route="MultipleInstances" />
       <NavigationItem name="🔄 Animated Rotate" route="AnimatedRotate" />
+      <NavigationItem name="🔄 Animated Rotate w/ Shared Values" route="AnimatedRotateSharedValues" />
       {/* <NavigationItem name="🎨 Change Materials" route="ChangeMaterials" />
       <NavigationItem name="💰 Physics Coin" route="PhysicsCoin" />
       <NavigationItem name="🌑 Cast Shadow" route="CastShadow" />
@@ -97,6 +99,7 @@ function App() {
           <Stack.Screen name="NoneTransparent" component={NoneTransparent} />
           <Stack.Screen name="MultipleInstances" component={MultipleInstances} />
           <Stack.Screen name="AnimatedRotate" component={AnimatedRotate} />
+          <Stack.Screen name="AnimatedRotateSharedValues" component={AnimatedRotateSharedValues} />
           {/* TODO: Migrate */}
           {/* <Stack.Screen name="ChangeMaterials" component={ChangeMaterials} />
           <Stack.Screen name="PhysicsCoin" component={PhysicsCoin} />
