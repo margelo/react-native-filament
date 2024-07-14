@@ -122,7 +122,7 @@ export function useModel(source: BufferSource, props?: ModelProps): FilamentMode
     return asset.getRoot()
   }, [asset])
 
-  if (assetBuffer == null || asset == null || boundingBox == null) {
+  if (assetBuffer == null || asset == null || boundingBox == null || rootEntity == null) {
     return {
       state: 'loading',
     }

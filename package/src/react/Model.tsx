@@ -54,6 +54,7 @@ export function ModelRenderer({ model, onPress, children, ...restProps }: ModelR
   const asset = getAssetFromModel(model)
 
   const boundingBox = model.state === 'loaded' ? model.boundingBox : undefined
+  const rootEntity = model.state === 'loaded' ? model.rootEntity : undefined
   useApplyTransformations({ transformProps: transformProps, to: rootEntity, aabb: boundingBox })
 
   const renderableEntities = useMemo(() => {
