@@ -4,8 +4,9 @@ const sidebars: SidebarsConfig = {
   sidebar: {
     Guides: [
       "guides/getting-started",
+      "guides/asset-loading",
+      "guides/transformation",
       "guides/skybox",
-      "guides/asset-loading"
     ],
     API: [
       {
