@@ -12,7 +12,7 @@ export type AnimationItem = {
   name: string
 }
 
-type Props = {
+export type AnimatorProps = {
   /**
    * The index of the animation to play. To find out the index for the animation you want to play, you can use the `onAnimationsLoaded` callback.
    * @default 0
@@ -41,8 +41,9 @@ type Props = {
  * <Model source={DroneGlb}>
  *  <Animator animationIndex={2} />
  * </Model>
+ * ```
  */
-export function Animator(props: Props) {
+export function Animator(props: AnimatorProps) {
   const instances = React.useContext(ParentInstancesContext)
   if (instances == null) {
     throw new Error('Animator must be used inside a <Model> or <ModelInstance> component.')
@@ -56,7 +57,7 @@ export function Animator(props: Props) {
   return <AnimatorImpl instance={instance} {...props} />
 }
 
-type ImplProps = Props & {
+type ImplProps = AnimatorProps & {
   instance: FilamentInstance
 }
 

@@ -105,5 +105,8 @@ If you need help with integrating react-native-filament in your app or have addi
 #### Attributions
 
 The example app in this project uses several free assets:
-- <a href="https://www.freepik.com/free-ai-image/space-travel-collage-design_94964745.htm#fromView=search&page=1&position=1&uuid=cf66f9c3-2d56-4228-a3cf-de7c07d418fb">Image by freepik</a>
+- Image by <a href="https://www.freepik.com/free-ai-image/space-travel-collage-design_94964745.htm#fromView=search&page=1&position=1&uuid=cf66f9c3-2d56-4228-a3cf-de7c07d418fb">freepik</a>
+- Image by <a href="https://www.freepik.com/free-psd/3d-icon-product-management_44990845.htm#fromView=search&page=2&position=0&uuid=691aae54-efdf-451c-9112-0ff373e761e7">Freepik</a>
+- Image by <a href="https://www.freepik.com/free-psd/3d-collection-with-hands-holding-smartphone_13678985.htm#fromView=search&page=1&position=3&uuid=7761a685-d1b6-4202-8505-9a872775cbbb">Freepik</a>
+- Michelle by [mixamo](https://www.mixamo.com/#/?page=2&type=Character)
 - "Buster Drone" (https://skfb.ly/TBnX) by LaVADraGoN is licensed under Creative Commons Attribution-NonCommercial (http://creativecommons.org/licenses/by-nc/4.0/).

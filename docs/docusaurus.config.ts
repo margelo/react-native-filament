@@ -4,14 +4,14 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'React Native Filament Documentation',
-  tagline: 'Dinosaurs are cool',
+  tagline: 'Fastest 3D rendering for React Native',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://margelo.github.io/react-native-filament/',
+  url: 'https://margelo.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
+  baseUrl: 'react-native-filament/',
   trailingSlash: false,
 
   // GitHub pages deployment config.
@@ -50,12 +50,12 @@ const config: Config = {
 
   themeConfig: {
     // Replace with your project's social card
-    image: 'img/docusaurus-social-card.jpg',
+    image: 'img/banner-dark.jpg',
     navbar: {
       title: 'React Native Filament',
       logo: {
-        alt: 'My Site Logo',
-        src: 'img/logo.svg',
+        alt: 'React Native Filament Logo',
+        src: 'img/penguin.png',
       },
       items: [
         {
@@ -70,7 +70,7 @@ const config: Config = {
           position: 'left'
         },
         {
-          href: 'https://github.com/facebook/docusaurus',
+          href: 'https://github.com/margelo/react-native-filament',
           label: 'GitHub',
           position: 'right',
         },
