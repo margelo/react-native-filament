@@ -20,4 +20,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: absolute;
+  top: 40vh;
+  left: 0px;
+  right: 0px;
 }
