@@ -215,5 +215,12 @@ The `transformManager` has lots of APIs, you can [check them out in the API docs
 Using the `transformManager` its also possible to manually set a 4x4 matrix yourself, using a 16 element array:
 
 ```tsx
-transformManager.setTransform(entity, [...])
+transformManager.setTransform(entity, [
+  1, 0, 0, 0,
+  0, 1, 0, 0,
+  0, 0, 1, 0,
+  0, 0, 0, 1
+])
 ```
+
+Matrices in filament are column-major.
