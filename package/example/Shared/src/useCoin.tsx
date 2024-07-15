@@ -8,23 +8,22 @@ import {
   useModel,
   useRigidBody,
 } from 'react-native-filament'
-import { getPath } from './getPath'
 import { useMemo } from 'react'
+import Coin from '~/assets/coin.glb'
 
-const coinPath = getPath('coin.glb')
-
-const scale = 0.3
+const scale = 0.5
 
 // A coin with a random rotation, that will be added to the physics world
-export function useCoin(world: DiscreteDynamicWorld, origin: Float3, collisionCallback: CollisionCallback) {
+export function useCoin(world: DiscreteDynamicWorld, origin: Float3, collisionCallback?: CollisionCallback) {
   const { transformManager } = useFilamentContext()
-  const coin = useModel({ source: coinPath })
+  const coin = useModel(Coin)
 
   const originX = origin[0]
   const originY = origin[1]
   const originZ = origin[2]
 
   const coinAsset = getAssetFromModel(coin)
+  const coinBoundingBox = coin.state === 'loaded' ? coin.boundingBox : undefined
   const renderableEntities = useMemo(() => coinAsset?.getRenderableEntities(), [coinAsset])
 
   // Takes the first entity which is the mesh and applies a random rotation, scale and position.
@@ -59,11 +58,11 @@ export function useCoin(world: DiscreteDynamicWorld, origin: Float3, collisionCa
   }, [originX, originY, originZ, renderableEntities, transformManager])
 
   const circleShape = useCylinderShape(
-    coinAsset == null
+    coinBoundingBox == null
       ? undefined
       : {
-          half: coinAsset.boundingBox.halfExtent,
-          localScaling: [scale, scale, scale],
+          half: coinBoundingBox.halfExtent,
+          localScaling: [scale * 0.5, scale * 0.5, scale * 0.5],
         }
   )
   const rigidBody = useRigidBody(
