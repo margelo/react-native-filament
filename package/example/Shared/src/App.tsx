@@ -16,13 +16,7 @@ import { AnimatedRotateSharedValues } from './AnimatedRotateSharedValues'
 import { PhysicsCoin } from './PhysicsCoin'
 import { FadeOut } from './FadeOut'
 import { CastShadow } from './CastShadow'
-// import { ChangeMaterials } from './ChangeMaterials'
-// import { FadeOut } from './FadeOut'
-// import { CastShadow } from './CastShadow'
-// import { WorkletExample } from './WorkletExample'
-// import { ScaleEffect } from './ScaleEffect'
-// import { FadingLightExample } from './FadingLightExample'
-// import { ChangeGoldenMaterials } from './ChangeGoldenMaterial'
+import { ScaleEffect } from './ScaleEffect'
 
 function NavigationItem(props: { name: string; route: string }) {
   const navigation = useNavigation()
@@ -65,8 +59,7 @@ function HomeScreen() {
       <NavigationItem name="💰 Physics Coin" route="PhysicsCoin" />
       <NavigationItem name="😶‍🌫️ Fade Out" route="FadeOut" />
       <NavigationItem name="🌑 Cast Shadow" route="CastShadow" />
-      {/* <NavigationItem name="🎨 Change Materials" route="ChangeMaterials" />
-      <NavigationItem name="↕️ Scale Effect" route="ScaleEffect" /> */}
+      <NavigationItem name="↕️ Scale Effect" route="ScaleEffect" />
     </ScrollView>
   )
 }
@@ -105,12 +98,7 @@ function App() {
           <Stack.Screen name="PhysicsCoin" component={PhysicsCoin} />
           <Stack.Screen name="FadeOut" component={FadeOut} />
           <Stack.Screen name="CastShadow" component={CastShadow} />
-          {/* TODO: Migrate */}
-          {/* <Stack.Screen name="ChangeMaterials" component={ChangeMaterials} />
-          <Stack.Screen name="ChangeMaterials" component={ChangeGoldenMaterials} />
-          <Stack.Screen name="WorkletExample" component={WorkletExample} />
           <Stack.Screen name="ScaleEffect" component={ScaleEffect} />
-          <Stack.Screen name="FadingLight" component={FadingLightExample} /> */}
           <Stack.Screen name="Test" component={TestScreen} />
         </Stack.Navigator>
       </NavigationContainer>
