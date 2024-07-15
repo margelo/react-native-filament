@@ -14,6 +14,7 @@ import { MultipleInstances } from './MultipleInstances'
 import { AnimatedRotate } from './AnimatedRotate'
 import { AnimatedRotateSharedValues } from './AnimatedRotateSharedValues'
 import { PhysicsCoin } from './PhysicsCoin'
+import { FadeOut } from './FadeOut'
 // import { ChangeMaterials } from './ChangeMaterials'
 // import { FadeOut } from './FadeOut'
 // import { CastShadow } from './CastShadow'
@@ -61,9 +62,9 @@ function HomeScreen() {
       <NavigationItem name="🔄 Animated Rotate" route="AnimatedRotate" />
       <NavigationItem name="🔄 Animated Rotate w/ Shared Values" route="AnimatedRotateSharedValues" />
       <NavigationItem name="💰 Physics Coin" route="PhysicsCoin" />
+      <NavigationItem name="😶‍🌫️ Fade Out" route="FadeOut" />
       {/* <NavigationItem name="🎨 Change Materials" route="ChangeMaterials" />
       <NavigationItem name="🌑 Cast Shadow" route="CastShadow" />
-      <NavigationItem name="😶‍🌫️ Fade Out" route="FadeOut" />
       <NavigationItem name="↕️ Scale Effect" route="ScaleEffect" /> */}
     </ScrollView>
   )
@@ -101,9 +102,9 @@ function App() {
           <Stack.Screen name="AnimatedRotate" component={AnimatedRotate} />
           <Stack.Screen name="AnimatedRotateSharedValues" component={AnimatedRotateSharedValues} />
           <Stack.Screen name="PhysicsCoin" component={PhysicsCoin} />
+          <Stack.Screen name="FadeOut" component={FadeOut} />
           {/* TODO: Migrate */}
           {/* <Stack.Screen name="ChangeMaterials" component={ChangeMaterials} />
-          <Stack.Screen name="FadeOut" component={FadeOut} />
           <Stack.Screen name="ChangeMaterials" component={ChangeGoldenMaterials} />
           <Stack.Screen name="CastShadow" component={CastShadow} />
           <Stack.Screen name="WorkletExample" component={WorkletExample} />

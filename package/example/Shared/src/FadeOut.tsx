@@ -1,86 +1,68 @@
 import * as React from 'react'
 import { useEffect, useRef } from 'react'
 
-import { Animated, Button, Platform, StyleSheet, View } from 'react-native'
-import { FilamentView, useEngine, Float3, useRenderCallback, useBuffer, useModel, useRenderableManager } from 'react-native-filament'
+import { Animated, Button, StyleSheet, View } from 'react-native'
+import {
+  Camera,
+  DefaultLight,
+  FilamentScene,
+  FilamentView,
+  Float3,
+  getAssetFromModel,
+  Model,
+  ModelRenderer,
+  useBuffer,
+  useFilamentContext,
+  useModel,
+} from 'react-native-filament'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
-const indirectLightPath = Platform.select({
-  android: 'custom/default_env_ibl.ktx',
-  ios: 'default_env_ibl.ktx',
-})!
+function Renderer() {
+  const model = useModel(require('~/assets/coin_with_alpha.glb'))
+  const asset = getAssetFromModel(model)
 
-const assetPath = Platform.select({
-  android: 'custom/coin.glb',
-  ios: 'coin.glb',
-})!
+  const { renderableManager } = useFilamentContext()
 
-// Camera config:
-const cameraPosition: Float3 = [0, 0, 8]
-const cameraTarget: Float3 = [0, 0, 0]
-const cameraUp: Float3 = [0, 1, 0]
-const focalLengthInMillimeters = 28
-const near = 0.1
-const far = 1000
-
-export function FadeOut() {
-  const engine = useEngine()
-  const renderableManager = useRenderableManager(engine)
-
-  const light = useBuffer({ source: indirectLightPath })
-  const asset = useModel({ engine: engine, source: assetPath })
-
-  useEffect(() => {
-    if (asset.state !== 'loaded') return
-    engine.transformToUnitCube(asset.asset)
-    // Applies default opacity modes
-    renderableManager.setAssetEntitiesOpacity(asset.asset, 1)
-  }, [asset, engine, renderableManager])
-
-  useEffect(() => {
-    if (light == null) return
-    // create a default light
-    engine.setIndirectLight(light)
-
-    // Create a directional light for supporting shadows
-    const directionalLight = engine.createLightEntity('directional', 6500, 10000, 0, -1, 0, true)
-    engine.getScene().addEntity(directionalLight)
-    return () => {
-      // TODO: Remove directionalLight from scene
-    }
-  }, [engine, light])
-
-  const prevAspectRatio = useRef(0)
-  useRenderCallback(engine, (_timestamp, _startTime, passedSeconds) => {
-    const view = engine.getView()
-    const aspectRatio = view.aspectRatio
-    if (prevAspectRatio.current !== aspectRatio) {
-      prevAspectRatio.current = aspectRatio
-      // Setup camera lens:
-      const camera = engine.getCamera()
-      camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
+  const fadeOut = React.useCallback(() => {
+    if (asset == null) {
+      return
     }
 
-    engine.getCamera().lookAt(cameraPosition, cameraTarget, cameraUp)
-  })
+    const anim = new Animated.Value(1)
+    anim.addListener(({ value }) => {
+      renderableManager.setAssetEntitiesOpacity(asset, value)
+    })
+    Animated.timing(anim, {
+      toValue: 0,
+      duration: 1000,
+      useNativeDriver: false,
+    }).start()
+  }, [renderableManager, asset])
 
   return (
-    <View style={styles.container}>
-      <FilamentView style={styles.filamentView} engine={engine} />
-      <Button
-        title="Fade out"
-        onPress={() => {
-          const anim = new Animated.Value(1)
-          anim.addListener(({ value }) => {
-            renderableManager.setAssetEntitiesOpacity(asset.asset, value)
-          })
-          Animated.timing(anim, {
-            toValue: 0,
-            duration: 1000,
-            useNativeDriver: false,
-          }).start()
-        }}
-      />
-    </View>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <FilamentView style={styles.filamentView}>
+        <Camera />
+        <DefaultLight />
+
+        <ModelRenderer
+          model={model}
+          rotate={{
+            angleInRadians: Math.PI / 2,
+            axis: [1, 0, 0],
+          }}
+        />
+      </FilamentView>
+      <Button title="Fade out" onPress={fadeOut} />
+    </SafeAreaView>
+  )
+}
+
+export function FadeOut() {
+  return (
+    <FilamentScene>
+      <Renderer />
+    </FilamentScene>
   )
 }
 
