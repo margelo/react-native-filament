@@ -1,5 +1,4 @@
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import Layout from '@theme/Layout';
 import HomepageFeatures from '@site/src/components/HomepageFeatures';
@@ -8,7 +7,6 @@ import styles from './index.module.css';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 function HomepageHeader() {
-  const {siteConfig} = useDocusaurusContext();
   return (
     <header>
         <iframe src={useBaseUrl('demos/helmet.html')} style={{
