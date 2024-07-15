@@ -6,8 +6,13 @@ const sidebars: SidebarsConfig = {
       "guides/getting-started",
       "guides/asset-loading",
       "guides/transformation",
+      "guides/light",
       "guides/skybox",
-      "guides/physics"
+      "guides/camera",
+      "guides/animator",
+      "guides/images",
+      "guides/physics",
+      "guides/instancing"
     ],
     API: [
       {

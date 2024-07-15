@@ -1,0 +1,331 @@
+---
+id: light
+title: Light
+sidebar_label: Light
+slug: /guides/light
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+Your scene needs light otherwise nothing will be visible in your view (either transparent or fully black). The following light types are supported:
+
+- `DIRECTIONAL`: Directional light, emits light in a given direction.
+- `SUN`: Directional light that also draws a sun's disk in the sky.
+- `POINT`: Point light, emits light from a position, in all directions.
+- `FOCUSED_SPOT`: Physically correct spot light.
+- `SPOT`: Spot light with coupling of outer cone and illumination disabled.
+- `Image based lighting (IBL)`: Environment light based on an image.
+
+## The `<Light />` component
+
+You can create a light source in your scene by using the `<Light />` component:
+
+```tsx
+import { Light } from "react-native-filament";
+
+<Light
+  type="directional"
+  intensity={10_000}
+  colorKelvin={6_500}
+  castShadows={true}
+/>;
+```
+
+The different types and props are explained below.
+
+## The `<DefaultLight />` component
+
+react-native-filament ships with a `<DefaultLight />` component that creates a default light source in your scene.
+It uses a [directional light](#directional-lights) for shadows and an [IBL environment light](#image-based-lighting-ibl) for ambient lighting.
+
+### Opting out of the default IBL
+
+As the IBL is based on an image react-native-filament image ships with a default IBL image that is ~2mb in size.
+If you don't use the `<DefaultLight />` component you can opt-out of shipping this file with your app to reduce the app size.
+
+<Tabs
+  groupId="defaultLight"
+  defaultValue="ios"
+  values={[
+    {label: '🍏 iOS', value: 'ios'},
+    {label: '🤖 Android', value: 'android'}
+  ]}>
+  <TabItem value="ios">
+    Add the following at the top of your `ios/Podfile`:
+
+    ```ruby
+    $RNFExcludeAssets = true
+    ```
+
+  </TabItem>
+
+  <TabItem value="android">
+    Add  the following to your `android/gradle.properties`:
+
+    ```properties
+    RNF_excludeAssets = true
+    ```
+
+  </TabItem>
+</Tabs>
+
+## Directional lights
+
+- [Filament documentation](https://google.github.io/filament/Filament.html#lighting/directlighting)
+
+The main purpose of directional lights is to recreate important light sources for outdoor environment, i.e. the sun and/or the moon.
+
+![](https://google.github.io/filament/images/diagram_directional_light.png)
+
+### Intensity
+
+The unit for directional light is illuminance (lux). Here are useful reference values for the sun and sky illumination, measured on a clear day in March, in California:
+
+| Light     | 10am    | 12pm    | 5:30pm |
+|-----------|---------|---------|--------|
+| Sky + Sun | 120,000 | 130,000 | 90,000 |
+| Sky       | 20,000  | 25,000  | 9,000  |
+| Sun       | 100,000 | 105,000 | 81,000 |
+
+Shadows are only working if you have one directional light source in your scene.
+
+### Color
+
+The color for directional light is specified in Kelvin. Here are some useful reference values:
+
+<table class="table">
+  <tbody>
+    <tr>
+      <th style={{ textAlign: "right" }}> Temperature (K) </th>
+      <th style={{ textAlign: "left" }}> Light source </th>
+      <th style={{ textAlign: "left" }}> Color </th>
+    </tr>
+    <tr>
+      <td style={{ textAlign: "right" }}> 1,700-1,800 </td>
+      <td style={{ textAlign: "left" }}> Match flame </td>
+      <td style={{ textAlign: "left" }}>
+        
+        <div style={{ backgroundColor: "#ff7d00", width: "60px" }}>&nbsp;</div>
+      </td>
+    </tr>
+    <tr>
+      <td style={{ textAlign: "right" }}> 1,850-1,930 </td>
+      <td style={{ textAlign: "left" }}> Candle flame </td>
+      <td style={{ textAlign: "left" }}>
+        
+        <div style={{ backgroundColor: "#ff8701", width: "60px" }}>&nbsp;</div>
+      </td>
+    </tr>
+    <tr>
+      <td style={{ textAlign: "right" }}> 2,000-3,000 </td>
+      <td style={{ textAlign: "left" }}> Sun at sunrise/sunset </td>
+      <td style={{ textAlign: "left" }}>
+        
+        <div style={{ backgroundColor: "#ffa64c", width: "60px" }}>&nbsp;</div>
+      </td>
+    </tr>
+    <tr>
+      <td style={{ textAlign: "right" }}> 2,500-2,900 </td>
+      <td style={{ textAlign: "left" }}> Household tungsten lightbulb </td>
+      <td style={{ textAlign: "left" }}>
+        
+        <div style={{ backgroundColor: "#ffb05e", width: "60px" }}>&nbsp;</div>
+      </td>
+    </tr>
+    <tr>
+      <td style={{ textAlign: "right" }}> 3,000 </td>
+      <td style={{ textAlign: "left" }}> Tungsten lamp 1K </td>
+      <td style={{ textAlign: "left" }}>
+        
+        <div style={{ backgroundColor: "#ffb86f", width: "60px" }}>&nbsp;</div>
+      </td>
+    </tr>
+    <tr>
+      <td style={{ textAlign: "right" }}> 3,200-3,500 </td>
+      <td style={{ textAlign: "left" }}> Quartz lights </td>
+      <td style={{ textAlign: "left" }}>
+        
+        <div style={{ backgroundColor: "#ffbf7b", width: "60px" }}>&nbsp;</div>
+      </td>
+    </tr>
+    <tr>
+      <td style={{ textAlign: "right" }}> 3,200-3,700 </td>
+      <td style={{ textAlign: "left" }}> Fluorescent lights </td>
+      <td style={{ textAlign: "left" }}>
+        
+        <div style={{ backgroundColor: "#ffbf7b", width: "60px" }}>&nbsp;</div>
+      </td>
+    </tr>
+    <tr>
+      <td style={{ textAlign: "right" }}> 3,275 </td>
+      <td style={{ textAlign: "left" }}> Tungsten lamp 2K </td>
+      <td style={{ textAlign: "left" }}>
+        
+        <div style={{ backgroundColor: "#ffc180", width: "60px" }}>&nbsp;</div>
+      </td>
+    </tr>
+    <tr>
+      <td style={{ textAlign: "right" }}> 3,380 </td>
+      <td style={{ textAlign: "left" }}> Tungsten lamp 5K, 10K </td>
+      <td style={{ textAlign: "left" }}>
+        
+        <div style={{ backgroundColor: "#ffc486", width: "60px" }}>&nbsp;</div>
+      </td>
+    </tr>
+    <tr>
+      <td style={{ textAlign: "right" }}> 5,000-5,400 </td>
+      <td style={{ textAlign: "left" }}> Sun at noon </td>
+      <td style={{ textAlign: "left" }}>
+        
+        <div style={{ backgroundColor: "#ffe9d7", width: "60px" }}>&nbsp;</div>
+      </td>
+    </tr>
+    <tr>
+      <td style={{ textAlign: "right" }}> 5,500-6,500 </td>
+      <td style={{ textAlign: "left" }}> Daylight (sun + sky) </td>
+      <td style={{ textAlign: "left" }}>
+        
+        <div style={{ backgroundColor: "#fff3f1", width: "60px" }}>&nbsp;</div>
+      </td>
+    </tr>
+    <tr>
+      <td style={{ textAlign: "right" }}> 5,500-6,500 </td>
+      <td style={{ textAlign: "left" }}> Sun through clouds/haze </td>
+      <td style={{ textAlign: "left" }}>
+        
+        <div style={{ backgroundColor: "#fff3f1", width: "60px" }}>&nbsp;</div>
+      </td>
+    </tr>
+    <tr>
+      <td style={{ textAlign: "right" }}> 6,000-7,500 </td>
+      <td style={{ textAlign: "left" }}> Overcast sky </td>
+      <td style={{ textAlign: "left" }}>
+        
+        <div style={{ backgroundColor: "#faf6ff", width: "60px" }}>&nbsp;</div>
+      </td>
+    </tr>
+    <tr>
+      <td style={{ textAlign: "right" }}> 6,500 </td>
+      <td style={{ textAlign: "left" }}> RGB monitor white point </td>
+      <td style={{ textAlign: "left" }}>
+        
+        <div style={{ backgroundColor: "#fff8fe", width: "60px" }}>&nbsp;</div>
+      </td>
+    </tr>
+    <tr>
+      <td style={{ textAlign: "right" }}> 7,000-8,000 </td>
+      <td style={{ textAlign: "left" }}> Shaded areas outdoors </td>
+      <td style={{ textAlign: "left" }}>
+        <div style={{ backgroundColor: "#ebecff", width: "60px" }}>&nbsp;</div>
+      </td>
+    </tr>
+    <tr>
+      <td style={{ textAlign: "right" }}> 8,000-10,000 </td>
+      <td style={{ textAlign: "left" }}> Partly cloudy sky </td>
+      <td style={{ textAlign: "left" }}>
+        <div style={{ backgroundColor: "#d6e0ff", width: "60px" }}>&nbsp;</div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Punctual lights
+
+- [Filament documentation](https://google.github.io/filament/Filament.html#lighting/directlighting/punctuallights)
+
+### Intensity
+
+The intensity for punctual lights is measured in luminous power (lumen). Here are some useful reference values:
+
+| Light source   | Luminous power (lumen) |
+|----------------|------------------------|
+| Candle         | 12.57                  |
+| 40W bulb       | 450                    |
+| 100W bulb      | 1,600                  |
+| 500W halogen   | 10,000                 |
+| 1,000W halogen | 20,000                 |
+
+### Point light
+
+A point light is defined only by a position in space, as shown here:
+
+![](https://google.github.io/filament/images/diagram_point_light.png)
+
+```tsx
+import { Light } from "react-native-filament";
+
+<Light
+  type="point"
+  intensity={10_000}
+  colorKelvin={6_500}
+/>
+```
+
+### Spot light
+
+A spot light is defined by a position in space, a direction vector and two cone angles, 𝜃𝑖𝑛𝑛𝑒𝑟 and 𝜃𝑜𝑢𝑡𝑒𝑟:
+
+![](https://google.github.io/filament/images/diagram_spot_light.png)
+
+```tsx
+import { Light } from "react-native-filament";
+
+<Light
+  type="spot"
+  intensity={10_000}
+  colorKelvin={6_500}
+  innerConeAngle={Math.PI / 4}
+  outerConeAngle={Math.PI / 3}
+/>
+```
+
+### Optimizing point lights
+
+Lights are very expensive in filament, especially if they overlap. You can optimize punctual lights by providing a `falloffRadius` prop. This is the radius length in meter after which the light has no more effect on objects.
+
+
+## Image based lighting (IBL)
+
+In real life, light comes from every direction either directly from light sources or indirectly after bouncing off objects in the environment, being partially absorbed in the process.
+In a way the whole environment around an object can be seen as a light source. Images, in particular cubemaps, are a great way to encode such an “environment light”.
+This is called Image Based Lighting (IBL) or sometimes Indirect Lighting.
+
+The whole environment contributes light to a given point on the object's surface; this is called irradiance (𝐸). The resulting light bouncing off of the object is called radiance (𝐿𝑜𝑢𝑡).
+
+```tsx
+import { EnvironmentalLight } from "react-native-filament";
+
+<EnvironmentalLight 
+  source={require('../assets/RNF_default_env_ibl.ktx')}
+/>
+```
+
+Example of an IBL:
+
+![](https://google.github.io/filament/images/ibl/ibl_river_roughness_m0.png)
+
+and its irradiance:
+
+![](https://google.github.io/filament/images/ibl/ibl_irradiance.png)
+
+:::note
+react-native-filament ships by default with an IBL image, which can be used with the `<DefaultLight />` component or directly using:
+```tsx
+<EnvironmentalLight source={{ uri: 'RNF_default_env_ibl.ktx' }} />
+```
+
+You can opt-out of including the default IBL in your app as explained [here](#opting-out-of-the-default-ibl).
+:::
+
+### Getting good IBL images
+
+https://polyhaven.com/hdris is a wonderful source for high-quality IBL images.
+You'll download a `.hdr` file which you need to convert to a ktx file.
+
+TODO: explain how to convert hdr to ktx
+
+
+## Additional resources
+
+Filament has a very detailed documentation on how their light system works. You can find it [here](https://google.github.io/filament/Filament.html#lighting).
