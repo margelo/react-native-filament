@@ -4,7 +4,7 @@ import { useFilamentContext } from './useFilamentContext'
 import { useDisposableResource } from './useDisposableResource'
 import usePrevious from './usePrevious'
 import { useWorkletEffect } from './useWorkletEffect'
-import { AABB } from '../types'
+import { AABB, Entity } from '../types'
 import { useMemo } from 'react'
 
 export interface ModelProps {
@@ -35,6 +35,10 @@ export type FilamentModel =
       state: 'loaded'
       asset: FilamentAsset
       boundingBox: AABB
+      /**
+       * The root entity of the model.
+       */
+      rootEntity: Entity
     }
   | {
       state: 'loading'
@@ -111,7 +115,14 @@ export function useModel(source: BufferSource, props?: ModelProps): FilamentMode
     return asset.getBoundingBox()
   }, [asset])
 
-  if (assetBuffer == null || asset == null || boundingBox == null) {
+  const rootEntity = useMemo(() => {
+    if (asset == null) {
+      return null
+    }
+    return asset.getRoot()
+  }, [asset])
+
+  if (assetBuffer == null || asset == null || boundingBox == null || rootEntity == null) {
     return {
       state: 'loading',
     }
@@ -119,6 +130,7 @@ export function useModel(source: BufferSource, props?: ModelProps): FilamentMode
   return {
     state: 'loaded',
     asset: asset,
+    rootEntity: rootEntity,
     boundingBox: boundingBox,
   }
 }

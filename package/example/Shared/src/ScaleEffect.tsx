@@ -3,70 +3,32 @@
  */
 
 import * as React from 'react'
-import { useEffect, useRef } from 'react'
+import { useMemo } from 'react'
 
-import { Animated, Button, Platform, StyleSheet, View } from 'react-native'
-import {
-  FilamentView,
-  useEngine,
-  Float3,
-  useRenderCallback,
-  useBuffer,
-  useModel,
-  useView,
-  useCamera,
-  useScene,
-  useTransformManager,
-  Mat4,
-} from 'react-native-filament'
+import { Animated, Button, StyleSheet } from 'react-native'
+import { FilamentView, useModel, Mat4, FilamentScene, Camera, DefaultLight, useFilamentContext, ModelRenderer } from 'react-native-filament'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import Coin from '~/assets/coin.glb'
 
-const modelPath = Platform.select({
-  android: 'custom/coin.glb',
-  ios: 'coin.glb',
-})!
+function Renderer() {
+  const model = useModel(Coin)
+  const rootEntity = model.state === 'loaded' ? model.rootEntity : null
 
-const indirectLightPath = Platform.select({
-  android: 'custom/default_env_ibl.ktx',
-  ios: 'default_env_ibl.ktx',
-})!
-
-// Camera config:
-const cameraPosition: Float3 = [0, 1, 10]
-const cameraTarget: Float3 = [0, 0, 0]
-const cameraUp: Float3 = [0, 1, 0]
-const focalLengthInMillimeters = 28
-const near = 0.1
-const far = 1000
-
-export function ScaleEffect() {
-  const engine = useEngine()
-  const transformManager = useTransformManager(engine)
-  const view = useView(engine)
-  const camera = useCamera(engine)
-  const scene = useScene(engine)
-
-  const model = useModel({ engine: engine, source: modelPath, addToScene: false })
-  const modelAsset = model.state === 'loaded' ? model.asset : null
-  const originalTransformRef = useRef<Mat4 | null>(null)
-
-  useEffect(() => {
-    if (modelAsset == null) return
-    const rootEntity = modelAsset.getRoot()
-    originalTransformRef.current = transformManager.getTransform(rootEntity)
-
-    engine.setEntityScale(rootEntity, [0, 0, 0], false)
-    scene.addAssetEntities(modelAsset)
-  }, [engine, modelAsset, scene, transformManager])
+  const { transformManager } = useFilamentContext()
+  // Capture the original transform to scale from
+  const originalTransform = useMemo<Mat4 | null>(() => {
+    if (rootEntity == null) return null
+    return transformManager.getTransform(rootEntity)
+  }, [rootEntity, transformManager])
 
   const onScale = () => {
-    if (modelAsset == null || originalTransformRef.current == null) return
-    const rootEntity = modelAsset.getRoot()
+    if (rootEntity == null || originalTransform == null) return
     const animatedScale = new Animated.Value(0)
 
-    const transform = originalTransformRef.current
+    const transform = originalTransform
     animatedScale.addListener(({ value }) => {
       transformManager.openLocalTransformTransaction()
-      const scaledTransform = transform.scaling([value, value, value])
+      const scaledTransform = transform.scaling([value, value, value]).rotate(75 * (Math.PI / 180), [1, 0, 0])
       transformManager.setTransform(rootEntity, scaledTransform)
       transformManager.commitLocalTransformTransaction()
     })
@@ -80,39 +42,24 @@ export function ScaleEffect() {
     }).start()
   }
 
-  //#region Setup lights
-  const light = useBuffer({ source: indirectLightPath })
-  useEffect(() => {
-    if (light == null) return
-    // create a default light
-    engine.setIndirectLight(light)
-
-    // Create a directional light for supporting shadows
-    const directionalLight = engine.createLightEntity('directional', 6500, 10000, 0, -1, 0, true)
-    scene.addEntity(directionalLight)
-    return () => {
-      // TODO: Remove directionalLight from scene
-    }
-  }, [engine, light, scene])
-  //#endregion
-
-  const prevAspectRatio = useRef(0)
-  useRenderCallback(engine, () => {
-    const aspectRatio = view.aspectRatio
-    if (prevAspectRatio.current !== aspectRatio) {
-      prevAspectRatio.current = aspectRatio
-      // Setup camera lens:
-      camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
-    }
-
-    camera.lookAt(cameraPosition, cameraTarget, cameraUp)
-  })
-
   return (
-    <View style={styles.container}>
-      <FilamentView style={styles.filamentView} engine={engine} />
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <FilamentView style={styles.filamentView}>
+        <Camera />
+        <DefaultLight />
+
+        <ModelRenderer model={model} scale={[0, 0, 0]} />
+      </FilamentView>
       <Button title="Scale" onPress={onScale} />
-    </View>
+    </SafeAreaView>
+  )
+}
+
+export function ScaleEffect() {
+  return (
+    <FilamentScene>
+      <Renderer />
+    </FilamentScene>
   )
 }
 

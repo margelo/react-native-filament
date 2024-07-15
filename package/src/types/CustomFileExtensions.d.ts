@@ -6,6 +6,6 @@ declare module '*.glb' {
   export default number
 }
 
-declare module '*.matc' {
+declare module '*.filamat' {
   export default number
 }

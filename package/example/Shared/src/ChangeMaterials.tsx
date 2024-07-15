@@ -1,56 +1,58 @@
 import * as React from 'react'
 
-import { Button, StyleSheet, View } from 'react-native'
-import { FilamentView, useBuffer, useModel, useFilamentContext, useWorkletCallback, Camera, FilamentScene } from 'react-native-filament'
+import { Button, StyleSheet } from 'react-native'
+import {
+  FilamentView,
+  useBuffer,
+  useModel,
+  useFilamentContext,
+  useWorkletCallback,
+  Camera,
+  FilamentScene,
+  DefaultLight,
+  ModelRenderer,
+} from 'react-native-filament'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
-import PenguModel from '~/assets/pengu.glb'
-import LeftEyeTexture from '~/assets/eye_full_texture_left_blue.jpg'
-import RightEyeTexture from '~/assets/eye_full_texture_right_blue.jpg'
-import { DefaultLight } from './components/DefaultLight'
+import Model from '~/assets/rocket.glb'
+
+const baseColorBlueImage = require('~/assets/rocket_BaseColor_Blue.png')
 
 function Renderer() {
   const { renderableManager } = useFilamentContext()
 
-  const pengu = useModel(PenguModel)
-  const blueLeftEyeBuffer = useBuffer({ source: LeftEyeTexture })
-  const blueRightEyeBuffer = useBuffer({ source: RightEyeTexture })
+  const rocket = useModel(Model)
+  const blueBaseColorBuffer = useBuffer({ source: baseColorBlueImage })
 
-  const penguAsset = pengu.state === 'loaded' ? pengu.asset : undefined
-  const changeEyes = useWorkletCallback(() => {
+  const asset = rocket.state === 'loaded' ? rocket.asset : undefined
+  const changeColor = useWorkletCallback(() => {
     'worklet'
 
-    if (penguAsset == null || blueLeftEyeBuffer == null || blueRightEyeBuffer == null) return
+    if (asset == null || blueBaseColorBuffer == null) return
 
-    const leftEye = penguAsset.getFirstEntityByName('Brown Dark Stylised.003')
-    if (leftEye == null) {
-      console.warn('Could not find left eye entity')
-      return
-    }
-    const rightEye = penguAsset.getFirstEntityByName('Brown Dark Stylised.004')
-    if (rightEye == null) {
-      console.warn('Could not find right eye entity')
-      return
-    }
+    const tipEntity = asset.getFirstEntityByName('Tip')
+    const wingsEntity = asset.getFirstEntityByName('Wings')
 
-    renderableManager.setAssetEntitiesOpacity(penguAsset, 1.0)
-
-    renderableManager.changeMaterialTextureMap(leftEye, 'Eye_Left.001', blueLeftEyeBuffer, 'sRGB')
-    renderableManager.changeMaterialTextureMap(rightEye, 'Eye_Right.002', blueRightEyeBuffer, 'sRGB')
+    renderableManager.changeMaterialTextureMap(tipEntity!, 'Toy Ship', blueBaseColorBuffer, 'sRGB')
+    renderableManager.changeMaterialTextureMap(wingsEntity!, 'Toy Ship', blueBaseColorBuffer, 'sRGB')
+    console.log('Color changed :)')
   })
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <FilamentView style={styles.filamentView}>
         <Camera />
         <DefaultLight />
+
+        <ModelRenderer model={rocket} position={[0, -1, 0]} />
       </FilamentView>
       <Button
-        title="Change Eyes"
+        title="Change Color"
         onPress={() => {
-          changeEyes()
+          changeColor()
         }}
       />
-    </View>
+    </SafeAreaView>
   )
 }
 

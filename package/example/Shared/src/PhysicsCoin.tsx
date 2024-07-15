@@ -1,39 +1,33 @@
 import * as React from 'react'
-import { useRef } from 'react'
+import { useCallback } from 'react'
 
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet } from 'react-native'
 import {
   FilamentView,
-  Float3,
-  useRenderCallback,
   useWorld,
   useRigidBody,
   useStaticPlaneShape,
   useWorkletCallback,
-  FilamentProvider,
   useFilamentContext,
+  RenderCallback,
+  FilamentScene,
+  DefaultLight,
+  Camera,
 } from 'react-native-filament'
 import { useCoin } from './useCoin'
-import { useDefaultLight } from './hooks/useDefaultLight'
 import { useSharedValue } from 'react-native-worklets-core'
 
-// Camera config:
-const focalLengthInMillimeters = 28
-const near = 0.1
-const far = 1000
-
 function PhysicsCoinRenderer() {
-  useDefaultLight()
   const world = useWorld(0, -9, 0)
 
-  const { transformManager, view, camera } = useFilamentContext()
+  const { transformManager } = useFilamentContext()
 
   // Create an invisible floor:
   const floorShape = useStaticPlaneShape(0, 1, 0, 0)
   useRigidBody({
     mass: 0,
     origin: [0, -1.5, 0],
-    friction: 10,
+    friction: 100,
     shape: floorShape,
     world,
     id: 'floor',
@@ -59,51 +53,54 @@ function PhysicsCoinRenderer() {
       console.log('Coin touched the floor!')
     })
   )
+  const [coinBBody, coinBEntity] = useCoin(world, [0, 3, 0.5])
+  const [coinCBody, coinCEntity] = useCoin(world, [0, 3, 1.0])
+  const [coinDBody, coinDEntity] = useCoin(world, [0, 3, 1.5])
 
-  const prevAspectRatio = useRef(0)
-  useRenderCallback(({ passedSeconds }) => {
-    'worklet'
+  const renderCallback: RenderCallback = useCallback(
+    ({ passedSeconds }) => {
+      'worklet'
 
-    const aspectRatio = view.getAspectRatio()
-    if (prevAspectRatio.current !== aspectRatio) {
-      prevAspectRatio.current = aspectRatio
-      // Setup camera lens:
-      camera.setLensProjection(focalLengthInMillimeters, aspectRatio, near, far)
-    }
+      // Wait until the screen is mounted
+      if (passedSeconds <= 1) {
+        return
+      }
 
-    // Update physics:
-    if (passedSeconds > 3) {
+      // Update physics:
       world.stepSimulation(1 / 60, 1, 1 / 60)
       if (coinAEntity != null) {
         transformManager.updateTransformByRigidBody(coinAEntity, coinABody)
       }
-    }
-
-    const cameraPosition: Float3 = [0, 0, 8]
-    const cameraTarget: Float3 = [0, 0, 0]
-    const cameraUp: Float3 = [0, 1, 0]
-    camera.lookAt(cameraPosition, cameraTarget, cameraUp)
-  })
+      if (coinBEntity != null) {
+        transformManager.updateTransformByRigidBody(coinBEntity, coinBBody)
+      }
+      if (coinCEntity != null) {
+        transformManager.updateTransformByRigidBody(coinCEntity, coinCBody)
+      }
+      if (coinDEntity != null) {
+        transformManager.updateTransformByRigidBody(coinDEntity, coinDBody)
+      }
+    },
+    [coinABody, coinAEntity, coinBBody, coinBEntity, coinCBody, coinCEntity, coinDBody, coinDEntity, transformManager, world]
+  )
 
   return (
-    <View style={styles.container}>
-      <FilamentView style={styles.filamentView} />
-    </View>
+    <FilamentView style={styles.filamentView} renderCallback={renderCallback}>
+      <DefaultLight />
+      <Camera />
+    </FilamentView>
   )
 }
 
 export function PhysicsCoin() {
   return (
-    <FilamentProvider>
+    <FilamentScene>
       <PhysicsCoinRenderer />
-    </FilamentProvider>
+    </FilamentScene>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   filamentView: {
     flex: 1,
     backgroundColor: 'lightblue',

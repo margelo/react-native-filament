@@ -7,7 +7,7 @@ import { useWorkletEffect } from '../useWorkletEffect'
 
 type Params = {
   // If null it will not take the entity from the context, as it indicates that it will be provided through the param
-  to: Entity | null
+  to?: Entity | null
   transformProps?: TransformationProps
   // If transformToUnitCube is true, the aabb is required
   aabb?: AABB

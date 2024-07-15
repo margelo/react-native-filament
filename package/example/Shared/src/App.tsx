@@ -12,14 +12,12 @@ import { LoadFromFile } from './LoadFromFile'
 import { NoneTransparent } from './NoneTransparent'
 import { MultipleInstances } from './MultipleInstances'
 import { AnimatedRotate } from './AnimatedRotate'
-// import { ChangeMaterials } from './ChangeMaterials'
-// import { PhysicsCoin } from './PhysicsCoin'
-// import { FadeOut } from './FadeOut'
-// import { CastShadow } from './CastShadow'
-// import { WorkletExample } from './WorkletExample'
-// import { ScaleEffect } from './ScaleEffect'
-// import { FadingLightExample } from './FadingLightExample'
-// import { ChangeGoldenMaterials } from './ChangeGoldenMaterial'
+import { AnimatedRotateSharedValues } from './AnimatedRotateSharedValues'
+import { PhysicsCoin } from './PhysicsCoin'
+import { FadeOut } from './FadeOut'
+import { CastShadow } from './CastShadow'
+import { ScaleEffect } from './ScaleEffect'
+import { ChangeMaterials } from './ChangeMaterials'
 
 function NavigationItem(props: { name: string; route: string }) {
   const navigation = useNavigation()
@@ -58,11 +56,12 @@ function HomeScreen() {
       <NavigationItem name="🫥 None Transparent rendering" route="NoneTransparent" />
       <NavigationItem name="🤖 Multiple Instances" route="MultipleInstances" />
       <NavigationItem name="🔄 Animated Rotate" route="AnimatedRotate" />
-      {/* <NavigationItem name="🎨 Change Materials" route="ChangeMaterials" />
+      <NavigationItem name="🔄 Animated Rotate w/ Shared Values" route="AnimatedRotateSharedValues" />
       <NavigationItem name="💰 Physics Coin" route="PhysicsCoin" />
-      <NavigationItem name="🌑 Cast Shadow" route="CastShadow" />
       <NavigationItem name="😶‍🌫️ Fade Out" route="FadeOut" />
-      <NavigationItem name="↕️ Scale Effect" route="ScaleEffect" /> */}
+      <NavigationItem name="🌑 Cast Shadow" route="CastShadow" />
+      <NavigationItem name="↕️ Scale Effect" route="ScaleEffect" />
+      <NavigationItem name="🎨 Change Materials" route="ChangeMaterials" />
     </ScrollView>
   )
 }
@@ -97,15 +96,12 @@ function App() {
           <Stack.Screen name="NoneTransparent" component={NoneTransparent} />
           <Stack.Screen name="MultipleInstances" component={MultipleInstances} />
           <Stack.Screen name="AnimatedRotate" component={AnimatedRotate} />
-          {/* TODO: Migrate */}
-          {/* <Stack.Screen name="ChangeMaterials" component={ChangeMaterials} />
+          <Stack.Screen name="AnimatedRotateSharedValues" component={AnimatedRotateSharedValues} />
           <Stack.Screen name="PhysicsCoin" component={PhysicsCoin} />
           <Stack.Screen name="FadeOut" component={FadeOut} />
-          <Stack.Screen name="ChangeMaterials" component={ChangeGoldenMaterials} />
           <Stack.Screen name="CastShadow" component={CastShadow} />
-          <Stack.Screen name="WorkletExample" component={WorkletExample} />
           <Stack.Screen name="ScaleEffect" component={ScaleEffect} />
-          <Stack.Screen name="FadingLight" component={FadingLightExample} /> */}
+          <Stack.Screen name="ChangeMaterials" component={ChangeMaterials} />
           <Stack.Screen name="Test" component={TestScreen} />
         </Stack.Navigator>
       </NavigationContainer>
