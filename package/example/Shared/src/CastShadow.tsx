@@ -58,7 +58,7 @@ function Renderer() {
         {/* Elevate the camera bit so we can see the shadow (the plane is on 0,0,0, so we wouldn't see any shadow if we didn't elevate) */}
         <Camera cameraPosition={[0, 3, 8]} />
 
-        <Model source={Coin} castShadow={showShadow} receiveShadow={showShadow} position={[0, 2, 0]} />
+        <Model source={Coin} castShadow={showShadow} receiveShadow={showShadow} translate={[0, 2, 0]} />
       </FilamentView>
       <Button title={`Toggle Shadow (${showShadow ? 'enabled' : 'disabled'})`} onPress={() => setShowShadow((prev) => !prev)} />
     </View>

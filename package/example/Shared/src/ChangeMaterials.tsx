@@ -44,15 +44,7 @@ function Renderer() {
         <Camera />
         <DefaultLight />
 
-        <ModelRenderer
-          model={rocket}
-          scale={[1.2, 1.2, 1.2]}
-          rotate={{
-            axis: [0, 1, 0],
-            angleInRadians: (45 * Math.PI) / 180,
-          }}
-          position={[0, -1, 0]}
-        />
+        <ModelRenderer model={rocket} translate={[0, -1, 0]} />
       </FilamentView>
       <Button
         title="Change Color"
