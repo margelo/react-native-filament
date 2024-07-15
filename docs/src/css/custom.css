@@ -28,3 +28,28 @@
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
+
+/* align image to the right */
+.image-container {
+  float: right;
+}
+/* mobile screen; align center */
+@media (max-width: 600px) {
+  .image-container {
+      float: none;
+      text-align: center;
+  }
+}
+/* wider screen; align right again */
+@media (min-width: 600px) and (max-width: 997px) {
+  .image-container {
+    float: right;
+  }
+}
+/* even wider screen but with sidebars; align center cuz we dont have enough space for right */
+@media (min-width: 997px) and (max-width: 1145px) {
+  .image-container {
+    float: none;
+    text-align: center;
+  }
+}

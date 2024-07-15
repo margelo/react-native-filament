@@ -1,0 +1,134 @@
+---
+id: transformation
+title: Transforming objects in the scene
+sidebar_label: Transformation
+slug: /guides/transformation
+---
+
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+Transforming refers to changing the position, rotation or scale of an object in the scene.
+
+<div class="image-container">
+  <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535">
+    <image href={useBaseUrl("img/demo-transformation.gif")} x="18" y="33" width="247" height="469" />
+    <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
+  </svg>
+</div>
+
+## Position
+
+By default models are rendered at the origin `[0, 0, 0]`. You can change the position of a model by providing a `position` prop:
+
+```tsx
+import { Model } from "react-native-filament"
+
+const x = 0
+const y = -1
+const z = 0
+
+<Model position={[x, y, z]} />
+```
+
+Units in filament are physically based, so 1 unit is 1 meter.
+
+## Rotation
+
+You can rotate a model by providing a `rotation` prop:
+
+```tsx
+import { Model } from "react-native-filament"
+
+const rotationInDegree = 45;
+const angleInRadians = (rotationInDegree * Math.PI) / 180;
+const rotateOnAxis = [0, 1, 0]; // Rotate on the y-axis
+
+<Model
+  rotation={{
+    angle: angleInRadians,
+    axis: rotateOnAxis,
+  }}
+/>
+```
+
+We need to specify the axis on which we want to apply the rotation and the angle in radians.
+
+## Scale
+
+You can scale a model by providing a `scale` prop for the x, y and z axis:
+
+```tsx
+import { Model } from "react-native-filament"
+
+const scale = 2;
+
+<Model scale={[scale, scale, scale]} />
+```
+
+## Matrix multiplication
+
+By default the transformation props are being multiplied to the current transform of the model. They are being multiplied in the order `scale` -> `rotation` -> `position` (SRT).
+This means that if you first apply a scale of `[2,2,2]` and then later apply a scale of `[3,3,3]` the final scale will be `[6,6,6]`. To avoid this behaviour you
+can specify the `multiplyWithCurrentTransform` prop and set it to false to disable this behaviour:
+
+```tsx
+import { Model } from "react-native-filament"
+
+function GrowingModel() {
+    const [scale, setScale] = useState(1);
+    const growModel = () => setScale(scale + 1);
+
+    return (
+        <Model
+            scale={[scale, scale, scale]}
+            // Disables multiplication with current, and grows the model by 1 unit each time growModel is called
+            multiplyWithCurrentTransform={false}
+        />
+    )
+}
+```
+
+:::warning
+When **disabling** the multiplication with the current transform, you'll reset all previous transformations (including rotation and position) and only apply the new transformations.
+:::
+
+:::warning
+When matrix multiplication is **enabled (default)** all transform operations will be applied on a fast refresh. Keep this in mind during development if something starts to look off.
+:::
+
+## Animate the transform props
+
+You may want to change the transformation props very frequently (e.g. every frame). To avoid performance issues, you should **not** update the props uusing `useState` directly, but use shared values.
+
+You may know shared values from `reanimated`. We are using the shared values from `react-native-worklets-core`, but they work very similary.
+
+You can create a new shared value using `useSharedValue`:
+
+
+```tsx
+import { useSharedValue } from "react-native-worklets-core";
+
+function MyScene() {
+  const rotation = useSharedValue(0);
+
+  // ...
+}
+```
+
+You can pass a shared value to any of the transformation props:
+
+```tsx
+function MyScene() {
+  const rotation = useSharedValue({
+    
+  });
+
+  return <Model rotation>
+}
+
+
+
+
+## Transform to unit cube
+
+## Apply imperatively using `TransformManager`
