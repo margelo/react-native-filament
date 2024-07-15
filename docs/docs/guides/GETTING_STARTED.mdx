@@ -10,10 +10,21 @@ import TabItem from '@theme/TabItem'
 
 ## Installing the library
 
-Install [react-native-filament](https://www.npmjs.com/package/react-native-filament) through npm:
+1. Install [react-native-filament](https://www.npmjs.com/package/react-native-filament):
 
-```bash
+```sh
 npm i react-native-filament
+```
+
+2. `react-native-filament` depends on [`react-native-worklets-core`](https://github.com/margelo/react-native-worklets-core):
+
+```sh
+npm i react-native-worklets-core
+```
+
+3. Update your pods:
+
+```sh
 cd ios && pod install
 ```
 
@@ -43,7 +54,7 @@ module.exports = mergeConfig(defaultConfig, config);
 ```
 
 :::info
-react-native-filament only supports loading .glb files for 3d models.
+Currently only loading `.glb` files is supported. You can convert any other 3D models (gltf, obj, FBX, etc) to .glb using blender or online converter tools.
 :::
 
 ## Basic example: Render your first 3D model

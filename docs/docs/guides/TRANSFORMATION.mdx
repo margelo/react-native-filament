@@ -16,9 +16,9 @@ Transforming refers to changing the position, rotation or scale of an object in 
   </svg>
 </div>
 
-## Position
+## Translate / Position
 
-By default models are rendered at the origin `[0, 0, 0]`. You can change the position of a model by providing a `position` prop:
+By default models are rendered at the origin `[0, 0, 0]`. You can change the position of a model by providing a `translate` prop:
 
 ```tsx
 import { Model } from "react-native-filament"
@@ -27,7 +27,7 @@ const x = 0
 const y = -1
 const z = 0
 
-<Model position={[x, y, z]} />
+<Model translate={[x, y, z]} />
 ```
 
 Units in filament are physically based, so 1 unit is 1 meter.
