@@ -40,18 +40,13 @@ You can rotate a model by providing a `rotation` prop:
 import { Model } from "react-native-filament"
 
 const rotationInDegree = 45;
-const angleInRadians = (rotationInDegree * Math.PI) / 180;
-const rotateOnAxis = [0, 1, 0]; // Rotate on the y-axis
+const angleInRadians = rotationInDegree * (Math.PI / 180);
+const rotateOnAxis = [0, angleInRadians, 0]; // Rotate on the y-axis
 
-<Model
-  rotation={{
-    angle: angleInRadians,
-    axis: rotateOnAxis,
-  }}
-/>
+<Model rotation={rotateOnAxis} />
 ```
 
-We need to specify the axis on which we want to apply the rotation and the angle in radians.
+The `rotation` props expects a 3D vector (called `Float3` in RNF), where each value represents the rotation in radians around the x, y and z axis respectively.
 
 ## Scale
 
@@ -75,16 +70,16 @@ can specify the `multiplyWithCurrentTransform` prop and set it to false to disab
 import { Model } from "react-native-filament"
 
 function GrowingModel() {
-    const [scale, setScale] = useState(1);
-    const growModel = () => setScale(scale + 1);
+  const [scale, setScale] = useState(1);
+  const growModel = () => setScale(scale + 1);
 
-    return (
-        <Model
-            scale={[scale, scale, scale]}
-            // Disables multiplication with current, and grows the model by 1 unit each time growModel is called
-            multiplyWithCurrentTransform={false}
-        />
-    )
+  return (
+    <Model
+      scale={[scale, scale, scale]}
+      // Disables multiplication with current, and grows the model by 1 unit each time growModel is called
+      multiplyWithCurrentTransform={false}
+    />
+  )
 }
 ```
 
@@ -119,16 +114,106 @@ You can pass a shared value to any of the transformation props:
 
 ```tsx
 function MyScene() {
-  const rotation = useSharedValue({
-    
-  });
+  const rotation = useSharedValue([0, 0, 0]);
 
-  return <Model rotation>
+  return <Model rotation={rotation} />
 }
+```
 
+Now, lets update the rotation value every frame:
 
+```tsx
+import { useCallback } from 'react'
+import { useSharedValue } from "react-native-worklets-core"
+import { RenderCallback, FilamentView, Model } from "react-native-filament"
 
+function MyScene() {
+  const rotation = useSharedValue([0, 0, 0]);
+
+  const renderCallback: RenderCallback = useCallback(() => {
+    "worklet"
+
+    // Add a rotation of 1 degree every frame
+    const newY = rotation.value[1] + 0.01,
+
+    // We need to create a new array for the internal listeners to trigger
+    rotation.value = [0, newY, 0]
+  }, [rotation])
+
+  return (
+    <FilamentView renderCallback={renderCallback}>
+      <Model rotation={rotation} />
+    </FilamentView>
+  )
+}
+```
 
 ## Transform to unit cube
 
+There is a helper prop that you can use called `transformToUnitCube` which will make the asset fit into a 1x1x1 (unit) cube.
+
 ## Apply imperatively using `TransformManager`
+
+Sometimes you have use cases where you want to update a model's transformation imperatively.
+For this we can use the [`TransformManager`](../api/interfaces/TransformManager) directly.
+
+For this, you first need to render the model using the `useModel` and the accompanying `ModelRenderer` component:
+
+```tsx
+import { useModel, ModelRenderer } from "react-native-filament"
+
+function MyScene() {
+  const model = useModel({ source: MyModel })
+
+  return <ModelRenderer model={model} />
+}
+```
+
+`ModelRenderer` accepts all props that `Model` does. 
+
+The `TransformManager` only works on entities, so we need to select one first. A model is made out of many entities. When transforming our model we usually want to transform all entities of the model (isValidElement. the whole model).
+For that we can use the `rootEntity`:
+
+```tsx
+import { useModel } from "react-native-filament"
+
+const model = useModel({ source: MyModel })
+const rootEntity = model.state === "loaded" ? model.rootEntity : undefined
+```
+
+Now we can use the `TransformManager` to apply transformations. For example for rotating a model continuously, we can just apply a multipying rotation every frame:
+
+```tsx
+import { useCallback } from 'react'
+import { TransformManager, useModel, RenderCallback } from "react-native-filament"
+
+function MyScene() {
+  const model = useModel({ source: MyModel })
+  const rootEntity = model.state === "loaded" ? model.rootEntity : undefined
+
+  // We get the transformManager for the filament context.
+  // For this to work <MyScene /> needs to be wrapped with a <FilamentScene>
+  const { transformManager } = useFilamentConext()
+
+  const renderCallback: RenderCallback = useCallback(() => {
+    "worklet"
+
+    // We have to check if the model is ready yet:
+    if (rootEntity == null) return;
+
+    // Add a rotation of 1 degree every frame on the y-axis and 
+    // multiply it with the current transform by setting `true` as last argument
+    transformManager.setEntityRotation(rootEntity, 0.01, [0, 1, 0], true)
+  }, [])
+}
+```
+
+The `transformManager` has lots of APIs, you can [check them out in the API docs](../api/interfaces/TransformManager).
+
+### Setting all transform data yourself
+
+Using the `transformManager` its also possible to manually set a 4x4 matrix yourself, using a 16 element array:
+
+```tsx
+transformManager.setTransform(entity, [...])
+```
