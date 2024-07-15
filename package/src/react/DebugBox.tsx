@@ -1,16 +1,16 @@
 import { useContext, useMemo } from 'react'
 import { useFilamentContext } from '../hooks/useFilamentContext'
 import { Float3 } from '../types'
-import { TransformationProps } from './TransformContext'
+import { TransformationProps } from '../types/TransformProps'
 import { useApplyTransformations } from '../hooks/internal/useApplyTransformations'
 import { ParentInstancesContext } from './ParentInstancesContext'
 import { useEntityInScene } from '../hooks/useEntityInScene'
 
-type UseDebugBoxParams = TransformationProps & {
+export type DebugBoxProps = TransformationProps & {
   halfExtent?: Float3
 }
 
-export function DebugBox({ halfExtent: halfExtentProp, ...transformProps }: UseDebugBoxParams) {
+export function DebugBox({ halfExtent: halfExtentProp, ...transformProps }: DebugBoxProps) {
   const instances = useContext(ParentInstancesContext)
   const parentInstance = instances?.[0]
   const parentHalfExtend = useMemo(() => {

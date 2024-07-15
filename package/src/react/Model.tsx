@@ -1,7 +1,6 @@
 import React, { ReactNode, useCallback, useContext, useEffect, useMemo } from 'react'
 import { BufferSource } from '../hooks/useBuffer'
-import { FilamentModel, ModelProps as UseModelProps, useModel } from '../hooks/useModel'
-import { ParentModelAssetContext } from './ParentModelAssetContext'
+import { FilamentModel, UseModelConfigParams, useModel } from '../hooks/useModel'
 import { getAssetFromModel } from '../utilities/getAssetFromModel'
 import { useFilamentContext } from '../hooks/useFilamentContext'
 import { GestureResponderEvent } from 'react-native'
@@ -9,15 +8,15 @@ import { Logger } from '../utilities/logger/Logger'
 import { Entity } from '../types'
 import { TouchHandlerContext } from './TouchHandlerContext'
 import { useApplyTransformations } from '../hooks/internal/useApplyTransformations'
-import { extractTransformationProps, TransformationProps } from './TransformContext'
+import { extractTransformationProps, TransformationProps } from '../types/TransformProps'
 import { ParentInstancesContext } from './ParentInstancesContext'
 import { useConfigureAssetShadow } from '../hooks/useConfigureAssetShadow'
 
 // Props we need for loading the model
-type LoadModelProps = UseModelProps & {
+export type LoadModelProps = UseModelConfigParams & {
   source: BufferSource
 }
-type UIProps = TransformationProps & {
+export type UIProps = TransformationProps & {
   /**
    * Will be called when the user pressed any of the rendered entities of the model.
    */
@@ -36,7 +35,7 @@ type UIProps = TransformationProps & {
   receiveShadow?: boolean
 }
 
-type ModelProps = LoadModelProps & UIProps
+export type ModelProps = LoadModelProps & UIProps
 /**
  * Loads a model from the given source.
  *
@@ -52,7 +51,10 @@ export function Model({ source, ...restProps }: ModelProps) {
   return <ModelRenderer model={model} {...restProps} />
 }
 
-type ModelRendererProps = {
+export type ModelRendererProps = {
+  /**
+   * The model to render obtained by the `useModel` hook.
+   */
   model: FilamentModel
 } & UIProps
 
@@ -131,9 +133,5 @@ export function ModelRenderer({ model, onPress, children, ...restProps }: ModelR
   if (asset == null) {
     return null
   }
-  return (
-    <ParentModelAssetContext.Provider value={asset}>
-      <ParentInstancesContext.Provider value={instances}>{children}</ParentInstancesContext.Provider>
-    </ParentModelAssetContext.Provider>
-  )
+  return <ParentInstancesContext.Provider value={instances}>{children}</ParentInstancesContext.Provider>
 }

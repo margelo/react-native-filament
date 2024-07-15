@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { TransformationProps } from '../../react/TransformContext'
+import { TransformationProps } from '../../types/TransformProps'
 import { useFilamentContext } from '../useFilamentContext'
 import { AABB, Entity, Float3 } from '../../types'
 import { areFloat3Equal, isWorkletSharedValue } from '../../utilities/helper'

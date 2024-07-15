@@ -11,7 +11,7 @@ type RenderCallbackList = {
  * In react-native-filament we can only have one render callback, which we provide to the FilamentView.
  * This context allows us to have multiple render callbacks, as we call them in the render callback.
  */
-type RenderContextType = {
+export type RenderContextType = {
   renderCallbacks: ISharedValue<RenderCallbackList>
   addRenderCallback: (callback: RenderCallback) => () => void
 }
@@ -83,6 +83,10 @@ export const makeRenderContext = () => {
     return callback
   }
 
+  /**
+   * This should be called in the render callback of the FilamentView.
+   * For the default exported context this happens automatically.
+   */
   const useRenderCallbacks = () => {
     const renderContext = useRenderContext()
     return renderContext.renderCallbacks

@@ -7,7 +7,7 @@ import { useWorkletEffect } from './useWorkletEffect'
 import { AABB, Entity } from '../types'
 import { useMemo } from 'react'
 
-export interface ModelProps {
+export interface UseModelConfigParams {
   /**
    * Whether source data of the model should be released after loading, or not.
    * @default true
@@ -57,7 +57,7 @@ export type FilamentModel =
  * const model = useModel(require('model.glb'))
  * ```
  */
-export function useModel(source: BufferSource, props?: ModelProps): FilamentModel {
+export function useModel(source: BufferSource, props?: UseModelConfigParams): FilamentModel {
   const { shouldReleaseSourceData = true, addToScene = true, instanceCount } = props ?? {}
   const { engine, scene, workletContext } = useFilamentContext()
   const assetBuffer = useBuffer({ source: source, releaseOnUnmount: false })

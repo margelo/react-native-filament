@@ -3,7 +3,7 @@ import { BufferSource, useBuffer } from '../hooks/useBuffer'
 import { useSkybox } from '../hooks/useSkybox'
 import { FilamentBuffer } from '../native/FilamentBuffer'
 
-type BaseProps = {
+export type BaseProps = {
   /**
    * Indicates whether the sun should be rendered. The sun can only be
    * rendered if there is at least one light of type SUN in the scene.
@@ -20,14 +20,14 @@ type BaseProps = {
   envIntensity?: number
 }
 
-type TextureProps = BaseProps & {
+export type TextureProps = BaseProps & {
   /**
    * The image to use as the skybox.
    */
   source: BufferSource
 }
 
-type ColorProps = BaseProps & {
+export type ColorProps = BaseProps & {
   /**
    * The color of the skybox.
    * @example #ff0000

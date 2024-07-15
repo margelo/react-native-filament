@@ -1,5 +1,4 @@
-import React from 'react'
-import { Float3 } from '../types'
+import { Float3 } from '.'
 import { ISharedValue } from 'react-native-worklets-core'
 
 // TODO: WithAnimatedProps ?
@@ -51,5 +50,3 @@ export function extractTransformationProps<T extends TransformationProps>(
     rest,
   ]
 }
-
-export const TransformContext = React.createContext<TransformationProps | undefined>(undefined)
