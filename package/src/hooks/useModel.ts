@@ -38,7 +38,7 @@ export type FilamentModel =
       /**
        * The root entity of the model.
        */
-      rootEntity?: Entity
+      rootEntity: Entity
     }
   | {
       state: 'loading'
