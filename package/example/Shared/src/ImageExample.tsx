@@ -1,7 +1,7 @@
 import React from 'react'
 import { StyleSheet } from 'react-native'
 import { BackgroundImage, Camera, DefaultLight, FilamentScene, FilamentView, Model } from 'react-native-filament'
-import BackgroundImageMaterial from '~/assets/background_image.matc'
+import BackgroundImageMaterial from '~/assets/background_image.filamat'
 
 const imageResource = require('~/assets/background.jpg')
 

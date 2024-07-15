@@ -13,7 +13,7 @@ fi
 for file in ./assets/*.mat; do
   # Extract the filename without the extension
   filename=$(basename -- "$file")
-  compiled_filename="${filename%.*}.matc"
+  compiled_filename="${filename%.*}.filamat"
   echo "Compiling $file to $compiled_filename"
   # Compile the material
   $matc_path --platform mobile --api all -o ."/assets/$compiled_filename" "$file"
