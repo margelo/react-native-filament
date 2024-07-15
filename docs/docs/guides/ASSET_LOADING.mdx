@@ -21,6 +21,10 @@ import BusterDrone from './BusterDrone.glb';
 <Model source={BusterDrone} />
 ```
 
+:::info
+Currently only loading .glb files is supported. You can convert any other 3D models (obj, FBX, etc) to .glb using blender or online converter tools.
+:::
+
 ### Debug
 
 In debug mode this will get the file from the metro bundler server, running on your machine. That means a network requests is made for example to `http://localhost:8081/assets/BusterDrone.glb`.
