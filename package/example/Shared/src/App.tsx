@@ -17,6 +17,7 @@ import { PhysicsCoin } from './PhysicsCoin'
 import { FadeOut } from './FadeOut'
 import { CastShadow } from './CastShadow'
 import { ScaleEffect } from './ScaleEffect'
+import { ChangeMaterials } from './ChangeMaterials'
 
 function NavigationItem(props: { name: string; route: string }) {
   const navigation = useNavigation()
@@ -60,6 +61,7 @@ function HomeScreen() {
       <NavigationItem name="😶‍🌫️ Fade Out" route="FadeOut" />
       <NavigationItem name="🌑 Cast Shadow" route="CastShadow" />
       <NavigationItem name="↕️ Scale Effect" route="ScaleEffect" />
+      <NavigationItem name="🎨 Change Materials" route="ChangeMaterials" />
     </ScrollView>
   )
 }
@@ -99,6 +101,7 @@ function App() {
           <Stack.Screen name="FadeOut" component={FadeOut} />
           <Stack.Screen name="CastShadow" component={CastShadow} />
           <Stack.Screen name="ScaleEffect" component={ScaleEffect} />
+          <Stack.Screen name="ChangeMaterials" component={ChangeMaterials} />
           <Stack.Screen name="Test" component={TestScreen} />
         </Stack.Navigator>
       </NavigationContainer>
