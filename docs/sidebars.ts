@@ -7,6 +7,7 @@ const sidebars: SidebarsConfig = {
       "guides/asset-loading",
       "guides/transformation",
       "guides/skybox",
+      "guides/physics"
     ],
     API: [
       {

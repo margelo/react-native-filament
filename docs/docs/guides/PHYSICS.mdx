@@ -1,13 +1,22 @@
+---
+id: physics
+title: Physics
+sidebar_label: Physics
+slug: /guides/physics
+---
+
 # Physics API
 
-> [!TIP]
-> As physics engine Bullet is used. We simply provide a JS/JSI wrapper around it.
-> So it can help to familiarize with their documentation first:
-> - [Bullet_User_Manual.pdf](https://github.com/bulletphysics/bullet3/blob/master/docs/Bullet_User_Manual.pdf)
+:::warning
+The API for physics is still work in progress and might change in the future.
+:::
 
-Imperative API:
+:::tip
+As physics engine [**bullet3**](https://github.com/bulletphysics/bullet3) is used. We simply provide a JS/JSI wrapper around it.
+So it can help to familiarize with their documentation first:
+- [Bullet_User_Manual.pdf](https://github.com/bulletphysics/bullet3/blob/master/docs/Bullet_User_Manual.pdf)
+:::
 
-- [Bullet imperative API](../package/src/bullet/types/api.ts)
 
 Hooks:
 
@@ -47,7 +56,7 @@ const center = boundingBox.center
 **Get the transform an entity:**
 
 ```tsx
-const transformManager = useTransformManager(engine)
+const {transformManager} = useFilamentContext()
 const transform = transformManager.getTransform(entity)
 
 // Get the calculated world scale:
@@ -72,7 +81,35 @@ const rigidBody = useRigidBody({
   mass: 1,
   shape: boxShape,
   transform: transform,
-  // Pass the world for the body tp be automatically added to the world:
+  // Pass the world for the body to be automatically added to the world:
   world: world
 })
 ```
+
+**Update the physical world**
+
+We need to simulate physics every frame:
+
+```tsx
+const renderCallback = useCallback(() => {
+  "worklet"
+
+  // This updates the world at 60Hz/60 FPS
+  world.stepSimulation(1 / 60, 1, 1 / 60)
+}, [world])
+```
+
+**Update the transform of our physic entities**
+
+Now that the physical world has been updated we need to update the transform of our entities.
+The `transformManager` has a convenience method for that:
+
+```tsx
+const renderCallback = useCallback(() => {
+  "worklet"
+
+  world.stepSimulation(1 / 60, 1, 1 / 60)
+
+  // Update our entity:
+  transformManager.updateTransformByRigidBody(entity, rigidBody)
+}, [world])
