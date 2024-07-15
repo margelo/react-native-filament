@@ -40,9 +40,16 @@ export function useBuffer({ source: source, releaseOnUnmount = true }: BufferPro
     }
 
     const asset = Image.resolveAssetSource(source)
+    if (asset == null) {
+      throw new Error(
+        `Failed to load source: ${source}. Are you sure that\n-The asset exists on this path?\n-The metro bundler is configured correctly as explained in the documentation?`
+      )
+    }
+
     return asset.uri
   }, [source])
 
+  // TODO: useDisposableResource
   useEffect(() => {
     let localBuffer: FilamentBuffer | undefined
     FilamentProxy.loadAsset(uri)
