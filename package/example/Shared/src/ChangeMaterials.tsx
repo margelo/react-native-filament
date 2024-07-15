@@ -44,7 +44,7 @@ function Renderer() {
         <Camera />
         <DefaultLight />
 
-        <ModelRenderer model={rocket} position={[0, -1, 0]} />
+        <ModelRenderer model={rocket} translate={[0, -1, 0]} />
       </FilamentView>
       <Button
         title="Change Color"

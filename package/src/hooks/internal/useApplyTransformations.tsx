@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { Rotation, TransformationProps } from '../../react/TransformContext'
+import { TransformationProps } from '../../react/TransformContext'
 import { useFilamentContext } from '../useFilamentContext'
 import { AABB, Entity, Float3 } from '../../types'
 import { areFloat3Equal, isWorkletSharedValue } from '../../utilities/helper'
@@ -18,17 +18,14 @@ type Params = {
  * transformation context to it
  */
 export function useApplyTransformations({ to: entity, transformProps, aabb }: Params) {
-  // const transformPropsFromContext = useContext(TransformContext)
-
-  // const mergedTransformationProps = useMergeTransformationProps(transformProps, transformPropsFromContext)
-  const { position, scale, rotate, transformToUnitCube, multiplyWithCurrentTransform = true } = transformProps ?? {}
+  const { translate: position, scale, rotate, transformToUnitCube, multiplyWithCurrentTransform = true } = transformProps ?? {}
 
   const { transformManager } = useFilamentContext()
   // TODO: multiplying current transformations is a bit problematic with react.
   // E.g. in strict mode or concurrent rendering our effects can be called multiple times.
   // Running an effect multiple times with transformation multiplication can lead to unexpected results.
   const prevScale = useRef<Float3 | null>(null)
-  const prevRotate = useRef<Rotation>()
+  const prevRotate = useRef<Float3 | null>(null)
   const prevPosition = useRef<Float3 | null>(null)
 
   useEffect(() => {
@@ -43,17 +40,16 @@ export function useApplyTransformations({ to: entity, transformProps, aabb }: Pa
       prevScale.current = scale
     }
 
-    if (
-      rotate != null &&
-      !isWorkletSharedValue(rotate) &&
-      (rotate.angleInRadians !== prevRotate.current?.angleInRadians || !areFloat3Equal(rotate.axis, prevRotate.current?.axis))
-    ) {
-      transformManager.setEntityRotation(entity, rotate.angleInRadians, rotate.axis, multiplyWithCurrentTransform)
+    if (Array.isArray(rotate) && (prevRotate.current == null || !areFloat3Equal(rotate, prevRotate.current))) {
+      const [x, y, z] = rotate
+      transformManager.setEntityRotation(entity, x, [1, 0, 0], multiplyWithCurrentTransform)
+      // Rotation across axis is one operation so we need to always multiply the remaining rotations:
+      transformManager.setEntityRotation(entity, y, [0, 1, 0], true)
+      transformManager.setEntityRotation(entity, z, [0, 0, 1], true)
       prevRotate.current = rotate
     }
 
     if (Array.isArray(position) && (prevPosition.current == null || !areFloat3Equal(position, prevPosition.current))) {
-      console.log('setEntityPosition', entity, position, multiplyWithCurrentTransform)
       transformManager.setEntityPosition(entity, position, multiplyWithCurrentTransform)
       prevPosition.current = position
     }
@@ -96,8 +92,11 @@ export function useApplyTransformations({ to: entity, transformProps, aabb }: Pa
 
     const unsubscribeRotate = rotate.addListener(() => {
       'worklet'
-      const axis: Float3 = [rotate.value.axis['0'], rotate.value.axis['1'], rotate.value.axis['2']]
-      transformManager.setEntityRotation(entity, rotate.value.angleInRadians, axis, multiplyWithCurrentTransform)
+      const [x, y, z] = rotate.value
+      transformManager.setEntityRotation(entity, x, [1, 0, 0], multiplyWithCurrentTransform)
+      // Rotation across axis is one operation so we need to always multiply the remaining rotations:
+      transformManager.setEntityRotation(entity, y, [0, 1, 0], true)
+      transformManager.setEntityRotation(entity, z, [0, 0, 1], true)
     })
 
     return () => {
@@ -119,6 +118,4 @@ export function useApplyTransformations({ to: entity, transformProps, aabb }: Pa
       unsubscribePosition()
     }
   }, [entity, multiplyWithCurrentTransform, position, transformManager])
-
-  // return mergedTransformationProps
 }

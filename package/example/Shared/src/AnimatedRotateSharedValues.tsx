@@ -1,31 +1,34 @@
 import * as React from 'react'
 import { StyleSheet } from 'react-native'
-import { FilamentScene, FilamentView, Camera, Skybox, DefaultLight, RenderCallback, Model, ModelInstance } from 'react-native-filament'
+import {
+  FilamentScene,
+  FilamentView,
+  Camera,
+  Skybox,
+  DefaultLight,
+  RenderCallback,
+  Model,
+  ModelInstance,
+  Float3,
+} from 'react-native-filament'
 import DroneGlb from '~/assets/buster_drone.glb'
 import { useCallback } from 'react'
 import { useSharedValue } from 'react-native-worklets-core'
-import { Rotation } from '../../../src/react/TransformContext'
 
 function Renderer() {
-  const rotation = useSharedValue<Rotation>({
-    angleInRadians: 0,
-    axis: [0, 1, 0],
-  })
+  const rotation = useSharedValue<Float3>([0, 0, 0])
 
   const renderCallback: RenderCallback = useCallback(() => {
     'worklet'
 
-    rotation.value.angleInRadians += 0.01
-    if (rotation.value.angleInRadians >= Math.PI * 2) {
+    rotation.value[1] += 0.01
+    if (rotation.value[1] >= Math.PI * 2) {
       // reset / don't overflow
-      rotation.value.angleInRadians = 0
+      rotation.value[1] = 0
     }
 
     // need to make a new object ref so that the listener fires
-    rotation.value = {
-      angleInRadians: rotation.value.angleInRadians,
-      axis: rotation.value.axis,
-    }
+    rotation.value = [rotation.value[0], rotation.value[1], rotation.value[2]]
   }, [rotation])
 
   return (
