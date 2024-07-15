@@ -1,17 +1,13 @@
 import * as React from 'react'
-import { useEffect, useRef } from 'react'
 
-import { Animated, Button, StyleSheet, View } from 'react-native'
+import { Animated, Button, StyleSheet } from 'react-native'
 import {
   Camera,
   DefaultLight,
   FilamentScene,
   FilamentView,
-  Float3,
   getAssetFromModel,
-  Model,
   ModelRenderer,
-  useBuffer,
   useFilamentContext,
   useModel,
 } from 'react-native-filament'
@@ -45,13 +41,7 @@ function Renderer() {
         <Camera />
         <DefaultLight />
 
-        <ModelRenderer
-          model={model}
-          rotate={{
-            angleInRadians: Math.PI / 2,
-            axis: [1, 0, 0],
-          }}
-        />
+        <ModelRenderer model={model} rotate={[75 * (Math.PI / 180), 0, 0]} />
       </FilamentView>
       <Button title="Fade out" onPress={fadeOut} />
     </SafeAreaView>

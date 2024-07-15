@@ -4,7 +4,8 @@
   "packageManager": "yarn@3.6.4",
   "scripts": {
     "start": "react-native start",
-    "build:materials": "./scripts/compile-materials.sh"
+    "build:materials": "./scripts/compile-materials.sh",
+    "typescript": "tsc --noEmit"
   },
   "dependencies": {
     "@react-navigation/native": "^6.1.17",

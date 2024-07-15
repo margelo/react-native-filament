@@ -23,7 +23,7 @@ function Renderer() {
           const z = 0 // Keep z the same if you're not using it for depth positioning
 
           return (
-            <ModelInstance key={index} index={index} position={[x, y, z]}>
+            <ModelInstance key={index} index={index} translate={[x, y, z]}>
               <Animator />
             </ModelInstance>
           )
