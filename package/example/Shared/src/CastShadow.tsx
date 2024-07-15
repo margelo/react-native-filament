@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { useEffect } from 'react'
 
 import { Button, StyleSheet, View } from 'react-native'
 import {
@@ -13,11 +12,10 @@ import {
   DefaultLight,
   Camera,
   Model,
-  Animator,
   useEntityInScene,
 } from 'react-native-filament'
 import TransparentShadowMaterial from '~/assets/transparent_shadow_material.filamat'
-import HipHopGirl from '~/assets/hiphopgirl.glb'
+import Coin from '~/assets/coin.glb'
 
 function Renderer() {
   const { engine, renderableManager, scene } = useFilamentContext()
@@ -44,29 +42,23 @@ function Renderer() {
 
     const entity = renderableManager.createPlane(shadowMaterial, 10, 0.0001, 10)
     renderableManager.setReceiveShadow(entity, true)
-    // Note: Why is cast shadow here, it just needs to receive a shadow?!
-    // Right now there seems to be a bug in filament, which would cause the shadow of the animated Pengu to be cut!
-    // One solution would be to manually correct the bounding box when using the animator (because it seems like the bounding box isn't correctly
-    // updated when using the animator). But, if the plane also casts a shadow, the shadow calculation extends to the bounding box of the plane,
-    // thus fixing the cut shadow of the animated Pengu. The plane will never actually cast a shadow, as its using a transparent material.
-    renderableManager.setCastShadow(entity, true)
     return entity
   }, [renderableManager, shadowMaterial])
 
   useEntityInScene(scene, shadowPlane)
   //#endregion
 
-  const [showShadow, setShowShadow] = React.useState(false)
+  const [showShadow, setShowShadow] = React.useState(true)
 
   return (
     <View style={styles.container}>
       <FilamentView style={styles.filamentView}>
         <DefaultLight />
-        <Camera cameraPosition={[0, 1, 8]} />
 
-        <Model source={HipHopGirl} scale={[1.5, 1.5, 1.5]}>
-          <Animator animationIndex={1} />
-        </Model>
+        {/* Elevate the camera bit so we can see the shadow (the plane is on 0,0,0, so we wouldn't see any shadow if we didn't elevate) */}
+        <Camera cameraPosition={[0, 3, 8]} />
+
+        <Model source={Coin} castShadow={showShadow} receiveShadow={showShadow} position={[0, 2, 0]} />
       </FilamentView>
       <Button title={`Toggle Shadow (${showShadow ? 'enabled' : 'disabled'})`} onPress={() => setShowShadow((prev) => !prev)} />
     </View>

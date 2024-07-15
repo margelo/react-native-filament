@@ -11,6 +11,7 @@ import { TouchHandlerContext } from './TouchHandlerContext'
 import { useApplyTransformations } from '../hooks/internal/useApplyTransformations'
 import { extractTransformationProps, TransformationProps } from './TransformContext'
 import { ParentInstancesContext } from './ParentInstancesContext'
+import { useConfigureAssetShadow } from '../hooks/useConfigureAssetShadow'
 
 // Props we need for loading the model
 type LoadModelProps = UseModelProps & {
@@ -23,6 +24,16 @@ type UIProps = TransformationProps & {
   onPress?: (entity: Entity, modelEntities: Entity[]) => void
 
   children?: ReactNode | undefined
+
+  /**
+   * @default false
+   */
+  castShadow?: boolean
+
+  /**
+   * @default false
+   */
+  receiveShadow?: boolean
 }
 
 type ModelProps = LoadModelProps & UIProps
@@ -63,7 +74,7 @@ export function ModelRenderer({ model, onPress, children, ...restProps }: ModelR
     return asset.getRenderableEntities()
   }, [asset, onPress])
 
-  const { view } = useFilamentContext()
+  const { view, renderableManager } = useFilamentContext()
   const onTouchStart = useCallback(
     async (event: GestureResponderEvent) => {
       if (renderableEntities == null || onPress == null) return
@@ -109,6 +120,13 @@ export function ModelRenderer({ model, onPress, children, ...restProps }: ModelR
     }
     return asset.getAssetInstances()
   }, [asset])
+
+  useConfigureAssetShadow({
+    renderableManager,
+    asset,
+    castShadow: restProps.castShadow,
+    receiveShadow: restProps.receiveShadow,
+  })
 
   if (asset == null) {
     return null

@@ -49,6 +49,7 @@ export function useBuffer({ source: source, releaseOnUnmount = true }: BufferPro
     return asset.uri
   }, [source])
 
+  // TODO: useDisposableResource
   useEffect(() => {
     let localBuffer: FilamentBuffer | undefined
     FilamentProxy.loadAsset(uri)
