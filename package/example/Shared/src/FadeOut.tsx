@@ -35,7 +35,7 @@ function Renderer() {
     Animated.timing(anim, {
       toValue: 0,
       duration: 1000,
-      useNativeDriver: false,
+      useNativeDriver: true,
     }).start()
   }, [renderableManager, asset])
 
