@@ -9,6 +9,10 @@ type ForwardProps = PublicNativeProps & {
   renderCallback?: RenderCallback
 }
 
+/**
+ * This is the component actually exposed to the user. It wraps the `FilamentView` and adds the renderCallbacks.
+ * @private
+ */
 export function FilamentViewWithRenderCallbacks({
   children,
   renderCallback: renderCallbackProp,

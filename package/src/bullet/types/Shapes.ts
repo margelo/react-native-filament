@@ -5,10 +5,10 @@ export interface BaseShape {
   margin: number
 }
 
-export interface Box extends BaseShape {}
+export interface BoxShape extends BaseShape {}
 
-export interface Cylinder extends BaseShape {}
+export interface CylinderShape extends BaseShape {}
 
-export interface StaticPlane extends BaseShape {}
+export interface StaticPlaneShape extends BaseShape {}
 
-export interface Sphere extends BaseShape {}
+export interface SphereShape extends BaseShape {}

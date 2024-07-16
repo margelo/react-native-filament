@@ -28,7 +28,6 @@ function Scene() {
     .onEnd(() => {
       cameraManipulator?.grabEnd()
     })
-    .enabled(viewHeight != null)
 
   // Scale gesture
   const previousScale = useSharedValue(1)

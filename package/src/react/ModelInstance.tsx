@@ -2,10 +2,10 @@ import React from 'react'
 import { PropsWithChildren, useMemo } from 'react'
 import { FilamentInstance } from '../types'
 import { ParentInstancesContext, useParentInstancesContext } from './ParentInstancesContext'
-import { TransformationProps } from './TransformContext'
+import { TransformationProps } from '../types/TransformProps'
 import { useApplyTransformations } from '../hooks/internal/useApplyTransformations'
 
-type ModelInstanceProps = PropsWithChildren<
+export type ModelInstanceProps = PropsWithChildren<
   TransformationProps & {
     index: number
   }

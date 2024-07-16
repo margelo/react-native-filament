@@ -1,0 +1,39 @@
+name: Test deployment
+
+on:
+  pull_request:
+    paths:
+      - "docs/**"
+    branches:
+      - main
+    # Review gh actions docs if you want to further define triggers, paths, etc
+    # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#on
+
+jobs:
+  test-deploy:
+    name: Test deployment
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # As we use typedoc we need to install the node_modules in the package as well
+      - name: Install package/ deps
+        working-directory: package
+        run: |
+          corepack enable
+          yes | yarn install
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: yarn
+          cache-dependency-path: docs
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+        working-directory: docs
+      - name: Test build website
+        run: yarn build
+        working-directory: docs

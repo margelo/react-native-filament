@@ -1,0 +1,103 @@
+---
+id: camera
+title: Camera
+sidebar_label: Camera
+slug: /guides/camera
+---
+
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+## The `<Camera />` components
+
+Your 3D scene needs to be projected to a 2D surface, your view. The camera is the "eye" through which you're looking
+in the 3D space and which determines how the 3D scene is projected to the 2D surface.
+
+- Only one camera per scene is supported currently
+- Only perspective cameras are supported currently
+
+The perspective camera has a 
+
+- Position
+- A point in space it looks at
+- (An up vector that determines the orientation of the camera, but usually the default is fine)
+
+```tsx
+import { Camera } from 'react-native-filament'
+
+<Camera
+  position={[0, 0, 10]}
+  target={[0, 0, 0]}
+/>
+```
+
+<img src={useBaseUrl('img/camera-projection.png')} width="70%" />
+
+### Controlling the projection matrix
+
+The camera coordinate system defines the *view space*. The camera points towards its -z axis
+and is oriented such that its top side is in the direction of +y, and its right side in the
+direction of +x.
+
+There are three parameters that control the projection matrix:
+
+#### `near` plane
+
+- The closest distance from the camera at which objects will be rendered
+- Objects closer to the camera than the near plane are clipped and not displayed
+- Default is `0.1m`
+
+<details>
+    <summary>Impact of the `near` plane on the level of detail / performance.</summary>
+
+The `near` plane greatly affects the depth buffer resolution (the level of detail). For performance reasons, it is recommended to keep the near plane as far as possible (default is `0.1m`).
+The table below shows how the precision drops for various `near` plane values (smaller values are better).
+
+ | near (m) | 1 m    | 10 m   | 100 m  | 1 Km   |
+ |----------|--------|--------|--------|--------|
+ | 0.001    | 7.2e-5 | 0.0043 | 0.4624 | 48.58  |
+ | 0.01     | 6.9e-6 | 0.0001 | 0.0430 | 4.62   |
+ | 0.1      | 3.6e-7 | 7.0e-5 | 0.0072 | 0.43   |
+ | 1.0      | 0      | 3.8e-6 | 0.0007 | 0.07   |
+ 
+ </details>
+
+#### `far` plane
+
+- The farthest distance from the camera at which objects will be rendered
+- Objects farther from the camera than the far plane are clipped and not displayed
+- Default is `100m`
+
+## The camera manipulator
+
+The camera can be controlled by a helper utility called [`CameraManipulator`](../api/interfaces/CameraManipulator), which enables complex gestures such as orbiting, panning, and zooming.
+
+Currently only a `ORBIT` mode is supported (in the future `MAP` and `FREE_FLIGHT` could be added as well).
+
+This shows how to implement a simple camera manipulator, for the full example see the [CameraPan example](https://github.com/margelo/react-native-filament/blob/main/package/example/Shared/src/CameraPan.tsx):
+
+```tsx
+import { Camera, useCameraManipulator } from 'react-native-filament'
+import { Gesture } from 'react-native-gesture-handler'
+
+const cameraManipulator = useCameraManipulator({
+  orbitHomePosition: [0, 0, 8], // "Camera location"
+  targetPosition: [0, 0, 0], // "Looking at"
+  orbitSpeed: [0.003, 0.003],
+})
+
+const panGesture = Gesture.Pan()
+  .onBegin((event) => {
+    const yCorrected = viewHeight - event.translationY
+    cameraManipulator?.grabBegin(event.translationX, yCorrected, false) // false means rotation instead of translation
+  })
+  .onUpdate((event) => {
+    const yCorrected = viewHeight - event.translationY
+    cameraManipulator?.grabUpdate(event.translationX, yCorrected)
+  })
+  .onEnd(() => {
+    cameraManipulator?.grabEnd()
+  })
+
+return <Camera cameraManipulator={cameraManipulator} />
+```
+

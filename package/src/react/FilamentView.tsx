@@ -29,8 +29,7 @@ type RefType = InstanceType<FilamentViewNativeType>
 let viewIds = 0
 
 /**
- * The component that wraps the native view.
- * @private
+ * The component that actually renders the native view and displays our content (think of it as canvas).
  */
 export class FilamentView extends React.PureComponent<FilamentProps> {
   private readonly ref: React.RefObject<RefType>

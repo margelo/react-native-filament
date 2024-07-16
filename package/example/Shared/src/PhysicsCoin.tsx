@@ -58,7 +58,7 @@ function PhysicsCoinRenderer() {
   const [coinDBody, coinDEntity] = useCoin(world, [0, 3, 1.5])
 
   const renderCallback: RenderCallback = useCallback(
-    ({ passedSeconds }) => {
+    ({ passedSeconds, timeSinceLastFrame }) => {
       'worklet'
 
       // Wait until the screen is mounted
@@ -66,20 +66,15 @@ function PhysicsCoinRenderer() {
         return
       }
 
+      if (coinAEntity == null || coinBEntity == null || coinCEntity == null) {
+        return
+      }
       // Update physics:
-      world.stepSimulation(1 / 60, 1, 1 / 60)
-      if (coinAEntity != null) {
-        transformManager.updateTransformByRigidBody(coinAEntity, coinABody)
-      }
-      if (coinBEntity != null) {
-        transformManager.updateTransformByRigidBody(coinBEntity, coinBBody)
-      }
-      if (coinCEntity != null) {
-        transformManager.updateTransformByRigidBody(coinCEntity, coinCBody)
-      }
-      if (coinDEntity != null) {
-        transformManager.updateTransformByRigidBody(coinDEntity, coinDBody)
-      }
+      world.stepSimulation(timeSinceLastFrame, 1, 1 / 60)
+      transformManager.updateTransformByRigidBody(coinAEntity, coinABody)
+      transformManager.updateTransformByRigidBody(coinBEntity, coinBBody)
+      transformManager.updateTransformByRigidBody(coinCEntity, coinCBody)
+      transformManager.updateTransformByRigidBody(coinDEntity, coinDBody)
     },
     [coinABody, coinAEntity, coinBBody, coinBEntity, coinCBody, coinCEntity, coinDBody, coinDEntity, transformManager, world]
   )

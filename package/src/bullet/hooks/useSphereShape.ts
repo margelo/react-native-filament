@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
-import { Sphere } from '../types/Shapes'
+import { SphereShape } from '../types/Shapes'
 import { BulletAPI } from '../bulletApi'
 
-export function useSphereShape(radius: number): Sphere {
+export function useSphereShape(radius: number): SphereShape {
   return useMemo(() => BulletAPI.createSphereShape(radius), [radius])
 }

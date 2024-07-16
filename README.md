@@ -12,7 +12,12 @@
 
 react-native-filament is a powerful 3D rendering engine for React Native. It features:
 
-* ⚡ List features here with emojis
+* ⚡ Native GPU accelerated rendering using [filament](https://github.com/google/filament)
+* 🏎️ Uses Metal on iOS and OpenGL/Vulkan on android
+* 📹 Rendering happens on a separate thread, nothing blocks the JS thread
+* 🏀 Comes with a physics engine as well, wrapping [bullet3](https://github.com/bulletphysics/bullet3)
+* 📦 Easy to use declarative API
+* ✅ Supports old and new arch
 
 ### Installation
 
@@ -34,12 +39,12 @@ npm i react-native-worklets-core
 cd ios && pod install
 ```
 
-..and get started by [loading your model](https://docs.go.here)!
+..and get started by [loading your model (docs)](https://margelo.github.io/react-native-filament/docs/guides)!
 
 ### Example
 
 ```tsx
-import { FilamentScene, FilamentView, Model, Camera } from 'react-native-filament'
+import { FilamentScene, FilamentView, Model, Camera, DefaultLight } from 'react-native-filament'
 
 function App() {
   return (
@@ -48,10 +53,14 @@ function App() {
         style={{ width: 100, height: 100 }}
         model={model}
       >
-        // Render with the default camera:
+
+        {/* Render with the default camera and light: */}
         <Camera />
-        // Add a model to the scene (only glb supported yet):
+        <DefaultLight >
+
+        {/* Add a model to the scene (only glb supported yet): */}
         <Model source={require('./duck.glb')}>
+
       </FilamentView>
     </FilamentScene>
   )
@@ -59,6 +68,17 @@ function App() {
 ```
 
 > See the [example](./package/example/) app
+
+
+### Comparison with other libraries
+
+One library to render 3D content is [expo-gl](https://docs.expo.dev/versions/latest/sdk/gl-view) usually used together with [expo-three](https://www.npmjs.com/package/expo-three). react-native-filament has a few advantages over expo-gl:
+
+- Supports using `glb` files out of the box
+- On iOS react-native-filament uses Metal, where expo-gl is using the [deprecated OpenGL ES](https://developer.apple.com/documentation/opengles) apple framework
+- The rendering happens on the JS thread for `expo-three`, where react-native-filament uses a separate thread (and filament processes the rendering commands in a pool of different threads)
+- filament is battle tested and react-native-filament is used in production apps with millions of users already, proven to be highly stable
+
 
 ### Contributing
 
@@ -98,8 +118,13 @@ If you need help with integrating react-native-filament in your app or have addi
 * 🐦 [**Follow us on Twitter**](https://twitter.com/margelo) for updates
 * 💬 [**Join the Margelo Community Discord**](https://discord.gg/6CSHz2qAvA) for chatting about react-native-filament
 
-#### Attributions
+#### Attributions & thanks
+
+A big thanks to [filament](https://github.com/google/filament) for building such a great rendering engine!
 
 The example app in this project uses several free assets:
-- <a href="https://www.freepik.com/free-ai-image/space-travel-collage-design_94964745.htm#fromView=search&page=1&position=1&uuid=cf66f9c3-2d56-4228-a3cf-de7c07d418fb">Image by freepik</a>
+- Image by <a href="https://www.freepik.com/free-ai-image/space-travel-collage-design_94964745.htm#fromView=search&page=1&position=1&uuid=cf66f9c3-2d56-4228-a3cf-de7c07d418fb">freepik</a>
+- Image by <a href="https://www.freepik.com/free-psd/3d-icon-product-management_44990845.htm#fromView=search&page=2&position=0&uuid=691aae54-efdf-451c-9112-0ff373e761e7">Freepik</a>
+- Image by <a href="https://www.freepik.com/free-psd/3d-collection-with-hands-holding-smartphone_13678985.htm#fromView=search&page=1&position=3&uuid=7761a685-d1b6-4202-8505-9a872775cbbb">Freepik</a>
+- Michelle by [mixamo](https://www.mixamo.com/#/?page=2&type=Character)
 - "Buster Drone" (https://skfb.ly/TBnX) by LaVADraGoN is licensed under Creative Commons Attribution-NonCommercial (http://creativecommons.org/licenses/by-nc/4.0/).

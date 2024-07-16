@@ -7,21 +7,6 @@ import { CameraManipulator } from './CameraManipulator'
  *
  * A Camera has a position and orientation and controls the projection and exposure parameters.
  *
- * ## Creation and destruction
- *
- * In Filament, Camera is a component that must be associated with an entity. To do so,
- * use `Engine#createCamera(int)`. A Camera component is destroyed using
- * `Engine#destroyCameraComponent(int Entity)`.
- *
- * ```typescript
- *  const myCamera = engine.createCamera(myCameraEntity);
- *  myCamera.setProjection(45, 16.0/9.0, 0.1, 1.0);
- *  myCamera.lookAt(0, 1.60, 1,
- *                  0, 0, 0,
- *                  0, 1, 0);
- *  engine.destroyCameraComponent(myCameraEntity);
- * ```
- *
  * ## Coordinate system
  *
  * The camera coordinate system defines the *view space*. The camera points towards its -z axis
@@ -105,7 +90,7 @@ export interface RNFCamera extends PointerHolder {
    * Utility to set the projection matrix from the field-of-view.
    *
    * @param fovInDegrees full field-of-view in degrees. 0 < \p fov < 180.
-   * @param aspect       aspect ratio \f$ \frac{width}{height} \f$. \p aspect > 0.
+   * @param aspect       aspect ratio width/height aspect > 0.
    * @param near         distance in world units from the camera to the near plane. \p near > 0.
    * @param far          distance in world units from the camera to the far plane. \p far > \p near.
    * @param direction    direction of the \p fovInDegrees parameter.

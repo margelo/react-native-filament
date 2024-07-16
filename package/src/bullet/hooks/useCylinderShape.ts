@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Cylinder } from '../types/Shapes'
+import { CylinderShape } from '../types/Shapes'
 import { BulletAPI } from '../bulletApi'
 import { Float3 } from '../../types'
 
@@ -8,7 +8,7 @@ type CylinderShapeProps = {
   localScaling?: Float3
 }
 
-export function useCylinderShape(props: CylinderShapeProps | undefined): Cylinder | undefined {
+export function useCylinderShape(props: CylinderShapeProps | undefined): CylinderShape | undefined {
   const { half, localScaling } = props ?? {}
   const scaleX = localScaling?.[0]
   const scaleY = localScaling?.[1]
