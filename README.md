@@ -39,7 +39,7 @@ npm i react-native-worklets-core
 cd ios && pod install
 ```
 
-..and get started by [loading your model](https://margelo.github.io/react-native-filament/docs/guides)!
+..and get started by [loading your model (docs)](https://margelo.github.io/react-native-filament/docs/guides)!
 
 ### Example
 
