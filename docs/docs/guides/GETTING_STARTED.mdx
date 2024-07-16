@@ -42,6 +42,44 @@ npm i react-native-filament
   </TabItem>
 </Tabs>
 
+For react-native-worklets-core its necessary to add a plugin to your `babelConfig.babelConfig.js` as well:
+
+<Tabs
+  groupId="rnwcInstallationPlugin"
+  defaultValue="wo_rea"
+  values={[
+    {label: 'Without reanimated', value: 'wo_rea'},
+    {label: 'When using reanimated', value: 'w_rea'}
+  ]}>
+  <TabItem value="wo_rea">
+    ```js
+    module.exports = {
+      plugins: [
+        ["react-native-worklets-core/plugin", { processNestedWorklets: true }],
+        // ...
+      ],
+      // ...
+    };
+    ```
+
+  </TabItem>
+
+  <TabItem value="w_rea">
+    You should already use the reaniamted babel pluginVersions, make sure to add the `processNestedWorklets` option to it:
+
+    ```js
+    module.exports = {
+      plugins: [
+        ["react-native-reanimated/plugin", { processNestedWorklets: true }],
+        // ...
+      ],
+      // ...
+    };
+    ```
+
+  </TabItem>
+</Tabs>
+
 
 
 3. Update your pods:
@@ -49,6 +87,12 @@ npm i react-native-filament
 ```sh
 cd ios && pod install
 ```
+
+4. Start Metro with clean cache:
+  
+  ```sh
+  npm start -- --reset-cache
+  ```
 
 ## Configure metro
 

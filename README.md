@@ -22,25 +22,7 @@ react-native-filament is a powerful 3D rendering engine for React Native. It fea
 
 ### Installation
 
-1. Install `react-native-filament` from npm:
-
-```sh
-npm i react-native-filament
-```
-
-2. `react-native-filament` depends on `react-native-worklets-core`:
-
-```sh
-npm i react-native-worklets-core
-```
-
-3. Update your pods:
-
-```sh
-cd ios && pod install
-```
-
-..and get started by [loading your model (docs)](https://margelo.github.io/react-native-filament/docs/guides)!
+See the [installation guide in the docs.](https://margelo.github.io/react-native-filament/docs/guides)
 
 ### Example
 
