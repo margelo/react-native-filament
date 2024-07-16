@@ -91,11 +91,12 @@ const rigidBody = useRigidBody({
 We need to simulate physics every frame:
 
 ```tsx
-const renderCallback = useCallback(() => {
+const renderCallback = useCallback(({ timeSinceLastFrame }) => {
   "worklet"
 
-  // This updates the world at 60Hz/60 FPS
-  world.stepSimulation(1 / 60, 1, 1 / 60)
+  // This updates the world at 60Hz/60 FPS. If our actual frame rate
+  // is different stepSimulation will interpolate the physics.
+  world.stepSimulation(timeSinceLastFrame, 1, 1 / 60)
 }, [world])
 ```
 
@@ -105,10 +106,10 @@ Now that the physical world has been updated we need to update the transform of 
 The `transformManager` has a convenience method for that:
 
 ```tsx
-const renderCallback = useCallback(() => {
+const renderCallback = useCallback(({ timeSinceLastFrame }) => {
   "worklet"
 
-  world.stepSimulation(1 / 60, 1, 1 / 60)
+  world.stepSimulation(timeSinceLastFrame, 1, 1 / 60)
 
   // Update our entity:
   transformManager.updateTransformByRigidBody(entity, rigidBody)
