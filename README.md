@@ -118,17 +118,17 @@ If you need help with integrating react-native-filament in your app or have addi
 * 🐦 [**Follow us on Twitter**](https://twitter.com/margelo) for updates
 * 💬 [**Join the Margelo Community Discord**](https://discord.gg/6CSHz2qAvA) for chatting about react-native-filament
 
-#### Attributions & thanks
+### Attributions & thanks
 
-##### Slay
+#### Slay
 
-react-native-filament was built for- and mostly funded by [Slay](https://www.slay.cool) - the creators of [Pengu](https://www.slay.cool/pengu)! Without them, react-native-filament wouldn't exist! ❤️
+react-native-filament was built for- and mostly funded by [Slay](https://www.slay.cool) - the creators of [Pengu](https://www.slay.cool/pengu)! 🐧 Without them, react-native-filament wouldn't exist, so thanks Slay! ❤️
 
-##### Filament
+#### Filament and Bullet3
 
-A big thanks to [filament](https://github.com/google/filament) for building such a great rendering engine!
+react-native-filament uses [filament](https://github.com/google/filament) (an amazing library by Google), and [bullet3](https://github.com/bulletphysics/bullet3) (an amazing physics library by Bullet Physics). Without those core libraries and the geniuses behind them, react-native-filament wouldn't exist - so thanks Google & Bullet! ❤️
 
-##### Copyrights
+#### Copyrights
 
 The example app in this project uses several free assets:
 - Image by <a href="https://www.freepik.com/free-ai-image/space-travel-collage-design_94964745.htm#fromView=search&page=1&position=1&uuid=cf66f9c3-2d56-4228-a3cf-de7c07d418fb">freepik</a>
