@@ -116,6 +116,10 @@ const config: Config = {
               label: 'GitHub',
               href: 'https://github.com/margelo/react-native-filament',
             },
+            {
+              label: 'Margelo',
+              href: 'https://margelo.com',
+            }
           ],
         },
       ],

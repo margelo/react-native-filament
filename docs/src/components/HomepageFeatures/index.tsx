@@ -26,7 +26,7 @@ const FeatureList: FeatureItem[] = [
     imgUr: "img/gpu.png",
     description: (
       <>
-        Filament taps directly into your mobiles GPU by using Metal on iOS or OpenGL or Vulkan on Android.
+        Filament taps directly into your mobiles GPU by using Metal on iOS or OpenGL/Vulkan on Android.
       </>
     ),
   },
