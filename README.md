@@ -120,7 +120,15 @@ If you need help with integrating react-native-filament in your app or have addi
 
 #### Attributions & thanks
 
+##### Slay
+
+react-native-filament was built for- and mostly funded by [Slay](https://www.slay.cool) - the creators of [Pengu](https://www.slay.cool/pengu)! Without them, react-native-filament wouldn't exist! ❤️
+
+##### Filament
+
 A big thanks to [filament](https://github.com/google/filament) for building such a great rendering engine!
+
+##### Copyrights
 
 The example app in this project uses several free assets:
 - Image by <a href="https://www.freepik.com/free-ai-image/space-travel-collage-design_94964745.htm#fromView=search&page=1&position=1&uuid=cf66f9c3-2d56-4228-a3cf-de7c07d418fb">freepik</a>
