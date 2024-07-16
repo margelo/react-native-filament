@@ -28,7 +28,10 @@ export interface BaseBox {
  * An axis aligned 3D box represented by its center and half-extent.
  */
 export interface Box extends BaseBox {
-  // Note: this property isn't set on the object and is just for type checking
+  /**
+   * @private
+   * Note: this property isn't set on the object and is just for type checking
+   */
   _type: 'Box'
 }
 
@@ -36,6 +39,9 @@ export interface Box extends BaseBox {
  * An axis aligned box represented by its min and max coordinates
  */
 export interface AABB extends BaseBox {
-  // Note: this property isn't set on the object and is just for type checking
+  /**
+   * @private
+   * Note: this property isn't set on the object and is just for type checking
+   */
   _type: 'AABB'
 }
