@@ -62,14 +62,14 @@ export function useCoin(world: DiscreteDynamicWorld, origin: Float3, collisionCa
       ? undefined
       : {
           half: coinBoundingBox.halfExtent,
-          localScaling: [scale * 0.5, scale * 0.5, scale * 0.5],
+          localScaling: [scale, scale, scale],
         }
   )
   const rigidBody = useRigidBody(
     circleShape == null || meshTransform == null
       ? undefined
       : {
-          mass: 10,
+          mass: 1,
           transform: meshTransform,
           shape: circleShape,
           friction: 1,
