@@ -14,6 +14,7 @@
     "android",
     "ios",
     "cpp",
+    "assets",
     "*.podspec",
     "!ios/build",
     "!android/build",
