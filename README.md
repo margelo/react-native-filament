@@ -12,7 +12,11 @@
 
 react-native-filament is a powerful 3D rendering engine for React Native. It features:
 
-* ⚡ List features here with emojis
+* ⚡ Native GPU accelerated rendering using [filament](https://github.com/google/filament)
+* 🏎️ Uses Metal on iOS and OpenGL/Vulkan on android
+* 📱 Cross-platform support for iOS and Android
+* 📹 Rendering happens on a separate thread, nothing blocks the JS thread
+* 📦 Easy to use declarative API
 
 ### Installation
 
@@ -64,6 +68,17 @@ function App() {
 
 > See the [example](./package/example/) app
 
+
+### Comparison with other libraries
+
+One library to render 3D content is [expo-gl](https://docs.expo.dev/versions/latest/sdk/gl-view) usually used together with [expo-three](https://www.npmjs.com/package/expo-three). react-native-filament has a few advantages over expo-gl:
+
+- Supports using `glb` files out of the box
+- On iOS react-native-filament uses Metal, where expo-gl will use the deprecated OpenGL (as it only binds to OpenGL ES)
+- The rendering happens on the JS thread for `expo-three`, where react-native-filament uses a separate thread (and filament processes the rendering commands in a pool of different threads)
+- filament is battle tested and react-native-filament is used in production apps with millions of users already, proven to be highly stable
+
+
 ### Contributing
 
 We welcome contributions to react-native-filament! 🎉
@@ -102,7 +117,9 @@ If you need help with integrating react-native-filament in your app or have addi
 * 🐦 [**Follow us on Twitter**](https://twitter.com/margelo) for updates
 * 💬 [**Join the Margelo Community Discord**](https://discord.gg/6CSHz2qAvA) for chatting about react-native-filament
 
-#### Attributions
+#### Attributions & thanks
+
+A big thanks to [filament](https://github.com/google/filament) for building such a great rendering engine!
 
 The example app in this project uses several free assets:
 - Image by <a href="https://www.freepik.com/free-ai-image/space-travel-collage-design_94964745.htm#fromView=search&page=1&position=1&uuid=cf66f9c3-2d56-4228-a3cf-de7c07d418fb">freepik</a>
