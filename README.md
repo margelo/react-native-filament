@@ -50,7 +50,7 @@ function App() {
 }
 ```
 
-> See the [example](./package/example/) app
+> See the [example](./package/example/Shared) app
 
 
 ### Comparison with other libraries
