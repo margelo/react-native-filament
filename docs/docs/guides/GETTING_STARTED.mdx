@@ -101,6 +101,8 @@ You'll likely import 3D related files when using react-native-filament. To make 
 ```js
 const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
 
+const defaultConfig = getDefaultConfig(__dirname)
+
 /**
  * Metro configuration
  * https://metrobundler.dev/docs/configuration
@@ -110,11 +112,9 @@ const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
 const config = {
     resolver: {
         // This makes it possible to import .glb files in your code:
-        assetExts: ['glb']
+        assetExts: [...(defaultConfig.resolver?.assetExts || []), 'glb']
     }
 };
-
-const defaultConfig = getDefaultConfig(__dirname)
 
 module.exports = mergeConfig(defaultConfig, config);
 ```
