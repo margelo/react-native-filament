@@ -1,42 +1,17 @@
 import * as React from 'react'
 
 import { Button, StyleSheet } from 'react-native'
-import {
-  FilamentView,
-  useBuffer,
-  useModel,
-  useFilamentContext,
-  useWorkletCallback,
-  Camera,
-  FilamentScene,
-  DefaultLight,
-  ModelRenderer,
-} from 'react-native-filament'
+import { FilamentView, useBuffer, Camera, FilamentScene, DefaultLight, EntitySelector, Model } from 'react-native-filament'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-import Model from '~/assets/rocket.glb'
+import RocketGlb from '~/assets/rocket.glb'
 
 const baseColorBlueImage = require('~/assets/rocket_BaseColor_Blue.png')
 
 function Renderer() {
-  const { renderableManager } = useFilamentContext()
-
-  const rocket = useModel(Model)
+  const [showBlue, setShowBlue] = React.useState(false)
   const blueBaseColorBuffer = useBuffer({ source: baseColorBlueImage })
-
-  const asset = rocket.state === 'loaded' ? rocket.asset : undefined
-  const changeColor = useWorkletCallback(() => {
-    'worklet'
-
-    if (asset == null || blueBaseColorBuffer == null) return
-
-    const tipEntity = asset.getFirstEntityByName('Tip')
-    const wingsEntity = asset.getFirstEntityByName('Wings')
-
-    renderableManager.changeMaterialTextureMap(tipEntity!, 'Toy Ship', blueBaseColorBuffer, 'sRGB')
-    renderableManager.changeMaterialTextureMap(wingsEntity!, 'Toy Ship', blueBaseColorBuffer, 'sRGB')
-    console.log('Color changed :)')
-  })
+  const materialName = 'Toy Ship'
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -44,12 +19,19 @@ function Renderer() {
         <Camera />
         <DefaultLight />
 
-        <ModelRenderer model={rocket} translate={[0, -1, 0]} />
+        <Model source={RocketGlb} translate={[0, -1, 0]}>
+          {blueBaseColorBuffer != null && showBlue && (
+            <>
+              <EntitySelector byName="Tip" textureMap={{ materialName, textureSource: blueBaseColorBuffer }} />
+              <EntitySelector byName="Wings" textureMap={{ materialName, textureSource: blueBaseColorBuffer }} />
+            </>
+          )}
+        </Model>
       </FilamentView>
       <Button
         title="Change Color"
         onPress={() => {
-          changeColor()
+          setShowBlue(true)
         }}
       />
     </SafeAreaView>
