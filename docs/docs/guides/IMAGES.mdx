@@ -66,8 +66,59 @@ Only `.png` and `.jpg` images are supported yet. [Support for `.webp` is coming 
 If you're curious how materials are defined you can have a [look at the material definition](https://github.com/margelo/react-native-filament/blob/e11899be9e9ae4b6417215e583891ef502211b16/package/example/Shared/assets/background_image.mat#L3-L6) for the background material.
 Compiled materials are `.filamat` files, where the definition files are human-readable `.mat` files.
 
+<div class="image-container">
+  <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535">
+    <image href={useBaseUrl("img/demo-change-textures.gif")} x="18" y="33" width="247" height="469" />
+    <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
+  </svg>
+</div>
+
 Materials are thus a way to provide custom shaders.
 
 ## Applying textures
 
-For applying images as textures to 3D shapes you currently have to use the imperative API.
+For applying images as textures to 3D shapes need to have:
+
+- A 3D module, that uses a material with a texture parameter (by default if your model/material is using an image texture)
+- Know the entity of your model that's using the material
+- Know the name of the material
+
+For example, let's say we have [this 3D model of a rocket](https://www.cgtrader.com/free-3d-models/space/spaceship/toy-rocket-4k). When we open it in blender we see:
+
+<img src={useBaseUrl('img/blender-explanation-materials.png')} />
+
+- In the top right corner you see the entities: `Engine`, `Tip`, `Wings`, etc.
+- You can see that an entity is associated with a material.
+- You can see the materials name is "Toy Ship", and you can see it uses a texture.
+
+| The base texture looks like this:                                                     | Variant of the base color texture :                                                   |
+|---------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| <img src={useBaseUrl('img/example-Toy_Rocket_Toy Ship_BaseColor.jpg')} /> | <img src={useBaseUrl('img/example-Toy_Rocket_Toy Ship_BaseColorBlue.jpg')} /> |
+
+Now we can apply the new texture to the model: 
+
+```tsx
+import RocketGlb from '~/assets/rocket.glb'
+const baseColorBlueImage = require('~/assets/rocket_BaseColor_Blue.png')
+
+function Renderer() {
+  // Load the texture as a buffer
+  const blueBaseColorBuffer = useBuffer({ source: baseColorBlueImage })
+
+  // The name of the material on the entity we want to change
+  const materialName = 'Toy Ship'
+
+  return (
+    <FilamentView style={styles.filamentView}>
+
+      <Model source={RocketGlb}>
+        {blueBaseColorBuffer != null && (
+          <>
+            {/* Inside the <Model> we can use the <EntitySelector> to apply modifiers */}
+            <EntitySelector byName="Tip" textureMap={{ materialName, textureSource: blueBaseColorBuffer }} />
+            <EntitySelector byName="Wings" textureMap={{ materialName, textureSource: blueBaseColorBuffer }} />
+          </>
+        )}
+      </Model>
+    </FilamentView>
+```
