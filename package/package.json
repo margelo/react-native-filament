@@ -76,7 +76,7 @@
   "bugs": {
     "url": "https://github.com/margelo/react-native-filament/issues"
   },
-  "homepage": "https://github.com/margelo/react-native-filament#readme",
+  "homepage": "https://margelo.github.io/react-native-filament",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
