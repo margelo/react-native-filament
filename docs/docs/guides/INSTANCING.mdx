@@ -5,4 +5,26 @@ sidebar_label: Instancing
 slug: /guides/instancing
 ---
 
-Documentation is added soon!
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+<div class="image-container">
+  <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535">
+    <image href={useBaseUrl("img/demo-multiple-instances.gif")} x="18" y="33" width="247" height="469" />
+    <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
+  </svg>
+</div>
+
+When you want to render the same model multiple times, you can use the `instanceCount` prop to create multiple instances.
+This is more efficient than separate `<Model>` components, as it will load the model only once to memory.
+
+To access the different instances, you can use the `<ModelInstance>` component that works just like the `<Model>` component.
+
+```tsx
+{/* We transform the root model to a unit cube, meaning all instances will be scaled to unit cubes */}
+<Model source={DroneGlb} instanceCount={2} transformToUnitCube>
+  <ModelInstance index={1} translate={[x, y, z]} />
+  <ModelInstance index={2} translate={[x, y, z]} />
+</Model>
+```
+
+The `index` prop is used to select the instance you want to modify.
