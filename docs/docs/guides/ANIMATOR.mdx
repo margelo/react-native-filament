@@ -5,4 +5,35 @@ sidebar_label: Animator
 slug: /guides/animator
 ---
 
-Documentation is added soon!
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+<div class="image-container">
+  <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535">
+    <image href={useBaseUrl("img/demo-animations.gif")} x="18" y="33" width="247" height="469" />
+    <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
+  </svg>
+</div>
+
+The `<Animator />` component can be used to control the animation of a 3D asset.
+
+**Example:**
+
+```tsx
+import { Model, Animator } from 'react-native-filament'
+
+<Model source={require('path/to/asset_with_animations.gltf')}>
+    <Animator
+        // The animation index to play (alternatively you can provide a useSharedValue)
+        animationIndex={0}
+        onAnimationsLoaded={(animations) => {
+            // The animations have been loaded
+        }}
+    />
+</Model>
+```
+
+When switching between animations you might want to transition / blend between the animation (so that the mesh is transitioning from animation A to B).
+You can specify the `transitionDuration` prop to control the duration of the transition. A duration of `0` will make the transition instant.
+
+For pausing the animation it is recommended to render the `<Animator />` component conditionally (e.g. based on a state variable).
+
