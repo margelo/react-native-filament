@@ -2,6 +2,34 @@
 
 set -e
 
+if [ -d "../package/android/libs/bullet3" ]; then
+  echo "[bullet3] Android libraries already exist in react-native-filament package. Do you want to skip building them? (Y/N) (y)"
+  read -r skip_android
+  if [ "$skip_android" = "N" ] || [ "$skip_android" = "n" ]; then
+    skip_android=false
+  else
+    echo "Skipping Android build..."
+    skip_android=true
+  fi
+fi
+
+if [ -d "../package/ios/libs/bullet3" ]; then
+  echo "[bullet3] iOS libraries already exist in react-native-filament package. Do you want to skip building them? (Y/N) (y)"
+  read -r skip_ios
+  if [ "$skip_ios" = "N" ] || [ "$skip_ios" = "n" ]; then
+    skip_ios=false
+  else
+    echo "Skipping iOS build..."
+    skip_ios=true
+  fi
+fi
+
+if [ "$skip_ios" = true ] && [ "$skip_android" = true ]; then
+  echo "[bullet3] Both iOS and Android libraries already exist. Nothing to do."
+  exit 0
+fi
+
+
 PACKAGE_DIR=$(pwd)
 
 #############

@@ -40,7 +40,9 @@
     "build-filament:debug": "yarn build-filament debug",
     "build-bullet3": "scripts/build-bullet3.sh",
     "release": "yarn build-filament:release && yarn build-bullet3 && release-it && npm publish",
-    "codegen": "react-native codegen"
+    "codegen": "react-native codegen",
+    "prepack": "cp ../README.md ./README.md",
+    "postpack": "rm ./README.md"
   },
   "keywords": [
     "react-native",
