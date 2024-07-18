@@ -62,6 +62,7 @@ add_library(
     ../cpp/core/RNFAABBWrapper.cpp
     ../cpp/core/RNFBoxWrapper.cpp
     ../cpp/core/RNFMaterialInstanceWrapper.cpp
+    ../cpp/core/RNFNameComponentManagerWrapper.cpp
     ../cpp/core/RNFRenderableManagerImpl.cpp
     ../cpp/core/RNFRenderableManagerImpl.DebugHelpers.cpp
     ../cpp/core/RNFRenderableManagerWrapper.cpp

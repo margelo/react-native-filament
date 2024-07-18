@@ -5,4 +5,69 @@ sidebar_label: Images
 slug: /guides/images
 ---
 
-Documentation is added soon!
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+<div class="image-container">
+  <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535">
+    <image href={useBaseUrl("img/demo-backgroundimage.jpg")} x="18" y="33" width="247" height="469" />
+    <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
+  </svg>
+</div>
+
+There are two types of images to consider:
+
+- Background images
+- Images that will render within the 3D scene. Applied on a 3D shape. Often called a texture.
+
+## Background images
+
+You can only have one background image per scene. The background image is a 2D image that is rendered behind the 3D scene. It is not affected by the camera or lights and will
+always fill the whole view.
+
+```tsx
+import { BackgroundImage, Camera, DefaultLight } from 'react-native-filament'
+import BackgroundImageMaterial from './assets/background_image.filamat'
+
+const imageResource = require('./assets/background.jpg')
+
+function Renderer() {
+  return (
+    <FilamentView style={styles.container}>
+      <Camera />
+      <DefaultLight />
+
+      <BackgroundImage source={imageResource} materialSource={BackgroundImageMaterial} resizeMode="cover" />
+    </FilamentView>
+  )
+}
+```
+
+### Materials
+
+As you may noticed, we imported a `.filamat` file and passed it as a prop to the `BackgroundImage` component. A material in filament "[defines the visual appearance of a surface.](https://google.github.io/filament/Materials.html#overview/coreconcepts)".
+To completely describe and render a surface, a material provides the following information:
+
+- [Material model](https://google.github.io/filament/Materials.html#materialmodels)
+- Set of use-controllable named parameters
+- [Raster state](https://google.github.io/filament/Materials.html#materialdefinitions/materialblock/rasterization:culling) (blending mode, backface culling, etc.)
+- [Vertex shader code](https://google.github.io/filament/Materials.html#materialdefinitions/vertexblock)
+- [Fragment shader code](https://google.github.io/filament/Materials.html#materialdefinitions/fragmentblock)
+
+For rendering a background image you can use the pre-compiled material from the exampels:
+
+- [⬇️ Download `background_image.filamat`](https://github.com/margelo/react-native-filament/blob/main/package/example/Shared/assets/background_image.filamat)
+
+This material receives an image texture as input, which the `BackgroundImage` component will automatically set using the image you've provided.
+
+:::warning
+Only `.png` and `.jpg` images are supported yet. [Support for `.webp` is coming soon](https://github.com/google/filament/issues/7962).
+:::
+
+If you're curious how materials are defined you can have a [look at the material definition](https://github.com/margelo/react-native-filament/blob/e11899be9e9ae4b6417215e583891ef502211b16/package/example/Shared/assets/background_image.mat#L3-L6) for the background material.
+Compiled materials are `.filamat` files, where the definition files are human-readable `.mat` files.
+
+Materials are thus a way to provide custom shaders.
+
+## Applying textures
+
+For applying images as textures to 3D shapes you currently have to use the imperative API.

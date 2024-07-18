@@ -5,6 +5,7 @@
 #pragma once
 
 #include "jsi/RNFPointerHolder.h"
+#include "core/utils/RNFEntityWrapper.h"
 #include <utils/NameComponentManager.h>
 
 namespace margelo {
@@ -16,7 +17,7 @@ public:
   explicit NameComponentManagerWrapper(std::shared_ptr<NameComponentManager> nameComponentManager)
       : PointerHolder(TAG, nameComponentManager) {}
 
-  void loadHybridMethods() override {};
+  void loadHybridMethods() override;
 
   std::shared_ptr<NameComponentManager> getManager() {
     return pointee();
@@ -24,6 +25,9 @@ public:
 
 private:
   static auto constexpr TAG = "NameComponentManagerWrapper";
+
+private: // Exposed JS method
+    std::optional<std::string> getEntityName(std::shared_ptr<EntityWrapper> entityWrapper);
 };
 
 } // namespace margelo
