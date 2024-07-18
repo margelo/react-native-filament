@@ -90,9 +90,13 @@ cd ios && pod install
 
 4. Start Metro with clean cache:
   
-  ```sh
-  npm start -- --reset-cache
-  ```
+```sh
+npm start -- --reset-cache
+```
+
+:::tip Good to know
+The npm package of react-native-filament is quite huge, around ~400mb. That's because we need to ship all static libraries for all architectures for both android and iOS. **The actual size of the library in your downloadable app is around ~4mb**.
+:::
 
 ## Configure metro
 
