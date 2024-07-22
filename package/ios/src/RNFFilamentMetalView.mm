@@ -19,6 +19,7 @@
   if (self = [super init]) {
     CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
     metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+    metalLayer.framebufferOnly = YES;
     isMounted = false;
   }
   return self;
