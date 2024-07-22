@@ -98,7 +98,7 @@ If you need help with integrating react-native-filament in your app or have addi
 
 ### Socials
 
-* 🐦 [**Follow us on Twitter**](https://twitter.com/margelo) for updates
+* 🐦 [**Follow us on Twitter**](https://twitter.com/margelo_io) for updates
 * 💬 [**Join the Margelo Community Discord**](https://discord.gg/6CSHz2qAvA) for chatting about react-native-filament
 
 ### Attributions & thanks
