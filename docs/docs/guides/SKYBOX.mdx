@@ -17,7 +17,7 @@ be filled with the skybox. The Skybox can be rendered from either:
 ```tsx
 import { Skybox } from 'react-native-filament';
 
-<Skybox color="#00ff00" />
+<Skybox colorInHex="#00ff00" />
 ```
 
 ### 🏞️ A [cubemap texture](https://learnopengl.com/img/advanced/cubemaps_skybox.png)
@@ -28,7 +28,7 @@ function Scene() {
 
     return (
         <FilamentView>
-            <Skybox texture={cubemap} />
+            <Skybox source={cubemap} />
         </FilamentView>
     )
 }

@@ -43,7 +43,7 @@ const rotationInDegree = 45;
 const angleInRadians = rotationInDegree * (Math.PI / 180);
 const rotateOnAxis = [0, angleInRadians, 0]; // Rotate on the y-axis
 
-<Model rotation={rotateOnAxis} />
+<Model rotate={rotateOnAxis} />
 ```
 
 The `rotation` props expects a 3D vector (called `Float3` in RNF), where each value represents the rotation in radians around the x, y and z axis respectively.
@@ -93,7 +93,7 @@ When matrix multiplication is **enabled (default)** all transform operations wil
 
 ## Animate the transform props
 
-You may want to change the transformation props very frequently (e.g. every frame). To avoid performance issues, you should **not** update the props uusing `useState` directly, but use shared values.
+You may want to change the transformation props very frequently (e.g. every frame). To avoid performance issues, you should **not** update the props using `useState` directly, but use shared values.
 
 You may know shared values from `reanimated`. We are using the shared values from `react-native-worklets-core`, but they work very similary.
 
@@ -114,9 +114,9 @@ You can pass a shared value to any of the transformation props:
 
 ```tsx
 function MyScene() {
-  const rotation = useSharedValue([0, 0, 0]);
+  const rotation = useSharedValue<Float3>([0, 0, 0]);
 
-  return <Model rotation={rotation} />
+  return <Model rotate={rotation} />
 }
 ```
 
@@ -125,10 +125,10 @@ Now, lets update the rotation value every frame:
 ```tsx
 import { useCallback } from 'react'
 import { useSharedValue } from "react-native-worklets-core"
-import { RenderCallback, FilamentView, Model } from "react-native-filament"
+import { RenderCallback, FilamentView, Model, Float3 } from "react-native-filament"
 
 function MyScene() {
-  const rotation = useSharedValue([0, 0, 0]);
+  const rotation = useSharedValue<Float3>([0, 0, 0]);
 
   const renderCallback: RenderCallback = useCallback(() => {
     "worklet"
@@ -142,7 +142,7 @@ function MyScene() {
 
   return (
     <FilamentView renderCallback={renderCallback}>
-      <Model rotation={rotation} />
+      <Model rotate={rotation} />
     </FilamentView>
   )
 }
@@ -193,7 +193,7 @@ function MyScene() {
 
   // We get the transformManager for the filament context.
   // For this to work <MyScene /> needs to be wrapped with a <FilamentScene>
-  const { transformManager } = useFilamentConext()
+  const { transformManager } = useFilamentContext()
 
   const renderCallback: RenderCallback = useCallback(() => {
     "worklet"
@@ -204,7 +204,7 @@ function MyScene() {
     // Add a rotation of 1 degree every frame on the y-axis and 
     // multiply it with the current transform by setting `true` as last argument
     transformManager.setEntityRotation(rootEntity, 0.01, [0, 1, 0], true)
-  }, [])
+  }, [rootEntity, transformManager])
 }
 ```
 
