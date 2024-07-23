@@ -29,14 +29,14 @@ const throwErrorOnJS = Worklets.createRunOnJS((message: string, stack: string | 
   reportError(error, fatal)
 })
 
-export function reportWorkletError(error: unknown, fatal = true): void {
+export const reportWorkletError = (error: unknown, fatal = true): void => {
   'worklet'
   const safeError = error as Error | undefined
   const message = safeError != null && 'message' in safeError ? safeError.message : 'Filament threw an error.'
   throwErrorOnJS(message, safeError?.stack, fatal)
 }
 
-export function wrapWithErrorHandler<T extends (...args: any[]) => any>(callback: T): (...args: Parameters<T>) => ReturnType<T> {
+export const wrapWithErrorHandler = <T extends (...args: any[]) => any>(callback: T): ((...args: Parameters<T>) => ReturnType<T>) => {
   return (...args: Parameters<T>): ReturnType<T> => {
     'worklet'
     try {
