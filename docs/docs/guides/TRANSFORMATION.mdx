@@ -163,7 +163,7 @@ For this, you first need to render the model using the `useModel` and the accomp
 import { useModel, ModelRenderer } from "react-native-filament"
 
 function MyScene() {
-  const model = useModel({ source: MyModel })
+  const model = useModel(MyModel)
 
   return <ModelRenderer model={model} />
 }
@@ -177,7 +177,7 @@ For that we can use the `rootEntity`:
 ```tsx
 import { useModel } from "react-native-filament"
 
-const model = useModel({ source: MyModel })
+const model = useModel(MyModel)
 const rootEntity = model.state === "loaded" ? model.rootEntity : undefined
 ```
 
@@ -188,7 +188,7 @@ import { useCallback } from 'react'
 import { TransformManager, useModel, RenderCallback } from "react-native-filament"
 
 function MyScene() {
-  const model = useModel({ source: MyModel })
+  const model = useModel(MyModel)
   const rootEntity = model.state === "loaded" ? model.rootEntity : undefined
 
   // We get the transformManager for the filament context.
