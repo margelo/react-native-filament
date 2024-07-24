@@ -18,6 +18,7 @@ import { FadeOut } from './FadeOut'
 import { CastShadow } from './CastShadow'
 import { ScaleEffect } from './ScaleEffect'
 import { ChangeMaterials } from './ChangeMaterials'
+import { SkyboxExample } from './SkyboxExample'
 
 function NavigationItem(props: { name: string; route: string }) {
   const navigation = useNavigation()
@@ -62,6 +63,7 @@ function HomeScreen() {
       <NavigationItem name="🌑 Cast Shadow" route="CastShadow" />
       <NavigationItem name="↕️ Scale Effect" route="ScaleEffect" />
       <NavigationItem name="🎨 Change Materials" route="ChangeMaterials" />
+      <NavigationItem name="☁️ Skybox" route="SkyboxExample" />
     </ScrollView>
   )
 }
@@ -103,6 +105,7 @@ function App() {
           <Stack.Screen name="ScaleEffect" component={ScaleEffect} />
           <Stack.Screen name="ChangeMaterials" component={ChangeMaterials} />
           <Stack.Screen name="Test" component={TestScreen} />
+          <Stack.Screen name="SkyboxExample" component={SkyboxExample} />
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>

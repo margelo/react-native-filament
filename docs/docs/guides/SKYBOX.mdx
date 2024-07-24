@@ -24,7 +24,7 @@ import { Skybox } from 'react-native-filament';
 
 ```tsx
 function Scene() {
-    const cubemap = useBuffer(require("./skybox_cubemap.ktx"))
+    const cubemap = require("./skybox_cubemap.ktx")
 
     return (
         <FilamentView>
