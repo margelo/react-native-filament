@@ -63,9 +63,10 @@ void EngineImpl::createAndSetSkybox(std::shared_ptr<FilamentBuffer> textureBuffe
   builder.environment(cubemap);
 
   Skybox* skybox = builder.build(*_engine);
-  _skybox = References<Skybox>::adoptEngineRef(_engine, skybox, [](std::shared_ptr<Engine> engine, Skybox* skybox) {
+  _skybox = References<Skybox>::adoptEngineRef(_engine, skybox, [cubemap](std::shared_ptr<Engine> engine, Skybox* skybox) {
     Logger::log(TAG, "Destroying Skybox...");
     engine->destroy(skybox);
+    engine->destroy(cubemap);
   });
   _scene->setSkybox(_skybox.get());
 }
