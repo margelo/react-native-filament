@@ -63,7 +63,7 @@ public:
   std::shared_ptr<NameComponentManagerWrapper> createNameComponentManager();
   std::shared_ptr<MaterialWrapper> createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer);
   void createAndSetSkybox(std::string hexColor, std::optional<bool> showSun, std::optional<float> envIntensity);
-  void createAndSetSkybox(std::optional<std::shared_ptr<FilamentBuffer>> textureBuffer, std::optional<bool> showSun,
+  void createAndSetSkybox(std::shared_ptr<FilamentBuffer> textureBuffer, std::optional<bool> showSun,
                           std::optional<float> envIntensity);
   void clearSkybox();
   void setAutomaticInstancingEnabled(bool enabled);

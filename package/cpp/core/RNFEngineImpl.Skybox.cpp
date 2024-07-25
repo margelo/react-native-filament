@@ -3,10 +3,14 @@
 //
 
 #include "RNFEngineImpl.h"
+
 #include "RNFReferences.h"
 #include "utils/RNFConverter.h"
+
 #include <filament/Scene.h>
 #include <filament/Skybox.h>
+
+#include <ktxreader/Ktx1Reader.h>
 
 namespace margelo {
 void EngineImpl::createAndSetSkybox(std::string hexColor, std::optional<bool> showSun, std::optional<float> envIntensity) {
@@ -29,9 +33,42 @@ void EngineImpl::createAndSetSkybox(std::string hexColor, std::optional<bool> sh
   _scene->setSkybox(_skybox.get());
 }
 
-void EngineImpl::createAndSetSkybox(std::optional<std::shared_ptr<FilamentBuffer>> textureBuffer, std::optional<bool> showSun,
+void EngineImpl::createAndSetSkybox(std::shared_ptr<FilamentBuffer> textureBuffer, std::optional<bool> showSun,
                                     std::optional<float> envIntensity) {
-  throw std::runtime_error("Not implemented yet");
+  Skybox::Builder builder = Skybox::Builder();
+  if (showSun.has_value()) {
+    builder.showSun(showSun.value());
+  }
+  if (envIntensity.has_value()) {
+    builder.intensity(envIntensity.value());
+  }
+
+  if (!textureBuffer) {
+    throw std::runtime_error("Texture buffer is null");
+  }
+  auto buffer = textureBuffer->getBuffer();
+  if (buffer->getSize() == 0) {
+    throw std::runtime_error("Texture buffer is empty");
+  }
+
+  auto* bundle = new image::Ktx1Bundle(buffer->getData(), buffer->getSize());
+  Texture* cubemap = ktxreader::Ktx1Reader::createTexture(
+      _engine.get(), *bundle, false,
+      [](void* userdata) {
+        auto* bundle = (image::Ktx1Bundle*)userdata;
+        delete bundle;
+      },
+      bundle);
+
+  builder.environment(cubemap);
+
+  Skybox* skybox = builder.build(*_engine);
+  _skybox = References<Skybox>::adoptEngineRef(_engine, skybox, [cubemap](std::shared_ptr<Engine> engine, Skybox* skybox) {
+    Logger::log(TAG, "Destroying Skybox...");
+    engine->destroy(skybox);
+    engine->destroy(cubemap);
+  });
+  _scene->setSkybox(_skybox.get());
 }
 
 void EngineImpl::clearSkybox() {
