@@ -1,6 +1,6 @@
 import { useContext, useMemo } from 'react'
 import { ParentInstancesContext } from './ParentInstancesContext'
-import { Entity, extractTransformationProps, TextureFlags, TransformationProps } from '../types'
+import { Entity, extractTransformationProps, Float3, Float4, Mat3f, TextureFlags, TransformationProps } from '../types'
 import { useFilamentContext } from '../hooks/useFilamentContext'
 import React from 'react'
 import { useApplyTransformations } from '../hooks/internal/useApplyTransformations'
@@ -21,8 +21,31 @@ export type TextureMap = {
   textureFlags?: TextureFlags
 }
 
+export type ParameterType =
+  | {
+      type: 'Float3'
+      value: Float3
+    }
+  | {
+      type: 'Float4'
+      value: Float4
+    }
+  | {
+      type: 'Float'
+      value: number
+    }
+  | {
+      type: 'Int'
+      value: number
+    }
+  | {
+      type: 'Mat3f'
+      value: Mat3f
+    }
+
 export type ModifierProps = TransformationProps & {
   textureMap?: TextureMap
+  parameters?: Record<string, ParameterType>
 }
 
 export type EntitySelectorProps = SelectorProps & ModifierProps
@@ -77,8 +100,29 @@ type ImplProps = {
  * @private
  */
 function EntitySelectorImpl(props: ImplProps) {
-  const [transformProps, { entity, textureMap }] = extractTransformationProps(props)
+  const [transformProps, { entity, textureMap, parameters }] = extractTransformationProps(props)
   useApplyTransformations({ to: entity, transformProps })
+
+  useWorkletEffect(() => {
+    'worklet'
+
+    // TODO: oh, this operates on a material instance, we'd need ot have a "MaterialSelector"
+    // The material selector probably should be addable as a child component to an entity selector.
+    // However, often times a material is used for multiple entities, and it would also be nice to have it apply to all?
+    Object.entries(parameters ?? {}).forEach(([name, { type, value }]) => {
+      if (type === 'Float3') {
+        entity.setFloat3Parameter(name, value)
+      } else if (type === 'Float4') {
+        entity.setFloat4Parameter(name, value)
+      } else if (type === 'Float') {
+        entity.setFloatParameter(name, value)
+      } else if (type === 'Int') {
+        entity.setIntParameter(name, value)
+      } else if (type === 'Mat3f') {
+        entity.setMat3fParameter(name, value)
+      }
+    })
+  })
 
   return <>{textureMap != null && <TextureModifier entity={entity} {...textureMap} />}</>
 }
