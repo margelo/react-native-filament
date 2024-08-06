@@ -24,6 +24,8 @@ find_package(ReactAndroid REQUIRED CONFIG)
 find_package(fbjni REQUIRED CONFIG)
 find_library(LOG_LIB log)
 
+include(${CMAKE_SOURCE_DIR}/../nitrogen/generated/android/RNF+autolinking.cmake)
+
 # Add react-native-filament sources
 add_library(
     ${PACKAGE_NAME}
@@ -127,7 +129,7 @@ target_link_libraries(
 )
 
 # Link with RNWC:
-if (IS_OLD_ARCHITECTURE_ENABLED)
+if(IS_OLD_ARCHITECTURE_ENABLED)
     # On the old arch RNWC publishes a prefab that we need to find (and it has a different name):
     find_package(react-native-worklets-core REQUIRED CONFIG)
     message("RN Filament: react-native-worklets core found! Enabling Worklets support...")
@@ -136,13 +138,14 @@ if (IS_OLD_ARCHITECTURE_ENABLED)
         ${PACKAGE_NAME}
         react-native-worklets-core::rnworklets
     )
-else ()
+else()
     target_link_libraries(
-            ${PACKAGE_NAME}
-            react_codegen_rnfilament # link against the codegen generated library of rnf (needed so this module is compiled correctly)
-            react-native-worklets-core
+        ${PACKAGE_NAME}
+        react_codegen_rnfilament # link against the codegen generated library of rnf (needed so this module is compiled correctly)
+        react-native-worklets-core
     )
 endif()
+
 add_definitions(-DHAS_WORKLETS=1)
 
 # Filament (local CMake project as a git submodule)
