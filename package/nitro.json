@@ -1,0 +1,11 @@
+{
+  "logLevel": "debug",
+  "cxxNamespace": ["RNF"],
+  "ios": {
+    "iosModulename": "RNF"
+  },
+  "android": {
+    "androidNamespace": ["RNF"],
+    "androidCxxLibName": "RNF"
+  }
+}
