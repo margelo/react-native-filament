@@ -10,7 +10,7 @@
 namespace margelo {
 using namespace filament;
 
-class TMat44Wrapper : public HybridObject {
+class TMat44Wrapper : public margelo::HybridObject {
 public:
   explicit TMat44Wrapper(math::mat4f matrix) : HybridObject("TMat44Wrapper"), _matrix(matrix) {}
 

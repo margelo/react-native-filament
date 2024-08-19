@@ -42,7 +42,7 @@ namespace margelo::nitro::RNF {
 
     public:
       // Properties
-      
+      virtual bool getIsValid() = 0;
 
     public:
       // Methods

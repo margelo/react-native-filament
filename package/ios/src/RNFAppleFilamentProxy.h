@@ -28,7 +28,7 @@ public:
   explicit AppleFilamentProxy(jsi::Runtime* runtime, std::shared_ptr<Dispatcher> jsDispatcher,
                               __weak RCTSurfacePresenter* surfacePresenter);
 #else
-  explicit AppleFilamentProxy(jsi::Runtime* runtime, std::shared_ptr<Dispatcher> jsDispatcher);
+  explicit AppleFilamentProxy(jsi::Runtime* runtime, std::shared_ptr<margelo::Dispatcher> jsDispatcher);
 #endif
 
 public:
@@ -36,10 +36,10 @@ public:
   std::shared_ptr<FilamentView> findFilamentView(int modelId) override;
   std::shared_ptr<Choreographer> createChoreographer() override;
   std::shared_ptr<FilamentRecorder> createRecorder(int width, int height, int fps, double bitRate) override;
-  std::shared_ptr<Dispatcher> getJSDispatcher() override;
-  std::shared_ptr<Dispatcher> getRenderThreadDispatcher() override;
-  std::shared_ptr<Dispatcher> getUIDispatcher() override;
-  std::shared_ptr<Dispatcher> getBackgroundDispatcher() override;
+  std::shared_ptr<margelo::Dispatcher> getJSDispatcher() override;
+  std::shared_ptr<margelo::Dispatcher> getRenderThreadDispatcher() override;
+  std::shared_ptr<margelo::Dispatcher> getUIDispatcher() override;
+  std::shared_ptr<margelo::Dispatcher> getBackgroundDispatcher() override;
   float getDisplayRefreshRate() override;
   float getDensityPixelRatio() override;
 
@@ -48,10 +48,10 @@ public:
 private:
   // The runtime the proxy has been installed on
   jsi::Runtime* _runtime;
-  std::shared_ptr<Dispatcher> _jsDispatcher;
-  std::shared_ptr<Dispatcher> _renderThreadDispatcher;
-  std::shared_ptr<Dispatcher> _uiDispatcher;
-  std::shared_ptr<Dispatcher> _backgroundDispatcher;
+  std::shared_ptr<margelo::Dispatcher> _jsDispatcher;
+  std::shared_ptr<margelo::Dispatcher> _renderThreadDispatcher;
+  std::shared_ptr<margelo::Dispatcher> _uiDispatcher;
+  std::shared_ptr<margelo::Dispatcher> _backgroundDispatcher;
 #ifdef RCT_NEW_ARCH_ENABLED
   __weak RCTSurfacePresenter* _surfacePresenter;
 #endif

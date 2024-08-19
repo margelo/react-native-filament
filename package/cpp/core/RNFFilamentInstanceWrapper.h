@@ -18,7 +18,7 @@ using namespace gltfio;
 
 class AnimatorWrapper;
 
-class FilamentInstanceWrapper : public HybridObject {
+class FilamentInstanceWrapper : public margelo::HybridObject {
 public:
   explicit FilamentInstanceWrapper(FilamentInstance* instance) : HybridObject("FilamentInstanceWrapper"), _instance(instance) {}
 

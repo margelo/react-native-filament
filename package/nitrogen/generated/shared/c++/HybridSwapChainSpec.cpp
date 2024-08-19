@@ -15,6 +15,7 @@ namespace margelo::nitro::RNF {
     HybridObject::loadHybridMethods();
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
+      prototype.registerHybridGetter("isValid", &HybridSwapChainSpec::getIsValid);
       prototype.registerHybridMethod("release", &HybridSwapChainSpec::release);
     });
   }

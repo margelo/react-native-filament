@@ -15,7 +15,7 @@
 
 namespace margelo {
 
-class SurfaceProvider : public HybridObject {
+class SurfaceProvider : public margelo::HybridObject {
 public:
   using TOnCreate = std::function<void(std::shared_ptr<Surface> surface)>;
   using TOnResize = std::function<void(std::shared_ptr<Surface> surface, int width, int height)>;
@@ -32,8 +32,8 @@ public:
 
 public:
   std::shared_ptr<Listener> addOnSurfaceChangedListener(Callbacks&& callbacks);
-  std::shared_ptr<Listener> addOnSurfaceCreatedListener(TOnCreate callback, std::shared_ptr<Dispatcher> dispatcher);
-  std::shared_ptr<Listener> addOnSurfaceDestroyedListener(TOnDestroy callback, std::shared_ptr<Dispatcher> dispatcher);
+  std::shared_ptr<Listener> addOnSurfaceCreatedListener(TOnCreate callback, std::shared_ptr<margelo::Dispatcher> dispatcher);
+  std::shared_ptr<Listener> addOnSurfaceDestroyedListener(TOnDestroy callback, std::shared_ptr<margelo::Dispatcher> dispatcher);
 
   virtual std::shared_ptr<Surface> getSurfaceOrNull() = 0;
   std::optional<std::shared_ptr<Surface>> getSurface();

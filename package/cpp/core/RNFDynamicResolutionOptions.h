@@ -12,7 +12,7 @@ namespace margelo {
 
 using namespace filament;
 
-class DynamicResolutionOptionsWrapper : public HybridObject, public DynamicResolutionOptions {
+class DynamicResolutionOptionsWrapper : public margelo::HybridObject, public DynamicResolutionOptions {
 public:
   explicit DynamicResolutionOptionsWrapper() : HybridObject("DynamicResolutionOptions") {}
   explicit DynamicResolutionOptionsWrapper(const DynamicResolutionOptions& options)

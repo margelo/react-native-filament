@@ -18,7 +18,7 @@ namespace margelo {
 
 using namespace facebook;
 
-class HybridObject : public jsi::HostObject, public std::enable_shared_from_this<HybridObject> {
+class HybridObject : public jsi::HostObject, public std::enable_shared_from_this<margelo::HybridObject> {
 public:
   struct HybridFunction {
     jsi::HostFunctionType function;
@@ -84,12 +84,12 @@ private:
                                       std::index_sequence<Is...>) {
     if constexpr (std::is_same_v<ReturnType, void>) {
       // It's a void method.
-      (obj->*method)(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
+      (obj->*method)(margelo::JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
       return jsi::Value::undefined();
     } else {
       // It's returning some C++ type, we need to convert that to a JSI value now.
-      ReturnType result = (obj->*method)(JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
-      return JSIConverter<std::decay_t<ReturnType>>::toJSI(runtime, std::move(result));
+      ReturnType result = (obj->*method)(margelo::JSIConverter<std::decay_t<Args>>::fromJSI(runtime, args[Is])...);
+      return margelo::JSIConverter<std::decay_t<ReturnType>>::toJSI(runtime, std::move(result));
     }
   }
 

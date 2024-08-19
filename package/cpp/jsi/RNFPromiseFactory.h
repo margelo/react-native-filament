@@ -16,7 +16,7 @@ namespace margelo {
 
 class PromiseFactory {
 public:
-  using RunPromise = std::function<void(jsi::Runtime& runtime, std::shared_ptr<Promise> promise, std::shared_ptr<Dispatcher> dispatcher)>;
+  using RunPromise = std::function<void(jsi::Runtime& runtime, std::shared_ptr<Promise> promise, std::shared_ptr<margelo::Dispatcher> dispatcher)>;
 
   /**
    Create a new promise and run the given function.

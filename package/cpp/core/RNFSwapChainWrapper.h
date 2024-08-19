@@ -1,6 +1,7 @@
 #pragma once
 
 #include "HybridSwapChainSpec.hpp"
+#include "jsi/RNFPointerHolderNitro.h"
 
 #include <filament/SwapChain.h>
 
@@ -8,19 +9,20 @@ namespace margelo {
 using namespace filament;
 using namespace nitro::RNF;
 
-class SwapChainWrapper : public HybridSwapChainSpec {
+class SwapChainWrapper : public HybridSwapChainSpec, public PointerHolderNitro<SwapChain> {
 public:
-    explicit SwapChainWrapper(std::shared_ptr<SwapChain> swapChain) : _swapChain(swapChain) {}
+    explicit SwapChainWrapper(std::shared_ptr<SwapChain> swapChain) : HybridSwapChainSpec(), PointerHolderNitro(HybridSwapChainSpec::TAG, swapChain) {}
 
     std::shared_ptr<SwapChain> getSwapChain() {
-        return _swapChain;
+        return pointee();
     }
     
-    size_t getExternalMemorySize() noexcept override {
-        return sizeof(std::shared_ptr<SwapChain>);
+    bool getIsValid() override {
+        return PointerHolderNitro::getIsValid();
     }
     
-private:
-    std::shared_ptr<SwapChain> _swapChain;
+    void release() override {
+        PointerHolderNitro::release();
+    }
 };
 } // namespace margelo

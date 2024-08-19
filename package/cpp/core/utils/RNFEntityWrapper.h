@@ -11,7 +11,7 @@ namespace margelo {
 using namespace utils;
 using namespace filament;
 
-class EntityWrapper : public HybridObject {
+class EntityWrapper : public margelo::HybridObject {
 public:
   explicit EntityWrapper(Entity entity) : HybridObject("EntityWrapper"), _entity(entity) {}
   explicit EntityWrapper(const VertexEntity& vertexEntity)

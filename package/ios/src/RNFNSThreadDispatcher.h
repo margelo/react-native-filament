@@ -16,7 +16,7 @@ namespace margelo {
 /**
  A [Dispatcher] implementation that uses an Objective-C NSThread.
  */
-class NSThreadDispatcher : public Dispatcher {
+class NSThreadDispatcher : public margelo::Dispatcher {
 public:
   explicit NSThreadDispatcher(const std::string& name);
 

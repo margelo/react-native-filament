@@ -21,7 +21,7 @@ class RigidBodyWrapper;
  */
 using CollisionCallback = std::function<void(std::shared_ptr<RigidBodyWrapper>&, const std::shared_ptr<RigidBodyWrapper>)>;
 
-class RigidBodyWrapper : public HybridObject {
+class RigidBodyWrapper : public margelo::HybridObject {
 public:
   explicit RigidBodyWrapper(double mass, std::shared_ptr<btCollisionShape> shape, std::unique_ptr<btMotionState> motionState,
                             std::string id, std::optional<CollisionCallback> collisionCallback);

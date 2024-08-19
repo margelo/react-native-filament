@@ -45,7 +45,7 @@ using ManipulatorBuilder = Manipulator<float>::Builder;
 // If you add a new method that you want to expose to JS, you need to add it to the EngineWrapper as well.
 class EngineImpl : public std::enable_shared_from_this<EngineImpl> {
 public:
-  explicit EngineImpl(std::shared_ptr<Dispatcher> rendererDispatcher, std::shared_ptr<Engine> engine, float displayRefreshRate,
+  explicit EngineImpl(std::shared_ptr<margelo::Dispatcher> rendererDispatcher, std::shared_ptr<Engine> engine, float displayRefreshRate,
                       float densityPixelRatio);
 
   // First a surface provider must be set, then once we have a surface a swapchain can be created and finally the swapchain can be set
@@ -73,7 +73,7 @@ public:
 private:
   std::mutex _mutex;
   std::shared_ptr<Engine> _engine;
-  std::shared_ptr<Dispatcher> _rendererDispatcher;
+  std::shared_ptr<margelo::Dispatcher> _rendererDispatcher;
   std::shared_ptr<SurfaceProvider> _surfaceProvider;
   std::shared_ptr<Listener> _surfaceListener;
   std::shared_ptr<gltfio::MaterialProvider> _materialProvider;

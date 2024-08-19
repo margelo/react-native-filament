@@ -258,6 +258,7 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
         return null
       }
     })
+    console.log({ swapChain: swapChain })
 
     if (swapChain == null) {
       isSurfaceAlive.value = false

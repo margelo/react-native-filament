@@ -11,7 +11,7 @@ namespace margelo {
 
 using namespace filament;
 
-class AABBWrapper : public HybridObject {
+class AABBWrapper : public margelo::HybridObject {
 public:
   explicit AABBWrapper(const Aabb& aabb) : HybridObject("AABBWrapper"), _aabb(aabb) {}
   void loadHybridMethods() override;

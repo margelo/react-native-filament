@@ -12,7 +12,7 @@
 
 namespace margelo {
 
-class TestHybridObject : public HybridObject {
+class TestHybridObject : public margelo::HybridObject {
 public:
   explicit TestHybridObject() : HybridObject("TestHybridObject") {}
 

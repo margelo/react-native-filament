@@ -18,12 +18,12 @@ namespace margelo {
 
 using namespace facebook;
 
-class FilamentRecorder : public HybridObject {
+class FilamentRecorder : public margelo::HybridObject {
 public:
   using ReadyForMoreDataCallback = std::function<bool()>;
 
 public:
-  explicit FilamentRecorder(std::shared_ptr<Dispatcher> renderThreadDispatcher, int width, int height, int fps, double bitRate);
+  explicit FilamentRecorder(std::shared_ptr<margelo::Dispatcher> renderThreadDispatcher, int width, int height, int fps, double bitRate);
   ~FilamentRecorder();
 
 public:
@@ -77,7 +77,7 @@ protected:
   static constexpr auto TAG = "FilamentRecorder";
 
 protected:
-  std::shared_ptr<Dispatcher> _renderThreadDispatcher;
+  std::shared_ptr<margelo::Dispatcher> _renderThreadDispatcher;
   int _width;
   int _height;
   int _fps;

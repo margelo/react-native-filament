@@ -4,7 +4,12 @@
 
 #pragma once
 
-#include "RNFHybridObject.h"
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/HybridObject.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
+
 #include "RNFLogger.h"
 #include <memory>
 #include <mutex>
@@ -13,21 +18,17 @@ namespace margelo {
 
 using namespace facebook;
 
-template <typename T> class PointerHolder : public margelo::HybridObject {
+template <typename T> class PointerHolderNitro {
 protected:
   // no default constructor
-  PointerHolder() = delete;
+    PointerHolderNitro() = delete;
 
   /**
    * Create a new instance of a pointer holder which holds the given shared_ptr.
    * @param name The name of the implementing class, for example "ViewWrapper".
    * @param pointer The pointer this class will hold. It might be released from JS at any point via `release()`.
    */
-  PointerHolder(const char* name, std::shared_ptr<T> pointer) : HybridObject(name), _name(name), _pointer(pointer) {
-    // eagerly initialize the release() method instead of putting it in `loadHybridMethods`
-    registerHybridMethod("release", &PointerHolder<T>::release, this);
-    registerHybridGetter("isValid", &PointerHolder<T>::getIsValid, this);
-  }
+    PointerHolderNitro(const char* name, std::shared_ptr<T> pointer) : _name(name), _pointer(pointer) {}
 
   /**
    * Create a new instance of a pointer holder which holds a shared_ptr of the given value.
@@ -35,14 +36,14 @@ protected:
    * @param name The name of the implementing class, for example "ViewWrapper".
    * @param value The value this class will hold as a shared_ptr. It might be destroyed from JS at any point via `release()`.
    */
-  PointerHolder(const char* name, T&& value) : PointerHolder(name, std::make_shared<T>(std::move(value))) {}
+    PointerHolderNitro(const char* name, T&& value) : PointerHolderNitro(name, std::make_shared<T>(std::move(value))) {}
 
   /**
    * Called when the PointerHolder gets automatically destroyed (e.g. via GC) and the shared_ptr will be destroyed.
    */
-  ~PointerHolder() {
+  ~PointerHolderNitro() {
     if (_pointer != nullptr) {
-        margelo::Logger::log(TAG, "Automatically releasing %s... (~PointerHolder())", _name.c_str());
+      Logger::log(TAG, "Automatically releasing %s... (~PointerHolder())", _name.c_str());
     }
   }
 
@@ -57,7 +58,7 @@ protected:
     if (_pointer == nullptr) {
       throw std::runtime_error("Pointer " + _name + " has already been manually released!");
     }
-      margelo::Logger::log(TAG, "Manually releasing %s... (PointerHolder::release())", _name.c_str());
+    Logger::log(TAG, "Manually releasing %s... (PointerHolder::release())", _name.c_str());
     _pointer = nullptr;
   }
 
@@ -69,7 +70,7 @@ protected:
     std::unique_lock lock(_mutex);
 
     if (_pointer == nullptr) {
-      throw std::runtime_error("Pointer " + _name + " has already been manually released!");
+        throw std::runtime_error("Pointer " + _name + " has already been manually released!");
     }
     return _pointer;
   }
@@ -82,6 +83,18 @@ protected:
 
     return _pointer != nullptr;
   }
+    
+protected:
+  // Hybrid Setup
+//    void loadHybridMethods() override {
+//        // load base methods/properties
+//        HybridObject::loadHybridMethods();
+//        // load custom methods/properties
+//        registerHybrids(this, [](nitro::Prototype& prototype) {
+//          prototype.registerHybridMethod("release", &PointerHolderNitro::release);
+//            prototype.registerHybridGetter("isValid", &PointerHolderNitro::getIsValid);
+//        });
+//    }
 
 private:
   std::string _name;

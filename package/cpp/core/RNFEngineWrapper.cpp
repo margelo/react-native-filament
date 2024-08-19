@@ -60,7 +60,7 @@ void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceP
 }
 std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChainForSurface(std::shared_ptr<SurfaceProvider> surfaceProvider,
                                                                            bool enableTransparentRendering) {
-  Logger::log(TAG, "Creating swapchain for surface ...");
+    margelo::Logger::log(TAG, "Creating swapchain for surface ...");
 
   std::shared_ptr<Surface> surface = surfaceProvider->getSurfaceOrNull();
   if (surface == nullptr) {
@@ -74,7 +74,7 @@ std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChainForSurface(std::
   return std::make_shared<SwapChainWrapper>(swapChain);
 }
 std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChainForRecorder(std::shared_ptr<FilamentRecorder> recorder) {
-  Logger::log(TAG, "Creating swapchain for recorder ...");
+    margelo::Logger::log(TAG, "Creating swapchain for recorder ...");
 
   if (recorder == nullptr) {
     throw std::invalid_argument("Recorder is null");

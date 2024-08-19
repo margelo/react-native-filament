@@ -12,7 +12,7 @@ namespace margelo {
 
 using namespace filament;
 
-class AmbientOcclusionOptionsWrapper : public HybridObject, public AmbientOcclusionOptions {
+class AmbientOcclusionOptionsWrapper : public margelo::HybridObject, public AmbientOcclusionOptions {
 public:
   explicit AmbientOcclusionOptionsWrapper() : HybridObject("AmbientOcclusionOptionsWrapper") {}
   explicit AmbientOcclusionOptionsWrapper(const AmbientOcclusionOptions& options)

@@ -94,7 +94,7 @@ Texture* RenderableManagerImpl::createTextureFromBuffer(std::shared_ptr<Filament
 
   if (texture == nullptr) {
     std::string error = _textureProvider->getPushMessage();
-    Logger::log(TAG, "Error loading texture: %s", error.c_str());
+      margelo::Logger::log(TAG, "Error loading texture: %s", error.c_str());
     throw std::runtime_error("Error loading texture: " + error);
   }
 
@@ -143,7 +143,7 @@ void RenderableManagerImpl::changeMaterialTextureMap(std::shared_ptr<EntityWrapp
   std::shared_ptr<MaterialInstance> newInstance =
       std::shared_ptr<MaterialInstance>(MaterialInstance::duplicate(materialInstance), [engine, dispatcher](MaterialInstance* instance) {
         dispatcher->runAsync([engine, instance]() {
-          Logger::log(TAG, "Destroying material instance %p", instance);
+            margelo::Logger::log(TAG, "Destroying material instance %p", instance);
           engine->destroy(instance);
         });
       });
@@ -166,7 +166,7 @@ void RenderableManagerImpl::startUpdateResourceLoading() {
 
     // Check for textures that now have all their miplevels initialized.
     while (Texture* _texture = _textureProvider->popTexture()) {
-      Logger::log(TAG, "%p has all its miplevels ready.", _texture);
+        margelo::Logger::log(TAG, "%p has all its miplevels ready.", _texture);
     }
   }
 }
@@ -282,7 +282,7 @@ void RenderableManagerImpl::scaleBoundingBox(std::shared_ptr<FilamentAssetWrappe
     Entity entity = entities[i];
     RenderableManager::Instance renderable = renderableManager.getInstance(entity);
     Box boundingBox = renderableManager.getAxisAlignedBoundingBox(renderable);
-    Logger::log(TAG, "#%d Bounding box: min: %f %f %f, max: %f %f %f", i, boundingBox.getMin().x, boundingBox.getMin().y,
+      margelo::Logger::log(TAG, "#%d Bounding box: min: %f %f %f, max: %f %f %f", i, boundingBox.getMin().x, boundingBox.getMin().y,
                 boundingBox.getMin().z, boundingBox.getMax().x, boundingBox.getMax().y, boundingBox.getMax().z);
     // Create a new box that is twice the size
     Box box = Box().set(boundingBox.getMin() * scaleFactor, boundingBox.getMax() * scaleFactor);

@@ -10,7 +10,7 @@
 
 namespace margelo {
 
-class Surface : public HybridObject {
+class Surface : public margelo::HybridObject {
 public:
   explicit Surface() : HybridObject("Surface") {}
 
