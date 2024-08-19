@@ -7,7 +7,7 @@ PODS:
   - hermes-engine (0.74.1):
     - hermes-engine/Pre-built (= 0.74.1)
   - hermes-engine/Pre-built (0.74.1)
-  - NitroModules (0.1.3):
+  - NitroModules (0.5.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1788,7 +1788,7 @@ SPEC CHECKSUMS:
   fmt: 4c2741a687cc09f0634a2e2c72a838b99f1ff120
   glog: c5d68082e772fa1c511173d6b30a9de2c05a69a2
   hermes-engine: 16b8530de1b383cdada1476cf52d1b52f0692cbc
-  NitroModules: 8bb3abc20b1907912f0cbd44fd2e76bd7018e309
+  NitroModules: 4f1ee46199d395b4fe0da7b819a61a37cc955add
   RCT-Folly: 02617c592a293bd6d418e0a88ff4ee1f88329b47
   RCTDeprecation: efb313d8126259e9294dc4ee0002f44a6f676aba
   RCTRequired: f49ea29cece52aee20db633ae7edc4b271435562
@@ -1813,7 +1813,7 @@ SPEC CHECKSUMS:
   React-jsitracing: 233d1a798fe0ff33b8e630b8f00f62c4a8115fbc
   React-logger: 7e7403a2b14c97f847d90763af76b84b152b6fce
   React-Mapbuffer: 11029dcd47c5c9e057a4092ab9c2a8d10a496a33
-  react-native-filament: 0daffa159656bd7ad44b46775c0ebd24c0427d97
+  react-native-filament: e232d14507d95e4f6331b0cb9d276931785e5913
   react-native-safe-area-context: dcab599c527c2d7de2d76507a523d20a0b83823d
   react-native-video: 9f29aee2feb9e42da24cb40b70d005d38a1a132f
   react-native-worklets-core: f51430dd07bf5343d4918d28a4bb00fe8f98b982
