@@ -16,7 +16,6 @@ import {
   CollisionCallback,
 } from 'react-native-filament'
 import { useCoin } from './useCoin'
-import { useSharedValue } from 'react-native-worklets-core'
 
 function PhysicsCoinRenderer() {
   const world = useWorld(0, -9, 0)
@@ -34,7 +33,6 @@ function PhysicsCoinRenderer() {
     id: 'floor',
   })
 
-  const hasNotifiedTouchedFloor = useSharedValue(false)
   const [coinABody, coinAEntity] = useCoin(
     world,
     [0, 3, 0.0],
