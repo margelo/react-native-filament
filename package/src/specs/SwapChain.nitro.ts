@@ -1,6 +1,3 @@
-import { type HybridObject } from 'react-native-nitro-modules'
+import { PointerHolder } from './PointerHolder.nitro'
 
-export interface SwapChain extends HybridObject<{ android: 'c++'; ios: 'c++' }> {
-  readonly isValid: boolean
-  release(): void
-}
+export interface SwapChain extends PointerHolder {}

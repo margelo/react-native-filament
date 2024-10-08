@@ -27,6 +27,7 @@ target_sources(
   # Autolinking Setup
   ../nitrogen/generated/android/RNFOnLoad.cpp
   # Shared Nitrogen C++ sources
+  ../nitrogen/generated/shared/c++/HybridPointerHolderSpec.cpp
   ../nitrogen/generated/shared/c++/HybridSwapChainSpec.cpp
   # Android-specific Nitrogen C++ sources
   

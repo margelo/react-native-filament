@@ -8,10 +8,13 @@
 #pragma once
 
 // Forward declarations of C++ defined types
+// Forward declaration of `HybridPointerHolderSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridPointerHolderSpec; }
 // Forward declaration of `HybridSwapChainSpec` to properly resolve imports.
 namespace margelo::nitro::RNF { class HybridSwapChainSpec; }
 
 // Include C++ defined types
+#include "HybridPointerHolderSpec.hpp"
 #include "HybridSwapChainSpec.hpp"
 #include <memory>
 
@@ -25,6 +28,8 @@ namespace margelo::nitro::RNF { class HybridSwapChainSpec; }
 #include <NitroModules/PromiseHolder.hpp>
 
 // Forward declarations of Swift defined types
+// Forward declaration of `HybridPointerHolderSpecCxx` to properly resolve imports.
+namespace RNF { class HybridPointerHolderSpecCxx; }
 // Forward declaration of `HybridSwapChainSpecCxx` to properly resolve imports.
 namespace RNF { class HybridSwapChainSpecCxx; }
 
