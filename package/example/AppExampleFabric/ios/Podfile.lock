@@ -7,6 +7,27 @@ PODS:
   - hermes-engine (0.74.1):
     - hermes-engine/Pre-built (= 0.74.1)
   - hermes-engine/Pre-built (0.74.1)
+  - NitroModules (0.11.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Codegen
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RCT-Folly (2024.01.01.00):
     - boost
     - DoubleConversion
@@ -935,10 +956,11 @@ PODS:
   - React-Mapbuffer (0.74.1):
     - glog
     - React-debug
-  - react-native-filament (1.2.2):
+  - react-native-filament (1.5.1):
     - DoubleConversion
     - glog
     - hermes-engine
+    - NitroModules
     - RCT-Folly (= 2024.01.01.00)
     - RCTRequired
     - RCTTypeSafety
@@ -949,16 +971,16 @@ PODS:
     - React-featureflags
     - React-graphics
     - React-ImageManager
-    - react-native-filament/camutils (= 1.2.2)
-    - react-native-filament/filamat (= 1.2.2)
-    - react-native-filament/filament (= 1.2.2)
-    - react-native-filament/gltfio_core (= 1.2.2)
-    - react-native-filament/image (= 1.2.2)
-    - react-native-filament/ktxreader (= 1.2.2)
-    - react-native-filament/math (= 1.2.2)
-    - react-native-filament/tsl (= 1.2.2)
-    - react-native-filament/uberz (= 1.2.2)
-    - react-native-filament/utils (= 1.2.2)
+    - react-native-filament/camutils (= 1.5.1)
+    - react-native-filament/filamat (= 1.5.1)
+    - react-native-filament/filament (= 1.5.1)
+    - react-native-filament/gltfio_core (= 1.5.1)
+    - react-native-filament/image (= 1.5.1)
+    - react-native-filament/ktxreader (= 1.5.1)
+    - react-native-filament/math (= 1.5.1)
+    - react-native-filament/tsl (= 1.5.1)
+    - react-native-filament/uberz (= 1.5.1)
+    - react-native-filament/utils (= 1.5.1)
     - react-native-worklets-core
     - React-NativeModulesApple
     - React-RCTFabric
@@ -967,33 +989,11 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-filament/camutils (1.2.2):
+  - react-native-filament/camutils (1.5.1):
     - DoubleConversion
     - glog
     - hermes-engine
-    - RCT-Folly (= 2024.01.01.00)
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Codegen
-    - React-Core
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - react-native-filament/math
-    - react-native-worklets-core
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-rendererdebug
-    - React-utils
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - Yoga
-  - react-native-filament/filamat (1.2.2):
-    - DoubleConversion
-    - glog
-    - hermes-engine
+    - NitroModules
     - RCT-Folly (= 2024.01.01.00)
     - RCTRequired
     - RCTTypeSafety
@@ -1005,7 +1005,6 @@ PODS:
     - React-graphics
     - React-ImageManager
     - react-native-filament/math
-    - react-native-filament/utils
     - react-native-worklets-core
     - React-NativeModulesApple
     - React-RCTFabric
@@ -1014,10 +1013,11 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-filament/filament (1.2.2):
+  - react-native-filament/filamat (1.5.1):
     - DoubleConversion
     - glog
     - hermes-engine
+    - NitroModules
     - RCT-Folly (= 2024.01.01.00)
     - RCTRequired
     - RCTTypeSafety
@@ -1038,10 +1038,36 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-filament/gltfio_core (1.2.2):
+  - react-native-filament/filament (1.5.1):
     - DoubleConversion
     - glog
     - hermes-engine
+    - NitroModules
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Codegen
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - react-native-filament/math
+    - react-native-filament/utils
+    - react-native-worklets-core
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - react-native-filament/gltfio_core (1.5.1):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - NitroModules
     - RCT-Folly (= 2024.01.01.00)
     - RCTRequired
     - RCTTypeSafety
@@ -1063,10 +1089,11 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-filament/image (1.2.2):
+  - react-native-filament/image (1.5.1):
     - DoubleConversion
     - glog
     - hermes-engine
+    - NitroModules
     - RCT-Folly (= 2024.01.01.00)
     - RCTRequired
     - RCTTypeSafety
@@ -1086,10 +1113,11 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-filament/ktxreader (1.2.2):
+  - react-native-filament/ktxreader (1.5.1):
     - DoubleConversion
     - glog
     - hermes-engine
+    - NitroModules
     - RCT-Folly (= 2024.01.01.00)
     - RCTRequired
     - RCTTypeSafety
@@ -1110,10 +1138,11 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-filament/math (1.2.2):
+  - react-native-filament/math (1.5.1):
     - DoubleConversion
     - glog
     - hermes-engine
+    - NitroModules
     - RCT-Folly (= 2024.01.01.00)
     - RCTRequired
     - RCTTypeSafety
@@ -1132,10 +1161,11 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-filament/tsl (1.2.2):
+  - react-native-filament/tsl (1.5.1):
     - DoubleConversion
     - glog
     - hermes-engine
+    - NitroModules
     - RCT-Folly (= 2024.01.01.00)
     - RCTRequired
     - RCTTypeSafety
@@ -1154,10 +1184,11 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-filament/uberz (1.2.2):
+  - react-native-filament/uberz (1.5.1):
     - DoubleConversion
     - glog
     - hermes-engine
+    - NitroModules
     - RCT-Folly (= 2024.01.01.00)
     - RCTRequired
     - RCTTypeSafety
@@ -1179,10 +1210,11 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-filament/utils (1.2.2):
+  - react-native-filament/utils (1.5.1):
     - DoubleConversion
     - glog
     - hermes-engine
+    - NitroModules
     - RCT-Folly (= 2024.01.01.00)
     - RCTRequired
     - RCTTypeSafety
@@ -1660,6 +1692,7 @@ DEPENDENCIES:
   - fmt (from `../../../node_modules/react-native/third-party-podspecs/fmt.podspec`)
   - glog (from `../../../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../../../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
+  - NitroModules (from `../../../node_modules/react-native-nitro-modules`)
   - RCT-Folly (from `../../../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCT-Folly/Fabric (from `../../../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTDeprecation (from `../../../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
@@ -1737,6 +1770,8 @@ EXTERNAL SOURCES:
   hermes-engine:
     :podspec: "../../../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
     :tag: hermes-2024-04-25-RNv0.74.1-b54a3a01c531f4f5f1904cb0770033e8b7153dff
+  NitroModules:
+    :path: "../../../node_modules/react-native-nitro-modules"
   RCT-Folly:
     :podspec: "../../../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTDeprecation:
@@ -1857,6 +1892,7 @@ SPEC CHECKSUMS:
   fmt: 4c2741a687cc09f0634a2e2c72a838b99f1ff120
   glog: c5d68082e772fa1c511173d6b30a9de2c05a69a2
   hermes-engine: 16b8530de1b383cdada1476cf52d1b52f0692cbc
+  NitroModules: 88fb79388751fc74ebac44a6f75d917cd826b524
   RCT-Folly: 02617c592a293bd6d418e0a88ff4ee1f88329b47
   RCTDeprecation: efb313d8126259e9294dc4ee0002f44a6f676aba
   RCTRequired: f49ea29cece52aee20db633ae7edc4b271435562
@@ -1881,7 +1917,7 @@ SPEC CHECKSUMS:
   React-jsitracing: 233d1a798fe0ff33b8e630b8f00f62c4a8115fbc
   React-logger: 7e7403a2b14c97f847d90763af76b84b152b6fce
   React-Mapbuffer: 11029dcd47c5c9e057a4092ab9c2a8d10a496a33
-  react-native-filament: 4a7030481f08ed0d363259078192e8c382063775
+  react-native-filament: 6eac845691b42235e63f4a74e52b7e36bc32305e
   react-native-safe-area-context: 7f54ad0a774de306ab790c70d9d950321e5c5449
   react-native-video: ef5d99175a532dbe6cbcb33c849a2d1ecc9bac2e
   react-native-worklets-core: f5cdd75d46976ffa253adce0701218313de9cf09
