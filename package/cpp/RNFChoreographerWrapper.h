@@ -13,8 +13,6 @@ namespace margelo {
 
 using namespace nitro::RNF;
 
-using RenderCallback = std::function<void(FrameInfo)>;
-
 class ChoreographerWrapper : public HybridChoreographerSpec, public HybridPointerHolder<Choreographer>, public RuntimeLifecycleListener {
 public:
   explicit ChoreographerWrapper(std::shared_ptr<Choreographer> choreographer) : HybridChoreographerSpec(), HybridPointerHolder(HybridChoreographerSpec::TAG, choreographer) {}
@@ -29,7 +27,7 @@ protected:
 private: // Exposed JS API
   void start() override;
   void stop() override;
-  std::shared_ptr<Listener> addFrameCallbackListener(RenderCallback onFrameCallback);
+  std::shared_ptr<HybridListenerSpec> addFrameCallbackListener(const std::function<void(const FrameInfo& /* frameInfo */)>& callback) override;
   void release() override;
 
 private: // Internal

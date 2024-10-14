@@ -24,17 +24,17 @@ void ChoreographerWrapper::stop() {
   pointee()->stop();
 }
 
-std::shared_ptr<Listener> ChoreographerWrapper::addFrameCallbackListener(RenderCallback onFrameCallback) {
+std::shared_ptr<HybridListenerSpec> ChoreographerWrapper::addFrameCallbackListener(const std::function<void(const FrameInfo& /* frameInfo */)>& callback) {
   std::unique_lock lock(_mutex);
 
   margelo::Logger::log(HybridChoreographerSpec::TAG, "Adding frame callback listener");
 
   std::weak_ptr<ChoreographerWrapper> weakThis = shared<ChoreographerWrapper>();
-  return pointee()->addOnFrameListener([weakThis, onFrameCallback](double timestamp) {
+  return pointee()->addOnFrameListener([weakThis, callback](double timestamp) {
     auto sharedThis = weakThis.lock();
     if (sharedThis) {
       FrameInfo frameInfo = sharedThis->createFrameInfo(timestamp);
-      onFrameCallback(frameInfo);
+      callback(frameInfo);
     }
   });
 }
