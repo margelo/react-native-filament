@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { FilamentBuffer } from '../native/FilamentBuffer'
+import { FilamentBuffer } from '../types/FilamentBuffer.nitro'
 import { FilamentProxy } from '../native/FilamentProxy'
 import { withCleanupScope } from '../utilities/withCleanupScope'
 import { Image } from 'react-native'

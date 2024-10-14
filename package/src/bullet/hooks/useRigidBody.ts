@@ -1,10 +1,10 @@
 import { Float3 } from '../../types/Math'
 import { BulletAPI } from '../bulletApi'
-import { ActivationState, CollisionCallback, RigidBody } from '../types/RigidBody'
+import { ActivationState, CollisionCallback, RigidBody } from '../types/RigidBody.nitro'
 import { useEffect, useState } from 'react'
-import { BaseShape } from '../types/Shapes'
-import { Mat4 } from '../../types/TransformManager'
-import { DiscreteDynamicWorld } from '../types/DiscreteDynamicWorld'
+import { BaseShape } from '../types/Shapes.nitro'
+import { Mat4 } from '../../types/TransformManager.nitro'
+import { DiscreteDynamicWorld } from '../types/DiscreteDynamicWorld.nitro'
 import { FilamentWorkletContext } from '../../native/FilamentProxy'
 
 export type RigidBodyProps = {

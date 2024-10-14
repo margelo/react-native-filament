@@ -1,5 +1,5 @@
 import { useFilamentContext } from './useFilamentContext'
-import { FilamentBuffer } from '../native/FilamentBuffer'
+import { FilamentBuffer } from '../types/FilamentBuffer.nitro'
 import { useWorkletEffect } from './useWorkletEffect'
 
 export type SkyboxBaseOptions = {

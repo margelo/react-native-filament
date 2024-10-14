@@ -1,7 +1,7 @@
 import React from 'react'
 import { BufferSource, useBuffer } from '../hooks/useBuffer'
 import { useSkybox } from '../hooks/useSkybox'
-import { FilamentBuffer } from '../native/FilamentBuffer'
+import { FilamentBuffer } from '../types/FilamentBuffer.nitro'
 
 export type BaseProps = {
   /**

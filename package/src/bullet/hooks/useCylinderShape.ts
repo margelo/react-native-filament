@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { CylinderShape } from '../types/Shapes'
+import { CylinderShape } from '../types/Shapes.nitro'
 import { BulletAPI } from '../bulletApi'
 import { Float3 } from '../../types'
 

@@ -4,7 +4,7 @@ import { Entity, extractTransformationProps, TextureFlags, TransformationProps }
 import { useFilamentContext } from '../hooks/useFilamentContext'
 import React from 'react'
 import { useApplyTransformations } from '../hooks/internal/useApplyTransformations'
-import { FilamentBuffer } from '../native/FilamentBuffer'
+import { FilamentBuffer } from '../types/FilamentBuffer.nitro'
 import { useWorkletEffect } from '../hooks/useWorkletEffect'
 
 export type SelectorProps =

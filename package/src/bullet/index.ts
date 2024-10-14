@@ -7,9 +7,9 @@ export * from './hooks/useStaticPlaneShape'
 export * from './hooks/useSphereShape'
 
 // Types
-export * from './types/DiscreteDynamicWorld'
-export * from './types/RigidBody'
-export * from './types/Shapes'
+export * from './types/DiscreteDynamicWorld.nitro'
+export * from './types/RigidBody.nitro'
+export * from './types/Shapes.nitro'
 export * from './types/api'
 
 // Bullet API

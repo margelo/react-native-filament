@@ -1,7 +1,7 @@
-import { AABB } from './Boxes'
-import { Animator } from './Animator'
-import { Entity } from './Entity'
-import { NameComponentManager } from './NameComponentManager'
+import { AABB } from './Boxes.nitro'
+import { Animator } from './Animator.nitro'
+import { Entity } from './Entity.nitro'
+import { NameComponentManager } from './NameComponentManager.nitro'
 
 export interface FilamentInstanceBase {
   /**
@@ -19,7 +19,7 @@ export interface FilamentInstanceBase {
    * Gets the list of entities, one for each glTF node. All of these have a Transform component.
    * Some of the returned entities may also have a Renderable component and/or a Light component.
    */
-  getEntities: () => Entity[]
+  getEntities(): Entity[]
 
   /**
    * Gets the bounding box computed from the supplied min / max values in glTF accessors.

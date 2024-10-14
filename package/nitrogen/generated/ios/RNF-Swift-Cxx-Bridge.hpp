@@ -8,10 +8,95 @@
 #pragma once
 
 // Forward declarations of C++ defined types
-
+// Forward declaration of `FrameInfo` to properly resolve imports.
+namespace margelo::nitro::RNF { struct FrameInfo; }
+// Forward declaration of `HybridEntitySpecSwift` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridEntitySpecSwift; }
+// Forward declaration of `HybridEntitySpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridEntitySpec; }
+// Forward declaration of `HybridFilamentInstanceSpecSwift` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridFilamentInstanceSpecSwift; }
+// Forward declaration of `HybridFilamentInstanceSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridFilamentInstanceSpec; }
+// Forward declaration of `HybridMaterialSpecSwift` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridMaterialSpecSwift; }
+// Forward declaration of `HybridMaterialSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridMaterialSpec; }
+// Forward declaration of `HybridRigidBodySpecSwift` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridRigidBodySpecSwift; }
+// Forward declaration of `HybridRigidBodySpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridRigidBodySpec; }
+// Forward declaration of `HybridSurfaceSpecSwift` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridSurfaceSpecSwift; }
+// Forward declaration of `HybridSurfaceSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridSurfaceSpec; }
+// Forward declaration of `QualityLevel` to properly resolve imports.
+namespace margelo::nitro::RNF { enum class QualityLevel; }
 
 // Include C++ defined types
-
+#if __has_include("FrameInfo.hpp")
+ #include "FrameInfo.hpp"
+#endif
+#if __has_include("HybridEntitySpec.hpp")
+ #include "HybridEntitySpec.hpp"
+#endif
+#if __has_include("HybridEntitySpecSwift.hpp")
+ #include "HybridEntitySpecSwift.hpp"
+#endif
+#if __has_include("HybridFilamentInstanceSpec.hpp")
+ #include "HybridFilamentInstanceSpec.hpp"
+#endif
+#if __has_include("HybridFilamentInstanceSpecSwift.hpp")
+ #include "HybridFilamentInstanceSpecSwift.hpp"
+#endif
+#if __has_include("HybridMaterialSpec.hpp")
+ #include "HybridMaterialSpec.hpp"
+#endif
+#if __has_include("HybridMaterialSpecSwift.hpp")
+ #include "HybridMaterialSpecSwift.hpp"
+#endif
+#if __has_include("HybridRigidBodySpec.hpp")
+ #include "HybridRigidBodySpec.hpp"
+#endif
+#if __has_include("HybridRigidBodySpecSwift.hpp")
+ #include "HybridRigidBodySpecSwift.hpp"
+#endif
+#if __has_include("HybridSurfaceSpec.hpp")
+ #include "HybridSurfaceSpec.hpp"
+#endif
+#if __has_include("HybridSurfaceSpecSwift.hpp")
+ #include "HybridSurfaceSpecSwift.hpp"
+#endif
+#if __has_include("QualityLevel.hpp")
+ #include "QualityLevel.hpp"
+#endif
+#if __has_include(<NitroModules/PromiseHolder.hpp>)
+ #include <NitroModules/PromiseHolder.hpp>
+#endif
+#if __has_include(<functional>)
+ #include <functional>
+#endif
+#if __has_include(<future>)
+ #include <future>
+#endif
+#if __has_include(<memory>)
+ #include <memory>
+#endif
+#if __has_include(<optional>)
+ #include <optional>
+#endif
+#if __has_include(<string>)
+ #include <string>
+#endif
+#if __has_include(<tuple>)
+ #include <tuple>
+#endif
+#if __has_include(<unordered_map>)
+ #include <unordered_map>
+#endif
+#if __has_include(<vector>)
+ #include <vector>
+#endif
 
 /**
  * Contains specialized versions of C++ templated types so they can be accessed from Swift,
@@ -19,6 +104,372 @@
  */
 namespace margelo::nitro::RNF::bridge::swift {
 
+  /**
+   * Specialized version of `std::optional<std::shared_ptr<margelo::nitro::RNF::HybridSurfaceSpec>>`.
+   */
+  using std__optional_std__shared_ptr_margelo__nitro__RNF__HybridSurfaceSpec__ = std::optional<std::shared_ptr<margelo::nitro::RNF::HybridSurfaceSpec>>;
+  inline std::optional<std::shared_ptr<margelo::nitro::RNF::HybridSurfaceSpec>> create_std__optional_std__shared_ptr_margelo__nitro__RNF__HybridSurfaceSpec__(const std::shared_ptr<margelo::nitro::RNF::HybridSurfaceSpec>& value) {
+    return std::optional<std::shared_ptr<margelo::nitro::RNF::HybridSurfaceSpec>>(value);
+  }
   
+  /**
+   * Specialized version of `std::function<void(const std::shared_ptr<margelo::nitro::RNF::HybridSurfaceSpec>&)>`.
+   */
+  using Func_void_std__shared_ptr_margelo__nitro__RNF__HybridSurfaceSpec_ = std::function<void(const std::shared_ptr<margelo::nitro::RNF::HybridSurfaceSpec>& /* surface */)>;
+  /**
+   * Wrapper class for a `std::function<void(const std::shared_ptr<margelo::nitro::RNF::HybridSurfaceSpec>& / * surface * /)>`, this can be used from Swift.
+   */
+  class Func_void_std__shared_ptr_margelo__nitro__RNF__HybridSurfaceSpec__Wrapper {
+  public:
+    explicit Func_void_std__shared_ptr_margelo__nitro__RNF__HybridSurfaceSpec__Wrapper(const std::function<void(const std::shared_ptr<margelo::nitro::RNF::HybridSurfaceSpec>& /* surface */)>& func): function(func) {}
+    explicit Func_void_std__shared_ptr_margelo__nitro__RNF__HybridSurfaceSpec__Wrapper(std::function<void(const std::shared_ptr<margelo::nitro::RNF::HybridSurfaceSpec>& /* surface */)>&& func): function(std::move(func)) {}
+  
+    void call(std::shared_ptr<HybridSurfaceSpecSwift> surface) const {
+      function(HybridContext::getOrCreate<HybridSurfaceSpecSwift>(surface));
+    }
+  
+    std::function<void(const std::shared_ptr<margelo::nitro::RNF::HybridSurfaceSpec>& /* surface */)> function;
+  };
+  inline Func_void_std__shared_ptr_margelo__nitro__RNF__HybridSurfaceSpec_ create_Func_void_std__shared_ptr_margelo__nitro__RNF__HybridSurfaceSpec_(void* closureHolder, void(*call)(void* /* closureHolder */, std::shared_ptr<HybridSurfaceSpecSwift>), void(*destroy)(void*)) {
+    std::shared_ptr<void> sharedClosureHolder(closureHolder, destroy);
+    return Func_void_std__shared_ptr_margelo__nitro__RNF__HybridSurfaceSpec_([sharedClosureHolder, call](const std::shared_ptr<margelo::nitro::RNF::HybridSurfaceSpec>& surface) -> void {
+      call(sharedClosureHolder.get(), std::dynamic_pointer_cast<HybridSurfaceSpecSwift>(surface)->getSwiftPart());
+    });
+  }
+  inline std::shared_ptr<Func_void_std__shared_ptr_margelo__nitro__RNF__HybridSurfaceSpec__Wrapper> share_Func_void_std__shared_ptr_margelo__nitro__RNF__HybridSurfaceSpec_(const Func_void_std__shared_ptr_margelo__nitro__RNF__HybridSurfaceSpec_& value) {
+    return std::make_shared<Func_void_std__shared_ptr_margelo__nitro__RNF__HybridSurfaceSpec__Wrapper>(value);
+  }
+  
+  /**
+   * Specialized version of `std::function<void()>`.
+   */
+  using Func_void = std::function<void()>;
+  /**
+   * Wrapper class for a `std::function<void()>`, this can be used from Swift.
+   */
+  class Func_void_Wrapper {
+  public:
+    explicit Func_void_Wrapper(const std::function<void()>& func): function(func) {}
+    explicit Func_void_Wrapper(std::function<void()>&& func): function(std::move(func)) {}
+  
+    void call() const {
+      function();
+    }
+  
+    std::function<void()> function;
+  };
+  inline Func_void create_Func_void(void* closureHolder, void(*call)(void* /* closureHolder */), void(*destroy)(void*)) {
+    std::shared_ptr<void> sharedClosureHolder(closureHolder, destroy);
+    return Func_void([sharedClosureHolder, call]() -> void {
+      call(sharedClosureHolder.get());
+    });
+  }
+  inline std::shared_ptr<Func_void_Wrapper> share_Func_void(const Func_void& value) {
+    return std::make_shared<Func_void_Wrapper>(value);
+  }
+  
+  /**
+   * Specialized version of `std::tuple<double, double, double>`.
+   */
+  using std__tuple_double__double__double_ = std::tuple<double, double, double>;
+  inline std::tuple<double, double, double> create_std__tuple_double__double__double_(double arg0, double arg1, double arg2) {
+    return std::tuple<double, double, double> { arg0, arg1, arg2 };
+  }
+  
+  /**
+   * Specialized version of `std::tuple<std::tuple<double, double, double>, std::tuple<double, double, double>, std::tuple<double, double, double>>`.
+   */
+  using std__tuple_std__tuple_double__double__double___std__tuple_double__double__double___std__tuple_double__double__double__ = std::tuple<std::tuple<double, double, double>, std::tuple<double, double, double>, std::tuple<double, double, double>>;
+  inline std::tuple<std::tuple<double, double, double>, std::tuple<double, double, double>, std::tuple<double, double, double>> create_std__tuple_std__tuple_double__double__double___std__tuple_double__double__double___std__tuple_double__double__double__(const std::tuple<double, double, double>& arg0, const std::tuple<double, double, double>& arg1, const std::tuple<double, double, double>& arg2) {
+    return std::tuple<std::tuple<double, double, double>, std::tuple<double, double, double>, std::tuple<double, double, double>> { arg0, arg1, arg2 };
+  }
+  
+  /**
+   * Specialized version of `std::function<void(const FrameInfo&)>`.
+   */
+  using Func_void_FrameInfo = std::function<void(const FrameInfo& /* frameInfo */)>;
+  /**
+   * Wrapper class for a `std::function<void(const FrameInfo& / * frameInfo * /)>`, this can be used from Swift.
+   */
+  class Func_void_FrameInfo_Wrapper {
+  public:
+    explicit Func_void_FrameInfo_Wrapper(const std::function<void(const FrameInfo& /* frameInfo */)>& func): function(func) {}
+    explicit Func_void_FrameInfo_Wrapper(std::function<void(const FrameInfo& /* frameInfo */)>&& func): function(std::move(func)) {}
+  
+    void call(FrameInfo frameInfo) const {
+      function(frameInfo);
+    }
+  
+    std::function<void(const FrameInfo& /* frameInfo */)> function;
+  };
+  inline Func_void_FrameInfo create_Func_void_FrameInfo(void* closureHolder, void(*call)(void* /* closureHolder */, FrameInfo), void(*destroy)(void*)) {
+    std::shared_ptr<void> sharedClosureHolder(closureHolder, destroy);
+    return Func_void_FrameInfo([sharedClosureHolder, call](const FrameInfo& frameInfo) -> void {
+      call(sharedClosureHolder.get(), frameInfo);
+    });
+  }
+  inline std::shared_ptr<Func_void_FrameInfo_Wrapper> share_Func_void_FrameInfo(const Func_void_FrameInfo& value) {
+    return std::make_shared<Func_void_FrameInfo_Wrapper>(value);
+  }
+  
+  /**
+   * Specialized version of `std::optional<double>`.
+   */
+  using std__optional_double_ = std::optional<double>;
+  inline std::optional<double> create_std__optional_double_(const double& value) {
+    return std::optional<double>(value);
+  }
+  
+  /**
+   * Specialized version of `std::optional<std::tuple<double, double, double>>`.
+   */
+  using std__optional_std__tuple_double__double__double__ = std::optional<std::tuple<double, double, double>>;
+  inline std::optional<std::tuple<double, double, double>> create_std__optional_std__tuple_double__double__double__(const std::tuple<double, double, double>& value) {
+    return std::optional<std::tuple<double, double, double>>(value);
+  }
+  
+  /**
+   * Specialized version of `std::tuple<double>`.
+   */
+  using std__tuple_double_ = std::tuple<double>;
+  inline std::tuple<double> create_std__tuple_double_(double arg0) {
+    return std::tuple<double> { arg0 };
+  }
+  
+  /**
+   * Specialized version of `std::optional<std::tuple<double>>`.
+   */
+  using std__optional_std__tuple_double__ = std::optional<std::tuple<double>>;
+  inline std::optional<std::tuple<double>> create_std__optional_std__tuple_double__(const std::tuple<double>& value) {
+    return std::optional<std::tuple<double>>(value);
+  }
+  
+  /**
+   * Specialized version of `std::tuple<double, double>`.
+   */
+  using std__tuple_double__double_ = std::tuple<double, double>;
+  inline std::tuple<double, double> create_std__tuple_double__double_(double arg0, double arg1) {
+    return std::tuple<double, double> { arg0, arg1 };
+  }
+  
+  /**
+   * Specialized version of `std::optional<std::tuple<double, double>>`.
+   */
+  using std__optional_std__tuple_double__double__ = std::optional<std::tuple<double, double>>;
+  inline std::optional<std::tuple<double, double>> create_std__optional_std__tuple_double__double__(const std::tuple<double, double>& value) {
+    return std::optional<std::tuple<double, double>>(value);
+  }
+  
+  /**
+   * Specialized version of `std::optional<bool>`.
+   */
+  using std__optional_bool_ = std::optional<bool>;
+  inline std::optional<bool> create_std__optional_bool_(const bool& value) {
+    return std::optional<bool>(value);
+  }
+  
+  /**
+   * Specialized version of `std::vector<std::shared_ptr<margelo::nitro::RNF::HybridEntitySpec>>`.
+   */
+  using std__vector_std__shared_ptr_margelo__nitro__RNF__HybridEntitySpec__ = std::vector<std::shared_ptr<margelo::nitro::RNF::HybridEntitySpec>>;
+  inline std::vector<std::shared_ptr<margelo::nitro::RNF::HybridEntitySpec>> create_std__vector_std__shared_ptr_margelo__nitro__RNF__HybridEntitySpec__(size_t size) {
+    std::vector<std::shared_ptr<margelo::nitro::RNF::HybridEntitySpec>> vector;
+    vector.reserve(size);
+    return vector;
+  }
+  
+  /**
+   * Specialized version of `std::optional<std::shared_ptr<margelo::nitro::RNF::HybridEntitySpec>>`.
+   */
+  using std__optional_std__shared_ptr_margelo__nitro__RNF__HybridEntitySpec__ = std::optional<std::shared_ptr<margelo::nitro::RNF::HybridEntitySpec>>;
+  inline std::optional<std::shared_ptr<margelo::nitro::RNF::HybridEntitySpec>> create_std__optional_std__shared_ptr_margelo__nitro__RNF__HybridEntitySpec__(const std::shared_ptr<margelo::nitro::RNF::HybridEntitySpec>& value) {
+    return std::optional<std::shared_ptr<margelo::nitro::RNF::HybridEntitySpec>>(value);
+  }
+  
+  /**
+   * Specialized version of `std::vector<std::shared_ptr<margelo::nitro::RNF::HybridFilamentInstanceSpec>>`.
+   */
+  using std__vector_std__shared_ptr_margelo__nitro__RNF__HybridFilamentInstanceSpec__ = std::vector<std::shared_ptr<margelo::nitro::RNF::HybridFilamentInstanceSpec>>;
+  inline std::vector<std::shared_ptr<margelo::nitro::RNF::HybridFilamentInstanceSpec>> create_std__vector_std__shared_ptr_margelo__nitro__RNF__HybridFilamentInstanceSpec__(size_t size) {
+    std::vector<std::shared_ptr<margelo::nitro::RNF::HybridFilamentInstanceSpec>> vector;
+    vector.reserve(size);
+    return vector;
+  }
+  
+  /**
+   * Specialized version of `PromiseHolder<void>`.
+   */
+  using PromiseHolder_void_ = PromiseHolder<void>;
+  inline PromiseHolder<void> create_PromiseHolder_void_() {
+    return PromiseHolder<void>();
+  }
+  
+  /**
+   * Specialized version of `PromiseHolder<std::string>`.
+   */
+  using PromiseHolder_std__string_ = PromiseHolder<std::string>;
+  inline PromiseHolder<std::string> create_PromiseHolder_std__string_() {
+    return PromiseHolder<std::string>();
+  }
+  
+  /**
+   * Specialized version of `std::function<std::future<bool>()>`.
+   */
+  using Func_std__future_bool_ = std::function<std::future<bool>()>;
+  /**
+   * Wrapper class for a `std::function<std::future<bool>()>`, this can be used from Swift.
+   */
+  class Func_std__future_bool__Wrapper {
+  public:
+    explicit Func_std__future_bool__Wrapper(const std::function<std::future<bool>()>& func): function(func) {}
+    explicit Func_std__future_bool__Wrapper(std::function<std::future<bool>()>&& func): function(std::move(func)) {}
+  
+    PromiseHolder<bool> call() const {
+      auto result = function();
+      return []() -> PromiseHolder<bool> { throw std::runtime_error("Promise<..> cannot be converted to Swift yet!"); }();
+    }
+  
+    std::function<std::future<bool>()> function;
+  };
+  inline Func_std__future_bool_ create_Func_std__future_bool_(void* closureHolder, PromiseHolder<bool>(*call)(void* /* closureHolder */), void(*destroy)(void*)) {
+    std::shared_ptr<void> sharedClosureHolder(closureHolder, destroy);
+    return Func_std__future_bool_([sharedClosureHolder, call]() -> std::future<bool> {
+      auto result = call(sharedClosureHolder.get());
+      return result.getFuture();
+    });
+  }
+  inline std::shared_ptr<Func_std__future_bool__Wrapper> share_Func_std__future_bool_(const Func_std__future_bool_& value) {
+    return std::make_shared<Func_std__future_bool__Wrapper>(value);
+  }
+  
+  /**
+   * Specialized version of `PromiseHolder<bool>`.
+   */
+  using PromiseHolder_bool_ = PromiseHolder<bool>;
+  inline PromiseHolder<bool> create_PromiseHolder_bool_() {
+    return PromiseHolder<bool>();
+  }
+  
+  /**
+   * Specialized version of `std::vector<std::tuple<double, double, double>>`.
+   */
+  using std__vector_std__tuple_double__double__double__ = std::vector<std::tuple<double, double, double>>;
+  inline std::vector<std::tuple<double, double, double>> create_std__vector_std__tuple_double__double__double__(size_t size) {
+    std::vector<std::tuple<double, double, double>> vector;
+    vector.reserve(size);
+    return vector;
+  }
+  
+  /**
+   * Specialized version of `std::tuple<double, double, double, double, double, double, double, double, double>`.
+   */
+  using std__tuple_double__double__double__double__double__double__double__double__double_ = std::tuple<double, double, double, double, double, double, double, double, double>;
+  inline std::tuple<double, double, double, double, double, double, double, double, double> create_std__tuple_double__double__double__double__double__double__double__double__double_(double arg0, double arg1, double arg2, double arg3, double arg4, double arg5, double arg6, double arg7, double arg8) {
+    return std::tuple<double, double, double, double, double, double, double, double, double> { arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 };
+  }
+  
+  /**
+   * Specialized version of `std::tuple<double, double, double, double>`.
+   */
+  using std__tuple_double__double__double__double_ = std::tuple<double, double, double, double>;
+  inline std::tuple<double, double, double, double> create_std__tuple_double__double__double__double_(double arg0, double arg1, double arg2, double arg3) {
+    return std::tuple<double, double, double, double> { arg0, arg1, arg2, arg3 };
+  }
+  
+  /**
+   * Specialized version of `std::optional<std::string>`.
+   */
+  using std__optional_std__string_ = std::optional<std::string>;
+  inline std::optional<std::string> create_std__optional_std__string_(const std::string& value) {
+    return std::optional<std::string>(value);
+  }
+  
+  /**
+   * Specialized version of `std::optional<std::shared_ptr<margelo::nitro::RNF::HybridMaterialSpec>>`.
+   */
+  using std__optional_std__shared_ptr_margelo__nitro__RNF__HybridMaterialSpec__ = std::optional<std::shared_ptr<margelo::nitro::RNF::HybridMaterialSpec>>;
+  inline std::optional<std::shared_ptr<margelo::nitro::RNF::HybridMaterialSpec>> create_std__optional_std__shared_ptr_margelo__nitro__RNF__HybridMaterialSpec__(const std::shared_ptr<margelo::nitro::RNF::HybridMaterialSpec>& value) {
+    return std::optional<std::shared_ptr<margelo::nitro::RNF::HybridMaterialSpec>>(value);
+  }
+  
+  /**
+   * Specialized version of `std::vector<double>`.
+   */
+  using std__vector_double_ = std::vector<double>;
+  inline std::vector<double> create_std__vector_double_(size_t size) {
+    std::vector<double> vector;
+    vector.reserve(size);
+    return vector;
+  }
+  
+  /**
+   * Specialized version of `std::optional<QualityLevel>`.
+   */
+  using std__optional_QualityLevel_ = std::optional<QualityLevel>;
+  inline std::optional<QualityLevel> create_std__optional_QualityLevel_(const QualityLevel& value) {
+    return std::optional<QualityLevel>(value);
+  }
+  
+  /**
+   * Specialized version of `PromiseHolder<std::optional<std::shared_ptr<margelo::nitro::RNF::HybridEntitySpec>>>`.
+   */
+  using PromiseHolder_std__optional_std__shared_ptr_margelo__nitro__RNF__HybridEntitySpec___ = PromiseHolder<std::optional<std::shared_ptr<margelo::nitro::RNF::HybridEntitySpec>>>;
+  inline PromiseHolder<std::optional<std::shared_ptr<margelo::nitro::RNF::HybridEntitySpec>>> create_PromiseHolder_std__optional_std__shared_ptr_margelo__nitro__RNF__HybridEntitySpec___() {
+    return PromiseHolder<std::optional<std::shared_ptr<margelo::nitro::RNF::HybridEntitySpec>>>();
+  }
+  
+  /**
+   * Specialized version of `std::unordered_map<std::string, double>`.
+   */
+  using std__unordered_map_std__string__double_ = std::unordered_map<std::string, double>;
+  inline std::unordered_map<std::string, double> create_std__unordered_map_std__string__double_(size_t size) {
+    std::unordered_map<std::string, double> map;
+    map.reserve(size);
+    return map;
+  }
+  inline std::vector<std::string> get_std__unordered_map_std__string__double__keys(const std__unordered_map_std__string__double_& map) {
+    std::vector<std::string> keys;
+    keys.reserve(map.size());
+    for (const auto& entry : map) {
+      keys.push_back(entry.first);
+    }
+    return keys;
+  }
+  
+  /**
+   * Specialized version of `std::function<void(const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>&, const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>&)>`.
+   */
+  using Func_void_std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec__std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec_ = std::function<void(const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& /* thisBody */, const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& /* collidedWith */)>;
+  /**
+   * Wrapper class for a `std::function<void(const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& / * thisBody * /, const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& / * collidedWith * /)>`, this can be used from Swift.
+   */
+  class Func_void_std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec__std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec__Wrapper {
+  public:
+    explicit Func_void_std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec__std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec__Wrapper(const std::function<void(const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& /* thisBody */, const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& /* collidedWith */)>& func): function(func) {}
+    explicit Func_void_std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec__std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec__Wrapper(std::function<void(const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& /* thisBody */, const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& /* collidedWith */)>&& func): function(std::move(func)) {}
+  
+    void call(std::shared_ptr<HybridRigidBodySpecSwift> thisBody, std::shared_ptr<HybridRigidBodySpecSwift> collidedWith) const {
+      function(HybridContext::getOrCreate<HybridRigidBodySpecSwift>(thisBody), HybridContext::getOrCreate<HybridRigidBodySpecSwift>(collidedWith));
+    }
+  
+    std::function<void(const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& /* thisBody */, const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& /* collidedWith */)> function;
+  };
+  inline Func_void_std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec__std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec_ create_Func_void_std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec__std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec_(void* closureHolder, void(*call)(void* /* closureHolder */, std::shared_ptr<HybridRigidBodySpecSwift>, std::shared_ptr<HybridRigidBodySpecSwift>), void(*destroy)(void*)) {
+    std::shared_ptr<void> sharedClosureHolder(closureHolder, destroy);
+    return Func_void_std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec__std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec_([sharedClosureHolder, call](const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& thisBody, const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& collidedWith) -> void {
+      call(sharedClosureHolder.get(), std::dynamic_pointer_cast<HybridRigidBodySpecSwift>(thisBody)->getSwiftPart(), std::dynamic_pointer_cast<HybridRigidBodySpecSwift>(collidedWith)->getSwiftPart());
+    });
+  }
+  inline std::shared_ptr<Func_void_std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec__std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec__Wrapper> share_Func_void_std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec__std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec_(const Func_void_std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec__std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec_& value) {
+    return std::make_shared<Func_void_std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec__std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec__Wrapper>(value);
+  }
+  
+  /**
+   * Specialized version of `std::optional<std::function<void(const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& / * thisBody * /, const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& / * collidedWith * /)>>`.
+   */
+  using std__optional_std__function_void_const_std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec______thisBody_____const_std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec______collidedWith______ = std::optional<std::function<void(const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& /* thisBody */, const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& /* collidedWith */)>>;
+  inline std::optional<std::function<void(const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& /* thisBody */, const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& /* collidedWith */)>> create_std__optional_std__function_void_const_std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec______thisBody_____const_std__shared_ptr_margelo__nitro__RNF__HybridRigidBodySpec______collidedWith______(const std::function<void(const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& /* thisBody */, const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& /* collidedWith */)>& value) {
+    return std::optional<std::function<void(const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& /* thisBody */, const std::shared_ptr<margelo::nitro::RNF::HybridRigidBodySpec>& /* collidedWith */)>>(value);
+  }
 
 } // namespace margelo::nitro::RNF::bridge::swift

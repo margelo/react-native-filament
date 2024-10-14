@@ -1,5 +1,5 @@
 import { AmbientOcclusionOptions } from '../types/Options'
-import { View } from '../types/View'
+import { View } from '../types/View.nitro'
 
 // We need to wrap our options in a host object to be able to pass them to the view
 export function makeAmbientOcclusionHostObject(view: View, options: AmbientOcclusionOptions): AmbientOcclusionOptions {

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { StaticPlaneShape } from '../types/Shapes'
+import { StaticPlaneShape } from '../types/Shapes.nitro'
 import { BulletAPI } from '../bulletApi'
 
 export function useStaticPlaneShape(normalX: number, normalY: number, normalZ: number, constant: number): StaticPlaneShape {

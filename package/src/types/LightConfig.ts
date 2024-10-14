@@ -1,5 +1,7 @@
 import { Float3 } from './Math'
 
+export type LightType = 'directional' | 'sun' | 'point' | 'focused_point' | 'spot'
+
 export type BaseLightConfig = {
   /**
    * Sets the initial color of a light.
@@ -44,6 +46,8 @@ export type BaseLightConfig = {
    * Whether this Light casts shadows (disabled by default)
    */
   castShadows?: boolean
+
+  type: LightType
 }
 
 export type SpotLightExtraConfig = {
@@ -52,7 +56,7 @@ export type SpotLightExtraConfig = {
    *   - FOCUSED_SPOT,   //!< Physically correct spot light.
    *   - SPOT,           //!< Spot light with coupling of outer cone and illumination disabled.
    */
-  type: 'spot' | 'point' | 'focused_point'
+  type: LightType
 
   /**
    * Set the falloff distance for point lights and spot lights.
@@ -170,19 +174,4 @@ export type SpotLightExtraConfig = {
  *    incurring a significant overhead.
  *
  */
-export type LightConfig = BaseLightConfig &
-  (
-    | {
-        /**
-         *   - SUN,            //!< Directional light that also draws a sun's disk in the sky.
-         *   - DIRECTIONAL,    //!< Directional light, emits light in a given direction.
-         *   - POINT,          //!< Point light, emits light from a position, in all directions.
-         *   - FOCUSED_SPOT,   //!< Physically correct spot light.
-         *   - SPOT,           //!< Spot light with coupling of outer cone and illumination disabled.
-         */
-        type: 'directional' | 'sun'
-      }
-    | SpotLightExtraConfig
-  )
-
-export type LightType = LightConfig['type']
+export type LightConfig = BaseLightConfig & SpotLightExtraConfig

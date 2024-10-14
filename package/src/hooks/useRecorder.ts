@@ -3,7 +3,7 @@ import { useFilamentContext } from './useFilamentContext'
 import { FilamentProxy } from '../native/FilamentProxy'
 import { useDisposableResource } from './useDisposableResource'
 import { useWorkletEffect } from './useWorkletEffect'
-import { TFilamentRecorder } from '../types/FilamentRecorder'
+import { TFilamentRecorder } from '../types/FilamentRecorder.nitro'
 import { SwapChain } from '../types'
 import { Logger } from '../utilities/logger/Logger'
 

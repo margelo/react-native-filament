@@ -1,9 +1,10 @@
-import { Mat4 } from '../../types/TransformManager'
-import { DiscreteDynamicWorld } from './DiscreteDynamicWorld'
-import { CollisionCallback, RigidBody } from './RigidBody'
-import { BaseShape, BoxShape, CylinderShape, SphereShape, StaticPlaneShape } from './Shapes'
+import { HybridObject } from 'react-native-nitro-modules'
+import { Mat4 } from '../../types/TransformManager.nitro'
+import { DiscreteDynamicWorld } from './DiscreteDynamicWorld.nitro'
+import { CollisionCallback, RigidBody } from './RigidBody.nitro'
+import { BaseShape, BoxShape, CylinderShape, SphereShape, StaticPlaneShape } from './Shapes.nitro'
 
-export interface BulletAPI {
+export interface BulletAPI extends HybridObject<{ android: 'c++', ios: 'c++' }> {
   createDiscreteDynamicWorld(gravityX: number, gravityY: number, gravityZ: number): DiscreteDynamicWorld
   createBoxShape(halfX: number, halfY: number, halfZ: number): BoxShape
   /**

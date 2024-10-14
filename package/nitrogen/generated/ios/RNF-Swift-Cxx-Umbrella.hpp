@@ -8,15 +8,166 @@
 #pragma once
 
 // Forward declarations of C++ defined types
+// Forward declaration of `ActivationState` to properly resolve imports.
+namespace margelo::nitro::RNF { enum class ActivationState; }
+// Forward declaration of `AmbientOcclusionOptions` to properly resolve imports.
+namespace margelo::nitro::RNF { struct AmbientOcclusionOptions; }
+// Forward declaration of `AntiAliasingType` to properly resolve imports.
+namespace margelo::nitro::RNF { enum class AntiAliasingType; }
+// Forward declaration of `CullingMode` to properly resolve imports.
+namespace margelo::nitro::RNF { enum class CullingMode; }
+// Forward declaration of `DitheringType` to properly resolve imports.
+namespace margelo::nitro::RNF { enum class DitheringType; }
+// Forward declaration of `DynamicResolutionOptions` to properly resolve imports.
+namespace margelo::nitro::RNF { struct DynamicResolutionOptions; }
+// Forward declaration of `FrameInfo` to properly resolve imports.
+namespace margelo::nitro::RNF { struct FrameInfo; }
+// Forward declaration of `FrameRateOptions` to properly resolve imports.
+namespace margelo::nitro::RNF { struct FrameRateOptions; }
+// Forward declaration of `HybridAABBSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridAABBSpec; }
+// Forward declaration of `HybridAnimatorSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridAnimatorSpec; }
+// Forward declaration of `HybridBaseBoxSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridBaseBoxSpec; }
+// Forward declaration of `HybridBaseShapeSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridBaseShapeSpec; }
+// Forward declaration of `HybridBoxShapeSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridBoxShapeSpec; }
+// Forward declaration of `HybridBoxSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridBoxSpec; }
+// Forward declaration of `HybridCameraManipulatorSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridCameraManipulatorSpec; }
+// Forward declaration of `HybridChoreographerSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridChoreographerSpec; }
+// Forward declaration of `HybridCylinderShapeSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridCylinderShapeSpec; }
+// Forward declaration of `HybridDiscreteDynamicWorldSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridDiscreteDynamicWorldSpec; }
+// Forward declaration of `HybridEngineSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridEngineSpec; }
+// Forward declaration of `HybridEntitySpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridEntitySpec; }
+// Forward declaration of `HybridFilamentAssetSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridFilamentAssetSpec; }
+// Forward declaration of `HybridFilamentBufferSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridFilamentBufferSpec; }
+// Forward declaration of `HybridFilamentInstanceSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridFilamentInstanceSpec; }
+// Forward declaration of `HybridLightManagerSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridLightManagerSpec; }
+// Forward declaration of `HybridListenerSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridListenerSpec; }
+// Forward declaration of `HybridMat4Spec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridMat4Spec; }
+// Forward declaration of `HybridMaterialInstanceSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridMaterialInstanceSpec; }
+// Forward declaration of `HybridMaterialSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridMaterialSpec; }
+// Forward declaration of `HybridNameComponentManagerSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridNameComponentManagerSpec; }
 // Forward declaration of `HybridPointerHolderSpec` to properly resolve imports.
 namespace margelo::nitro::RNF { class HybridPointerHolderSpec; }
+// Forward declaration of `HybridRNFCameraSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridRNFCameraSpec; }
+// Forward declaration of `HybridRenderableManagerSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridRenderableManagerSpec; }
+// Forward declaration of `HybridRendererSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridRendererSpec; }
+// Forward declaration of `HybridRigidBodySpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridRigidBodySpec; }
+// Forward declaration of `HybridSceneSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridSceneSpec; }
+// Forward declaration of `HybridSphereShapeSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridSphereShapeSpec; }
+// Forward declaration of `HybridStaticPlaneShapeSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridStaticPlaneShapeSpec; }
+// Forward declaration of `HybridSurfaceProviderSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridSurfaceProviderSpec; }
+// Forward declaration of `HybridSurfaceSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridSurfaceSpec; }
 // Forward declaration of `HybridSwapChainSpec` to properly resolve imports.
 namespace margelo::nitro::RNF { class HybridSwapChainSpec; }
+// Forward declaration of `HybridTFilamentRecorderSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridTFilamentRecorderSpec; }
+// Forward declaration of `HybridTransformManagerSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridTransformManagerSpec; }
+// Forward declaration of `HybridViewSpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridViewSpec; }
+// Forward declaration of `LightType` to properly resolve imports.
+namespace margelo::nitro::RNF { enum class LightType; }
+// Forward declaration of `OrbitCameraManipulatorConfig` to properly resolve imports.
+namespace margelo::nitro::RNF { struct OrbitCameraManipulatorConfig; }
+// Forward declaration of `QualityLevel` to properly resolve imports.
+namespace margelo::nitro::RNF { enum class QualityLevel; }
+// Forward declaration of `TextureFlags` to properly resolve imports.
+namespace margelo::nitro::RNF { enum class TextureFlags; }
+// Forward declaration of `TextureInfo` to properly resolve imports.
+namespace margelo::nitro::RNF { struct TextureInfo; }
+// Forward declaration of `TransparencyMode` to properly resolve imports.
+namespace margelo::nitro::RNF { enum class TransparencyMode; }
+// Forward declaration of `Viewport` to properly resolve imports.
+namespace margelo::nitro::RNF { struct Viewport; }
 
 // Include C++ defined types
+#include "ActivationState.hpp"
+#include "AmbientOcclusionOptions.hpp"
+#include "AntiAliasingType.hpp"
+#include "CullingMode.hpp"
+#include "DitheringType.hpp"
+#include "DynamicResolutionOptions.hpp"
+#include "FrameInfo.hpp"
+#include "FrameRateOptions.hpp"
+#include "HybridAABBSpec.hpp"
+#include "HybridAnimatorSpec.hpp"
+#include "HybridBaseBoxSpec.hpp"
+#include "HybridBaseShapeSpec.hpp"
+#include "HybridBoxShapeSpec.hpp"
+#include "HybridBoxSpec.hpp"
+#include "HybridCameraManipulatorSpec.hpp"
+#include "HybridChoreographerSpec.hpp"
+#include "HybridCylinderShapeSpec.hpp"
+#include "HybridDiscreteDynamicWorldSpec.hpp"
+#include "HybridEngineSpec.hpp"
+#include "HybridEntitySpec.hpp"
+#include "HybridFilamentAssetSpec.hpp"
+#include "HybridFilamentBufferSpec.hpp"
+#include "HybridFilamentInstanceSpec.hpp"
+#include "HybridLightManagerSpec.hpp"
+#include "HybridListenerSpec.hpp"
+#include "HybridMat4Spec.hpp"
+#include "HybridMaterialInstanceSpec.hpp"
+#include "HybridMaterialSpec.hpp"
+#include "HybridNameComponentManagerSpec.hpp"
 #include "HybridPointerHolderSpec.hpp"
+#include "HybridRNFCameraSpec.hpp"
+#include "HybridRenderableManagerSpec.hpp"
+#include "HybridRendererSpec.hpp"
+#include "HybridRigidBodySpec.hpp"
+#include "HybridSceneSpec.hpp"
+#include "HybridSphereShapeSpec.hpp"
+#include "HybridStaticPlaneShapeSpec.hpp"
+#include "HybridSurfaceProviderSpec.hpp"
+#include "HybridSurfaceSpec.hpp"
 #include "HybridSwapChainSpec.hpp"
+#include "HybridTFilamentRecorderSpec.hpp"
+#include "HybridTransformManagerSpec.hpp"
+#include "HybridViewSpec.hpp"
+#include "LightType.hpp"
+#include "OrbitCameraManipulatorConfig.hpp"
+#include "QualityLevel.hpp"
+#include "TextureFlags.hpp"
+#include "TextureInfo.hpp"
+#include "TransparencyMode.hpp"
+#include "Viewport.hpp"
+#include <functional>
+#include <future>
 #include <memory>
+#include <optional>
+#include <string>
+#include <tuple>
+#include <unordered_map>
+#include <vector>
 
 // C++ helpers for Swift
 #include "RNF-Swift-Cxx-Bridge.hpp"
@@ -28,10 +179,76 @@ namespace margelo::nitro::RNF { class HybridSwapChainSpec; }
 #include <NitroModules/PromiseHolder.hpp>
 
 // Forward declarations of Swift defined types
+// Forward declaration of `HybridAABBSpecCxx` to properly resolve imports.
+namespace RNF { class HybridAABBSpecCxx; }
+// Forward declaration of `HybridAnimatorSpecCxx` to properly resolve imports.
+namespace RNF { class HybridAnimatorSpecCxx; }
+// Forward declaration of `HybridBaseBoxSpecCxx` to properly resolve imports.
+namespace RNF { class HybridBaseBoxSpecCxx; }
+// Forward declaration of `HybridBaseShapeSpecCxx` to properly resolve imports.
+namespace RNF { class HybridBaseShapeSpecCxx; }
+// Forward declaration of `HybridBoxShapeSpecCxx` to properly resolve imports.
+namespace RNF { class HybridBoxShapeSpecCxx; }
+// Forward declaration of `HybridBoxSpecCxx` to properly resolve imports.
+namespace RNF { class HybridBoxSpecCxx; }
+// Forward declaration of `HybridCameraManipulatorSpecCxx` to properly resolve imports.
+namespace RNF { class HybridCameraManipulatorSpecCxx; }
+// Forward declaration of `HybridChoreographerSpecCxx` to properly resolve imports.
+namespace RNF { class HybridChoreographerSpecCxx; }
+// Forward declaration of `HybridCylinderShapeSpecCxx` to properly resolve imports.
+namespace RNF { class HybridCylinderShapeSpecCxx; }
+// Forward declaration of `HybridDiscreteDynamicWorldSpecCxx` to properly resolve imports.
+namespace RNF { class HybridDiscreteDynamicWorldSpecCxx; }
+// Forward declaration of `HybridEngineSpecCxx` to properly resolve imports.
+namespace RNF { class HybridEngineSpecCxx; }
+// Forward declaration of `HybridEntitySpecCxx` to properly resolve imports.
+namespace RNF { class HybridEntitySpecCxx; }
+// Forward declaration of `HybridFilamentAssetSpecCxx` to properly resolve imports.
+namespace RNF { class HybridFilamentAssetSpecCxx; }
+// Forward declaration of `HybridFilamentBufferSpecCxx` to properly resolve imports.
+namespace RNF { class HybridFilamentBufferSpecCxx; }
+// Forward declaration of `HybridFilamentInstanceSpecCxx` to properly resolve imports.
+namespace RNF { class HybridFilamentInstanceSpecCxx; }
+// Forward declaration of `HybridLightManagerSpecCxx` to properly resolve imports.
+namespace RNF { class HybridLightManagerSpecCxx; }
+// Forward declaration of `HybridListenerSpecCxx` to properly resolve imports.
+namespace RNF { class HybridListenerSpecCxx; }
+// Forward declaration of `HybridMat4SpecCxx` to properly resolve imports.
+namespace RNF { class HybridMat4SpecCxx; }
+// Forward declaration of `HybridMaterialInstanceSpecCxx` to properly resolve imports.
+namespace RNF { class HybridMaterialInstanceSpecCxx; }
+// Forward declaration of `HybridMaterialSpecCxx` to properly resolve imports.
+namespace RNF { class HybridMaterialSpecCxx; }
+// Forward declaration of `HybridNameComponentManagerSpecCxx` to properly resolve imports.
+namespace RNF { class HybridNameComponentManagerSpecCxx; }
 // Forward declaration of `HybridPointerHolderSpecCxx` to properly resolve imports.
 namespace RNF { class HybridPointerHolderSpecCxx; }
+// Forward declaration of `HybridRNFCameraSpecCxx` to properly resolve imports.
+namespace RNF { class HybridRNFCameraSpecCxx; }
+// Forward declaration of `HybridRenderableManagerSpecCxx` to properly resolve imports.
+namespace RNF { class HybridRenderableManagerSpecCxx; }
+// Forward declaration of `HybridRendererSpecCxx` to properly resolve imports.
+namespace RNF { class HybridRendererSpecCxx; }
+// Forward declaration of `HybridRigidBodySpecCxx` to properly resolve imports.
+namespace RNF { class HybridRigidBodySpecCxx; }
+// Forward declaration of `HybridSceneSpecCxx` to properly resolve imports.
+namespace RNF { class HybridSceneSpecCxx; }
+// Forward declaration of `HybridSphereShapeSpecCxx` to properly resolve imports.
+namespace RNF { class HybridSphereShapeSpecCxx; }
+// Forward declaration of `HybridStaticPlaneShapeSpecCxx` to properly resolve imports.
+namespace RNF { class HybridStaticPlaneShapeSpecCxx; }
+// Forward declaration of `HybridSurfaceProviderSpecCxx` to properly resolve imports.
+namespace RNF { class HybridSurfaceProviderSpecCxx; }
+// Forward declaration of `HybridSurfaceSpecCxx` to properly resolve imports.
+namespace RNF { class HybridSurfaceSpecCxx; }
 // Forward declaration of `HybridSwapChainSpecCxx` to properly resolve imports.
 namespace RNF { class HybridSwapChainSpecCxx; }
+// Forward declaration of `HybridTFilamentRecorderSpecCxx` to properly resolve imports.
+namespace RNF { class HybridTFilamentRecorderSpecCxx; }
+// Forward declaration of `HybridTransformManagerSpecCxx` to properly resolve imports.
+namespace RNF { class HybridTransformManagerSpecCxx; }
+// Forward declaration of `HybridViewSpecCxx` to properly resolve imports.
+namespace RNF { class HybridViewSpecCxx; }
 
 // Include Swift defined types
 #if __has_include("RNF-Swift.h")

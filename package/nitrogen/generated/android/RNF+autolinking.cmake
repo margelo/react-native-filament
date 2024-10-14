@@ -27,8 +27,41 @@ target_sources(
   # Autolinking Setup
   ../nitrogen/generated/android/RNFOnLoad.cpp
   # Shared Nitrogen C++ sources
+  ../nitrogen/generated/shared/c++/HybridSurfaceSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridSurfaceProviderSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridAnimatorSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridBaseBoxSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridBoxSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridAABBSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridRNFCameraSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridCameraManipulatorSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridChoreographerSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridEngineSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridEntitySpec.cpp
+  ../nitrogen/generated/shared/c++/HybridFilamentAssetSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridFilamentBufferSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridFilamentInstanceSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridTFilamentRecorderSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridLightManagerSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridListenerSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridMaterialSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridMaterialInstanceSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridNameComponentManagerSpec.cpp
   ../nitrogen/generated/shared/c++/HybridPointerHolderSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridRenderableManagerSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridRendererSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridSceneSpec.cpp
   ../nitrogen/generated/shared/c++/HybridSwapChainSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridMat4Spec.cpp
+  ../nitrogen/generated/shared/c++/HybridTransformManagerSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridViewSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridDiscreteDynamicWorldSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridRigidBodySpec.cpp
+  ../nitrogen/generated/shared/c++/HybridBaseShapeSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridBoxShapeSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridCylinderShapeSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridStaticPlaneShapeSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridSphereShapeSpec.cpp
   # Android-specific Nitrogen C++ sources
   
 )
