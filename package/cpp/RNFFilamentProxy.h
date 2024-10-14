@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 
+#include "HybridFilamentProxy.hpp"
 #include "RNFChoreographer.h"
 #include "RNFChoreographerWrapper.h"
 #include "RNFFilamentBuffer.h"
@@ -36,6 +37,7 @@
 namespace margelo {
 
 using namespace facebook;
+using namespace margelo::RNF;
 
 class FilamentProxy : public margelo::HybridObject {
 public:
