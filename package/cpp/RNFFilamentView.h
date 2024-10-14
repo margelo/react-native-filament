@@ -16,9 +16,9 @@ namespace margelo {
 
 using namespace facebook;
 
-class FilamentView : public HybridObject {
+class FilamentView : public margelo::HybridObject {
 public:
-  explicit FilamentView() : HybridObject("FilamentView") {}
+  explicit FilamentView() : margelo::HybridObject("FilamentView") {}
   ~FilamentView() override;
 
 public:

@@ -16,10 +16,6 @@ Listener::~Listener() {
   remove();
 }
 
-void Listener::loadHybridMethods() {
-  registerHybridMethod("remove", &Listener::remove, this);
-}
-
 void Listener::remove() {
   if (_isRemoved) {
     return;

@@ -16,7 +16,7 @@ void Choreographer::onFrame(double timestamp) {
 }
 
 void Choreographer::removeAllListeners() {
-  Logger::log(TAG, "Removing all listeners");
+  margelo::Logger::log(TAG, "Removing all listeners");
   // Simply create a new ListenerManager, so the memory of the old one gets freed.
   _listeners = ListenerManager<OnFrameCallback>::create();
 }

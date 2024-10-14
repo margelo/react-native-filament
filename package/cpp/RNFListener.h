@@ -4,24 +4,22 @@
 
 #pragma once
 
-#include "jsi/RNFHybridObject.h"
+#include "HybridListenerSpec.hpp"
 #include <functional>
 #include <memory>
 
 namespace margelo {
 
-class Listener : public HybridObject {
+class Listener : public nitro::RNF::HybridListenerSpec {
 public:
   using ListenerRemover = std::function<void()>;
 
 public:
   explicit Listener(ListenerRemover&& remove);
 
-  void loadHybridMethods() override;
-
   static std::shared_ptr<Listener> create(ListenerRemover&& remover);
   ~Listener();
-  void remove();
+  void remove() override;
 
 private:
   ListenerRemover _remove;

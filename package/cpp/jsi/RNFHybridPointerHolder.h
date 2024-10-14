@@ -32,7 +32,7 @@ protected:
     ~HybridPointerHolder() override {
       nitro::RNF::HybridPointerHolderSpec::~HybridPointerHolderSpec();
       if (_pointer != nullptr) {
-          Logger::log(TAG, "Automatically releasing %s... (~PointerHolder())", TAG);
+          margelo::Logger::log(TAG, "Automatically releasing %s... (~PointerHolder())", TAG);
       }
     }
     
@@ -47,7 +47,7 @@ public:
       if (_pointer == nullptr) {
           throw std::runtime_error("Pointer " + _name + " has already been manually released!");
       }
-        Logger::log(TAG, "Manually releasing %s... (PointerHolder::release())", _name);
+      margelo::Logger::log(TAG, "Manually releasing %s... (PointerHolder::release())", _name.c_str());
       _pointer = nullptr;
     }
     

@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include "RNFListener.h"
+#include "RNFLogger.h"
+#include "HybridListenerSpec.hpp"
 #include "RNFListenerManager.h"
 #include <functional>
 
@@ -14,7 +15,7 @@ class Choreographer {
 public:
   explicit Choreographer() {}
   ~Choreographer() {
-    Logger::log("Choreographer", "(MEMORY) Deleting Choreographer... ❌");
+    margelo::Logger::log("Choreographer", "(MEMORY) Deleting Choreographer... ❌");
   }
   using OnFrameCallback = std::function<void(double timestamp)>;
 
