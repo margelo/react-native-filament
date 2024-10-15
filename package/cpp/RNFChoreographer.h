@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "RNFLogger.h"
 #include "RNFListener.h"
 #include "RNFListenerManager.h"
 #include <functional>

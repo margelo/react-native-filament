@@ -5,7 +5,11 @@
 #pragma once
 
 #include "RNFEnumMapper.h"
-#include "RNFHybridObject.h"
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/HybridObject.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
 #include "RNFJSIHelper.h"
 #include "RNFPromise.h"
 #include "RNFPromiseFactory.h"

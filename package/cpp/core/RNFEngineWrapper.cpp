@@ -32,28 +32,31 @@
 namespace margelo {
 
 void EngineWrapper::loadHybridMethods() {
-  registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider, this);
-  registerHybridMethod("createSwapChainForSurface", &EngineWrapper::createSwapChainForSurface, this);
-  registerHybridMethod("createSwapChainForRecorder", &EngineWrapper::createSwapChainForRecorder, this);
-  registerHybridMethod("setSwapChain", &EngineWrapper::setSwapChain, this);
-  registerHybridMethod("setIndirectLight", &EngineWrapper::setIndirectLight, this);
-  registerHybridMethod("loadAsset", &EngineWrapper::loadAsset, this);
-  registerHybridMethod("loadInstancedAsset", &EngineWrapper::loadInstancedAsset, this);
-  registerHybridMethod("getScene", &EngineWrapper::getScene, this);
-  registerHybridMethod("getView", &EngineWrapper::getView, this);
-  registerHybridMethod("getCamera", &EngineWrapper::getCamera, this);
-  registerHybridMethod("createOrbitCameraManipulator", &EngineWrapper::createOrbitCameraManipulator, this);
-  registerHybridMethod("createTransformManager", &EngineWrapper::createTransformManager, this);
-  registerHybridMethod("createRenderableManager", &EngineWrapper::createRenderableManager, this);
-  registerHybridMethod("createMaterial", &EngineWrapper::createMaterial, this);
-  registerHybridMethod("createLightManager", &EngineWrapper::createLightManager, this);
-  registerHybridMethod("createRenderer", &EngineWrapper::createRenderer, this);
-  registerHybridMethod("createNameComponentManager", &EngineWrapper::createNameComponentManager, this);
-  registerHybridMethod("createAndSetSkyboxByColor", &EngineWrapper::createAndSetSkyboxByColor, this);
-  registerHybridMethod("createAndSetSkyboxByTexture", &EngineWrapper::createAndSetSkyboxByTexture, this);
-  registerHybridMethod("clearSkybox", &EngineWrapper::clearSkybox, this);
-  registerHybridMethod("setAutomaticInstancingEnabled", &EngineWrapper::setAutomaticInstancingEnabled, this);
-  registerHybridMethod("flushAndWait", &EngineWrapper::flushAndWait, this);
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider);
+    proto.registerHybridMethod("createSwapChainForSurface", &EngineWrapper::createSwapChainForSurface);
+    proto.registerHybridMethod("createSwapChainForRecorder", &EngineWrapper::createSwapChainForRecorder);
+    proto.registerHybridMethod("setSwapChain", &EngineWrapper::setSwapChain);
+    proto.registerHybridMethod("setIndirectLight", &EngineWrapper::setIndirectLight);
+    proto.registerHybridMethod("loadAsset", &EngineWrapper::loadAsset);
+    proto.registerHybridMethod("loadInstancedAsset", &EngineWrapper::loadInstancedAsset);
+    proto.registerHybridMethod("getScene", &EngineWrapper::getScene);
+    proto.registerHybridMethod("getView", &EngineWrapper::getView);
+    proto.registerHybridMethod("getCamera", &EngineWrapper::getCamera);
+    proto.registerHybridMethod("createOrbitCameraManipulator", &EngineWrapper::createOrbitCameraManipulator);
+    proto.registerHybridMethod("createTransformManager", &EngineWrapper::createTransformManager);
+    proto.registerHybridMethod("createRenderableManager", &EngineWrapper::createRenderableManager);
+    proto.registerHybridMethod("createMaterial", &EngineWrapper::createMaterial);
+    proto.registerHybridMethod("createLightManager", &EngineWrapper::createLightManager);
+    proto.registerHybridMethod("createRenderer", &EngineWrapper::createRenderer);
+    proto.registerHybridMethod("createNameComponentManager", &EngineWrapper::createNameComponentManager);
+    proto.registerHybridMethod("createAndSetSkyboxByColor", &EngineWrapper::createAndSetSkyboxByColor);
+    proto.registerHybridMethod("createAndSetSkyboxByTexture", &EngineWrapper::createAndSetSkyboxByTexture);
+    proto.registerHybridMethod("clearSkybox", &EngineWrapper::clearSkybox);
+    proto.registerHybridMethod("setAutomaticInstancingEnabled", &EngineWrapper::setAutomaticInstancingEnabled);
+    proto.registerHybridMethod("flushAndWait", &EngineWrapper::flushAndWait);
+  });
 }
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
   pointee()->setSurfaceProvider(surfaceProvider);

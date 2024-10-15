@@ -11,14 +11,18 @@
 
 #include "RNFListener.h"
 #include "RNFListenerManager.h"
-#include "jsi/RNFHybridObject.h"
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/HybridObject.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
 #include "threading/RNFDispatcher.h"
 
 namespace margelo {
 
 using namespace facebook;
 
-class FilamentRecorder : public HybridObject {
+class FilamentRecorder : public nitro::HybridObject {
 public:
   using ReadyForMoreDataCallback = std::function<bool()>;
 

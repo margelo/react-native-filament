@@ -2,6 +2,7 @@
 // Created by Marc Rousavy on 23.02.24.
 //
 
+#include "RNFLogger.h"
 #include "RNFChoreographer.h"
 #include "RNFListenerManager.h"
 

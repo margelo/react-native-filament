@@ -4,13 +4,17 @@
 
 #pragma once
 
-#include "jsi/RNFHybridObject.h"
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/HybridObject.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
 #include <functional>
 #include <memory>
 
 namespace margelo {
 
-class Listener : public HybridObject {
+class Listener : public nitro::HybridObject {
 public:
   using ListenerRemover = std::function<void()>;
 

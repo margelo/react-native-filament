@@ -13,20 +13,23 @@
 namespace margelo {
 
 void LightManagerWrapper::loadHybridMethods() {
-  registerHybridMethod("createLightEntity", &LightManagerWrapper::createLightEntity, this);
-  registerHybridMethod("destroy", &LightManagerWrapper::destroy, this);
-  registerHybridMethod("setPosition", &LightManagerWrapper::setPosition, this);
-  registerHybridMethod("getPosition", &LightManagerWrapper::getPosition, this);
-  registerHybridMethod("setDirection", &LightManagerWrapper::setDirection, this);
-  registerHybridMethod("getDirection", &LightManagerWrapper::getDirection, this);
-  registerHybridMethod("setColor", &LightManagerWrapper::setColor, this);
-  registerHybridMethod("getColor", &LightManagerWrapper::getColor, this);
-  registerHybridMethod("setIntensity", &LightManagerWrapper::setIntensity, this);
-  registerHybridMethod("getIntensity", &LightManagerWrapper::getIntensity, this);
-  registerHybridMethod("setFalloff", &LightManagerWrapper::setFalloff, this);
-  registerHybridMethod("getFalloff", &LightManagerWrapper::getFalloff, this);
-  registerHybridMethod("setSpotLightCone", &LightManagerWrapper::setSpotLightCone, this);
-  registerHybridMethod("getSpotLightCone", &LightManagerWrapper::getSpotLightCone, this);
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridMethod("createLightEntity", &LightManagerWrapper::createLightEntity);
+    proto.registerHybridMethod("destroy", &LightManagerWrapper::destroy);
+    proto.registerHybridMethod("setPosition", &LightManagerWrapper::setPosition);
+    proto.registerHybridMethod("getPosition", &LightManagerWrapper::getPosition);
+    proto.registerHybridMethod("setDirection", &LightManagerWrapper::setDirection);
+    proto.registerHybridMethod("getDirection", &LightManagerWrapper::getDirection);
+    proto.registerHybridMethod("setColor", &LightManagerWrapper::setColor);
+    proto.registerHybridMethod("getColor", &LightManagerWrapper::getColor);
+    proto.registerHybridMethod("setIntensity", &LightManagerWrapper::setIntensity);
+    proto.registerHybridMethod("getIntensity", &LightManagerWrapper::getIntensity);
+    proto.registerHybridMethod("setFalloff", &LightManagerWrapper::setFalloff);
+    proto.registerHybridMethod("getFalloff", &LightManagerWrapper::getFalloff);
+    proto.registerHybridMethod("setSpotLightCone", &LightManagerWrapper::setSpotLightCone);
+    proto.registerHybridMethod("getSpotLightCone", &LightManagerWrapper::getSpotLightCone);
+  });
 }
 
 std::shared_ptr<EntityWrapper> LightManagerWrapper::createLightEntity(const std::string& lightTypeStr, std::optional<double> colorKelvin,

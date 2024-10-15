@@ -4,13 +4,17 @@
 
 #pragma once
 
-#include "jsi/RNFHybridObject.h"
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/HybridObject.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
 #include <math/mat4.h>
 
 namespace margelo {
 using namespace filament;
 
-class TMat44Wrapper : public HybridObject {
+class TMat44Wrapper : public nitro::HybridObject {
 public:
   explicit TMat44Wrapper(math::mat4f matrix) : HybridObject("TMat44Wrapper"), _matrix(matrix) {}
 

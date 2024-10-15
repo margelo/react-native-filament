@@ -11,6 +11,7 @@
 #include "VertexEntity.h"
 #include "core/utils/RNFEntityWrapper.h"
 #include "jsi/RNFPointerHolder.h"
+#include "threading/RNFDispatcher.h"
 
 #include <filament/RenderableManager.h>
 #include <gltfio/TextureProvider.h>

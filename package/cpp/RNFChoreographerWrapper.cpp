@@ -13,10 +13,14 @@ ChoreographerWrapper::~ChoreographerWrapper() {
 }
 
 void ChoreographerWrapper::loadHybridMethods() {
-  registerHybridMethod("start", &ChoreographerWrapper::start, this);
-  registerHybridMethod("stop", &ChoreographerWrapper::stop, this);
-  registerHybridMethod("addFrameCallbackListener", &ChoreographerWrapper::addFrameCallbackListener, this);
-  registerHybridMethod("release", &ChoreographerWrapper::release, this, true);
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridMethod("start", &ChoreographerWrapper::start);
+    proto.registerHybridMethod("stop", &ChoreographerWrapper::stop);
+    proto.registerHybridMethod("addFrameCallbackListener", &ChoreographerWrapper::addFrameCallbackListener);
+    // TODO: overwrite mechanism doens't exist yet i believe
+    proto.registerHybridMethod("release", &ChoreographerWrapper::release);
+  });
 }
 
 void ChoreographerWrapper::start() {

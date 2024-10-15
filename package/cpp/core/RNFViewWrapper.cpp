@@ -3,27 +3,30 @@
 namespace margelo {
 
 void ViewWrapper::loadHybridMethods() {
-  registerHybridMethod("getAspectRatio", &ViewWrapper::getAspectRatio, this);
-  registerHybridMethod("createAmbientOcclusionOptions", &ViewWrapper::createAmbientOcclusionOptions, this);
-  registerHybridMethod("setAmbientOcclusionOptions", &ViewWrapper::setAmbientOcclusionOptions, this);
-  registerHybridMethod("getAmbientOcclusionOptions", &ViewWrapper::getAmbientOcclusionOptions, this);
-  registerHybridMethod("createDynamicResolutionOptions", &ViewWrapper::createDynamicResolutionOptions, this);
-  registerHybridMethod("setDynamicResolutionOptions", &ViewWrapper::setDynamicResolutionOptions, this);
-  registerHybridMethod("getDynamicResolutionOptions", &ViewWrapper::getDynamicResolutionOptions, this);
-  registerHybridSetter("temporalAntiAliasingOptions", &ViewWrapper::setTemporalAntiAliasingOptions, this);
-  registerHybridGetter("screenSpaceRefraction", &ViewWrapper::isScreenSpaceRefractionEnabled, this);
-  registerHybridSetter("screenSpaceRefraction", &ViewWrapper::setScreenSpaceRefractionEnabled, this);
-  registerHybridGetter("postProcessing", &ViewWrapper::isPostProcessingEnabled, this);
-  registerHybridSetter("postProcessing", &ViewWrapper::setPostProcessingEnabled, this);
-  registerHybridGetter("shadowing", &ViewWrapper::isShadowingEnabled, this);
-  registerHybridSetter("shadowing", &ViewWrapper::setShadowingEnabled, this);
-  registerHybridGetter("dithering", &ViewWrapper::getDithering, this);
-  registerHybridSetter("dithering", &ViewWrapper::setDithering, this);
-  registerHybridGetter("antiAliasing", &ViewWrapper::getAntiAliasing, this);
-  registerHybridSetter("antiAliasing", &ViewWrapper::setAntiAliasing, this);
-  registerHybridMethod("projectWorldToScreen", &ViewWrapper::projectWorldToScreen, this);
-  registerHybridMethod("pickEntity", &ViewWrapper::pickEntity, this);
-  registerHybridMethod("getViewport", &ViewWrapper::getViewport, this);
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridMethod("getAspectRatio", &ViewWrapper::getAspectRatio);
+    proto.registerHybridMethod("createAmbientOcclusionOptions", &ViewWrapper::createAmbientOcclusionOptions);
+    proto.registerHybridMethod("setAmbientOcclusionOptions", &ViewWrapper::setAmbientOcclusionOptions);
+    proto.registerHybridMethod("getAmbientOcclusionOptions", &ViewWrapper::getAmbientOcclusionOptions);
+    proto.registerHybridMethod("createDynamicResolutionOptions", &ViewWrapper::createDynamicResolutionOptions);
+    proto.registerHybridMethod("setDynamicResolutionOptions", &ViewWrapper::setDynamicResolutionOptions);
+    proto.registerHybridMethod("getDynamicResolutionOptions", &ViewWrapper::getDynamicResolutionOptions);
+    proto.registerHybridSetter("temporalAntiAliasingOptions", &ViewWrapper::setTemporalAntiAliasingOptions);
+    proto.registerHybridGetter("screenSpaceRefraction", &ViewWrapper::isScreenSpaceRefractionEnabled);
+    proto.registerHybridSetter("screenSpaceRefraction", &ViewWrapper::setScreenSpaceRefractionEnabled);
+    proto.registerHybridGetter("postProcessing", &ViewWrapper::isPostProcessingEnabled);
+    proto.registerHybridSetter("postProcessing", &ViewWrapper::setPostProcessingEnabled);
+    proto.registerHybridGetter("shadowing", &ViewWrapper::isShadowingEnabled);
+    proto.registerHybridSetter("shadowing", &ViewWrapper::setShadowingEnabled);
+    proto.registerHybridGetter("dithering", &ViewWrapper::getDithering);
+    proto.registerHybridSetter("dithering", &ViewWrapper::setDithering);
+    proto.registerHybridGetter("antiAliasing", &ViewWrapper::getAntiAliasing);
+    proto.registerHybridSetter("antiAliasing", &ViewWrapper::setAntiAliasing);
+    proto.registerHybridMethod("projectWorldToScreen", &ViewWrapper::projectWorldToScreen);
+    proto.registerHybridMethod("pickEntity", &ViewWrapper::pickEntity);
+    proto.registerHybridMethod("getViewport", &ViewWrapper::getViewport);
+  });
 }
 
 double ViewWrapper::getAspectRatio() {

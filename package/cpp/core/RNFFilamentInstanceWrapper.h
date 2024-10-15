@@ -6,7 +6,11 @@
 
 #include "RNFAABBWrapper.h"
 #include "RNFNameComponentManagerWrapper.h"
-#include "jsi/RNFHybridObject.h"
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/HybridObject.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
 #include "utils/RNFEntityWrapper.h"
 
 #include <gltfio/FilamentInstance.h>
@@ -18,7 +22,7 @@ using namespace gltfio;
 
 class AnimatorWrapper;
 
-class FilamentInstanceWrapper : public HybridObject {
+class FilamentInstanceWrapper : public nitro::HybridObject {
 public:
   explicit FilamentInstanceWrapper(FilamentInstance* instance) : HybridObject("FilamentInstanceWrapper"), _instance(instance) {}
 

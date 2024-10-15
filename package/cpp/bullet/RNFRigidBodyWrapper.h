@@ -7,7 +7,11 @@
 #include "RNFActivationStateEnum.h"
 #include "core/RNFFilamentAssetWrapper.h"
 #include "core/math/RNFTMat44Wrapper.h"
-#include "jsi/RNFHybridObject.h"
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/HybridObject.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
 
 #include <btBulletDynamicsCommon.h>
 
@@ -21,7 +25,7 @@ class RigidBodyWrapper;
  */
 using CollisionCallback = std::function<void(std::shared_ptr<RigidBodyWrapper>&, const std::shared_ptr<RigidBodyWrapper>)>;
 
-class RigidBodyWrapper : public HybridObject {
+class RigidBodyWrapper : public nitro::HybridObject {
 public:
   explicit RigidBodyWrapper(double mass, std::shared_ptr<btCollisionShape> shape, std::unique_ptr<btMotionState> motionState,
                             std::string id, std::optional<CollisionCallback> collisionCallback);

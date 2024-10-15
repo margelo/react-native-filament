@@ -6,7 +6,10 @@
 namespace margelo {
 
     void NameComponentManagerWrapper::loadHybridMethods() {
-        registerHybridMethod("getEntityName", &NameComponentManagerWrapper::getEntityName, this);
+        HybridObject::loadHybridMethods();
+        registerHybrids(this, [](nitro::Prototype& proto) {
+            proto.registerHybridMethod("getEntityName", &NameComponentManagerWrapper::getEntityName);
+        });
     }
 
     // TODO: This code is similar to EntityNameMap AnimatorWrapper::createEntityNameMap, consider refactoring

@@ -21,18 +21,21 @@ namespace margelo {
 using namespace facebook;
 
 void FilamentProxy::loadHybridMethods() {
-  registerHybridMethod("loadAsset", &FilamentProxy::loadAssetAsync, this);
-  registerHybridMethod("findFilamentView", &FilamentProxy::findFilamentViewAsync, this);
-  registerHybridMethod("createTestObject", &FilamentProxy::createTestObject, this);
-  registerHybridMethod("createEngine", &FilamentProxy::createEngine, this);
-  registerHybridMethod("createBullet", &FilamentProxy::createBullet, this);
-  registerHybridMethod("createChoreographer", &FilamentProxy::createChoreographerWrapper, this);
-  registerHybridMethod("createRecorder", &FilamentProxy::createRecorder, this);
-  registerHybridMethod("getCurrentDispatcher", &FilamentProxy::getCurrentDispatcher, this);
-  registerHybridGetter("hasWorklets", &FilamentProxy::getHasWorklets, this);
-#if HAS_WORKLETS
-  registerHybridMethod("createWorkletContext", &FilamentProxy::createWorkletContext, this);
-#endif
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridMethod("loadAsset", &FilamentProxy::loadAssetAsync);
+    proto.registerHybridMethod("findFilamentView", &FilamentProxy::findFilamentViewAsync);
+    proto.registerHybridMethod("createTestObject", &FilamentProxy::createTestObject);
+    proto.registerHybridMethod("createEngine", &FilamentProxy::createEngine);
+    proto.registerHybridMethod("createBullet", &FilamentProxy::createBullet);
+    proto.registerHybridMethod("createChoreographer", &FilamentProxy::createChoreographerWrapper);
+    proto.registerHybridMethod("createRecorder", &FilamentProxy::createRecorder);
+    proto.registerHybridMethod("getCurrentDispatcher", &FilamentProxy::getCurrentDispatcher);
+    proto.registerHybridGetter("hasWorklets", &FilamentProxy::getHasWorklets);
+  #if HAS_WORKLETS
+    proto.registerHybridMethod("createWorkletContext", &FilamentProxy::createWorkletContext);
+  #endif
+  });
 }
 
 bool FilamentProxy::getHasWorklets() {

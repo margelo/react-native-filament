@@ -5,12 +5,15 @@
 namespace margelo {
 
 void margelo::TMat44Wrapper::loadHybridMethods() {
-  registerHybridGetter("data", &TMat44Wrapper::getMatrixData, this);
-  registerHybridMethod("scaling", &TMat44Wrapper::scaling, this);
-  registerHybridMethod("translate", &TMat44Wrapper::translate, this);
-  registerHybridMethod("rotate", &TMat44Wrapper::rotate, this);
-  registerHybridGetter("scale", &TMat44Wrapper::getScale, this);
-  registerHybridGetter("translation", &TMat44Wrapper::getTranslation, this);
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridGetter("data", &TMat44Wrapper::getMatrixData);
+    proto.registerHybridMethod("scaling", &TMat44Wrapper::scaling);
+    proto.registerHybridMethod("translate", &TMat44Wrapper::translate);
+    proto.registerHybridMethod("rotate", &TMat44Wrapper::rotate);
+    proto.registerHybridGetter("scale", &TMat44Wrapper::getScale);
+    proto.registerHybridGetter("translation", &TMat44Wrapper::getTranslation);
+  });
 }
 
 std::vector<double> TMat44Wrapper::getMatrixData() {

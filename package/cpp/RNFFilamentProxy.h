@@ -17,7 +17,11 @@
 #include "RNFFilamentView.h"
 #include "bullet/RNFBulletWrapper.h"
 #include "core/RNFEngineWrapper.h"
-#include "jsi/RNFHybridObject.h"
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/HybridObject.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
 #include "test/RNFTestHybridObject.h"
 #include "threading/RNFDispatcher.h"
 
@@ -37,7 +41,7 @@ namespace margelo {
 
 using namespace facebook;
 
-class FilamentProxy : public HybridObject {
+class FilamentProxy : public nitro::HybridObject {
 public:
   explicit FilamentProxy() : HybridObject(TAG) {}
 

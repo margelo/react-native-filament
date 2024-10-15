@@ -12,12 +12,16 @@
 #include "RNFRigidBodyWrapper.h"
 #include "RNFSphereShapeWrapper.h"
 #include "RNFStaticPlaneShapeWrapper.h"
-#include "jsi/RNFHybridObject.h"
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/HybridObject.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
 
 namespace margelo {
 
 // Main Wrapper for all Bullet Physics related APIs
-class BulletWrapper : public HybridObject {
+class BulletWrapper : public nitro::HybridObject {
 public:
   explicit BulletWrapper() : HybridObject("BulletWrapper") {}
   void loadHybridMethods() override;

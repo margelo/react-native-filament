@@ -1,6 +1,10 @@
 #pragma once
 
-#include "jsi/RNFHybridObject.h"
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/HybridObject.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
 
 #include <core/VertexEntity.h>
 #include <filament/IndexBuffer.h>
@@ -11,7 +15,7 @@ namespace margelo {
 using namespace utils;
 using namespace filament;
 
-class EntityWrapper : public HybridObject {
+class EntityWrapper : public nitro::HybridObject {
 public:
   explicit EntityWrapper(Entity entity) : HybridObject("EntityWrapper"), _entity(entity) {}
   explicit EntityWrapper(const VertexEntity& vertexEntity)

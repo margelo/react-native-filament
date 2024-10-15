@@ -5,14 +5,18 @@
 #pragma once
 
 #include "RNFRigidBodyWrapper.h"
-#include "jsi/RNFHybridObject.h"
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/HybridObject.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
 
 #include <btBulletDynamicsCommon.h>
 
 #include <list>
 
 namespace margelo {
-class DiscreteDynamicWorldWrapper : public HybridObject {
+class DiscreteDynamicWorldWrapper : public nitro::HybridObject {
 public:
   explicit DiscreteDynamicWorldWrapper(double gravityX, double gravityY, double gravityZ);
 

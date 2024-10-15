@@ -7,17 +7,20 @@
 namespace margelo {
 
 void TransformManagerWrapper::loadHybridMethods() {
-  registerHybridMethod("getTransform", &TransformManagerWrapper::getTransform, this);
-  registerHybridMethod("getWorldTransform", &TransformManagerWrapper::getWorldTransform, this);
-  registerHybridMethod("openLocalTransformTransaction", &TransformManagerWrapper::openLocalTransformTransaction, this);
-  registerHybridMethod("commitLocalTransformTransaction", &TransformManagerWrapper::commitLocalTransformTransaction, this);
-  registerHybridMethod("setTransform", &TransformManagerWrapper::setTransform, this);
-  registerHybridMethod("createIdentityMatrix", &TransformManagerWrapper::createIdentityMatrix, this);
-  registerHybridMethod("setEntityPosition", &TransformManagerWrapper::setEntityPosition, this);
-  registerHybridMethod("setEntityRotation", &TransformManagerWrapper::setEntityRotation, this);
-  registerHybridMethod("setEntityScale", &TransformManagerWrapper::setEntityScale, this);
-  registerHybridMethod("updateTransformByRigidBody", &TransformManagerWrapper::updateTransformByRigidBody, this);
-  registerHybridMethod("transformToUnitCube", &TransformManagerWrapper::transformToUnitCube, this);
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridMethod("getTransform", &TransformManagerWrapper::getTransform);
+    proto.registerHybridMethod("getWorldTransform", &TransformManagerWrapper::getWorldTransform);
+    proto.registerHybridMethod("openLocalTransformTransaction", &TransformManagerWrapper::openLocalTransformTransaction);
+    proto.registerHybridMethod("commitLocalTransformTransaction", &TransformManagerWrapper::commitLocalTransformTransaction);
+    proto.registerHybridMethod("setTransform", &TransformManagerWrapper::setTransform);
+    proto.registerHybridMethod("createIdentityMatrix", &TransformManagerWrapper::createIdentityMatrix);
+    proto.registerHybridMethod("setEntityPosition", &TransformManagerWrapper::setEntityPosition);
+    proto.registerHybridMethod("setEntityRotation", &TransformManagerWrapper::setEntityRotation);
+    proto.registerHybridMethod("setEntityScale", &TransformManagerWrapper::setEntityScale);
+    proto.registerHybridMethod("updateTransformByRigidBody", &TransformManagerWrapper::updateTransformByRigidBody);
+    proto.registerHybridMethod("transformToUnitCube", &TransformManagerWrapper::transformToUnitCube);
+  });
 }
 std::shared_ptr<TMat44Wrapper> TransformManagerWrapper::getTransform(std::shared_ptr<EntityWrapper> entityWrapper) {
   Entity entity = getEntity(entityWrapper);

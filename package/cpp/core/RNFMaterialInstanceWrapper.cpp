@@ -10,20 +10,23 @@
 
 namespace margelo {
 void MaterialInstanceWrapper::loadHybridMethods() {
-  registerHybridMethod("setCullingMode", &MaterialInstanceWrapper::setCullingMode, this);
-  registerHybridMethod("setTransparencyMode", &MaterialInstanceWrapper::setTransparencyMode, this);
-  registerHybridMethod("changeAlpha", &MaterialInstanceWrapper::changeAlpha, this);
-  registerHybridMethod("setFloatParameter", &MaterialInstanceWrapper::setFloatParameter, this);
-  registerHybridMethod("setIntParameter", &MaterialInstanceWrapper::setIntParameter, this);
-  registerHybridMethod("setFloat3Parameter", &MaterialInstanceWrapper::setFloat3Parameter, this);
-  registerHybridMethod("setFloat4Parameter", &MaterialInstanceWrapper::setFloat4Parameter, this);
-  registerHybridMethod("setMat3fParameter", &MaterialInstanceWrapper::setMat3fParameter, this);
-  registerHybridMethod("getFloatParameter", &MaterialInstanceWrapper::getFloatParameter, this);
-  registerHybridMethod("getIntParameter", &MaterialInstanceWrapper::getIntParameter, this);
-  registerHybridMethod("getFloat3Parameter", &MaterialInstanceWrapper::getFloat3Parameter, this);
-  registerHybridMethod("getFloat4Parameter", &MaterialInstanceWrapper::getFloat4Parameter, this);
-  registerHybridMethod("getMat3fParameter", &MaterialInstanceWrapper::getMat3fParameter, this);
-  registerHybridGetter("getName", &MaterialInstanceWrapper::getName, this);
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridMethod("setCullingMode", &MaterialInstanceWrapper::setCullingMode);
+    proto.registerHybridMethod("setTransparencyMode", &MaterialInstanceWrapper::setTransparencyMode);
+    proto.registerHybridMethod("changeAlpha", &MaterialInstanceWrapper::changeAlpha);
+    proto.registerHybridMethod("setFloatParameter", &MaterialInstanceWrapper::setFloatParameter);
+    proto.registerHybridMethod("setIntParameter", &MaterialInstanceWrapper::setIntParameter);
+    proto.registerHybridMethod("setFloat3Parameter", &MaterialInstanceWrapper::setFloat3Parameter);
+    proto.registerHybridMethod("setFloat4Parameter", &MaterialInstanceWrapper::setFloat4Parameter);
+    proto.registerHybridMethod("setMat3fParameter", &MaterialInstanceWrapper::setMat3fParameter);
+    proto.registerHybridMethod("getFloatParameter", &MaterialInstanceWrapper::getFloatParameter);
+    proto.registerHybridMethod("getIntParameter", &MaterialInstanceWrapper::getIntParameter);
+    proto.registerHybridMethod("getFloat3Parameter", &MaterialInstanceWrapper::getFloat3Parameter);
+    proto.registerHybridMethod("getFloat4Parameter", &MaterialInstanceWrapper::getFloat4Parameter);
+    proto.registerHybridMethod("getMat3fParameter", &MaterialInstanceWrapper::getMat3fParameter);
+    proto.registerHybridGetter("getName", &MaterialInstanceWrapper::getName);
+  });
 }
 
 void MaterialInstanceWrapper::setCullingMode(std::string mode) {

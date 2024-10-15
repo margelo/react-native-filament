@@ -2,12 +2,15 @@
 
 namespace margelo {
 void ManipulatorWrapper::loadHybridMethods() {
-  registerHybridMethod("grabBegin", &ManipulatorWrapper::grabBegin, this);
-  registerHybridMethod("grabUpdate", &ManipulatorWrapper::grabUpdate, this);
-  registerHybridMethod("grabEnd", &ManipulatorWrapper::grabEnd, this);
-  registerHybridMethod("scroll", &ManipulatorWrapper::scroll, this);
-  registerHybridMethod("update", &ManipulatorWrapper::update, this);
-  registerHybridMethod("getLookAt", &ManipulatorWrapper::getLookAt, this);
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridMethod("grabBegin", &ManipulatorWrapper::grabBegin);
+    proto.registerHybridMethod("grabUpdate", &ManipulatorWrapper::grabUpdate);
+    proto.registerHybridMethod("grabEnd", &ManipulatorWrapper::grabEnd);
+    proto.registerHybridMethod("scroll", &ManipulatorWrapper::scroll);
+    proto.registerHybridMethod("update", &ManipulatorWrapper::update);
+    proto.registerHybridMethod("getLookAt", &ManipulatorWrapper::getLookAt);
+  });
 }
 
 void ManipulatorWrapper::grabBegin(float x, float y, bool strafe) {

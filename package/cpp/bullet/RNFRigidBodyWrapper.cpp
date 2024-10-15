@@ -70,14 +70,17 @@ std::shared_ptr<RigidBodyWrapper> RigidBodyWrapper::create(double mass, std::sha
 }
 
 void RigidBodyWrapper::loadHybridMethods() {
-  registerHybridMethod("setDamping", &RigidBodyWrapper::setDamping, this);
-  registerHybridSetter("friction", &RigidBodyWrapper::setFriction, this);
-  registerHybridGetter("friction", &RigidBodyWrapper::getFriction, this);
-  registerHybridSetter("activationState", &RigidBodyWrapper::setActivationState, this);
-  registerHybridGetter("activationState", &RigidBodyWrapper::getActivationState, this);
-  registerHybridGetter("id", &RigidBodyWrapper::getId, this);
-  registerHybridSetter("id", &RigidBodyWrapper::setId, this);
-  registerHybridMethod("setCollisionCallback", &RigidBodyWrapper::setCollisionCallback, this);
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridMethod("setDamping", &RigidBodyWrapper::setDamping);
+    proto.registerHybridSetter("friction", &RigidBodyWrapper::setFriction);
+    proto.registerHybridGetter("friction", &RigidBodyWrapper::getFriction);
+    proto.registerHybridSetter("activationState", &RigidBodyWrapper::setActivationState);
+    proto.registerHybridGetter("activationState", &RigidBodyWrapper::getActivationState);
+    proto.registerHybridGetter("id", &RigidBodyWrapper::getId);
+    proto.registerHybridSetter("id", &RigidBodyWrapper::setId);
+    proto.registerHybridMethod("setCollisionCallback", &RigidBodyWrapper::setCollisionCallback);
+  });
 }
 
 void RigidBodyWrapper::setDamping(double linearDamping, double angularDamping) {

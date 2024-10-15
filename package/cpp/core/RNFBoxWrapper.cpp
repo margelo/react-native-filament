@@ -6,10 +6,13 @@
 
 namespace margelo {
 void BoxWrapper::loadHybridMethods() {
-  registerHybridGetter("center", &BoxWrapper::getCenter, this);
-  registerHybridGetter("halfExtent", &BoxWrapper::getHalfExtent, this);
-  registerHybridGetter("min", &BoxWrapper::getMin, this);
-  registerHybridGetter("max", &BoxWrapper::getMax, this);
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridGetter("center", &BoxWrapper::getCenter);
+    proto.registerHybridGetter("halfExtent", &BoxWrapper::getHalfExtent);
+    proto.registerHybridGetter("min", &BoxWrapper::getMin);
+    proto.registerHybridGetter("max", &BoxWrapper::getMax);
+  });
 }
 
 std::vector<double> BoxWrapper::getCenter() {

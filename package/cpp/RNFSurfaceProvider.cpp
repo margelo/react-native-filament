@@ -8,9 +8,12 @@
 namespace margelo {
 
 void SurfaceProvider::loadHybridMethods() {
-  registerHybridMethod("getSurface", &SurfaceProvider::getSurface, this);
-  registerHybridMethod("addOnSurfaceCreatedListener", &SurfaceProvider::addOnSurfaceCreatedListener, this);
-  registerHybridMethod("addOnSurfaceDestroyedListener", &SurfaceProvider::addOnSurfaceDestroyedListener, this);
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridMethod("getSurface", &SurfaceProvider::getSurface);
+    proto.registerHybridMethod("addOnSurfaceCreatedListener", &SurfaceProvider::addOnSurfaceCreatedListener);
+    proto.registerHybridMethod("addOnSurfaceDestroyedListener", &SurfaceProvider::addOnSurfaceDestroyedListener);
+  });
 }
 
 std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceChangedListener(SurfaceProvider::Callbacks&& callbacks) {

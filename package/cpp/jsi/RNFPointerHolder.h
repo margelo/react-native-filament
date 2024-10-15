@@ -4,7 +4,11 @@
 
 #pragma once
 
-#include "RNFHybridObject.h"
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/HybridObject.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
 #include "RNFLogger.h"
 #include <memory>
 #include <mutex>
@@ -13,7 +17,7 @@ namespace margelo {
 
 using namespace facebook;
 
-template <typename T> class PointerHolder : public HybridObject {
+template <typename T> class PointerHolder : public nitro::HybridObject {
 protected:
   // no default constructor
   PointerHolder() = delete;
@@ -23,11 +27,7 @@ protected:
    * @param name The name of the implementing class, for example "ViewWrapper".
    * @param pointer The pointer this class will hold. It might be released from JS at any point via `release()`.
    */
-  PointerHolder(const char* name, std::shared_ptr<T> pointer) : HybridObject(name), _name(name), _pointer(pointer) {
-    // eagerly initialize the release() method instead of putting it in `loadHybridMethods`
-    registerHybridMethod("release", &PointerHolder<T>::release, this);
-    registerHybridGetter("isValid", &PointerHolder<T>::getIsValid, this);
-  }
+  PointerHolder(const char* name, std::shared_ptr<T> pointer) : HybridObject(name), _name(name), _pointer(pointer) {}
 
   /**
    * Create a new instance of a pointer holder which holds a shared_ptr of the given value.
@@ -45,6 +45,14 @@ protected:
       Logger::log(TAG, "Automatically releasing %s... (~PointerHolder())", _name.c_str());
     }
   }
+    
+    void loadHybridMethods() override {
+        HybridObject::loadHybridMethods();
+        registerHybrids(this, [](nitro::Prototype& proto) {
+            proto.registerHybridMethod("release", &PointerHolder<T>::release);
+            proto.registerHybridGetter("isValid", &PointerHolder<T>::getIsValid);
+        });
+    }
 
 protected:
   /**

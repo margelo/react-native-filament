@@ -8,7 +8,11 @@
 
 #include "RNFChoreographerWrapper.h"
 #include "RNFSurfaceProvider.h"
-#include "jsi/RNFHybridObject.h"
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/HybridObject.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
 #include <string>
 #include <vector>
 
@@ -16,7 +20,7 @@ namespace margelo {
 
 using namespace facebook;
 
-class FilamentView : public HybridObject {
+class FilamentView : public nitro::HybridObject {
 public:
   explicit FilamentView() : HybridObject("FilamentView") {}
   ~FilamentView() override;
