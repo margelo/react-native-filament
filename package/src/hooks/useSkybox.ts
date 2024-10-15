@@ -33,14 +33,16 @@ export function useSkybox(options?: SkyboxOptions | null) {
   useWorkletEffect(() => {
     'worklet'
 
+    const unboxedEngine = engine.unbox()
+
     if (!hasOptions) {
-      engine.clearSkybox()
+      unboxedEngine.clearSkybox()
       return
     }
     if (texture) {
-      engine.createAndSetSkyboxByTexture(texture, showSun, envIntensity)
+      unboxedEngine.createAndSetSkyboxByTexture(texture, showSun, envIntensity)
     } else if (color) {
-      engine.createAndSetSkyboxByColor(color, showSun, envIntensity)
+      unboxedEngine.createAndSetSkyboxByColor(color, showSun, envIntensity)
     }
   })
 }

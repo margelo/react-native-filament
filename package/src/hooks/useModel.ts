@@ -6,6 +6,9 @@ import usePrevious from './usePrevious'
 import { useWorkletEffect } from './useWorkletEffect'
 import { AABB, Entity } from '../types'
 import { useMemo } from 'react'
+import { NitroBoxed } from '../native/FilamentProxy'
+import { BoxedHybridObject } from 'react-native-nitro-modules/lib/BoxedHybridObject'
+import { NitroModules } from 'react-native-nitro-modules'
 
 export interface UseModelConfigParams {
   /**
@@ -33,12 +36,12 @@ export interface UseModelConfigParams {
 export type FilamentModel =
   | {
       state: 'loaded'
-      asset: FilamentAsset
-      boundingBox: AABB
+      asset: BoxedHybridObject<FilamentAsset>
+      boundingBox: BoxedHybridObject<AABB>
       /**
        * The root entity of the model.
        */
-      rootEntity: Entity
+      rootEntity: BoxedHybridObject<Entity>
     }
   | {
       state: 'loading'
@@ -60,11 +63,12 @@ export type FilamentModel =
 export function useModel(source: BufferSource, props?: UseModelConfigParams): FilamentModel {
   const { shouldReleaseSourceData = true, addToScene = true, instanceCount } = props ?? {}
   const { engine, scene, workletContext } = useFilamentContext()
-  const assetBuffer = useBuffer({ source: source, releaseOnUnmount: false })
+  const rawAssetBuffer = useBuffer({ source: source, releaseOnUnmount: false })
+  const boxedAssetBuffer = rawAssetBuffer == null ? undefined : NitroModules.box(rawAssetBuffer)
 
   // Note: the native cleanup of the asset will remove it automatically from the scene
   const asset = useDisposableResource(() => {
-    if (assetBuffer == null) return
+    if (boxedAssetBuffer == null) return
     if (instanceCount === 0) {
       throw new Error('instanceCount must be greater than 0')
     }
@@ -73,18 +77,22 @@ export function useModel(source: BufferSource, props?: UseModelConfigParams): Fi
       'worklet'
 
       let loadedAsset: FilamentAsset
+      const unboxedEngine = engine.unbox()
+      const assetBuffer = boxedAssetBuffer.unbox()
       if (instanceCount == null || instanceCount === 1) {
-        loadedAsset = engine.loadAsset(assetBuffer)
+        loadedAsset = unboxedEngine.loadAsset(assetBuffer)
       } else {
-        loadedAsset = engine.loadInstancedAsset(assetBuffer, instanceCount)
+        loadedAsset = unboxedEngine.loadInstancedAsset(assetBuffer, instanceCount)
       }
 
       // After loading the asset we can release the buffer
       assetBuffer.release()
 
-      return loadedAsset
+      const nitro = NitroBoxed.unbox()
+      const boxedAsset = nitro.box(loadedAsset)
+      return boxedAsset
     })
-  }, [assetBuffer, workletContext, engine, instanceCount])
+  }, [boxedAssetBuffer, instanceCount, workletContext, engine])
 
   useWorkletEffect(() => {
     'worklet'
@@ -93,7 +101,7 @@ export function useModel(source: BufferSource, props?: UseModelConfigParams): Fi
     }
 
     // releases CPU memory for bindings
-    asset.releaseSourceData()
+    asset.unbox().releaseSourceData()
   })
 
   // Add or remove from the scene:
@@ -102,27 +110,35 @@ export function useModel(source: BufferSource, props?: UseModelConfigParams): Fi
     'worklet'
     if (asset == null) return
 
+    const unboxedScene = scene.unbox()
+    const unboxedAsset = asset.unbox()
     if (addToScene) {
-      scene.addAssetEntities(asset)
+      unboxedScene.addAssetEntities(unboxedAsset)
     } else if (!addToScene && previousAddToScene) {
       // Only remove when it was previously added (ie. the user set addToScene: false)
-      scene.removeAssetEntities(asset)
+      unboxedScene.removeAssetEntities(unboxedAsset)
     }
   })
 
   const boundingBox = useMemo(() => {
     if (asset == null) return undefined
-    return asset.getBoundingBox()
+    return NitroModules.box(asset.unbox().getBoundingBox())
   }, [asset])
 
   const rootEntity = useMemo(() => {
     if (asset == null) {
       return null
     }
-    return asset.getRoot()
+    return NitroModules.box(asset.unbox().getRoot())
   }, [asset])
 
-  if (assetBuffer == null || asset == null || boundingBox == null || rootEntity == null) {
+  if (rawAssetBuffer == null || asset == null || boundingBox == null || rootEntity == null) {
+    console.log({
+      rawAssetBuffer,
+      asset,
+      boundingBox,
+      rootEntity,
+    })
     return {
       state: 'loading',
     }

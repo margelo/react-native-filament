@@ -18,15 +18,15 @@ function Scene() {
   const panGesture = Gesture.Pan()
     .onBegin((event) => {
       const yCorrected = viewHeight - event.translationY
-      cameraManipulator?.grabBegin(event.translationX, yCorrected, false) // false means rotation instead of translation
+      cameraManipulator?.unbox().grabBegin(event.translationX, yCorrected, false) // false means rotation instead of translation
     })
     .onUpdate((event) => {
       const yCorrected = viewHeight - event.translationY
-      cameraManipulator?.grabUpdate(event.translationX, yCorrected)
+      cameraManipulator?.unbox().grabUpdate(event.translationX, yCorrected)
     })
     .maxPointers(1)
     .onEnd(() => {
-      cameraManipulator?.grabEnd()
+      cameraManipulator?.unbox().grabEnd()
     })
 
   // Scale gesture
@@ -38,7 +38,7 @@ function Scene() {
     })
     .onUpdate(({ scale, focalX, focalY }) => {
       const delta = scale - previousScale.value
-      cameraManipulator?.scroll(focalX, focalY, -delta * scaleMultiplier)
+      cameraManipulator?.unbox().scroll(focalX, focalY, -delta * scaleMultiplier)
       previousScale.value = scale
     })
   const combinedGesture = Gesture.Race(pinchGesture, panGesture)

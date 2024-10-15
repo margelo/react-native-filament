@@ -1,4 +1,4 @@
-import { PropsWithChildren, useEffect } from 'react'
+import { PropsWithChildren, useEffect, useMemo } from 'react'
 import {
   AmbientOcclusionOptions,
   DynamicResolutionOptions,
@@ -48,23 +48,25 @@ export function Configurator({ rendererProps, viewProps, children }: Configurato
     shadowing,
     temporalAntiAliasingOptions,
   } = viewProps
+
+  const unboxedViewJS = useMemo(() => view.unbox(), [view])
   useEffect(() => {
     if (ambientOcclusionOptions != null) {
-      const options = makeAmbientOcclusionHostObject(view, ambientOcclusionOptions)
-      view.setAmbientOcclusionOptions(options)
+      const options = makeAmbientOcclusionHostObject(unboxedViewJS, ambientOcclusionOptions)
+      unboxedViewJS.setAmbientOcclusionOptions(options)
     }
     if (dynamicResolutionOptions != null) {
-      const options = makeDynamicResolutionHostObject(view, dynamicResolutionOptions)
-      view.setDynamicResolutionOptions(options)
+      const options = makeDynamicResolutionHostObject(unboxedViewJS, dynamicResolutionOptions)
+      unboxedViewJS.setDynamicResolutionOptions(options)
     }
-    if (antiAliasing != null) view.antiAliasing = antiAliasing
-    if (dithering != null) view.dithering = dithering
-    if (postProcessing != null) view.postProcessing = postProcessing
-    if (screenSpaceRefraction != null) view.screenSpaceRefraction = screenSpaceRefraction
-    if (shadowing != null) view.shadowing = shadowing
-    if (temporalAntiAliasingOptions != null) view.temporalAntiAliasingOptions = optionsToJSI(temporalAntiAliasingOptions)
+    if (antiAliasing != null) unboxedViewJS.antiAliasing = antiAliasing
+    if (dithering != null) unboxedViewJS.dithering = dithering
+    if (postProcessing != null) unboxedViewJS.postProcessing = postProcessing
+    if (screenSpaceRefraction != null) unboxedViewJS.screenSpaceRefraction = screenSpaceRefraction
+    if (shadowing != null) unboxedViewJS.shadowing = shadowing
+    if (temporalAntiAliasingOptions != null) unboxedViewJS.temporalAntiAliasingOptions = optionsToJSI(temporalAntiAliasingOptions)
   }, [
-    view,
+    unboxedViewJS,
     ambientOcclusionOptions,
     antiAliasing,
     dithering,
@@ -79,7 +81,7 @@ export function Configurator({ rendererProps, viewProps, children }: Configurato
   const { frameRateOptions } = rendererProps ?? {}
   useEffect(() => {
     if (frameRateOptions != null) {
-      renderer.setFrameRateOptions(frameRateOptions)
+      renderer.unbox().setFrameRateOptions(frameRateOptions)
     }
   }, [renderer, frameRateOptions])
 

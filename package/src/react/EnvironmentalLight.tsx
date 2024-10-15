@@ -1,3 +1,4 @@
+import { NitroModules } from 'react-native-nitro-modules'
 import { BufferSource, useBuffer } from '../hooks/useBuffer'
 import { useFilamentContext } from '../hooks/useFilamentContext'
 import { useWorkletEffect } from '../hooks/useWorkletEffect'
@@ -24,13 +25,15 @@ export type EnvironmentalLightProps = {
  */
 export function EnvironmentalLight({ source, intensity = 25_000, irradianceBands }: EnvironmentalLightProps) {
   const { engine } = useFilamentContext()
-  const lightBuffer = useBuffer({ source: source, releaseOnUnmount: false })
+  const rawLightBuffer = useBuffer({ source: source, releaseOnUnmount: false })
 
+  const lightBufferBoxed = rawLightBuffer == null ? undefined : NitroModules.box(rawLightBuffer)
   useWorkletEffect(() => {
     'worklet'
 
-    if (lightBuffer == null) return
-    engine.setIndirectLight(lightBuffer, intensity, irradianceBands)
+    if (lightBufferBoxed == null) return
+    const lightBuffer = lightBufferBoxed.unbox()
+    engine.unbox().setIndirectLight(lightBuffer, intensity, irradianceBands)
     lightBuffer.release()
   })
 

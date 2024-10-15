@@ -1,6 +1,7 @@
+import { HybridObject } from 'react-native-nitro-modules'
 import { Float3 } from './Math'
 
-export interface BaseBox {
+export interface BaseBox extends HybridObject<{ android: 'c++'; ios: 'c++' }> {
   /**
    * The center of the box.
    */

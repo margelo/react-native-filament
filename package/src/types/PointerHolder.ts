@@ -1,4 +1,4 @@
-import { HybridObject } from "react-native-nitro-modules"
+import { HybridObject } from 'react-native-nitro-modules'
 
 /**
  * Represents a holder of any native pointer.

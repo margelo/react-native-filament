@@ -16,14 +16,14 @@ import { BoxedHybridObject } from 'react-native-nitro-modules/lib/BoxedHybridObj
 
 export type FilamentContextType = {
   engine: BoxedHybridObject<Engine>
-  transformManager: TransformManager
-  renderableManager: RenderableManager
-  scene: Scene
-  lightManager: LightManager
-  view: View
-  camera: RNFCamera
-  renderer: Renderer
-  nameComponentManager: NameComponentManager
+  transformManager: BoxedHybridObject<TransformManager>
+  renderableManager: BoxedHybridObject<RenderableManager>
+  scene: BoxedHybridObject<Scene>
+  lightManager: BoxedHybridObject<LightManager>
+  view: BoxedHybridObject<View>
+  camera: BoxedHybridObject<RNFCamera>
+  renderer: BoxedHybridObject<Renderer>
+  nameComponentManager: BoxedHybridObject<NameComponentManager>
   workletContext: IWorkletContext
 
   /**

@@ -24,14 +24,14 @@ export function BackgroundImage({ source, materialSource, resizeMode = 'contain'
       'worklet'
       if (imageMaterialBuffer == null || imageBuffer == null) return undefined
 
-      const newMaterial = engine.createMaterial(imageMaterialBuffer)
-      const textureInfo = newMaterial.setDefaultTextureParameter(renderableManager, 'image', imageBuffer, 'sRGB')
+      const newMaterial = engine.unbox().createMaterial(imageMaterialBuffer)
+      const textureInfo = newMaterial.setDefaultTextureParameter(renderableManager.unbox(), 'image', imageBuffer, 'sRGB')
       newMaterial.setDefaultIntParameter('showImage', 1)
 
       // Transform calculation
       const srcWidth = textureInfo.width
       const srcHeight = textureInfo.height
-      const viewport = view.getViewport()
+      const viewport = view.unbox().getViewport()
       const dstWidth = viewport.width
       const dstHeight = viewport.height
 
@@ -94,6 +94,7 @@ export function BackgroundImage({ source, materialSource, resizeMode = 'contain'
       newMaterial.setDefaultMat3fParameter('transform', transform)
       newMaterial.setDefaultFloat3Parameter('backgroundColor', [0.0, 0.0, 0.0])
 
+      // TODO: nitro needs to be boxed
       return newMaterial
     }),
     [engine, imageMaterialBuffer, imageBuffer]
@@ -105,9 +106,9 @@ export function BackgroundImage({ source, materialSource, resizeMode = 'contain'
 
     if (material == null) return
 
-    return renderableManager.createImageBackgroundShape(material)
+    return renderableManager.unbox().createImageBackgroundShape(material)
   }, [material, renderableManager])
-  useEntityInScene(scene, entity)
+  useEntityInScene(scene.unbox(), entity)
 
   return null
 }

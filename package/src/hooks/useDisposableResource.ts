@@ -35,7 +35,7 @@ export const useDisposableResource = <T extends PointerHolder | BoxedHybridObjec
         currentAsset = a
       } else {
         // this useEffect has been unmounted already, drop the asset
-        if (isBoxed(a)){
+        if (isBoxed(a)) {
           const unboxed = a.unbox()
           unboxed.release()
         } else {

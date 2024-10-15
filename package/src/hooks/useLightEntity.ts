@@ -63,6 +63,7 @@ export function useLightEntity(lightManager: LightManager, config: UseLightEntit
     if (intensity == null) return
     if (typeof intensity === 'number') return
 
+    // TODO: nitro this needs to be boxed i assume
     const setIntensity = lightManager.setIntensity
 
     return intensity.addListener(
