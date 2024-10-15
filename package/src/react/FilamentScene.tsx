@@ -1,5 +1,5 @@
 import { PropsWithChildren, useMemo } from 'react'
-import { FilamentProxy, FilamentWorkletContext } from '../native/FilamentProxy'
+import { FilamentProxy, FilamentProxyBoxed, FilamentWorkletContext, NitroBoxed } from '../native/FilamentProxy'
 import { EngineProps, useEngine } from '../hooks/useEngine'
 import { useDisposableResource } from '../hooks/useDisposableResource'
 import { useWorklet } from 'react-native-worklets-core'
@@ -63,7 +63,10 @@ export function FilamentScene({ children, fallback, config, backend, frameRateOp
   const choreographer = useDisposableResource(
     useWorklet(FilamentWorkletContext, () => {
       'worklet'
-      return FilamentProxy.createChoreographer()
+      const filamentProxy = FilamentProxyBoxed.unbox()
+      const newChoreographer = filamentProxy.createChoreographer()
+      const nitro = NitroBoxed.unbox()
+      return nitro.box(newChoreographer)
     })
   )
 

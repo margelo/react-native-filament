@@ -31,7 +31,7 @@ export type FilamentContextType = {
    * @private
    * @internal
    */
-  choreographer: Choreographer
+  choreographer: BoxedHybridObject<Choreographer>
 }
 export const FilamentContext = React.createContext<FilamentContextType | undefined>(undefined)
 
