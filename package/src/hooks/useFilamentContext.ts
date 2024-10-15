@@ -12,9 +12,10 @@ import {
   View,
 } from '../types'
 import { IWorkletContext } from 'react-native-worklets-core'
+import { BoxedHybridObject } from 'react-native-nitro-modules/lib/BoxedHybridObject'
 
 export type FilamentContextType = {
-  engine: Engine
+  engine: BoxedHybridObject<Engine>
   transformManager: TransformManager
   renderableManager: RenderableManager
   scene: Scene

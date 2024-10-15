@@ -1,7 +1,8 @@
 import type { Engine, EngineBackend, EngineConfig } from '../types'
-import { FilamentProxy } from '../native/FilamentProxy'
+import { FilamentProxyBoxed, NitroBoxed } from '../native/FilamentProxy'
 import { IWorkletContext, useWorklet } from 'react-native-worklets-core'
 import { useDisposableResource } from './useDisposableResource'
+import { BoxedHybridObject } from 'react-native-nitro-modules/lib/BoxedHybridObject'
 
 export interface EngineProps {
   /**
@@ -18,11 +19,16 @@ export interface EngineProps {
   context: IWorkletContext
 }
 
-export function useEngine({ backend, config, context }: EngineProps): Engine | undefined {
+export function useEngine({ backend, config, context }: EngineProps): BoxedHybridObject<Engine> | undefined {
   // Important: create the engine on the worklet thread, so its owned by the worklet thread
   const createEngine = useWorklet(context, () => {
     'worklet'
-    return FilamentProxy.createEngine(backend ?? undefined, config ?? undefined)
+
+    const filamentProxy = FilamentProxyBoxed.unbox()
+    const engine = filamentProxy.createEngine(backend ?? undefined, config ?? undefined)
+    const nitro = NitroBoxed.unbox()
+    const boxedEngine = nitro.box(engine)
+    return boxedEngine
   })
 
   const engine = useDisposableResource(createEngine)

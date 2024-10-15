@@ -9,6 +9,7 @@ import { Choreographer } from '../types/Choreographer'
 import { Dispatcher } from './Dispatcher'
 import { FilamentModule } from './FilamentModule'
 import { Worklets } from 'react-native-worklets-core'
+import { HybridObject, NitroModules } from 'react-native-nitro-modules'
 
 interface TestHybridObject {
   int: number
@@ -24,7 +25,7 @@ interface TestHybridObject {
   enum: 'first' | 'second' | 'third'
 }
 
-export interface TFilamentProxy {
+export interface TFilamentProxy extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   /**
    * Asynchronously loads the the given asset into a ByteBuffer.
    * @param path A web URL (http:// or https://), local file (file://) or resource ID. (Only resource ID supported for now)
@@ -119,6 +120,8 @@ if (!proxy.hasWorklets) {
 }
 
 export const FilamentProxy = proxy
+export const FilamentProxyBoxed = NitroModules.box(proxy)
+export const NitroBoxed = NitroModules.box(NitroModules)
 
 // We must make sure that the Worklets API (module) is initialized (as its possible a lazy-loaded CxxTurboModule),
 // to initialize we must only call any property of the module:

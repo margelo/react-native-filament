@@ -1,3 +1,5 @@
+import { HybridObject } from "react-native-nitro-modules"
+
 /**
  * Represents a holder of any native pointer.
  *
@@ -6,7 +8,7 @@
  *
  * Instances of {@linkcode PointerHolder} are always backed by a `jsi::HostObject`.
  */
-export interface PointerHolder {
+export interface PointerHolder extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   /**
    * Manually release this reference to the native pointer.
    * This will ensure that JS will no longer hold a strong reference,

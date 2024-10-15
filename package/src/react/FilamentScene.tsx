@@ -48,16 +48,17 @@ export type FilamentProviderProps = PropsWithChildren<
 export function FilamentScene({ children, fallback, config, backend, frameRateOptions, ...viewProps }: FilamentProviderProps) {
   // First create the engine, which we need to create (almost) all other filament APIs
   const engine = useEngine({ config, backend, context: FilamentWorkletContext })
+  console.log('engine', engine)
 
   // Create all Filament APIs using the engine
-  const transformManager = useDisposableResource(() => Promise.resolve(engine?.createTransformManager()), [engine])
-  const renderableManager = useDisposableResource(() => Promise.resolve(engine?.createRenderableManager()), [engine])
-  const scene = useDisposableResource(() => Promise.resolve(engine?.getScene()), [engine])
-  const lightManager = useDisposableResource(() => Promise.resolve(engine?.createLightManager()), [engine])
-  const view = useDisposableResource(() => Promise.resolve(engine?.getView()), [engine])
-  const camera = useDisposableResource(() => Promise.resolve(engine?.getCamera()), [engine])
-  const renderer = useDisposableResource(() => Promise.resolve(engine?.createRenderer()), [engine])
-  const nameComponentManager = useDisposableResource(() => Promise.resolve(engine?.createNameComponentManager()), [engine])
+  const transformManager = useDisposableResource(() => Promise.resolve(engine?.unbox().createTransformManager()), [engine])
+  const renderableManager = useDisposableResource(() => Promise.resolve(engine?.unbox().createRenderableManager()), [engine])
+  const scene = useDisposableResource(() => Promise.resolve(engine?.unbox().getScene()), [engine])
+  const lightManager = useDisposableResource(() => Promise.resolve(engine?.unbox().createLightManager()), [engine])
+  const view = useDisposableResource(() => Promise.resolve(engine?.unbox().getView()), [engine])
+  const camera = useDisposableResource(() => Promise.resolve(engine?.unbox().getCamera()), [engine])
+  const renderer = useDisposableResource(() => Promise.resolve(engine?.unbox().createRenderer()), [engine])
+  const nameComponentManager = useDisposableResource(() => Promise.resolve(engine?.unbox().createNameComponentManager()), [engine])
 
   // Create a choreographer for this context tree
   const choreographer = useDisposableResource(
