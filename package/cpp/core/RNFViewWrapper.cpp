@@ -3,7 +3,7 @@
 namespace margelo {
 
 void ViewWrapper::loadHybridMethods() {
-    PointerHolder::loadHybridMethods();
+  PointerHolder::loadHybridMethods();
   registerHybrids(this, [](nitro::Prototype& proto) {
     proto.registerHybridMethod("getAspectRatio", &ViewWrapper::getAspectRatio);
     proto.registerHybridMethod("createAmbientOcclusionOptions", &ViewWrapper::createAmbientOcclusionOptions);

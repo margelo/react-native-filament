@@ -12,8 +12,8 @@
 #include "RNFListener.h"
 #include "RNFListenerManager.h"
 #if __has_include(<NitroModules/HybridObject.hpp>)
-#include <NitroModules/HybridObject.hpp>
 #include <NitroModules/Dispatcher.hpp>
+#include <NitroModules/HybridObject.hpp>
 #else
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif

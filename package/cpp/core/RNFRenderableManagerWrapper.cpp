@@ -10,7 +10,7 @@
 
 namespace margelo {
 void RenderableManagerWrapper::loadHybridMethods() {
-    PointerHolder::loadHybridMethods();
+  PointerHolder::loadHybridMethods();
   registerHybrids(this, [](nitro::Prototype& proto) {
     proto.registerHybridMethod("getPrimitiveCount", &RenderableManagerWrapper::getPrimitiveCount);
     proto.registerHybridMethod("getMaterialInstanceAt", &RenderableManagerWrapper::getMaterialInstanceAt);

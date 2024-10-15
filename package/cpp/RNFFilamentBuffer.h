@@ -9,7 +9,7 @@ class FilamentBuffer : public PointerHolder<ManagedBuffer> {
 public:
   explicit FilamentBuffer(std::shared_ptr<ManagedBuffer> buffer) : PointerHolder("FilamentBuffer", buffer) {}
   void loadHybridMethods() override {
-      PointerHolder::loadHybridMethods();
+    PointerHolder::loadHybridMethods();
   }
 
   std::shared_ptr<ManagedBuffer> getBuffer() {

@@ -2,9 +2,7 @@
 
 void margelo::EntityWrapper::loadHybridMethods() {
   HybridObject::loadHybridMethods();
-  registerHybrids(this, [](nitro::Prototype& proto) {
-    proto.registerHybridGetter("id", &EntityWrapper::getId);
-  });
+  registerHybrids(this, [](nitro::Prototype& proto) { proto.registerHybridGetter("id", &EntityWrapper::getId); });
 }
 
 int margelo::EntityWrapper::getId() {

@@ -90,7 +90,7 @@ void ChoreographerWrapper::release() {
 }
 
 // TODO: nitro is this still needed? I don't think so
-//void ChoreographerWrapper::onRuntimeDestroyed(jsi::Runtime*) {
+// void ChoreographerWrapper::onRuntimeDestroyed(jsi::Runtime*) {
 //  std::unique_lock lock(_mutex);
 //  Logger::log(TAG, "Runtime destroyed...");
 //  stopAndRemoveListeners();

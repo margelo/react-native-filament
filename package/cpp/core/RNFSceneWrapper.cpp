@@ -5,7 +5,7 @@
 namespace margelo {
 
 void margelo::SceneWrapper::loadHybridMethods() {
-    PointerHolder::loadHybridMethods();
+  PointerHolder::loadHybridMethods();
   registerHybrids(this, [](nitro::Prototype& proto) {
     proto.registerHybridMethod("addEntity", &SceneWrapper::addEntity);
     proto.registerHybridMethod("addEntities", &SceneWrapper::addEntities);

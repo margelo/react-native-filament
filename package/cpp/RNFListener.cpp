@@ -18,9 +18,7 @@ Listener::~Listener() {
 
 void Listener::loadHybridMethods() {
   HybridObject::loadHybridMethods();
-    registerHybrids(this, [](nitro::Prototype& proto) {
-        proto.registerHybridMethod("remove", &Listener::remove);
-    });
+  registerHybrids(this, [](nitro::Prototype& proto) { proto.registerHybridMethod("remove", &Listener::remove); });
 }
 
 void Listener::remove() {

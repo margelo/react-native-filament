@@ -13,7 +13,7 @@
 namespace margelo {
 
 void LightManagerWrapper::loadHybridMethods() {
-    PointerHolder::loadHybridMethods();
+  PointerHolder::loadHybridMethods();
   registerHybrids(this, [](nitro::Prototype& proto) {
     proto.registerHybridMethod("createLightEntity", &LightManagerWrapper::createLightEntity);
     proto.registerHybridMethod("destroy", &LightManagerWrapper::destroy);

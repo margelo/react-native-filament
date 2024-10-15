@@ -9,15 +9,15 @@ namespace margelo {
 void BulletWrapper::loadHybridMethods() {
   HybridObject::loadHybridMethods();
   registerHybrids(this, [](nitro::Prototype& proto) {
-      proto.registerHybridMethod("createDiscreteDynamicWorld", &BulletWrapper::createDiscreteDynamicWorld);
-      proto.registerHybridMethod("createRigidBody", &BulletWrapper::createRigidBody);
-      proto.registerHybridMethod("createBoxShape", &BulletWrapper::createBoxShape);
-      proto.registerHybridMethod("createCylinderShape", &BulletWrapper::createCylinderShape);
-      proto.registerHybridMethod("createCylinderShapeX", &BulletWrapper::createCylinderShapeX);
-      proto.registerHybridMethod("createCylinderShapeZ", &BulletWrapper::createCylinderShapeZ);
-      proto.registerHybridMethod("createStaticPlaneShape", &BulletWrapper::createStaticPlaneShape);
-      proto.registerHybridMethod("createRigidBodyFromTransform", &BulletWrapper::createRigidBodyFromTransform);
-      proto.registerHybridMethod("createSphereShape", &BulletWrapper::createSphereShape);
+    proto.registerHybridMethod("createDiscreteDynamicWorld", &BulletWrapper::createDiscreteDynamicWorld);
+    proto.registerHybridMethod("createRigidBody", &BulletWrapper::createRigidBody);
+    proto.registerHybridMethod("createBoxShape", &BulletWrapper::createBoxShape);
+    proto.registerHybridMethod("createCylinderShape", &BulletWrapper::createCylinderShape);
+    proto.registerHybridMethod("createCylinderShapeX", &BulletWrapper::createCylinderShapeX);
+    proto.registerHybridMethod("createCylinderShapeZ", &BulletWrapper::createCylinderShapeZ);
+    proto.registerHybridMethod("createStaticPlaneShape", &BulletWrapper::createStaticPlaneShape);
+    proto.registerHybridMethod("createRigidBodyFromTransform", &BulletWrapper::createRigidBodyFromTransform);
+    proto.registerHybridMethod("createSphereShape", &BulletWrapper::createSphereShape);
   });
 }
 
@@ -37,7 +37,8 @@ std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBody(double mass, do
   return RigidBodyWrapper::create(mass, x, y, z, shapePtr, id, collisionCallback);
 }
 
-std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBodyFromTransform(double mass, const std::shared_ptr<TMat44Wrapper>& entityTransform,
+std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBodyFromTransform(double mass,
+                                                                              const std::shared_ptr<TMat44Wrapper>& entityTransform,
                                                                               const std::shared_ptr<ShapeWrapper>& shape, std::string id,
                                                                               const std::optional<CollisionCallback>& collisionCallback) {
   const auto& shapePtr = shape->getShape();

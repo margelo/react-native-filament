@@ -29,9 +29,9 @@ void FilamentProxy::loadHybridMethods() {
     proto.registerHybridMethod("createRecorder", &FilamentProxy::createRecorder);
     proto.registerRawHybridMethod("getCurrentDispatcher", 0, &FilamentProxy::getCurrentDispatcher);
     proto.registerHybridGetter("hasWorklets", &FilamentProxy::getHasWorklets);
-  #if HAS_WORKLETS
+#if HAS_WORKLETS
     proto.registerHybridMethod("createWorkletContext", &FilamentProxy::createWorkletContext);
-  #endif
+#endif
   });
 }
 

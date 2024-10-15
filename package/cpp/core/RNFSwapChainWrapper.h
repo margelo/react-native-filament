@@ -12,7 +12,7 @@ public:
   explicit SwapChainWrapper(std::shared_ptr<SwapChain> swapChain) : PointerHolder("SwapChainWrapper", swapChain) {}
 
   void loadHybridMethods() override {
-      PointerHolder::loadHybridMethods();
+    PointerHolder::loadHybridMethods();
   }
 
   std::shared_ptr<SwapChain> getSwapChain() {

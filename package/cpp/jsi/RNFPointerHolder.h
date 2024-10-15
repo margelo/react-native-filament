@@ -45,14 +45,14 @@ protected:
       Logger::log(TAG, "Automatically releasing %s... (~PointerHolder())", _name.c_str());
     }
   }
-    
-    void loadHybridMethods() override {
-        HybridObject::loadHybridMethods();
-        registerHybrids(this, [](nitro::Prototype& proto) {
-            proto.registerHybridMethod("release", &PointerHolder<T>::release);
-            proto.registerHybridGetter("isValid", &PointerHolder<T>::getIsValid);
-        });
-    }
+
+  void loadHybridMethods() override {
+    HybridObject::loadHybridMethods();
+    registerHybrids(this, [](nitro::Prototype& proto) {
+      proto.registerHybridMethod("release", &PointerHolder<T>::release);
+      proto.registerHybridGetter("isValid", &PointerHolder<T>::getIsValid);
+    });
+  }
 
 protected:
   /**
