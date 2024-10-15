@@ -13,10 +13,10 @@
 #include "RNFListenerManager.h"
 #if __has_include(<NitroModules/HybridObject.hpp>)
 #include <NitroModules/HybridObject.hpp>
+#include <NitroModules/Dispatcher.hpp>
 #else
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
-#include "threading/RNFDispatcher.h"
 
 namespace margelo {
 
@@ -27,7 +27,7 @@ public:
   using ReadyForMoreDataCallback = std::function<bool()>;
 
 public:
-  explicit FilamentRecorder(std::shared_ptr<Dispatcher> renderThreadDispatcher, int width, int height, int fps, double bitRate);
+  explicit FilamentRecorder(std::shared_ptr<nitro::Dispatcher> renderThreadDispatcher, int width, int height, int fps, double bitRate);
   ~FilamentRecorder();
 
 public:
@@ -81,7 +81,7 @@ protected:
   static constexpr auto TAG = "FilamentRecorder";
 
 protected:
-  std::shared_ptr<Dispatcher> _renderThreadDispatcher;
+  std::shared_ptr<nitro::Dispatcher> _renderThreadDispatcher;
   int _width;
   int _height;
   int _fps;

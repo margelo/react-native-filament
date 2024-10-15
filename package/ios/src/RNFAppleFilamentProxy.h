@@ -8,11 +8,16 @@
 
 #pragma once
 
+#if __has_include(<NitroModules/Dispatcher.hpp>)
+#include <NitroModules/Dispatcher.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
+
 #include "RNFFilamentBuffer.h"
 #include "RNFFilamentProxy.h"
 #include "RNFFilamentRecorder.h"
 #include "RNFFilamentView.h"
-#include "threading/RNFDispatcher.h"
 #include <ReactCommon/CallInvoker.h>
 #include <jsi/jsi.h>
 
@@ -25,7 +30,7 @@ namespace margelo {
 class AppleFilamentProxy : public FilamentProxy {
 public:
 #ifdef RCT_NEW_ARCH_ENABLED
-  explicit AppleFilamentProxy(jsi::Runtime* runtime, std::shared_ptr<Dispatcher> jsDispatcher,
+  explicit AppleFilamentProxy(jsi::Runtime* runtime, std::shared_ptr<nitro::Dispatcher> jsDispatcher,
                               __weak RCTSurfacePresenter* surfacePresenter);
 #else
   explicit AppleFilamentProxy(jsi::Runtime* runtime, std::shared_ptr<Dispatcher> jsDispatcher);
@@ -36,10 +41,10 @@ public:
   std::shared_ptr<FilamentView> findFilamentView(int modelId) override;
   std::shared_ptr<Choreographer> createChoreographer() override;
   std::shared_ptr<FilamentRecorder> createRecorder(int width, int height, int fps, double bitRate) override;
-  std::shared_ptr<Dispatcher> getJSDispatcher() override;
-  std::shared_ptr<Dispatcher> getRenderThreadDispatcher() override;
-  std::shared_ptr<Dispatcher> getUIDispatcher() override;
-  std::shared_ptr<Dispatcher> getBackgroundDispatcher() override;
+  std::shared_ptr<nitro::Dispatcher> getJSDispatcher() override;
+  std::shared_ptr<nitro::Dispatcher> getRenderThreadDispatcher() override;
+  std::shared_ptr<nitro::Dispatcher> getUIDispatcher() override;
+  std::shared_ptr<nitro::Dispatcher> getBackgroundDispatcher() override;
   float getDisplayRefreshRate() override;
   float getDensityPixelRatio() override;
 
@@ -48,10 +53,10 @@ public:
 private:
   // The runtime the proxy has been installed on
   jsi::Runtime* _runtime;
-  std::shared_ptr<Dispatcher> _jsDispatcher;
-  std::shared_ptr<Dispatcher> _renderThreadDispatcher;
-  std::shared_ptr<Dispatcher> _uiDispatcher;
-  std::shared_ptr<Dispatcher> _backgroundDispatcher;
+  std::shared_ptr<nitro::Dispatcher> _jsDispatcher;
+  std::shared_ptr<nitro::Dispatcher> _renderThreadDispatcher;
+  std::shared_ptr<nitro::Dispatcher> _uiDispatcher;
+  std::shared_ptr<nitro::Dispatcher> _backgroundDispatcher;
 #ifdef RCT_NEW_ARCH_ENABLED
   __weak RCTSurfacePresenter* _surfacePresenter;
 #endif

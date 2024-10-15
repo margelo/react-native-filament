@@ -4,6 +4,13 @@
 
 #pragma once
 
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/HybridObject.hpp>
+#include <NitroModules/Dispatcher.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
+
 #include <jsi/jsi.h>
 
 #include <future>
@@ -17,12 +24,6 @@
 #include "RNFFilamentView.h"
 #include "bullet/RNFBulletWrapper.h"
 #include "core/RNFEngineWrapper.h"
-#if __has_include(<NitroModules/HybridObject.hpp>)
-#include <NitroModules/HybridObject.hpp>
-#else
-#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
-#endif
-#include "threading/RNFDispatcher.h"
 
 #include <ReactCommon/CallInvoker.h>
 
@@ -54,22 +55,22 @@ private:
   /**
    * Get the Dispatcher for the main react JS thread.
    */
-  virtual std::shared_ptr<Dispatcher> getJSDispatcher() = 0;
+  virtual std::shared_ptr<nitro::Dispatcher> getJSDispatcher() = 0;
   /**
    * Get the Dispatcher that is responsible for rendering to Filament.
    * This is guaranteed to only use a single Thread, as opposed to a Thread-pool.
    */
-  virtual std::shared_ptr<Dispatcher> getRenderThreadDispatcher() = 0;
+  virtual std::shared_ptr<nitro::Dispatcher> getRenderThreadDispatcher() = 0;
   /**
    * Get the Dispatcher for the platform-default UI Thread.
    * This is guaranteed to only use a single Thread, as opposed to a Thread-pool.
    */
-  virtual std::shared_ptr<Dispatcher> getUIDispatcher() = 0;
+  virtual std::shared_ptr<nitro::Dispatcher> getUIDispatcher() = 0;
   /**
    * Get a Dispatcher that uses a Thread-pool for background operations such as File I/O.
    * This Dispatcher may use multiple Threads to run code.
    */
-  virtual std::shared_ptr<Dispatcher> getBackgroundDispatcher() = 0;
+  virtual std::shared_ptr<nitro::Dispatcher> getBackgroundDispatcher() = 0;
   /**
    * Get the refresh rate of the display in Hz.
    * Needed for correct frame pacing and dynamic resolution calculations.
