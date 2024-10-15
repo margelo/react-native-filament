@@ -155,10 +155,18 @@ class FilamentProxy {
             }
         }
 
-        // It's bundled into the Android resources/assets
         Log.i(NAME, "Assumed assetName: " + uriString);
-        try (InputStream stream = reactContext.getAssets().open(uriString)) {
-            return streamToDirectByteBuffer(stream);
+        int rawResourceId = reactContext.getResources().getIdentifier(uriString, "raw", reactContext.getPackageName());
+        // It's bundled into the Android resources/assets
+        if (rawResourceId == 0) {
+            try (InputStream stream = reactContext.getAssets().open(uriString)) {
+                return streamToDirectByteBuffer(stream);
+            }
+        // For assets bundled with 'require' instead of linked, they are bundled into `res/raw` in release mode
+        } else {
+            try (InputStream stream = reactContext.getResources().openRawResource(rawResourceId)) {
+                return streamToDirectByteBuffer(stream);
+            }
         }
     }
 
