@@ -12,9 +12,27 @@ import TabItem from '@theme/TabItem'
 
 1. Install [react-native-filament](https://www.npmjs.com/package/react-native-filament):
 
-```sh
-npm i react-native-filament
-```
+<Tabs
+  groupId="rnfInstallation"
+  defaultValue="RN075"
+  values={[
+    {label: 'React Native >= 0.75.x', value: 'RN075'},
+    {label: 'React Native < 0.75.x', value: 'RN074'}
+  ]}>
+  <TabItem value="RN075">
+    We highly recommend that you use react-native >= v0.75.x, as it has a lot of improvements and fixes. You'll get the fastest performance as react-native-filament uses [react-native-nitro-modules](https://nitro.margelo.com/docs/for-users):
+
+    ```sh
+    npm i react-native-nitro-modules
+    npm i react-native-filament
+    ```
+  </TabItem>
+  <TabItem value="RN074">
+    ```sh
+    npm i react-native-filament@^1.0.0
+    ```
+  </TabItem>
+</Tabs>
 
 2. `react-native-filament` depends on [`react-native-worklets-core`](https://github.com/margelo/react-native-worklets-core):
 
@@ -65,7 +83,7 @@ For react-native-worklets-core its necessary to add a plugin to your `babel.conf
   </TabItem>
 
   <TabItem value="w_rea">
-    You should already use the reaniamted babel pluginVersions, make sure to add the `processNestedWorklets` option to it:
+    You should already use the reanimated babel pluginVersions, make sure to add the `processNestedWorklets` option to it:
 
     ```js
     module.exports = {
