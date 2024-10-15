@@ -27,7 +27,6 @@ export const useDisposableResource = <T extends PointerHolder | BoxedHybridObjec
     let isValid = true
     let currentAsset: T | undefined
     initialize()?.then((a) => {
-      console.log("initialize returned", a)
       if (a == null) return
 
       if (isValid) {
@@ -38,7 +37,6 @@ export const useDisposableResource = <T extends PointerHolder | BoxedHybridObjec
         // this useEffect has been unmounted already, drop the asset
         if (isBoxed(a)){
           const unboxed = a.unbox()
-          console.log("releasing", unboxed)
           unboxed.release()
         } else {
           a.release()

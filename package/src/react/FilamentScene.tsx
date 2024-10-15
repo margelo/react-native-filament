@@ -48,7 +48,6 @@ export type FilamentProviderProps = PropsWithChildren<
 export function FilamentScene({ children, fallback, config, backend, frameRateOptions, ...viewProps }: FilamentProviderProps) {
   // First create the engine, which we need to create (almost) all other filament APIs
   const engine = useEngine({ config, backend, context: FilamentWorkletContext })
-  console.log('engine', engine)
 
   // Create all Filament APIs using the engine
   const transformManager = useDisposableResource(() => Promise.resolve(engine?.unbox().createTransformManager()), [engine])
