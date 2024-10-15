@@ -10,7 +10,7 @@ export * from './hooks/useSphereShape'
 export * from './types/DiscreteDynamicWorld.nitro'
 export * from './types/RigidBody.nitro'
 export * from './types/Shapes.nitro'
-export * from './types/api'
+export * from './types/api.nitro'
 
 // Bullet API
 export { BulletAPI } from './bulletApi'

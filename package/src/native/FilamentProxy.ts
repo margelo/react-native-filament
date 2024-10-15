@@ -1,7 +1,7 @@
 import { FilamentBuffer } from '../types/FilamentBuffer.nitro'
 import type { Engine } from '../types/Engine.nitro'
 import { FilamentView } from './FilamentViewTypes.nitro'
-import type { BulletAPI } from '../bullet/types/api'
+import type { BulletAPI } from '../bullet/types/api.nitro'
 import type { IWorkletContext } from 'react-native-worklets-core'
 import { EngineBackend, EngineConfig } from '../types'
 import { TFilamentRecorder } from '../types/FilamentRecorder.nitro'

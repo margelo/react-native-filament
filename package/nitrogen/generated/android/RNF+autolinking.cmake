@@ -55,6 +55,7 @@ target_sources(
   ../nitrogen/generated/shared/c++/HybridMat4Spec.cpp
   ../nitrogen/generated/shared/c++/HybridTransformManagerSpec.cpp
   ../nitrogen/generated/shared/c++/HybridViewSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridBulletAPISpec.cpp
   ../nitrogen/generated/shared/c++/HybridDiscreteDynamicWorldSpec.cpp
   ../nitrogen/generated/shared/c++/HybridRigidBodySpec.cpp
   ../nitrogen/generated/shared/c++/HybridBaseShapeSpec.cpp

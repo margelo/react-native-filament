@@ -36,6 +36,8 @@ namespace margelo::nitro::RNF { class HybridBaseShapeSpec; }
 namespace margelo::nitro::RNF { class HybridBoxShapeSpec; }
 // Forward declaration of `HybridBoxSpec` to properly resolve imports.
 namespace margelo::nitro::RNF { class HybridBoxSpec; }
+// Forward declaration of `HybridBulletAPISpec` to properly resolve imports.
+namespace margelo::nitro::RNF { class HybridBulletAPISpec; }
 // Forward declaration of `HybridCameraManipulatorSpec` to properly resolve imports.
 namespace margelo::nitro::RNF { class HybridCameraManipulatorSpec; }
 // Forward declaration of `HybridChoreographerSpec` to properly resolve imports.
@@ -124,6 +126,7 @@ namespace margelo::nitro::RNF { struct Viewport; }
 #include "HybridBaseShapeSpec.hpp"
 #include "HybridBoxShapeSpec.hpp"
 #include "HybridBoxSpec.hpp"
+#include "HybridBulletAPISpec.hpp"
 #include "HybridCameraManipulatorSpec.hpp"
 #include "HybridChoreographerSpec.hpp"
 #include "HybridCylinderShapeSpec.hpp"
@@ -191,6 +194,8 @@ namespace RNF { class HybridBaseShapeSpecCxx; }
 namespace RNF { class HybridBoxShapeSpecCxx; }
 // Forward declaration of `HybridBoxSpecCxx` to properly resolve imports.
 namespace RNF { class HybridBoxSpecCxx; }
+// Forward declaration of `HybridBulletAPISpecCxx` to properly resolve imports.
+namespace RNF { class HybridBulletAPISpecCxx; }
 // Forward declaration of `HybridCameraManipulatorSpecCxx` to properly resolve imports.
 namespace RNF { class HybridCameraManipulatorSpecCxx; }
 // Forward declaration of `HybridChoreographerSpecCxx` to properly resolve imports.
