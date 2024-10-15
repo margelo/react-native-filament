@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "threading/RNFDispatcher.h"
 #include "RNFListener.h"
 #include "RNFListenerManager.h"
 #include "RNFSurface.h"

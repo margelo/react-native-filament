@@ -23,7 +23,7 @@ class RigidBodyWrapper;
  * first arg: "this" rigid body
  * second arg: the rigid body "this" is colliding with
  */
-using CollisionCallback = std::function<void(std::shared_ptr<RigidBodyWrapper>&, const std::shared_ptr<RigidBodyWrapper>)>;
+using CollisionCallback = std::function<void(const std::shared_ptr<RigidBodyWrapper>&, const std::shared_ptr<RigidBodyWrapper>&)>;
 
 class RigidBodyWrapper : public nitro::HybridObject {
 public:

@@ -25,12 +25,11 @@ void FilamentProxy::loadHybridMethods() {
   registerHybrids(this, [](nitro::Prototype& proto) {
     proto.registerHybridMethod("loadAsset", &FilamentProxy::loadAssetAsync);
     proto.registerHybridMethod("findFilamentView", &FilamentProxy::findFilamentViewAsync);
-    proto.registerHybridMethod("createTestObject", &FilamentProxy::createTestObject);
     proto.registerHybridMethod("createEngine", &FilamentProxy::createEngine);
     proto.registerHybridMethod("createBullet", &FilamentProxy::createBullet);
-    proto.registerHybridMethod("createChoreographer", &FilamentProxy::createChoreographerWrapper);
+    proto.registerRawHybridMethod("createChoreographer", 0, &FilamentProxy::createChoreographerWrapper);
     proto.registerHybridMethod("createRecorder", &FilamentProxy::createRecorder);
-    proto.registerHybridMethod("getCurrentDispatcher", &FilamentProxy::getCurrentDispatcher);
+    proto.registerRawHybridMethod("getCurrentDispatcher", 0, &FilamentProxy::getCurrentDispatcher);
     proto.registerHybridGetter("hasWorklets", &FilamentProxy::getHasWorklets);
   #if HAS_WORKLETS
     proto.registerHybridMethod("createWorkletContext", &FilamentProxy::createWorkletContext);
@@ -98,11 +97,6 @@ std::future<std::shared_ptr<FilamentView>> FilamentProxy::findFilamentViewAsync(
   });
 }
 
-std::shared_ptr<TestHybridObject> FilamentProxy::createTestObject() {
-  Logger::log(TAG, "Creating TestObject...");
-  return std::make_shared<TestHybridObject>();
-}
-
 std::shared_ptr<EngineWrapper> FilamentProxy::createEngine(std::optional<std::string> backend,
                                                            std::optional<std::unordered_map<std::string, int>> arguments) {
   Logger::log(TAG, "Creating Engine...");
@@ -160,7 +154,7 @@ jsi::Value FilamentProxy::createChoreographerWrapper(jsi::Runtime& runtime, cons
         delete ptr;
       });
 
-  return JSIConverter<std::shared_ptr<ChoreographerWrapper>>::toJSI(runtime, choreographerWrapper);
+    return nitro::JSIConverter<std::shared_ptr<ChoreographerWrapper>>::toJSI(runtime, choreographerWrapper);
 }
 
 } // namespace margelo

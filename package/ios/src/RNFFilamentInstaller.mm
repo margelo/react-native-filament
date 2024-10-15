@@ -55,7 +55,7 @@ using namespace margelo;
 #else
   auto filamentProxy = std::make_shared<margelo::AppleFilamentProxy>(runtime, jsDispatcher);
 #endif
-  runtime->global().setProperty(*runtime, "FilamentProxy", jsi::Object::createFromHostObject(*runtime, filamentProxy));
+    runtime->global().setProperty(*runtime, "FilamentProxy", filamentProxy->toObject(*runtime));
 
   return YES;
 }

@@ -3,6 +3,7 @@
 //
 
 #include "RNFFilamentRecorder.h"
+#include "RNFLogger.h"
 #include <jsi/jsi.h>
 
 namespace margelo {
@@ -21,20 +22,22 @@ FilamentRecorder::~FilamentRecorder() {
 
 void FilamentRecorder::loadHybridMethods() {
   HybridObject::loadHybridMethods();
-  registerHybrids(this, [](nitro::Prototype& proto) {
-    proto.registerHybridGetter("width", &FilamentRecorder::getWidth);
-    proto.registerHybridGetter("height", &FilamentRecorder::getHeight);
-    proto.registerHybridGetter("fps", &FilamentRecorder::getFps);
-    proto.registerHybridGetter("bitRate", &FilamentRecorder::getBitRate);
-    proto.registerHybridGetter("outputFile", &FilamentRecorder::getOutputFile);
-    proto.registerHybridGetter("isRecording", &FilamentRecorder::getIsRecording);
-    proto.registerHybridMethod("startRecording", &FilamentRecorder::startRecording);
-    proto.registerHybridMethod("stopRecording", &FilamentRecorder::stopRecording);
-    proto.registerHybridMethod("renderFrame", &FilamentRecorder::renderFrame);
-    proto.registerHybridMethod("addOnReadyForMoreDataListener", &FilamentRecorder::addOnReadyForMoreDataListener);
+    registerHybrids(this, [](nitro::Prototype& proto) {
+        proto.registerHybridGetter("width", &FilamentRecorder::getWidth);
+        proto.registerHybridGetter("height", &FilamentRecorder::getHeight);
+        proto.registerHybridGetter("fps", &FilamentRecorder::getFps);
+        proto.registerHybridGetter("bitRate", &FilamentRecorder::getBitRate);
+        proto.registerHybridGetter("outputFile", &FilamentRecorder::getOutputFile);
+        proto.registerHybridGetter("isRecording", &FilamentRecorder::getIsRecording);
+        proto.registerHybridMethod("startRecording", &FilamentRecorder::startRecording);
+        proto.registerHybridMethod("stopRecording", &FilamentRecorder::stopRecording);
+        proto.registerHybridMethod("renderFrame", &FilamentRecorder::renderFrame);
+//        TODO: nitro
+//        proto.registerHybridMethod("addOnReadyForMoreDataListener", &FilamentRecorder::addOnReadyForMoreDataListener);
+    });
 }
 
-std::shared_ptr<Listener> FilamentRecorder::addOnReadyForMoreDataListener(ReadyForMoreDataCallback callback) {
+std::shared_ptr<Listener> FilamentRecorder::addOnReadyForMoreDataListener(const ReadyForMoreDataCallback& callback) {
   return _listenerManager->add(callback);
 }
 

@@ -44,7 +44,7 @@ public:
     return _bitRate;
   }
 
-  std::shared_ptr<Listener> addOnReadyForMoreDataListener(ReadyForMoreDataCallback callback);
+  std::shared_ptr<Listener> addOnReadyForMoreDataListener(const ReadyForMoreDataCallback& callback);
   /**
    * Notify all JS listeners that the Recorder is ready for more data - this will probably cause rendering to happen.
    * This needs to be called from the renderer Thread!

@@ -5,6 +5,7 @@
 //  Created by Marc Rousavy on 02.05.24.
 //
 
+#include "RNFLogger.h"
 #include "RNFAppleFilamentRecorder.h"
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreVideo/CoreVideo.h>
