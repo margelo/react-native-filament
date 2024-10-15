@@ -2,7 +2,7 @@
 #include "RNFCameraFovEnum.h"
 
 void margelo::CameraWrapper::loadHybridMethods() {
-  HybridObject::loadHybridMethods();
+  PointerHolder::loadHybridMethods();
   registerHybrids(this, [](nitro::Prototype& proto) {
     proto.registerHybridMethod("lookAtCameraManipulator", &CameraWrapper::lookAtCameraManipulator);
     proto.registerHybridMethod("lookAt", &CameraWrapper::lookAt);

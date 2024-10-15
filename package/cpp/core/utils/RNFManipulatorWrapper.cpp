@@ -2,7 +2,7 @@
 
 namespace margelo {
 void ManipulatorWrapper::loadHybridMethods() {
-  HybridObject::loadHybridMethods();
+    PointerHolder::loadHybridMethods();
   registerHybrids(this, [](nitro::Prototype& proto) {
     proto.registerHybridMethod("grabBegin", &ManipulatorWrapper::grabBegin);
     proto.registerHybridMethod("grabUpdate", &ManipulatorWrapper::grabUpdate);

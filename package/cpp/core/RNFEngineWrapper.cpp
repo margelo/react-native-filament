@@ -32,7 +32,7 @@
 namespace margelo {
 
 void EngineWrapper::loadHybridMethods() {
-  HybridObject::loadHybridMethods();
+  PointerHolder::loadHybridMethods();
   registerHybrids(this, [](nitro::Prototype& proto) {
     proto.registerHybridMethod("setSurfaceProvider", &EngineWrapper::setSurfaceProvider);
     proto.registerHybridMethod("createSwapChainForSurface", &EngineWrapper::createSwapChainForSurface);

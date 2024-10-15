@@ -9,7 +9,7 @@
 
 namespace margelo {
 void MaterialWrapper::loadHybridMethods() {
-  HybridObject::loadHybridMethods();
+    PointerHolder::loadHybridMethods();
   registerHybrids(this, [](nitro::Prototype& proto) {
     proto.registerHybridMethod("createInstance", &MaterialWrapper::createInstance);
     proto.registerHybridMethod("setDefaultFloatParameter", &MaterialWrapper::setDefaultFloatParameter);

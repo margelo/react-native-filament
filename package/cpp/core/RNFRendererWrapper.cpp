@@ -6,7 +6,7 @@
 
 namespace margelo {
 void RendererWrapper::loadHybridMethods() {
-  HybridObject::loadHybridMethods();
+  PointerHolder::loadHybridMethods();
   registerHybrids(this, [](nitro::Prototype& proto) {
     proto.registerHybridMethod("setFrameRateOptions", &RendererWrapper::setFrameRateOptions);
     proto.registerHybridMethod("setClearContent", &RendererWrapper::setClearContent);

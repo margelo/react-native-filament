@@ -13,7 +13,7 @@ ChoreographerWrapper::~ChoreographerWrapper() {
 }
 
 void ChoreographerWrapper::loadHybridMethods() {
-  HybridObject::loadHybridMethods();
+  PointerHolder::loadHybridMethods();
   registerHybrids(this, [](nitro::Prototype& proto) {
     proto.registerHybridMethod("start", &ChoreographerWrapper::start);
     proto.registerHybridMethod("stop", &ChoreographerWrapper::stop);

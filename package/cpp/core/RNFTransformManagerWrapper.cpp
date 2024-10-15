@@ -7,7 +7,7 @@
 namespace margelo {
 
 void TransformManagerWrapper::loadHybridMethods() {
-  HybridObject::loadHybridMethods();
+    PointerHolder::loadHybridMethods();
   registerHybrids(this, [](nitro::Prototype& proto) {
     proto.registerHybridMethod("getTransform", &TransformManagerWrapper::getTransform);
     proto.registerHybridMethod("getWorldTransform", &TransformManagerWrapper::getWorldTransform);

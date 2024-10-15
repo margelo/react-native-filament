@@ -11,7 +11,7 @@ namespace margelo {
 using namespace utils;
 
 void FilamentAssetWrapper::loadHybridMethods() {
-  HybridObject::loadHybridMethods();
+  PointerHolder::loadHybridMethods();
   registerHybrids(this, [](nitro::Prototype& proto) {
     proto.registerHybridMethod("getRoot", &FilamentAssetWrapper::getRoot);
     proto.registerHybridMethod("releaseSourceData", &FilamentAssetWrapper::releaseSourceData);

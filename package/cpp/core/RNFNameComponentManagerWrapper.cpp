@@ -6,7 +6,7 @@
 namespace margelo {
 
     void NameComponentManagerWrapper::loadHybridMethods() {
-        HybridObject::loadHybridMethods();
+        PointerHolder::loadHybridMethods();
         registerHybrids(this, [](nitro::Prototype& proto) {
             proto.registerHybridMethod("getEntityName", &NameComponentManagerWrapper::getEntityName);
         });
