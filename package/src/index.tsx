@@ -1,3 +1,6 @@
+import { isRuntimeAlive } from 'react-native-nitro-modules' // TODO: nitro this should be accessed through a proxy if a user doesn't have this installed
+isRuntimeAlive() // This is a "dummy" call to init react-native-nitro-modules
+
 export * from './types'
 
 // hooks

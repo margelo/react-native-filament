@@ -1,6 +1,7 @@
 import { useFilamentContext } from './useFilamentContext'
 import { Float3, OrbitCameraManipulatorConfig } from '../types'
 import { useDisposableResource } from './useDisposableResource'
+import { NitroModules } from 'react-native-nitro-modules'
 
 const cameraPosition: Float3 = [0, 0, 8]
 const cameraTarget: Float3 = [0, 0, 0]
@@ -41,7 +42,10 @@ export function useCameraManipulator({
       localConfig.orbitSpeed = [orbitSpeedX, orbitSpeedY]
     }
 
-    return Promise.resolve(engine.createOrbitCameraManipulator(localConfig))
+    const unboxedEngine = engine.unbox()
+    const newCameraManipulator = unboxedEngine.createOrbitCameraManipulator(localConfig)
+    const boxedCameraManipulator = NitroModules.box(newCameraManipulator)
+    return Promise.resolve(boxedCameraManipulator)
   }, [
     engine,
     orbitHomePositionX,

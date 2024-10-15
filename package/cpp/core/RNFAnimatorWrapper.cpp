@@ -9,15 +9,18 @@
 
 namespace margelo {
 void AnimatorWrapper::loadHybridMethods() {
-  registerHybridMethod("applyAnimation", &AnimatorWrapper::applyAnimation, this);
-  registerHybridMethod("updateBoneMatrices", &AnimatorWrapper::updateBoneMatrices, this);
-  registerHybridMethod("applyCrossFade", &AnimatorWrapper::applyCrossFade, this);
-  registerHybridMethod("resetBoneMatrices", &AnimatorWrapper::resetBoneMatrices, this);
-  registerHybridMethod("getAnimationCount", &AnimatorWrapper::getAnimationCount, this);
-  registerHybridMethod("getAnimationDuration", &AnimatorWrapper::getAnimationDuration, this);
-  registerHybridMethod("getAnimationName", &AnimatorWrapper::getAnimationName, this);
-  registerHybridMethod("addToSyncList", &AnimatorWrapper::addToSyncList, this);
-  registerHybridMethod("removeFromSyncList", &AnimatorWrapper::removeFromSyncList, this);
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridMethod("applyAnimation", &AnimatorWrapper::applyAnimation);
+    proto.registerHybridMethod("updateBoneMatrices", &AnimatorWrapper::updateBoneMatrices);
+    proto.registerHybridMethod("applyCrossFade", &AnimatorWrapper::applyCrossFade);
+    proto.registerHybridMethod("resetBoneMatrices", &AnimatorWrapper::resetBoneMatrices);
+    proto.registerHybridMethod("getAnimationCount", &AnimatorWrapper::getAnimationCount);
+    proto.registerHybridMethod("getAnimationDuration", &AnimatorWrapper::getAnimationDuration);
+    proto.registerHybridMethod("getAnimationName", &AnimatorWrapper::getAnimationName);
+    proto.registerHybridMethod("addToSyncList", &AnimatorWrapper::addToSyncList);
+    proto.registerHybridMethod("removeFromSyncList", &AnimatorWrapper::removeFromSyncList);
+  });
 }
 
 inline void assertAnimationIndexSmallerThan(int animationIndex, int max) {

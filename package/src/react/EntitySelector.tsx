@@ -6,6 +6,8 @@ import React from 'react'
 import { useApplyTransformations } from '../hooks/internal/useApplyTransformations'
 import { FilamentBuffer } from '../native/FilamentBuffer'
 import { useWorkletEffect } from '../hooks/useWorkletEffect'
+import { BoxedHybridObject } from 'react-native-nitro-modules/lib/BoxedHybridObject'
+import { NitroModules } from 'react-native-nitro-modules'
 
 export type SelectorProps =
   | {
@@ -42,7 +44,7 @@ export function EntitySelector(props: EntitySelectorProps) {
 
     if (byName != null) {
       // TODO: can be optimized by using it from asset, or https://github.com/google/filament/discussions/7980
-      return entities.find((e) => nameComponentManager.getEntityName(e) === byName)
+      return entities.find((e) => nameComponentManager.unbox().getEntityName(e) === byName)
     } else if (byIndex != null) {
       if (byIndex >= entities.length) {
         throw new Error('<EntitySelector>: byIndex is out of bounds. Instance only has ' + entities.length + ' entities')
@@ -66,11 +68,12 @@ export function EntitySelector(props: EntitySelectorProps) {
     throw new Error(`<EntitySelector>: Could not find entity by ${byName != null ? 'name' : 'index'} "${byName ?? byIndex}"`)
   }
 
-  return <EntitySelectorImpl entity={entity} {...props} />
+  const boxedEntity = NitroModules.box(entity)
+  return <EntitySelectorImpl entity={boxedEntity} {...props} />
 }
 
 type ImplProps = {
-  entity: Entity
+  entity: BoxedHybridObject<Entity>
 } & ModifierProps
 
 /**
@@ -84,7 +87,7 @@ function EntitySelectorImpl(props: ImplProps) {
 }
 
 type TextureModifierProps = TextureMap & {
-  entity: Entity
+  entity: BoxedHybridObject<Entity>
 }
 
 /**
@@ -95,7 +98,7 @@ function TextureModifier({ entity, textureSource, materialName, textureFlags = '
   useWorkletEffect(() => {
     'worklet'
 
-    renderableManager.changeMaterialTextureMap(entity, materialName, textureSource, textureFlags)
+    renderableManager.unbox().changeMaterialTextureMap(entity.unbox(), materialName, textureSource, textureFlags)
   })
 
   return null

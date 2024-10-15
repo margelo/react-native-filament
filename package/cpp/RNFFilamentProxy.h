@@ -4,6 +4,13 @@
 
 #pragma once
 
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/Dispatcher.hpp>
+#include <NitroModules/HybridObject.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
+
 #include <jsi/jsi.h>
 
 #include <future>
@@ -17,9 +24,6 @@
 #include "RNFFilamentView.h"
 #include "bullet/RNFBulletWrapper.h"
 #include "core/RNFEngineWrapper.h"
-#include "jsi/RNFHybridObject.h"
-#include "test/RNFTestHybridObject.h"
-#include "threading/RNFDispatcher.h"
 
 #include <ReactCommon/CallInvoker.h>
 
@@ -37,7 +41,7 @@ namespace margelo {
 
 using namespace facebook;
 
-class FilamentProxy : public HybridObject {
+class FilamentProxy : public nitro::HybridObject {
 public:
   explicit FilamentProxy() : HybridObject(TAG) {}
 
@@ -51,22 +55,22 @@ private:
   /**
    * Get the Dispatcher for the main react JS thread.
    */
-  virtual std::shared_ptr<Dispatcher> getJSDispatcher() = 0;
+  virtual std::shared_ptr<nitro::Dispatcher> getJSDispatcher() = 0;
   /**
    * Get the Dispatcher that is responsible for rendering to Filament.
    * This is guaranteed to only use a single Thread, as opposed to a Thread-pool.
    */
-  virtual std::shared_ptr<Dispatcher> getRenderThreadDispatcher() = 0;
+  virtual std::shared_ptr<nitro::Dispatcher> getRenderThreadDispatcher() = 0;
   /**
    * Get the Dispatcher for the platform-default UI Thread.
    * This is guaranteed to only use a single Thread, as opposed to a Thread-pool.
    */
-  virtual std::shared_ptr<Dispatcher> getUIDispatcher() = 0;
+  virtual std::shared_ptr<nitro::Dispatcher> getUIDispatcher() = 0;
   /**
    * Get a Dispatcher that uses a Thread-pool for background operations such as File I/O.
    * This Dispatcher may use multiple Threads to run code.
    */
-  virtual std::shared_ptr<Dispatcher> getBackgroundDispatcher() = 0;
+  virtual std::shared_ptr<nitro::Dispatcher> getBackgroundDispatcher() = 0;
   /**
    * Get the refresh rate of the display in Hz.
    * Needed for correct frame pacing and dynamic resolution calculations.
@@ -78,9 +82,6 @@ private:
   virtual float getDensityPixelRatio() = 0;
 
   jsi::Value getCurrentDispatcher(jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* args, size_t count);
-
-  // For testing
-  std::shared_ptr<TestHybridObject> createTestObject();
 
   // Public API
   std::future<std::shared_ptr<FilamentBuffer>> loadAssetAsync(const std::string& path);

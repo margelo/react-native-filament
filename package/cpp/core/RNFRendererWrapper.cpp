@@ -6,12 +6,15 @@
 
 namespace margelo {
 void RendererWrapper::loadHybridMethods() {
-  registerHybridMethod("setFrameRateOptions", &RendererWrapper::setFrameRateOptions, this);
-  registerHybridMethod("setClearContent", &RendererWrapper::setClearContent, this);
-  registerHybridMethod("setPresentationTime", &RendererWrapper::setPresentationTime, this);
-  registerHybridMethod("beginFrame", &RendererWrapper::beginFrame, this);
-  registerHybridMethod("render", &RendererWrapper::render, this);
-  registerHybridMethod("endFrame", &RendererWrapper::endFrame, this);
+  PointerHolder::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridMethod("setFrameRateOptions", &RendererWrapper::setFrameRateOptions);
+    proto.registerHybridMethod("setClearContent", &RendererWrapper::setClearContent);
+    proto.registerHybridMethod("setPresentationTime", &RendererWrapper::setPresentationTime);
+    proto.registerHybridMethod("beginFrame", &RendererWrapper::beginFrame);
+    proto.registerHybridMethod("render", &RendererWrapper::render);
+    proto.registerHybridMethod("endFrame", &RendererWrapper::endFrame);
+  });
 }
 
 void RendererWrapper::setFrameRateOptions(std::unordered_map<std::string, double> options) {

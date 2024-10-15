@@ -5,44 +5,51 @@
 #pragma once
 
 #include "RNFQualityLevel.h"
-#include "jsi/RNFHybridObject.h"
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/HybridObject.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
 #include <filament/Options.h>
 
 namespace margelo {
 
 using namespace filament;
 
-class AmbientOcclusionOptionsWrapper : public HybridObject, public AmbientOcclusionOptions {
+class AmbientOcclusionOptionsWrapper : public nitro::HybridObject, public AmbientOcclusionOptions {
 public:
   explicit AmbientOcclusionOptionsWrapper() : HybridObject("AmbientOcclusionOptionsWrapper") {}
   explicit AmbientOcclusionOptionsWrapper(const AmbientOcclusionOptions& options)
       : HybridObject("AmbientOcclusionOptionsWrapper"), AmbientOcclusionOptions(options) {}
 
   void loadHybridMethods() override {
-    registerHybridGetter("radius", &AmbientOcclusionOptionsWrapper::getRadius, this);
-    registerHybridSetter("radius", &AmbientOcclusionOptionsWrapper::setRadius, this);
-    registerHybridGetter("power", &AmbientOcclusionOptionsWrapper::getPower, this);
-    registerHybridSetter("power", &AmbientOcclusionOptionsWrapper::setPower, this);
-    registerHybridGetter("bias", &AmbientOcclusionOptionsWrapper::getBias, this);
-    registerHybridSetter("bias", &AmbientOcclusionOptionsWrapper::setBias, this);
-    registerHybridGetter("resolution", &AmbientOcclusionOptionsWrapper::getResolution, this);
-    registerHybridSetter("resolution", &AmbientOcclusionOptionsWrapper::setResolution, this);
-    registerHybridGetter("intensity", &AmbientOcclusionOptionsWrapper::getIntensity, this);
-    registerHybridSetter("intensity", &AmbientOcclusionOptionsWrapper::setIntensity, this);
-    registerHybridGetter("bilateralThreshold", &AmbientOcclusionOptionsWrapper::getBilateralThreshold, this);
-    registerHybridSetter("bilateralThreshold", &AmbientOcclusionOptionsWrapper::setBilateralThreshold, this);
-    registerHybridGetter("quality", &AmbientOcclusionOptionsWrapper::getQuality, this);
-    registerHybridSetter("quality", &AmbientOcclusionOptionsWrapper::setQuality, this);
-    registerHybridGetter("lowPassFilter", &AmbientOcclusionOptionsWrapper::getLowPassFilter, this);
-    registerHybridSetter("lowPassFilter", &AmbientOcclusionOptionsWrapper::setLowPassFilter, this);
-    registerHybridGetter("upsampling", &AmbientOcclusionOptionsWrapper::getUpsampling, this);
-    registerHybridSetter("upsampling", &AmbientOcclusionOptionsWrapper::setUpsampling, this);
-    registerHybridGetter("enabled", &AmbientOcclusionOptionsWrapper::getEnabled, this);
-    registerHybridSetter("enabled", &AmbientOcclusionOptionsWrapper::setEnabled, this);
-    registerHybridGetter("bentNormals", &AmbientOcclusionOptionsWrapper::getBentNormals, this);
-    registerHybridSetter("bentNormals", &AmbientOcclusionOptionsWrapper::setBentNormals, this);
-    registerHybridGetter("minHorizonAngleRad", &AmbientOcclusionOptionsWrapper::getMinHorizonAngleRad, this);
-    registerHybridSetter("minHorizonAngleRad", &AmbientOcclusionOptionsWrapper::setMinHorizonAngleRad, this);
+    HybridObject::loadHybridMethods();
+    registerHybrids(this, [](nitro::Prototype& proto) {
+      proto.registerHybridGetter("radius", &AmbientOcclusionOptionsWrapper::getRadius);
+      proto.registerHybridSetter("radius", &AmbientOcclusionOptionsWrapper::setRadius);
+      proto.registerHybridGetter("power", &AmbientOcclusionOptionsWrapper::getPower);
+      proto.registerHybridSetter("power", &AmbientOcclusionOptionsWrapper::setPower);
+      proto.registerHybridGetter("bias", &AmbientOcclusionOptionsWrapper::getBias);
+      proto.registerHybridSetter("bias", &AmbientOcclusionOptionsWrapper::setBias);
+      proto.registerHybridGetter("resolution", &AmbientOcclusionOptionsWrapper::getResolution);
+      proto.registerHybridSetter("resolution", &AmbientOcclusionOptionsWrapper::setResolution);
+      proto.registerHybridGetter("intensity", &AmbientOcclusionOptionsWrapper::getIntensity);
+      proto.registerHybridSetter("intensity", &AmbientOcclusionOptionsWrapper::setIntensity);
+      proto.registerHybridGetter("bilateralThreshold", &AmbientOcclusionOptionsWrapper::getBilateralThreshold);
+      proto.registerHybridSetter("bilateralThreshold", &AmbientOcclusionOptionsWrapper::setBilateralThreshold);
+      proto.registerHybridGetter("quality", &AmbientOcclusionOptionsWrapper::getQuality);
+      proto.registerHybridSetter("quality", &AmbientOcclusionOptionsWrapper::setQuality);
+      proto.registerHybridGetter("lowPassFilter", &AmbientOcclusionOptionsWrapper::getLowPassFilter);
+      proto.registerHybridSetter("lowPassFilter", &AmbientOcclusionOptionsWrapper::setLowPassFilter);
+      proto.registerHybridGetter("upsampling", &AmbientOcclusionOptionsWrapper::getUpsampling);
+      proto.registerHybridSetter("upsampling", &AmbientOcclusionOptionsWrapper::setUpsampling);
+      proto.registerHybridGetter("enabled", &AmbientOcclusionOptionsWrapper::getEnabled);
+      proto.registerHybridSetter("enabled", &AmbientOcclusionOptionsWrapper::setEnabled);
+      proto.registerHybridGetter("bentNormals", &AmbientOcclusionOptionsWrapper::getBentNormals);
+      proto.registerHybridSetter("bentNormals", &AmbientOcclusionOptionsWrapper::setBentNormals);
+      proto.registerHybridGetter("minHorizonAngleRad", &AmbientOcclusionOptionsWrapper::getMinHorizonAngleRad);
+      proto.registerHybridSetter("minHorizonAngleRad", &AmbientOcclusionOptionsWrapper::setMinHorizonAngleRad);
+    });
   }
 
 private:

@@ -5,13 +5,17 @@
 #pragma once
 
 #include <filament/Box.h>
-#include <jsi/RNFHybridObject.h>
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/HybridObject.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
 
 namespace margelo {
 
 using namespace filament;
 
-class AABBWrapper : public HybridObject {
+class AABBWrapper : public nitro::HybridObject {
 public:
   explicit AABBWrapper(const Aabb& aabb) : HybridObject("AABBWrapper"), _aabb(aabb) {}
   void loadHybridMethods() override;

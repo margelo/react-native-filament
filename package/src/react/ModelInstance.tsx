@@ -4,6 +4,7 @@ import { FilamentInstance } from '../types'
 import { ParentInstancesContext, useParentInstancesContext } from './ParentInstancesContext'
 import { TransformationProps } from '../types/TransformProps'
 import { useApplyTransformations } from '../hooks/internal/useApplyTransformations'
+import { NitroModules } from 'react-native-nitro-modules'
 
 export type ModelInstanceProps = PropsWithChildren<
   TransformationProps & {
@@ -43,10 +44,10 @@ type Props = PropsWithChildren<
 
 function ModelInstanceImpl({ instance, children, ...transformProps }: Props) {
   const rootEntity = useMemo(() => {
-    return instance.getRoot()
+    return NitroModules.box(instance.getRoot())
   }, [instance])
   const boundingBox = useMemo(() => {
-    return instance.getBoundingBox()
+    return NitroModules.box(instance.getBoundingBox())
   }, [instance])
 
   const instances = useMemo(() => [instance], [instance])

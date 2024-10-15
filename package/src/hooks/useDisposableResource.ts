@@ -1,10 +1,13 @@
 import { DependencyList, useEffect, useState } from 'react'
 import { withCleanupScope } from '../utilities/withCleanupScope'
 import { PointerHolder } from '../types/PointerHolder'
-
-type ReleasingResource = Pick<PointerHolder, 'release'>
+import { BoxedHybridObject } from 'react-native-nitro-modules/lib/BoxedHybridObject'
 
 const emptyStaticArray: DependencyList = []
+
+function isBoxed(obj: any): obj is BoxedHybridObject<PointerHolder> {
+  return obj.unbox != null
+}
 
 /**
  * Any resource that is a {@link PointerHolder} and can be released, should be loaded
@@ -14,7 +17,7 @@ const emptyStaticArray: DependencyList = []
  * multiple times. Also loading the resource can be async and this hooks handles all these
  * cases properly.
  */
-export const useDisposableResource = <T extends ReleasingResource>(
+export const useDisposableResource = <T extends PointerHolder | BoxedHybridObject<PointerHolder>>(
   initialize: () => Promise<T | undefined> | undefined,
   deps?: DependencyList
 ): T | undefined => {
@@ -32,7 +35,12 @@ export const useDisposableResource = <T extends ReleasingResource>(
         currentAsset = a
       } else {
         // this useEffect has been unmounted already, drop the asset
-        a.release()
+        if (isBoxed(a)) {
+          const unboxed = a.unbox()
+          unboxed.release()
+        } else {
+          a.release()
+        }
       }
     })
     // TODO: catch is broken
@@ -43,7 +51,13 @@ export const useDisposableResource = <T extends ReleasingResource>(
       setResource(undefined)
       isValid = false
       withCleanupScope(() => {
-        currentAsset?.release()
+        if (currentAsset == null) return
+        if (isBoxed(currentAsset)) {
+          const unboxed = currentAsset.unbox()
+          unboxed.release()
+        } else {
+          currentAsset.release()
+        }
       })()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

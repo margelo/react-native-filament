@@ -3,7 +3,6 @@
   "compilerOptions": {
     "paths": {
       "react-native-filament": ["../../src/index"],
-      "react-native-filament-test": ["../../src/test/RunTests"],
       "~/assets/*": ["./assets/*"]
     }
   },

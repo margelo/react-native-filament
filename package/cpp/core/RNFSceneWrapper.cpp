@@ -5,13 +5,16 @@
 namespace margelo {
 
 void margelo::SceneWrapper::loadHybridMethods() {
-  registerHybridMethod("addEntity", &SceneWrapper::addEntity, this);
-  registerHybridMethod("addEntities", &SceneWrapper::addEntities, this);
-  registerHybridMethod("removeEntity", &SceneWrapper::removeEntity, this);
-  registerHybridMethod("removeEntities", &SceneWrapper::removeEntities, this);
-  registerHybridMethod("addAssetEntities", &SceneWrapper::addAssetEntities, this);
-  registerHybridMethod("removeAssetEntities", &SceneWrapper::removeAssetEntities, this);
-  registerHybridGetter("entityCount", &SceneWrapper::getEntityCount, this);
+  PointerHolder::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridMethod("addEntity", &SceneWrapper::addEntity);
+    proto.registerHybridMethod("addEntities", &SceneWrapper::addEntities);
+    proto.registerHybridMethod("removeEntity", &SceneWrapper::removeEntity);
+    proto.registerHybridMethod("removeEntities", &SceneWrapper::removeEntities);
+    proto.registerHybridMethod("addAssetEntities", &SceneWrapper::addAssetEntities);
+    proto.registerHybridMethod("removeAssetEntities", &SceneWrapper::removeAssetEntities);
+    proto.registerHybridGetter("entityCount", &SceneWrapper::getEntityCount);
+  });
 }
 
 void margelo::SceneWrapper::addEntity(std::shared_ptr<EntityWrapper> entity) {

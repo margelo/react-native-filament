@@ -3,13 +3,15 @@
 //
 
 #include "RNFFilamentRecorder.h"
+#include "RNFLogger.h"
 #include <jsi/jsi.h>
 
 namespace margelo {
 
 using namespace facebook;
 
-FilamentRecorder::FilamentRecorder(std::shared_ptr<Dispatcher> renderThreadDispatcher, int width, int height, int fps, double bitRate)
+FilamentRecorder::FilamentRecorder(std::shared_ptr<nitro::Dispatcher> renderThreadDispatcher, int width, int height, int fps,
+                                   double bitRate)
     : HybridObject("FilamentRecorder"), _renderThreadDispatcher(renderThreadDispatcher), _width(width), _height(height), _fps(fps),
       _bitRate(bitRate), _listenerManager(ListenerManager<ReadyForMoreDataCallback>::create()) {
   Logger::log(TAG, "Creating %zu x %zu @ %zu FPS (%f bps) FilamentRecorder...", width, height, fps, bitRate);
@@ -20,19 +22,23 @@ FilamentRecorder::~FilamentRecorder() {
 }
 
 void FilamentRecorder::loadHybridMethods() {
-  registerHybridGetter("width", &FilamentRecorder::getWidth, this);
-  registerHybridGetter("height", &FilamentRecorder::getHeight, this);
-  registerHybridGetter("fps", &FilamentRecorder::getFps, this);
-  registerHybridGetter("bitRate", &FilamentRecorder::getBitRate, this);
-  registerHybridGetter("outputFile", &FilamentRecorder::getOutputFile, this);
-  registerHybridGetter("isRecording", &FilamentRecorder::getIsRecording, this);
-  registerHybridMethod("startRecording", &FilamentRecorder::startRecording, this);
-  registerHybridMethod("stopRecording", &FilamentRecorder::stopRecording, this);
-  registerHybridMethod("renderFrame", &FilamentRecorder::renderFrame, this);
-  registerHybridMethod("addOnReadyForMoreDataListener", &FilamentRecorder::addOnReadyForMoreDataListener, this);
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridGetter("width", &FilamentRecorder::getWidth);
+    proto.registerHybridGetter("height", &FilamentRecorder::getHeight);
+    proto.registerHybridGetter("fps", &FilamentRecorder::getFps);
+    proto.registerHybridGetter("bitRate", &FilamentRecorder::getBitRate);
+    proto.registerHybridGetter("outputFile", &FilamentRecorder::getOutputFile);
+    proto.registerHybridGetter("isRecording", &FilamentRecorder::getIsRecording);
+    proto.registerHybridMethod("startRecording", &FilamentRecorder::startRecording);
+    proto.registerHybridMethod("stopRecording", &FilamentRecorder::stopRecording);
+    proto.registerHybridMethod("renderFrame", &FilamentRecorder::renderFrame);
+    //        TODO: nitro
+    //        proto.registerHybridMethod("addOnReadyForMoreDataListener", &FilamentRecorder::addOnReadyForMoreDataListener);
+  });
 }
 
-std::shared_ptr<Listener> FilamentRecorder::addOnReadyForMoreDataListener(ReadyForMoreDataCallback callback) {
+std::shared_ptr<Listener> FilamentRecorder::addOnReadyForMoreDataListener(const ReadyForMoreDataCallback& callback) {
   return _listenerManager->add(callback);
 }
 

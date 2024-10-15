@@ -5,32 +5,39 @@
 #pragma once
 
 #include "RNFQualityLevel.h"
-#include "jsi/RNFHybridObject.h"
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/HybridObject.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
 #include <filament/Options.h>
 
 namespace margelo {
 
 using namespace filament;
 
-class DynamicResolutionOptionsWrapper : public HybridObject, public DynamicResolutionOptions {
+class DynamicResolutionOptionsWrapper : public nitro::HybridObject, public DynamicResolutionOptions {
 public:
   explicit DynamicResolutionOptionsWrapper() : HybridObject("DynamicResolutionOptions") {}
   explicit DynamicResolutionOptionsWrapper(const DynamicResolutionOptions& options)
       : HybridObject("DynamicResolutionOptions"), DynamicResolutionOptions(options) {}
 
   void loadHybridMethods() {
-    registerHybridGetter("minScale", &DynamicResolutionOptionsWrapper::getMinScale, this);
-    registerHybridSetter("minScale", &DynamicResolutionOptionsWrapper::setMinScale, this);
-    registerHybridGetter("maxScale", &DynamicResolutionOptionsWrapper::getMaxScale, this);
-    registerHybridSetter("maxScale", &DynamicResolutionOptionsWrapper::setMaxScale, this);
-    registerHybridGetter("sharpness", &DynamicResolutionOptionsWrapper::getSharpness, this);
-    registerHybridSetter("sharpness", &DynamicResolutionOptionsWrapper::setSharpness, this);
-    registerHybridGetter("enabled", &DynamicResolutionOptionsWrapper::getEnabled, this);
-    registerHybridSetter("enabled", &DynamicResolutionOptionsWrapper::setEnabled, this);
-    registerHybridGetter("homogeneousScaling", &DynamicResolutionOptionsWrapper::getHomogeneousScaling, this);
-    registerHybridSetter("homogeneousScaling", &DynamicResolutionOptionsWrapper::setHomogeneousScaling, this);
-    registerHybridGetter("quality", &DynamicResolutionOptionsWrapper::getQuality, this);
-    registerHybridSetter("quality", &DynamicResolutionOptionsWrapper::setQuality, this);
+    HybridObject::loadHybridMethods();
+    registerHybrids(this, [](nitro::Prototype& proto) {
+      proto.registerHybridGetter("minScale", &DynamicResolutionOptionsWrapper::getMinScale);
+      proto.registerHybridSetter("minScale", &DynamicResolutionOptionsWrapper::setMinScale);
+      proto.registerHybridGetter("maxScale", &DynamicResolutionOptionsWrapper::getMaxScale);
+      proto.registerHybridSetter("maxScale", &DynamicResolutionOptionsWrapper::setMaxScale);
+      proto.registerHybridGetter("sharpness", &DynamicResolutionOptionsWrapper::getSharpness);
+      proto.registerHybridSetter("sharpness", &DynamicResolutionOptionsWrapper::setSharpness);
+      proto.registerHybridGetter("enabled", &DynamicResolutionOptionsWrapper::getEnabled);
+      proto.registerHybridSetter("enabled", &DynamicResolutionOptionsWrapper::setEnabled);
+      proto.registerHybridGetter("homogeneousScaling", &DynamicResolutionOptionsWrapper::getHomogeneousScaling);
+      proto.registerHybridSetter("homogeneousScaling", &DynamicResolutionOptionsWrapper::setHomogeneousScaling);
+      proto.registerHybridGetter("quality", &DynamicResolutionOptionsWrapper::getQuality);
+      proto.registerHybridSetter("quality", &DynamicResolutionOptionsWrapper::setQuality);
+    });
   }
 
 private:

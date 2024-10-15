@@ -5,6 +5,7 @@ import { TransformationProps } from '../types/TransformProps'
 import { useApplyTransformations } from '../hooks/internal/useApplyTransformations'
 import { ParentInstancesContext } from './ParentInstancesContext'
 import { useEntityInScene } from '../hooks/useEntityInScene'
+import { NitroModules } from 'react-native-nitro-modules'
 
 export type DebugBoxProps = TransformationProps & {
   halfExtent?: Float3
@@ -25,12 +26,14 @@ export function DebugBox({ halfExtent: halfExtentProp, ...transformProps }: Debu
     if (halfExtent == null) return null
 
     // TODO: other colors are only supported by importing a material - i think it should be possible to create a material on the fly
-    return renderableManager.createDebugCubeWireframe(halfExtent, undefined, undefined)
+    const entity = renderableManager.unbox().createDebugCubeWireframe(halfExtent, undefined, undefined)
+    const boxedEntity = NitroModules.box(entity)
+    return boxedEntity
   }, [halfExtent, renderableManager])
 
   useApplyTransformations({ to: boxEntity, transformProps })
 
-  useEntityInScene(scene, boxEntity ?? undefined)
+  useEntityInScene(scene.unbox(), boxEntity?.unbox())
 
   return null
 }

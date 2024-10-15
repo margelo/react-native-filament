@@ -10,19 +10,22 @@
 
 namespace margelo {
 void RenderableManagerWrapper::loadHybridMethods() {
-  registerHybridMethod("getPrimitiveCount", &RenderableManagerWrapper::getPrimitiveCount, this);
-  registerHybridMethod("getMaterialInstanceAt", &RenderableManagerWrapper::getMaterialInstanceAt, this);
-  registerHybridMethod("setMaterialInstanceAt", &RenderableManagerWrapper::setMaterialInstanceAt, this);
-  registerHybridMethod("setAssetEntitiesOpacity", &RenderableManagerWrapper::setAssetEntitiesOpacity, this);
-  registerHybridMethod("setInstanceEntitiesOpacity", &RenderableManagerWrapper::setInstanceWrapperEntitiesOpacity, this);
-  registerHybridMethod("changeMaterialTextureMap", &RenderableManagerWrapper::changeMaterialTextureMap, this);
-  registerHybridMethod("setCastShadow", &RenderableManagerWrapper::setCastShadow, this);
-  registerHybridMethod("setReceiveShadow", &RenderableManagerWrapper::setReceiveShadow, this);
-  registerHybridMethod("createPlane", &RenderableManagerWrapper::createPlane, this);
-  registerHybridMethod("createImageBackgroundShape", &RenderableManagerWrapper::createImageBackgroundShape, this);
-  registerHybridMethod("scaleBoundingBox", &RenderableManagerWrapper::scaleBoundingBox, this);
-  registerHybridMethod("createDebugCubeWireframe", &RenderableManagerWrapper::createDebugCubeWireframe, this);
-  registerHybridMethod("getAxisAlignedBoundingBox", &RenderableManagerWrapper::getAxisAlignedBoundingBox, this);
+  PointerHolder::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridMethod("getPrimitiveCount", &RenderableManagerWrapper::getPrimitiveCount);
+    proto.registerHybridMethod("getMaterialInstanceAt", &RenderableManagerWrapper::getMaterialInstanceAt);
+    proto.registerHybridMethod("setMaterialInstanceAt", &RenderableManagerWrapper::setMaterialInstanceAt);
+    proto.registerHybridMethod("setAssetEntitiesOpacity", &RenderableManagerWrapper::setAssetEntitiesOpacity);
+    proto.registerHybridMethod("setInstanceEntitiesOpacity", &RenderableManagerWrapper::setInstanceWrapperEntitiesOpacity);
+    proto.registerHybridMethod("changeMaterialTextureMap", &RenderableManagerWrapper::changeMaterialTextureMap);
+    proto.registerHybridMethod("setCastShadow", &RenderableManagerWrapper::setCastShadow);
+    proto.registerHybridMethod("setReceiveShadow", &RenderableManagerWrapper::setReceiveShadow);
+    proto.registerHybridMethod("createPlane", &RenderableManagerWrapper::createPlane);
+    proto.registerHybridMethod("createImageBackgroundShape", &RenderableManagerWrapper::createImageBackgroundShape);
+    proto.registerHybridMethod("scaleBoundingBox", &RenderableManagerWrapper::scaleBoundingBox);
+    proto.registerHybridMethod("createDebugCubeWireframe", &RenderableManagerWrapper::createDebugCubeWireframe);
+    proto.registerHybridMethod("getAxisAlignedBoundingBox", &RenderableManagerWrapper::getAxisAlignedBoundingBox);
+  });
 }
 int RenderableManagerWrapper::getPrimitiveCount(std::shared_ptr<EntityWrapper> entity) {
   return pointee()->getPrimitiveCount(entity);

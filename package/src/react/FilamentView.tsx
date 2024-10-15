@@ -1,5 +1,5 @@
 import React from 'react'
-import { FilamentProxy } from '../native/FilamentProxy'
+import { FilamentProxy, NitroBoxed } from '../native/FilamentProxy'
 import FilamentNativeView, { type FilamentViewNativeType, type NativeProps } from '../native/specs/FilamentViewNativeComponent'
 import { reportWorkletError, wrapWithErrorHandler } from '../ErrorUtils'
 import { FilamentContext } from '../hooks/useFilamentContext'
@@ -10,6 +10,7 @@ import { findNodeHandle, GestureResponderEvent } from 'react-native'
 import { Worklets } from 'react-native-worklets-core'
 import { getLogger } from '../utilities/logger/Logger'
 import { getTouchHandlers } from './TouchHandlerContext'
+import { NitroModules } from 'react-native-nitro-modules'
 
 const Logger = getLogger()
 
@@ -69,7 +70,7 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
 
   private updateTransparentRendering = (enable: boolean) => {
     const { renderer } = this.getContext()
-    renderer.setClearContent(enable)
+    renderer.unbox().setClearContent(enable)
   }
 
   private latestToken = 0
@@ -83,17 +84,20 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
 
     // Adding a new render callback listener is an async operation
     Logger.debug('Setting render callback')
-    const listener = await workletContext.runAsync(
+    const boxedSwapChain = NitroModules.box(swapChain)
+    const boxedListener = await workletContext.runAsync(
       wrapWithErrorHandler(() => {
         'worklet'
 
         // We need to create the function we pass to addFrameCallbackListener on the worklet thread, so that the
         // underlying JSI function is owned by that thread. Only then can we call it on the worklet thread when
         // the choreographer is calling its listeners.
-        return choreographer.addFrameCallbackListener((frameInfo) => {
+        const unboxedChoreographer = choreographer.unbox()
+        const listener = unboxedChoreographer.addFrameCallbackListener((frameInfo) => {
           'worklet'
 
-          if (!swapChain.isValid) {
+          const unboxedSwapChain = boxedSwapChain.unbox()
+          if (!unboxedSwapChain.isValid) {
             // TODO: Supposedly fixed in https://github.com/margelo/react-native-filament/pull/210, remove this once proven
             reportWorkletError(
               new Error(
@@ -106,16 +110,22 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
           try {
             callback(frameInfo)
 
-            if (renderer.beginFrame(swapChain, frameInfo.timestamp)) {
-              renderer.render(view)
-              renderer.endFrame()
+            const unboxedRenderer = renderer.unbox()
+            if (unboxedRenderer.beginFrame(unboxedSwapChain, frameInfo.timestamp)) {
+              unboxedRenderer.render(view.unbox())
+              unboxedRenderer.endFrame()
             }
           } catch (error) {
             reportWorkletError(error)
           }
         })
+
+        const nitro = NitroBoxed.unbox()
+        const newBoxedListener = nitro.box(listener)
+        return newBoxedListener
       })
     )
+    const listener = boxedListener.unbox()
 
     // It can happen that after the listener was set the surface got destroyed already:
     if (!this.isComponentMounted || !this.isSurfaceAlive.value) {
@@ -136,7 +146,7 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
 
     // Calling this here ensures that only after the latest successful call for attaching a listener, the choreographer is started.
     Logger.debug('Starting choreographer')
-    choreographer.start()
+    choreographer.unbox().start()
   }
 
   private getContext = () => {
@@ -172,7 +182,7 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
   cleanupResources() {
     Logger.debug('Cleaning up resources')
     const { choreographer } = this.getContext()
-    choreographer.stop()
+    choreographer.unbox().stop()
 
     this.renderCallbackListener?.remove()
     this.isSurfaceAlive.value = false
@@ -208,7 +218,7 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
     Logger.debug('Found FilamentView!')
     // Link the view with the choreographer.
     // When the view gets destroyed, the choreographer will be stopped.
-    this.view.setChoreographer(context.choreographer)
+    this.view.setChoreographer(context.choreographer.unbox())
 
     if (this.ref.current == null) {
       throw new Error('Ref is not set!')
@@ -224,7 +234,7 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
     }, filamentDispatcher)
     // Link the surface with the engine:
     Logger.debug('Setting surface provider')
-    context.engine.setSurfaceProvider(surfaceProvider)
+    context.engine.unbox().setSurfaceProvider(surfaceProvider)
     // Its possible that the surface is already created, then our callback wouldn't be called
     // (we still keep the callback as on android a surface can be destroyed and recreated, while the view stays alive)
     if (surfaceProvider.getSurface() != null) {
@@ -242,6 +252,7 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
     // Create a swap chain …
     const enableTransparentRendering = this.props.enableTransparentRendering ?? true
     Logger.debug('Creating swap chain')
+    const boxedSurfaceProvider = NitroModules.box(surfaceProvider)
     const swapChain = await workletContext.runAsync(() => {
       'worklet'
 
@@ -250,8 +261,13 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
       }
 
       try {
-        return engine.createSwapChainForSurface(surfaceProvider, enableTransparentRendering)
+        const unboxedSurfaceProvider = boxedSurfaceProvider.unbox()
+        const unboxedEngine = engine.unbox()
+        const newSwapChain = unboxedEngine.createSwapChainForSurface(unboxedSurfaceProvider, enableTransparentRendering)
+        const nitro = NitroBoxed.unbox()
+        return nitro.box(newSwapChain)
       } catch (error) {
+        console.log('Error while creating swap chain:', error)
         // Report this error as none-fatal. We only throw in createSwapChainForSurface if the surface is already released.
         // There is the chance of a race condition where the surface is destroyed but our JS onDestroy listener hasn't been called yet.
         reportWorkletError(error, false)
@@ -264,11 +280,11 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
       Logger.info('🚧 Swap chain is null, surface was already destroyed while we tried to create a swapchain from it.')
       return
     }
-    this.swapChain = swapChain
+    this.swapChain = swapChain.unbox()
 
     // Apply the swapchain to the engine …
-    Logger.debug('Setting swap chain')
-    engine.setSwapChain(this.swapChain)
+    Logger.debug('Setting swap chain', this.swapChain)
+    engine.unbox().setSwapChain(this.swapChain)
 
     // Set the render callback in the choreographer:
     const { renderCallback } = this.props
@@ -291,7 +307,7 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
   public pause = (): void => {
     Logger.info('Pausing rendering')
     const { choreographer } = this.getContext()
-    choreographer.stop()
+    choreographer.unbox().stop()
   }
 
   /**
@@ -301,7 +317,7 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
   public resume = (): void => {
     Logger.info('Resuming rendering')
     const { choreographer } = this.getContext()
-    choreographer.start()
+    choreographer.unbox().start()
   }
 
   private onTouchStart = (event: GestureResponderEvent) => {

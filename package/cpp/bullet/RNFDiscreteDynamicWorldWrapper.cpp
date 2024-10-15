@@ -19,9 +19,12 @@ DiscreteDynamicWorldWrapper::DiscreteDynamicWorldWrapper(double gravityX, double
 }
 
 void DiscreteDynamicWorldWrapper::loadHybridMethods() {
-  registerHybridMethod("addRigidBody", &DiscreteDynamicWorldWrapper::addRigidBody, this);
-  registerHybridMethod("removeRigidBody", &DiscreteDynamicWorldWrapper::removeRigidBody, this);
-  registerHybridMethod("stepSimulation", &DiscreteDynamicWorldWrapper::stepSimulation, this);
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridMethod("addRigidBody", &DiscreteDynamicWorldWrapper::addRigidBody);
+    proto.registerHybridMethod("removeRigidBody", &DiscreteDynamicWorldWrapper::removeRigidBody);
+    proto.registerHybridMethod("stepSimulation", &DiscreteDynamicWorldWrapper::stepSimulation);
+  });
 }
 
 void DiscreteDynamicWorldWrapper::addRigidBody(std::shared_ptr<RigidBodyWrapper> rigidBody) {

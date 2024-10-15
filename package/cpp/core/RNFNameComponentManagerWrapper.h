@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "jsi/RNFPointerHolder.h"
 #include "core/utils/RNFEntityWrapper.h"
+#include "jsi/RNFPointerHolder.h"
 #include <utils/NameComponentManager.h>
 
 namespace margelo {
@@ -27,7 +27,7 @@ private:
   static auto constexpr TAG = "NameComponentManagerWrapper";
 
 private: // Exposed JS method
-    std::optional<std::string> getEntityName(std::shared_ptr<EntityWrapper> entityWrapper);
+  std::optional<std::string> getEntityName(std::shared_ptr<EntityWrapper> entityWrapper);
 };
 
 } // namespace margelo

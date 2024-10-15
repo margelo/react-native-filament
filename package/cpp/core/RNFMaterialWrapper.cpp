@@ -9,14 +9,17 @@
 
 namespace margelo {
 void MaterialWrapper::loadHybridMethods() {
-  registerHybridMethod("createInstance", &MaterialWrapper::createInstance, this);
-  registerHybridMethod("setDefaultFloatParameter", &MaterialWrapper::setDefaultFloatParameter, this);
-  registerHybridMethod("setDefaultTextureParameter", &MaterialWrapper::setDefaultTextureParameter, this);
-  registerHybridMethod("getDefaultInstance", &MaterialWrapper::getDefaultInstance, this);
-  registerHybridMethod("setDefaultMat3fParameter", &MaterialWrapper::setDefaultMat3fParameter, this);
-  registerHybridMethod("setDefaultFloat3Parameter", &MaterialWrapper::setDefaultFloat3Parameter, this);
-  registerHybridMethod("setDefaultFloat4Parameter", &MaterialWrapper::setDefaultFloat4Parameter, this);
-  registerHybridMethod("setDefaultIntParameter", &MaterialWrapper::setDefaultIntParameter, this);
+  PointerHolder::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridMethod("createInstance", &MaterialWrapper::createInstance);
+    proto.registerHybridMethod("setDefaultFloatParameter", &MaterialWrapper::setDefaultFloatParameter);
+    proto.registerHybridMethod("setDefaultTextureParameter", &MaterialWrapper::setDefaultTextureParameter);
+    proto.registerHybridMethod("getDefaultInstance", &MaterialWrapper::getDefaultInstance);
+    proto.registerHybridMethod("setDefaultMat3fParameter", &MaterialWrapper::setDefaultMat3fParameter);
+    proto.registerHybridMethod("setDefaultFloat3Parameter", &MaterialWrapper::setDefaultFloat3Parameter);
+    proto.registerHybridMethod("setDefaultFloat4Parameter", &MaterialWrapper::setDefaultFloat4Parameter);
+    proto.registerHybridMethod("setDefaultIntParameter", &MaterialWrapper::setDefaultIntParameter);
+  });
 }
 std::shared_ptr<MaterialInstanceWrapper> MaterialWrapper::createInstance() {
   return pointee()->createInstance();

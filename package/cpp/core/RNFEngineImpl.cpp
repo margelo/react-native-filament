@@ -33,7 +33,7 @@
 
 namespace margelo {
 
-EngineImpl::EngineImpl(std::shared_ptr<Dispatcher> rendererDispatcher, std::shared_ptr<Engine> engine, float displayRefreshRate,
+EngineImpl::EngineImpl(std::shared_ptr<nitro::Dispatcher> rendererDispatcher, std::shared_ptr<Engine> engine, float displayRefreshRate,
                        float densityPixelRatio)
     : _engine(engine), _rendererDispatcher(rendererDispatcher), _densityPixelRatio(densityPixelRatio) {
 

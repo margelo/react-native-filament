@@ -7,15 +7,11 @@
 
 #import "RNFFilamentInstaller.h"
 #import "RNFAppleFilamentProxy.h"
-#import "RNFPromiseFactory.h"
 #import <Foundation/Foundation.h>
 #import <ReactCommon/CallInvoker.h>
 
 #import <React/RCTBridge+Private.h>
 #import <React/RCTBridge.h>
-
-#import "threading/RNFCallInvokerDispatcher.h"
-#import "threading/RNFDispatcher.h"
 
 using namespace facebook;
 using namespace margelo;
@@ -45,9 +41,7 @@ using namespace margelo;
     return NO;
   }
 
-  // global.__globalDispatcher
-  std::shared_ptr<Dispatcher> jsDispatcher = std::make_shared<CallInvokerDispatcher>(callInvoker);
-  Dispatcher::installRuntimeGlobalDispatcher(*runtime, jsDispatcher);
+  std::shared_ptr<nitro::Dispatcher> jsDispatcher = nitro::Dispatcher::getRuntimeGlobalDispatcher(*runtime);
 
   // global.FilamentProxy
 #ifdef RCT_NEW_ARCH_ENABLED
@@ -55,7 +49,7 @@ using namespace margelo;
 #else
   auto filamentProxy = std::make_shared<margelo::AppleFilamentProxy>(runtime, jsDispatcher);
 #endif
-  runtime->global().setProperty(*runtime, "FilamentProxy", jsi::Object::createFromHostObject(*runtime, filamentProxy));
+  runtime->global().setProperty(*runtime, "FilamentProxy", filamentProxy->toObject(*runtime));
 
   return YES;
 }

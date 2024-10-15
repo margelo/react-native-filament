@@ -4,6 +4,7 @@
 
 #include "RNFChoreographer.h"
 #include "RNFListenerManager.h"
+#include "RNFLogger.h"
 
 namespace margelo {
 

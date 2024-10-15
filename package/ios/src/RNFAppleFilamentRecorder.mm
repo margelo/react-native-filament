@@ -6,6 +6,7 @@
 //
 
 #include "RNFAppleFilamentRecorder.h"
+#include "RNFLogger.h"
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreVideo/CoreVideo.h>
 #include <VideoToolbox/VTCompressionProperties.h>
@@ -16,7 +17,7 @@ namespace margelo {
 
 static int kCVPixelBufferLock_Write = 0;
 
-AppleFilamentRecorder::AppleFilamentRecorder(std::shared_ptr<Dispatcher> renderThreadDispatcher, int width, int height, int fps,
+AppleFilamentRecorder::AppleFilamentRecorder(std::shared_ptr<nitro::Dispatcher> renderThreadDispatcher, int width, int height, int fps,
                                              double bitRate)
     : FilamentRecorder(renderThreadDispatcher, width, height, fps, bitRate) {
   dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, -1);

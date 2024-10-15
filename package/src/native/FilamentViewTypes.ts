@@ -1,3 +1,4 @@
+import { HybridObject } from 'react-native-nitro-modules'
 import { Choreographer } from '../types'
 import { Listener } from '../types/Listener'
 import { Dispatcher } from './Dispatcher'
@@ -7,7 +8,7 @@ export interface Surface {
   readonly height: number
 }
 
-export interface SurfaceProvider {
+export interface SurfaceProvider extends HybridObject<{ android: 'c++'; ios: 'c++' }> {
   /**
    * @private
    */

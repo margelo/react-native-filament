@@ -23,6 +23,7 @@ endif()
 find_package(ReactAndroid REQUIRED CONFIG)
 find_package(fbjni REQUIRED CONFIG)
 find_library(LOG_LIB log)
+find_package(react-native-nitro-modules REQUIRED) # <-- Used to create all HybridObjects and use the Nitro core library
 
 # Add react-native-filament sources
 add_library(
@@ -38,13 +39,11 @@ add_library(
     ../cpp/RNFChoreographer.cpp
     ../cpp/RNFChoreographerWrapper.cpp
     ../cpp/RNFListener.cpp
-    ../cpp/jsi/RNFHybridObject.cpp
     ../cpp/jsi/RNFPromise.cpp
     ../cpp/jsi/RNFPromiseFactory.cpp
     ../cpp/jsi/RNFRuntimeCache.cpp
     ../cpp/jsi/RNFWorkletRuntimeRegistry.cpp
     ../cpp/threading/RNFDispatcher.cpp
-    ../cpp/test/RNFTestHybridObject.cpp
 
     # Filament Core
     ../cpp/core/RNFEngineImpl.cpp
@@ -124,6 +123,7 @@ target_link_libraries(
     fbjni::fbjni # <-- fbjni
     GLESv3 # <-- OpenGL (Core)
     EGL # <-- OpenGL (EGL)
+    react-native-nitro-modules::NitroModules  # <-- NitroModules Core :)
 )
 
 # Link with RNWC:

@@ -4,6 +4,12 @@
 
 #pragma once
 
+#if __has_include(<NitroModules/Dispatcher.hpp>)
+#include <NitroModules/Dispatcher.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
+
 #include "jsi/RNFPointerHolder.h"
 
 #include "RNFChoreographer.h"
@@ -20,7 +26,6 @@
 #include "bullet/RNFRigidBodyWrapper.h"
 #include "core/utils/RNFEntityWrapper.h"
 #include "core/utils/RNFManipulatorWrapper.h"
-#include "threading/RNFDispatcher.h"
 
 #include <camutils/Manipulator.h>
 #include <filament/Engine.h>
@@ -45,7 +50,7 @@ using ManipulatorBuilder = Manipulator<float>::Builder;
 // If you add a new method that you want to expose to JS, you need to add it to the EngineWrapper as well.
 class EngineImpl : public std::enable_shared_from_this<EngineImpl> {
 public:
-  explicit EngineImpl(std::shared_ptr<Dispatcher> rendererDispatcher, std::shared_ptr<Engine> engine, float displayRefreshRate,
+  explicit EngineImpl(std::shared_ptr<nitro::Dispatcher> rendererDispatcher, std::shared_ptr<Engine> engine, float displayRefreshRate,
                       float densityPixelRatio);
 
   // First a surface provider must be set, then once we have a surface a swapchain can be created and finally the swapchain can be set
@@ -63,8 +68,7 @@ public:
   std::shared_ptr<NameComponentManagerWrapper> createNameComponentManager();
   std::shared_ptr<MaterialWrapper> createMaterial(std::shared_ptr<FilamentBuffer> materialBuffer);
   void createAndSetSkybox(std::string hexColor, std::optional<bool> showSun, std::optional<float> envIntensity);
-  void createAndSetSkybox(std::shared_ptr<FilamentBuffer> textureBuffer, std::optional<bool> showSun,
-                          std::optional<float> envIntensity);
+  void createAndSetSkybox(std::shared_ptr<FilamentBuffer> textureBuffer, std::optional<bool> showSun, std::optional<float> envIntensity);
   void clearSkybox();
   void setAutomaticInstancingEnabled(bool enabled);
 
@@ -73,7 +77,7 @@ public:
 private:
   std::mutex _mutex;
   std::shared_ptr<Engine> _engine;
-  std::shared_ptr<Dispatcher> _rendererDispatcher;
+  std::shared_ptr<nitro::Dispatcher> _rendererDispatcher;
   std::shared_ptr<SurfaceProvider> _surfaceProvider;
   std::shared_ptr<Listener> _surfaceListener;
   std::shared_ptr<gltfio::MaterialProvider> _materialProvider;

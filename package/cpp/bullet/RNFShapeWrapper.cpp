@@ -7,10 +7,13 @@
 namespace margelo {
 
 void margelo::ShapeWrapper::loadHybridMethods() {
-  registerHybridGetter("localScaling", &ShapeWrapper::getLocalScaling, this);
-  registerHybridSetter("localScaling", &ShapeWrapper::setLocalScaling, this);
-  registerHybridGetter("margin", &ShapeWrapper::getMargin, this);
-  registerHybridSetter("margin", &ShapeWrapper::setMargin, this);
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridGetter("localScaling", &ShapeWrapper::getLocalScaling);
+    proto.registerHybridSetter("localScaling", &ShapeWrapper::setLocalScaling);
+    proto.registerHybridGetter("margin", &ShapeWrapper::getMargin);
+    proto.registerHybridSetter("margin", &ShapeWrapper::setMargin);
+  });
 }
 
 std::vector<double> ShapeWrapper::getLocalScaling() {

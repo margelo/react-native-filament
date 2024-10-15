@@ -11,19 +11,23 @@
 
 #include "RNFListener.h"
 #include "RNFListenerManager.h"
-#include "jsi/RNFHybridObject.h"
-#include "threading/RNFDispatcher.h"
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/Dispatcher.hpp>
+#include <NitroModules/HybridObject.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
 
 namespace margelo {
 
 using namespace facebook;
 
-class FilamentRecorder : public HybridObject {
+class FilamentRecorder : public nitro::HybridObject {
 public:
   using ReadyForMoreDataCallback = std::function<bool()>;
 
 public:
-  explicit FilamentRecorder(std::shared_ptr<Dispatcher> renderThreadDispatcher, int width, int height, int fps, double bitRate);
+  explicit FilamentRecorder(std::shared_ptr<nitro::Dispatcher> renderThreadDispatcher, int width, int height, int fps, double bitRate);
   ~FilamentRecorder();
 
 public:
@@ -40,7 +44,7 @@ public:
     return _bitRate;
   }
 
-  std::shared_ptr<Listener> addOnReadyForMoreDataListener(ReadyForMoreDataCallback callback);
+  std::shared_ptr<Listener> addOnReadyForMoreDataListener(const ReadyForMoreDataCallback& callback);
   /**
    * Notify all JS listeners that the Recorder is ready for more data - this will probably cause rendering to happen.
    * This needs to be called from the renderer Thread!
@@ -77,7 +81,7 @@ protected:
   static constexpr auto TAG = "FilamentRecorder";
 
 protected:
-  std::shared_ptr<Dispatcher> _renderThreadDispatcher;
+  std::shared_ptr<nitro::Dispatcher> _renderThreadDispatcher;
   int _width;
   int _height;
   int _fps;

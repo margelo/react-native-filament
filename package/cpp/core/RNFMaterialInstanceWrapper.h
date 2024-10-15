@@ -6,13 +6,17 @@
 
 #include <filament/MaterialInstance.h>
 
-#include "jsi/RNFHybridObject.h"
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/HybridObject.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
 
 namespace margelo {
 
 using namespace filament;
 
-class MaterialInstanceWrapper : public HybridObject {
+class MaterialInstanceWrapper : public nitro::HybridObject {
 
 public:
   explicit MaterialInstanceWrapper(MaterialInstance* materialInstance)

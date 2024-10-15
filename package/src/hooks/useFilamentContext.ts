@@ -12,17 +12,18 @@ import {
   View,
 } from '../types'
 import { IWorkletContext } from 'react-native-worklets-core'
+import { BoxedHybridObject } from 'react-native-nitro-modules/lib/BoxedHybridObject'
 
 export type FilamentContextType = {
-  engine: Engine
-  transformManager: TransformManager
-  renderableManager: RenderableManager
-  scene: Scene
-  lightManager: LightManager
-  view: View
-  camera: RNFCamera
-  renderer: Renderer
-  nameComponentManager: NameComponentManager
+  engine: BoxedHybridObject<Engine>
+  transformManager: BoxedHybridObject<TransformManager>
+  renderableManager: BoxedHybridObject<RenderableManager>
+  scene: BoxedHybridObject<Scene>
+  lightManager: BoxedHybridObject<LightManager>
+  view: BoxedHybridObject<View>
+  camera: BoxedHybridObject<RNFCamera>
+  renderer: BoxedHybridObject<Renderer>
+  nameComponentManager: BoxedHybridObject<NameComponentManager>
   workletContext: IWorkletContext
 
   /**
@@ -30,7 +31,7 @@ export type FilamentContextType = {
    * @private
    * @internal
    */
-  choreographer: Choreographer
+  choreographer: BoxedHybridObject<Choreographer>
 }
 export const FilamentContext = React.createContext<FilamentContextType | undefined>(undefined)
 

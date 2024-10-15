@@ -6,6 +6,7 @@
 
 #include "RNFListener.h"
 #include "RNFListenerManager.h"
+#include "RNFLogger.h"
 #include <functional>
 
 namespace margelo {

@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { FilamentAsset, RenderableManager } from '../types'
 import { useFilamentContext } from './useFilamentContext'
+import { BoxedHybridObject } from 'react-native-nitro-modules/lib/BoxedHybridObject'
 
 export type UseAssetShadowProps = {
-  renderableManager: RenderableManager
-  asset?: FilamentAsset
+  renderableManager: BoxedHybridObject<RenderableManager>
+  asset?: BoxedHybridObject<FilamentAsset>
   /**
    * @default false
    */
@@ -19,7 +20,7 @@ export type UseAssetShadowProps = {
 export function useConfigureAssetShadow({ renderableManager, asset, receiveShadow, castShadow }: UseAssetShadowProps) {
   const { workletContext } = useFilamentContext()
 
-  const renderableEntities = useMemo(() => asset?.getRenderableEntities(), [asset])
+  const renderableEntities = useMemo(() => (asset == null ? undefined : asset.unbox().getRenderableEntities()), [asset])
   const prevCastShadowRef = useRef<boolean>()
   useEffect(() => {
     if (renderableEntities == null || castShadow == null || prevCastShadowRef.current === castShadow) {
@@ -30,8 +31,9 @@ export function useConfigureAssetShadow({ renderableManager, asset, receiveShado
     workletContext.runAsync(() => {
       'worklet'
 
+      const unboxedRenderableManager = renderableManager.unbox()
       renderableEntities.forEach((entity) => {
-        renderableManager.setCastShadow(entity, castShadow)
+        unboxedRenderableManager.setCastShadow(entity, castShadow)
       })
     })
   }, [castShadow, renderableManager, renderableEntities, workletContext])
@@ -46,8 +48,9 @@ export function useConfigureAssetShadow({ renderableManager, asset, receiveShado
     workletContext.runAsync(() => {
       'worklet'
 
+      const unboxedRenderableManager = renderableManager.unbox()
       renderableEntities.forEach((entity) => {
-        renderableManager.setReceiveShadow(entity, receiveShadow)
+        unboxedRenderableManager.setReceiveShadow(entity, receiveShadow)
       })
     })
   }, [receiveShadow, renderableEntities, renderableManager, workletContext])

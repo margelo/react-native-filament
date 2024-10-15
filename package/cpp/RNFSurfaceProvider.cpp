@@ -8,9 +8,12 @@
 namespace margelo {
 
 void SurfaceProvider::loadHybridMethods() {
-  registerHybridMethod("getSurface", &SurfaceProvider::getSurface, this);
-  registerHybridMethod("addOnSurfaceCreatedListener", &SurfaceProvider::addOnSurfaceCreatedListener, this);
-  registerHybridMethod("addOnSurfaceDestroyedListener", &SurfaceProvider::addOnSurfaceDestroyedListener, this);
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridMethod("getSurface", &SurfaceProvider::getSurface);
+    proto.registerHybridMethod("addOnSurfaceCreatedListener", &SurfaceProvider::addOnSurfaceCreatedListener);
+    proto.registerHybridMethod("addOnSurfaceDestroyedListener", &SurfaceProvider::addOnSurfaceDestroyedListener);
+  });
 }
 
 std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceChangedListener(SurfaceProvider::Callbacks&& callbacks) {
@@ -20,7 +23,7 @@ std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceChangedListener(SurfacePr
 }
 
 std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceCreatedListener(SurfaceProvider::TOnCreate callback,
-                                                                       std::shared_ptr<Dispatcher> dispatcher) {
+                                                                       std::shared_ptr<nitro::Dispatcher> dispatcher) {
   Logger::log(TAG, "Adding \"surface created\" listener");
   std::unique_lock lock(_mutex);
 
@@ -36,7 +39,7 @@ std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceCreatedListener(SurfacePr
   });
 }
 std::shared_ptr<Listener> SurfaceProvider::addOnSurfaceDestroyedListener(SurfaceProvider::TOnDestroy callback,
-                                                                         std::shared_ptr<Dispatcher> dispatcher) {
+                                                                         std::shared_ptr<nitro::Dispatcher> dispatcher) {
   Logger::log(TAG, "Adding \"surface destroyed\" listener");
   std::unique_lock lock(_mutex);
 

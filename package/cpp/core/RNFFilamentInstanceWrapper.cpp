@@ -10,11 +10,14 @@
 namespace margelo {
 
 void FilamentInstanceWrapper::loadHybridMethods() {
-  registerHybridGetter("entityCount", &FilamentInstanceWrapper::getEntityCount, this);
-  registerHybridMethod("getEntities", &FilamentInstanceWrapper::getEntities, this);
-  registerHybridMethod("getRoot", &FilamentInstanceWrapper::getRoot, this);
-  registerHybridMethod("createAnimator", &FilamentInstanceWrapper::createAnimator, this);
-  registerHybridMethod("getBoundingBox", &FilamentInstanceWrapper::getBoundingBox, this);
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridGetter("entityCount", &FilamentInstanceWrapper::getEntityCount);
+    proto.registerHybridMethod("getEntities", &FilamentInstanceWrapper::getEntities);
+    proto.registerHybridMethod("getRoot", &FilamentInstanceWrapper::getRoot);
+    proto.registerHybridMethod("createAnimator", &FilamentInstanceWrapper::createAnimator);
+    proto.registerHybridMethod("getBoundingBox", &FilamentInstanceWrapper::getBoundingBox);
+  });
 }
 
 int FilamentInstanceWrapper::getEntityCount() {

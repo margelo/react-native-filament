@@ -7,8 +7,8 @@ export type LightProps = UseLightEntityProps
 export function Light(config: LightProps) {
   const { lightManager, scene } = useFilamentContext()
 
-  const lightEntity = useLightEntity(lightManager, config)
-  useEntityInScene(scene, lightEntity)
+  const lightEntity = useLightEntity(lightManager.unbox(), config)
+  useEntityInScene(scene.unbox(), lightEntity)
 
   return null
 }

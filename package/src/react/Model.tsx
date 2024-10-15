@@ -47,6 +47,7 @@ export function Model({ source, ...restProps }: ModelProps) {
   const [_transformProps, modelProps] = extractTransformationProps(restProps)
 
   const model = useModel(source, modelProps)
+  console.log('model', model)
 
   return <ModelRenderer model={model} {...restProps} />
 }
@@ -73,7 +74,7 @@ export function ModelRenderer({ model, onPress, children, ...restProps }: ModelR
   const renderableEntities = useMemo(() => {
     // The entities are only needed for touch events, so only load them if a touch handler is provided
     if (asset == null || onPress == null) return []
-    return asset.getRenderableEntities()
+    return asset.unbox().getRenderableEntities()
   }, [asset, onPress])
 
   const { view, renderableManager } = useFilamentContext()
@@ -82,7 +83,7 @@ export function ModelRenderer({ model, onPress, children, ...restProps }: ModelR
       if (renderableEntities == null || onPress == null) return
 
       const { locationX, locationY } = event.nativeEvent
-      const entity = await view.pickEntity(locationX, locationY)
+      const entity = await view.unbox().pickEntity(locationX, locationY)
       Logger.debug('Picked entity', entity, 'at', locationX, locationY)
       if (entity == null) {
         Logger.debug('No entity was picked')
@@ -120,7 +121,7 @@ export function ModelRenderer({ model, onPress, children, ...restProps }: ModelR
     if (asset === undefined) {
       return null
     }
-    return asset.getAssetInstances()
+    return asset.unbox().getAssetInstances()
   }, [asset])
 
   useConfigureAssetShadow({

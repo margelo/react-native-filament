@@ -1,26 +1,28 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { TransformationProps } from '../../types/TransformProps'
 import { useFilamentContext } from '../useFilamentContext'
 import { AABB, Entity, Float3 } from '../../types'
 import { areFloat3Equal, isWorkletSharedValue } from '../../utilities/helper'
 import { useWorkletEffect } from '../useWorkletEffect'
+import { BoxedHybridObject } from 'react-native-nitro-modules/lib/BoxedHybridObject'
 
 type Params = {
   // If null it will not take the entity from the context, as it indicates that it will be provided through the param
-  to?: Entity | null
+  to?: BoxedHybridObject<Entity> | null
   transformProps?: TransformationProps
   // If transformToUnitCube is true, the aabb is required
-  aabb?: AABB
+  aabb?: BoxedHybridObject<AABB>
 }
 
 /**
  * Takes the next entity from the context and applies all transformations from the next
  * transformation context to it
  */
-export function useApplyTransformations({ to: entity, transformProps, aabb }: Params) {
+export function useApplyTransformations({ to: boxedEntity, transformProps, aabb: boxedAABB }: Params) {
   const { translate: position, scale, rotate, transformToUnitCube, multiplyWithCurrentTransform = true } = transformProps ?? {}
 
   const { transformManager } = useFilamentContext()
+  const unboxedTransformManagerJS = useMemo(() => transformManager.unbox(), [transformManager])
   // TODO: multiplying current transformations is a bit problematic with react.
   // E.g. in strict mode or concurrent rendering our effects can be called multiple times.
   // Running an effect multiple times with transformation multiplication can lead to unexpected results.
@@ -29,33 +31,36 @@ export function useApplyTransformations({ to: entity, transformProps, aabb }: Pa
   const prevPosition = useRef<Float3 | null>(null)
 
   useEffect(() => {
-    if (entity == null) return
+    if (boxedEntity == null) return
+    const entity = boxedEntity.unbox()
+    const aabb = boxedAABB?.unbox()
 
     if (transformToUnitCube && aabb != null) {
-      transformManager.transformToUnitCube(entity, aabb)
+      unboxedTransformManagerJS.transformToUnitCube(entity, aabb)
+      console.log('converted to unit cube :)')
     }
 
     if (Array.isArray(scale) && (prevScale.current == null || !areFloat3Equal(scale, prevScale.current))) {
-      transformManager.setEntityScale(entity, scale, multiplyWithCurrentTransform)
+      unboxedTransformManagerJS.setEntityScale(entity, scale, multiplyWithCurrentTransform)
       prevScale.current = scale
     }
 
     if (Array.isArray(rotate) && (prevRotate.current == null || !areFloat3Equal(rotate, prevRotate.current))) {
       const [x, y, z] = rotate
-      transformManager.setEntityRotation(entity, x, [1, 0, 0], multiplyWithCurrentTransform)
+      unboxedTransformManagerJS.setEntityRotation(entity, x, [1, 0, 0], multiplyWithCurrentTransform)
       // Rotation across axis is one operation so we need to always multiply the remaining rotations:
-      transformManager.setEntityRotation(entity, y, [0, 1, 0], true)
-      transformManager.setEntityRotation(entity, z, [0, 0, 1], true)
+      unboxedTransformManagerJS.setEntityRotation(entity, y, [0, 1, 0], true)
+      unboxedTransformManagerJS.setEntityRotation(entity, z, [0, 0, 1], true)
       prevRotate.current = rotate
     }
 
     if (Array.isArray(position) && (prevPosition.current == null || !areFloat3Equal(position, prevPosition.current))) {
-      transformManager.setEntityPosition(entity, position, multiplyWithCurrentTransform)
+      unboxedTransformManagerJS.setEntityPosition(entity, position, multiplyWithCurrentTransform)
       prevPosition.current = position
     }
   }, [
-    aabb,
-    entity,
+    boxedAABB,
+    boxedEntity,
     multiplyWithCurrentTransform,
     position,
     prevPosition,
@@ -63,28 +68,31 @@ export function useApplyTransformations({ to: entity, transformProps, aabb }: Pa
     prevScale,
     rotate,
     scale,
-    transformManager,
+    unboxedTransformManagerJS,
     transformToUnitCube,
   ])
 
+  console.log(transformProps)
+
   // Effects for when a transform option is a shared value (SRT)
   useEffect(() => {
-    if (entity == null) return
+    if (boxedEntity == null) return
 
     if (scale == null || Array.isArray(scale)) return
 
     const unsubscribeScale = scale.addListener(() => {
-      transformManager.setEntityScale(entity, scale.value, multiplyWithCurrentTransform)
+      'worklet'
+      transformManager.unbox().setEntityScale(boxedEntity.unbox(), scale.value, multiplyWithCurrentTransform)
     })
 
     return () => {
       unsubscribeScale()
     }
-  }, [entity, multiplyWithCurrentTransform, scale, transformManager])
+  }, [boxedEntity, multiplyWithCurrentTransform, scale, transformManager])
 
   useWorkletEffect(() => {
     'worklet'
-    if (entity == null) return
+    if (boxedEntity == null) return
 
     if (rotate == null || !isWorkletSharedValue(rotate)) {
       return
@@ -92,11 +100,13 @@ export function useApplyTransformations({ to: entity, transformProps, aabb }: Pa
 
     const unsubscribeRotate = rotate.addListener(() => {
       'worklet'
+      const entity = boxedEntity.unbox()
       const [x, y, z] = rotate.value
-      transformManager.setEntityRotation(entity, x, [1, 0, 0], multiplyWithCurrentTransform)
+      const unboxedTransformManager = transformManager.unbox()
+      unboxedTransformManager.setEntityRotation(entity, x, [1, 0, 0], multiplyWithCurrentTransform)
       // Rotation across axis is one operation so we need to always multiply the remaining rotations:
-      transformManager.setEntityRotation(entity, y, [0, 1, 0], true)
-      transformManager.setEntityRotation(entity, z, [0, 0, 1], true)
+      unboxedTransformManager.setEntityRotation(entity, y, [0, 1, 0], true)
+      unboxedTransformManager.setEntityRotation(entity, z, [0, 0, 1], true)
     })
 
     return () => {
@@ -106,16 +116,17 @@ export function useApplyTransformations({ to: entity, transformProps, aabb }: Pa
   })
 
   useEffect(() => {
-    if (entity == null) return
+    if (boxedEntity == null) return
 
     if (position == null || Array.isArray(position)) return
 
     const unsubscribePosition = position.addListener(() => {
-      transformManager.setEntityPosition(entity, position.value, multiplyWithCurrentTransform)
+      'worklet'
+      transformManager.unbox().setEntityPosition(boxedEntity.unbox(), position.value, multiplyWithCurrentTransform)
     })
 
     return () => {
       unsubscribePosition()
     }
-  }, [entity, multiplyWithCurrentTransform, position, transformManager])
+  }, [boxedEntity, multiplyWithCurrentTransform, position, transformManager])
 }

@@ -15,8 +15,11 @@ FilamentView::~FilamentView() {
 }
 
 void FilamentView::loadHybridMethods() {
-  registerHybridMethod("getSurfaceProvider", &FilamentView::getSurfaceProvider, this);
-  registerHybridMethod("setChoreographer", &FilamentView::setChoreographer, this);
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridMethod("getSurfaceProvider", &FilamentView::getSurfaceProvider);
+    proto.registerHybridMethod("setChoreographer", &FilamentView::setChoreographer);
+  });
 }
 
 void FilamentView::setChoreographer(std::optional<std::shared_ptr<ChoreographerWrapper>> choreographerWrapperOrNull) {

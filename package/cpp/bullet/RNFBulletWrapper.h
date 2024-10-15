@@ -12,23 +12,27 @@
 #include "RNFRigidBodyWrapper.h"
 #include "RNFSphereShapeWrapper.h"
 #include "RNFStaticPlaneShapeWrapper.h"
-#include "jsi/RNFHybridObject.h"
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/HybridObject.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
 
 namespace margelo {
 
 // Main Wrapper for all Bullet Physics related APIs
-class BulletWrapper : public HybridObject {
+class BulletWrapper : public nitro::HybridObject {
 public:
   explicit BulletWrapper() : HybridObject("BulletWrapper") {}
   void loadHybridMethods() override;
 
 private:
   std::shared_ptr<DiscreteDynamicWorldWrapper> createDiscreteDynamicWorld(double gravityX, double gravityY, double gravityZ);
-  std::shared_ptr<RigidBodyWrapper> createRigidBody(double mass, double x, double y, double z, std::shared_ptr<ShapeWrapper> shape,
-                                                    std::string id, std::optional<CollisionCallback> collisionCallback);
-  std::shared_ptr<RigidBodyWrapper> createRigidBodyFromTransform(double mass, std::shared_ptr<TMat44Wrapper> entityTransform,
-                                                                 std::shared_ptr<ShapeWrapper> shape, std::string id,
-                                                                 std::optional<CollisionCallback> collisionCallback);
+  std::shared_ptr<RigidBodyWrapper> createRigidBody(double mass, double x, double y, double z, const std::shared_ptr<ShapeWrapper>& shape,
+                                                    std::string id, const std::optional<CollisionCallback>& collisionCallback);
+  std::shared_ptr<RigidBodyWrapper> createRigidBodyFromTransform(double mass, const std::shared_ptr<TMat44Wrapper>& entityTransform,
+                                                                 const std::shared_ptr<ShapeWrapper>& shape, std::string id,
+                                                                 const std::optional<CollisionCallback>& collisionCallback);
   std::shared_ptr<BoxShapeWrapper> createBoxShape(double x, double y, double z);
   std::shared_ptr<CylinderShapeWrapper> createCylinderShape(double x, double y, double z);
   std::shared_ptr<CylinderShapeWrapperX> createCylinderShapeX(double x, double y, double z);

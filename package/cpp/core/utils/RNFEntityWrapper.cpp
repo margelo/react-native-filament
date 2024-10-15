@@ -1,7 +1,8 @@
 #include "RNFEntityWrapper.h"
 
 void margelo::EntityWrapper::loadHybridMethods() {
-  registerHybridGetter("id", &EntityWrapper::getId, this);
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) { proto.registerHybridGetter("id", &EntityWrapper::getId); });
 }
 
 int margelo::EntityWrapper::getId() {

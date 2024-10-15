@@ -11,7 +11,9 @@ class SwapChainWrapper : public PointerHolder<SwapChain> {
 public:
   explicit SwapChainWrapper(std::shared_ptr<SwapChain> swapChain) : PointerHolder("SwapChainWrapper", swapChain) {}
 
-  void loadHybridMethods() override {}
+  void loadHybridMethods() override {
+    PointerHolder::loadHybridMethods();
+  }
 
   std::shared_ptr<SwapChain> getSwapChain() {
     return pointee();

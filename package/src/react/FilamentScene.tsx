@@ -1,5 +1,5 @@
 import { PropsWithChildren, useMemo } from 'react'
-import { FilamentProxy, FilamentWorkletContext } from '../native/FilamentProxy'
+import { FilamentProxyBoxed, FilamentWorkletContext, NitroBoxed } from '../native/FilamentProxy'
 import { EngineProps, useEngine } from '../hooks/useEngine'
 import { useDisposableResource } from '../hooks/useDisposableResource'
 import { useWorklet } from 'react-native-worklets-core'
@@ -7,6 +7,7 @@ import React from 'react'
 import { Configurator, RendererConfigProps, ViewConfigProps } from './Configurator'
 import { FilamentContext, FilamentContextType } from '../hooks/useFilamentContext'
 import { RenderCallbackContext } from './RenderCallbackContext'
+import { NitroModules } from 'react-native-nitro-modules'
 
 export type FilamentProviderProps = PropsWithChildren<
   Omit<EngineProps, 'context'> &
@@ -50,20 +51,47 @@ export function FilamentScene({ children, fallback, config, backend, frameRateOp
   const engine = useEngine({ config, backend, context: FilamentWorkletContext })
 
   // Create all Filament APIs using the engine
-  const transformManager = useDisposableResource(() => Promise.resolve(engine?.createTransformManager()), [engine])
-  const renderableManager = useDisposableResource(() => Promise.resolve(engine?.createRenderableManager()), [engine])
-  const scene = useDisposableResource(() => Promise.resolve(engine?.getScene()), [engine])
-  const lightManager = useDisposableResource(() => Promise.resolve(engine?.createLightManager()), [engine])
-  const view = useDisposableResource(() => Promise.resolve(engine?.getView()), [engine])
-  const camera = useDisposableResource(() => Promise.resolve(engine?.getCamera()), [engine])
-  const renderer = useDisposableResource(() => Promise.resolve(engine?.createRenderer()), [engine])
-  const nameComponentManager = useDisposableResource(() => Promise.resolve(engine?.createNameComponentManager()), [engine])
+  const transformManager = useDisposableResource(
+    () => Promise.resolve(engine == null ? undefined : NitroModules.box(engine.unbox().createTransformManager())),
+    [engine]
+  )
+  const renderableManager = useDisposableResource(
+    () => Promise.resolve(engine == null ? undefined : NitroModules.box(engine.unbox().createRenderableManager())),
+    [engine]
+  )
+  const scene = useDisposableResource(
+    () => Promise.resolve(engine == null ? undefined : NitroModules.box(engine.unbox().getScene())),
+    [engine]
+  )
+  const lightManager = useDisposableResource(
+    () => Promise.resolve(engine == null ? undefined : NitroModules.box(engine.unbox().createLightManager())),
+    [engine]
+  )
+  const view = useDisposableResource(
+    () => Promise.resolve(engine == null ? undefined : NitroModules.box(engine.unbox().getView())),
+    [engine]
+  )
+  const camera = useDisposableResource(
+    () => Promise.resolve(engine == null ? undefined : NitroModules.box(engine.unbox().getCamera())),
+    [engine]
+  )
+  const renderer = useDisposableResource(
+    () => Promise.resolve(engine == null ? undefined : NitroModules.box(engine.unbox().createRenderer())),
+    [engine]
+  )
+  const nameComponentManager = useDisposableResource(
+    () => Promise.resolve(engine == null ? undefined : NitroModules.box(engine?.unbox().createNameComponentManager())),
+    [engine]
+  )
 
   // Create a choreographer for this context tree
   const choreographer = useDisposableResource(
     useWorklet(FilamentWorkletContext, () => {
       'worklet'
-      return FilamentProxy.createChoreographer()
+      const filamentProxy = FilamentProxyBoxed.unbox()
+      const newChoreographer = filamentProxy.createChoreographer()
+      const nitro = NitroBoxed.unbox()
+      return nitro.box(newChoreographer)
     })
   )
 

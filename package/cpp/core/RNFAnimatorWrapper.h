@@ -6,7 +6,11 @@
 
 #include "RNFFilamentAssetWrapper.h"
 #include "RNFFilamentInstanceWrapper.h"
-#include "jsi/RNFHybridObject.h"
+#if __has_include(<NitroModules/HybridObject.hpp>)
+#include <NitroModules/HybridObject.hpp>
+#else
+#error NitroModules cannot be found! Are you sure you installed NitroModules properly?
+#endif
 #include <gltfio/Animator.h>
 #include <utils/NameComponentManager.h>
 
@@ -17,7 +21,7 @@ namespace margelo {
 using namespace filament::gltfio;
 using EntityNameMap = std::map<std::string, Entity>;
 
-class AnimatorWrapper : public HybridObject {
+class AnimatorWrapper : public nitro::HybridObject {
 public:
   explicit AnimatorWrapper(Animator* animator, FilamentInstance* instance, std::shared_ptr<NameComponentManager> nameComponentManager)
       : HybridObject("AnimatorWrapper"), _animator(animator), _instance(instance), _nameComponentManager(nameComponentManager),

@@ -8,8 +8,6 @@
 #include "RNFReferences.h"
 #include "core/RNFEngineBackendEnum.h"
 #include "core/RNFEngineConfigHelper.h"
-#include "jsi/RNFPromise.h"
-#include "threading/RNFDispatcher.h"
 
 #include <memory>
 #include <string>
@@ -21,18 +19,20 @@ namespace margelo {
 using namespace facebook;
 
 void FilamentProxy::loadHybridMethods() {
-  registerHybridMethod("loadAsset", &FilamentProxy::loadAssetAsync, this);
-  registerHybridMethod("findFilamentView", &FilamentProxy::findFilamentViewAsync, this);
-  registerHybridMethod("createTestObject", &FilamentProxy::createTestObject, this);
-  registerHybridMethod("createEngine", &FilamentProxy::createEngine, this);
-  registerHybridMethod("createBullet", &FilamentProxy::createBullet, this);
-  registerHybridMethod("createChoreographer", &FilamentProxy::createChoreographerWrapper, this);
-  registerHybridMethod("createRecorder", &FilamentProxy::createRecorder, this);
-  registerHybridMethod("getCurrentDispatcher", &FilamentProxy::getCurrentDispatcher, this);
-  registerHybridGetter("hasWorklets", &FilamentProxy::getHasWorklets, this);
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridMethod("loadAsset", &FilamentProxy::loadAssetAsync);
+    proto.registerHybridMethod("findFilamentView", &FilamentProxy::findFilamentViewAsync);
+    proto.registerHybridMethod("createEngine", &FilamentProxy::createEngine);
+    proto.registerHybridMethod("createBullet", &FilamentProxy::createBullet);
+    proto.registerRawHybridMethod("createChoreographer", 0, &FilamentProxy::createChoreographerWrapper);
+    proto.registerHybridMethod("createRecorder", &FilamentProxy::createRecorder);
+    proto.registerRawHybridMethod("getCurrentDispatcher", 0, &FilamentProxy::getCurrentDispatcher);
+    proto.registerHybridGetter("hasWorklets", &FilamentProxy::getHasWorklets);
 #if HAS_WORKLETS
-  registerHybridMethod("createWorkletContext", &FilamentProxy::createWorkletContext, this);
+    proto.registerHybridMethod("createWorkletContext", &FilamentProxy::createWorkletContext);
 #endif
+  });
 }
 
 bool FilamentProxy::getHasWorklets() {
@@ -55,7 +55,7 @@ std::shared_ptr<RNWorklet::JsiWorkletContext> FilamentProxy::createWorkletContex
   Logger::log(TAG, "Successfully created WorkletContext! Installing global Dispatcher...");
 
   workletContext->invokeOnWorkletThread([=](RNWorklet::JsiWorkletContext*, jsi::Runtime& runtime) {
-    Dispatcher::installRuntimeGlobalDispatcher(runtime, renderThreadDispatcher);
+    nitro::Dispatcher::installRuntimeGlobalDispatcher(runtime, renderThreadDispatcher);
     Logger::log(TAG, "Successfully installed global Dispatcher in WorkletContext!");
   });
 
@@ -63,8 +63,17 @@ std::shared_ptr<RNWorklet::JsiWorkletContext> FilamentProxy::createWorkletContex
 }
 #endif
 
+// TODO: nitro is this still needed?!
 jsi::Value FilamentProxy::getCurrentDispatcher(jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t) {
-  return Dispatcher::getRuntimeGlobalDispatcherHolder(runtime);
+#ifdef NITRO_DEBUG
+  if (!runtime.global().hasProperty(runtime, "__nitroDispatcher")) [[unlikely]] {
+    throw std::runtime_error("Failed to get current Dispatcher - the global Dispatcher "
+                             "holder (global.__nitroDispatcher) "
+                             "does not exist! Was Dispatcher::installDispatcherIntoRuntime() called "
+                             "for this jsi::Runtime?");
+  }
+#endif
+  return runtime.global().getProperty(runtime, "__nitroDispatcher");
 }
 
 std::future<std::shared_ptr<FilamentBuffer>> FilamentProxy::loadAssetAsync(const std::string& path) {
@@ -95,16 +104,11 @@ std::future<std::shared_ptr<FilamentView>> FilamentProxy::findFilamentViewAsync(
   });
 }
 
-std::shared_ptr<TestHybridObject> FilamentProxy::createTestObject() {
-  Logger::log(TAG, "Creating TestObject...");
-  return std::make_shared<TestHybridObject>();
-}
-
 std::shared_ptr<EngineWrapper> FilamentProxy::createEngine(std::optional<std::string> backend,
                                                            std::optional<std::unordered_map<std::string, int>> arguments) {
   Logger::log(TAG, "Creating Engine...");
 
-  std::shared_ptr<Dispatcher> renderThread = getRenderThreadDispatcher();
+  std::shared_ptr<nitro::Dispatcher> renderThread = getRenderThreadDispatcher();
 
   Engine::Config config = EngineConfigHelper::makeConfigFromUserParams(arguments);
   Engine::Backend backendEnum = Engine::Backend::DEFAULT;
@@ -145,19 +149,9 @@ jsi::Value FilamentProxy::createChoreographerWrapper(jsi::Runtime& runtime, cons
   Logger::log(TAG, "Creating Choreographer...");
   std::shared_ptr<Choreographer> choreographer = createChoreographer();
 
-  ChoreographerWrapper* choreographerWrapperPtr = new ChoreographerWrapper(choreographer);
+  std::shared_ptr<ChoreographerWrapper> choreographerWrapper = std::make_shared<ChoreographerWrapper>(choreographer);
 
-  RuntimeLifecycleMonitor::addListener(runtime, choreographerWrapperPtr);
-
-  // Wrap the ChoreographerWrapper in a shared_ptr with a custom deleter that removes the listener from the RuntimeLifecycleMonitor:
-  std::shared_ptr<ChoreographerWrapper> choreographerWrapper =
-      std::shared_ptr<ChoreographerWrapper>(choreographerWrapperPtr, [&runtime](ChoreographerWrapper* ptr) {
-        // Remove the ChoreographerWrapper from the RuntimeLifecycleMonitor when it gets destroyed.
-        RuntimeLifecycleMonitor::removeListener(runtime, ptr);
-        delete ptr;
-      });
-
-  return JSIConverter<std::shared_ptr<ChoreographerWrapper>>::toJSI(runtime, choreographerWrapper);
+  return nitro::JSIConverter<std::shared_ptr<ChoreographerWrapper>>::toJSI(runtime, choreographerWrapper);
 }
 
 } // namespace margelo

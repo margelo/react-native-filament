@@ -11,17 +11,20 @@ namespace margelo {
 using namespace utils;
 
 void FilamentAssetWrapper::loadHybridMethods() {
-  registerHybridMethod("getRoot", &FilamentAssetWrapper::getRoot, this);
-  registerHybridMethod("releaseSourceData", &FilamentAssetWrapper::releaseSourceData, this);
-  registerHybridMethod("createAnimator", &FilamentAssetWrapper::createAnimator, this);
-  registerHybridGetter("entityCount", &FilamentAssetWrapper::getEntityCount, this);
-  registerHybridMethod("getEntities", &FilamentAssetWrapper::getEntities, this);
-  registerHybridGetter("renderableEntityCount", &FilamentAssetWrapper::getRenderableEntityCount, this);
-  registerHybridMethod("getRenderableEntities", &FilamentAssetWrapper::getRenderableEntities, this);
-  registerHybridMethod("getBoundingBox", &FilamentAssetWrapper::getBoundingBox, this);
-  registerHybridMethod("getFirstEntityByName", &FilamentAssetWrapper::getFirstEntityByName, this);
-  registerHybridMethod("getInstance", &FilamentAssetWrapper::getInstance, this);
-  registerHybridMethod("getAssetInstances", &FilamentAssetWrapper::getAssetInstances, this);
+  PointerHolder::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridMethod("getRoot", &FilamentAssetWrapper::getRoot);
+    proto.registerHybridMethod("releaseSourceData", &FilamentAssetWrapper::releaseSourceData);
+    proto.registerHybridMethod("createAnimator", &FilamentAssetWrapper::createAnimator);
+    proto.registerHybridGetter("entityCount", &FilamentAssetWrapper::getEntityCount);
+    proto.registerHybridMethod("getEntities", &FilamentAssetWrapper::getEntities);
+    proto.registerHybridGetter("renderableEntityCount", &FilamentAssetWrapper::getRenderableEntityCount);
+    proto.registerHybridMethod("getRenderableEntities", &FilamentAssetWrapper::getRenderableEntities);
+    proto.registerHybridMethod("getBoundingBox", &FilamentAssetWrapper::getBoundingBox);
+    proto.registerHybridMethod("getFirstEntityByName", &FilamentAssetWrapper::getFirstEntityByName);
+    proto.registerHybridMethod("getInstance", &FilamentAssetWrapper::getInstance);
+    proto.registerHybridMethod("getAssetInstances", &FilamentAssetWrapper::getAssetInstances);
+  });
 }
 
 std::shared_ptr<EntityWrapper> FilamentAssetWrapper::getRoot() {

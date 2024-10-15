@@ -7,15 +7,18 @@
 namespace margelo {
 
 void BulletWrapper::loadHybridMethods() {
-  registerHybridMethod("createDiscreteDynamicWorld", &BulletWrapper::createDiscreteDynamicWorld, this);
-  registerHybridMethod("createRigidBody", &BulletWrapper::createRigidBody, this);
-  registerHybridMethod("createBoxShape", &BulletWrapper::createBoxShape, this);
-  registerHybridMethod("createCylinderShape", &BulletWrapper::createCylinderShape, this);
-  registerHybridMethod("createCylinderShapeX", &BulletWrapper::createCylinderShapeX, this);
-  registerHybridMethod("createCylinderShapeZ", &BulletWrapper::createCylinderShapeZ, this);
-  registerHybridMethod("createStaticPlaneShape", &BulletWrapper::createStaticPlaneShape, this);
-  registerHybridMethod("createRigidBodyFromTransform", &BulletWrapper::createRigidBodyFromTransform, this);
-  registerHybridMethod("createSphereShape", &BulletWrapper::createSphereShape, this);
+  HybridObject::loadHybridMethods();
+  registerHybrids(this, [](nitro::Prototype& proto) {
+    proto.registerHybridMethod("createDiscreteDynamicWorld", &BulletWrapper::createDiscreteDynamicWorld);
+    proto.registerHybridMethod("createRigidBody", &BulletWrapper::createRigidBody);
+    proto.registerHybridMethod("createBoxShape", &BulletWrapper::createBoxShape);
+    proto.registerHybridMethod("createCylinderShape", &BulletWrapper::createCylinderShape);
+    proto.registerHybridMethod("createCylinderShapeX", &BulletWrapper::createCylinderShapeX);
+    proto.registerHybridMethod("createCylinderShapeZ", &BulletWrapper::createCylinderShapeZ);
+    proto.registerHybridMethod("createStaticPlaneShape", &BulletWrapper::createStaticPlaneShape);
+    proto.registerHybridMethod("createRigidBodyFromTransform", &BulletWrapper::createRigidBodyFromTransform);
+    proto.registerHybridMethod("createSphereShape", &BulletWrapper::createSphereShape);
+  });
 }
 
 std::shared_ptr<DiscreteDynamicWorldWrapper> BulletWrapper::createDiscreteDynamicWorld(double gravityX, double gravityY, double gravityZ) {
@@ -23,8 +26,8 @@ std::shared_ptr<DiscreteDynamicWorldWrapper> BulletWrapper::createDiscreteDynami
 }
 
 std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBody(double mass, double x, double y, double z,
-                                                                 std::shared_ptr<ShapeWrapper> shape, std::string id,
-                                                                 std::optional<CollisionCallback> collisionCallback) {
+                                                                 const std::shared_ptr<ShapeWrapper>& shape, std::string id,
+                                                                 const std::optional<CollisionCallback>& collisionCallback) {
   // Don't pass the shape wrapper, but the shape itself
   const auto& shapePtr = shape->getShape();
   if (shapePtr == nullptr) {
@@ -34,9 +37,10 @@ std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBody(double mass, do
   return RigidBodyWrapper::create(mass, x, y, z, shapePtr, id, collisionCallback);
 }
 
-std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBodyFromTransform(double mass, std::shared_ptr<TMat44Wrapper> entityTransform,
-                                                                              std::shared_ptr<ShapeWrapper> shape, std::string id,
-                                                                              std::optional<CollisionCallback> collisionCallback) {
+std::shared_ptr<RigidBodyWrapper> BulletWrapper::createRigidBodyFromTransform(double mass,
+                                                                              const std::shared_ptr<TMat44Wrapper>& entityTransform,
+                                                                              const std::shared_ptr<ShapeWrapper>& shape, std::string id,
+                                                                              const std::optional<CollisionCallback>& collisionCallback) {
   const auto& shapePtr = shape->getShape();
   if (shapePtr == nullptr) {
     throw std::runtime_error("Shape is null");

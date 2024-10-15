@@ -24,10 +24,6 @@ setLogger({
   error: prefixLog(console.error),
 })
 
-// Run filament tests
-import { runTests } from 'react-native-filament-test'
-runTests()
-
 AppRegistry.registerComponent(appName, () => () => (
   <StrictMode>
     <App />

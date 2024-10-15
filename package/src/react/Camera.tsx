@@ -2,6 +2,7 @@ import { useSharedValue } from 'react-native-worklets-core'
 import { CameraManipulator, Float3 } from '../types'
 import { useFilamentContext } from '../hooks/useFilamentContext'
 import { RenderCallbackContext } from './RenderCallbackContext'
+import { BoxedHybridObject } from 'react-native-nitro-modules/lib/BoxedHybridObject'
 
 export type CameraProps = {
   /**
@@ -45,7 +46,7 @@ export type CameraProps = {
    * The camera can optionally be owned by a {@linkcode CameraManipulator}.
    * In this case the manipulators state will be used to update the camera.
    */
-  cameraManipulator?: CameraManipulator
+  cameraManipulator?: BoxedHybridObject<CameraManipulator>
 }
 
 // Sensible defaults:
@@ -83,18 +84,20 @@ export function Camera({ cameraManipulator, ...cameraConfig }: CameraProps) {
   RenderCallbackContext.useRenderCallback(() => {
     'worklet'
 
-    const aspectRatio = view.getAspectRatio()
+    const unboxedCamera = camera.unbox()
+    const aspectRatio = view.unbox().getAspectRatio()
     if (prevAspectRatio.value !== aspectRatio) {
       prevAspectRatio.value = aspectRatio
       // Setup camera lens:
-      camera.setLensProjection(focalLengthInMillimeters, aspect ?? aspectRatio, near, far)
+      unboxedCamera.setLensProjection(focalLengthInMillimeters, aspect ?? aspectRatio, near, far)
       console.log('Setting up camera lens with aspect ratio:', aspectRatio)
     }
 
     if (cameraManipulator != null) {
-      camera.lookAtCameraManipulator(cameraManipulator)
+      const unboxedCameraManipulator = cameraManipulator.unbox()
+      unboxedCamera.lookAtCameraManipulator(unboxedCameraManipulator)
     } else {
-      camera.lookAt(
+      unboxedCamera.lookAt(
         [cameraPositionX, cameraPositionY, cameraPositionZ],
         [cameraTargetX, cameraTargetY, cameraTargetZ],
         [cameraUpX, cameraUpY, cameraUpZ]
