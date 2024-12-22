@@ -23,6 +23,8 @@ void RenderableManagerWrapper::loadHybridMethods() {
   registerHybridMethod("scaleBoundingBox", &RenderableManagerWrapper::scaleBoundingBox, this);
   registerHybridMethod("createDebugCubeWireframe", &RenderableManagerWrapper::createDebugCubeWireframe, this);
   registerHybridMethod("getAxisAlignedBoundingBox", &RenderableManagerWrapper::getAxisAlignedBoundingBox, this);
+  registerHybridMethod("getMorphTargetCount", &RenderableManagerWrapper::getMorphTargetCount, this);
+  registerHybridMethod("setMorphWeights", &RenderableManagerWrapper::setMorphWeights, this);
 }
 int RenderableManagerWrapper::getPrimitiveCount(std::shared_ptr<EntityWrapper> entity) {
   return pointee()->getPrimitiveCount(entity);
@@ -88,6 +90,14 @@ Texture* RenderableManagerWrapper::createTextureFromBuffer(std::shared_ptr<Filam
 std::shared_ptr<BoxWrapper> RenderableManagerWrapper::getAxisAlignedBoundingBox(std::shared_ptr<EntityWrapper> entityWrapper) {
   Box box = pointee()->getAxisAlignedBoundingBox(entityWrapper);
   return std::make_shared<BoxWrapper>(box);
+}
+
+int32_t RenderableManagerWrapper::getMorphTargetCount(std::shared_ptr<EntityWrapper> entity) {
+  return pointee()->getMorphTargetCount(entity);
+}
+
+void RenderableManagerWrapper::setMorphWeights(std::shared_ptr<EntityWrapper> entity, const std::vector<float>& weights, int32_t offset) {
+  return pointee()->setMorphWeights(entity, weights, offset);
 }
 
 } // namespace margelo

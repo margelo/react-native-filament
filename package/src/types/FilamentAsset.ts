@@ -31,4 +31,19 @@ export interface FilamentAsset extends PointerHolder, FilamentInstanceBase {
    * List will only be greater than 1 if the asset was loaded with loadInstancedAsset.
    */
   getAssetInstances(): FilamentInstance[]
+
+  /**
+   * Gets the morph target name at the given index for the specified entity.
+   * @param entity The entity to query
+   * @param targetIndex The index of the morph target
+   * @returns The name of the morph target at the given index
+   */
+  getMorphTargetNameAt(entity: Entity, targetIndex: number): string
+
+  /**
+   * Returns the number of morph targets in the given entity.
+   * @param entity The entity to query
+   * @returns The number of morph targets
+   */
+  getMorphTargetCountAt(entity: Entity): number
 }

@@ -40,6 +40,10 @@ private: // Exposed JS API
                                                           std::optional<std::shared_ptr<MaterialWrapper>> materialWrapper,
                                                           std::optional<double> colorHexCode);
   std::shared_ptr<BoxWrapper> getAxisAlignedBoundingBox(std::shared_ptr<EntityWrapper> entityWrapper);
+
+  int32_t getMorphTargetCount(std::shared_ptr<EntityWrapper> entity);
+  void setMorphWeights(std::shared_ptr<EntityWrapper> entity, 
+                        const std::vector<float>& weights, int32_t offset);
 };
 
 } // namespace margelo

@@ -300,4 +300,20 @@ Box RenderableManagerImpl::getAxisAlignedBoundingBox(std::shared_ptr<EntityWrapp
   return renderableManager.getAxisAlignedBoundingBox(renderable);
 }
 
+size_t RenderableManagerImpl::getMorphTargetCount(std::shared_ptr<EntityWrapper> entity) {
+  RenderableManager& renderableManager = _engine->getRenderableManager();
+  Entity entityInstance = entity->getEntity();
+  RenderableManager::Instance renderable = renderableManager.getInstance(entityInstance);
+  size_t count = renderableManager.getMorphTargetCount(renderable);
+  Logger::log(TAG, "Morph target count for entity %u: %zu", entityInstance.getId(), count);
+  return count;
+}
+
+void RenderableManagerImpl::setMorphWeights(std::shared_ptr<EntityWrapper> entity, const std::vector<float>& weights, size_t offset) {
+  RenderableManager& renderableManager = _engine->getRenderableManager();
+  Entity entityInstance = entity->getEntity();
+  RenderableManager::Instance renderable = renderableManager.getInstance(entityInstance);
+  renderableManager.setMorphWeights(renderable, weights.data(), weights.size(), offset);
+}
+
 } // namespace margelo

@@ -22,6 +22,8 @@ void FilamentAssetWrapper::loadHybridMethods() {
   registerHybridMethod("getFirstEntityByName", &FilamentAssetWrapper::getFirstEntityByName, this);
   registerHybridMethod("getInstance", &FilamentAssetWrapper::getInstance, this);
   registerHybridMethod("getAssetInstances", &FilamentAssetWrapper::getAssetInstances, this);
+  registerHybridMethod("getMorphTargetNameAt", &FilamentAssetWrapper::getMorphTargetNameAt, this);
+  registerHybridMethod("getMorphTargetCountAt", &FilamentAssetWrapper::getMorphTargetCountAt, this);
 }
 
 std::shared_ptr<EntityWrapper> FilamentAssetWrapper::getRoot() {
@@ -83,6 +85,17 @@ std::vector<std::shared_ptr<FilamentInstanceWrapper>> FilamentAssetWrapper::getA
     instances.push_back(std::make_shared<FilamentInstanceWrapper>(instanceArray[i]));
   }
   return instances;
+}
+
+std::string FilamentAssetWrapper::getMorphTargetNameAt(const std::shared_ptr<EntityWrapper>& entity, int32_t targetIndex) {
+  const Entity instance = entity->getEntity();
+  const char* name = pointee()->getMorphTargetNameAt(instance, static_cast<size_t>(targetIndex));
+  return std::string(name);
+}
+
+int32_t FilamentAssetWrapper::getMorphTargetCountAt(const std::shared_ptr<EntityWrapper>& entity) {
+  const Entity instance = entity->getEntity();
+  return pointee()->getMorphTargetCountAt(entity->getEntity());
 }
 
 } // namespace margelo
