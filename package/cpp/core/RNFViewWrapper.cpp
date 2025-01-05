@@ -5,6 +5,7 @@ namespace margelo {
 void ViewWrapper::loadHybridMethods() {
   registerHybridMethod("getAspectRatio", &ViewWrapper::getAspectRatio, this);
   registerHybridMethod("createAmbientOcclusionOptions", &ViewWrapper::createAmbientOcclusionOptions, this);
+  //FIXME: registerHybridMethod("createBloomOptions", &ViewWrapper::createBloomOptions, this);
   registerHybridMethod("setAmbientOcclusionOptions", &ViewWrapper::setAmbientOcclusionOptions, this);
   registerHybridMethod("getAmbientOcclusionOptions", &ViewWrapper::getAmbientOcclusionOptions, this);
   registerHybridMethod("createDynamicResolutionOptions", &ViewWrapper::createDynamicResolutionOptions, this);
