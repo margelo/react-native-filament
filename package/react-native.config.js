@@ -10,12 +10,7 @@ module.exports = {
       /**
        * @type {import('@react-native-community/cli-types').AndroidDependencyParams}
        */
-      android: {
-        // The c++ native part of the module will be built inside of the main app,
-        // by adding our libraries CMakelists.txt to the main app's CMakelists.txt
-        cxxModuleCMakeListsModuleName: 'react-native-filament',
-        cxxModuleCMakeListsPath: 'CMakeLists.txt',
-      },
+      android: {},
     },
   },
 }

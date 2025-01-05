@@ -95,26 +95,19 @@ android {
     targetSdkVersion getExtOrIntegerDefault("targetSdkVersion")
     buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
 
-    // On the old arch, we need to build the c++ module ourselves
-    if (!isNewArchitectureEnabled()) {
-      externalNativeBuild {
-        cmake {
-          cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
-          arguments "-DANDROID_STL=c++_shared",
-                  "-DRNF_ENABLE_LOGS=${enableLogs ? "ON" : "OFF"}",
-                  "-DNODE_MODULES_DIR=${nodeModules}",
-                  "-DIS_OLD_ARCHITECTURE_ENABLED=ON"
-        }
+    externalNativeBuild {
+      cmake {
+        cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
+        arguments "-DANDROID_STL=c++_shared",
+                "-DRNF_ENABLE_LOGS=${enableLogs ? "ON" : "OFF"}",
+                "-DNODE_MODULES_DIR=${nodeModules}"
       }
     }
   }
 
-  // On the old arch, we need to build the c++ module ourselves
-  if (!isNewArchitectureEnabled()) {
-    externalNativeBuild {
-      cmake {
-        path "CMakeLists.txt"
-      }
+  externalNativeBuild {
+    cmake {
+      path "CMakeLists.txt"
     }
   }
 
@@ -131,6 +124,7 @@ android {
         "**/libhermes.so",
         "**/libhermes-executor-debug.so",
         "**/libhermes_executor.so",
+        "**/libreactnative.so",
         "**/libreactnativejni.so",
         "**/libturbomodulejsijni.so",
         "**/libreact_nativemodule_core.so",

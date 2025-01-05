@@ -120,29 +120,33 @@ target_link_libraries(
     ${LOG_LIB} # <-- Logcat logger
     android # <-- Android JNI core
     ReactAndroid::jsi # <-- RN: JSI
-    ReactAndroid::reactnativejni # <-- RN: React Native JNI bindings
     fbjni::fbjni # <-- fbjni
     GLESv3 # <-- OpenGL (Core)
     EGL # <-- OpenGL (EGL)
 )
 
-# Link with RNWC:
-if (IS_OLD_ARCHITECTURE_ENABLED)
-    # On the old arch RNWC publishes a prefab that we need to find (and it has a different name):
-    find_package(react-native-worklets-core REQUIRED CONFIG)
-    message("RN Filament: react-native-worklets core found! Enabling Worklets support...")
-    message("RN Filament: react-native-worklets-core found in ${react-native-worklets-core_DIR}")
+# This if-then-else can be removed once this library does not support version below 0.76
+if(ReactAndroid_VERSION_MINOR GREATER_EQUAL 76)
+    message("RN Filament: Using React Native merged SO...")
     target_link_libraries(
         ${PACKAGE_NAME}
-        react-native-worklets-core::rnworklets
+        ReactAndroid::reactnative
     )
-else ()
+else()
     target_link_libraries(
-            ${PACKAGE_NAME}
-            react_codegen_rnfilament # link against the codegen generated library of rnf (needed so this module is compiled correctly)
-            react-native-worklets-core
+        ${PACKAGE_NAME}
+        ReactAndroid::reactnativejni # <-- RN: React Native JNI bindings
     )
 endif()
+
+# Link with RNWC:
+find_package(react-native-worklets-core REQUIRED CONFIG)
+message("RN Filament: react-native-worklets core found! Enabling Worklets support...")
+message("RN Filament: react-native-worklets-core found in ${react-native-worklets-core_DIR}")
+target_link_libraries(
+    ${PACKAGE_NAME}
+    react-native-worklets-core::rnworklets
+)
 add_definitions(-DHAS_WORKLETS=1)
 
 # Filament (local CMake project as a git submodule)
