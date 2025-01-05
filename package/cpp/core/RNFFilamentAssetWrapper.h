@@ -47,6 +47,10 @@ private: // Public API functions:
   // Convenience method to get the first instance
   std::shared_ptr<FilamentInstanceWrapper> getInstance();
   std::vector<std::shared_ptr<FilamentInstanceWrapper>> getAssetInstances();
+  
+  
+  std::string getMorphTargetNameAt(const std::shared_ptr<EntityWrapper>& entity, int32_t targetIndex);
+  int32_t getMorphTargetCountAt(const std::shared_ptr<EntityWrapper>& entity);;
 
 private: // Internal state:
   std::mutex _mutex;

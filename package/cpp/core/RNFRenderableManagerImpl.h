@@ -79,6 +79,9 @@ public: // Public API
     return _engine;
   }
 
+  size_t getMorphTargetCount(std::shared_ptr<EntityWrapper> entity);
+  void setMorphWeights(std::shared_ptr<EntityWrapper> entity, const std::vector<float>& weights, size_t offset);
+
 private:
   // Calls the TextureProvider to start loading the resource
   void startUpdateResourceLoading();

@@ -104,4 +104,26 @@ export interface RenderableManager extends PointerHolder {
   createDebugCubeWireframe(halfExtent: Float3, material: Material | undefined, color: number | undefined): Entity
 
   getAxisAlignedBoundingBox(entity: Entity): Box
+  /**
+   * Returns the number of morph targets for the given entity.
+   * @param entity - The entity whose morph target count is to be retrieved.
+   * @returns The number of morph targets.
+   */
+  getMorphTargetCount(entity: Entity): number
+
+  /**
+   * Sets the morph weights for the given entity.
+   * @param entity - The entity whose morph weights are to be set.
+   * @param weights - An array of weights to be applied to the morph targets.
+   * @param offset - The offset at which to start applying the weights.
+   */
+  setMorphWeights(entity: Entity, weights: number[], offset: number): void
+
+  /**
+   * Returns the name of the morph target at the specified index for the given entity.
+   * @param entity - The entity whose morph target name is to be retrieved.
+   * @param targetIndex - The index of the morph target.
+   * @returns The name of the morph target.
+   */
+  getMorphTargetNameAt(entity: Entity, targetIndex: number): string
 }
