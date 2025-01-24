@@ -1,6 +1,6 @@
 import { RNFCamera } from './Camera'
 import { Entity } from './Entity'
-import { AmbientOcclusionOptions, DynamicResolutionOptions } from './Options'
+import { AmbientOcclusionOptions, BloomOptions, DynamicResolutionOptions } from './Options'
 import { PointerHolder } from './PointerHolder'
 import { Scene } from './Scene'
 import { Float3 } from './Math'
@@ -38,6 +38,8 @@ export interface View extends PointerHolder {
   getViewport(): Viewport
   setAmbientOcclusionOptions(options: AmbientOcclusionOptions): void
   getAmbientOcclusionOptions(): AmbientOcclusionOptions
+  setBloomOptions(options: BloomOptions): void
+  getBloomOptions(): BloomOptions
   setDynamicResolutionOptions(options: DynamicResolutionOptions): void
   getDynamicResolutionOptions(): DynamicResolutionOptions
 
@@ -103,6 +105,7 @@ export interface View extends PointerHolder {
 
   // Internal helper to create HostObject options object
   createAmbientOcclusionOptions(): AmbientOcclusionOptions
+  createBloomOptions(): BloomOptions
   createDynamicResolutionOptions(): DynamicResolutionOptions
 
   /**
