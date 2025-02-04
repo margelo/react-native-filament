@@ -1,6 +1,6 @@
 import { useContext, useMemo } from 'react'
 import { ParentInstancesContext } from './ParentInstancesContext'
-import { Entity, extractTransformationProps, TextureFlags, TransformationProps } from '../types'
+import { Entity, extractTransformationProps, Float4, TextureFlags, TransformationProps } from '../types'
 import { useFilamentContext } from '../hooks/useFilamentContext'
 import React from 'react'
 import { useApplyTransformations } from '../hooks/internal/useApplyTransformations'
@@ -21,8 +21,18 @@ export type TextureMap = {
   textureFlags?: TextureFlags
 }
 
+export type MaterialParametersItem = {
+  index: number
+  parameters: {
+    [key: string]: Float4
+  }
+}
+
+export type MaterialParameters = MaterialParametersItem | MaterialParametersItem[]
+
 export type ModifierProps = TransformationProps & {
   textureMap?: TextureMap
+  materialParameters?: MaterialParameters
 }
 
 export type EntitySelectorProps = SelectorProps & ModifierProps
@@ -80,7 +90,12 @@ function EntitySelectorImpl(props: ImplProps) {
   const [transformProps, { entity, textureMap }] = extractTransformationProps(props)
   useApplyTransformations({ to: entity, transformProps })
 
-  return <>{textureMap != null && <TextureModifier entity={entity} {...textureMap} />}</>
+  return (
+    <>
+      {textureMap != null && <TextureModifier entity={entity} {...textureMap} />}
+      {props.materialParameters != null && <MaterialModifier entity={entity} materialParameters={props.materialParameters} />}
+    </>
+  )
 }
 
 type TextureModifierProps = TextureMap & {
@@ -96,6 +111,44 @@ function TextureModifier({ entity, textureSource, materialName, textureFlags = '
     'worklet'
 
     renderableManager.changeMaterialTextureMap(entity, materialName, textureSource, textureFlags)
+  })
+
+  return null
+}
+
+type MaterialModifierProps = {
+  entity: Entity
+  materialParameters: MaterialParameters
+}
+
+/**
+ * @private
+ */
+function MaterialModifier({ entity, materialParameters }: MaterialModifierProps) {
+  const { renderableManager } = useFilamentContext()
+
+  useWorkletEffect(() => {
+    'worklet'
+    if (Array.isArray(materialParameters)) {
+      materialParameters.forEach(({ index, parameters }) => {
+        const materialInstance = renderableManager.getMaterialInstanceAt(entity, index)
+        Object.keys(parameters).forEach((key) => {
+          const value = parameters[key]
+          if (value) {
+            materialInstance.setFloat4Parameter(key, value)
+          }
+        })
+      })
+    } else {
+      const { index = 0, parameters } = materialParameters
+      const materialInstance = renderableManager.getMaterialInstanceAt(entity, index)
+      Object.keys(parameters).forEach((key) => {
+        const value = parameters[key]
+        if (value) {
+          materialInstance.setFloat4Parameter(key, value)
+        }
+      })
+    }
   })
 
   return null
