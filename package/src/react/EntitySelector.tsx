@@ -1,6 +1,6 @@
 import { useContext, useMemo } from 'react'
 import { ParentInstancesContext } from './ParentInstancesContext'
-import { Entity, extractTransformationProps, Float4, TextureFlags, TransformationProps } from '../types'
+import { Entity, extractTransformationProps, Float4, MaterialInstance, TextureFlags, TransformationProps } from '../types'
 import { useFilamentContext } from '../hooks/useFilamentContext'
 import React from 'react'
 import { useApplyTransformations } from '../hooks/internal/useApplyTransformations'
@@ -21,11 +21,19 @@ export type TextureMap = {
   textureFlags?: TextureFlags
 }
 
+export type MaterialParameterValue = {
+  baseColorFactor?: Float4
+  emissiveFactor?: Float4
+  roughnessFactor?: number
+  metallicFactor?: number
+  reflectance?: number
+  clearCoatFactor?: number
+  clearCoatRoughnessFactor?: number
+}
+
 export type MaterialParametersItem = {
   index: number
-  parameters: {
-    [key: string]: Float4
-  }
+  parameters: MaterialParameterValue
 }
 
 export type MaterialParameters = MaterialParametersItem | MaterialParametersItem[]
@@ -127,27 +135,42 @@ type MaterialModifierProps = {
 function MaterialModifier({ entity, materialParameters }: MaterialModifierProps) {
   const { renderableManager } = useFilamentContext()
 
+  const applyParameters = (materialInstance: MaterialInstance, parameters: MaterialParameterValue) => {
+    'worklet'
+    if (parameters.baseColorFactor) {
+      materialInstance.setFloat4Parameter('baseColorFactor', parameters.baseColorFactor)
+    }
+    if (parameters.emissiveFactor) {
+      materialInstance.setFloat4Parameter('emissiveFactor', parameters.emissiveFactor)
+    }
+    if (parameters.roughnessFactor !== undefined) {
+      materialInstance.setFloatParameter('roughnessFactor', parameters.roughnessFactor)
+    }
+    if (parameters.metallicFactor !== undefined) {
+      materialInstance.setFloatParameter('metallicFactor', parameters.metallicFactor)
+    }
+    if (parameters.reflectance !== undefined) {
+      materialInstance.setFloatParameter('reflectance', parameters.reflectance)
+    }
+    if (parameters.clearCoatFactor !== undefined) {
+      materialInstance.setFloatParameter('clearCoatFactor', parameters.clearCoatFactor)
+    }
+    if (parameters.clearCoatRoughnessFactor !== undefined) {
+      materialInstance.setFloatParameter('clearCoatRoughnessFactor', parameters.clearCoatRoughnessFactor)
+    }
+  }
+
   useWorkletEffect(() => {
     'worklet'
     if (Array.isArray(materialParameters)) {
       materialParameters.forEach(({ index, parameters }) => {
         const materialInstance = renderableManager.getMaterialInstanceAt(entity, index)
-        Object.keys(parameters).forEach((key) => {
-          const value = parameters[key]
-          if (value) {
-            materialInstance.setFloat4Parameter(key, value)
-          }
-        })
+        applyParameters(materialInstance, parameters)
       })
     } else {
       const { index = 0, parameters } = materialParameters
       const materialInstance = renderableManager.getMaterialInstanceAt(entity, index)
-      Object.keys(parameters).forEach((key) => {
-        const value = parameters[key]
-        if (value) {
-          materialInstance.setFloat4Parameter(key, value)
-        }
-      })
+      applyParameters(materialInstance, parameters)
     }
   })
 
