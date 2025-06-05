@@ -35,6 +35,7 @@ export type FilamentContextType = {
 export const FilamentContext = React.createContext<FilamentContextType | undefined>(undefined)
 
 export function useFilamentContext() {
+  'worklet'
   const context = React.useContext(FilamentContext)
   if (context === undefined) {
     throw new Error('You tried to use a Filament hook/component without wrapping your component in a <FilamentScene> component!')
