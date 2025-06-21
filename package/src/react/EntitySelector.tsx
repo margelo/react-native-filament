@@ -129,48 +129,48 @@ type MaterialModifierProps = {
   materialParameters: MaterialParameters
 }
 
+const applyMaterialParameters = (materialInstance: MaterialInstance, parameters: MaterialParameterValue) => {
+  'worklet'
+  if (parameters.baseColorFactor) {
+    materialInstance.setFloat4Parameter('baseColorFactor', parameters.baseColorFactor)
+  }
+  if (parameters.emissiveFactor) {
+    materialInstance.setFloat4Parameter('emissiveFactor', parameters.emissiveFactor)
+  }
+  if (parameters.roughnessFactor !== undefined) {
+    materialInstance.setFloatParameter('roughnessFactor', parameters.roughnessFactor)
+  }
+  if (parameters.metallicFactor !== undefined) {
+    materialInstance.setFloatParameter('metallicFactor', parameters.metallicFactor)
+  }
+  if (parameters.reflectance !== undefined) {
+    materialInstance.setFloatParameter('reflectance', parameters.reflectance)
+  }
+  if (parameters.clearCoatFactor !== undefined) {
+    materialInstance.setFloatParameter('clearCoatFactor', parameters.clearCoatFactor)
+  }
+  if (parameters.clearCoatRoughnessFactor !== undefined) {
+    materialInstance.setFloatParameter('clearCoatRoughnessFactor', parameters.clearCoatRoughnessFactor)
+  }
+}
+
 /**
  * @private
  */
 function MaterialModifier({ entity, materialParameters }: MaterialModifierProps) {
   const { renderableManager } = useFilamentContext()
 
-  const applyParameters = (materialInstance: MaterialInstance, parameters: MaterialParameterValue) => {
-    'worklet'
-    if (parameters.baseColorFactor) {
-      materialInstance.setFloat4Parameter('baseColorFactor', parameters.baseColorFactor)
-    }
-    if (parameters.emissiveFactor) {
-      materialInstance.setFloat4Parameter('emissiveFactor', parameters.emissiveFactor)
-    }
-    if (parameters.roughnessFactor !== undefined) {
-      materialInstance.setFloatParameter('roughnessFactor', parameters.roughnessFactor)
-    }
-    if (parameters.metallicFactor !== undefined) {
-      materialInstance.setFloatParameter('metallicFactor', parameters.metallicFactor)
-    }
-    if (parameters.reflectance !== undefined) {
-      materialInstance.setFloatParameter('reflectance', parameters.reflectance)
-    }
-    if (parameters.clearCoatFactor !== undefined) {
-      materialInstance.setFloatParameter('clearCoatFactor', parameters.clearCoatFactor)
-    }
-    if (parameters.clearCoatRoughnessFactor !== undefined) {
-      materialInstance.setFloatParameter('clearCoatRoughnessFactor', parameters.clearCoatRoughnessFactor)
-    }
-  }
-
   useWorkletEffect(() => {
     'worklet'
     if (Array.isArray(materialParameters)) {
       materialParameters.forEach(({ index, parameters }) => {
         const materialInstance = renderableManager.getMaterialInstanceAt(entity, index)
-        applyParameters(materialInstance, parameters)
+        applyMaterialParameters(materialInstance, parameters)
       })
     } else {
       const { index = 0, parameters } = materialParameters
       const materialInstance = renderableManager.getMaterialInstanceAt(entity, index)
-      applyParameters(materialInstance, parameters)
+      applyMaterialParameters(materialInstance, parameters)
     }
   })
 
