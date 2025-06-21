@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { getWorkletDependencies, ISharedValue, IWorklet, IWorkletContext, Worklets } from 'react-native-worklets-core'
+import { getWorkletDependencies, ISharedValue, IWorklet, Worklets } from 'react-native-worklets-core'
 import { isWorkletSharedValue } from '../utilities/helper'
 import { useFilamentContext } from './useFilamentContext'
 
@@ -8,17 +8,9 @@ export interface DerivedValue<Value = unknown> extends Readonly<ISharedValue<Val
 export type DependencyList = Array<unknown> | undefined
 
 // @ts-expect-error
-export function useDerivedValue<Value>(
-  updater: () => Value,
-  dependencies?: DependencyList,
-  workletContext?: IWorkletContext
-): DerivedValue<Value>
+export function useDerivedValue<Value>(updater: () => Value, dependencies?: DependencyList): DerivedValue<Value>
 
-export function useDerivedValue<Value>(
-  updater: IWorklet<Function>,
-  dependencies?: DependencyList
-  //   workletContext = Worklets.defaultContext
-): DerivedValue<Value> {
+export function useDerivedValue<Value>(updater: IWorklet<Function>, dependencies?: DependencyList): DerivedValue<Value> {
   const initRef = useRef<ISharedValue<Value> | null>(null)
   const inputs = getWorkletDependencies(updater)
 
