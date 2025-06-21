@@ -6,7 +6,6 @@ import {
   Camera,
   Skybox,
   DefaultLight,
-  RenderCallback,
   Model,
   ModelInstance,
   Float3,
