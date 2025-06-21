@@ -47,7 +47,7 @@ export function useDerivedValue<Value>(updater: IWorklet<Function>, dependencies
       global.__listenerRegistry[id] = []
       for (const input of inputs) {
         if (!isWorkletSharedValue(input)) {
-          return
+          continue
         }
 
         const removeListener = input.addListener(fun)
