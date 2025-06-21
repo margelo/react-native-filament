@@ -4,6 +4,7 @@
     "paths": {
       "react-native-filament": ["./src/index"]
     },
+    "declaration": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "esModuleInterop": true,
@@ -22,10 +23,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "esnext",
+    "target": "esnext"
   },
-  "exclude": [
-    "example",
-    "node_modules"
-  ]
+  "exclude": ["example", "node_modules"]
 }

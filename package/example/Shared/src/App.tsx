@@ -20,6 +20,7 @@ import { ScaleEffect } from './ScaleEffect'
 import { ChangeMaterials } from './ChangeMaterials'
 import { SkyboxExample } from './SkyboxExample'
 import { MorphTargets } from './MorphTargets'
+import { ReanimatedRotation } from './ReanimatedRotation'
 
 function NavigationItem(props: { name: string; route: string }) {
   const navigation = useNavigation()
@@ -59,6 +60,7 @@ function HomeScreen() {
       <NavigationItem name="🤖 Multiple Instances" route="MultipleInstances" />
       <NavigationItem name="🔄 Animated Rotate" route="AnimatedRotate" />
       <NavigationItem name="🔄 Animated Rotate w/ Shared Values" route="AnimatedRotateSharedValues" />
+      <NavigationItem name="🐎 Reanimated Rotate" route="ReanimatedRotation" />
       <NavigationItem name="💰 Physics Coin" route="PhysicsCoin" />
       <NavigationItem name="😶‍🌫️ Fade Out" route="FadeOut" />
       <NavigationItem name="🌑 Cast Shadow" route="CastShadow" />
@@ -101,6 +103,7 @@ function App() {
           <Stack.Screen name="MultipleInstances" component={MultipleInstances} />
           <Stack.Screen name="AnimatedRotate" component={AnimatedRotate} />
           <Stack.Screen name="AnimatedRotateSharedValues" component={AnimatedRotateSharedValues} />
+          <Stack.Screen name="ReanimatedRotation" component={ReanimatedRotation} />
           <Stack.Screen name="PhysicsCoin" component={PhysicsCoin} />
           <Stack.Screen name="FadeOut" component={FadeOut} />
           <Stack.Screen name="CastShadow" component={CastShadow} />

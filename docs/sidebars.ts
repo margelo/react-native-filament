@@ -12,7 +12,8 @@ const sidebars: SidebarsConfig = {
       "guides/animator",
       "guides/images",
       "guides/physics",
-      "guides/instancing"
+      "guides/instancing",
+      "guides/reanimated"
     ],
     API: [
       "api/index",
