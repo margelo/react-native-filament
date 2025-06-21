@@ -1,15 +1,21 @@
 ---
 id: images
-title: Images
-sidebar_label: Images
+title: Images & Textures
+sidebar_label: Images & Textures
 slug: /guides/images
 ---
 
-import useBaseUrl from '@docusaurus/useBaseUrl'
+import useBaseUrl from "@docusaurus/useBaseUrl";
 
 <div class="image-container">
   <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535">
-    <image href={useBaseUrl("img/demo-backgroundimage.jpg")} x="18" y="33" width="247" height="469" />
+    <image
+      href={useBaseUrl("img/demo-backgroundimage.jpg")}
+      x="18"
+      y="33"
+      width="247"
+      height="469"
+    />
     <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
   </svg>
 </div>
@@ -25,10 +31,10 @@ You can only have one background image per scene. The background image is a 2D i
 always fill the whole view.
 
 ```tsx
-import { BackgroundImage, Camera, DefaultLight } from 'react-native-filament'
-import BackgroundImageMaterial from './assets/background_image.filamat'
+import { BackgroundImage, Camera, DefaultLight } from "react-native-filament";
+import BackgroundImageMaterial from "./assets/background_image.filamat";
 
-const imageResource = require('./assets/background.jpg')
+const imageResource = require("./assets/background.jpg");
 
 function Renderer() {
   return (
@@ -36,9 +42,13 @@ function Renderer() {
       <Camera />
       <DefaultLight />
 
-      <BackgroundImage source={imageResource} materialSource={BackgroundImageMaterial} resizeMode="cover" />
+      <BackgroundImage
+        source={imageResource}
+        materialSource={BackgroundImageMaterial}
+        resizeMode="cover"
+      />
     </FilamentView>
-  )
+  );
 }
 ```
 
@@ -68,7 +78,13 @@ Compiled materials are `.filamat` files, where the definition files are human-re
 
 <div class="image-container">
   <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535">
-    <image href={useBaseUrl("img/demo-change-textures.gif")} x="18" y="33" width="247" height="469" />
+    <image
+      href={useBaseUrl("img/demo-change-textures.gif")}
+      x="18"
+      y="33"
+      width="247"
+      height="469"
+    />
     <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
   </svg>
 </div>
@@ -85,17 +101,17 @@ For applying images as textures to 3D shapes need to have:
 
 For example, let's say we have [this 3D model of a rocket](https://www.cgtrader.com/free-3d-models/space/spaceship/toy-rocket-4k). When we open it in blender we see:
 
-<img src={useBaseUrl('img/blender-explanation-materials.png')} />
+<img src={useBaseUrl("img/blender-explanation-materials.png")} />
 
 - In the top right corner you see the entities: `Engine`, `Tip`, `Wings`, etc.
 - You can see that an entity is associated with a material.
 - You can see the materials name is "Toy Ship", and you can see it uses a texture.
 
-| The base texture looks like this:                                                     | Variant of the base color texture :                                                   |
-|---------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| The base texture looks like this:                                         | Variant of the base color texture :                                           |
+| ------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
 | <img src={useBaseUrl('img/example-Toy_Rocket_Toy Ship_BaseColor.jpg')} /> | <img src={useBaseUrl('img/example-Toy_Rocket_Toy Ship_BaseColorBlue.jpg')} /> |
 
-Now we can apply the new texture to the model: 
+Now we can apply the new texture to the model:
 
 ```tsx
 import RocketGlb from '~/assets/rocket.glb'
