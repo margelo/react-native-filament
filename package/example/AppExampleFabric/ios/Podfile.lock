@@ -1242,7 +1242,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-filament (1.5.1):
+  - react-native-filament (1.6.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1255,16 +1255,16 @@ PODS:
     - React-featureflags
     - React-graphics
     - React-ImageManager
-    - react-native-filament/camutils (= 1.5.1)
-    - react-native-filament/filamat (= 1.5.1)
-    - react-native-filament/filament (= 1.5.1)
-    - react-native-filament/gltfio_core (= 1.5.1)
-    - react-native-filament/image (= 1.5.1)
-    - react-native-filament/ktxreader (= 1.5.1)
-    - react-native-filament/math (= 1.5.1)
-    - react-native-filament/tsl (= 1.5.1)
-    - react-native-filament/uberz (= 1.5.1)
-    - react-native-filament/utils (= 1.5.1)
+    - react-native-filament/camutils (= 1.6.1)
+    - react-native-filament/filamat (= 1.6.1)
+    - react-native-filament/filament (= 1.6.1)
+    - react-native-filament/gltfio_core (= 1.6.1)
+    - react-native-filament/image (= 1.6.1)
+    - react-native-filament/ktxreader (= 1.6.1)
+    - react-native-filament/math (= 1.6.1)
+    - react-native-filament/tsl (= 1.6.1)
+    - react-native-filament/uberz (= 1.6.1)
+    - react-native-filament/utils (= 1.6.1)
     - react-native-worklets-core
     - React-NativeModulesApple
     - React-RCTFabric
@@ -1274,30 +1274,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-filament/camutils (1.5.1):
-    - DoubleConversion
-    - glog
-    - hermes-engine
-    - RCT-Folly (= 2024.01.01.00)
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - react-native-filament/math
-    - react-native-worklets-core
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - Yoga
-  - react-native-filament/filamat (1.5.1):
+  - react-native-filament/camutils (1.6.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1311,7 +1288,6 @@ PODS:
     - React-graphics
     - React-ImageManager
     - react-native-filament/math
-    - react-native-filament/utils
     - react-native-worklets-core
     - React-NativeModulesApple
     - React-RCTFabric
@@ -1321,7 +1297,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-filament/filament (1.5.1):
+  - react-native-filament/filamat (1.6.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1345,7 +1321,31 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-filament/gltfio_core (1.5.1):
+  - react-native-filament/filament (1.6.1):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - react-native-filament/math
+    - react-native-filament/utils
+    - react-native-worklets-core
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - react-native-filament/gltfio_core (1.6.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1370,7 +1370,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-filament/image (1.5.1):
+  - react-native-filament/image (1.6.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1393,7 +1393,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-filament/ktxreader (1.5.1):
+  - react-native-filament/ktxreader (1.6.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1417,7 +1417,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-filament/math (1.5.1):
+  - react-native-filament/math (1.6.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1439,7 +1439,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-filament/tsl (1.5.1):
+  - react-native-filament/tsl (1.6.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1461,7 +1461,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-filament/uberz (1.5.1):
+  - react-native-filament/uberz (1.6.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1486,7 +1486,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-filament/utils (1.5.1):
+  - react-native-filament/utils (1.6.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2346,7 +2346,7 @@ SPEC CHECKSUMS:
   React-logger: 697873f06b8ba436e3cddf28018ab4741e8071b6
   React-Mapbuffer: c174e11bdea12dce07df8669d6c0dc97eb0c7706
   React-microtasksnativemodule: 8a80099ad7391f4e13a48b12796d96680f120dc6
-  react-native-filament: a46c90d95245569cad6668416510e58c9d74c808
+  react-native-filament: eea839d2c6841dc223fac92fea8306eb7808e9f7
   react-native-safe-area-context: d6406c2adbd41b2e09ab1c386781dc1c81a90919
   react-native-video: 10dc1099e2b0a4d7988c9d2f4424ff68b3922208
   react-native-worklets-core: 7186c6632dc36ebec96b2e205388ea0ac224dd91
