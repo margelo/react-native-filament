@@ -28,7 +28,7 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = {
     "GCC_PREPROCESSOR_DEFINITIONS" => "FILAMENT_APP_USE_METAL=1 HAS_WORKLETS=#{hasWorklets} RNF_ENABLE_LOGS=#{enableLogs} $(inherited)",
     "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
-    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/**\" \"$(PODS_TARGET_SRCROOT)/ios/libs/bullet3/**\""
+    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/**\" \"$(PODS_TARGET_SRCROOT)/ios/libs/bullet3/**\" \"$(PODS_TARGET_SRCROOT)/ios/libs/filament/include/**\""
   }
 
   # Configure sub podspecs for filament
@@ -56,11 +56,14 @@ Pod::Spec.new do |s|
     ss.source_files = "ios/libs/filament/include/camutils/*.h"
     ss.vendored_frameworks = "ios/libs/filament/lib/libcamutils.xcframework"
     ss.header_dir = "camutils"
+    ss.header_mappings_dir = "ios/libs/filament/include"
     ss.dependency "react-native-filament/math"
   end
 
   s.subspec "utils" do |ss|
     ss.source_files = "ios/libs/filament/include/utils/**/*.h"
+    ss.header_mappings_dir = "ios/libs/filament/include"
+    ss.header_dir = "utils"
     ss.header_mappings_dir = "ios/libs/filament/include"
     ss.vendored_frameworks = "ios/libs/filament/lib/libutils.xcframework"
     ss.dependency "react-native-filament/tsl"
@@ -74,6 +77,7 @@ Pod::Spec.new do |s|
   s.subspec "math" do |ss|
     ss.source_files = "ios/libs/filament/include/math/*.h"
     ss.header_dir = "math"
+    ss.header_mappings_dir = "ios/libs/filament/include"
   end
 
   s.subspec "filamat" do |ss|
@@ -140,6 +144,14 @@ Pod::Spec.new do |s|
     "ios/src/**/*.{h,m,mm,cpp}",
     "ios/libs/bullet3/**/*.{h,c,cpp}"
   ]
+  
+  # Exclude bullet3 -all files to avoid duplicate symbols in building w/ dynamic frameworks
+  s.exclude_files = [
+    "ios/libs/bullet3/**/bt*All.{h,cpp}",
+    "ios/libs/bullet3/**/btLinearMathAll.cpp",
+    "ios/libs/bullet3/**/btBulletCollisionAll.cpp",
+    "ios/libs/bullet3/**/btBulletDynamicsAll.cpp"
+  ]
 
   # Any private headers that are not globally unique should be mentioned here.
   # Otherwise there will be a nameclash, since CocoaPods flattens out any header directories
@@ -150,6 +162,8 @@ Pod::Spec.new do |s|
   ]
 
   s.dependency "react-native-worklets-core"
+  
+  s.ios.frameworks = 'AVFoundation', 'CoreMedia'
 
   if defined?($RNFExcludeAssets) && $RNFExcludeAssets == true
     Pod::UI.puts "[react-native-filament] Excluding assets!"
