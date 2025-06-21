@@ -1,0 +1,104 @@
+---
+id: reanimated
+title: Reanimated Integration
+sidebar_label: Reanimated Integration
+slug: /guides/reanimated
+---
+
+import useBaseUrl from "@docusaurus/useBaseUrl";
+
+:::warning
+Please make sure to follow the installation steps to configure your metro config to work with reanimated, worklets-core and react-native-filament:
+
+- [Installation Guide](./GETTING_STARTED.mdx)
+
+:::
+
+<a
+  href="https://github.com/margelo/react-native-filament/blob/main/package/example/Shared/src/ReanimatedRotation.tsx"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <div class="image-container">
+    <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535">
+      <image
+        href={useBaseUrl("img/demo-reanimated.gif")}
+        x="18"
+        y="33"
+        width="247"
+        height="469"
+      />
+      <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
+    </svg>
+  </div>
+</a>
+
+## react-native-worklets-core VS reanimated
+
+react-native-filament is build with [`react-native-worklets-core`](https://npmjs.com/package/react-native-worklets-core) which is a library that provides shared values and worklets for React Native.
+It's API is very similar to reanimated's, but it is not reanimated!
+
+In general, you pass shared values **from `react-native-worklets-core`** to the `react-native-filament` components to animate things like the position, rotation, scale, etc.
+
+However, many times you want to create animations using reanimated's API like `withTiming`, `withSpring`, etc. and then pass the resulting shared values to the `react-native-filament` components.
+
+## Using reanimated with react-native-filament
+
+To use reanimated animations / shared values with react-native-filament, **you need to sync the shared values from reanimated to a shared value from `react-native-worklets-core`**.
+You can do that using the [`useSyncSharedValue`](../api/functions/useSyncSharedValue) hook:
+
+```jsx
+import { useSyncSharedValue } from "react-native-filament";
+import { useSharedValue, withTiming } from "react-native-reanimated";
+
+// Create a reanimated shared value to drive the animation
+const opacity = useSharedValue(0);
+
+// Sync the reanimated shared value to a worklets-core shared value
+const workletsCoreOpacity = useSyncSharedValue(opacity);
+
+// Drive the animation using reanimated
+opacity.value = withTiming(1, { duration: 1000 });
+
+// The worklets-core shared value will have the same value as the
+// reanimated shared value and can be used in react-native-filament components
+```
+
+### Using derived values
+
+Sometimes you want to create a derived value from a reanimated shared value and use it in react-native-filament components. react-native-filament provides the [`useDerivedValue`](../api/functions/useDerivedValue) hook for that.
+It works like the `useDerivedValue` hook from reanimated, but just for worklets-core shared values:
+
+```jsx
+import {
+  useSharedValue,
+  withSequence,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
+import { useSyncSharedValue, useDerivedValue } from "react-native-filament";
+
+// Create a reanimated shared value to drive the animation
+const animatedRotationY = useSharedValue(0);
+
+// RNF works with rn-worklets-core (RNWC), so create a
+// RNWC shared value thats synced with the reanimated shared value
+const rotationY = useSyncSharedValue(animatedRotationY);
+
+// This uses useDerivedValue from rn-filament to create a RNWC derived value (RNWC has no API for that yet)
+const rotation =
+  useDerivedValue <
+  Float3 >
+  (() => {
+    "worklet";
+    return [0, rotationY.value, 0];
+  });
+
+// Run a animation:
+const spin = useCallback(() => {
+  animatedRotationY.value = withSequence(
+    withSpring(Math.PI * 2),
+    withTiming(0, { duration: 0 })
+  );
+}, [animatedRotationY]);
+```
