@@ -23,7 +23,7 @@ export function useSyncSharedValue<T>(reanimatedSharedValue: ReanimatedSharedVal
   const workletsCoreSharedValue = useSharedValue(reanimatedSharedValue.value)
   const { workletContext } = useFilamentContext()
 
-  // Attach a listener to the reaniamted value that runs on the UI thread and updates the worklets core shared value
+  // Attach a listener to the reanimated value that runs on the UI thread and updates the worklets core shared value
   useEffect(() => {
     const id = Math.floor(Math.random() * 1000000)
 
