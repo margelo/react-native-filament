@@ -58,13 +58,11 @@ export function useDerivedValue<Value>(updater: IWorklet<Function>, dependencies
     return () => {
       workletContext.runAsync(() => {
         'worklet'
-        console.log('Removing derived value listeners for id: ' + id)
         if (global.__listenerRegistry == null || global.__listenerRegistry[id] == null) {
           return
         }
         global.__listenerRegistry[id]?.forEach((removeListener) => {
           removeListener()
-          console.log('Removing listener from input: ' + id)
         })
         delete global.__listenerRegistry[id]
       })
