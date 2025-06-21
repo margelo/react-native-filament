@@ -5,8 +5,8 @@ sidebar_label: Getting Started
 slug: /guides
 ---
 
-import Tabs from '@theme/Tabs'
-import TabItem from '@theme/TabItem'
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
 
 ## Installing the library
 
@@ -45,7 +45,7 @@ For react-native-worklets-core its necessary to add a plugin to your `babel.conf
   </TabItem>
 
   <TabItem value="w_rea">
-    You should already use the reaniamted babel pluginVersions, make sure to add the `processNestedWorklets` option to it:
+    You should already use the reanimated babel pluginVersions, make sure to add the `processNestedWorklets` option to it:
 
     ```js
     module.exports = {
@@ -60,8 +60,6 @@ For react-native-worklets-core its necessary to add a plugin to your `babel.conf
   </TabItem>
 </Tabs>
 
-
-
 3. Update your pods:
 
 ```sh
@@ -69,7 +67,7 @@ cd ios && pod install
 ```
 
 4. Start Metro with clean cache:
-  
+
 ```sh
 npm start -- --reset-cache
 ```
@@ -83,9 +81,9 @@ The npm package of react-native-filament is quite huge, around ~400mb. That's be
 You'll likely import 3D related files when using react-native-filament. To make sure metro can resolve these files, you need to add the following to your `metro.config.js`:
 
 ```js
-const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
+const { getDefaultConfig, mergeConfig } = require("@react-native/metro-config");
 
-const defaultConfig = getDefaultConfig(__dirname)
+const defaultConfig = getDefaultConfig(__dirname);
 
 /**
  * Metro configuration
@@ -94,10 +92,10 @@ const defaultConfig = getDefaultConfig(__dirname)
  * @type {import('metro-config').MetroConfig}
  */
 const config = {
-    resolver: {
-        // This makes it possible to import .glb files in your code:
-        assetExts: [...(defaultConfig.resolver?.assetExts || []), 'glb']
-    }
+  resolver: {
+    // This makes it possible to import .glb files in your code:
+    assetExts: [...(defaultConfig.resolver?.assetExts || []), "glb"],
+  },
 };
 
 module.exports = mergeConfig(defaultConfig, config);
@@ -117,25 +115,28 @@ For seeing some 3D content on the screen in your app, you need the following thi
 - 📹 A camera through which the scene is observed and projected onto the view (the `<Camera>` component)
 
 ```jsx
-import { FilamentScene, FilamentView, DefaultLight, Model, Camera } from "react-native-filament";
+import {
+  FilamentScene,
+  FilamentView,
+  DefaultLight,
+  Model,
+  Camera,
+} from "react-native-filament";
 import MyModel from "./MyModel.glb";
 
 function MyScene() {
   return (
     <FilamentScene>
-
       {/* 🏞️ A view to draw the 3D content to */}
       <FilamentView style={{ flex: 1 }}>
+        {/* 💡 A light source, otherwise the scene will be black */}
+        <DefaultLight />
 
-          {/* 💡 A light source, otherwise the scene will be black */}
-          <DefaultLight />
+        {/* 📦 A 3D model */}
+        <Model source={MyModel} />
 
-          {/* 📦 A 3D model */}
-          <Model source={MyModel} />
-
-          {/* 📹 A camera through which the scene is observed and projected onto the view */}
-          <Camera />
-
+        {/* 📹 A camera through which the scene is observed and projected onto the view */}
+        <Camera />
       </FilamentView>
     </FilamentScene>
   );
