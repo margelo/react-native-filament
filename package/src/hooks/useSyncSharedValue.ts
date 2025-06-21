@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 import { ReanimatedProxy } from '../dependencies/ReanimatedProxy'
 
 /**
- * react-native-filament uses react-native-workelts-core for creating shared values, which works very similar to
+ * react-native-filament uses react-native-worklets-core for creating shared values, which works very similar to
  * react-native-reanimated's shared values. However, you can't pass a reanimated shared value to a worklets core shared value directly.
  * This hook allows you to sync a reanimated shared value with a worklets core shared value.
  *
