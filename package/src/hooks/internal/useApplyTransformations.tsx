@@ -4,6 +4,7 @@ import { useFilamentContext } from '../useFilamentContext'
 import { AABB, Entity, Float3 } from '../../types'
 import { areFloat3Equal, isWorkletSharedValue } from '../../utilities/helper'
 import { useWorkletEffect } from '../useWorkletEffect'
+import { ISharedValue, Worklets } from 'react-native-worklets-core'
 
 type Params = {
   // If null it will not take the entity from the context, as it indicates that it will be provided through the param
@@ -35,12 +36,16 @@ export function useApplyTransformations({ to: entity, transformProps, aabb }: Pa
       transformManager.transformToUnitCube(entity, aabb)
     }
 
-    if (Array.isArray(scale) && (prevScale.current == null || !areFloat3Equal(scale, prevScale.current))) {
+    if (!isWorkletSharedValue(scale) && Array.isArray(scale) && (prevScale.current == null || !areFloat3Equal(scale, prevScale.current))) {
       transformManager.setEntityScale(entity, scale, multiplyWithCurrentTransform)
       prevScale.current = scale
     }
 
-    if (Array.isArray(rotate) && (prevRotate.current == null || !areFloat3Equal(rotate, prevRotate.current))) {
+    if (
+      !isWorkletSharedValue(rotate) &&
+      Array.isArray(rotate) &&
+      (prevRotate.current == null || !areFloat3Equal(rotate, prevRotate.current))
+    ) {
       const [x, y, z] = rotate
       transformManager.setEntityRotation(entity, x, [1, 0, 0], multiplyWithCurrentTransform)
       // Rotation across axis is one operation so we need to always multiply the remaining rotations:
@@ -49,7 +54,11 @@ export function useApplyTransformations({ to: entity, transformProps, aabb }: Pa
       prevRotate.current = rotate
     }
 
-    if (Array.isArray(position) && (prevPosition.current == null || !areFloat3Equal(position, prevPosition.current))) {
+    if (
+      !isWorkletSharedValue(position) &&
+      Array.isArray(position) &&
+      (prevPosition.current == null || !areFloat3Equal(position, prevPosition.current))
+    ) {
       transformManager.setEntityPosition(entity, position, multiplyWithCurrentTransform)
       prevPosition.current = position
     }
@@ -67,55 +76,81 @@ export function useApplyTransformations({ to: entity, transformProps, aabb }: Pa
     transformToUnitCube,
   ])
 
+  const prevScaleShared = useRef(isWorkletSharedValue(scale) ? Worklets.createSharedValue<Float3 | null>(null) : null)
+  const prevRotateShared = useRef(isWorkletSharedValue(rotate) ? Worklets.createSharedValue<Float3 | null>(null) : null)
+  const prevPositionShared = useRef(isWorkletSharedValue(position) ? Worklets.createSharedValue<Float3 | null>(null) : null)
+
   // Effects for when a transform option is a shared value (SRT)
-  useEffect(() => {
-    if (entity == null) return
-
-    if (scale == null || Array.isArray(scale)) return
-
-    const unsubscribeScale = scale.addListener(() => {
-      transformManager.setEntityScale(entity, scale.value, multiplyWithCurrentTransform)
-    })
-
-    return () => {
-      unsubscribeScale()
-    }
-  }, [entity, multiplyWithCurrentTransform, scale, transformManager])
-
   useWorkletEffect(() => {
     'worklet'
+
     if (entity == null) return
 
-    if (rotate == null || !isWorkletSharedValue(rotate)) {
-      return
+    const unsubscribers: (() => void)[] = []
+
+    // Generic handler for worklet transform values
+    const createTransformHandler = (
+      value: any,
+      prevValueShared: ISharedValue<Float3 | null> | null,
+      updater: (newValue: Float3) => void
+    ) => {
+      'worklet'
+      if (value == null || !isWorkletSharedValue(value) || Array.isArray(value)) return null
+
+      const unsubscribe = value.addListener(() => {
+        'worklet'
+
+        // Check if value has changed to avoid duplicate applications in strict mode
+        if (prevValueShared?.value && areFloat3Equal(value.value, prevValueShared.value)) {
+          return
+        }
+
+        updater(value.value)
+
+        // Update previous value tracker
+        if (prevValueShared) {
+          prevValueShared.value = [value.value[0], value.value[1], value.value[2]]
+        }
+      })
+
+      unsubscribers.push(unsubscribe)
+      return value
     }
 
-    const unsubscribeRotate = rotate.addListener(() => {
+    // Set up handlers for each transform type
+    const scaleHandler = createTransformHandler(scale, prevScaleShared.current, (newScale) => {
       'worklet'
-      const [x, y, z] = rotate.value
+      transformManager.setEntityScale(entity, [newScale[0], newScale[1], newScale[2]], multiplyWithCurrentTransform)
+    })
+
+    const rotateHandler = createTransformHandler(rotate, prevRotateShared.current, (newRotate) => {
+      'worklet'
+      const [x, y, z] = newRotate
       transformManager.setEntityRotation(entity, x, [1, 0, 0], multiplyWithCurrentTransform)
       // Rotation across axis is one operation so we need to always multiply the remaining rotations:
       transformManager.setEntityRotation(entity, y, [0, 1, 0], true)
       transformManager.setEntityRotation(entity, z, [0, 0, 1], true)
     })
 
-    return () => {
+    const positionHandler = createTransformHandler(position, prevPositionShared.current, (newPosition) => {
       'worklet'
-      unsubscribeRotate()
-    }
-  })
-
-  useEffect(() => {
-    if (entity == null) return
-
-    if (position == null || Array.isArray(position)) return
-
-    const unsubscribePosition = position.addListener(() => {
-      transformManager.setEntityPosition(entity, position.value, multiplyWithCurrentTransform)
+      transformManager.setEntityPosition(entity, newPosition, multiplyWithCurrentTransform)
     })
 
-    return () => {
-      unsubscribePosition()
+    // Trigger initial values in order: scale -> rotation -> position
+    if (scaleHandler) {
+      scaleHandler.value = [scaleHandler.value[0], scaleHandler.value[1], scaleHandler.value[2]]
     }
-  }, [entity, multiplyWithCurrentTransform, position, transformManager])
+    if (rotateHandler) {
+      rotateHandler.value = [rotateHandler.value[0], rotateHandler.value[1], rotateHandler.value[2]]
+    }
+    if (positionHandler) {
+      positionHandler.value = [positionHandler.value[0], positionHandler.value[1], positionHandler.value[2]]
+    }
+
+    return () => {
+      'worklet'
+      unsubscribers.forEach((unsubscribe) => unsubscribe())
+    }
+  })
 }
