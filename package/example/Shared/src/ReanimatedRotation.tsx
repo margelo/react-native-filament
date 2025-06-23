@@ -15,6 +15,9 @@ import {
 import DroneGlb from '~/assets/buster_drone.glb'
 import { useCallback } from 'react'
 import { useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated'
+import { Worklets } from 'react-native-worklets-core'
+
+const scale = Worklets.createSharedValue<Float3>([3, 3, 3])
 
 function Renderer() {
   const animatedRotationY = useSharedValue(0)
@@ -36,9 +39,9 @@ function Renderer() {
         <DefaultLight />
         <Skybox colorInHex="#88defb" />
 
-        <Model source={DroneGlb} transformToUnitCube scale={[3, 3, 3]}>
+        <Model source={DroneGlb} transformToUnitCube>
           {/* Note: we apply the rotation individually as the above transformations are multiplying, while the one for the rotation, shouldn't */}
-          <ModelInstance index={0} rotate={rotation} multiplyWithCurrentTransform={false} />
+          <ModelInstance index={0} rotate={rotation} scale={scale} multiplyWithCurrentTransform={false} />
         </Model>
       </FilamentView>
     </>
