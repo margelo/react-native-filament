@@ -78,6 +78,144 @@ export interface AmbientOcclusionOptions {
 export type QualityLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'ULTRA'
 
 /**
+ * Options to control the bloom effect
+ */
+export interface BloomOptions {
+  /**
+   * Enable or disable the bloom post-processing effect.
+   * @default false
+   */
+  enabled?: boolean
+
+  /**
+   * Number of successive blurs to achieve the blur effect, the minimum is 3 and the
+   * maximum is 12. This value together with resolution influences the spread of the
+   * blur effect. This value can be silently reduced to accommodate the original
+   * image size.
+   * @default 6
+   */
+  levels?: number
+
+  /**
+   * Resolution of bloom's minor axis. The minimum value is 2^levels and
+   * the maximum is lower of the original resolution and 4096. This parameter is
+   * silently clamped to the minimum and maximum.
+   * It is highly recommended that this value be smaller than the target resolution
+   * after dynamic resolution is applied (horizontally and vertically).
+   * @default 384
+   */
+  resolution?: number
+
+  /**
+   * how much of the bloom is added to the original image. Between 0 and 1.
+   * @default 0.1
+   */
+  strength?: number
+
+  /**
+   * Whether the bloom effect is purely additive ('ADD') or mixed with the original
+   * image ('INTERPOLATE').
+   * @default 'ADD'
+   */
+  blendMode?: BloomBlendMode
+
+  /**
+   * When enabled, a threshold at 1.0 is applied on the source image, this is
+   * useful for artistic reasons and is usually needed when a dirt texture is used.
+   * @default true
+   */
+  threshold?: boolean
+
+  /**
+   * Limit highlights to this value before bloom [10, +inf]
+   * @default 1000
+   */
+  highlight?: number
+
+  /**
+   * Bloom quality level.
+   * LOW (default): use a more optimized down-sampling filter, however there can be artifacts
+   *      with dynamic resolution, this can be alleviated by using the homogenous mode.
+   * MEDIUM: Good balance between quality and performance.
+   * HIGH: In this mode the bloom resolution is automatically increased to avoid artifacts.
+   *      This mode can be significantly slower on mobile, especially at high resolution.
+   *      This mode greatly improves the anamorphic bloom.
+   * @default 'LOW'
+   */
+  quality?: QualityLevel
+
+  /**
+   * enable screen-space lens flare
+   * @default false
+   */
+  lensFlare?: boolean
+
+  /**
+   * enable starburst effect on lens flare
+   * @default true
+   */
+  starburst?: boolean
+
+  /**
+   * amount of chromatic aberration
+   * @default 0.005
+   */
+  chromaticAberration?: number
+
+  /**
+   * number of flare "ghosts"
+   * @default 4
+   */
+  ghostCount?: number
+
+  /**
+   * spacing of the ghost in screen units [0, 1]
+   * @default 0.6
+   */
+  ghostSpacing?: number
+
+  /**
+   * hdr threshold for the ghosts
+   * @default 10
+   */
+  ghostThreshold?: number
+
+  /**
+   * thickness of halo in vertical screen units, 0 to disable
+   * @default 0.1
+   */
+  haloThickness?: number
+
+  /**
+   * radius of halo in vertical screen units [0, 0.5]
+   * @default 0.4
+   */
+  haloRadius?: number
+
+  /**
+   * hdr threshold for the halo
+   * @default 10
+   */
+  haloThreshold?: number
+
+  // /**
+  //  * A dirt/scratch/smudges texture (that can be RGB), which gets added to the
+  //  * bloom effect. Smudges are visible where bloom occurs. Threshold must be
+  //  * enabled for the dirt effect to work properly.
+  //  * @default undefined
+  //  */
+  // dirt?: Texture
+
+  // /**
+  //  * Strength of the dirt texture.
+  //  * @default 0.2
+  //  */
+  // dirtStrength?: number
+}
+
+export type BloomBlendMode = 'ADD' | 'INTERPOLATE'
+
+/**
  * Dynamic resolution can be used to either reach a desired target frame rate
  * by lowering the resolution of a View, or to increase the quality when the
  * rendering is faster than the target frame rate.
