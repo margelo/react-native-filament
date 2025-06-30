@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "jsi/RNFHybridObject.h"
 #include "RNFQualityLevel.h"
+#include "jsi/RNFHybridObject.h"
 #include <filament/Options.h>
 
 namespace margelo {
@@ -13,8 +13,7 @@ using namespace filament;
 class BloomOptionsWrapper : public HybridObject, public BloomOptions {
 public:
   explicit BloomOptionsWrapper() : HybridObject("BloomOptions") {}
-  explicit BloomOptionsWrapper(const BloomOptions& options)
-      : HybridObject("BloomOptions"), BloomOptions(options) {}
+  explicit BloomOptionsWrapper(const BloomOptions& options) : HybridObject("BloomOptions"), BloomOptions(options) {}
 
   void loadHybridMethods() {
     registerHybridGetter("enabled", &BloomOptionsWrapper::getEnabled, this);
@@ -31,8 +30,8 @@ public:
     registerHybridSetter("threshold", &BloomOptionsWrapper::setThreshold, this);
     registerHybridGetter("highlight", &BloomOptionsWrapper::getHighlight, this);
     registerHybridSetter("highlight", &BloomOptionsWrapper::setHighlight, this);
-    registerHybridGetter("quality", &BloomOptionsWrapper::getQuality, this);
-    registerHybridSetter("quality", &BloomOptionsWrapper::setQuality, this);
+    registerHybridGetter("quality", &BloomOptionsWrapper::getQualityStr, this);
+    registerHybridSetter("quality", &BloomOptionsWrapper::setQualityStr, this);
     registerHybridGetter("lensFlare", &BloomOptionsWrapper::getLensFlare, this);
     registerHybridSetter("lensFlare", &BloomOptionsWrapper::setLensFlare, this);
     registerHybridGetter("starburst", &BloomOptionsWrapper::getStarburst, this);
@@ -54,60 +53,132 @@ public:
   }
 
 private:
-  bool getEnabled() { return enabled; }
-  void setEnabled(bool value) { enabled = value; }
+  bool getEnabled() {
+    return enabled;
+  }
+  void setEnabled(bool value) {
+    enabled = value;
+  }
 
-  float getStrength() { return strength; }
-  void setStrength(float value) { strength = value; }
+  double getStrength() {
+    return static_cast<double>(strength);
+  }
+  void setStrength(double value) {
+    strength = static_cast<float>(value);
+  }
 
-  uint32_t getResolution() { return resolution; }
-  void setResolution(uint32_t value) { resolution = value; }
+  double getResolution() {
+    return static_cast<double>(resolution);
+  }
+  void setResolution(double value) {
+    resolution = static_cast<uint32_t>(value);
+  }
 
-  uint8_t getLevels() { return levels; }
-  void setLevels(uint8_t value) { levels = value; }
+  double getLevels() {
+    return static_cast<double>(levels);
+  }
+  void setLevels(double value) {
+    levels = static_cast<uint8_t>(value);
+  }
 
   // BlendMode
   std::string getBlendMode() {
     return blendMode == BloomOptions::BlendMode::ADD ? "ADD" : "INTERPOLATE";
   }
   void setBlendMode(const std::string& value) {
-    if (value == "ADD") blendMode = BloomOptions::BlendMode::ADD;
-    else if (value == "INTERPOLATE") blendMode = BloomOptions::BlendMode::INTERPOLATE;
-    else throw std::invalid_argument("Invalid blendMode value");
+    if (value == "ADD")
+      blendMode = BloomOptions::BlendMode::ADD;
+    else if (value == "INTERPOLATE")
+      blendMode = BloomOptions::BlendMode::INTERPOLATE;
+    else
+      throw std::invalid_argument("Invalid blendMode value");
   }
 
-  bool getThreshold() { return threshold; }
-  void setThreshold(bool value) { threshold = value; }
+  bool getThreshold() {
+    return threshold;
+  }
+  void setThreshold(bool value) {
+    threshold = value;
+  }
 
-  float getHighlight() { return highlight; }
-  void setHighlight(float value) { highlight = value; }
+  double getHighlight() {
+    return static_cast<double>(highlight);
+  }
+  void setHighlight(double value) {
+    highlight = static_cast<float>(value);
+  }
 
-  bool getLensFlare() { return lensFlare; }
-  void setLensFlare(bool value) { lensFlare = value; }
+  std::string getQualityStr() {
+    std::string qualityStr;
+    EnumMapper::convertEnumToJSUnion(quality, &qualityStr);
+    return qualityStr;
+  }
+  void setQualityStr(const std::string& value) {
+    EnumMapper::convertJSUnionToEnum(value, &quality);
+  }
 
-  bool getStarburst() { return starburst; }
-  void setStarburst(bool value) { starburst = value; }
+  bool getLensFlare() {
+    return lensFlare;
+  }
+  void setLensFlare(bool value) {
+    lensFlare = value;
+  }
 
-  float getChromaticAberration() { return chromaticAberration; }
-  void setChromaticAberration(float value) { chromaticAberration = value; }
+  bool getStarburst() {
+    return starburst;
+  }
+  void setStarburst(bool value) {
+    starburst = value;
+  }
 
-  uint8_t getGhostCount() { return ghostCount; }
-  void setGhostCount(uint8_t value) { ghostCount = value; }
+  double getChromaticAberration() {
+    return static_cast<double>(chromaticAberration);
+  }
+  void setChromaticAberration(double value) {
+    chromaticAberration = static_cast<float>(value);
+  }
 
-  float getGhostSpacing() { return ghostSpacing; }
-  void setGhostSpacing(float value) { ghostSpacing = value; }
+  double getGhostCount() {
+    return static_cast<double>(ghostCount);
+  }
+  void setGhostCount(double value) {
+    ghostCount = static_cast<uint8_t>(value);
+  }
 
-  float getGhostThreshold() { return ghostThreshold; }
-  void setGhostThreshold(float value) { ghostThreshold = value; }
+  double getGhostSpacing() {
+    return static_cast<double>(ghostSpacing);
+  }
+  void setGhostSpacing(double value) {
+    ghostSpacing = static_cast<float>(value);
+  }
 
-  float getHaloThickness() { return haloThickness; }
-  void setHaloThickness(float value) { haloThickness = value; }
+  double getGhostThreshold() {
+    return static_cast<double>(ghostThreshold);
+  }
+  void setGhostThreshold(double value) {
+    ghostThreshold = static_cast<float>(value);
+  }
 
-  float getHaloRadius() { return haloRadius; }
-  void setHaloRadius(float value) { haloRadius = value; }
+  double getHaloThickness() {
+    return static_cast<double>(haloThickness);
+  }
+  void setHaloThickness(double value) {
+    haloThickness = static_cast<float>(value);
+  }
 
-  float getHaloThreshold() { return haloThreshold; }
-  void setHaloThreshold(float value) { haloThreshold = value; }
+  double getHaloRadius() {
+    return static_cast<double>(haloRadius);
+  }
+  void setHaloRadius(double value) {
+    haloRadius = static_cast<float>(value);
+  }
+
+  double getHaloThreshold() {
+    return static_cast<double>(haloThreshold);
+  }
+  void setHaloThreshold(double value) {
+    haloThreshold = static_cast<float>(value);
+  }
 };
 
 } // namespace margelo
