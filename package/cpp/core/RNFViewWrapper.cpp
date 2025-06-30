@@ -10,6 +10,9 @@ void ViewWrapper::loadHybridMethods() {
   registerHybridMethod("createDynamicResolutionOptions", &ViewWrapper::createDynamicResolutionOptions, this);
   registerHybridMethod("setDynamicResolutionOptions", &ViewWrapper::setDynamicResolutionOptions, this);
   registerHybridMethod("getDynamicResolutionOptions", &ViewWrapper::getDynamicResolutionOptions, this);
+  registerHybridMethod("createBloomOptions", &ViewWrapper::createBloomOptions, this);
+  registerHybridMethod("setBloomOptions", &ViewWrapper::setBloomOptions, this);
+  registerHybridMethod("getBloomOptions", &ViewWrapper::getBloomOptions, this);
   registerHybridSetter("temporalAntiAliasingOptions", &ViewWrapper::setTemporalAntiAliasingOptions, this);
   registerHybridGetter("screenSpaceRefraction", &ViewWrapper::isScreenSpaceRefractionEnabled, this);
   registerHybridSetter("screenSpaceRefraction", &ViewWrapper::setScreenSpaceRefractionEnabled, this);
@@ -71,6 +74,23 @@ void ViewWrapper::setDynamicResolutionOptions(std::shared_ptr<DynamicResolutionO
 
 std::shared_ptr<DynamicResolutionOptionsWrapper> ViewWrapper::getDynamicResolutionOptions() {
   return std::make_shared<DynamicResolutionOptionsWrapper>(pointee()->getDynamicResolutionOptions());
+}
+
+std::shared_ptr<BloomOptionsWrapper> ViewWrapper::createBloomOptions() {
+  return std::make_shared<BloomOptionsWrapper>();
+}
+
+void ViewWrapper::setBloomOptions(std::shared_ptr<BloomOptionsWrapper> options) {
+  if (!options) {
+    [[unlikely]];
+    throw std::invalid_argument("BloomOptions is null");
+  }
+  std::unique_lock lock(_mutex);
+  pointee()->setBloomOptions(*options.get());
+}
+
+std::shared_ptr<BloomOptionsWrapper> ViewWrapper::getBloomOptions() {
+  return std::make_shared<BloomOptionsWrapper>(pointee()->getBloomOptions());
 }
 
 void ViewWrapper::setTemporalAntiAliasingOptions(std::unordered_map<std::string, double> options) {

@@ -244,6 +244,26 @@ export interface TemporalAntiAliasingOptions {
   historyReprojection?: boolean
 }
 
+export interface BloomOptions {
+  enabled?: boolean
+  strength?: number
+  resolution?: number
+  levels?: number
+  blendMode?: 'ADD' | 'INTERPOLATE'
+  threshold?: boolean
+  highlight?: number
+  quality?: QualityLevel
+  lensFlare?: boolean
+  starburst?: boolean
+  chromaticAberration?: number
+  ghostCount?: number
+  ghostSpacing?: number
+  ghostThreshold?: number
+  haloThickness?: number
+  haloRadius?: number
+  haloThreshold?: number
+}
+
 type Entries<T, K extends keyof T = keyof T> = (K extends unknown ? [K, T[K]] : never)[]
 const getEntries = <T extends object>(obj: T) => Object.entries(obj) as unknown as Entries<T>
 

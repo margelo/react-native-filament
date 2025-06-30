@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RNFAmbientOcclusionOptionsWrapper.h"
+#include "RNFBloomOptionsWrapper.h"
 #include "RNFAntiAliasingEnum.h"
 #include "RNFCameraWrapper.h"
 #include "RNFDitheringEnum.h"
@@ -47,6 +48,9 @@ private:
   std::vector<double> projectWorldToScreen(std::vector<double> worldCoordinates);
   std::future<std::optional<std::shared_ptr<EntityWrapper>>> pickEntity(double x, double y);
   std::unordered_map<std::string, int> getViewport();
+  std::shared_ptr<BloomOptionsWrapper> createBloomOptions();
+  void setBloomOptions(std::shared_ptr<BloomOptionsWrapper> options);
+  std::shared_ptr<BloomOptionsWrapper> getBloomOptions();
 
 private:
   std::mutex _mutex;
