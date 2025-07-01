@@ -40,7 +40,22 @@ function Renderer() {
 
 export function ChangeMaterials() {
   return (
-    <FilamentScene>
+    <FilamentScene
+      bloomOptions={{
+        blendMode: 'ADD',
+        enabled: true,
+        quality: 'HIGH',
+        strength: 0.5,
+        lensFlare: true,
+        starburst: true,
+        chromaticAberration: 0.1,
+        ghostCount: 5,
+        ghostSpacing: 0.1,
+        ghostThreshold: 0.1,
+        haloThickness: 0.1,
+        haloRadius: 0.1,
+        haloThreshold: 0.1,
+      }}>
       <Renderer />
     </FilamentScene>
   )
