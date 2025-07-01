@@ -44,7 +44,7 @@ function PhysicsCoinRenderer() {
       }
 
       console.log('Coin touched the floor!')
-      coinRigidBody.setCollisionCallback(undefined);      
+      coinRigidBody.setCollisionCallback(undefined)
     })
   )
   const [coinBBody, coinBEntity] = useCoin(world, [0, 3, 0.5])
