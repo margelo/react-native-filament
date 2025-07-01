@@ -1,6 +1,6 @@
 import { RNFCamera } from './Camera'
 import { Entity } from './Entity'
-import { AmbientOcclusionOptions, DynamicResolutionOptions } from './Options'
+import { AmbientOcclusionOptions, DynamicResolutionOptions, BloomOptions } from './Options'
 import { PointerHolder } from './PointerHolder'
 import { Scene } from './Scene'
 import { Float3 } from './Math'
@@ -40,6 +40,8 @@ export interface View extends PointerHolder {
   getAmbientOcclusionOptions(): AmbientOcclusionOptions
   setDynamicResolutionOptions(options: DynamicResolutionOptions): void
   getDynamicResolutionOptions(): DynamicResolutionOptions
+  setBloomOptions(options: BloomOptions): void
+  getBloomOptions(): BloomOptions
 
   /**
    * Enables or disables screen space refraction.
@@ -104,6 +106,7 @@ export interface View extends PointerHolder {
   // Internal helper to create HostObject options object
   createAmbientOcclusionOptions(): AmbientOcclusionOptions
   createDynamicResolutionOptions(): DynamicResolutionOptions
+  createBloomOptions(): BloomOptions
 
   /**
    * Given a world position, returns the 2D screen coordinates.

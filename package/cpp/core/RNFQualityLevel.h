@@ -13,13 +13,13 @@ namespace EnumMapper {
   using namespace filament;
 
   static void convertJSUnionToEnum(const std::string& inUnion, QualityLevel* outEnum) {
-    if (inUnion == "low")
+    if (inUnion == "LOW")
       *outEnum = QualityLevel::LOW;
-    else if (inUnion == "medium")
+    else if (inUnion == "MEDIUM")
       *outEnum = QualityLevel::MEDIUM;
-    else if (inUnion == "high")
+    else if (inUnion == "HIGH")
       *outEnum = QualityLevel::HIGH;
-    else if (inUnion == "ultra")
+    else if (inUnion == "ULTRA")
       *outEnum = QualityLevel::ULTRA;
     else
       throw invalidUnion(inUnion);
@@ -27,16 +27,16 @@ namespace EnumMapper {
   static void convertEnumToJSUnion(QualityLevel inEnum, std::string* outUnion) {
     switch (inEnum) {
       case QualityLevel::LOW:
-        *outUnion = "low";
+        *outUnion = "LOW";
         break;
       case QualityLevel::MEDIUM:
-        *outUnion = "medium";
+        *outUnion = "MEDIUM";
         break;
       case QualityLevel::HIGH:
-        *outUnion = "high";
+        *outUnion = "HIGH";
         break;
       case QualityLevel::ULTRA:
-        *outUnion = "ultra";
+        *outUnion = "ULTRA";
         break;
       default:
         throw invalidEnum(inEnum);
