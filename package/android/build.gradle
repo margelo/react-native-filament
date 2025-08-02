@@ -105,7 +105,8 @@ android {
         cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
         arguments "-DANDROID_STL=c++_shared",
                 "-DRNF_ENABLE_LOGS=${enableLogs ? "ON" : "OFF"}",
-                "-DNODE_MODULES_DIR=${nodeModules}"
+                "-DNODE_MODULES_DIR=${nodeModules}",
+                "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
         abiFilters (*reactNativeArchitectures())
       }
     }
