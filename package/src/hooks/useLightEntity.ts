@@ -3,7 +3,7 @@ import { LightConfig, LightManager } from '../types'
 import { ISharedValue } from 'react-native-worklets-core'
 import { useFilamentContext } from './useFilamentContext'
 import { useWorkletEffect } from './useWorkletEffect'
-import makeKelvinLinearRGB from '../utilities/makeKelvinLinearRGB'
+import convertKelvinToLinearSRGB from '../utilities/convertKelvinToLinearSRGB'
 
 export type UseLightEntityProps =
   | LightConfig
@@ -89,7 +89,7 @@ export function useLightEntity(lightManager: LightManager, config: UseLightEntit
     return colorKelvin.addListener(
       workletContext.createRunAsync(() => {
         'worklet'
-        setColor(entity, makeKelvinLinearRGB(colorKelvin.value))
+        setColor(entity, convertKelvinToLinearSRGB(colorKelvin.value))
       })
     )
   })

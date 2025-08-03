@@ -1,4 +1,4 @@
-type Float3 = [number, number, number]
+import { Float3 } from '../types'
 
 // Converts sRGB to linear light
 function toLinear(c: number): number {
@@ -7,7 +7,7 @@ function toLinear(c: number): number {
 }
 
 // Converts a Kelvin temp to linear sRGB color
-export default function makeKelvinLinearRGB(kelvin: number): Float3[] {
+export default function convertKelvinToLinearSRGB(kelvin: number): Float3 {
   'worklet'
 
   const temp = kelvin / 100
