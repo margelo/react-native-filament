@@ -1,7 +1,8 @@
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { LightConfig, LightManager } from '../types'
 import { ISharedValue } from 'react-native-worklets-core'
 import { useFilamentContext } from './useFilamentContext'
+import { useWorkletEffect } from './useWorkletEffect'
 
 export type UseLightEntityProps =
   | LightConfig
@@ -58,7 +59,8 @@ export function useLightEntity(lightManager: LightManager, config: UseLightEntit
 
   // Eventually subscribe to the intensity shared value
   const { workletContext } = useFilamentContext()
-  useEffect(() => {
+  useWorkletEffect(() => {
+    'worklet'
     const intensity = config.intensity
     if (intensity == null) return
     if (typeof intensity === 'number') return
@@ -71,7 +73,7 @@ export function useLightEntity(lightManager: LightManager, config: UseLightEntit
         setIntensity(entity, intensity.value)
       })
     )
-  }, [config.intensity, entity, lightManager, workletContext])
+  })
 
   return entity
 }
