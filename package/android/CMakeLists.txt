@@ -173,7 +173,7 @@ if(DEFINED CMAKE_ANDROID_NDK_VERSION AND CMAKE_ANDROID_NDK_VERSION VERSION_LESS 
     set_property(TARGET ${PACKAGE_NAME} APPEND PROPERTY
       LINK_FLAGS "-Wl,-z,max-page-size=16384")
   else()
-    # Modern CMake; prefer LINKER: to avoid -Wl, when supported
+    # Modern CMake
     target_link_options(${PACKAGE_NAME} PRIVATE "-Wl,-z,max-page-size=16384")
   endif()
 endif()
