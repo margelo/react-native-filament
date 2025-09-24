@@ -167,6 +167,11 @@
     "jsSrcsDir": "src/native/specs",
     "android": {
       "javaPackageName": "com.margelo.filament"
+    },
+    "ios": {
+      "componentProvider": {
+        "FilamentView": "FilamentComponent"
+      }
     }
   },
   "packageManager": "yarn@3.6.4",
