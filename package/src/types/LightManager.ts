@@ -52,11 +52,11 @@ export interface LightManager extends PointerHolder {
    * @param color Color of the light specified in the linear sRGB color-space.
    *              The default is white {1,1,1}.
    */
-  setColor(entityWrapper: Entity, linearSRGBColor: Float3[]): void
+  setColor(entityWrapper: Entity, linearSRGBColor: Float3): void
   /**
    * Returns the light's color in linear sRGB color-space.
    */
-  getColor(entityWrapper: Entity): Float3[]
+  getColor(entityWrapper: Entity): Float3
   /**
    * Dynamically updates the light's intensity. The intensity can be negative.
    *
