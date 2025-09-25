@@ -166,3 +166,14 @@ foreach(file ${BULLET3_LIBRARIES})
     message("RN Filament: Linking ${file}...")
     target_link_libraries(${PACKAGE_NAME} ${file})
 endforeach()
+
+if(DEFINED CMAKE_ANDROID_NDK_VERSION AND CMAKE_ANDROID_NDK_VERSION VERSION_LESS "27")
+  if(CMAKE_VERSION VERSION_LESS "3.13")
+    # Old CMake fallback
+    set_property(TARGET ${PACKAGE_NAME} APPEND PROPERTY
+      LINK_FLAGS "-Wl,-z,max-page-size=16384")
+  else()
+    # Modern CMake
+    target_link_options(${PACKAGE_NAME} PRIVATE "-Wl,-z,max-page-size=16384")
+  endif()
+endif()
