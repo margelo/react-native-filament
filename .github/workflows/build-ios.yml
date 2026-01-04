@@ -9,14 +9,14 @@ on:
       - "package/cpp/**"
       - "package/ios/**"
       - "package/*.podspec"
-      - "package/example/ios/**"
+      - "package/example/AppExampleFabric/ios/**"
   pull_request:
     paths:
       - ".github/workflows/build-ios.yml"
       - "package/cpp/**"
       - "package/ios/**"
       - "package/*.podspec"
-      - "package/example/ios/**"
+      - "package/example/AppExampleFabric/ios/**"
 
 jobs:
   build:
@@ -24,13 +24,13 @@ jobs:
     runs-on: macOS-latest
     defaults:
       run:
-        working-directory: package/example/ios
+        working-directory: package/example/AppExampleFabric/ios
     steps:
       - uses: actions/checkout@v4
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
       - name: Restore node_modules from cache
         uses: actions/cache@v4
         id: yarn-cache
@@ -40,7 +40,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
       - name: Install node_modules for example/
-        run: yarn install --frozen-lockfile --cwd ..
+        run: yarn install --immutable
 
       - name: Restore buildcache
         uses: mikehardy/buildcache-action@v2
@@ -49,14 +49,14 @@ jobs:
       - name: Setup Ruby (bundle)
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.6.10
+          ruby-version: 3.4.4
           bundler-cache: true
-          working-directory: package/example/ios
+          working-directory: package/example/AppExampleFabric/
 
       - name: Restore Pods cache
         uses: actions/cache@v4
         with:
-          path: package/example/ios/Pods
+          path: package/example/ios/AppExampleFabric/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-pods-
@@ -66,12 +66,12 @@ jobs:
         run: gem install xcpretty
       - name: Build App
         run: "set -o pipefail && xcodebuild \
-          CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ \
+          CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ GCC_OPTIMIZATION_LEVEL=0 GCC_PRECOMPILE_PREFIX_HEADER=YES ASSETCATALOG_COMPILER_OPTIMIZATION=time DEBUG_INFORMATION_FORMAT=dwarf COMPILER_INDEX_STORE_ENABLE=NO \
           -derivedDataPath build -UseModernBuildSystem=YES \
-          -workspace RNFFabric.xcworkspace \
-          -scheme RNFFabric \
+          -workspace AppExampleFabric.xcworkspace \
+          -scheme AppExampleFabric \
           -sdk iphonesimulator \
           -configuration Debug \
-          -destination 'platform=iOS Simulator,name=iPhone 11 Pro' \
+          -destination 'platform=iOS Simulator,name=iPhone 16 Pro Max' \
           build \
           CODE_SIGNING_ALLOWED=NO | xcpretty"

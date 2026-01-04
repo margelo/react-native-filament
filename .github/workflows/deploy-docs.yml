@@ -33,7 +33,7 @@ jobs:
           cache-dependency-path: docs
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
         working-directory: docs
 
       - name: Build website

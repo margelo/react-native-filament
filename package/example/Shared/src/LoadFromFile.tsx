@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useCallback, useState } from 'react'
 import { Button, StyleSheet, View } from 'react-native'
 import { FilamentScene, FilamentView, Camera, Model, DefaultLight } from 'react-native-filament'
-import RNFetchBlob from 'rn-fetch-blob'
+import RNFetchBlob from 'react-native-blob-util'
 
 function Renderer({ assetPath }: { assetPath: string }) {
   console.log('Renderer assetPath', assetPath)
