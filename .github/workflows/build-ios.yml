@@ -40,7 +40,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
       - name: Install node_modules for example/
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Restore buildcache
         uses: mikehardy/buildcache-action@v2

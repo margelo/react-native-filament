@@ -54,9 +54,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install node_modules
-        run: yarn install --frozen-lockfile
-      - name: Install node_modules (example/)
-        run: yarn install --frozen-lockfile --cwd example
+        run: yarn install --immutable
 
       - name: Run TypeScript # Reviewdog tsc errorformat: %f:%l:%c - error TS%n: %m
         run: |
@@ -92,7 +90,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install node_modules
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Run ESLint
         run: yarn lint -f @jamesacarr/github-actions
