@@ -51,7 +51,7 @@ jobs:
         with:
           ruby-version: 3.4.4
           bundler-cache: true
-          working-directory: package/example/AppExampleFabric/ios
+          working-directory: package/example/AppExampleFabric/
 
       - name: Restore Pods cache
         uses: actions/cache@v4
