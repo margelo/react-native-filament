@@ -39,7 +39,7 @@ jobs:
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
       - name: Restore node_modules from cache
         uses: actions/cache@v4
         id: yarn-cache
@@ -61,7 +61,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Run Gradle Build for example/AppExampleFabric/android/
-        run: cd example/android && ./gradlew assembleDebug --build-cache && cd ../..
+        run: cd example/AppExampleFabric/android && ./gradlew assembleDebug --build-cache && cd ../..
       - name: Upload .apk to GitHub
         uses: actions/upload-artifact@v4
         with:

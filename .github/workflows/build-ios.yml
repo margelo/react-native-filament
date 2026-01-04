@@ -30,7 +30,7 @@ jobs:
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
       - name: Restore node_modules from cache
         uses: actions/cache@v4
         id: yarn-cache
@@ -40,7 +40,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
       - name: Install node_modules for example/
-        run: yarn install --frozen-lockfile 
+        run: yarn install --frozen-lockfile
 
       - name: Restore buildcache
         uses: mikehardy/buildcache-action@v2
