@@ -8,7 +8,7 @@ on:
       - '.github/workflows/build-android.yml'
       - 'package/cpp/**'
       - 'package/android/**'
-      - 'package/example/android/**'
+      - 'package/example/AppExampleFabric/android/**'
       - 'package/yarn.lock'
       - 'package/example/yarn.lock'
   pull_request:
@@ -16,7 +16,7 @@ on:
       - '.github/workflows/build-android.yml'
       - 'package/cpp/**'
       - 'package/android/**'
-      - 'package/example/android/**'
+      - 'package/example/AppExampleFabric/android/**'
       - 'package/yarn.lock'
       - 'package/example/yarn.lock'
 
@@ -50,8 +50,6 @@ jobs:
             ${{ runner.os }}-yarn-
       - name: Install node_modules
         run: yarn install --frozen-lockfile
-      - name: Install node_modules for example/
-        run: yarn install --frozen-lockfile --cwd example
 
       - name: Restore Gradle cache
         uses: actions/cache@v4
@@ -62,11 +60,11 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-      - name: Run Gradle Build for example/android/
+      - name: Run Gradle Build for example/AppExampleFabric/android/
         run: cd example/android && ./gradlew assembleDebug --build-cache && cd ../..
       - name: Upload .apk to GitHub
         uses: actions/upload-artifact@v4
         with:
           name: Example App (.apk)
-          path: package/example/android/app/build/outputs/apk/debug/app-debug.apk
+          path: package/example/AppExampleFabric/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
