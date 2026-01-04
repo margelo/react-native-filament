@@ -1,10 +1,13 @@
 const path = require('path')
 const pak = require('../../package.json')
 
+const sharedPath = path.join(__dirname, '..', 'Shared')
+
 const aliasMap = {
   [pak.name]: path.join(__dirname, '..', '..', pak.source),
   [pak.name + '-test']: path.join(__dirname, '..', '..', pak.test),
-  '~/assets': path.join(__dirname, 'assets'),
+  '@shared': sharedPath,
+  '~/assets': path.join(sharedPath, 'assets'),
 }
 
   /** @type {import('react-native-worklets/plugin').PluginOptions} */

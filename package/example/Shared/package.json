@@ -1,0 +1,6 @@
+{
+  "name": "shared",
+  "packageManager": "yarn@3.6.4",
+  "main": "src/App.tsx",
+  "react-native": "src/App.tsx"
+}

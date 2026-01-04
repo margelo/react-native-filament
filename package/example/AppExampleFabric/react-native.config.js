@@ -7,5 +7,5 @@ module.exports = {
       root: path.join(__dirname, '..', '..'),
     },
   },
-  assets: ['./assets'],
+  assets: ['../Shared/assets'],
 }
