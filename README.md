@@ -90,6 +90,9 @@ yarn build-filament:release # or yarn build-filament:debug
 
 You can then build one of the example apps in `package/example/AppExamplePaper` or `package/example/AppExampleFabric`.
 
+Note: If building filament fails for you, you can download the pre-built binaries from the npm package.
+Simply run `yarn setup-filament-quick`. The binaries will be in release build and any edits in /filament will be ignored (as you're not building from source in this case).
+
 ### Adopting at scale
 
 react-native-filament is provided _as is_.

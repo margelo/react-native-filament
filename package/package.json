@@ -39,6 +39,7 @@
     "build-filament": "yarn patch-filament && scripts/build-filament.sh",
     "build-filament:release": "yarn build-filament release",
     "build-filament:debug": "yarn build-filament debug",
+    "setup-filament-quick": "scripts/setup-filament-quick.sh",
     "build-bullet3": "scripts/build-bullet3.sh",
     "release": "yarn build-filament:release && yarn build-bullet3 && release-it && npm publish",
     "codegen": "react-native codegen",
