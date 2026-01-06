@@ -1,0 +1,32 @@
+{
+  "name": "workspace-root",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/margelo/react-native-filament.git"
+  },
+  "author": "Marc Rousavy <me@mrousavy.com> (https://github.com/mrousavy)",
+  "contributors": [
+    {
+      "name": "Hanno Gödecke",
+      "url": "https://github.com/hannojg",
+      "email": "hanno@margelo.io"
+    }
+  ],
+  "scripts": {
+    "postinstall": "bunx patch-package"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/margelo/react-native-filament/issues"
+  },
+  "homepage": "https://margelo.github.io/react-native-filament",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "workspaces": [
+      "examples/AppExampleFabric",
+      "examples/ExpoExample",
+      "examples/Shared",
+      "package"
+  ]
+}

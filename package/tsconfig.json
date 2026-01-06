@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "rootDir": ".",
     "paths": {
       "react-native-filament": ["./src/index"]
     },
@@ -25,5 +24,5 @@
     "strict": true,
     "target": "esnext"
   },
-  "exclude": ["example", "node_modules"]
+  "exclude": ["node_modules"]
 }

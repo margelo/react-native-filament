@@ -33,19 +33,18 @@
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "clean": "rm -rf android/build example/android/build example/android/app/build example/ios/build lib",
     "build": "bob build",
-    "prepare": "git submodule update --init --recursive && yarn patch-filament && bob build",
+    "prepare": "git submodule update --init --recursive && bun patch-filament && bob build",
     "update-submodule": "git submodule update --remote --merge",
     "patch-filament": "cd ../filament ; git apply ../package/filament_animator_feat.patch ; git apply ../package/filament_material_instance_getter.patch ; git apply ../package/filament_ios_simulator.patch ; cd ../package",
-    "build-filament": "yarn patch-filament && scripts/build-filament.sh",
-    "build-filament:release": "yarn build-filament release",
-    "build-filament:debug": "yarn build-filament debug",
+    "build-filament": "bun patch-filament && scripts/build-filament.sh",
+    "build-filament:release": "bun build-filament release",
+    "build-filament:debug": "bun build-filament debug",
     "setup-filament-quick": "scripts/setup-filament-quick.sh",
     "build-bullet3": "scripts/build-bullet3.sh",
-    "release": "yarn build-filament:release && yarn build-bullet3 && release-it && npm publish",
+    "release": "bun build-filament:release && bun build-bullet3 && release-it && npm publish",
     "codegen": "react-native codegen",
     "prepack": "cp ../README.md ./README.md",
-    "postpack": "rm ./README.md",
-    "postinstall": "npx patch-package"
+    "postpack": "rm ./README.md"
   },
   "keywords": [
     "react-native",
@@ -172,11 +171,5 @@
         "FilamentView": "FilamentComponent"
       }
     }
-  },
-  "packageManager": "yarn@3.6.4",
-  "workspaces": {
-    "packages": [
-      "example/*"
-    ]
   }
 }
