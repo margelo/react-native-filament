@@ -3,9 +3,8 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "react-native-filament": ["../../src/index"],
-      "react-native-filament-test": ["../../src/test/RunTests"],
-      "@shared/*": ["../Shared/*"]
+      "react-native-filament": ["../../package/src/index"],
+      "react-native-filament-test": ["../../package/src/test/RunTests"],
     }
   }
 }

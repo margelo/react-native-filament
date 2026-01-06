@@ -1,23 +1,15 @@
 const path = require('path')
-const pak = require('../../package.json')
-
-const sharedPath = path.join(__dirname, '..', 'Shared')
 
 const aliasMap = {
-  [pak.name]: path.join(__dirname, '..', '..', pak.source),
-  [pak.name + '-test']: path.join(__dirname, '..', '..', pak.test),
-  '@shared': sharedPath,
-  '~/assets': path.join(sharedPath, 'assets'),
+  '@assets': path.join(__dirname, '..', 'Shared', 'assets'),
 }
 
 /** @type {import('react-native-worklets/plugin').PluginOptions} */
 const workletsPluginOptions = {}
 
-module.exports = function (api) {
-  api.cache(true);
-  return {
-    presets: ['babel-preset-expo'],
-    plugins: [
+module.exports = {
+  presets: ['babel-preset-expo'],
+  plugins: [
     [
       'module-resolver',
       {
@@ -27,5 +19,4 @@ module.exports = function (api) {
     ],
     ['react-native-worklets/plugin', workletsPluginOptions],
   ]
-  };
 };

@@ -58,6 +58,7 @@
         "expo-status-bar": "3.0.10-canary-20251230-fc48ddc",
         "react": "19.2.0",
         "react-native": "0.83.1",
+        "react-native-blob-util": "^0.24.6",
         "react-native-filament": "workspace:^",
         "react-native-gesture-handler": "~2.30.0",
         "react-native-reanimated": "~4.2.0",

@@ -1,6 +1,6 @@
 import { registerRootComponent } from 'expo';
 
-import App from '@shared/src/App'
+import App from 'shared/src/App'
 
 import { version } from 'react-native-worklets-core/package.json'
 console.log(`Using react-native-worklets-core@${version}`)
