@@ -3339,7 +3339,7 @@ DEPENDENCIES:
   - React-Mapbuffer (from `../../../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../../../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - react-native-blob-util (from `../../../node_modules/react-native-blob-util`)
-  - react-native-filament (from `../../..`)
+  - react-native-filament (from `../../../node_modules/react-native-filament`)
   - react-native-safe-area-context (from `../../../node_modules/react-native-safe-area-context`)
   - react-native-video (from `../../../node_modules/react-native-video`)
   - react-native-worklets-core (from `../../../node_modules/react-native-worklets-core`)
@@ -3478,7 +3478,7 @@ EXTERNAL SOURCES:
   react-native-blob-util:
     :path: "../../../node_modules/react-native-blob-util"
   react-native-filament:
-    :path: "../../.."
+    :path: "../../../node_modules/react-native-filament"
   react-native-safe-area-context:
     :path: "../../../node_modules/react-native-safe-area-context"
   react-native-video:
@@ -3569,7 +3569,7 @@ SPEC CHECKSUMS:
   FBLazyVector: 309703e71d3f2f1ed7dc7889d58309c9d77a95a4
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
-  hermes-engine: 033f3c5546bd916d963ae7622b5d8a64e23ed9d8
+  hermes-engine: 4c31ac24845fb37bb44a8172d56ea5a26438eafd
   RCT-Folly: 846fda9475e61ec7bcbf8a3fe81edfcaeb090669
   RCTDeprecation: a41bbdd9af30bf2e5715796b313e44ec43eefff1
   RCTRequired: 7be34aabb0b77c3cefe644528df0fa0afad4e4d0

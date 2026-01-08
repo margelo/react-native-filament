@@ -7,7 +7,7 @@
     "ios": "react-native run-ios --no-packager --scheme AppExampleFabric",
     "start": "react-native start --reset-cache --client-logs",
     "typescript": "tsc --noEmit",
-    "pods": "cd ios && bundle install && RCT_NEW_ARCH_ENABLED=1 bundle exec pod install",
+    "pods": "bundle install && cd ios && bundle exec pod install",
     "build:android": "cd android && ./gradlew assembleDebug --no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a",
     "build:ios": "cd ios && xcodebuild -workspace AppExampleFabric.xcworkspace -scheme AppExampleFabric -configuration Debug -sdk iphonesimulator CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ GCC_OPTIMIZATION_LEVEL=0 GCC_PRECOMPILE_PREFIX_HEADER=YES ASSETCATALOG_COMPILER_OPTIMIZATION=time DEBUG_INFORMATION_FORMAT=dwarf COMPILER_INDEX_STORE_ENABLE=NO",
     "codegen": "react-native codegen",
