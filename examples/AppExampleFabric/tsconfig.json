@@ -1,0 +1,12 @@
+{
+  "extends": "../../package/tsconfig",
+  "compilerOptions": {
+    "paths": {
+      "react-native-filament": ["../../package/index"],
+      "react-native-filament-test": ["../../package/src/test/RunTests"],
+      "~/assets/*": ["../Shared/assets/*"]
+    }
+  },
+  "include": ["index.js", "src", "../../package/src/types/CustomFileExtensions.d.ts"],
+  "exclude": ["node_modules"]
+}

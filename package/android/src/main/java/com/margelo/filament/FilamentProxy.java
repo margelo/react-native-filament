@@ -147,7 +147,9 @@ class FilamentProxy {
                     InputStream stream = response.body().byteStream();
                     return streamToDirectByteBuffer(stream);
                 } else {
-                    throw new RuntimeException("Response was not successful!");
+                    // Try to log the response body for more details
+                    String responseBody = response.body() != null ? response.body().string() : "null";
+                    throw new RuntimeException("Response was not successful! Code: " + response.code() + ", Body: " + responseBody);
                 }
             } catch (Exception ex) {
                 Log.e(NAME, "Failed to fetch URL " + uriString + "!", ex);

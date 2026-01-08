@@ -2,8 +2,8 @@ require "json"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
-nodeModules = File.join(File.dirname(`cd "#{Pod::Config.instance.installation_root.to_s}" && node --print "require.resolve('react-native/package.json')"`), '..')
-workletsPath = File.join(nodeModules, "react-native-worklets-core")
+# TODO: test if this change works well in regular RN projects - however, might not needed if i remove RNWC
+workletsPath = File.dirname(`cd "#{Pod::Config.instance.installation_root.to_s}" && node --print "require.resolve('react-native-worklets-core/package.json')"`)
 hasWorklets = File.exist?(workletsPath)
 Pod::UI.puts("[react-native-filament] react-native-worklets-core #{hasWorklets ? "found" : "not found"}!")
 

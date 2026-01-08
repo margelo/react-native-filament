@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "ExpoExample",
+    "slug": "ExpoExample",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.ExpoExample"
+    },
+    "android": {
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.ExpoExample",
+      "permissions": []
+    },
+    "plugins": [
+      "react-native-video"
+    ]
+  }
+}
