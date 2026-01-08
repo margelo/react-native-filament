@@ -62,10 +62,7 @@ const config = {
       // Check if this module should be redirected via extraNodeModules
       // We need to manually handle this since we have a custom resolveRequest
       if (projectNodeModulesMap[moduleName]) {
-        console.log(`Resolve module "${moduleName}" => ${projectNodeModulesMap[moduleName]}`)
-        const result = context.resolveRequest(context, projectNodeModulesMap[moduleName], platform);
-        console.log("  "+ JSON.stringify(result))
-        return result
+        return context.resolveRequest(context, projectNodeModulesMap[moduleName], platform);
       }
 
       // For everything else, let Metro's default resolver handle it
