@@ -97,11 +97,11 @@ Simply run `bun setup-filament-quick`. The binaries will be in release build and
 
 react-native-filament is provided _as is_.
 
-If you need help with integrating react-native-filament in your app or have additional bugfixing or feature requests, reach out to us at [margelo.io](https://margelo.io).
+If you need help with integrating react-native-filament in your app or have additional bugfixing or feature requests, reach out to us at [margelo.com](https://margelo.com).
 
 ### Socials
 
-* 🐦 [**Follow us on Twitter**](https://twitter.com/margelo_io) for updates
+* 🐦 [**Follow us on Twitter**](https://twitter.com/margelo_com) for updates
 * 💬 [**Join the Margelo Community Discord**](https://discord.gg/6CSHz2qAvA) for chatting about react-native-filament
 
 ### Attributions & thanks
