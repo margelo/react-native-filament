@@ -17,10 +17,11 @@
 #ifndef TNT_UTILS_FIXEDCAPACITYVECTOR_H
 #define TNT_UTILS_FIXEDCAPACITYVECTOR_H
 
+#include <utils/Slice.h>
 #include <utils/compiler.h>
 #include <utils/compressed_pair.h>
-#include <utils/Panic.h>
 
+#include <algorithm>
 #include <initializer_list>
 #include <iterator>
 #include <limits>
@@ -40,6 +41,11 @@
 
 namespace utils {
 
+class UTILS_PUBLIC FixedCapacityVectorBase {
+protected:
+    UTILS_NORETURN static void capacityCheckFailed(size_t capacity, size_t size);
+};
+
 /**
  * FixedCapacityVector is (almost) a drop-in replacement for std::vector<> except it has a
  * fixed capacity decided at runtime. The vector storage is never reallocated unless reserve()
@@ -56,7 +62,7 @@ namespace utils {
  * the optional value argument, e.g. FixedCapacityVector<int>(4, 0) or foo.resize(4, 0).
  */
 template<typename T, typename A = std::allocator<T>, bool CapacityCheck = true>
-class UTILS_PUBLIC FixedCapacityVector {
+class UTILS_PUBLIC FixedCapacityVector : protected FixedCapacityVectorBase {
 public:
     using allocator_type = A;
     using value_type = T;
@@ -84,7 +90,7 @@ public:
     FixedCapacityVector() = default;
 
     explicit FixedCapacityVector(const allocator_type& allocator) noexcept
-            : mCapacityAllocator({}, allocator) {
+            : mCapacityAllocator(0, allocator) {
     }
 
     explicit FixedCapacityVector(size_type size, const allocator_type& allocator = allocator_type())
@@ -122,6 +128,14 @@ public:
         this->swap(rhs);
     }
 
+    FixedCapacityVector(utils::Slice<const T> rhs,
+            const allocator_type& alloc = allocator_type())
+            : mSize(rhs.size()),
+              mCapacityAllocator(mSize, alloc) {
+        mData = this->allocator().allocate(this->capacity());
+        std::uninitialized_copy(rhs.cbegin(), rhs.cend(), begin());
+    }
+
     ~FixedCapacityVector() noexcept {
         destroy(begin(), end());
         allocator().deallocate(data(), capacity());
@@ -138,6 +152,29 @@ public:
     FixedCapacityVector& operator=(FixedCapacityVector&& rhs) noexcept {
         this->swap(rhs);
         return *this;
+    }
+
+    bool operator==(const FixedCapacityVector& rhs) const noexcept {
+        if (this == &rhs) {
+            return true;
+        }
+        if (size() != rhs.size()) {
+            return false;
+        }
+        return std::equal(begin(), end(), rhs.begin());
+    }
+
+    Slice<T> as_slice() noexcept {
+        return { begin(), end() };
+    }
+
+    Slice<const T> as_slice() const noexcept {
+        return { cbegin(), cend() };
+    }
+
+    template<typename Hash = std::hash<T>>
+    inline size_t hash() const noexcept {
+        return as_slice().template hash<Hash>();
     }
 
     allocator_type get_allocator() const noexcept {
@@ -266,7 +303,7 @@ public:
         mSize = 0;
     }
 
-    void resize(size_type count) {
+    void resize(size_type const count) {
         assertCapacityForSize(count);
         if constexpr(std::is_trivially_constructible_v<value_type> &&
                      std::is_trivially_destructible_v<value_type>) {
@@ -277,12 +314,12 @@ public:
         }
     }
 
-    void resize(size_type count, const_reference v) {
+    void resize(size_type const count, const_reference v) {
         assertCapacityForSize(count);
         resize_non_trivial(count, v);
     }
 
-    void swap(FixedCapacityVector& other) {
+    void swap(FixedCapacityVector& other) noexcept {
         using std::swap;
         swap(mData, other.mData);
         swap(mSize, other.mSize);
@@ -326,16 +363,16 @@ private:
         return mCapacityAllocator.second();
     }
 
-    iterator assertCapacityForSize(size_type s) {
+    iterator assertCapacityForSize(size_type const s) {
         if constexpr(CapacityCheck || FILAMENT_FORCE_CAPACITY_CHECK) {
-            FILAMENT_CHECK_PRECONDITION(capacity() >= s)
-                    << "capacity exceeded: requested size " << (unsigned long)s
-                    << "u, available capacity " << (unsigned long)capacity() << "u.";
+            if (UTILS_VERY_UNLIKELY(capacity() < s)) {
+                capacityCheckFailed(capacity(), s);
+            }
         }
         return end();
     }
 
-    inline void construct(iterator first, iterator last) noexcept {
+    void construct(iterator const first, iterator const last) noexcept {
         // we check for triviality here so that the implementation could be non-inline
         if constexpr(!std::is_trivially_constructible_v<value_type>) {
             construct_non_trivial(first, last);
@@ -358,7 +395,7 @@ private:
     }
 
 
-    inline void destroy(iterator first, iterator last) noexcept {
+    void destroy(iterator const first, iterator const last) noexcept {
         // we check for triviality here so that the implementation could be non-inline
         if constexpr(!std::is_trivially_destructible_v<value_type>) {
             destroy_non_trivial(first, last);
@@ -419,7 +456,7 @@ private:
         explicit  SizeTypeWrapper(TYPE value) noexcept : value(value) { }
         SizeTypeWrapper& operator=(TYPE rhs) noexcept { value = rhs; return *this; }
         SizeTypeWrapper& operator=(SizeTypeWrapper& rhs) noexcept = delete;
-        operator TYPE() const noexcept { return value; }
+        operator TYPE() const noexcept { return value; } // NOLINT(*-explicit-constructor)
     };
 
     pointer mData{};
@@ -428,5 +465,14 @@ private:
 };
 
 } // namespace utils
+
+namespace std {
+template<typename T>
+struct hash<utils::FixedCapacityVector<T>> {
+    inline size_t operator()(utils::FixedCapacityVector<T> const& lhs) const noexcept {
+        return lhs.hash();
+    }
+};
+} // namespace std
 
 #endif // TNT_UTILS_FIXEDCAPACITYVECTOR_H

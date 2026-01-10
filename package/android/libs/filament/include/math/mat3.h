@@ -256,7 +256,7 @@ public:
      */
     friend inline
     constexpr TMat33 orthogonalize(const TMat33& m) noexcept {
-        TMat33 ret(TMat33::NO_INIT);
+        TMat33 ret(NO_INIT);
         ret[0] = normalize(m[0]);
         ret[2] = normalize(cross(ret[0], m[1]));
         ret[1] = normalize(cross(ret[2], ret[0]));
@@ -479,7 +479,7 @@ constexpr TQuaternion<T> TMat33<T>::packTangentFrame(const TMat33<T>& m, size_t 
 template<typename T>
 constexpr details::TMat33<T> prescaleForNormals(const details::TMat33<T>& m) noexcept {
     return m * details::TMat33<T>(
-                    1.0 / std::sqrt(max(float3{length2(m[0]), length2(m[1]), length2(m[2])})));
+                    T(1.0) / std::sqrt(max(float3{length2(m[0]), length2(m[1]), length2(m[2])})));
 }
 
 // ----------------------------------------------------------------------------------------

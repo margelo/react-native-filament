@@ -33,7 +33,7 @@
 #if __has_attribute(visibility)
 #    define UTILS_PUBLIC  __attribute__((visibility("default")))
 #else
-#    define UTILS_PUBLIC  
+#    define UTILS_PUBLIC
 #endif
 
 #if __has_attribute(deprecated)
@@ -102,6 +102,19 @@
 #else
 #   define UTILS_LIKELY( exp )    (!!(exp))
 #   define UTILS_UNLIKELY( exp )  (!!(exp))
+#endif
+
+#if __has_builtin(__builtin_expect_with_probability)
+#   ifdef __cplusplus
+#      define UTILS_VERY_LIKELY( exp )    (__builtin_expect_with_probability( !!(exp), true, 0.995 ))
+#      define UTILS_VERY_UNLIKELY( exp )  (__builtin_expect_with_probability( !!(exp), false, 0.995 ))
+#   else
+#      define UTILS_VERY_LIKELY( exp )    (__builtin_expect_with_probability( !!(exp), 1, 0.995 ))
+#      define UTILS_VERY_UNLIKELY( exp )  (__builtin_expect_with_probability( !!(exp), 0, 0.995 ))
+#   endif
+#else
+#   define UTILS_VERY_LIKELY( exp )    (!!(exp))
+#   define UTILS_VERY_UNLIKELY( exp )  (!!(exp))
 #endif
 
 #if __has_builtin(__builtin_prefetch)
@@ -251,7 +264,7 @@ typedef SSIZE_T ssize_t;
 
 #if defined(_MSC_VER) && !defined(__PRETTY_FUNCTION__)
 #    define __PRETTY_FUNCTION__ __FUNCSIG__
-#endif 
+#endif
 
 
 #if defined(_MSC_VER)

@@ -70,8 +70,8 @@ enum class BlendMode : uint8_t {
  *
  * \note
  * Dynamic resolution is only supported on platforms where the time to render
- * a frame can be measured accurately. Dynamic resolution is currently only
- * supported on Android.
+ * a frame can be measured accurately. On platforms where this is not supported,
+ * Dynamic Resolution can't be enabled unless minScale == maxScale.
  *
  * @see Renderer::FrameRateOptions
  *
@@ -86,12 +86,15 @@ struct DynamicResolutionOptions {
     /**
      * Upscaling quality
      * LOW:    bilinear filtered blit. Fastest, poor quality
-     * MEDIUM: AMD FidelityFX FSR1 w/ mobile optimizations
+     * MEDIUM: Qualcomm Snapdragon Game Super Resolution (SGSR) 1.0
      * HIGH:   AMD FidelityFX FSR1 w/ mobile optimizations
      * ULTRA:  AMD FidelityFX FSR1
-     *      FSR1 require a well anti-aliased (MSAA or TAA), noise free scene.
+     *      FSR1 and SGSR require a well anti-aliased (MSAA or TAA), noise free scene.
+     *      Avoid FXAA and dithering.
      *
      * The default upscaling quality is set to LOW.
+     *
+     * caveat: currently, 'quality' is always set to LOW if the View is TRANSLUCENT.
      */
     QualityLevel quality = QualityLevel::LOW;
 };
@@ -164,7 +167,9 @@ struct BloomOptions {
 };
 
 /**
- * Options to control large-scale fog in the scene
+ * Options to control large-scale fog in the scene. Materials can enable the `linearFog` property,
+ * which uses a simplified, linear equation for fog calculation; in this mode, the heightFalloff
+ * is ignored as well as the mipmap selection in IBL or skyColor mode.
  */
 struct FogOptions {
     /**
@@ -183,7 +188,7 @@ struct FogOptions {
     float cutOffDistance = INFINITY;
 
     /**
-     * fog's maximum opacity between 0 and 1
+     * fog's maximum opacity between 0 and 1. Ignored in `linearFog` mode.
      */
     float maximumOpacity = 1.0f;
 
@@ -193,12 +198,15 @@ struct FogOptions {
     float height = 0.0f;
 
     /**
-     * How fast the fog dissipates with altitude. heightFalloff has a unit of [1/m].
+     * How fast the fog dissipates with the altitude. heightFalloff has a unit of [1/m].
      * It can be expressed as 1/H, where H is the altitude change in world units [m] that causes a
      * factor 2.78 (e) change in fog density.
      *
      * A falloff of 0 means the fog density is constant everywhere and may result is slightly
      * faster computations.
+     *
+     * In `linearFog` mode, only use to compute the slope of the linear equation. Completely
+     * ignored if set to 0.
      */
     float heightFalloff = 1.0f;
 
@@ -220,7 +228,7 @@ struct FogOptions {
     LinearColor color = { 1.0f, 1.0f, 1.0f };
 
     /**
-     * Extinction factor in [1/m] at altitude 'height'. The extinction factor controls how much
+     * Extinction factor in [1/m] at an altitude 'height'. The extinction factor controls how much
      * light is absorbed and out-scattered per unit of distance. Each unit of extinction reduces
      * the incoming light to 37% of its original value.
      *
@@ -229,11 +237,16 @@ struct FogOptions {
      * the composition of the fog/atmosphere.
      *
      * For historical reason this parameter is called `density`.
+     *
+     * In `linearFog` mode this is the slope of the linear equation if heightFalloff is set to 0.
+     * Otherwise, heightFalloff affects the slope calculation such that it matches the slope of
+     * the standard equation at the camera height.
      */
     float density = 0.1f;
 
     /**
      * Distance in world units [m] from the camera where the Sun in-scattering starts.
+     * Ignored in `linearFog` mode.
      */
     float inScatteringStart = 0.0f;
 
@@ -242,6 +255,7 @@ struct FogOptions {
      * is scattered (by the fog) towards the camera.
      * Size of the Sun in-scattering (>0 to activate). Good values are >> 1 (e.g. ~10 - 100).
      * Smaller values result is a larger scattering size.
+     * Ignored in `linearFog` mode.
      */
     float inScatteringSize = -1.0f;
 
@@ -269,6 +283,8 @@ struct FogOptions {
      *
      * `fogColorFromIbl` is ignored when skyTexture is specified.
      *
+     * In `linearFog` mode mipmap level 0 is always used.
+     *
      * @see Texture
      * @see fogColorFromIbl
      */
@@ -283,7 +299,7 @@ struct FogOptions {
 /**
  * Options to control Depth of Field (DoF) effect in the scene.
  *
- * cocScale can be used to set the depth of field blur independently from the camera
+ * cocScale can be used to set the depth of field blur independently of the camera
  * aperture, e.g. for artistic reasons. This can be achieved by setting:
  *      cocScale = cameraAperture / desiredDoFAperture
  *
@@ -373,18 +389,30 @@ struct RenderQuality {
  * @see setAmbientOcclusionOptions()
  */
 struct AmbientOcclusionOptions {
+    enum class AmbientOcclusionType : uint8_t {
+        SAO,        //!< use Scalable Ambient Occlusion
+        GTAO,       //!< use Ground Truth-Based Ambient Occlusion
+    };
+
+    AmbientOcclusionType aoType = AmbientOcclusionType::SAO;//!< Type of ambient occlusion algorithm.
     float radius = 0.3f;    //!< Ambient Occlusion radius in meters, between 0 and ~10.
     float power = 1.0f;     //!< Controls ambient occlusion's contrast. Must be positive.
-    float bias = 0.0005f;   //!< Self-occlusion bias in meters. Use to avoid self-occlusion. Between 0 and a few mm.
+
+    /**
+     * Self-occlusion bias in meters. Use to avoid self-occlusion.
+     * Between 0 and a few mm. No effect when aoType set to GTAO
+     */
+    float bias = 0.0005f;
+
     float resolution = 0.5f;//!< How each dimension of the AO buffer is scaled. Must be either 0.5 or 1.0.
     float intensity = 1.0f; //!< Strength of the Ambient Occlusion effect.
     float bilateralThreshold = 0.05f; //!< depth distance that constitute an edge for filtering
-    QualityLevel quality = QualityLevel::LOW; //!< affects # of samples used for AO.
-    QualityLevel lowPassFilter = QualityLevel::MEDIUM; //!< affects AO smoothness
+    QualityLevel quality = QualityLevel::LOW; //!< affects # of samples used for AO and params for filtering
+    QualityLevel lowPassFilter = QualityLevel::MEDIUM; //!< affects AO smoothness. Recommend setting to HIGH when aoType set to GTAO.
     QualityLevel upsampling = QualityLevel::LOW; //!< affects AO buffer upsampling quality
     bool enabled = false;    //!< enables or disables screen-space ambient occlusion
     bool bentNormals = false; //!< enables bent normals computation from AO, and specular AO
-    float minHorizonAngleRad = 0.0f;  //!< min angle in radian to consider
+    float minHorizonAngleRad = 0.0f;  //!< min angle in radian to consider. No effect when aoType set to GTAO.
     /**
      * Screen Space Cone Tracing (SSCT) options
      * Ambient shadows from dominant light
@@ -402,6 +430,29 @@ struct AmbientOcclusionOptions {
         bool enabled = false;            //!< enables or disables SSCT
     };
     Ssct ssct;                           // %codegen_skip_javascript% %codegen_java_flatten%
+
+    /**
+     * Ground Truth-base Ambient Occlusion (GTAO) options
+     */
+    struct Gtao {
+        uint8_t sampleSliceCount = 4;     //!< # of slices. Higher value makes less noise.
+        uint8_t sampleStepsPerSlice = 3;  //!< # of steps the radius is divided into for integration. Higher value makes less bias.
+        float thicknessHeuristic = 0.004f; //!< thickness heuristic, should be closed to 0. No effect when useVisibilityBitmasks sets to true.
+
+        /**
+         * Enables or disables visibility bitmasks mode. Notes that bent normal doesn't work under this mode.
+         * Caution: Changing this option at runtime is very expensive as it may trigger a shader re-compilation.
+         */
+        bool useVisibilityBitmasks = false;
+        float constThickness = 0.5f; //!< constant thickness value of objects on the screen in world space. Only take effect when useVisibilityBitmasks is set to true.
+
+        /**
+         * Increase thickness with distance to maintain detail on distant surfaces.
+         * Caution: Changing this option at runtime is very expensive as it may trigger a shader re-compilation.
+         */
+        bool linearThickness = false;
+    };
+    Gtao gtao;                           // %codegen_skip_javascript% %codegen_java_flatten%
 };
 
 /**
@@ -438,16 +489,15 @@ struct MultiSampleAntiAliasingOptions {
  * @see setTemporalAntiAliasingOptions()
  */
 struct TemporalAntiAliasingOptions {
-    float filterWidth = 1.0f;   //!< reconstruction filter width typically between 0.2 (sharper, aliased) and 1.5 (smoother)
+    float filterWidth = 1.0f;   //!< @deprecated has no effect.
     float feedback = 0.12f;     //!< history feedback, between 0 (maximum temporal AA) and 1 (no temporal AA).
     float lodBias = -1.0f;      //!< texturing lod bias (typically -1 or -2)
     float sharpness = 0.0f;     //!< post-TAA sharpen, especially useful when upscaling is true.
     bool enabled = false;       //!< enables or disables temporal anti-aliasing
-    bool upscaling = false;     //!< 4x TAA upscaling. Disables Dynamic Resolution. [BETA]
+    float upscaling = 1.0f;     //!< Upscaling factor. Disables Dynamic Resolution. [BETA]
 
     enum class BoxType : uint8_t {
         AABB,           //!< use an AABB neighborhood
-        VARIANCE,       //!< use the variance of the neighborhood (not recommended)
         AABB_VARIANCE   //!< use both AABB and variance
     };
 
@@ -468,6 +518,7 @@ struct TemporalAntiAliasingOptions {
     bool filterHistory = true;      //!< whether to filter the history buffer
     bool filterInput = true;        //!< whether to apply the reconstruction filter to the input
     bool useYCoCg = false;          //!< whether to use the YcoCg color-space for history rejection
+    bool hdr = true;                //!< set to true for HDR content
     BoxType boxType = BoxType::AABB;            //!< type of color gamut box
     BoxClipping boxClipping = BoxClipping::ACCURATE;     //!< clipping algorithm
     JitterPattern jitterPattern = JitterPattern::HALTON_23_X16; //! Jitter Pattern

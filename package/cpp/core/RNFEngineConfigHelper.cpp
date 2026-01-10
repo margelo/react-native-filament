@@ -31,8 +31,8 @@ Engine::Config EngineConfigHelper::makeConfigFromUserParams(std::optional<std::u
   if (params.find("jobSystemThreadCount") != params.end()) {
     config.jobSystemThreadCount = static_cast<uint32_t>(params["jobSystemThreadCount"]);
   }
-  if (params.find("textureUseAfterFreePoolSize") != params.end()) {
-    config.textureUseAfterFreePoolSize = static_cast<size_t>(params["textureUseAfterFreePoolSize"]);
+  if (params.find("disableHandleUseAfterFreeCheck") != params.end()) {
+    config.disableHandleUseAfterFreeCheck = static_cast<size_t>(params["disableHandleUseAfterFreeCheck"]);
   }
   if (params.find("resourceAllocatorCacheMaxAge") != params.end()) {
     config.resourceAllocatorCacheMaxAge = static_cast<uint32_t>(params["resourceAllocatorCacheMaxAge"]);

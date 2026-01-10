@@ -18,7 +18,6 @@
 #define TNT_UTILS_ALLOCATOR_H
 
 #include <utils/compiler.h>
-#include <utils/debug.h>
 #include <utils/memalign.h>
 #include <utils/Mutex.h>
 
@@ -36,22 +35,22 @@ namespace utils {
 
 namespace pointermath {
 
-template <typename P, typename T>
-static inline P* add(P* a, T b) noexcept {
-    return (P*)(uintptr_t(a) + uintptr_t(b));
+template<typename P, typename T>
+static P* add(P* a, T b) noexcept {
+    return (P*) (uintptr_t(a) + uintptr_t(b));
 }
 
-template <typename P>
-static inline P* align(P* p, size_t alignment) noexcept {
+template<typename P>
+static P* align(P* p, size_t alignment) noexcept {
     // alignment must be a power-of-two
-    assert_invariant(alignment && !(alignment & alignment-1));
-    return (P*)((uintptr_t(p) + alignment - 1) & ~(alignment - 1));
+    assert(alignment && !(alignment & alignment-1));
+    return (P*) ((uintptr_t(p) + alignment - 1) & ~(alignment - 1));
 }
 
-template <typename P>
-static inline P* align(P* p, size_t alignment, size_t offset) noexcept {
+template<typename P>
+static P* align(P* p, size_t alignment, size_t offset) noexcept {
     P* const r = align(add(p, offset), alignment);
-    assert_invariant(r >= add(p, offset));
+    assert(r >= add(p, offset));
     return r;
 }
 
@@ -102,7 +101,7 @@ public:
 
     // free memory back to the specified point
     void rewind(void* p) UTILS_RESTRICT noexcept {
-        assert_invariant(p >= mBegin && p < end());
+        assert(p >= mBegin && p < end());
         set_current(p);
     }
 
@@ -194,7 +193,7 @@ public:
     }
 
     ~LinearAllocatorWithFallback() noexcept {
-        LinearAllocatorWithFallback::reset();
+        reset();
     }
 
     void* alloc(size_t size, size_t alignment = alignof(std::max_align_t));
@@ -204,7 +203,7 @@ public:
     }
 
     void rewind(void* p) noexcept {
-        if (p >= LinearAllocator::base() && p < LinearAllocator::end()) {
+        if (p >= base() && p < end()) {
             LinearAllocator::rewind(p);
         }
     }
@@ -214,7 +213,7 @@ public:
     void free(void*, size_t) noexcept { }
 
     bool isHeapAllocation(void* p) const noexcept {
-        return p < LinearAllocator::base() || p >= LinearAllocator::end();
+        return p < base() || p >= end();
     }
 };
 
@@ -233,15 +232,16 @@ public:
         Node* const head = mHead;
         mHead = head ? head->next : nullptr;
         // this could indicate a use after free
-        assert_invariant(!mHead || mHead >= mBegin && mHead < mEnd);
+        assert(!mHead || mHead >= mBegin && mHead < mEnd);
         return head;
     }
 
     void push(void* p) noexcept {
-        assert_invariant(p);
-        assert_invariant(p >= mBegin && p < mEnd);
-        // TODO: assert this is one of our pointer (i.e.: it's address match one of ours)
-        Node* const head = static_cast<Node*>(p);
+        assert(p);
+        assert(p >= mBegin && p < mEnd);
+        // we use placement-new to properly manage the lifetime
+        // this is noop already under O1
+        Node* const head = new (p) Node;
         head->next = mHead;
         mHead = head;
     }
@@ -278,41 +278,50 @@ public:
     void* pop() noexcept {
         Node* const pStorage = mStorage;
 
-        HeadPtr currentHead = mHead.load();
+        HeadPtr currentHead = mHead.load(std::memory_order_relaxed);
         while (currentHead.offset >= 0) {
             // The value of "pNext" we load here might already contain application data if another
             // thread raced ahead of us. But in that case, the computed "newHead" will be discarded
-            // since compare_exchange_weak fails. Then this thread will loop with the updated
+            // since compare_exchange_weak() fails. Then this thread will loop with the updated
             // value of currentHead, and try again.
-            Node* const pNext = pStorage[currentHead.offset].next.load(std::memory_order_relaxed);
+            // TSAN complains if we don't use a local variable here.
+            Node const node = pStorage[currentHead.offset];
+            Node const* const pNext = node.next;
             const HeadPtr newHead{ pNext ? int32_t(pNext - pStorage) : -1, currentHead.tag + 1 };
-            // In the rare case that the other thread that raced ahead of us already returned the 
-            // same mHead we just loaded, but it now has a different "next" value, the tag field will not 
-            // match, and compare_exchange_weak will fail and prevent that particular race condition.
-            if (mHead.compare_exchange_weak(currentHead, newHead)) {
+            // In the rare case that the other thread that raced ahead of us already returned the
+            // same mHead we just loaded, but it now has a different "next" value, the tag field
+            // will not match, and compare_exchange_weak() will fail and prevent that particular
+            // race condition.
+            // acquire: no read/write can be reordered before this
+            if (mHead.compare_exchange_weak(currentHead, newHead,
+                    std::memory_order_acquire, std::memory_order_relaxed)) {
                 // This assert needs to occur after we have validated that there was no race condition
                 // Otherwise, next might already contain application data, if another thread
                 // raced ahead of us after we loaded mHead, but before we loaded mHead->next.
-                assert_invariant(!pNext || pNext >= pStorage);
+                assert(!pNext || pNext >= pStorage);
                 break;
             }
         }
         void* p = (currentHead.offset >= 0) ? (pStorage + currentHead.offset) : nullptr;
-        assert_invariant(!p || p >= pStorage);
+        assert(!p || p >= pStorage);
         return p;
     }
 
     void push(void* p) noexcept {
         Node* const storage = mStorage;
-        assert_invariant(p && p >= storage);
-        Node* const node = static_cast<Node*>(p);
-        HeadPtr currentHead = mHead.load();
+        assert(p && p >= storage);
+        // we use placement-new to properly manage the lifetime
+        // this is noop already under O1
+        Node* const node = new (p) Node;
+        HeadPtr currentHead = mHead.load(std::memory_order_relaxed);
         HeadPtr newHead = { int32_t(node - storage), currentHead.tag + 1 };
         do {
             newHead.tag = currentHead.tag + 1;
-            Node* const n = (currentHead.offset >= 0) ? (storage + currentHead.offset) : nullptr;
-            node->next.store(n, std::memory_order_relaxed);
-        } while(!mHead.compare_exchange_weak(currentHead, newHead));
+            Node* const pNext = (currentHead.offset >= 0) ? (storage + currentHead.offset) : nullptr;
+            node->next = pNext; // could be a race with pop, corrected by CAS
+        } while(!mHead.compare_exchange_weak(currentHead, newHead,
+                std::memory_order_release, std::memory_order_relaxed));
+        // release: no read/write can be reordered after this
     }
 
     void* getFirst() noexcept {
@@ -320,10 +329,7 @@ public:
     }
 
     struct Node {
-        // This should be a regular (non-atomic) pointer, but this causes TSAN to complain
-        // about a data-race that exists but is benin. We always use this atomic<> in
-        // relaxed mode.
-        // The data race TSAN complains about is when a pop() is interrupted by a
+        // There is a benign data race when a pop() is interrupted by a
         // pop() + push() just after mHead->next is read -- it appears as though it is written
         // without synchronization (by the push), however in that case, the pop's CAS will fail
         // and things will auto-correct.
@@ -346,7 +352,7 @@ public:
         //     |
         //    CAS, tag++
         //
-        std::atomic<Node*> next;
+        Node* next = nullptr;
     };
 
 private:
@@ -378,9 +384,9 @@ public:
     // our allocator concept
     void* alloc(size_t size = ELEMENT_SIZE,
                 size_t alignment = ALIGNMENT, size_t offset = OFFSET) noexcept {
-        assert_invariant(size <= ELEMENT_SIZE);
-        assert_invariant(alignment <= ALIGNMENT);
-        assert_invariant(offset == OFFSET);
+        assert(size <= ELEMENT_SIZE);
+        assert(alignment <= ALIGNMENT);
+        assert(offset == OFFSET);
         return mFreeList.pop();
     }
 
@@ -458,7 +464,7 @@ public:
         if (UTILS_UNLIKELY(!p)) {
             p = HeapAllocator::alloc(size, alignment);
         }
-        assert_invariant(p);
+        assert(p);
         return p;
     }
 
@@ -714,13 +720,13 @@ public:
     // trivially destructible, since free() won't call the destructor and this is allocating
     // an array.
     template <typename T,
-            typename = typename std::enable_if<std::is_trivially_destructible<T>::value>::type>
+            typename = std::enable_if_t<std::is_trivially_destructible_v<T>>>
     T* alloc(size_t count, size_t alignment, size_t extra) noexcept {
         return (T*)alloc(count * sizeof(T), alignment, extra);
     }
 
     template <typename T,
-            typename = typename std::enable_if<std::is_trivially_destructible<T>::value>::type>
+            typename = std::enable_if_t<std::is_trivially_destructible_v<T>>>
     T* alloc(size_t count, size_t alignment = alignof(T)) noexcept {
         return (T*)alloc(count * sizeof(T), alignment);
     }
@@ -876,7 +882,7 @@ public:
     template<typename T, size_t ALIGN = alignof(T), typename... ARGS>
     T* make(ARGS&& ... args) noexcept {
         T* o = nullptr;
-        if (std::is_trivially_destructible<T>::value) {
+        if (std::is_trivially_destructible_v<T>) {
             o = mArena.template make<T, ALIGN>(std::forward<ARGS>(args)...);
         } else {
             void* const p = (Finalizer*)mArena.alloc(sizeof(T), ALIGN, sizeof(Finalizer));
@@ -939,7 +945,7 @@ public:
 
     TYPE* allocate(std::size_t n) {
         auto p = static_cast<TYPE *>(mArena.alloc(n * sizeof(TYPE), alignof(TYPE)));
-        assert_invariant(p);
+        assert(p);
         return p;
     }
 

@@ -23,9 +23,11 @@
 
 #include <utils/compiler.h>
 #include <utils/Invocable.h>
+#include <utils/CString.h>
 
 #include <stddef.h>
 #include <stdint.h>
+#include <math/mat3.h>
 
 namespace filament::backend {
 
@@ -51,11 +53,22 @@ protected:
     ~OpenGLPlatform() noexcept override;
 
 public:
-
     struct ExternalTexture {
-        unsigned int target;            // GLenum target
-        unsigned int id;                // GLuint id
+        unsigned int target; // GLenum target
+        unsigned int id; // GLuint id
     };
+
+    /**
+     * Return the OpenGL vendor string of the specified Driver instance.
+     * @return The GL_VENDOR string
+     */
+    static utils::CString getVendorString(Driver const* UTILS_NONNULL driver);
+
+    /**
+     * Return the OpenGL vendor string of the specified Driver instance
+     * @return The GL_RENDERER string
+     */
+    static utils::CString getRendererString(Driver const* UTILS_NONNULL driver);
 
     /**
      * Called by the driver to destroy the OpenGL context. This should clean up any windows
@@ -71,6 +84,15 @@ public:
      * @return true if SWAP_CHAIN_CONFIG_SRGB_COLORSPACE is supported, false otherwise.
      */
     virtual bool isSRGBSwapChainSupported() const noexcept;
+
+    /**
+     * Return whether createSwapChain supports the SWAP_CHAIN_CONFIG_MSAA_*_SAMPLES flag.
+     * The default implementation returns false.
+     *
+     * @param samples The number of samples
+     * @return true if SWAP_CHAIN_CONFIG_MSAA_*_SAMPLES is supported, false otherwise.
+     */
+    virtual bool isMSAASwapChainSupported(uint32_t samples) const noexcept;
 
     /**
      * Return whether protected contexts are supported by this backend.
@@ -90,7 +112,7 @@ public:
      *
      */
     virtual SwapChain* UTILS_NULLABLE createSwapChain(
-            void* UTILS_NULLABLE nativeWindow, uint64_t flags) noexcept = 0;
+            void* UTILS_NULLABLE nativeWindow, uint64_t flags) = 0;
 
     /**
      * Called by the driver create a headless SwapChain.
@@ -104,7 +126,7 @@ public:
      *       A void* might be enough.
      */
     virtual SwapChain* UTILS_NULLABLE createSwapChain(
-            uint32_t width, uint32_t height, uint64_t flags) noexcept = 0;
+            uint32_t width, uint32_t height, uint64_t flags) = 0;
 
     /**
      * Called by the driver to destroys the SwapChain
@@ -186,7 +208,7 @@ public:
      */
     virtual bool makeCurrent(ContextType type,
             SwapChain* UTILS_NONNULL drawSwapChain,
-            SwapChain* UTILS_NONNULL readSwapChain) noexcept = 0;
+            SwapChain* UTILS_NONNULL readSwapChain) = 0;
 
     /**
      * Called by the driver to make the OpenGL context active on the calling thread and bind
@@ -206,7 +228,7 @@ public:
             SwapChain* UTILS_NONNULL drawSwapChain,
             SwapChain* UTILS_NONNULL readSwapChain,
             utils::Invocable<void()> preContextChange,
-            utils::Invocable<void(size_t index)> postContextChange) noexcept;
+            utils::Invocable<void(size_t index)> postContextChange);
 
     /**
      * Called by the backend just before calling commit()
@@ -263,6 +285,26 @@ public:
      */
     virtual backend::FenceStatus waitFence(Fence* UTILS_NONNULL fence, uint64_t timeout) noexcept;
 
+    // --------------------------------------------------------------------------------------------
+    // Sync support
+
+    /**
+     * Creates a Sync. These can be used for frame synchronization externally
+     * (certain platform implementations can be exported to handles that can
+     * be used in other processes).
+     *
+     * @return A Sync object.
+     */
+    virtual Platform::Sync* UTILS_NONNULL createSync() noexcept;
+
+    /**
+     * Destroys a sync. If called with a sync not created by this platform
+     * object, this will lead to undefined behavior.
+     *
+     * @param sync The sync to destroy, that was created by this platform
+     *             instance.
+     */
+    virtual void destroySync(Platform::Sync* UTILS_NONNULL sync) noexcept;
 
     // --------------------------------------------------------------------------------------------
     // Streaming support
@@ -307,6 +349,13 @@ public:
     virtual void updateTexImage(Stream* UTILS_NONNULL stream,
             int64_t* UTILS_NONNULL timestamp) noexcept;
 
+    /**
+     * Returns the transform matrix of the texture attached to the stream.
+     * @param stream Stream to get the transform matrix from
+     * @param uvTransform Output parameter: Transform matrix of the image bound to the texture. Returns identity if not supported.
+     */
+    virtual math::mat3f getTransformMatrix(Stream* UTILS_NONNULL stream) noexcept;
+
 
     // --------------------------------------------------------------------------------------------
     // External Image support
@@ -324,20 +373,24 @@ public:
      * Destroys an external texture handle and associated data.
      * @param texture a pointer to the handle to destroy.
      */
-    virtual void destroyExternalImage(ExternalTexture* UTILS_NONNULL texture) noexcept;
+    virtual void destroyExternalImageTexture(ExternalTexture* UTILS_NONNULL texture) noexcept;
 
     // called on the application thread to allow Filament to take ownership of the image
 
     /**
      * Takes ownership of the externalImage. The externalImage parameter depends on the Platform's
-     * concrete implementation. Ownership is released when destroyExternalImage() is called.
+     * concrete implementation. Ownership is released when destroyExternalImageTexture() is called.
      *
      * WARNING: This is called synchronously from the application thread (NOT the Driver thread)
      *
      * @param externalImage A token representing the platform's external image.
      * @see destroyExternalImage
+     * @{
      */
     virtual void retainExternalImage(void* UTILS_NONNULL externalImage) noexcept;
+
+    virtual void retainExternalImage(ExternalImageHandleRef externalImage) noexcept;
+    /** @}*/
 
     /**
      * Called to bind the platform-specific externalImage to an ExternalTexture.
@@ -345,14 +398,19 @@ public:
      * is updated with new values for id/target if necessary.
      *
      * WARNING: this method is not allowed to change the bound texture, or must restore the previous
-     * binding upon return. This is to avoid problem with a backend doing state caching.
+     * binding upon return. This is to avoid a problem with a backend doing state caching.
      *
      * @param externalImage The platform-specific external image.
      * @param texture an in/out pointer to ExternalTexture, id and target can be updated if necessary.
      * @return true on success, false on error.
+     * @{
      */
     virtual bool setExternalImage(void* UTILS_NONNULL externalImage,
             ExternalTexture* UTILS_NONNULL texture) noexcept;
+
+    virtual bool setExternalImage(ExternalImageHandleRef externalImage,
+            ExternalTexture* UTILS_NONNULL texture) noexcept;
+    /** @}*/
 
     /**
      * The method allows platforms to convert a user-supplied external image object into a new type
@@ -372,7 +430,7 @@ public:
     virtual bool isExtraContextSupported() const noexcept;
 
     /**
-     * Creates an OpenGL context with the same configuration than the main context and makes it
+     * Creates an OpenGL context with the same configuration as the main context and makes it
      * current to the current thread. Must not be called from the main driver thread.
      * createContext() is only supported if isExtraContextSupported() returns true.
      * These additional contexts will be automatically terminated in terminate.
@@ -385,7 +443,7 @@ public:
 
     /**
      * Detach and destroy the current context if any and releases all resources associated to
-     * this thread.
+     * this thread. This must be called from the same thread where createContext() was called.
      */
     virtual void releaseContext() noexcept;
 };

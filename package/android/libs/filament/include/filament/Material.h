@@ -70,6 +70,20 @@ public:
     using SubpassType = backend::SubpassType;
 
     /**
+     * Defines whether a material instance should use UBO batching or not.
+     */
+    enum class UboBatchingMode {
+        /**
+         * For default, it follows the engine settings.
+         * If UBO batching is enabled on the engine and the material domain is SURFACE, it
+         * turns on the UBO batching. Otherwise, it turns off the UBO batching.
+        */
+        DEFAULT,
+        //! Disable the Ubo Batching for this material
+        DISABLED,
+    };
+
+    /**
      * Holds information about a material parameter.
      */
     struct ParameterInfo {
@@ -103,6 +117,11 @@ public:
         Builder& operator=(Builder const& rhs) noexcept;
         Builder& operator=(Builder&& rhs) noexcept;
 
+        enum class ShadowSamplingQuality : uint8_t {
+            HARD,   // 2x2 PCF
+            LOW     // 3x3 gaussian filter
+        };
+
         /**
          * Specifies the material data. The material data is a binary blob produced by
          * libfilamat or by matc.
@@ -113,10 +132,10 @@ public:
         Builder& package(const void* UTILS_NONNULL payload, size_t size);
 
         template<typename T>
-        using is_supported_constant_parameter_t = typename std::enable_if<
-                std::is_same<int32_t, T>::value ||
-                std::is_same<float, T>::value ||
-                std::is_same<bool, T>::value>::type;
+        using is_supported_constant_parameter_t = std::enable_if_t<
+                std::is_same_v<int32_t, T> ||
+                std::is_same_v<float, T> ||
+                std::is_same_v<bool, T>>;
 
         /**
          * Specialize a constant parameter specified in the material definition with a concrete
@@ -141,6 +160,33 @@ public:
         }
 
         /**
+         * Sets the quality of the indirect lights computations. This is only taken into account
+         * if this material is lit and in the surface domain. This setting will affect the
+         * IndirectLight computation if one is specified on the Scene and Spherical Harmonics
+         * are used for the irradiance.
+         *
+         * @param shBandCount Number of spherical harmonic bands. Must be 1, 2 or 3 (default).
+         * @return Reference to this Builder for chaining calls.
+         * @see IndirectLight
+         */
+        Builder& sphericalHarmonicsBandCount(size_t shBandCount) noexcept;
+
+        /**
+         * Set the quality of shadow sampling. This is only taken into account
+         * if this material is lit and in the surface domain.
+         * @param quality
+         * @return
+         */
+        Builder& shadowSamplingQuality(ShadowSamplingQuality quality) noexcept;
+
+        /**
+         * Set the batching mode of the instances created from this material.
+         * @param uboBatchingMode
+         * @return
+         */
+        Builder& uboBatching(UboBatchingMode uboBatchingMode) noexcept;
+
+        /**
          * Creates the Material object and returns a pointer to it.
          *
          * @param engine Reference to the filament::Engine to associate this Material with.
@@ -152,7 +198,7 @@ public:
          *            memory or other resources.
          * @exception utils::PreConditionPanic if a parameter to a builder function was invalid.
          */
-        Material* UTILS_NULLABLE build(Engine& engine);
+        Material* UTILS_NULLABLE build(Engine& engine) const;
     private:
         friend class FMaterial;
     };
@@ -324,6 +370,24 @@ public:
 
     //! Indicates whether an existing parameter is a sampler or not.
     bool isSampler(const char* UTILS_NONNULL name) const noexcept;
+
+    /**
+     * Returns a view of the material source (.mat which is a JSON-ish file) string,
+     * if it has been set. Otherwise, it returns a view of an empty string.
+     * The lifetime of the string_view is tied to the lifetime of the Material.
+     */
+    std::string_view getSource() const noexcept;
+    /**
+     *
+     * Gets the name of the transform field associated for the given sampler parameter.
+     * In the case where the parameter does not have a transform name field, it will return nullptr.
+     *
+     * @param samplerName the name of the sampler parameter to query.
+     *
+     * @return If exists, the transform name value otherwise returns a nullptr.
+     */
+    const char* UTILS_NULLABLE getParameterTransformName(
+            const char* UTILS_NONNULL samplerName) const noexcept;
 
     /**
      * Sets the value of the given parameter on this material's default instance.

@@ -32,7 +32,7 @@ namespace utils {
 inline void* aligned_alloc(size_t size, size_t align) noexcept {
     // 'align' must be a power of two and a multiple of sizeof(void*)
     align = (align < sizeof(void*)) ? sizeof(void*) : align;
-    assert(align && !(align & align - 1));
+    assert(align && !(align & (align - 1)));
     assert((align % sizeof(void*)) == 0);
 
     void* p = nullptr;
@@ -40,7 +40,7 @@ inline void* aligned_alloc(size_t size, size_t align) noexcept {
 #if defined(WIN32)
     p = ::_aligned_malloc(size, align);
 #else
-    ::posix_memalign(&p, align, size);
+    (void) ::posix_memalign(&p, align, size);
 #endif
     return p;
 }
@@ -73,8 +73,8 @@ public:
     using const_pointer = const TYPE*;
     using reference = TYPE&;
     using const_reference = const TYPE&;
-    using size_type = std::size_t;
-    using difference_type = std::ptrdiff_t;
+    using size_type = ::size_t;
+    using difference_type = ::ptrdiff_t;
     using propagate_on_container_move_assignment = std::true_type;
     using is_always_equal = std::true_type;
 

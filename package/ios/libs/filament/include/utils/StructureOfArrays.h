@@ -20,13 +20,7 @@
 #include <type_traits>
 #include <utils/Allocator.h>
 #include <utils/compiler.h>
-#include <utils/debug.h>
 #include <utils/Slice.h>
-
-#include <stddef.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include <algorithm>
 #include <array>        // note: this is safe, see how std::array is used below (inline / private)
@@ -34,6 +28,12 @@
 #include <iterator>     // for std::random_access_iterator_tag
 #include <tuple>
 #include <utility>
+
+#include <assert.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
 namespace utils {
 
@@ -130,7 +130,7 @@ public:
         friend class IteratorValueRef;
         friend iterator;
         friend const_iterator;
-        using Type = std::tuple<typename std::decay<Elements>::type...>;
+        using Type = std::tuple<std::decay_t<Elements>...>;
         Type elements;
 
         template<size_t ... Is>
@@ -535,29 +535,29 @@ public:
 
 private:
     template<std::size_t I = 0, typename FuncT, typename... Tp>
-    inline typename std::enable_if<I == sizeof...(Tp), void>::type
+    inline std::enable_if_t<I == sizeof...(Tp), void>
     for_each(std::tuple<Tp...>&, FuncT) {}
 
     template<std::size_t I = 0, typename FuncT, typename... Tp>
-    inline typename std::enable_if<I < sizeof...(Tp), void>::type
+    inline std::enable_if_t<I < sizeof...(Tp), void>
     for_each(std::tuple<Tp...>& t, FuncT f) {
         f(I, std::get<I>(t));
         for_each<I + 1, FuncT, Tp...>(t, f);
     }
 
     template<std::size_t I = 0, typename FuncT, typename... Tp>
-    inline typename std::enable_if<I == sizeof...(Tp), void>::type
+    inline std::enable_if_t<I == sizeof...(Tp), void>
     for_each_index(std::tuple<Tp...>&, FuncT) {}
 
     template<std::size_t I = 0, typename FuncT, typename... Tp>
-    inline typename std::enable_if<I < sizeof...(Tp), void>::type
+    inline std::enable_if_t<I < sizeof...(Tp), void>
     for_each_index(std::tuple<Tp...>& t, FuncT f) {
         f.template operator()<I>(std::get<I>(t));
         for_each_index<I + 1, FuncT, Tp...>(t, f);
     }
 
     inline void resizeNoCheck(size_t needed) noexcept {
-        assert_invariant(mCapacity >= needed);
+        assert(mCapacity >= needed);
         if (needed < mSize) {
             // we shrink the arrays
             destroy_each(needed, mSize);
@@ -590,14 +590,14 @@ private:
             size_t unalignment = (offsets[i - 1] + sizes[i - 1]) % alignments[i];
             size_t alignment = unalignment ? (alignments[i] - unalignment) : 0;
             offsets[i] = offsets[i - 1] + (sizes[i - 1] + alignment);
-            assert_invariant(offsets[i] % alignments[i] == 0);
+            assert(offsets[i] % alignments[i] == 0);
         }
         return offsets;
     }
 
     void construct_each(size_t from, size_t to) noexcept {
         forEach([from, to](auto p) {
-            using T = typename std::decay<decltype(*p)>::type;
+            using T = std::decay_t<decltype(*p)>;
             // note: scalar types like int/float get initialized to zero
             if constexpr (!std::is_trivially_default_constructible_v<T>) {
                 for (size_t i = from; i < to; i++) {
@@ -609,7 +609,7 @@ private:
 
     void destroy_each(size_t from, size_t to) noexcept {
         forEach([from, to](auto p) {
-            using T = typename std::decay<decltype(*p)>::type;
+            using T = std::decay_t<decltype(*p)>;
             if constexpr (!std::is_trivially_destructible_v<T>) {
                 for (size_t i = from; i < to; i++) {
                     p[i].~T();
@@ -624,7 +624,7 @@ private:
         if (mSize) {
             auto size = mSize; // placate a compiler warning
             forEach([buffer, &index, &offsets, size](auto p) {
-                using T = typename std::decay<decltype(*p)>::type;
+                using T = std::decay_t<decltype(*p)>;
                 T* UTILS_RESTRICT b = static_cast<T*>(buffer);
 
                 // go through each element and move them from the old array to the new
@@ -671,7 +671,7 @@ template<typename Allocator, typename... Elements>
 inline
 typename StructureOfArraysBase<Allocator, Elements...>::IteratorValueRef&
 StructureOfArraysBase<Allocator, Elements...>::IteratorValueRef::operator=(
-        StructureOfArraysBase::IteratorValueRef const& rhs) {
+        IteratorValueRef const& rhs) {
     return operator=(IteratorValue(rhs));
 }
 
@@ -679,7 +679,7 @@ template<typename Allocator, typename... Elements>
 inline
 typename StructureOfArraysBase<Allocator, Elements...>::IteratorValueRef&
 StructureOfArraysBase<Allocator, Elements...>::IteratorValueRef::operator=(
-        StructureOfArraysBase::IteratorValueRef&& rhs) noexcept {
+        IteratorValueRef&& rhs) noexcept {
     return operator=(IteratorValue(rhs));
 }
 
@@ -688,7 +688,7 @@ template<size_t... Is>
 inline
 typename StructureOfArraysBase<Allocator, Elements...>::IteratorValueRef&
 StructureOfArraysBase<Allocator, Elements...>::IteratorValueRef::assign(
-        StructureOfArraysBase::IteratorValue const& rhs, std::index_sequence<Is...>) {
+        IteratorValue const& rhs, std::index_sequence<Is...>) {
     // implements IteratorValueRef& IteratorValueRef::operator=(IteratorValue const& rhs)
     auto UTILS_UNUSED l = { (soa->elementAt<Is>(index) = std::get<Is>(rhs.elements), 0)... };
     return *this;
@@ -699,7 +699,7 @@ template<size_t... Is>
 inline
 typename StructureOfArraysBase<Allocator, Elements...>::IteratorValueRef&
 StructureOfArraysBase<Allocator, Elements...>::IteratorValueRef::assign(
-        StructureOfArraysBase::IteratorValue&& rhs, std::index_sequence<Is...>) noexcept {
+        IteratorValue&& rhs, std::index_sequence<Is...>) noexcept {
     // implements IteratorValueRef& IteratorValueRef::operator=(IteratorValue&& rhs) noexcept
     auto UTILS_UNUSED l = {
             (soa->elementAt<Is>(index) = std::move(std::get<Is>(rhs.elements)), 0)... };

@@ -24,8 +24,10 @@
 
 #include <utils/compiler.h>
 #include <utils/Entity.h>
+#include <utils/FixedCapacityVector.h>
 
 #include <math/mathfwd.h>
+#include <math/mat4.h>
 
 #include <utility>
 
@@ -40,6 +42,7 @@ class CallbackHandler;
 
 class Camera;
 class ColorGrading;
+class Engine;
 class MaterialInstance;
 class RenderTarget;
 class Scene;
@@ -182,12 +185,13 @@ public:
      *                  View.\n
      *                  The View doesn't take ownership of the Camera pointer (which
      *                  acts as a reference).
+     *                  If the camera isn't set, Renderer::render() will result in a no-op.
      *
      * @note
      *  There is no reference-counting.
      *  Make sure to dissociate a Camera from all Views before destroying it.
      */
-    void setCamera(Camera* UTILS_NONNULL camera) noexcept;
+    void setCamera(Camera* UTILS_NULLABLE camera) noexcept;
 
     /**
      * Returns whether a Camera is set.
@@ -198,17 +202,37 @@ public:
 
     /**
      * Returns the Camera currently associated with this View.
-     * @return A reference to the Camera associated to this View.
+     * Undefined behavior if hasCamera() is false.
+     * @return A reference to the Camera associated to this View if hasCamera() is true.
+     * @see hasCamera()
      */
     Camera& getCamera() noexcept;
 
     /**
      * Returns the Camera currently associated with this View.
+     * Undefined behavior if hasCamera() is false.
      * @return A reference to the Camera associated to this View.
+     * @see hasCamera()
      */
     Camera const& getCamera() const noexcept {
         return const_cast<View*>(this)->getCamera();
     }
+
+
+    /**
+     * Sets whether a channel must clear the depth buffer before all primitives are rendered.
+     * Channel depth clear is off by default for all channels.
+     * This is orthogonal to Renderer::setClearOptions().
+     * @param channel between 0 and 7
+     * @param enabled true to enable clear, false to disable
+     */
+    void setChannelDepthClearEnabled(uint8_t channel, bool enabled) noexcept;
+
+    /**
+     * @param channel between 0 and 7
+     * @return true if this channel has depth clear enabled.
+     */
+    bool isChannelDepthClearEnabled(uint8_t channel) const noexcept;
 
     /**
      * Sets the blending mode used to draw the view into the SwapChain.
@@ -518,6 +542,14 @@ public:
     DynamicResolutionOptions getDynamicResolutionOptions() const noexcept;
 
     /**
+     * Returns the last dynamic resolution scale factor used by this view. This value is updated
+     * when Renderer::render(View*) is called
+     * @return a float2 where x is the horizontal and y the vertical scale factor.
+     * @see Renderer::render
+     */
+    math::float2 getLastDynamicResolutionScale() const noexcept;
+
+    /**
      * Sets the rendering quality for this view. Refer to RenderQuality for more
      * information about the different settings available.
      *
@@ -540,12 +572,13 @@ public:
      *                   visible -- in this case, using a larger value can improve performance.
      *                   e.g. when standing and looking straight, several meters of the ground
      *                   isn't visible and if lights are expected to shine there, there is no
-     *                   point using a short zLightNear. (Default 5m).
+     *                   point using a short zLightNear. This value is clamped between
+     *                   the camera near and far plane. (Default 5m).
      *
      * @param zLightFar Distance from the camera after which lights are not expected to be visible.
      *                  Similarly to zLightNear, setting this value properly can improve
-     *                  performance. (Default 100m).
-     *
+     *                  performance.  This value is clamped between the camera near and far plane.
+     *                  (Default 100m).
      *
      * Together zLightNear and zLightFar must be chosen so that the visible influence of lights
      * is spread between these two values.
@@ -567,6 +600,13 @@ public:
      * @warning This API is still experimental and subject to change.
      */
     void setShadowType(ShadowType shadow) noexcept;
+
+    /**
+     * Returns the shadow mapping technique used by this View.
+     *
+     * @return value set by setShadowType().
+     */
+    ShadowType getShadowType() const noexcept;
 
     /**
      * Sets VSM shadowing options that apply across the entire View.
@@ -660,6 +700,26 @@ public:
     bool isFrontFaceWindingInverted() const noexcept;
 
     /**
+     * Enables or disables transparent picking. Disabled by default.
+     *
+     * When transparent picking is enabled, View::pick() will pick from both
+     * transparent and opaque renderables. When disabled, View::pick() will only
+     * pick from opaque renderables.
+     *
+     * @param enabled true enables transparent picking, false disables it.
+     *
+     * @note Transparent picking will create an extra pass for rendering depth
+     *       from both transparent and opaque renderables. 
+     */
+    void setTransparentPickingEnabled(bool enabled) noexcept;
+
+    /**
+     * Returns true if transparent picking is enabled.
+     * See setTransparentPickingEnabled() for more information.
+     */
+    bool isTransparentPickingEnabled() const noexcept;
+
+    /**
      * Enables use of the stencil buffer.
      *
      * The stencil buffer is an 8-bit, per-fragment unsigned integer stored alongside the depth
@@ -726,8 +786,31 @@ public:
     void setDebugCamera(Camera* UTILS_NULLABLE camera) noexcept;
 
     //! debugging: returns a Camera from the point of view of *the* dominant directional light used for shadowing.
-    Camera const* UTILS_NULLABLE getDirectionalShadowCamera() const noexcept;
+    utils::FixedCapacityVector<Camera const*> getDirectionalShadowCameras() const noexcept;
 
+    //! debugging: enable or disable froxel visualisation for this view.
+    void setFroxelVizEnabled(bool enabled) noexcept;
+
+    //! debugging: returns information about the froxel configuration
+    struct FroxelConfigurationInfo {
+        uint16_t width;
+        uint16_t height;
+        uint16_t depth;
+        uint32_t viewportWidth;
+        uint32_t viewportHeight;
+        math::uint2 froxelDimension;
+        float zLightFar;
+        float linearizer;
+        math::mat4f p;
+        math::float4 clipTransform;
+    };
+
+    struct FroxelConfigurationInfoWithAge {
+        FroxelConfigurationInfo info;
+        uint32_t age;
+    };
+
+    FroxelConfigurationInfoWithAge getFroxelConfigurationInfo() const noexcept;
 
     /** Result of a picking query */
     struct PickingQueryResult {
@@ -877,6 +960,17 @@ public:
      * @return an Entity representing the large scale fog object.
      */
     utils::Entity getFogEntity() const noexcept;
+
+
+    /**
+     * When certain temporal features are used (e.g.: TAA or Screen-space reflections), the view
+     * keeps a history of previous frame renders associated with the Renderer the view was last
+     * used with. When switching Renderer, it may be necessary to clear that history by calling
+     * this method. Similarly, if the whole content of the screen change, like when a cut-scene
+     * starts, clearing the history might be needed to avoid artifacts due to the previous frame
+     * being very different.
+     */
+    void clearFrameHistory(Engine& engine) noexcept;
 
     /**
      * List of available ambient occlusion techniques

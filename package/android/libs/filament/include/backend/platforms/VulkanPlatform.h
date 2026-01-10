@@ -17,6 +17,8 @@
 #ifndef TNT_FILAMENT_BACKEND_PLATFORMS_VULKANPLATFORM_H
 #define TNT_FILAMENT_BACKEND_PLATFORMS_VULKANPLATFORM_H
 
+#include <backend/CallbackHandler.h>
+#include <backend/DriverEnums.h>
 #include <backend/Platform.h>
 
 #include <bluevk/BlueVK.h>
@@ -26,6 +28,9 @@
 #include <utils/Hash.h>
 #include <utils/PrivateImplementation.h>
 
+#include <cstddef>
+#include <functional>
+#include <string>
 #include <tuple>
 #include <unordered_set>
 
@@ -40,6 +45,10 @@ using SwapChain = Platform::SwapChain;
  * Private implementation details for the provided vulkan platform.
  */
 struct VulkanPlatformPrivate;
+
+// Forward declare the fence status that will be maintained by the command
+// buffer manager.
+struct VulkanCmdFence;
 
 /**
  * A Platform interface that creates a Vulkan backend.
@@ -71,6 +80,9 @@ public:
         // where the gpu only has one graphics queue. Then the client needs to ensure that no
         // concurrent access can occur.
         uint32_t graphicsQueueIndex = 0xFFFFFFFF;
+        bool debugUtilsSupported = false;
+        bool debugMarkersSupported = false;
+        bool multiviewSupported = false;
     };
 
     /**
@@ -88,6 +100,8 @@ public:
         VkFormat colorFormat = VK_FORMAT_UNDEFINED;
         VkFormat depthFormat = VK_FORMAT_UNDEFINED;
         VkExtent2D extent = {0, 0};
+        uint32_t layerCount = 1;
+        bool isProtected = false;
     };
 
     struct ImageSyncData {
@@ -98,10 +112,6 @@ public:
 
         // Semaphore to be signaled once the image is available.
         VkSemaphore imageReadySemaphore = VK_NULL_HANDLE;
-
-        // A function called right before vkQueueSubmit. After this call, the image must be 
-        // available. This pointer can be null if imageReadySemaphore is not VK_NULL_HANDLE.
-        std::function<void(SwapChainPtr handle)> explicitImageReadyWait = nullptr;
     };
 
     VulkanPlatform();
@@ -109,7 +119,7 @@ public:
     ~VulkanPlatform() override;
 
     Driver* createDriver(void* sharedContext,
-            Platform::DriverConfig const& driverConfig) noexcept override;
+            Platform::DriverConfig const& driverConfig) override;
 
     int getOSVersion() const noexcept override {
         return 0;
@@ -200,6 +210,13 @@ public:
     virtual bool hasResized(SwapChainPtr handle);
 
     /**
+     * Check if the surface is protected.
+     * @param handle             The handle returned by createSwapChain()
+     * @return                   Whether the swapchain is protected
+     */
+    virtual bool isProtected(SwapChainPtr handle);
+
+    /**
      * Carry out a recreation of the swapchain.
      * @param handle             The handle returned by createSwapChain()
      * @return                   Result of the recreation
@@ -216,6 +233,25 @@ public:
      */
     virtual SwapChainPtr createSwapChain(void* nativeWindow, uint64_t flags = 0,
             VkExtent2D extent = {0, 0});
+
+    /**
+     * Creates a Platform::Sync object, which tracks a fence and its status,
+     * and allows conversion to an external sync.
+     * @param fence         The underlying VkFence to use for synchronization.
+     * @param fenceStatus   An object tracking the fence's state
+     * @return              A Platform::Sync object tracking the provided fence.
+     */
+    virtual Platform::Sync* createSync(VkFence fence,
+            std::shared_ptr<VulkanCmdFence> fenceStatus) noexcept;
+
+    /**
+     * Destroys a sync. If called with a sync not created by this platform
+     * object, this will lead to undefined behavior.
+     *
+     * @param sync The sync to destroy, which was created by this platform
+     *             instance.
+     */
+    virtual void destroySync(Platform::Sync* sync) noexcept;
 
     /**
      * Allows implementers to provide instance extensions that they'd like to include in the
@@ -267,13 +303,226 @@ public:
      */
     VkQueue getGraphicsQueue() const noexcept;
 
-private:
-    static ExtensionSet getSwapchainInstanceExtensions();
+    /**
+    * @return The family index of the protected graphics queue selected for the
+    *          Vulkan backend.
+    */
+    uint32_t getProtectedGraphicsQueueFamilyIndex() const noexcept;
 
-    // Platform dependent helper methods
+    /**
+     * @return The index of the protected graphics queue (if there are multiple
+     *          graphics queues) selected for the Vulkan backend.
+     */
+    uint32_t getProtectedGraphicsQueueIndex() const noexcept;
+
+    /**
+     * @return The protected queue that was selected for the Vulkan backend.
+     */
+    VkQueue getProtectedGraphicsQueue() const noexcept;
+
+    struct ExternalImageMetadata {
+        /**
+         * The Filament texture format.
+         */
+        TextureFormat filamentFormat;
+
+        /**
+         * The Filament texture usage.
+         */
+        TextureUsage filamentUsage;
+
+        /**
+         * The width of the external image
+         */
+        uint32_t width;
+
+        /**
+         * The height of the external image
+         */
+        uint32_t height;
+
+        /**
+         * The layer count of the external image
+         */
+        uint32_t layers;
+
+        /**
+         * The numbers of samples per texel
+         */
+        VkSampleCountFlagBits samples;
+
+        /**
+         * The format of the external image
+         */
+        VkFormat format;
+
+        /**
+         * The type of external format (opaque int) if used.
+         */
+        uint64_t externalFormat;
+
+        /**
+         * Image usage
+         */
+        VkImageUsageFlags usage;
+
+        /**
+         * Allocation size
+         */
+        VkDeviceSize allocationSize;
+
+        /**
+         * Heap information
+         */
+        uint32_t memoryTypeBits;
+
+        /**
+         * Ycbcr conversion components
+         */
+        VkComponentMapping ycbcrConversionComponents;
+
+        /**
+         * Ycbcr model
+         */
+        VkSamplerYcbcrModelConversion ycbcrModel;
+
+        /**
+         * Ycbcr range
+         */
+        VkSamplerYcbcrRange ycbcrRange;
+
+        /**
+         * Ycbcr x chroma offset
+         */
+        VkChromaLocation xChromaOffset;
+
+        /**
+         * Ycbcr y chroma offset
+         */
+        VkChromaLocation yChromaOffset;
+    };
+
+
+    // Note that the image metadata might change per-frame, hence we need a method for extracting
+    // it.
+    virtual ExternalImageMetadata extractExternalImageMetadata(ExternalImageHandleRef image) const {
+        return {};
+    }
+
+    struct ImageData {
+        struct Bundle {
+            VkImage image = VK_NULL_HANDLE;
+            VkDeviceMemory memory = VK_NULL_HANDLE;
+
+            inline bool valid() const noexcept {
+                return image != VK_NULL_HANDLE;
+            }
+        };
+        // It's possible for the external image to also have a known VK format. We need to create an
+        // image for that in case we are not looking to use an external "sampler" with this image.
+        Bundle internal;
+
+        // If we get a externalFormat in the metadata, then we should create an image with
+        // VK_FORMAT_UNDEFINED
+        Bundle external;
+    };
+
+    virtual ImageData createVkImageFromExternal(ExternalImageHandleRef image) const {
+        return {};
+    }
+
+protected:
+    struct VulkanSync : public Platform::Sync {
+        VkFence fence;
+        std::shared_ptr<VulkanCmdFence> fenceStatus;
+    };
+
+    /**
+     * Creates the VkInstance used by Filament's Vulkan backend.
+     *
+     * This method can be overridden in subclasses to customize VkInstance creation, such as
+     * adding application-specific layers or extensions.
+     *
+     * The provided `createInfo` contains layers and extensions required by Filament.
+     * If you override this method and need to modify the `createInfo` struct, you must first
+     * make a copy of it and modify the copy.
+     *
+     * @param createInfo The VkInstanceCreateInfo prepared by Filament.
+     * @return The created VkInstance, or VK_NULL_HANDLE on failure.
+     */
+    virtual VkInstance createVkInstance(VkInstanceCreateInfo const& createInfo) noexcept;
+
+    /**
+     * Selects a VkPhysicalDevice (GPU) for Filament's Vulkan backend to use.
+     *
+     * This method can be overridden in subclasses to implement custom GPU selection logic.
+     * For example, an application might override this to prefer a discrete GPU over an
+     * integrated one based on device properties.
+     *
+     * The default implementation selects the first device that meets Filament's requirements.
+     *
+     * @param instance The VkInstance to enumerate devices from.
+     * @return The selected VkPhysicalDevice, or VK_NULL_HANDLE if no suitable device is found.
+     */
+    virtual VkPhysicalDevice selectVkPhysicalDevice(VkInstance instance) noexcept;
+
+    /**
+     * Creates the VkDevice used by Filament's Vulkan backend.
+     *
+     * This method can be overridden in subclasses to customize VkDevice creation, such as
+     * adding application-specific extensions or enabling features.
+     *
+     * The provided `createInfo` contains extensions and features required by Filament.
+     * If you override this method and need to modify the `createInfo` struct, you must first
+     * make a copy of it and modify the copy.
+     *
+     * @param createInfo The VkDeviceCreateInfo prepared by Filament.
+     * @return The created VkDevice, or VK_NULL_HANDLE on failure.
+     */
+    virtual VkDevice createVkDevice(VkDeviceCreateInfo const& createInfo) noexcept;
+
     using SurfaceBundle = std::tuple<VkSurfaceKHR, VkExtent2D>;
-    static SurfaceBundle createVkSurfaceKHR(void* nativeWindow, VkInstance instance,
-            uint64_t flags) noexcept;
+    virtual ExtensionSet getSwapchainInstanceExtensions() const = 0;
+    virtual SurfaceBundle createVkSurfaceKHR(void* nativeWindow, VkInstance instance,
+            uint64_t flags) const noexcept = 0;
+
+    virtual VkExternalFenceHandleTypeFlagBits getFenceExportFlags() const noexcept;
+
+    /**
+     * Query if transient attachments are supported by the backend.
+     */
+    bool isTransientAttachmentSupported() const noexcept;
+
+private:
+    /**
+     * Contains information about features that should be requested
+     * when calling vkCreateDevice, based on feature support from
+     * vkGetPhysicalDeviceFeatures2.
+     */
+    struct MiscDeviceFeatures {
+        /**
+         * This allows creation of a VkGraphicsPipeline without a
+         * render pass specified.
+         */
+        bool dynamicRendering;
+
+        /**
+         * Allows creation of a 2d image view, or 2d image view array,
+         * to be created from a 3d VkImage.
+         */
+        bool imageView2Don3DImage;
+    };
+
+    void createInstance(ExtensionSet const& requiredExts) noexcept;
+
+    void queryAndSetDeviceFeatures(Platform::DriverConfig const& driverConfig,
+            ExtensionSet const& instExts, ExtensionSet const& deviceExts,
+            void* sharedContext) noexcept;
+
+    void createLogicalDeviceAndQueues(ExtensionSet const& deviceExtensions,
+            VkPhysicalDeviceFeatures const& features,
+            VkPhysicalDeviceVulkan11Features const& vk11Features, bool createProtectedQueue,
+            MiscDeviceFeatures const& requestedFeatures) noexcept;
 
     friend struct VulkanPlatformPrivate;
 };

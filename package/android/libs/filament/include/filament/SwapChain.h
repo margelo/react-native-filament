@@ -21,7 +21,6 @@
 
 #include <backend/CallbackHandler.h>
 #include <backend/DriverEnums.h>
-#include <backend/PresentCallable.h>
 
 #include <utils/compiler.h>
 #include <utils/Invocable.h>
@@ -35,7 +34,7 @@ class Engine;
 /**
  * A swap chain represents an Operating System's *native* renderable surface.
  *
- * Typically it's a native window or a view. Because a SwapChain is initialized from a
+ * Typically, it's a native window or a view. Because a SwapChain is initialized from a
  * native object, it is given to filament as a `void *`, which must be of the proper type
  * for each platform filament is running on.
  *
@@ -158,7 +157,7 @@ public:
     /**
      * Requests a SwapChain with an alpha channel.
      */
-    static const uint64_t CONFIG_TRANSPARENT = backend::SWAP_CHAIN_CONFIG_TRANSPARENT;
+    static constexpr uint64_t CONFIG_TRANSPARENT = backend::SWAP_CHAIN_CONFIG_TRANSPARENT;
 
     /**
      * This flag indicates that the swap chain may be used as a source surface
@@ -168,13 +167,13 @@ public:
      * @see
      * Renderer.copyFrame()
      */
-    static const uint64_t CONFIG_READABLE = backend::SWAP_CHAIN_CONFIG_READABLE;
+    static constexpr uint64_t CONFIG_READABLE = backend::SWAP_CHAIN_CONFIG_READABLE;
 
     /**
      * Indicates that the native X11 window is an XCB window rather than an XLIB window.
      * This is ignored on non-Linux platforms and in builds that support only one X11 API.
      */
-    static const uint64_t CONFIG_ENABLE_XCB = backend::SWAP_CHAIN_CONFIG_ENABLE_XCB;
+    static constexpr uint64_t CONFIG_ENABLE_XCB = backend::SWAP_CHAIN_CONFIG_ENABLE_XCB;
 
     /**
      * Indicates that the native window is a CVPixelBufferRef.
@@ -186,7 +185,7 @@ public:
      * Filament. Filament will call CVPixelBufferRetain during Engine::createSwapChain, and
      * CVPixelBufferRelease when the swap chain is destroyed.
      */
-    static const uint64_t CONFIG_APPLE_CVPIXELBUFFER =
+    static constexpr uint64_t CONFIG_APPLE_CVPIXELBUFFER =
             backend::SWAP_CHAIN_CONFIG_APPLE_CVPIXELBUFFER;
 
     /**
@@ -235,6 +234,21 @@ public:
     static constexpr uint64_t CONFIG_PROTECTED_CONTENT = backend::SWAP_CHAIN_CONFIG_PROTECTED_CONTENT;
 
     /**
+     * Indicates that the SwapChain is configured to use Multi-Sample Anti-Aliasing (MSAA) with the
+     * given sample points within each pixel. Only supported when isMSAASwapChainSupported(4) is
+     * true.
+     *
+     * This is supported by EGL(Android) and Metal. Other GL platforms (GLX, WGL, etc) don't support
+     * it because the swapchain MSAA settings must be configured before window creation.
+     *
+     * With Metal, this flag should only be used when rendering a single View into a SwapChain. This
+     * flag is not supported when rendering multiple Filament Views into this SwapChain.
+     *
+     * @see isMSAASwapChainSupported(4)
+     */
+    static constexpr uint64_t CONFIG_MSAA_4_SAMPLES = backend::SWAP_CHAIN_CONFIG_MSAA_4_SAMPLES;
+
+    /**
      * Return whether createSwapChain supports the CONFIG_PROTECTED_CONTENT flag.
      * The default implementation returns false.
      *
@@ -252,56 +266,91 @@ public:
      */
     static bool isSRGBSwapChainSupported(Engine& engine) noexcept;
 
+    /**
+     * Return whether createSwapChain supports the CONFIG_MSAA_*_SAMPLES flag.
+     * The default implementation returns false.
+     *
+     * @param engine A pointer to the filament Engine
+     * @param samples The number of samples
+     * @return true if CONFIG_MSAA_*_SAMPLES is supported, false otherwise.
+     */
+    static bool isMSAASwapChainSupported(Engine& engine, uint32_t samples) noexcept;
+
     void* UTILS_NULLABLE getNativeWindow() const noexcept;
 
     /**
-     * FrameScheduledCallback is a callback function that notifies an application when Filament has
-     * completed processing a frame and that frame is ready to be scheduled for presentation.
+     * If this flag is passed to setFrameScheduledCallback, then the behavior of the default
+     * CallbackHandler (when nullptr is passed as the handler argument) is altered to call the
+     * callback on the Metal completion handler thread (as opposed to the main Filament thread).
+     * This flag also instructs the Metal backend to release the associated CAMetalDrawable on the
+     * completion handler thread.
+     *
+     * This flag has no effect if a custom CallbackHandler is passed or on backends other than Metal.
+     *
+     * @see setFrameScheduledCallback
+     */
+    static constexpr uint64_t CALLBACK_DEFAULT_USE_METAL_COMPLETION_HANDLER = 1;
+
+    /**
+     * FrameScheduledCallback is a callback function that notifies an application about the status
+     * of a frame after Filament has finished its processing.
+     *
+     * The exact timing and semantics of this callback differ depending on the graphics backend in
+     * use.
+     *
+     * Metal Backend
+     * =============
+     *
+     * With the Metal backend, this callback signifies that Filament has completed all CPU-side
+     * processing for a frame and the frame is ready to be scheduled for presentation.
      *
      * Typically, Filament is responsible for scheduling the frame's presentation to the SwapChain.
-     * If a SwapChain::FrameScheduledCallback is set, however, the application bares the
-     * responsibility of scheduling a frame for presentation by calling the backend::PresentCallable
-     * passed to the callback function. Currently this functionality is only supported by the Metal
-     * backend.
+     * If a SwapChain::FrameScheduledCallback is set, however, the application bears the
+     * responsibility of scheduling the frame for presentation by calling the
+     * backend::PresentCallable passed to the callback function. In this mode, Filament will *not*
+     * automatically schedule the frame for presentation.
+     *
+     * When using the Metal backend, if your application delays the call to the PresentCallable
+     * (e.g., by invoking it on a separate thread), you must ensure all PresentCallables have been
+     * called before shutting down the Filament Engine. You can guarantee this by calling
+     * Engine::flushAndWait() before Engine::shutdown(). This is necessary to ensure the Engine has
+     * a chance to clean up all memory related to frame presentation.
+     *
+     * Other Backends (OpenGL, Vulkan, WebGPU)
+     * =======================================
+     *
+     * On other backends, this callback serves as a notification that Filament has completed all
+     * CPU-side processing for a frame. Filament proceeds with its normal presentation logic
+     * automatically, and the PresentCallable passed to the callback is a no-op that can be safely
+     * ignored.
+     *
+     * General Behavior
+     * ================
      *
      * A FrameScheduledCallback can be set on an individual SwapChain through
-     * SwapChain::setFrameScheduledCallback. If the callback is set for a given frame, then the
-     * SwapChain will *not* automatically schedule itself for presentation. Instead, the application
-     * must call the PresentCallable passed to the FrameScheduledCallback.
-     *
-     * Each SwapChain can have only one FrameScheduledCallback set per frame. If
-     * setFrameScheduledCallback is called multiple times on the same SwapChain before
+     * SwapChain::setFrameScheduledCallback. Each SwapChain can have only one callback set per
+     * frame. If setFrameScheduledCallback is called multiple times on the same SwapChain before
      * Renderer::endFrame(), the most recent call effectively overwrites any previously set
-     * callback. This allows the callback to be updated as needed before the frame has finished
-     * encoding.
+     * callback.
      *
-     * The "last" callback set by setFrameScheduledCallback gets "latched" when Renderer::endFrame()
-     * is executed. At this point, the state of the callback is fixed and is the one used for the
-     * frame that was just encoded. Subsequent changes to the callback using
-     * setFrameScheduledCallback after endFrame() apply to the next frame.
+     * The callback set by setFrameScheduledCallback is "latched" when Renderer::endFrame() is
+     * executed. At this point, the callback is fixed for the frame that was just encoded.
+     * Subsequent calls to setFrameScheduledCallback after endFrame() will apply to the next frame.
      *
      * Use \c setFrameScheduledCallback() (with default arguments) to unset the callback.
      *
-     * If your application delays the call to the PresentCallable by, for example, calling it on a
-     * separate thread, you must ensure all PresentCallables have been called before shutting down
-     * the Filament Engine. You can do this by issuing an Engine::flushAndWait before calling
-     * Engine::shutdown. This is necessary to ensure the Filament Engine has had a chance to clean
-     * up all memory related to frame presentation.
-     *
-     * @param handler     Handler to dispatch the callback or nullptr for the default handler.
-     * @param callback    Callback called when the frame is scheduled.
-     *
-     * @remark Only Filament's Metal backend supports PresentCallables and frame callbacks. Other
-     * backends ignore the callback (which will never be called) and proceed normally.
+     * @param handler    Handler to dispatch the callback or nullptr for the default handler.
+     * @param callback   Callback to be invoked when the frame processing is complete.
+     * @param flags      See CALLBACK_DEFAULT_USE_METAL_COMPLETION_HANDLER
      *
      * @see CallbackHandler
      * @see PresentCallable
      */
     void setFrameScheduledCallback(backend::CallbackHandler* UTILS_NULLABLE handler = nullptr,
-            FrameScheduledCallback&& callback = {});
+            FrameScheduledCallback&& callback = {}, uint64_t flags = 0);
 
     /**
-     * Returns whether or not this SwapChain currently has a FrameScheduledCallback set.
+     * Returns whether this SwapChain currently has a FrameScheduledCallback set.
      *
      * @return true, if the last call to setFrameScheduledCallback set a callback
      *
