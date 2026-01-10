@@ -63,7 +63,7 @@ public:
      * This is useful if you have other instances that have the same skeleton as the animator
      * from this asset, and you want those instances to be animated by the same animation (e.g. clothing).
      * Usually you don't need this and using updateBoneMatrices() is enough.
-     * 
+     *
      * @param instance The instance to update.
      */
     void updateBoneMatricesForInstance(FilamentInstance* instance);

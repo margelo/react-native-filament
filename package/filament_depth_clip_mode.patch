@@ -1,0 +1,16 @@
+diff --git a/filament/backend/src/metal/MetalDriver.mm b/filament/backend/src/metal/MetalDriver.mm
+index 1234567..abcdefg 100644
+--- a/filament/backend/src/metal/MetalDriver.mm
++++ b/filament/backend/src/metal/MetalDriver.mm
+@@ -161,7 +161,10 @@ MetalDriver::MetalDriver(backend::DriverConfig const& driverConfig,
+
+     mContext->supportsDepthClamp = false;
+     if (@available(macOS 10.11, iOS 11.0, *)) {
+-        mContext->supportsDepthClamp = true;
++        // Depth clip mode requires GPU family support (not available on older simulators)
++        mContext->supportsDepthClamp =
++            mContext->highestSupportedGpuFamily.apple >= 3 ||   // Apple A11 and later (iPhone 8+)
++            mContext->highestSupportedGpuFamily.mac   >= 1;     // All Mac GPUs
+     }
+
+     // In order to support resolve store action on depth attachment, the GPU needs to support it.
