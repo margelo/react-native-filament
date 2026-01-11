@@ -71,7 +71,7 @@ jobs:
 
       - name: Build bullet3
         working-directory: package/
-        run: bun build-bullet3
+        run: bun build-bullet3 --platform ios
 
       - name: Build App
         working-directory: examples/AppExampleFabric/ios

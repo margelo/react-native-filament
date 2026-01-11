@@ -67,7 +67,7 @@ jobs:
 
       - name: Build bullet3
         working-directory: package/
-        run: bun build-bullet3
+        run: bun build-bullet3 --platform android
 
       - name: Build Android app (AppExampleFabric)
         if: matrix.app == 'AppExampleFabric'
