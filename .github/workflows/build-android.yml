@@ -65,6 +65,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      - name: Build bullet3
+        working-directory: package/
+        run: bun build-bullet3
+
       - name: Build Android app (AppExampleFabric)
         if: matrix.app == 'AppExampleFabric'
         working-directory: examples/AppExampleFabric/android

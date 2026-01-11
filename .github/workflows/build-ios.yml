@@ -69,6 +69,10 @@ jobs:
       - name: Install xcpretty
         run: gem install xcpretty
 
+      - name: Build bullet3
+        working-directory: package/
+        run: bun build-bullet3
+
       - name: Build App
         working-directory: examples/AppExampleFabric/ios
         run: |
