@@ -19,6 +19,7 @@ export function BackgroundImage({ source, materialSource, resizeMode = 'contain'
   const imageMaterialBuffer = useBuffer({ source: materialSource })
   const imageBuffer = useBuffer({ source: source })
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const material = useDisposableResource(
     useWorkletCallback(() => {
       'worklet'

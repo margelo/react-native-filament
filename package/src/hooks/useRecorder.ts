@@ -26,6 +26,7 @@ export function useRecorder({ width, height, fps, bitRate }: RecorderOptions): R
     return FilamentProxy.createRecorder(width, height, fps, bitRate)
   }, [bitRate, fps, height, width])
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const swapChain = useDisposableResource(
     workletContext.createRunAsync(() => {
       'worklet'

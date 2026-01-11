@@ -15,7 +15,7 @@ type TReanimated = typeof Reanimated
 export const ReanimatedProxy = createModuleProxy<TReanimated>(() => {
   try {
     return require('react-native-reanimated')
-  } catch (e) {
+  } catch {
     throw new OptionalDependencyNotInstalledError('react-native-reanimated')
   }
 })
