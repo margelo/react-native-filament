@@ -38,7 +38,7 @@ jobs:
         working-directory: package/
         run: |
           bun patch-filament
-          HASH=$(find ../filament -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.cc" -o -name "CMakeLists.txt" \) -exec sha256sum {} \; | sort | sha256sum | cut -d' ' -f1 | head -c 16)
+          HASH=$(find ../filament -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.cc" -o -name "CMakeLists.txt" \) -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1 | head -c 16)
           echo "hash=$HASH" >> $GITHUB_OUTPUT
           echo "Filament hash: $HASH"
 
@@ -98,7 +98,7 @@ jobs:
       - name: Calculate hash
         id: hash
         run: |
-          HASH=$(find bullet3/src -type f \( -name "*.cpp" -o -name "*.h" \) -exec sha256sum {} \; | sort | sha256sum | cut -d' ' -f1 | head -c 16)
+          HASH=$(find bullet3/src -type f \( -name "*.cpp" -o -name "*.h" \) -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1 | head -c 16)
           echo "hash=$HASH" >> $GITHUB_OUTPUT
           echo "bullet3 hash: $HASH"
 
