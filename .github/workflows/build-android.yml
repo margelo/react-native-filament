@@ -20,9 +20,52 @@ on:
       - 'bun.lock'
 
 jobs:
+  build-bullet3:
+    name: Build bullet3 for Android
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android NDK
+        run: |
+          sdkmanager --install "ndk;27.1.12297006"
+
+      # - name: Restore bun cache
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: ~/.bun/install/cache
+      #     key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-bun-
+
+      # - name: Install dependencies
+      #   run: bun install --frozen-lockfile
+
+      - name: Build bullet3
+        working-directory: package/
+        run: bun build-bullet3 --platform android
+
+      - name: Upload bullet3 libraries
+        uses: actions/upload-artifact@v4
+        with:
+          name: bullet3-android
+          path: package/android/libs/bullet3/
+          retention-days: 1
+
   build:
     name: Build ${{ matrix.app }} (${{ matrix.variant }})
     runs-on: ubuntu-latest
+    needs: build-bullet3
     strategy:
       matrix:
         app: [AppExampleFabric, ExpoExample]
@@ -44,13 +87,6 @@ jobs:
           java-version: 17
           java-package: jdk
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android NDK
-        run: |
-          sdkmanager --install "ndk;27.1.12297006"
-
       - name: Restore bun cache
         uses: actions/cache@v4
         with:
@@ -62,6 +98,12 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Download bullet3 libraries
+        uses: actions/download-artifact@v4
+        with:
+          name: bullet3-android
+          path: package/android/libs/bullet3/
+
       - name: Restore Gradle cache
         uses: actions/cache@v4
         with:
@@ -71,10 +113,6 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-
-      - name: Build bullet3
-        working-directory: package/
-        run: bun build-bullet3 --platform android
 
       - name: Build Android app (AppExampleFabric)
         if: matrix.app == 'AppExampleFabric'
