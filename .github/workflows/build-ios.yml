@@ -9,38 +9,39 @@ on:
       - "package/cpp/**"
       - "package/ios/**"
       - "package/*.podspec"
-      - "package/example/AppExampleFabric/ios/**"
+      - "examples/**/ios/**"
   pull_request:
     paths:
       - ".github/workflows/build-ios.yml"
       - "package/cpp/**"
       - "package/ios/**"
       - "package/*.podspec"
-      - "package/example/AppExampleFabric/ios/**"
+      - "examples/**/ios/**"
 
 jobs:
   build:
     name: Build iOS Example App
     runs-on: macOS-latest
-    defaults:
-      run:
-        working-directory: package/example/AppExampleFabric/ios
     steps:
       - uses: actions/checkout@v4
-
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
-      - name: Restore node_modules from cache
-        uses: actions/cache@v4
-        id: yarn-cache
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          submodules: recursive
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Restore bun cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: Install node_modules for example/
-        run: yarn install --immutable
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
 
       - name: Restore buildcache
         uses: mikehardy/buildcache-action@v2
@@ -51,20 +52,25 @@ jobs:
         with:
           ruby-version: 3.4.4
           bundler-cache: true
-          working-directory: package/example/AppExampleFabric/
+          working-directory: examples/AppExampleFabric
 
       - name: Restore Pods cache
         uses: actions/cache@v4
         with:
-          path: package/example/ios/AppExampleFabric/Pods
+          path: examples/AppExampleFabric/ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-pods-
+
       - name: Install Pods
+        working-directory: examples/AppExampleFabric/ios
         run: bundle exec pod install
+
       - name: Install xcpretty
         run: gem install xcpretty
+
       - name: Build App
+        working-directory: examples/AppExampleFabric/ios
         run: "set -o pipefail && xcodebuild \
           CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ GCC_OPTIMIZATION_LEVEL=0 GCC_PRECOMPILE_PREFIX_HEADER=YES ASSETCATALOG_COMPILER_OPTIMIZATION=time DEBUG_INFORMATION_FORMAT=dwarf COMPILER_INDEX_STORE_ENABLE=NO \
           -derivedDataPath build -UseModernBuildSystem=YES \
