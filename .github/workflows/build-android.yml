@@ -42,7 +42,6 @@ jobs:
   build-bullet3:
     name: Build bullet3 for Android
     runs-on: ubuntu-latest
-    needs: build-filament
     steps:
       - uses: actions/checkout@v4
         with:

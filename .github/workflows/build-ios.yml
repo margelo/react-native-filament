@@ -41,7 +41,6 @@ jobs:
   build-bullet3:
     name: Build bullet3 for iOS
     runs-on: macOS-latest
-    needs: build-filament
     steps:
       - uses: actions/checkout@v4
         with:
