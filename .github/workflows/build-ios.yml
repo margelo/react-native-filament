@@ -27,9 +27,14 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
       - name: Build Filament
         working-directory: package/
-        run: bash scripts/build-filament.sh debug --platform ios
+        run: bun build-filament debug --platform ios
 
       - name: Upload Filament libraries
         uses: actions/upload-artifact@v4

@@ -28,6 +28,16 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang ninja-build cmake
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
@@ -37,7 +47,7 @@ jobs:
 
       - name: Build Filament
         working-directory: package/
-        run: bash scripts/build-filament.sh debug --platform android
+        run: bun build-filament debug --platform android
 
       - name: Upload Filament libraries
         uses: actions/upload-artifact@v4
