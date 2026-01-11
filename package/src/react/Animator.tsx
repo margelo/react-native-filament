@@ -2,9 +2,9 @@ import React, { useEffect } from 'react'
 import { FilamentInstance } from '../types'
 import { RenderCallbackContext } from './RenderCallbackContext'
 import { useAnimator } from '../hooks/useAnimator'
-import { ISharedValue, useSharedValue } from 'react-native-worklets-core'
 import usePrevious from '../hooks/usePrevious'
 import { ParentInstancesContext } from './ParentInstancesContext'
+import { useSharedValue, type SharedValue } from 'react-native-reanimated'
 
 export type AnimationItem = {
   index: number
@@ -17,7 +17,7 @@ export type AnimatorProps = {
    * The index of the animation to play. To find out the index for the animation you want to play, you can use the `onAnimationsLoaded` callback.
    * @default 0
    **/
-  animationIndex?: number | ISharedValue<number>
+  animationIndex?: number | SharedValue<number>
 
   /**
    * Returns a list of all animations for the model.
@@ -117,12 +117,13 @@ function AnimatorImpl({ instance, animationIndex: animationIndexProp = 0, transi
 
     // Update previous index if the prop is a shared value:
     let value = animationIndexProp.value
-    const removeListener = animationIndexProp.addListener(() => {
+    const listenerId = Date.now()
+    animationIndexProp.addListener(listenerId, () => {
       prevAnimationIndex.value = value
       value = animationIndexProp.value
     })
     return () => {
-      removeListener()
+      animationIndexProp.removeListener(listenerId)
     }
   }, [animationIndexProp, prevAnimationIndex, previousAnimationIndexProp])
 

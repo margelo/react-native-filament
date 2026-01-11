@@ -4,7 +4,7 @@ import { useFilamentContext } from '../useFilamentContext'
 import { AABB, Entity, Float3 } from '../../types'
 import { areFloat3Equal, isWorkletSharedValue } from '../../utilities/helper'
 import { useWorkletEffect } from '../useWorkletEffect'
-import { ISharedValue, Worklets } from 'react-native-worklets-core'
+import { makeMutable, type SharedValue } from 'react-native-reanimated'
 
 type Params = {
   // If null it will not take the entity from the context, as it indicates that it will be provided through the param
@@ -76,9 +76,9 @@ export function useApplyTransformations({ to: entity, transformProps, aabb }: Pa
     transformToUnitCube,
   ])
 
-  const prevScaleShared = useRef(isWorkletSharedValue(scale) ? Worklets.createSharedValue<Float3 | null>(null) : null)
-  const prevRotateShared = useRef(isWorkletSharedValue(rotate) ? Worklets.createSharedValue<Float3 | null>(null) : null)
-  const prevPositionShared = useRef(isWorkletSharedValue(position) ? Worklets.createSharedValue<Float3 | null>(null) : null)
+  const prevScaleShared = useRef(isWorkletSharedValue(scale) ? makeMutable<Float3 | null>(null) : null)
+  const prevRotateShared = useRef(isWorkletSharedValue(rotate) ? makeMutable<Float3 | null>(null) : null)
+  const prevPositionShared = useRef(isWorkletSharedValue(position) ? makeMutable<Float3 | null>(null) : null)
 
   // Effects for when a transform option is a shared value (SRT)
   useWorkletEffect(() => {
@@ -91,7 +91,7 @@ export function useApplyTransformations({ to: entity, transformProps, aabb }: Pa
     // Generic handler for worklet transform values
     const createTransformHandler = (
       value: any,
-      prevValueShared: ISharedValue<Float3 | null> | null,
+      prevValueShared: SharedValue<Float3 | null> | null,
       updater: (newValue: Float3) => void
     ) => {
       'worklet'

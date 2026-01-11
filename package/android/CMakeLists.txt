@@ -38,6 +38,7 @@ add_library(
     ../cpp/RNFChoreographer.cpp
     ../cpp/RNFChoreographerWrapper.cpp
     ../cpp/RNFListener.cpp
+    ../cpp/jsi/RNFBoxedHybridObject.cpp
     ../cpp/jsi/RNFHybridObject.cpp
     ../cpp/jsi/RNFPromise.cpp
     ../cpp/jsi/RNFPromiseFactory.cpp

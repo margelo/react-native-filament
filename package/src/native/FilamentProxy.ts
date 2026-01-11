@@ -2,14 +2,12 @@ import { FilamentBuffer } from './FilamentBuffer'
 import type { Engine } from '../types/Engine'
 import { FilamentView } from './FilamentViewTypes'
 import type { BulletAPI } from '../bullet/types/api'
-import type { IWorkletContext } from 'react-native-worklets-core'
 import { EngineBackend, EngineConfig } from '../types'
 import { TFilamentRecorder } from '../types/FilamentRecorder'
 import { Choreographer } from '../types/Choreographer'
 import { Dispatcher } from './Dispatcher'
 import { FilamentModule } from './FilamentModule'
-import { Worklets } from 'react-native-worklets-core'
-import { createWorkletRuntime, runOnRuntime } from 'react-native-worklets'
+import { createWorkletRuntime } from 'react-native-worklets'
 
 interface TestHybridObject {
   int: number
@@ -92,12 +90,16 @@ export interface TFilamentProxy {
    * })
    * ```
    */
-  createWorkletContext: () => IWorkletContext
-
-  createWorkletAsyncQueue: () => object
-  installDispatcher: () => void
+  createWorkletContext: () => unknown
 
   createChoreographer(): Choreographer
+
+  // New APIs i added:
+  createWorkletAsyncQueue: () => object
+  installDispatcher: () => void
+  box: <T>(hybridObject: T) => {
+    unbox: () => T
+  }
 }
 
 const successful = FilamentModule.install()
@@ -126,11 +128,11 @@ export const FilamentProxy = proxy
 
 // We must make sure that the Worklets API (module) is initialized (as its possible a lazy-loaded CxxTurboModule),
 // to initialize we must only call any property of the module:
-Worklets.defaultContext
+// Worklets.defaultContext
 
 // TODO: remove
 // Create our custom RNF worklet context:
-export const FilamentWorkletContext = proxy.createWorkletContext()
+// export const FilamentWorkletContext = proxy.createWorkletContext()
 
 const FilamentWorkletQueue = proxy.createWorkletAsyncQueue()
 export const FilamentWorkletRuntime = createWorkletRuntime({
@@ -139,11 +141,7 @@ export const FilamentWorkletRuntime = createWorkletRuntime({
   customQueue: FilamentWorkletQueue,
   initializer: () => {
     'worklet'
+    // Note: this will still be called from the JS thread, weird
     proxy.installDispatcher()
   },
 })
-
-runOnRuntime(FilamentWorkletRuntime, () => {
-  'worklet'
-  console.log('🎉🎉🎉 Filament Worklet Runtime initialized')
-})()

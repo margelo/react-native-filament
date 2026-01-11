@@ -100,6 +100,7 @@
       "peerDependencies": {
         "react": "*",
         "react-native": "*",
+        "react-native-reanimated": "^4.2.1",
         "react-native-worklets": "*",
         "react-native-worklets-core": ">=1.3.2",
       },

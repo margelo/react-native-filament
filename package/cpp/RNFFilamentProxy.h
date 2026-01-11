@@ -18,6 +18,7 @@
 #include "bullet/RNFBulletWrapper.h"
 #include "core/RNFEngineWrapper.h"
 #include "jsi/RNFHybridObject.h"
+#include "jsi/RNFBoxedHybridObject.h"
 #include "test/RNFTestHybridObject.h"
 #include "threading/RNFDispatcher.h"
 #include "threading/RNFAsyncQueueImpl.h"
@@ -105,6 +106,8 @@ private:
 
   std::shared_ptr<worklets::AsyncQueue> createWorkletAsyncQueue();
   jsi::Value installDispatcher(jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t);
+  std::shared_ptr<RNFBoxedHybridObject> box(const std::shared_ptr<HybridObject>& hybridObject);
+//  jsi::Value box(jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t);
 #endif
 
 public:
