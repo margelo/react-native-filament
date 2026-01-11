@@ -9,6 +9,7 @@ import { Choreographer } from '../types/Choreographer'
 import { Dispatcher } from './Dispatcher'
 import { FilamentModule } from './FilamentModule'
 import { Worklets } from 'react-native-worklets-core'
+import { createWorkletRuntime, runOnRuntime } from 'react-native-worklets'
 
 interface TestHybridObject {
   int: number
@@ -93,6 +94,8 @@ export interface TFilamentProxy {
    */
   createWorkletContext: () => IWorkletContext
 
+  createWorkletAsyncQueue: () => object
+
   createChoreographer(): Choreographer
 }
 
@@ -124,5 +127,22 @@ export const FilamentProxy = proxy
 // to initialize we must only call any property of the module:
 Worklets.defaultContext
 
+// TODO: remove
 // Create our custom RNF worklet context:
 export const FilamentWorkletContext = proxy.createWorkletContext()
+
+const FilamentWorkletQueue = proxy.createWorkletAsyncQueue()
+export const FilamentWorkletRuntime = createWorkletRuntime({
+  name: 'FilamentWorkletRuntime',
+  useDefaultQueue: false,
+  customQueue: FilamentWorkletQueue,
+  initializer: () => {
+    'worklet'
+    // TODO
+  },
+})
+
+runOnRuntime(FilamentWorkletRuntime, () => {
+  'worklet'
+  console.log('🎉🎉🎉 Filament Worklet Runtime initialized')
+})()

@@ -150,6 +150,13 @@ target_link_libraries(
     react-native-worklets-core::rnworklets
 )
 add_definitions(-DHAS_WORKLETS=1)
+# NEW ONE
+find_package(react-native-worklets REQUIRED)   # <-- for Worklets
+target_link_libraries(
+    ${PACKAGE_NAME}
+    react-native-worklets::worklets
+)
+
 
 # Filament (local CMake project as a git submodule)
 message("RN Filament: Adding pre-compiled libraries in ${FILAMENT_DIR}...")

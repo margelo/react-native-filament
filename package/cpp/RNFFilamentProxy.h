@@ -20,6 +20,7 @@
 #include "jsi/RNFHybridObject.h"
 #include "test/RNFTestHybridObject.h"
 #include "threading/RNFDispatcher.h"
+#include "threading/RNFAsyncQueueImpl.h"
 
 #include <ReactCommon/CallInvoker.h>
 
@@ -101,6 +102,8 @@ private:
    * The caller (JS) is responsible for keeping the returned reference strong.
    */
   std::shared_ptr<RNWorklet::JsiWorkletContext> createWorkletContext();
+
+  std::shared_ptr<worklets::AsyncQueue> createWorkletAsyncQueue();
 #endif
 
 public:

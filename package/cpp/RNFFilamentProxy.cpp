@@ -10,6 +10,7 @@
 #include "core/RNFEngineConfigHelper.h"
 #include "jsi/RNFPromise.h"
 #include "threading/RNFDispatcher.h"
+#include "threading/RNFAsyncQueueImpl.h"
 
 #include <memory>
 #include <string>
@@ -32,6 +33,7 @@ void FilamentProxy::loadHybridMethods() {
   registerHybridGetter("hasWorklets", &FilamentProxy::getHasWorklets, this);
 #if HAS_WORKLETS
   registerHybridMethod("createWorkletContext", &FilamentProxy::createWorkletContext, this);
+  registerHybridMethod("createWorkletAsyncQueue", &FilamentProxy::createWorkletAsyncQueue, this);
 #endif
 }
 
@@ -60,6 +62,14 @@ std::shared_ptr<RNWorklet::JsiWorkletContext> FilamentProxy::createWorkletContex
   });
 
   return workletContext;
+}
+
+std::shared_ptr<worklets::AsyncQueue> FilamentProxy::createWorkletAsyncQueue() {
+    Logger::log(TAG, "Creating Worklet AsyncQueue...");
+    auto renderThreadDispatcher = getRenderThreadDispatcher();
+    auto runOnWorklet = [=](std::function<void()>&& function) { renderThreadDispatcher->runAsync(std::move(function)); };
+    // TODO: i am pretty sure i should hold this dispatcher somewhere?
+    return std::make_shared<RNFAsyncQueueImpl>(renderThreadDispatcher);
 }
 #endif
 
