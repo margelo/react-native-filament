@@ -32,9 +32,33 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Build Filament
+      - name: Apply patches and calculate hash
+        id: hash
         working-directory: package/
-        run: bun build-filament debug --platform ios
+        run: |
+          bun patch-filament
+          HASH=$(find ../filament -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.cc" -o -name "CMakeLists.txt" \) -exec shasum -a 256 {} \; | sort | shasum -a 256 | cut -d' ' -f1 | head -c 16)
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
+          echo "Filament hash: $HASH"
+
+      - name: Restore from cache
+        id: cache
+        uses: actions/cache/restore@v4
+        with:
+          path: package/ios/libs/filament/
+          key: filament-ios-debug-${{ steps.hash.outputs.hash }}
+
+      - name: Build Filament
+        if: steps.cache.outputs.cache-hit != 'true'
+        working-directory: package/
+        run: bash scripts/build-filament.sh debug --platform ios
+
+      - name: Save to cache
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: package/ios/libs/filament/
+          key: filament-ios-debug-${{ steps.hash.outputs.hash }}
 
       - name: Upload Filament libraries
         uses: actions/upload-artifact@v4
@@ -51,9 +75,31 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Calculate hash
+        id: hash
+        run: |
+          HASH=$(find bullet3/src -type f \( -name "*.cpp" -o -name "*.h" \) -exec shasum -a 256 {} \; | sort | shasum -a 256 | cut -d' ' -f1 | head -c 16)
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
+          echo "bullet3 hash: $HASH"
+
+      - name: Restore from cache
+        id: cache
+        uses: actions/cache/restore@v4
+        with:
+          path: package/ios/libs/bullet3/
+          key: bullet3-ios-${{ steps.hash.outputs.hash }}
+
       - name: Build bullet3
+        if: steps.cache.outputs.cache-hit != 'true'
         working-directory: package/
         run: bash scripts/build-bullet3.sh --platform ios
+
+      - name: Save to cache
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: package/ios/libs/bullet3/
+          key: bullet3-ios-${{ steps.hash.outputs.hash }}
 
       - name: Upload bullet3 libraries
         uses: actions/upload-artifact@v4

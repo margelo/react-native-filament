@@ -33,7 +33,24 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Apply patches and calculate hash
+        id: hash
+        working-directory: package/
+        run: |
+          bun patch-filament
+          HASH=$(find ../filament -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.cc" -o -name "CMakeLists.txt" \) -exec sha256sum {} \; | sort | sha256sum | cut -d' ' -f1 | head -c 16)
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
+          echo "Filament hash: $HASH"
+
+      - name: Restore from cache
+        id: cache
+        uses: actions/cache/restore@v4
+        with:
+          path: package/android/libs/filament/
+          key: filament-android-debug-${{ steps.hash.outputs.hash }}
+
       - name: Install build dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
           sudo apt-get update
@@ -42,15 +59,25 @@ jobs:
           sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-16 100
 
       - name: Setup Android SDK
+        if: steps.cache.outputs.cache-hit != 'true'
         uses: android-actions/setup-android@v3
 
       - name: Install Android NDK and CMake
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           sdkmanager --install "ndk;29.0.14206865" "cmake;3.22.1"
 
       - name: Build Filament
+        if: steps.cache.outputs.cache-hit != 'true'
         working-directory: package/
-        run: bun build-filament debug --platform android
+        run: bash scripts/build-filament.sh debug --platform android
+
+      - name: Save to cache
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: package/android/libs/filament/
+          key: filament-android-debug-${{ steps.hash.outputs.hash }}
 
       - name: Upload Filament libraries
         uses: actions/upload-artifact@v4
@@ -67,16 +94,40 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Calculate hash
+        id: hash
+        run: |
+          HASH=$(find bullet3/src -type f \( -name "*.cpp" -o -name "*.h" \) -exec sha256sum {} \; | sort | sha256sum | cut -d' ' -f1 | head -c 16)
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
+          echo "bullet3 hash: $HASH"
+
+      - name: Restore from cache
+        id: cache
+        uses: actions/cache/restore@v4
+        with:
+          path: package/android/libs/bullet3/
+          key: bullet3-android-${{ steps.hash.outputs.hash }}
+
       - name: Setup Android SDK
+        if: steps.cache.outputs.cache-hit != 'true'
         uses: android-actions/setup-android@v3
 
       - name: Install Android NDK
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           sdkmanager --install "ndk;27.1.12297006"
 
       - name: Build bullet3
+        if: steps.cache.outputs.cache-hit != 'true'
         working-directory: package/
         run: bash scripts/build-bullet3.sh --platform android
+
+      - name: Save to cache
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: package/android/libs/bullet3/
+          key: bullet3-android-${{ steps.hash.outputs.hash }}
 
       - name: Upload bullet3 libraries
         uses: actions/upload-artifact@v4
