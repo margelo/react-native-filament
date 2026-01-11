@@ -9,100 +9,100 @@ on:
       - 'package/src/**'
       - 'package/*.json'
       - 'package/*.js'
-      - 'package/*.lock'
-      - 'package/example/src/**'
-      - 'package/example/*.json'
-      - 'package/example/*.js'
-      - 'package/example/*.lock'
-      - 'package/example/*.tsx'
+      - 'bun.lock'
+      - 'examples/**/*.json'
+      - 'examples/**/*.js'
+      - 'examples/**/*.ts'
+      - 'examples/**/*.tsx'
   pull_request:
     paths:
       - '.github/workflows/validate-js.yml'
       - 'package/src/**'
       - 'package/*.json'
       - 'package/*.js'
-      - 'package/*.lock'
-      - 'package/example/src/**'
-      - 'package/example/*.json'
-      - 'package/example/*.js'
-      - 'package/example/*.lock'
-      - 'package/example/*.tsx'
+      - 'bun.lock'
+      - 'examples/**/*.json'
+      - 'examples/**/*.js'
+      - 'examples/**/*.ts'
+      - 'examples/**/*.tsx'
 
 jobs:
   compile:
     name: Compile JS (tsc)
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./package
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
 
       - name: Install reviewdog
         uses: reviewdog/action-setup@v1
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
-      - name: Restore node_modules from cache
+      - name: Restore bun cache
         uses: actions/cache@v4
-        id: yarn-cache
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-bun-
 
-      - name: Install node_modules
-        run: yarn install --immutable
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
 
       - name: Run TypeScript # Reviewdog tsc errorformat: %f:%l:%c - error TS%n: %m
+        working-directory: package
         run: |
-          yarn typescript | reviewdog -name="tsc" -efm="%f(%l,%c): error TS%n: %m" -reporter="github-pr-review" -filter-mode="nofilter" -fail-on-error -tee
+          bun run typescript | reviewdog -name="tsc" -efm="%f(%l,%c): error TS%n: %m" -reporter="github-pr-review" -filter-mode="nofilter" -fail-on-error -tee
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run TypeScript in example/ # Reviewdog tsc errorformat: %f:%l:%c - error TS%n: %m
+      - name: Run TypeScript in example app # Reviewdog tsc errorformat: %f:%l:%c - error TS%n: %m
+        working-directory: examples/Shared
         run: |
-          cd example && yarn typescript | reviewdog -name="tsc" -efm="%f(%l,%c): error TS%n: %m" -reporter="github-pr-review" -filter-mode="nofilter" -fail-on-error -tee && cd ..
+          bun run typescript | reviewdog -name="tsc" -efm="%f(%l,%c): error TS%n: %m" -reporter="github-pr-review" -filter-mode="nofilter" -fail-on-error -tee
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   lint:
     name: Lint JS (eslint, prettier)
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./package
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
-      - name: Restore node_modules from cache
-        uses: actions/cache@v4
-        id: yarn-cache
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+          bun-version: latest
 
-      - name: Install node_modules
-        run: yarn install --immutable
+      - name: Restore bun cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
 
       - name: Run ESLint
-        run: yarn lint -f @jamesacarr/github-actions
+        working-directory: package
+        run: bun run lint -f @jamesacarr/github-actions
 
       - name: Run ESLint with auto-fix
-        run: yarn lint --fix
+        working-directory: package
+        run: bun run lint --fix
 
-      - name: Run ESLint in example/
-        run: cd example && yarn lint -f @jamesacarr/github-actions && cd ..
+      - name: Run ESLint in example app
+        working-directory: examples/AppExampleFabric
+        run: bun run lint -f @jamesacarr/github-actions
 
-      - name: Run ESLint in example/ with auto-fix
-        run: cd example && yarn lint --fix && cd ..
+      - name: Run ESLint in example app with auto-fix
+        working-directory: examples/AppExampleFabric
+        run: bun run lint --fix
 
       - name: Verify no files have changed after auto-fix
         run: git diff --exit-code HEAD

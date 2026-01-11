@@ -8,14 +8,14 @@ on:
       - '.github/workflows/build-android.yml'
       - 'package/cpp/**'
       - 'package/android/**'
-      - 'examples/AppExampleFabric/android/**'
+      - 'examples/**/android/**'
       - 'bun.lock'
   pull_request:
     paths:
       - '.github/workflows/build-android.yml'
       - 'package/cpp/**'
       - 'package/android/**'
-      - 'examples/AppExampleFabric/android/**'
+      - 'examples/**/android/**'
       - 'bun.lock'
 
 jobs:
