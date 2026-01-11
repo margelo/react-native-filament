@@ -33,20 +33,18 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Install build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ninja-build
-
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android NDK and CMake
+      - name: Install Android NDK
         run: |
           sdkmanager --install "ndk;29.0.14206865"
 
       - name: Build Filament
         working-directory: package/
+        env:
+          CC: clang
+          CXX: clang++
         run: bun build-filament debug --platform android
 
       - name: Upload Filament libraries
