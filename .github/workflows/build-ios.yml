@@ -71,13 +71,23 @@ jobs:
 
       - name: Build App
         working-directory: examples/AppExampleFabric/ios
-        run: "set -o pipefail && xcodebuild \
-          CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ GCC_OPTIMIZATION_LEVEL=0 GCC_PRECOMPILE_PREFIX_HEADER=YES ASSETCATALOG_COMPILER_OPTIMIZATION=time DEBUG_INFORMATION_FORMAT=dwarf COMPILER_INDEX_STORE_ENABLE=NO \
-          -derivedDataPath build -UseModernBuildSystem=YES \
-          -workspace AppExampleFabric.xcworkspace \
-          -scheme AppExampleFabric \
-          -sdk iphonesimulator \
-          -configuration Debug \
-          -destination 'platform=iOS Simulator,name=iPhone 16 Pro Max' \
-          build \
-          CODE_SIGNING_ALLOWED=NO | xcpretty"
+        run: |
+          set -o pipefail
+          xcodebuild \
+            CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ GCC_OPTIMIZATION_LEVEL=0 GCC_PRECOMPILE_PREFIX_HEADER=YES ASSETCATALOG_COMPILER_OPTIMIZATION=time DEBUG_INFORMATION_FORMAT=dwarf COMPILER_INDEX_STORE_ENABLE=NO \
+            -derivedDataPath build -UseModernBuildSystem=YES \
+            -workspace AppExampleFabric.xcworkspace \
+            -scheme AppExampleFabric \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro Max' \
+            build \
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee xcodebuild.log | xcpretty
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-log
+          path: examples/AppExampleFabric/ios/xcodebuild.log
+          if-no-files-found: warn
