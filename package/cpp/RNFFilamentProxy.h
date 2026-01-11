@@ -104,6 +104,7 @@ private:
   std::shared_ptr<RNWorklet::JsiWorkletContext> createWorkletContext();
 
   std::shared_ptr<worklets::AsyncQueue> createWorkletAsyncQueue();
+  jsi::Value installDispatcher(jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t);
 #endif
 
 public:

@@ -34,6 +34,7 @@ void FilamentProxy::loadHybridMethods() {
 #if HAS_WORKLETS
   registerHybridMethod("createWorkletContext", &FilamentProxy::createWorkletContext, this);
   registerHybridMethod("createWorkletAsyncQueue", &FilamentProxy::createWorkletAsyncQueue, this);
+  registerHybridMethod("installDispatcher", &FilamentProxy::installDispatcher, this);
 #endif
 }
 
@@ -68,9 +69,19 @@ std::shared_ptr<worklets::AsyncQueue> FilamentProxy::createWorkletAsyncQueue() {
     Logger::log(TAG, "Creating Worklet AsyncQueue...");
     auto renderThreadDispatcher = getRenderThreadDispatcher();
     auto runOnWorklet = [=](std::function<void()>&& function) { renderThreadDispatcher->runAsync(std::move(function)); };
-    // TODO: i am pretty sure i should hold this dispatcher somewhere?
-    return std::make_shared<RNFAsyncQueueImpl>(renderThreadDispatcher);
+    // TODO: i am pretty sure i should hold this dispatcher somewhere? or will the JS engine keep it alive as its NativeState?
+    auto asyncQueue = std::make_shared<RNFAsyncQueueImpl>(renderThreadDispatcher);
+
+    return asyncQueue;
 }
+
+jsi::Value FilamentProxy::installDispatcher(jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t) {
+    auto renderThreadDispatcher = getRenderThreadDispatcher(); // todo: return dispatcher, and pass it here is cleaner i guess
+    Dispatcher::installRuntimeGlobalDispatcher(runtime, renderThreadDispatcher);
+    Logger::log(TAG, "Successfully installed renderThreadDispatcher into rnw runtime 🎉");
+    return jsi::Value::undefined();
+}
+
 #endif
 
 jsi::Value FilamentProxy::getCurrentDispatcher(jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t) {

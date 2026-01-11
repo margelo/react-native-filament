@@ -95,6 +95,7 @@ export interface TFilamentProxy {
   createWorkletContext: () => IWorkletContext
 
   createWorkletAsyncQueue: () => object
+  installDispatcher: () => void
 
   createChoreographer(): Choreographer
 }
@@ -138,7 +139,7 @@ export const FilamentWorkletRuntime = createWorkletRuntime({
   customQueue: FilamentWorkletQueue,
   initializer: () => {
     'worklet'
-    // TODO
+    proxy.installDispatcher()
   },
 })
 
