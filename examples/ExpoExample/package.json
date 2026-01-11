@@ -4,8 +4,8 @@
   "main": "index.ts",
   "scripts": {
     "start": "expo start --clear --dev-client",
-    "android": "npx expo run:android",
-    "ios": "npx expo run:ios"
+    "android": "bunx expo run:android",
+    "ios": "bunx expo run:ios"
   },
   "dependencies": {
     "@react-navigation/native": "6.1.18",

@@ -21,8 +21,12 @@ on:
 
 jobs:
   build:
-    name: Build Android Example App
+    name: Build ${{ matrix.app }} (${{ matrix.variant }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app: [AppExampleFabric, ExpoExample]
+        variant: [debug, release]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -61,13 +65,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Build Android app
+      - name: Build Android app (AppExampleFabric)
+        if: matrix.app == 'AppExampleFabric'
         working-directory: examples/AppExampleFabric/android
-        run: ./gradlew assembleDebug --build-cache
+        run: ./gradlew assemble${{ matrix.variant == 'debug' && 'Debug' || 'Release' }} --build-cache
+
+      - name: Build Android app (ExpoExample)
+        if: matrix.app == 'ExpoExample'
+        working-directory: examples/ExpoExample
+        run: bun run android --variant ${{ matrix.variant }}
 
       - name: Upload .apk to GitHub
         uses: actions/upload-artifact@v4
         with:
-          name: Example App (.apk)
-          path: examples/AppExampleFabric/android/app/build/outputs/apk/debug/app-debug.apk
+          name: ${{ matrix.app }}-${{ matrix.variant }}.apk
+          path: examples/${{ matrix.app }}/android/app/build/outputs/apk/${{ matrix.variant }}/app-${{ matrix.variant }}.apk
           if-no-files-found: error
