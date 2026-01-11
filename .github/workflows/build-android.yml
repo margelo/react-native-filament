@@ -33,18 +33,23 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Install build dependencies
+        run: |
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          sudo apt-get update
+          sudo apt-get install -y clang-16 libc++-16-dev libc++abi-16-dev ninja-build
+          sudo update-alternatives --install /usr/bin/cc cc /usr/bin/clang-16 100
+          sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-16 100
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android NDK
+      - name: Install Android NDK and CMake
         run: |
-          sdkmanager --install "ndk;29.0.14206865"
+          sdkmanager --install "ndk;29.0.14206865" "cmake;3.22.1"
 
       - name: Build Filament
         working-directory: package/
-        env:
-          ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/29.0.14206865
-          CMAKE_CXX_STANDARD: 17
         run: bun build-filament debug --platform android
 
       - name: Upload Filament libraries
