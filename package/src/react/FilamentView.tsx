@@ -32,7 +32,7 @@ let viewIds = 0
  * The component that actually renders the native view and displays our content (think of it as canvas).
  */
 export class FilamentView extends React.PureComponent<FilamentProps> {
-  private readonly ref: React.RefObject<RefType>
+  private readonly ref: React.RefObject<RefType | null>
   private surfaceCreatedListener: Listener | undefined
   private surfaceDestroyedListener: Listener | undefined
   private renderCallbackListener: Listener | undefined

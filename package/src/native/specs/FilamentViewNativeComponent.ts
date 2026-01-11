@@ -1,4 +1,4 @@
-import type { HostComponent, ViewProps, codegenNativeComponent } from 'react-native'
+import { codegenNativeComponent, type HostComponent, type ViewProps } from 'react-native'
 import type { DirectEventHandler } from 'react-native/Libraries/Types/CodegenTypes'
 
 export interface NativeProps extends ViewProps {

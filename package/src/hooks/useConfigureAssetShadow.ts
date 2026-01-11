@@ -20,7 +20,7 @@ export function useConfigureAssetShadow({ renderableManager, asset, receiveShado
   const { workletContext } = useFilamentContext()
 
   const renderableEntities = useMemo(() => asset?.getRenderableEntities(), [asset])
-  const prevCastShadowRef = useRef<boolean>()
+  const prevCastShadowRef = useRef<boolean | null>(null)
   useEffect(() => {
     if (renderableEntities == null || castShadow == null || prevCastShadowRef.current === castShadow) {
       return
@@ -36,7 +36,7 @@ export function useConfigureAssetShadow({ renderableManager, asset, receiveShado
     })
   }, [castShadow, renderableManager, renderableEntities, workletContext])
 
-  const prevReceiveShadowRef = useRef<boolean>()
+  const prevReceiveShadowRef = useRef<boolean | null>(null)
   useEffect(() => {
     if (renderableEntities == null || receiveShadow == null || prevReceiveShadowRef.current === receiveShadow) {
       return
