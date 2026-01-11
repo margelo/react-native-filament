@@ -43,9 +43,8 @@ jobs:
       - name: Build Filament
         working-directory: package/
         env:
-          CC: clang
-          CXX: clang++
-          CXXFLAGS: -std=c++17
+          ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/29.0.14206865
+          CMAKE_CXX_STANDARD: 17
         run: bun build-filament debug --platform android
 
       - name: Upload Filament libraries
