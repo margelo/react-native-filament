@@ -19,9 +19,49 @@ on:
       - "examples/**/ios/**"
 
 jobs:
+  build-filament:
+    name: Build Filament for iOS
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build Filament
+        working-directory: package/
+        run: bash scripts/build-filament.sh debug --platform ios
+
+      - name: Upload Filament libraries
+        uses: actions/upload-artifact@v4
+        with:
+          name: filament-ios
+          path: package/ios/libs/filament/
+          retention-days: 1
+
+  build-bullet3:
+    name: Build bullet3 for iOS
+    runs-on: macOS-latest
+    needs: build-filament
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build bullet3
+        working-directory: package/
+        run: bash scripts/build-bullet3.sh --platform ios
+
+      - name: Upload bullet3 libraries
+        uses: actions/upload-artifact@v4
+        with:
+          name: bullet3-ios
+          path: package/ios/libs/bullet3/
+          retention-days: 1
+
   build:
     name: Build iOS Example App
     runs-on: macOS-latest
+    needs: [build-filament, build-bullet3]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -42,6 +82,18 @@ jobs:
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
+
+      - name: Download Filament libraries
+        uses: actions/download-artifact@v4
+        with:
+          name: filament-ios
+          path: package/ios/libs/filament/
+
+      - name: Download bullet3 libraries
+        uses: actions/download-artifact@v4
+        with:
+          name: bullet3-ios
+          path: package/ios/libs/bullet3/
 
       - name: Restore buildcache
         uses: mikehardy/buildcache-action@v2
@@ -68,10 +120,6 @@ jobs:
 
       - name: Install xcpretty
         run: gem install xcpretty
-
-      - name: Build bullet3
-        working-directory: package/
-        run: bun build-bullet3 --platform ios
 
       - name: Build App
         working-directory: examples/AppExampleFabric/ios
