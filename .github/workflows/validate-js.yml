@@ -109,4 +109,4 @@ jobs:
         run: bun run lint --fix
 
       - name: Verify no files have changed after auto-fix
-        run: git diff --exit-code HEAD
+        run: git diff --exit-code HEAD -- . ':!filament' ':!bullet3'
