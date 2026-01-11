@@ -93,7 +93,12 @@ if [ "$BUILD_ANDROID" = "true" ]; then
   cp -f scripts/BulletAndroidApplication.mk ../bullet3/build3/Android/jni/Application.mk
   cp -f scripts/BulletAndroid.mk ../bullet3/build3/Android/jni/Android.mk
   # Change the {PLATFORM_NAME} to the actual platform value from gradle.properties
-  sed -i '' "s/{PLATFORM_NAME}/$TARGET_SDK/g" ../bullet3/build3/Android/jni/Application.mk
+  # Use portable sed syntax (works on both macOS and Linux)
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "s/{PLATFORM_NAME}/$TARGET_SDK/g" ../bullet3/build3/Android/jni/Application.mk
+  else
+    sed -i "s/{PLATFORM_NAME}/$TARGET_SDK/g" ../bullet3/build3/Android/jni/Application.mk
+  fi
 
   # Temporarily rename VERSION file to avoid conflicts with C++ standard library headers
   # (NDK 27+ includes <version> header which conflicts with bullet3's VERSION file)
