@@ -25,16 +25,6 @@
 
 #include <ReactCommon/CallInvoker.h>
 
-#ifdef HAS_WORKLETS
-#if __has_include(<react-native-worklets-core/WKTJsiWorkletContext.h>)
-// Old arch & CocoaPod headers on apple
-#include <react-native-worklets-core/WKTJsiWorkletContext.h>
-#else
-// New arch android, where RNWC and RNF c++ modules are build inside the app's project
-#include "WKTJsiWorkletContext.h"
-#endif
-#endif // HAS_WORKLETS
-
 namespace margelo {
 
 using namespace facebook;
@@ -95,6 +85,7 @@ private:
 
 #if HAS_WORKLETS
   /**
+   * TODO: update this comment
    * Create a new Worklet Context that runs on the Filament Renderer Thread.
    *
    * The FilamentProxy does not hold a strong reference to the Worklet Context,
@@ -102,12 +93,9 @@ private:
    *
    * The caller (JS) is responsible for keeping the returned reference strong.
    */
-  std::shared_ptr<RNWorklet::JsiWorkletContext> createWorkletContext();
-
   std::shared_ptr<worklets::AsyncQueue> createWorkletAsyncQueue();
   jsi::Value installDispatcher(jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t);
   std::shared_ptr<RNFBoxedHybridObject> box(const std::shared_ptr<HybridObject>& hybridObject);
-//  jsi::Value box(jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t);
 #endif
 
 public:

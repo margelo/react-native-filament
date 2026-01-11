@@ -73,7 +73,10 @@ export interface TFilamentProxy {
    */
   readonly hasWorklets: boolean
 
+  createChoreographer(): Choreographer
+
   /**
+   * TODO: update content
    * Create a Worklet context used for Rendering to Filament.
    *
    * This should only be called once, and the returned value should be kept strong.
@@ -90,10 +93,6 @@ export interface TFilamentProxy {
    * })
    * ```
    */
-  createWorkletContext: () => unknown
-
-  createChoreographer(): Choreographer
-
   // New APIs i added:
   createWorkletAsyncQueue: () => object
   installDispatcher: () => void
@@ -120,19 +119,11 @@ if (proxy == null) {
 
 if (!proxy.hasWorklets) {
   throw new Error(
-    'Failed to initialize react-native-filament - Worklets are not available (HAS_WORKLETS=false), did you install react-native-worklets-core?'
+    'Failed to initialize react-native-filament - Worklets are not available (HAS_WORKLETS=false), did you install react-native-worklets & react-native-reanimated?'
   )
 }
 
 export const FilamentProxy = proxy
-
-// We must make sure that the Worklets API (module) is initialized (as its possible a lazy-loaded CxxTurboModule),
-// to initialize we must only call any property of the module:
-// Worklets.defaultContext
-
-// TODO: remove
-// Create our custom RNF worklet context:
-// export const FilamentWorkletContext = proxy.createWorkletContext()
 
 const FilamentWorkletQueue = proxy.createWorkletAsyncQueue()
 export const FilamentWorkletRuntime = createWorkletRuntime({

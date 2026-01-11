@@ -1,6 +1,5 @@
 #include "RNFDispatcher.h"
 #include "RNFLogger.h"
-#include "jsi/RNFWorkletRuntimeCollector.h"
 
 namespace margelo {
 
@@ -10,10 +9,6 @@ static constexpr auto GLOBAL_DISPATCHER_HOLDER_NAME = "__globalDispatcher";
 
 void Dispatcher::installRuntimeGlobalDispatcher(jsi::Runtime& runtime, std::shared_ptr<Dispatcher> dispatcher) {
   Logger::log(TAG, "Installing global Dispatcher Holder on runtime ptr: " + std::to_string(reinterpret_cast<uintptr_t>(&runtime)) + " desc: " + runtime.description());
-
-  // TODO: we should be able to remove this here, as we now use react-native-worklets
-  // Track the runtime's lifetime
-//  WorkletRuntimeCollector::install(runtime);
 
   jsi::Object dispatcherHolder(runtime);
   dispatcherHolder.setNativeState(runtime, dispatcher);

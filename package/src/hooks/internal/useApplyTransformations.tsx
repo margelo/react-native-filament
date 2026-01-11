@@ -86,7 +86,7 @@ export function useApplyTransformations({ to: entity, transformProps, aabb }: Pa
 
     if (entity == null) return
 
-    const unsubscribers: (() => void)[] = []
+    const unsubscribers: [SharedValue, number][] = []
 
     // Generic handler for worklet transform values
     const createTransformHandler = (
@@ -97,7 +97,8 @@ export function useApplyTransformations({ to: entity, transformProps, aabb }: Pa
       'worklet'
       if (value == null || !isWorkletSharedValue(value) || Array.isArray(value)) return null
 
-      const unsubscribe = value.addListener(() => {
+      const randomNumericId = Number(Math.random().toString().substring(12))
+      value.addListener(randomNumericId, () => {
         'worklet'
 
         // Check if value has changed to avoid duplicate applications in strict mode
@@ -113,7 +114,7 @@ export function useApplyTransformations({ to: entity, transformProps, aabb }: Pa
         }
       })
 
-      unsubscribers.push(unsubscribe)
+      unsubscribers.push([value, randomNumericId])
       return value
     }
 
@@ -148,9 +149,10 @@ export function useApplyTransformations({ to: entity, transformProps, aabb }: Pa
       positionHandler.value = [positionHandler.value[0], positionHandler.value[1], positionHandler.value[2]]
     }
 
-    return () => {
-      'worklet'
-      unsubscribers.forEach((unsubscribe) => unsubscribe())
-    }
+    // TODO: bring back, currently crashes?
+    // return () => {
+    //   'worklet'
+    //   unsubscribers.forEach(([value, id]) => value.removeListener(id))
+    // }
   })
 }

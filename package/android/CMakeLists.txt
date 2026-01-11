@@ -142,21 +142,13 @@ else()
     )
 endif()
 
-# Link with RNWC:
-find_package(react-native-worklets-core REQUIRED CONFIG)
-message("RN Filament: react-native-worklets core found! Enabling Worklets support...")
-message("RN Filament: react-native-worklets-core found in ${react-native-worklets-core_DIR}")
-target_link_libraries(
-    ${PACKAGE_NAME}
-    react-native-worklets-core::rnworklets
-)
-add_definitions(-DHAS_WORKLETS=1)
-# NEW ONE
+
 find_package(react-native-worklets REQUIRED)   # <-- for Worklets
 target_link_libraries(
     ${PACKAGE_NAME}
     react-native-worklets::worklets
 )
+add_definitions(-DHAS_WORKLETS=1)
 
 
 # Filament (local CMake project as a git submodule)
