@@ -28,6 +28,13 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android NDK
+        run: |
+          sdkmanager --install "ndk;29.0.14206865"
+
       - name: Build Filament
         working-directory: package/
         run: bash scripts/build-filament.sh debug --platform android
