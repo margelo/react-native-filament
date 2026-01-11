@@ -1,7 +1,7 @@
 import type { Engine, EngineBackend, EngineConfig } from '../types'
 import { FilamentProxy } from '../native/FilamentProxy'
 import { useDisposableResource } from './useDisposableResource'
-import { runOnJS, scheduleOnRuntime, WorkletRuntime } from 'react-native-worklets'
+import { type WorkletRuntime } from 'react-native-worklets'
 import { useCallback } from 'react'
 import { scheduleOnRuntimeAsync } from '../utilities/scheduleOnRuntimeAsync'
 
