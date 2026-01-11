@@ -74,10 +74,15 @@ jobs:
         working-directory: examples/AppExampleFabric/android
         run: ./gradlew assemble${{ matrix.variant == 'debug' && 'Debug' || 'Release' }} --build-cache
 
-      - name: Build Android app (ExpoExample)
+      - name: Prebuild Expo app
         if: matrix.app == 'ExpoExample'
         working-directory: examples/ExpoExample
-        run: bun run android --variant ${{ matrix.variant }}
+        run: bunx expo prebuild --platform android
+
+      - name: Build Android app (ExpoExample)
+        if: matrix.app == 'ExpoExample'
+        working-directory: examples/ExpoExample/android
+        run: ./gradlew assemble${{ matrix.variant == 'debug' && 'Debug' || 'Release' }} --build-cache
 
       - name: Upload .apk to GitHub
         uses: actions/upload-artifact@v4
