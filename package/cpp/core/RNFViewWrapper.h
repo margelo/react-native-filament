@@ -1,8 +1,8 @@
 #pragma once
 
 #include "RNFAmbientOcclusionOptionsWrapper.h"
-#include "RNFBloomOptionsWrapper.h"
 #include "RNFAntiAliasingEnum.h"
+#include "RNFBloomOptionsWrapper.h"
 #include "RNFCameraWrapper.h"
 #include "RNFDitheringEnum.h"
 #include "RNFDynamicResolutionOptions.h"

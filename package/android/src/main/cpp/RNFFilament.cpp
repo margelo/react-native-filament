@@ -5,9 +5,9 @@
 #include "RNFJFilamentRecorder.h"
 #include "RNFJFilamentView.h"
 #include "RNFJSurfaceProvider.h"
+#include <backend/VirtualMachineEnv.h>
 #include <fbjni/fbjni.h>
 #include <jni.h>
-#include <backend/VirtualMachineEnv.h>
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
   filament::VirtualMachineEnv::JNI_OnLoad(vm);

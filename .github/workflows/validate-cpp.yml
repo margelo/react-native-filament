@@ -28,6 +28,9 @@ jobs:
           - 'package/ios/src'
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
       - name: Run clang-format style check
         uses: mrousavy/clang-format-action@v1
         with:
