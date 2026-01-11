@@ -10,7 +10,7 @@ import { runOnJS, scheduleOnRuntime } from 'react-native-worklets'
 import { Choreographer } from '../types'
 
 export type FilamentProviderProps = PropsWithChildren<
-  Omit<EngineProps, 'context'> &
+  Omit<EngineProps, 'WorkletRuntime'> &
     ViewConfigProps &
     RendererConfigProps & {
       fallback?: React.ReactElement
