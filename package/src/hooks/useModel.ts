@@ -6,6 +6,7 @@ import usePrevious from './usePrevious'
 import { useWorkletEffect } from './useWorkletEffect'
 import { AABB, Entity } from '../types'
 import { useMemo } from 'react'
+import { scheduleOnRuntimeAsync } from '../utilities/scheduleOnRuntimeAsync'
 
 export interface UseModelConfigParams {
   /**
@@ -59,7 +60,7 @@ export type FilamentModel =
  */
 export function useModel(source: BufferSource, props?: UseModelConfigParams): FilamentModel {
   const { shouldReleaseSourceData = true, addToScene = true, instanceCount } = props ?? {}
-  const { engine, scene, workletContext } = useFilamentContext()
+  const { engine, scene, workletRuntime } = useFilamentContext()
   const assetBuffer = useBuffer({ source: source, releaseOnUnmount: false })
 
   // Note: the native cleanup of the asset will remove it automatically from the scene
@@ -69,7 +70,7 @@ export function useModel(source: BufferSource, props?: UseModelConfigParams): Fi
       throw new Error('instanceCount must be greater than 0')
     }
 
-    return workletContext.runAsync(() => {
+    return scheduleOnRuntimeAsync(workletRuntime, () => {
       'worklet'
 
       let loadedAsset: FilamentAsset
@@ -84,7 +85,7 @@ export function useModel(source: BufferSource, props?: UseModelConfigParams): Fi
 
       return loadedAsset
     })
-  }, [assetBuffer, workletContext, engine, instanceCount])
+  }, [assetBuffer, instanceCount, workletRuntime, engine])
 
   useWorkletEffect(() => {
     'worklet'

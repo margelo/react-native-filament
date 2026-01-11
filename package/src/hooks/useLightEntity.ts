@@ -1,15 +1,14 @@
 import { useMemo } from 'react'
 import { LightConfig, LightManager } from '../types'
-import { ISharedValue } from 'react-native-worklets-core'
-import { useFilamentContext } from './useFilamentContext'
 import { useWorkletEffect } from './useWorkletEffect'
 import convertKelvinToLinearSRGB from '../utilities/convertKelvinToLinearSRGB'
+import { type SharedValue } from 'react-native-reanimated'
 
 export type UseLightEntityProps =
   | LightConfig
   | (Omit<LightConfig, 'intensity' | 'colorKelvin'> & {
-      intensity?: number | ISharedValue<number>
-      colorKelvin?: number | ISharedValue<number>
+      intensity?: number | SharedValue<number>
+      colorKelvin?: number | SharedValue<number>
     })
 
 /**
@@ -60,7 +59,6 @@ export function useLightEntity(lightManager: LightManager, config: UseLightEntit
   ])
 
   // Subscribe to the intensity shared value
-  const { workletContext } = useFilamentContext()
   useWorkletEffect(() => {
     'worklet'
     const intensity = config.intensity
@@ -69,12 +67,21 @@ export function useLightEntity(lightManager: LightManager, config: UseLightEntit
 
     const setIntensity = lightManager.setIntensity
 
-    return intensity.addListener(
-      workletContext.createRunAsync(() => {
+    const randomNumericId = Number(Math.random().toString().substring(12))
+    intensity.addListener(
+      randomNumericId,
+      // TODO: do we need to wrap this in createRunAsync?
+      () => {
         'worklet'
         setIntensity(entity, intensity.value)
-      })
+      }
     )
+
+    // TODO: i believe this is causing crashes rn
+    // return () => {
+    //   'worklet'
+    //   intensity.removeListener(randomNumericId)
+    // }
   })
 
   // Subscribe to the colorKelvin shared value
@@ -86,12 +93,17 @@ export function useLightEntity(lightManager: LightManager, config: UseLightEntit
 
     const setColor = lightManager.setColor
 
-    return colorKelvin.addListener(
-      workletContext.createRunAsync(() => {
-        'worklet'
-        setColor(entity, convertKelvinToLinearSRGB(colorKelvin.value))
-      })
-    )
+    const randomNumericId = Number(Math.random().toString().substring(12))
+    colorKelvin.addListener(randomNumericId, () => {
+      'worklet'
+      setColor(entity, convertKelvinToLinearSRGB(colorKelvin.value))
+    })
+
+    // TODO: i believe this is causing crashes rn
+    // return () => {
+    //   'worklet'
+    //   colorKelvin.removeListener(randomNumericId)
+    // }
   })
 
   return entity

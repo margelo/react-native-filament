@@ -13,7 +13,6 @@
     }
   ],
   "scripts": {
-    "postinstall": "bunx patch-package"
   },
   "license": "MIT",
   "bugs": {

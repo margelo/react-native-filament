@@ -1,30 +1,23 @@
 import { useEffect } from 'react'
 import { useFilamentContext } from './useFilamentContext'
-import { getWorkletDependencies, isWorklet } from 'react-native-worklets-core'
-import { wrapWithErrorHandler } from '../ErrorUtils'
+import { scheduleOnRuntime } from 'react-native-worklets'
+import { scheduleOnRuntimeAsync } from '../utilities/scheduleOnRuntimeAsync'
 
 type CleanupFn = () => void
 
 export function useWorkletEffect(workletFunction: () => CleanupFn | void) {
-  const { workletContext } = useFilamentContext()
+  const { workletRuntime } = useFilamentContext()
 
   useEffect(() => {
-    const cleanupPromise = workletContext.runAsync(wrapWithErrorHandler(workletFunction))
+    const cleanupPromise = scheduleOnRuntimeAsync(workletRuntime, workletFunction)
     return () => {
       cleanupPromise.then((cleanup): void => {
         if (cleanup == null || typeof cleanup !== 'function') {
           // no cleanup function was returned, do nothing.
           return
         }
-        if (isWorklet(cleanup)) {
-          // call cleanup function on Worklet context
-          workletContext.runAsync(cleanup)
-        } else {
-          // call normal cleanup JS function on normal context
-          cleanup()
-        }
+        scheduleOnRuntime(workletRuntime, cleanup)
       })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, getWorkletDependencies(workletFunction))
+  }, [workletFunction, workletRuntime])
 }
