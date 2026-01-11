@@ -64,6 +64,11 @@ if [ "$skip_ios" = false ]; then
   cp -rf out/ios-$target/filament ../package/ios/libs
   # Rename math.h file to avoid conflicts with <math.h> system header (the header doesn't seem to be used anywhere).
   mv ../package/ios/libs/filament/include/gltfio/math.h ../package/ios/libs/filament/include/gltfio/gltfio-math.h
+
+  # Copy private backend headers needed for JNI initialization
+  echo "Copying Filament private backend headers..."
+  mkdir -p ../package/ios/libs/filament/include/private/backend
+  cp filament/backend/include/private/backend/VirtualMachineEnv.h ../package/ios/libs/filament/include/private/backend/
 fi
 
 if [ "$skip_android" = false ]; then
@@ -81,6 +86,11 @@ if [ "$skip_android" = false ]; then
   rm -rf ../package/android/libs/filament
   mkdir -p ../package/android/libs/filament
   cp -rf out/android-$target/filament ../package/android/libs
+
+  # Copy private backend headers needed for JNI initialization
+  echo "Copying Filament private backend headers..."
+  mkdir -p ../package/android/libs/filament/include/private/backend
+  cp filament/backend/include/private/backend/VirtualMachineEnv.h ../package/android/libs/filament/include/private/backend/
 fi
 
 echo "Done!"

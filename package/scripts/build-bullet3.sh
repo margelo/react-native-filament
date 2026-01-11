@@ -47,10 +47,17 @@ ANDROID_NDK_VERSION="$(grep '^Filament_ndkversion' ./android/gradle.properties |
 echo "Using target SDK: $TARGET_SDK"
 echo "Using NDK version: $ANDROID_NDK_VERSION"
 
-# We need to copy over the updated BulletAndroid.mk file, since theirs is outdated
+# We need to copy over the updated Bullet Android build files for NDK 27 compatibility
 cp -f scripts/BulletAndroidApplication.mk ../bullet3/build3/Android/jni/Application.mk
+cp -f scripts/BulletAndroid.mk ../bullet3/build3/Android/jni/Android.mk
 # Change the {PLATFORM_NAME} to the actual platform value from gradle.properties
 sed -i '' "s/{PLATFORM_NAME}/$TARGET_SDK/g" ../bullet3/build3/Android/jni/Application.mk
+
+# Temporarily rename VERSION file to avoid conflicts with C++ standard library headers
+# (NDK 27+ includes <version> header which conflicts with bullet3's VERSION file)
+if [ -f ../bullet3/VERSION ]; then
+  mv ../bullet3/VERSION ../bullet3/VERSION.tmp
+fi
 
 cd ../bullet3/build3/Android/jni
 # Build the Bullet3 library
@@ -61,7 +68,12 @@ cp -rf ../obj/local/* ../../../../package/android/libs/bullet3/lib
 
 # Clean all changes in bullet3 (the build files are not under gitignore)
 git checkout .  # Discard all uncommitted changes
-rm -rf ../obj/  # Remove untracked files and directories 
+rm -rf ../obj/  # Remove untracked files and directories
+
+# Restore VERSION file if it was renamed
+if [ -f ../../../../bullet3/VERSION.tmp ]; then
+  mv ../../../../bullet3/VERSION.tmp ../../../../bullet3/VERSION
+fi 
 
 # Remove the objs folder
 cd ../../../../package/android/libs/bullet3/lib

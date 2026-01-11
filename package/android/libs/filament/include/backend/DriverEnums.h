@@ -19,20 +19,31 @@
 #ifndef TNT_FILAMENT_BACKEND_DRIVERENUMS_H
 #define TNT_FILAMENT_BACKEND_DRIVERENUMS_H
 
-#include <utils/BitmaskEnum.h>
 #include <utils/unwindows.h> // Because we define ERROR in the FenceStatus enum.
 
+#include <backend/Platform.h>
 #include <backend/PresentCallable.h>
 
-#include <utils/ostream.h>
+#include <utils/BitmaskEnum.h>
+#include <utils/CString.h>
+#include <utils/FixedCapacityVector.h>
+#include <utils/Invocable.h>
+#include <utils/StaticString.h>
+#include <utils/debug.h>
 
 #include <math/vec4.h>
 
-#include <array>        // FIXME: STL headers are not allowed in public headers
-#include <type_traits>  // FIXME: STL headers are not allowed in public headers
+#include <array>
+#include <type_traits>
+#include <variant>
+#include <string_view>
 
 #include <stddef.h>
 #include <stdint.h>
+
+namespace utils::io {
+class ostream;
+} // namespace utils::io
 
 /**
  * Types and enums used by filament's driver.
@@ -90,11 +101,26 @@ static constexpr uint64_t SWAP_CHAIN_HAS_STENCIL_BUFFER         = SWAP_CHAIN_CON
  */
 static constexpr uint64_t SWAP_CHAIN_CONFIG_PROTECTED_CONTENT   = 0x40;
 
+/**
+ * Indicates that the SwapChain is configured to use Multi-Sample Anti-Aliasing (MSAA) with the
+ * given sample points within each pixel. Only supported when isMSAASwapChainSupported(4) is
+ * true.
+ *
+ * This is only supported by EGL(Android). Other GL platforms (GLX, WGL, etc) don't support it
+ * because the swapchain MSAA settings must be configured before window creation.
+ */
+static constexpr uint64_t SWAP_CHAIN_CONFIG_MSAA_4_SAMPLES      = 0x80;
 
 static constexpr size_t MAX_VERTEX_ATTRIBUTE_COUNT  = 16;   // This is guaranteed by OpenGL ES.
 static constexpr size_t MAX_SAMPLER_COUNT           = 62;   // Maximum needed at feature level 3.
 static constexpr size_t MAX_VERTEX_BUFFER_COUNT     = 16;   // Max number of bound buffer objects.
 static constexpr size_t MAX_SSBO_COUNT              = 4;    // This is guaranteed by OpenGL ES.
+static constexpr size_t MAX_DESCRIPTOR_SET_COUNT    = 4;    // This is guaranteed by Vulkan.
+static constexpr size_t MAX_DESCRIPTOR_COUNT        = 64;   // per set
+
+static constexpr size_t MAX_PUSH_CONSTANT_COUNT     = 32;   // Vulkan 1.1 spec allows for 128-byte
+                                                            // of push constant (we assume 4-byte
+                                                            // types).
 
 // Per feature level caps
 // Use (int)FeatureLevel to index this array
@@ -103,8 +129,8 @@ static constexpr struct {
     const size_t MAX_FRAGMENT_SAMPLER_COUNT;
 } FEATURE_LEVEL_CAPS[4] = {
         {  0,  0 }, // do not use
-        { 16, 16 }, // guaranteed by OpenGL ES, Vulkan and Metal
-        { 16, 16 }, // guaranteed by OpenGL ES, Vulkan and Metal
+        { 16, 16 }, // guaranteed by OpenGL ES, Vulkan, Metal And WebGPU
+        { 16, 16 }, // guaranteed by OpenGL ES, Vulkan, Metal And WebGPU
         { 31, 31 }, // guaranteed by Metal
 };
 
@@ -112,8 +138,12 @@ static_assert(MAX_VERTEX_BUFFER_COUNT <= MAX_VERTEX_ATTRIBUTE_COUNT,
         "The number of buffer objects that can be attached to a VertexBuffer must be "
         "less than or equal to the maximum number of vertex attributes.");
 
-static constexpr size_t CONFIG_UNIFORM_BINDING_COUNT = 10;  // This is guaranteed by OpenGL ES.
+static constexpr size_t CONFIG_UNIFORM_BINDING_COUNT = 9;   // This is guaranteed by OpenGL ES.
 static constexpr size_t CONFIG_SAMPLER_BINDING_COUNT = 4;   // This is guaranteed by OpenGL ES.
+
+static constexpr uint8_t EXTERNAL_SAMPLER_DATA_INDEX_UNUSED =
+        uint8_t(-1);// Case where the descriptor set binding isnt using any external sampler state
+                     // and therefore doesn't have a valid entry.
 
 /**
  * Defines the backend's feature levels.
@@ -133,7 +163,8 @@ enum class Backend : uint8_t {
     OPENGL = 1,   //!< Selects the OpenGL/ES driver (default on Android)
     VULKAN = 2,   //!< Selects the Vulkan driver if the platform supports it (default on Linux/Windows)
     METAL = 3,    //!< Selects the Metal driver if the platform supports it (default on MacOS/iOS).
-    NOOP = 4,     //!< Selects the no-op driver for testing purposes.
+    WEBGPU = 4,   //!< Selects the Webgpu driver if the platform supports webgpu.
+    NOOP = 5,     //!< Selects the no-op driver for testing purposes.
 };
 
 enum class TimerQueryResult : int8_t {
@@ -142,7 +173,7 @@ enum class TimerQueryResult : int8_t {
     AVAILABLE = 1,  // result is available
 };
 
-static constexpr const char* backendToString(Backend backend) {
+constexpr std::string_view to_string(Backend const backend) noexcept {
     switch (backend) {
         case Backend::NOOP:
             return "Noop";
@@ -152,9 +183,12 @@ static constexpr const char* backendToString(Backend backend) {
             return "Vulkan";
         case Backend::METAL:
             return "Metal";
-        default:
-            return "Unknown";
+        case Backend::WEBGPU:
+            return "WebGPU";
+        case Backend::DEFAULT:
+            return "Default";
     }
+    return "Unknown";
 }
 
 /**
@@ -163,14 +197,16 @@ static constexpr const char* backendToString(Backend backend) {
  * - The Metal backend can prefer precompiled Metal libraries, while falling back to MSL.
  */
 enum class ShaderLanguage {
+    UNSPECIFIED = -1,
     ESSL1 = 0,
     ESSL3 = 1,
     SPIRV = 2,
     MSL = 3,
     METAL_LIBRARY = 4,
+    WGSL = 5,
 };
 
-static constexpr const char* shaderLanguageToString(ShaderLanguage shaderLanguage) {
+constexpr const char* shaderLanguageToString(ShaderLanguage shaderLanguage) noexcept {
     switch (shaderLanguage) {
         case ShaderLanguage::ESSL1:
             return "ESSL 1.0";
@@ -182,8 +218,309 @@ static constexpr const char* shaderLanguageToString(ShaderLanguage shaderLanguag
             return "MSL";
         case ShaderLanguage::METAL_LIBRARY:
             return "Metal precompiled library";
+        case ShaderLanguage::WGSL:
+            return "WGSL";
+        case ShaderLanguage::UNSPECIFIED:
+            return "Unspecified";
+    }
+    return "UNKNOWN";
+}
+
+enum class ShaderStage : uint8_t {
+    VERTEX = 0,
+    FRAGMENT = 1,
+    COMPUTE = 2
+};
+
+static constexpr size_t PIPELINE_STAGE_COUNT = 2;
+enum class ShaderStageFlags : uint8_t {
+    NONE        =    0,
+    VERTEX      =    0x1,
+    FRAGMENT    =    0x2,
+    COMPUTE     =    0x4,
+    ALL_SHADER_STAGE_FLAGS = VERTEX | FRAGMENT | COMPUTE
+};
+
+constexpr bool hasShaderType(ShaderStageFlags flags, ShaderStage type) noexcept {
+    switch (type) {
+        case ShaderStage::VERTEX:
+            return bool(uint8_t(flags) & uint8_t(ShaderStageFlags::VERTEX));
+        case ShaderStage::FRAGMENT:
+            return bool(uint8_t(flags) & uint8_t(ShaderStageFlags::FRAGMENT));
+        case ShaderStage::COMPUTE:
+            return bool(uint8_t(flags) & uint8_t(ShaderStageFlags::COMPUTE));
     }
 }
+
+enum class TextureType : uint8_t {
+    FLOAT,
+    INT,
+    UINT,
+    DEPTH,
+    STENCIL,
+    DEPTH_STENCIL
+};
+
+constexpr std::string_view to_string(TextureType type) noexcept {
+    switch (type) {
+        case TextureType::FLOAT:            return "FLOAT";
+        case TextureType::INT:              return "INT";
+        case TextureType::UINT:             return "UINT";
+        case TextureType::DEPTH:            return "DEPTH";
+        case TextureType::STENCIL:          return "STENCIL";
+        case TextureType::DEPTH_STENCIL:    return "DEPTH_STENCIL";
+    }
+    return "UNKNOWN";
+}
+
+ enum class DescriptorType : uint8_t {
+     SAMPLER_2D_FLOAT,
+     SAMPLER_2D_INT,
+     SAMPLER_2D_UINT,
+     SAMPLER_2D_DEPTH,
+
+     SAMPLER_2D_ARRAY_FLOAT,
+     SAMPLER_2D_ARRAY_INT,
+     SAMPLER_2D_ARRAY_UINT,
+     SAMPLER_2D_ARRAY_DEPTH,
+
+     SAMPLER_CUBE_FLOAT,
+     SAMPLER_CUBE_INT,
+     SAMPLER_CUBE_UINT,
+     SAMPLER_CUBE_DEPTH,
+
+     SAMPLER_CUBE_ARRAY_FLOAT,
+     SAMPLER_CUBE_ARRAY_INT,
+     SAMPLER_CUBE_ARRAY_UINT,
+     SAMPLER_CUBE_ARRAY_DEPTH,
+
+     SAMPLER_3D_FLOAT,
+     SAMPLER_3D_INT,
+     SAMPLER_3D_UINT,
+
+     SAMPLER_2D_MS_FLOAT,
+     SAMPLER_2D_MS_INT,
+     SAMPLER_2D_MS_UINT,
+
+     SAMPLER_2D_MS_ARRAY_FLOAT,
+     SAMPLER_2D_MS_ARRAY_INT,
+     SAMPLER_2D_MS_ARRAY_UINT,
+
+     SAMPLER_EXTERNAL,
+     UNIFORM_BUFFER,
+     SHADER_STORAGE_BUFFER,
+     INPUT_ATTACHMENT,
+ };
+
+constexpr bool isDepthDescriptor(DescriptorType const type) noexcept {
+    switch (type) {
+        case DescriptorType::SAMPLER_2D_DEPTH:
+        case DescriptorType::SAMPLER_2D_ARRAY_DEPTH:
+        case DescriptorType::SAMPLER_CUBE_DEPTH:
+        case DescriptorType::SAMPLER_CUBE_ARRAY_DEPTH:
+            return true;
+        default: ;
+    }
+    return false;
+}
+
+constexpr bool isFloatDescriptor(DescriptorType const type) noexcept {
+    switch (type) {
+        case DescriptorType::SAMPLER_2D_FLOAT:
+        case DescriptorType::SAMPLER_2D_ARRAY_FLOAT:
+        case DescriptorType::SAMPLER_CUBE_FLOAT:
+        case DescriptorType::SAMPLER_CUBE_ARRAY_FLOAT:
+        case DescriptorType::SAMPLER_3D_FLOAT:
+        case DescriptorType::SAMPLER_2D_MS_FLOAT:
+        case DescriptorType::SAMPLER_2D_MS_ARRAY_FLOAT:
+            return true;
+        default: ;
+    }
+    return false;
+}
+
+constexpr bool isIntDescriptor(DescriptorType const type) noexcept {
+    switch (type) {
+        case DescriptorType::SAMPLER_2D_INT:
+        case DescriptorType::SAMPLER_2D_ARRAY_INT:
+        case DescriptorType::SAMPLER_CUBE_INT:
+        case DescriptorType::SAMPLER_CUBE_ARRAY_INT:
+        case DescriptorType::SAMPLER_3D_INT:
+        case DescriptorType::SAMPLER_2D_MS_INT:
+        case DescriptorType::SAMPLER_2D_MS_ARRAY_INT:
+            return true;
+        default: ;
+    }
+    return false;
+}
+
+constexpr bool isUnsignedIntDescriptor(DescriptorType const type) noexcept {
+    switch (type) {
+        case DescriptorType::SAMPLER_2D_UINT:
+        case DescriptorType::SAMPLER_2D_ARRAY_UINT:
+        case DescriptorType::SAMPLER_CUBE_UINT:
+        case DescriptorType::SAMPLER_CUBE_ARRAY_UINT:
+        case DescriptorType::SAMPLER_3D_UINT:
+        case DescriptorType::SAMPLER_2D_MS_UINT:
+        case DescriptorType::SAMPLER_2D_MS_ARRAY_UINT:
+            return true;
+        default: ;
+    }
+    return false;
+}
+
+constexpr bool is3dTypeDescriptor(DescriptorType const type) noexcept {
+    switch (type) {
+        case DescriptorType::SAMPLER_3D_FLOAT:
+        case DescriptorType::SAMPLER_3D_INT:
+        case DescriptorType::SAMPLER_3D_UINT:
+            return true;
+        default: ;
+    }
+    return false;
+}
+
+constexpr bool is2dTypeDescriptor(DescriptorType const type) noexcept {
+    switch (type) {
+        case DescriptorType::SAMPLER_2D_FLOAT:
+        case DescriptorType::SAMPLER_2D_INT:
+        case DescriptorType::SAMPLER_2D_UINT:
+        case DescriptorType::SAMPLER_2D_DEPTH:
+        case DescriptorType::SAMPLER_2D_MS_FLOAT:
+        case DescriptorType::SAMPLER_2D_MS_INT:
+        case DescriptorType::SAMPLER_2D_MS_UINT:
+            return true;
+        default: ;
+    }
+    return false;
+}
+
+constexpr bool is2dArrayTypeDescriptor(DescriptorType const type) noexcept {
+    switch (type) {
+        case DescriptorType::SAMPLER_2D_ARRAY_FLOAT:
+        case DescriptorType::SAMPLER_2D_ARRAY_INT:
+        case DescriptorType::SAMPLER_2D_ARRAY_UINT:
+        case DescriptorType::SAMPLER_2D_ARRAY_DEPTH:
+        case DescriptorType::SAMPLER_2D_MS_ARRAY_FLOAT:
+        case DescriptorType::SAMPLER_2D_MS_ARRAY_INT:
+        case DescriptorType::SAMPLER_2D_MS_ARRAY_UINT:
+            return true;
+        default: ;
+    }
+    return false;
+}
+
+constexpr bool isCubeTypeDescriptor(DescriptorType const type) noexcept {
+    switch (type) {
+        case DescriptorType::SAMPLER_CUBE_FLOAT:
+        case DescriptorType::SAMPLER_CUBE_INT:
+        case DescriptorType::SAMPLER_CUBE_UINT:
+        case DescriptorType::SAMPLER_CUBE_DEPTH:
+            return true;
+        default: ;
+    }
+    return false;
+}
+
+constexpr bool isCubeArrayTypeDescriptor(DescriptorType const type) noexcept {
+    switch (type) {
+        case DescriptorType::SAMPLER_CUBE_ARRAY_FLOAT:
+        case DescriptorType::SAMPLER_CUBE_ARRAY_INT:
+        case DescriptorType::SAMPLER_CUBE_ARRAY_UINT:
+        case DescriptorType::SAMPLER_CUBE_ARRAY_DEPTH:
+            return true;
+        default: ;
+    }
+    return false;
+}
+
+constexpr bool isMultiSampledTypeDescriptor(DescriptorType const type) noexcept {
+    switch (type) {
+        case DescriptorType::SAMPLER_2D_MS_FLOAT:
+        case DescriptorType::SAMPLER_2D_MS_INT:
+        case DescriptorType::SAMPLER_2D_MS_UINT:
+        case DescriptorType::SAMPLER_2D_MS_ARRAY_FLOAT:
+        case DescriptorType::SAMPLER_2D_MS_ARRAY_INT:
+        case DescriptorType::SAMPLER_2D_MS_ARRAY_UINT:
+            return true;
+        default: ;
+    }
+    return false;
+}
+
+constexpr std::string_view to_string(DescriptorType type) noexcept {
+    #define DESCRIPTOR_TYPE_CASE(TYPE)  case DescriptorType::TYPE: return #TYPE;
+    switch (type) {
+        DESCRIPTOR_TYPE_CASE(SAMPLER_2D_FLOAT)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_2D_INT)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_2D_UINT)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_2D_DEPTH)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_2D_ARRAY_FLOAT)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_2D_ARRAY_INT)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_2D_ARRAY_UINT)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_2D_ARRAY_DEPTH)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_CUBE_FLOAT)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_CUBE_INT)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_CUBE_UINT)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_CUBE_DEPTH)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_CUBE_ARRAY_FLOAT)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_CUBE_ARRAY_INT)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_CUBE_ARRAY_UINT)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_CUBE_ARRAY_DEPTH)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_3D_FLOAT)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_3D_INT)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_3D_UINT)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_2D_MS_FLOAT)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_2D_MS_INT)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_2D_MS_UINT)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_2D_MS_ARRAY_FLOAT)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_2D_MS_ARRAY_INT)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_2D_MS_ARRAY_UINT)
+        DESCRIPTOR_TYPE_CASE(SAMPLER_EXTERNAL)
+        DESCRIPTOR_TYPE_CASE(UNIFORM_BUFFER)
+        DESCRIPTOR_TYPE_CASE(SHADER_STORAGE_BUFFER)
+        DESCRIPTOR_TYPE_CASE(INPUT_ATTACHMENT)
+    }
+    return "UNKNOWN";
+    #undef DESCRIPTOR_TYPE_CASE
+}
+
+enum class DescriptorFlags : uint8_t {
+    NONE = 0x00,
+
+    // Indicate a UNIFORM_BUFFER will have dynamic offsets.
+    DYNAMIC_OFFSET = 0x01,
+
+    // To indicate a texture/sampler type should be unfiltered.
+    UNFILTERABLE = 0x02,
+};
+
+using descriptor_set_t = uint8_t;
+
+using descriptor_binding_t = uint8_t;
+
+struct DescriptorSetLayoutDescriptor {
+    static bool isSampler(DescriptorType type) noexcept {
+        return int(type) <= int(DescriptorType::SAMPLER_EXTERNAL);
+    }
+    static bool isBuffer(DescriptorType type) noexcept {
+        return type == DescriptorType::UNIFORM_BUFFER ||
+               type == DescriptorType::SHADER_STORAGE_BUFFER;
+    }
+    DescriptorType type;
+    ShaderStageFlags stageFlags;
+    descriptor_binding_t binding;
+    DescriptorFlags flags = DescriptorFlags::NONE;
+    uint16_t count = 0;
+
+    friend bool operator==(DescriptorSetLayoutDescriptor const& lhs,
+            DescriptorSetLayoutDescriptor const& rhs) noexcept {
+        return lhs.type == rhs.type &&
+               lhs.flags == rhs.flags &&
+               lhs.count == rhs.count &&
+               lhs.stageFlags == rhs.stageFlags;
+    }
+};
 
 /**
  * Bitmask for selecting render buffers
@@ -207,7 +544,7 @@ enum class TargetBufferFlags : uint32_t {
     ALL = COLOR_ALL | DEPTH | STENCIL       //!< Color, depth and stencil buffer selected.
 };
 
-inline constexpr TargetBufferFlags getTargetBufferFlagsAt(size_t index) noexcept {
+constexpr TargetBufferFlags getTargetBufferFlagsAt(size_t index) noexcept {
     if (index == 0u) return TargetBufferFlags::COLOR0;
     if (index == 1u) return TargetBufferFlags::COLOR1;
     if (index == 2u) return TargetBufferFlags::COLOR2;
@@ -222,12 +559,21 @@ inline constexpr TargetBufferFlags getTargetBufferFlagsAt(size_t index) noexcept
 }
 
 /**
- * Frequency at which a buffer is expected to be modified and used. This is used as an hint
- * for the driver to make better decisions about managing memory internally.
+ * How the buffer will be used.
  */
 enum class BufferUsage : uint8_t {
-    STATIC,      //!< content modified once, used many times
-    DYNAMIC,     //!< content modified frequently, used many times
+    STATIC              = 0,    //!< (legacy) content modified once, used many times
+    DYNAMIC             = 1,    //!< (legacy) content modified frequently, used many times
+    DYNAMIC_BIT         = 0x1,  //!< buffer can be modified frequently, used many times
+    SHARED_WRITE_BIT    = 0x04, //!< buffer can be memory mapped for write operations
+};
+
+/**
+ * How the buffer will be mapped.
+ */
+enum class MapBufferAccessFlags : uint8_t {
+    WRITE_BIT               = 0x2,  //!< buffer is mapped from writing
+    INVALIDATE_RANGE_BIT    = 0x4,  //!< the mapped range content is lost
 };
 
 /**
@@ -243,8 +589,19 @@ struct Viewport {
     int32_t right() const noexcept { return left + int32_t(width); }
     //! get the top coordinate in window space of the viewport
     int32_t top() const noexcept { return bottom + int32_t(height); }
-};
 
+    friend bool operator==(Viewport const& lhs, Viewport const& rhs) noexcept {
+        // clang can do this branchless with xor/or
+        return lhs.left == rhs.left && lhs.bottom == rhs.bottom &&
+               lhs.width == rhs.width && lhs.height == rhs.height;
+    }
+
+    friend bool operator!=(Viewport const& lhs, Viewport const& rhs) noexcept {
+        // clang is being dumb and uses branches
+        return bool(((lhs.left ^ rhs.left) | (lhs.bottom ^ rhs.bottom)) |
+                    ((lhs.width ^ rhs.width) | (lhs.height ^ rhs.height)));
+    }
+};
 
 /**
  * Specifies the mapping of the near and far clipping plane to window coordinates.
@@ -262,15 +619,6 @@ enum class FenceStatus : int8_t {
     ERROR = -1,                 //!< An error occurred. The Fence condition is not satisfied.
     CONDITION_SATISFIED = 0,    //!< The Fence condition is satisfied.
     TIMEOUT_EXPIRED = 1,        //!< wait()'s timeout expired. The Fence condition is not satisfied.
-};
-
-/**
- * Status codes for sync objects
- */
-enum class SyncStatus : int8_t {
-    ERROR = -1,          //!< An error occurred. The Sync is not signaled.
-    SIGNALED = 0,        //!< The Sync is signaled.
-    NOT_SIGNALED = 1,    //!< The Sync is not signaled yet
 };
 
 static constexpr uint64_t FENCE_WAIT_FOR_EVER = uint64_t(-1);
@@ -291,6 +639,15 @@ enum class ShaderModel : uint8_t {
 };
 static constexpr size_t SHADER_MODEL_COUNT = 2;
 
+constexpr std::string_view to_string(ShaderModel model) noexcept {
+    switch (model) {
+        case ShaderModel::MOBILE:
+            return "mobile";
+        case ShaderModel::DESKTOP:
+            return "desktop";
+    }
+}
+
 /**
  * Primitive types
  */
@@ -302,6 +659,18 @@ enum class PrimitiveType : uint8_t {
     TRIANGLES      = 4,    //!< triangles
     TRIANGLE_STRIP = 5     //!< triangle strip
 };
+
+[[nodiscard]] constexpr bool isStripPrimitiveType(const PrimitiveType type) {
+    switch (type) {
+        case PrimitiveType::POINTS:
+        case PrimitiveType::LINES:
+        case PrimitiveType::TRIANGLES:
+            return false;
+        case PrimitiveType::LINE_STRIP:
+        case PrimitiveType::TRIANGLE_STRIP:
+            return true;
+    }
+}
 
 /**
  * Supported uniform types
@@ -331,7 +700,7 @@ enum class UniformType : uint8_t {
 /**
  * Supported constant parameter types
  */
- enum class ConstantType : uint8_t {
+enum class ConstantType : uint8_t {
   INT,
   FLOAT,
   BOOL
@@ -344,11 +713,29 @@ enum class Precision : uint8_t {
     DEFAULT
 };
 
+union ConstantValue {
+    int32_t i;
+    float f;
+    bool b;
+};
+
 /**
  * Shader compiler priority queue
+ *
+ * On platforms which support parallel shader compilation, compilation requests will be processed in
+ * order of priority, then insertion order. See Material::compile().
  */
 enum class CompilerPriorityQueue : uint8_t {
+    /** We need this program NOW.
+     *
+     * When passed as an argument to Material::compile(), if the platform doesn't support parallel
+     * compilation, but does support amortized shader compilation, the given shader program will be
+     * synchronously compiled.
+     */
+    CRITICAL,
+    /** We will need this program soon. */
     HIGH,
+    /** We will need this program eventually. */
     LOW
 };
 
@@ -362,6 +749,24 @@ enum class SamplerType : uint8_t {
     SAMPLER_CUBEMAP_ARRAY,  //!< Cube map array texture (feature level 2)
 };
 
+constexpr std::string_view to_string(SamplerType const type) noexcept {
+    switch (type) {
+        case SamplerType::SAMPLER_2D:
+            return "SAMPLER_2D";
+        case SamplerType::SAMPLER_2D_ARRAY:
+            return "SAMPLER_2D_ARRAY";
+        case SamplerType::SAMPLER_CUBEMAP:
+            return "SAMPLER_CUBEMAP";
+        case SamplerType::SAMPLER_EXTERNAL:
+            return "SAMPLER_EXTERNAL";
+        case SamplerType::SAMPLER_3D:
+            return "SAMPLER_3D";
+        case SamplerType::SAMPLER_CUBEMAP_ARRAY:
+            return "SAMPLER_CUBEMAP_ARRAY";
+    }
+    return "Unknown";
+}
+
 //! Subpass type
 enum class SubpassType : uint8_t {
     SUBPASS_INPUT
@@ -374,6 +779,20 @@ enum class SamplerFormat : uint8_t {
     FLOAT = 2,      //!< float sampler
     SHADOW = 3      //!< shadow sampler (PCF)
 };
+
+constexpr std::string_view to_string(SamplerFormat const format) noexcept {
+    switch (format) {
+        case SamplerFormat::INT:
+            return "INT";
+        case SamplerFormat::UINT:
+            return "UINT";
+        case SamplerFormat::FLOAT:
+            return "FLOAT";
+        case SamplerFormat::SHADOW:
+            return "SHADOW";
+    }
+    return "Unknown";
+}
 
 /**
  * Supported element types
@@ -413,6 +832,15 @@ enum class BufferObjectBinding : uint8_t {
     UNIFORM,
     SHADER_STORAGE
 };
+
+constexpr std::string_view to_string(BufferObjectBinding type) noexcept {
+    switch (type) {
+        case BufferObjectBinding::VERTEX:           return "VERTEX";
+        case BufferObjectBinding::UNIFORM:          return "UNIFORM";
+        case BufferObjectBinding::SHADER_STORAGE:   return "SHADER_STORAGE";
+    }
+    return "UNKNOWN";
+}
 
 //! Face culling Mode
 enum class CullingMode : uint8_t {
@@ -675,6 +1103,8 @@ enum class TextureFormat : uint16_t {
     SRGB_ALPHA_BPTC_UNORM,  // BC7 sRGB
 };
 
+TextureType getTextureType(TextureFormat format) noexcept;
+
 //! Bitmask describing the intended Texture Usage
 enum class TextureUsage : uint16_t {
     NONE                = 0x0000,
@@ -686,8 +1116,10 @@ enum class TextureUsage : uint16_t {
     SUBPASS_INPUT       = 0x0020,            //!< Texture can be used as a subpass input
     BLIT_SRC            = 0x0040,            //!< Texture can be used the source of a blit()
     BLIT_DST            = 0x0080,            //!< Texture can be used the destination of a blit()
-    PROTECTED           = 0x0100,            //!< Texture can be used the destination of a blit()
-    DEFAULT             = UPLOADABLE | SAMPLEABLE   //!< Default texture usage
+    PROTECTED           = 0x0100,            //!< Texture can be used for protected content
+    GEN_MIPMAPPABLE     = 0x0200,            //!< Texture can be used with generateMipmaps()
+    DEFAULT             = UPLOADABLE | SAMPLEABLE,   //!< Default texture usage
+    ALL_ATTACHMENTS     = COLOR_ATTACHMENT | DEPTH_ATTACHMENT | STENCIL_ATTACHMENT | SUBPASS_INPUT,   //!< Mask of all attachments
 };
 
 //! Texture swizzle
@@ -701,7 +1133,7 @@ enum class TextureSwizzle : uint8_t {
 };
 
 //! returns whether this format a depth format
-static constexpr bool isDepthFormat(TextureFormat format) noexcept {
+constexpr bool isDepthFormat(TextureFormat format) noexcept {
     switch (format) {
         case TextureFormat::DEPTH32F:
         case TextureFormat::DEPTH24:
@@ -714,7 +1146,7 @@ static constexpr bool isDepthFormat(TextureFormat format) noexcept {
     }
 }
 
-static constexpr bool isStencilFormat(TextureFormat format) noexcept {
+constexpr bool isStencilFormat(TextureFormat format) noexcept {
     switch (format) {
         case TextureFormat::STENCIL8:
         case TextureFormat::DEPTH24_STENCIL8:
@@ -725,7 +1157,34 @@ static constexpr bool isStencilFormat(TextureFormat format) noexcept {
     }
 }
 
-static constexpr bool isUnsignedIntFormat(TextureFormat format) {
+constexpr bool isColorFormat(TextureFormat format) noexcept {
+    switch (format) {
+        // Standard color formats
+        case TextureFormat::R8:
+        case TextureFormat::RG8:
+        case TextureFormat::RGBA8:
+        case TextureFormat::R16F:
+        case TextureFormat::RG16F:
+        case TextureFormat::RGBA16F:
+        case TextureFormat::R32F:
+        case TextureFormat::RG32F:
+        case TextureFormat::RGBA32F:
+        case TextureFormat::RGB10_A2:
+        case TextureFormat::R11F_G11F_B10F:
+        case TextureFormat::SRGB8:
+        case TextureFormat::SRGB8_A8:
+        case TextureFormat::RGB8:
+        case TextureFormat::RGB565:
+        case TextureFormat::RGB5_A1:
+        case TextureFormat::RGBA4:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
+constexpr bool isUnsignedIntFormat(TextureFormat format) {
     switch (format) {
         case TextureFormat::R8UI:
         case TextureFormat::R16UI:
@@ -746,7 +1205,7 @@ static constexpr bool isUnsignedIntFormat(TextureFormat format) {
     }
 }
 
-static constexpr bool isSignedIntFormat(TextureFormat format) {
+constexpr bool isSignedIntFormat(TextureFormat format) {
     switch (format) {
         case TextureFormat::R8I:
         case TextureFormat::R16I:
@@ -768,35 +1227,35 @@ static constexpr bool isSignedIntFormat(TextureFormat format) {
 }
 
 //! returns whether this format is a compressed format
-static constexpr bool isCompressedFormat(TextureFormat format) noexcept {
+constexpr bool isCompressedFormat(TextureFormat format) noexcept {
     return format >= TextureFormat::EAC_R11;
 }
 
 //! returns whether this format is an ETC2 compressed format
-static constexpr bool isETC2Compression(TextureFormat format) noexcept {
+constexpr bool isETC2Compression(TextureFormat format) noexcept {
     return format >= TextureFormat::EAC_R11 && format <= TextureFormat::ETC2_EAC_SRGBA8;
 }
 
 //! returns whether this format is an S3TC compressed format
-static constexpr bool isS3TCCompression(TextureFormat format) noexcept {
+constexpr bool isS3TCCompression(TextureFormat format) noexcept {
     return format >= TextureFormat::DXT1_RGB && format <= TextureFormat::DXT5_SRGBA;
 }
 
-static constexpr bool isS3TCSRGBCompression(TextureFormat format) noexcept {
+constexpr bool isS3TCSRGBCompression(TextureFormat format) noexcept {
     return format >= TextureFormat::DXT1_SRGB && format <= TextureFormat::DXT5_SRGBA;
 }
 
 //! returns whether this format is an RGTC compressed format
-static constexpr bool isRGTCCompression(TextureFormat format) noexcept {
+constexpr bool isRGTCCompression(TextureFormat format) noexcept {
     return format >= TextureFormat::RED_RGTC1 && format <= TextureFormat::SIGNED_RED_GREEN_RGTC2;
 }
 
 //! returns whether this format is an BPTC compressed format
-static constexpr bool isBPTCCompression(TextureFormat format) noexcept {
+constexpr bool isBPTCCompression(TextureFormat format) noexcept {
     return format >= TextureFormat::RGB_BPTC_SIGNED_FLOAT && format <= TextureFormat::SRGB_ALPHA_BPTC_UNORM;
 }
 
-static constexpr bool isASTCCompression(TextureFormat format) noexcept {
+constexpr bool isASTCCompression(TextureFormat format) noexcept {
     return format >= TextureFormat::RGBA_ASTC_4x4 && format <= TextureFormat::SRGB8_ALPHA8_ASTC_12x12;
 }
 
@@ -857,7 +1316,7 @@ enum class SamplerCompareFunc : uint8_t {
 };
 
 //! Sampler parameters
-struct SamplerParams { // NOLINT
+struct SamplerParams {             // NOLINT
     SamplerMagFilter filterMag      : 1;    //!< magnification filter (NEAREST)
     SamplerMinFilter filterMin      : 3;    //!< minification filter  (NEAREST)
     SamplerWrapMode wrapS           : 2;    //!< s-coordinate wrap mode (CLAMP_TO_EDGE)
@@ -881,6 +1340,9 @@ struct SamplerParams { // NOLINT
 
     struct EqualTo {
         bool operator()(SamplerParams lhs, SamplerParams rhs) const noexcept {
+            assert_invariant(lhs.padding0 == 0);
+            assert_invariant(lhs.padding1 == 0);
+            assert_invariant(lhs.padding2 == 0);
             auto* pLhs = reinterpret_cast<uint32_t const*>(reinterpret_cast<char const*>(&lhs));
             auto* pRhs = reinterpret_cast<uint32_t const*>(reinterpret_cast<char const*>(&rhs));
             return *pLhs == *pRhs;
@@ -889,23 +1351,42 @@ struct SamplerParams { // NOLINT
 
     struct LessThan {
         bool operator()(SamplerParams lhs, SamplerParams rhs) const noexcept {
+            assert_invariant(lhs.padding0 == 0);
+            assert_invariant(lhs.padding1 == 0);
+            assert_invariant(lhs.padding2 == 0);
             auto* pLhs = reinterpret_cast<uint32_t const*>(reinterpret_cast<char const*>(&lhs));
             auto* pRhs = reinterpret_cast<uint32_t const*>(reinterpret_cast<char const*>(&rhs));
-            return *pLhs == *pRhs;
+            return *pLhs < *pRhs;
         }
     };
 
+    bool isFiltered() const noexcept {
+        return filterMag != SamplerMagFilter::NEAREST || filterMin != SamplerMinFilter::NEAREST;
+    }
+
 private:
-    friend inline bool operator < (SamplerParams lhs, SamplerParams rhs) noexcept {
-        return SamplerParams::LessThan{}(lhs, rhs);
+    friend bool operator == (SamplerParams lhs, SamplerParams rhs) noexcept {
+        return EqualTo{}(lhs, rhs);
+    }
+    friend bool operator != (SamplerParams lhs, SamplerParams rhs) noexcept {
+        return  !EqualTo{}(lhs, rhs);
+    }
+    friend bool operator < (SamplerParams lhs, SamplerParams rhs) noexcept {
+        return LessThan{}(lhs, rhs);
     }
 };
+
 static_assert(sizeof(SamplerParams) == 4);
 
 // The limitation to 64-bits max comes from how we store a SamplerParams in our JNI code
 // see android/.../TextureSampler.cpp
 static_assert(sizeof(SamplerParams) <= sizeof(uint64_t),
         "SamplerParams must be no more than 64 bits");
+
+struct DescriptorSetLayout {
+    std::variant<utils::StaticString, utils::CString, std::monostate> label;
+    utils::FixedCapacityVector<DescriptorSetLayoutDescriptor> descriptors;
+};
 
 //! blending equation function
 enum class BlendEquation : uint8_t {
@@ -1052,7 +1533,7 @@ struct RasterState {
             bool inverseFrontFaces                      : 1;        // 31
 
             //! padding, must be 0
-            uint8_t padding                             : 1;        // 32
+            bool depthClamp                             : 1;        // 32
         };
         uint32_t u = 0;
     };
@@ -1062,32 +1543,6 @@ struct RasterState {
  **********************************************************************************************
  * \privatesection
  */
-
-enum class ShaderStage : uint8_t {
-    VERTEX = 0,
-    FRAGMENT = 1,
-    COMPUTE = 2
-};
-
-static constexpr size_t PIPELINE_STAGE_COUNT = 2;
-enum class ShaderStageFlags : uint8_t {
-    NONE        =    0,
-    VERTEX      =    0x1,
-    FRAGMENT    =    0x2,
-    COMPUTE     =    0x4,
-    ALL_SHADER_STAGE_FLAGS = VERTEX | FRAGMENT | COMPUTE
-};
-
-static inline constexpr bool hasShaderType(ShaderStageFlags flags, ShaderStage type) noexcept {
-    switch (type) {
-        case ShaderStage::VERTEX:
-            return bool(uint8_t(flags) & uint8_t(ShaderStageFlags::VERTEX));
-        case ShaderStage::FRAGMENT:
-            return bool(uint8_t(flags) & uint8_t(ShaderStageFlags::FRAGMENT));
-        case ShaderStage::COMPUTE:
-            return bool(uint8_t(flags) & uint8_t(ShaderStageFlags::COMPUTE));
-    }
-}
 
 /**
  * Selects which buffers to clear at the beginning of the render pass, as well as which buffers
@@ -1218,13 +1673,15 @@ struct StencilState {
     uint8_t padding = 0;
 };
 
+using PushConstantVariant = std::variant<int32_t, float, bool>;
+
 static_assert(sizeof(StencilState::StencilOperations) == 5u,
         "StencilOperations size not what was intended");
 
 static_assert(sizeof(StencilState) == 12u,
         "StencilState size not what was intended");
 
-using FrameScheduledCallback = void(*)(PresentCallable callable, void* user);
+using FrameScheduledCallback = utils::Invocable<void(PresentCallable)>;
 
 enum class Workaround : uint16_t {
     // The EASU pass must split because shader compiler flattens early-exit branch
@@ -1235,21 +1692,34 @@ enum class Workaround : uint16_t {
     // for some uniform arrays, it's needed to do an initialization to avoid crash on adreno gpu
     ADRENO_UNIFORM_ARRAY_CRASH,
     // Workaround a Metal pipeline compilation error with the message:
-    // "Could not statically determine the target of a texture". See light_indirect.fs
-    A8X_STATIC_TEXTURE_TARGET_ERROR,
+    // "Could not statically determine the target of a texture". See surface_light_indirect.fs
+    METAL_STATIC_TEXTURE_TARGET_ERROR,
     // Adreno drivers sometimes aren't able to blit into a layer of a texture array.
     DISABLE_BLIT_INTO_TEXTURE_ARRAY,
     // Multiple workarounds needed for PowerVR GPUs
     POWER_VR_SHADER_WORKAROUNDS,
+    // Some browsers, such as Firefox on Mac, struggle with slow shader compile/link times when
+    // creating programs for the default material, leading to startup stutters. This workaround
+    // prevents these stutters by not precaching depth variants of the default material for those
+    // particular browsers.
+    DISABLE_DEPTH_PRECACHE_FOR_DEFAULT_MATERIAL,
+    // Emulate an sRGB swapchain in shader code.
+    EMULATE_SRGB_SWAPCHAIN,
 };
 
-//! The type of technique for stereoscopic rendering
-enum class StereoscopicType : uint8_t {
-    // Stereoscopic rendering is performed using instanced rendering technique.
-    INSTANCED,
-    // Stereoscopic rendering is performed using the multiview feature from the graphics backend.
-    MULTIVIEW,
-};
+using StereoscopicType = Platform::StereoscopicType;
+
+using FrameTimestamps = Platform::FrameTimestamps;
+
+using CompositorTiming = Platform::CompositorTiming;
+
+using AsynchronousMode = Platform::AsynchronousMode;
+
+using AsyncCallId = uint32_t;
+
+static constexpr AsyncCallId InvalidAsyncCallId = std::numeric_limits<AsyncCallId>::max();
+
+using AsynchronousMode = Platform::AsynchronousMode;
 
 } // namespace filament::backend
 
@@ -1257,10 +1727,17 @@ template<> struct utils::EnableBitMaskOperators<filament::backend::ShaderStageFl
         : public std::true_type {};
 template<> struct utils::EnableBitMaskOperators<filament::backend::TargetBufferFlags>
         : public std::true_type {};
+template<> struct utils::EnableBitMaskOperators<filament::backend::DescriptorFlags>
+        : public std::true_type {};
 template<> struct utils::EnableBitMaskOperators<filament::backend::TextureUsage>
         : public std::true_type {};
 template<> struct utils::EnableBitMaskOperators<filament::backend::StencilFace>
         : public std::true_type {};
+template<> struct utils::EnableBitMaskOperators<filament::backend::BufferUsage>
+        : public std::true_type {};
+template<> struct utils::EnableBitMaskOperators<filament::backend::MapBufferAccessFlags>
+        : public std::true_type {};
+
 template<> struct utils::EnableIntegerOperators<filament::backend::TextureCubemapFace>
         : public std::true_type {};
 template<> struct utils::EnableIntegerOperators<filament::backend::FeatureLevel>
@@ -1289,12 +1766,16 @@ utils::io::ostream& operator<<(utils::io::ostream& out, filament::backend::Textu
 utils::io::ostream& operator<<(utils::io::ostream& out, filament::backend::TextureUsage usage);
 utils::io::ostream& operator<<(utils::io::ostream& out, filament::backend::BufferObjectBinding binding);
 utils::io::ostream& operator<<(utils::io::ostream& out, filament::backend::TextureSwizzle swizzle);
+utils::io::ostream& operator<<(utils::io::ostream& out, filament::backend::ShaderStage shaderStage);
+utils::io::ostream& operator<<(utils::io::ostream& out, filament::backend::ShaderStageFlags stageFlags);
+utils::io::ostream& operator<<(utils::io::ostream& out, filament::backend::CompilerPriorityQueue compilerPriorityQueue);
+utils::io::ostream& operator<<(utils::io::ostream& out, filament::backend::PushConstantVariant pushConstantVariant);
 utils::io::ostream& operator<<(utils::io::ostream& out, const filament::backend::AttributeArray& type);
+utils::io::ostream& operator<<(utils::io::ostream& out, const filament::backend::DescriptorSetLayout& dsl);
 utils::io::ostream& operator<<(utils::io::ostream& out, const filament::backend::PolygonOffset& po);
 utils::io::ostream& operator<<(utils::io::ostream& out, const filament::backend::RasterState& rs);
 utils::io::ostream& operator<<(utils::io::ostream& out, const filament::backend::RenderPassParams& b);
 utils::io::ostream& operator<<(utils::io::ostream& out, const filament::backend::Viewport& v);
-utils::io::ostream& operator<<(utils::io::ostream& out, filament::backend::ShaderStageFlags stageFlags);
 #endif
 
 #endif // TNT_FILAMENT_BACKEND_DRIVERENUMS_H

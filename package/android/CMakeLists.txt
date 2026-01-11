@@ -112,6 +112,8 @@ target_include_directories(
     "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/react/turbomodule" # <-- CallInvokerHolder JNI wrapper
     "${FILAMENT_DIR}/include"
     "${BULLET3_DIR}/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../filament/filament/backend/include" # <-- Filament backend private headers (dev)
+    "${FILAMENT_DIR}/include/private" # <-- Filament private headers (distributed package)
 )
 
 # Link everything together

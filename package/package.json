@@ -35,7 +35,7 @@
     "build": "bob build",
     "prepare": "git submodule update --init --recursive && bun patch-filament && bob build",
     "update-submodule": "git submodule update --remote --merge",
-    "patch-filament": "cd ../filament ; git apply ../package/filament_animator_feat.patch ; git apply ../package/filament_material_instance_getter.patch ; git apply ../package/filament_ios_simulator.patch ; cd ../package",
+    "patch-filament": "cd ../filament ; git apply ../package/filament_animator_feat.patch ; git apply ../package/filament_ios_simulator.patch ; git apply ../package/filament_depth_clip_mode.patch ; cd ../package",
     "build-filament": "bun patch-filament && scripts/build-filament.sh",
     "build-filament:release": "bun build-filament release",
     "build-filament:debug": "bun build-filament debug",

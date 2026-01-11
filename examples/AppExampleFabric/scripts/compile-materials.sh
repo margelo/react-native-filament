@@ -3,7 +3,7 @@
 set -e
 
 # Make sure the filament matc tool is available:
-matc_path=../../../filament/out/cmake-release/tools/matc/matc
+matc_path=../../filament/out/cmake-release/tools/matc/matc
 if [ ! -f "$matc_path" ]; then
   echo "The filament matc tool is missing. Did you build Filament properly?"
   exit 1

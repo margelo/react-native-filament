@@ -20,17 +20,27 @@
 #include <backend/DriverEnums.h>
 #include <backend/Handle.h>
 
-#include <utils/ostream.h>
+#include <array>
 
 #include <stdint.h>
+
+namespace utils::io {
+class ostream;
+} // namespace utils::io
 
 namespace filament::backend {
 
 //! \privatesection
 
+struct PipelineLayout {
+    using SetLayout = std::array<Handle<HwDescriptorSetLayout>, MAX_DESCRIPTOR_SET_COUNT>;
+    SetLayout setLayout;      // 16
+};
+
 struct PipelineState {
     Handle<HwProgram> program;                                              //  4
     Handle<HwVertexBufferInfo> vertexBufferInfo;                            //  4
+    PipelineLayout pipelineLayout;                                          // 16
     RasterState rasterState;                                                //  4
     StencilState stencilState;                                              // 12
     PolygonOffset polygonOffset;                                            //  8

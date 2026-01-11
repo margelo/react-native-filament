@@ -17,14 +17,16 @@
 #ifndef TNT_FILAMENT_BACKEND_HANDLE_H
 #define TNT_FILAMENT_BACKEND_HANDLE_H
 
-#if !defined(NDEBUG)
-#include <utils/ostream.h>
-#endif
 #include <utils/debug.h>
 
 #include <type_traits> // FIXME: STL headers are not allowed in public headers
+#include <utility>
 
 #include <stdint.h>
+
+namespace utils::io {
+class ostream;
+} // namespace utils::io
 
 namespace filament::backend {
 
@@ -34,13 +36,16 @@ struct HwIndexBuffer;
 struct HwProgram;
 struct HwRenderPrimitive;
 struct HwRenderTarget;
-struct HwSamplerGroup;
 struct HwStream;
 struct HwSwapChain;
+struct HwSync;
 struct HwTexture;
 struct HwTimerQuery;
 struct HwVertexBufferInfo;
 struct HwVertexBuffer;
+struct HwDescriptorSetLayout;
+struct HwDescriptorSet;
+struct HwMemoryMappedBuffer;
 
 /*
  * A handle to a backend resource. HandleBase is for internal use only.
@@ -75,6 +80,19 @@ protected:
     HandleBase(HandleBase const& rhs) noexcept = default;
     HandleBase& operator=(HandleBase const& rhs) noexcept = default;
 
+    HandleBase(HandleBase&& rhs) noexcept
+            : object(rhs.object) {
+        rhs.object = nullid;
+    }
+
+    HandleBase& operator=(HandleBase&& rhs) noexcept {
+        if (this != &rhs) {
+            object = rhs.object;
+            rhs.object = nullid;
+        }
+        return *this;
+    }
+
 private:
     HandleId object;
 };
@@ -89,8 +107,20 @@ struct Handle : public HandleBase {
     Handle() noexcept = default;
 
     Handle(Handle const& rhs) noexcept = default;
+    Handle(Handle&& rhs) noexcept = default;
 
-    Handle& operator=(Handle const& rhs) noexcept = default;
+    // Explicitly redefine copy/move assignment operators rather than just using default here.
+    // Because it doesn't make a call to the parent's method automatically during the std::move
+    // function call(https://en.cppreference.com/w/cpp/algorithm/move) in certain compilers like
+    // NDK 25.1.8937393 and below (see b/371980551)
+    Handle& operator=(Handle const& rhs) noexcept {
+        HandleBase::operator=(rhs);
+        return *this;
+    }
+    Handle& operator=(Handle&& rhs) noexcept {
+        HandleBase::operator=(std::move(rhs));
+        return *this;
+    }
 
     explicit Handle(HandleId id) noexcept : HandleBase(id) { }
 
@@ -103,7 +133,7 @@ struct Handle : public HandleBase {
     bool operator>=(const Handle& rhs) const noexcept { return getId() >= rhs.getId(); }
 
     // type-safe Handle cast
-    template<typename B, typename = std::enable_if_t<std::is_base_of<T, B>::value> >
+    template<typename B, typename = std::enable_if_t<std::is_base_of_v<T, B>> >
     Handle(Handle<B> const& base) noexcept : HandleBase(base) { } // NOLINT(hicpp-explicit-conversions,google-explicit-constructor)
 
 private:
@@ -115,19 +145,22 @@ private:
 
 // Types used by the command stream
 // (we use this renaming because the macro-system doesn't deal well with "<" and ">")
-using BufferObjectHandle     = Handle<HwBufferObject>;
-using FenceHandle            = Handle<HwFence>;
-using IndexBufferHandle      = Handle<HwIndexBuffer>;
-using ProgramHandle          = Handle<HwProgram>;
-using RenderPrimitiveHandle  = Handle<HwRenderPrimitive>;
-using RenderTargetHandle     = Handle<HwRenderTarget>;
-using SamplerGroupHandle     = Handle<HwSamplerGroup>;
-using StreamHandle           = Handle<HwStream>;
-using SwapChainHandle        = Handle<HwSwapChain>;
-using TextureHandle          = Handle<HwTexture>;
-using TimerQueryHandle       = Handle<HwTimerQuery>;
-using VertexBufferHandle     = Handle<HwVertexBuffer>;
-using VertexBufferInfoHandle = Handle<HwVertexBufferInfo>;
+using BufferObjectHandle        = Handle<HwBufferObject>;
+using FenceHandle               = Handle<HwFence>;
+using IndexBufferHandle         = Handle<HwIndexBuffer>;
+using ProgramHandle             = Handle<HwProgram>;
+using RenderPrimitiveHandle     = Handle<HwRenderPrimitive>;
+using RenderTargetHandle        = Handle<HwRenderTarget>;
+using StreamHandle              = Handle<HwStream>;
+using SwapChainHandle           = Handle<HwSwapChain>;
+using SyncHandle                = Handle<HwSync>;
+using TextureHandle             = Handle<HwTexture>;
+using TimerQueryHandle          = Handle<HwTimerQuery>;
+using VertexBufferHandle        = Handle<HwVertexBuffer>;
+using VertexBufferInfoHandle    = Handle<HwVertexBufferInfo>;
+using DescriptorSetLayoutHandle = Handle<HwDescriptorSetLayout>;
+using DescriptorSetHandle       = Handle<HwDescriptorSet>;
+using MemoryMappedBufferHandle  = Handle<HwMemoryMappedBuffer>;
 
 } // namespace filament::backend
 

@@ -27,12 +27,12 @@ namespace filament::backend {
  * A PresentCallable is a callable object that, when called, schedules a frame for presentation on
  * a SwapChain.
  *
- * Typically, Filament's backend is responsible scheduling a frame's presentation. However, there
- * are certain cases where the application might want to control when a frame is scheduled for
+ * Typically, Filament's backend is responsible for scheduling a frame's presentation. However,
+ * there are certain cases where the application might want to control when a frame is scheduled for
  * presentation.
  *
  * For example, on iOS, UIKit elements can be synchronized to 3D content by scheduling a present
- * within a CATransation:
+ * within a CATransaction:
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * void myFrameScheduledCallback(PresentCallable presentCallable, void* user) {
@@ -48,21 +48,20 @@ namespace filament::backend {
  * and optional user data:
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * swapChain->setFrameScheduledCallback(myFrameScheduledCallback, nullptr);
+ * swapChain->setFrameScheduledCallback(nullptr, myFrameScheduledCallback);
  * if (renderer->beginFrame(swapChain)) {
  *     renderer->render(view);
  *     renderer->endFrame();
  * }
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
- * @remark Only Filament's Metal backend supports PresentCallables and frame callbacks. Other
- * backends ignore the callback (which will never be called) and proceed normally.
+ * @remark The PresentCallable mechanism for user-controlled presentation is only supported by
+ * Filament's Metal backend. On other backends, the FrameScheduledCallback is still invoked, but the
+ * PresentCallable passed to it is a no-op and calling it has no effect.
  *
- * @remark The SwapChain::FrameScheduledCallback is called on an arbitrary thread.
- *
- * Applications *must* call each PresentCallable they receive. Each PresentCallable represents a
- * frame that is waiting to be presented. If an application fails to call a PresentCallable, a
- * memory leak could occur. To "cancel" the presentation of a frame, pass false to the
+ * When using the Metal backend, applications *must* call each PresentCallable they receive. Each
+ * PresentCallable represents a frame that is waiting to be presented, and failing to call it
+ * will result in a memory leak. To "cancel" the presentation of a frame, pass false to the
  * PresentCallable, which will cancel the presentation of the frame and release associated memory.
  *
  * @see Renderer, SwapChain::setFrameScheduledCallback
@@ -71,6 +70,7 @@ class UTILS_PUBLIC PresentCallable {
 public:
 
     using PresentFn = void(*)(bool presentFrame, void* user);
+    static void noopPresent(bool, void*) {}
 
     PresentCallable(PresentFn fn, void* user) noexcept;
     ~PresentCallable() noexcept = default;
