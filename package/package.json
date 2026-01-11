@@ -4,7 +4,7 @@
   "description": "A real-time physically based 3D rendering engine for React Native",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
-  "types": "lib/typescript/src/index.d.ts",
+  "types": "lib/typescript/index.d.ts",
   "react-native": "src/index",
   "source": "src/index",
   "test": "src/test/RunTests",
