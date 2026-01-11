@@ -28,6 +28,24 @@ jobs:
         with:
           submodules: recursive
 
+      # Problem: there is only 14 GB of disk space available on GitHub runners
+      # Solution: free up space by removing unneeded files
+      - name: Freeup space
+        run: |
+          df -h
+          echo "Removing hosted toolcache..."
+          sudo rm -rf /opt/hostedtoolcache || true
+
+          echo "Removing .NET..."
+          sudo rm -rf /usr/share/dotnet || true
+
+          echo "Removing GHC / Haskell..."
+          sudo rm -rf /opt/ghc || true
+          sudo rm -rf /usr/local/.ghcup || true
+          df -h
+
+
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
