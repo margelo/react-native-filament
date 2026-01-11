@@ -189,7 +189,6 @@ dependencies {
   // For > 0.71, this will be replaced by `com.facebook.react:react-android:$version` by react gradle plugin
   //noinspection GradleDynamicVersion
   implementation "com.facebook.react:react-native:+"
-  implementation project(":react-native-worklets-core") // TODO: remove
   implementation project(":react-native-worklets")
 }
 
