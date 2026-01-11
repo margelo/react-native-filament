@@ -45,6 +45,7 @@ jobs:
         env:
           CC: clang
           CXX: clang++
+          CXXFLAGS: -std=c++17
         run: bun build-filament debug --platform android
 
       - name: Upload Filament libraries
