@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { FilamentBuffer } from '../native/FilamentBuffer'
 import { FilamentProxy } from '../native/FilamentProxy'
-import { withCleanupScope } from '../utilities/withCleanupScope'
+import { useDisposableResource } from './useDisposableResource'
 import { Image } from 'react-native'
 
 // In React Native, `require(..)` returns a number.
@@ -31,9 +31,7 @@ export interface BufferProps {
 /**
  * Asynchronously load an asset from the given web URL, local file path, or resource ID.
  */
-export function useBuffer({ source: source, releaseOnUnmount = true }: BufferProps): FilamentBuffer | undefined {
-  const [buffer, setBuffer] = useState<FilamentBuffer | undefined>(undefined)
-
+export function useBuffer({ source, releaseOnUnmount = true }: BufferProps): FilamentBuffer | undefined {
   const uri = useMemo(() => {
     if (typeof source === 'object') {
       return source.uri
@@ -49,23 +47,5 @@ export function useBuffer({ source: source, releaseOnUnmount = true }: BufferPro
     return asset.uri
   }, [source])
 
-  // TODO: useDisposableResource
-  useEffect(() => {
-    let localBuffer: FilamentBuffer | undefined
-    FilamentProxy.loadAsset(uri)
-      .then((asset) => {
-        localBuffer = asset
-        setBuffer(asset)
-      })
-      .catch((error) => {
-        console.error(`Failed to load asset: ${uri}`, error)
-      })
-    return withCleanupScope(() => {
-      if (releaseOnUnmount) {
-        localBuffer?.release()
-      }
-    })
-  }, [releaseOnUnmount, uri])
-
-  return buffer
+  return useDisposableResource(() => FilamentProxy.loadAsset(uri), [uri], { releaseOnUnmount })
 }
