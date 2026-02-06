@@ -92,7 +92,7 @@ export function ModelRenderer({ model, onPress, children, ...restProps }: ModelR
       // Check if the model was picked
       for (const renderableEntity of renderableEntities) {
         if (entity?.id === renderableEntity.id) {
-          console.log('entity', entity.id, 'renderableEntity', renderableEntity.id)
+          Logger.debug('entity', entity.id, 'renderableEntity', renderableEntity.id)
           onPress(entity, renderableEntities)
           return
         }
