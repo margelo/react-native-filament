@@ -10,6 +10,7 @@
 #include "core/RNFEngineConfigHelper.h"
 #include "jsi/RNFPromise.h"
 #include "threading/RNFDispatcher.h"
+#include "threading/RNFAsyncQueueImpl.h"
 
 #include <memory>
 #include <string>
@@ -31,7 +32,10 @@ void FilamentProxy::loadHybridMethods() {
   registerHybridMethod("getCurrentDispatcher", &FilamentProxy::getCurrentDispatcher, this);
   registerHybridGetter("hasWorklets", &FilamentProxy::getHasWorklets, this);
 #if HAS_WORKLETS
-  registerHybridMethod("createWorkletContext", &FilamentProxy::createWorkletContext, this);
+  // Newly added APIs:
+  registerHybridMethod("createWorkletAsyncQueue", &FilamentProxy::createWorkletAsyncQueue, this);
+  registerHybridMethod("installDispatcher", &FilamentProxy::installDispatcher, this);
+  registerHybridMethod("box", &FilamentProxy::box, this);
 #endif
 }
 
@@ -44,23 +48,29 @@ bool FilamentProxy::getHasWorklets() {
 }
 
 #if HAS_WORKLETS
-std::shared_ptr<RNWorklet::JsiWorkletContext> FilamentProxy::createWorkletContext() {
-  Logger::log(TAG, "Creating Worklet Context...");
-  auto jsDispatcher = getJSDispatcher();
-  auto runOnJS = [=](std::function<void()>&& function) { jsDispatcher->runAsync(std::move(function)); };
-  auto renderThreadDispatcher = getRenderThreadDispatcher();
-  auto runOnWorklet = [=](std::function<void()>&& function) { renderThreadDispatcher->runAsync(std::move(function)); };
-  auto& runtime = getMainJSRuntime();
-  auto workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("FilamentRenderer", &runtime, runOnJS, runOnWorklet);
-  Logger::log(TAG, "Successfully created WorkletContext! Installing global Dispatcher...");
+std::shared_ptr<worklets::AsyncQueue> FilamentProxy::createWorkletAsyncQueue() {
+    Logger::log(TAG, "Creating Worklet AsyncQueue...");
+    auto renderThreadDispatcher = getRenderThreadDispatcher();
+//    auto runOnWorklet = [=](std::function<void()>&& function) { renderThreadDispatcher->runAsync(std::move(function)); };
+    // TODO: i am pretty sure i should hold this dispatcher somewhere? or will the JS engine keep it alive as its NativeState?
+    auto asyncQueue = std::make_shared<RNFAsyncQueueImpl>(renderThreadDispatcher);
 
-  workletContext->invokeOnWorkletThread([=](RNWorklet::JsiWorkletContext*, jsi::Runtime& runtime) {
-    Dispatcher::installRuntimeGlobalDispatcher(runtime, renderThreadDispatcher);
-    Logger::log(TAG, "Successfully installed global Dispatcher in WorkletContext!");
-  });
-
-  return workletContext;
+    return asyncQueue;
 }
+
+
+jsi::Value FilamentProxy::installDispatcher(jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t) {
+    auto renderThreadDispatcher = getRenderThreadDispatcher(); // todo: return dispatcher, and pass it here is cleaner i guess
+    // Note: one thing that is odd, is that this is called with the correct runtime, but on the "wrong" thread.
+    // this will still be called from the JS thread, but the runtime is the worklet runtime.
+    Dispatcher::installRuntimeGlobalDispatcher(runtime, renderThreadDispatcher);
+    return jsi::Value::undefined();
+}
+
+std::shared_ptr<RNFBoxedHybridObject> FilamentProxy::box(const std::shared_ptr<HybridObject>& hybridObject) {
+    return std::make_shared<RNFBoxedHybridObject>(hybridObject);
+}
+
 #endif
 
 jsi::Value FilamentProxy::getCurrentDispatcher(jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t) {

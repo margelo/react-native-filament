@@ -1,15 +1,16 @@
-import { PropsWithChildren, useMemo } from 'react'
-import { FilamentProxy, FilamentWorkletContext } from '../native/FilamentProxy'
+import { PropsWithChildren, useCallback, useMemo } from 'react'
+import { FilamentProxy, FilamentWorkletRuntime } from '../native/FilamentProxy'
 import { EngineProps, useEngine } from '../hooks/useEngine'
 import { useDisposableResource } from '../hooks/useDisposableResource'
-import { useWorklet } from 'react-native-worklets-core'
 import React from 'react'
 import { Configurator, RendererConfigProps, ViewConfigProps } from './Configurator'
 import { FilamentContext, FilamentContextType } from '../hooks/useFilamentContext'
 import { RenderCallbackContext } from './RenderCallbackContext'
+import { runOnJS, scheduleOnRuntime } from 'react-native-worklets'
+import { Choreographer } from '../types'
 
 export type FilamentProviderProps = PropsWithChildren<
-  Omit<EngineProps, 'context'> &
+  Omit<EngineProps, 'WorkletRuntime'> &
     ViewConfigProps &
     RendererConfigProps & {
       fallback?: React.ReactElement
@@ -47,7 +48,7 @@ export type FilamentProviderProps = PropsWithChildren<
  */
 export function FilamentScene({ children, fallback, config, backend, frameRateOptions, ...viewProps }: FilamentProviderProps) {
   // First create the engine, which we need to create (almost) all other filament APIs
-  const engine = useEngine({ config, backend, context: FilamentWorkletContext })
+  const engine = useEngine({ config, backend, runtime: FilamentWorkletRuntime })
 
   // Create all Filament APIs using the engine
   const transformManager = useDisposableResource(() => Promise.resolve(engine?.createTransformManager()), [engine])
@@ -61,10 +62,19 @@ export function FilamentScene({ children, fallback, config, backend, frameRateOp
 
   // Create a choreographer for this context tree
   const choreographer = useDisposableResource(
-    useWorklet(FilamentWorkletContext, () => {
-      'worklet'
-      return FilamentProxy.createChoreographer()
-    })
+    useCallback(() => {
+      // TODO: DRY this pattern?
+      let resolve: (engine: Choreographer) => void
+      const promise = new Promise<Choreographer>((res) => {
+        resolve = res
+      })
+      scheduleOnRuntime(FilamentWorkletRuntime, () => {
+        'worklet'
+        const choreographerImpl = FilamentProxy.createChoreographer()
+        runOnJS(resolve)(choreographerImpl)
+      })
+      return promise
+    }, [])
   )
 
   // Construct the context object value:
@@ -94,7 +104,7 @@ export function FilamentScene({ children, fallback, config, backend, frameRateOp
       camera,
       renderer,
       nameComponentManager,
-      workletContext: FilamentWorkletContext,
+      workletRuntime: FilamentWorkletRuntime,
       choreographer: choreographer,
     }
   }, [engine, transformManager, renderableManager, scene, lightManager, view, camera, renderer, nameComponentManager, choreographer])

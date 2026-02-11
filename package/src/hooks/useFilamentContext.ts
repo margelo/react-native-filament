@@ -11,7 +11,7 @@ import {
   TransformManager,
   View,
 } from '../types'
-import { IWorkletContext } from 'react-native-worklets-core'
+import { WorkletRuntime } from 'react-native-worklets'
 
 export type FilamentContextType = {
   engine: Engine
@@ -23,7 +23,7 @@ export type FilamentContextType = {
   camera: RNFCamera
   renderer: Renderer
   nameComponentManager: NameComponentManager
-  workletContext: IWorkletContext
+  workletRuntime: WorkletRuntime
 
   /**
    * This is a private API, do not use this.
