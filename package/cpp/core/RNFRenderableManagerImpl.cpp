@@ -284,8 +284,10 @@ void RenderableManagerImpl::scaleBoundingBox(std::shared_ptr<FilamentAssetWrappe
     Box boundingBox = renderableManager.getAxisAlignedBoundingBox(renderable);
     Logger::log(TAG, "#%d Bounding box: min: %f %f %f, max: %f %f %f", i, boundingBox.getMin().x, boundingBox.getMin().y,
                 boundingBox.getMin().z, boundingBox.getMax().x, boundingBox.getMax().y, boundingBox.getMax().z);
-    // Create a new box that is twice the size
-    Box box = Box().set(boundingBox.getMin() * scaleFactor, boundingBox.getMax() * scaleFactor);
+    // Scale from center to preserve bounding box position
+    float3 center = (boundingBox.getMin() + boundingBox.getMax()) * 0.5f;
+    float3 scaledHalfExtent = (boundingBox.getMax() - boundingBox.getMin()) * 0.5f * static_cast<float>(scaleFactor);
+    Box box = Box().set(center - scaledHalfExtent, center + scaledHalfExtent);
     renderableManager.setAxisAlignedBoundingBox(renderable, box);
   }
 }
