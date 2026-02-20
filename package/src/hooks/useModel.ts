@@ -43,6 +43,10 @@ export type FilamentModel =
   | {
       state: 'loading'
     }
+  | {
+      state: 'error'
+      error: Error
+    }
 
 /**
  * Loads a model from the given source.
@@ -60,7 +64,7 @@ export type FilamentModel =
 export function useModel(source: BufferSource, props?: UseModelConfigParams): FilamentModel {
   const { shouldReleaseSourceData = true, addToScene = true, instanceCount } = props ?? {}
   const { engine, scene, workletContext } = useFilamentContext()
-  const assetBuffer = useBuffer({ source: source, releaseOnUnmount: false })
+  const { buffer: assetBuffer, error: bufferError } = useBuffer({ source: source, releaseOnUnmount: false })
 
   // Note: the native cleanup of the asset will remove it automatically from the scene
   const asset = useDisposableResource(() => {
@@ -121,6 +125,13 @@ export function useModel(source: BufferSource, props?: UseModelConfigParams): Fi
     }
     return asset.getRoot()
   }, [asset])
+
+  if (bufferError) {
+    return {
+      state: 'error',
+      error: bufferError,
+    }
+  }
 
   if (assetBuffer == null || asset == null || boundingBox == null || rootEntity == null) {
     return {
