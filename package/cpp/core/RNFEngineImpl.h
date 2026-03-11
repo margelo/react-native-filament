@@ -69,6 +69,11 @@ public:
 
   void flushAndWait();
 
+  // Engine capability queries — thin wrappers around filament::Engine const getters.
+  std::string getBackend();
+  int getSupportedFeatureLevel();
+  int getActiveFeatureLevel();
+
 private:
   std::mutex _mutex;
   std::shared_ptr<Engine> _engine;
