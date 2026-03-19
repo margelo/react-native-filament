@@ -52,17 +52,6 @@ function App() {
 
 > See the [example](./package/example/Shared) app
 
-
-### Comparison with other libraries
-
-One library to render 3D content is [expo-gl](https://docs.expo.dev/versions/latest/sdk/gl-view) usually used together with [expo-three](https://www.npmjs.com/package/expo-three). react-native-filament has a few advantages over expo-gl:
-
-- Supports using `glb` files out of the box
-- On iOS react-native-filament uses Metal, where expo-gl is using the [deprecated OpenGL ES](https://developer.apple.com/documentation/opengles) apple framework
-- The rendering happens on the JS thread for `expo-three`, where react-native-filament uses a separate thread (and filament processes the rendering commands in a pool of different threads)
-- filament is battle tested and react-native-filament is used in production apps with millions of users already, proven to be highly stable
-
-
 ### Contributing
 
 We welcome contributions to react-native-filament! 🎉
