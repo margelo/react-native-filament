@@ -4,7 +4,7 @@ import { useFilamentContext } from '../useFilamentContext'
 import { AABB, Entity, Float3 } from '../../types'
 import { areFloat3Equal, isWorkletSharedValue } from '../../utilities/helper'
 import { useWorkletEffect } from '../useWorkletEffect'
-import { ISharedValue, Worklets } from 'react-native-worklets-core'
+import { makeMutable, type SharedValue } from 'react-native-reanimated'
 
 type Params = {
   // If null it will not take the entity from the context, as it indicates that it will be provided through the param
@@ -76,9 +76,9 @@ export function useApplyTransformations({ to: entity, transformProps, aabb }: Pa
     transformToUnitCube,
   ])
 
-  const prevScaleShared = useRef(isWorkletSharedValue(scale) ? Worklets.createSharedValue<Float3 | null>(null) : null)
-  const prevRotateShared = useRef(isWorkletSharedValue(rotate) ? Worklets.createSharedValue<Float3 | null>(null) : null)
-  const prevPositionShared = useRef(isWorkletSharedValue(position) ? Worklets.createSharedValue<Float3 | null>(null) : null)
+  const prevScaleShared = useRef(isWorkletSharedValue(scale) ? makeMutable<Float3 | null>(null) : null)
+  const prevRotateShared = useRef(isWorkletSharedValue(rotate) ? makeMutable<Float3 | null>(null) : null)
+  const prevPositionShared = useRef(isWorkletSharedValue(position) ? makeMutable<Float3 | null>(null) : null)
 
   // Effects for when a transform option is a shared value (SRT)
   useWorkletEffect(() => {
@@ -86,18 +86,19 @@ export function useApplyTransformations({ to: entity, transformProps, aabb }: Pa
 
     if (entity == null) return
 
-    const unsubscribers: (() => void)[] = []
+    const unsubscribers: [SharedValue, number][] = []
 
     // Generic handler for worklet transform values
     const createTransformHandler = (
       value: any,
-      prevValueShared: ISharedValue<Float3 | null> | null,
+      prevValueShared: SharedValue<Float3 | null> | null,
       updater: (newValue: Float3) => void
     ) => {
       'worklet'
       if (value == null || !isWorkletSharedValue(value) || Array.isArray(value)) return null
 
-      const unsubscribe = value.addListener(() => {
+      const randomNumericId = Number(Math.random().toString().substring(12))
+      value.addListener(randomNumericId, () => {
         'worklet'
 
         // Check if value has changed to avoid duplicate applications in strict mode
@@ -113,7 +114,7 @@ export function useApplyTransformations({ to: entity, transformProps, aabb }: Pa
         }
       })
 
-      unsubscribers.push(unsubscribe)
+      unsubscribers.push([value, randomNumericId])
       return value
     }
 
@@ -148,9 +149,10 @@ export function useApplyTransformations({ to: entity, transformProps, aabb }: Pa
       positionHandler.value = [positionHandler.value[0], positionHandler.value[1], positionHandler.value[2]]
     }
 
-    return () => {
-      'worklet'
-      unsubscribers.forEach((unsubscribe) => unsubscribe())
-    }
+    // TODO: bring back, currently crashes?
+    // return () => {
+    //   'worklet'
+    //   unsubscribers.forEach(([value, id]) => value.removeListener(id))
+    // }
   })
 }

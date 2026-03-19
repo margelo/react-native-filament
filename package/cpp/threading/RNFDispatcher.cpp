@@ -1,6 +1,5 @@
 #include "RNFDispatcher.h"
 #include "RNFLogger.h"
-#include "jsi/RNFWorkletRuntimeCollector.h"
 
 namespace margelo {
 
@@ -9,10 +8,7 @@ using namespace facebook;
 static constexpr auto GLOBAL_DISPATCHER_HOLDER_NAME = "__globalDispatcher";
 
 void Dispatcher::installRuntimeGlobalDispatcher(jsi::Runtime& runtime, std::shared_ptr<Dispatcher> dispatcher) {
-  Logger::log(TAG, "Installing global Dispatcher Holder...");
-
-  // Track the runtime's lifetime
-  WorkletRuntimeCollector::install(runtime);
+  Logger::log(TAG, "Installing global Dispatcher Holder on runtime ptr: " + std::to_string(reinterpret_cast<uintptr_t>(&runtime)) + " desc: " + runtime.description());
 
   jsi::Object dispatcherHolder(runtime);
   dispatcherHolder.setNativeState(runtime, dispatcher);
