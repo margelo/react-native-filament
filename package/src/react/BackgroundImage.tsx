@@ -16,8 +16,8 @@ export function BackgroundImage({ source, materialSource, resizeMode = 'contain'
   const { engine, renderableManager, scene, view } = useFilamentContext()
 
   // Create the material which will be used to render the image
-  const imageMaterialBuffer = useBuffer({ source: materialSource })
-  const imageBuffer = useBuffer({ source: source })
+  const { buffer: imageMaterialBuffer } = useBuffer({ source: materialSource })
+  const { buffer: imageBuffer } = useBuffer({ source: source })
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const material = useDisposableResource(

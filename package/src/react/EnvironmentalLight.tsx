@@ -24,7 +24,7 @@ export type EnvironmentalLightProps = {
  */
 export function EnvironmentalLight({ source, intensity = 25_000, irradianceBands }: EnvironmentalLightProps) {
   const { engine } = useFilamentContext()
-  const lightBuffer = useBuffer({ source: source, releaseOnUnmount: false })
+  const { buffer: lightBuffer } = useBuffer({ source: source, releaseOnUnmount: false })
 
   useWorkletEffect(() => {
     'worklet'

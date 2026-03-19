@@ -21,6 +21,7 @@ import { ChangeMaterials } from './ChangeMaterials'
 import { SkyboxExample } from './SkyboxExample'
 import { MorphTargets } from './MorphTargets'
 import { ReanimatedRotation } from './ReanimatedRotation'
+import { ModelErrorHandling } from './ModelErrorHandling'
 
 function NavigationItem(props: { name: string; route: string }) {
   const navigation = useNavigation()
@@ -68,6 +69,7 @@ function HomeScreen() {
       <NavigationItem name="🎨 Change Materials" route="ChangeMaterials" />
       <NavigationItem name="☁️ Skybox" route="SkyboxExample" />
       <NavigationItem name="🔄 MorphTargets" route="MorphTargets" />
+      <NavigationItem name="⚠️ Model Error Handling" route="ModelErrorHandling" />
     </ScrollView>
   )
 }
@@ -112,6 +114,7 @@ function App() {
           <Stack.Screen name="Test" component={TestScreen} />
           <Stack.Screen name="SkyboxExample" component={SkyboxExample} />
           <Stack.Screen name="MorphTargets" component={MorphTargets} />
+          <Stack.Screen name="ModelErrorHandling" component={ModelErrorHandling} />
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>
