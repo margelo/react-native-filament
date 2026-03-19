@@ -1,8 +1,8 @@
 <a href="https://margelo.com">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./img/banner-dark.png" />
-    <source media="(prefers-color-scheme: light)" srcset="./img/banner-light.png" />
-    <img alt="react-native-filament" src="./img/banner-light.png" />
+    <source media="(prefers-color-scheme: dark)" srcset="./img/banner-dark.webp" />
+    <source media="(prefers-color-scheme: light)" srcset="./img/banner-light.webp" />
+    <img alt="react-native-filament" src="./img/banner-light.webp" />
   </picture>
 </a>
 
