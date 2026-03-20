@@ -54,6 +54,9 @@ void EngineWrapper::loadHybridMethods() {
   registerHybridMethod("clearSkybox", &EngineWrapper::clearSkybox, this);
   registerHybridMethod("setAutomaticInstancingEnabled", &EngineWrapper::setAutomaticInstancingEnabled, this);
   registerHybridMethod("flushAndWait", &EngineWrapper::flushAndWait, this);
+  registerHybridMethod("getBackend", &EngineWrapper::getBackend, this);
+  registerHybridMethod("getSupportedFeatureLevel", &EngineWrapper::getSupportedFeatureLevel, this);
+  registerHybridMethod("getActiveFeatureLevel", &EngineWrapper::getActiveFeatureLevel, this);
 }
 void EngineWrapper::setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider) {
   pointee()->setSurfaceProvider(surfaceProvider);
@@ -195,6 +198,15 @@ void EngineWrapper::setAutomaticInstancingEnabled(bool enabled) {
 }
 void EngineWrapper::flushAndWait() {
   pointee()->flushAndWait();
+}
+std::string EngineWrapper::getBackend() {
+  return pointee()->getBackend();
+}
+int EngineWrapper::getSupportedFeatureLevel() {
+  return pointee()->getSupportedFeatureLevel();
+}
+int EngineWrapper::getActiveFeatureLevel() {
+  return pointee()->getActiveFeatureLevel();
 }
 
 } // namespace margelo

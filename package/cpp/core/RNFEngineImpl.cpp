@@ -4,6 +4,7 @@
 
 #include "RNFEngineImpl.h"
 
+#include "RNFEngineBackendEnum.h"
 #include "RNFReferences.h"
 #include "utils/RNFConverter.h"
 
@@ -390,6 +391,20 @@ void EngineImpl::setAutomaticInstancingEnabled(bool enabled) {
 void EngineImpl::flushAndWait() {
   std::unique_lock lock(_mutex);
   _engine->flushAndWait();
+}
+
+std::string EngineImpl::getBackend() {
+  std::string result;
+  EnumMapper::convertEnumToJSUnion(_engine->getBackend(), &result);
+  return result;
+}
+
+int EngineImpl::getSupportedFeatureLevel() {
+  return static_cast<int>(_engine->getSupportedFeatureLevel());
+}
+
+int EngineImpl::getActiveFeatureLevel() {
+  return static_cast<int>(_engine->getActiveFeatureLevel());
 }
 
 } // namespace margelo
