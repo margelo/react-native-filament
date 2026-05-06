@@ -6,6 +6,7 @@ void margelo::CameraWrapper::loadHybridMethods() {
   registerHybridMethod("lookAt", &CameraWrapper::lookAt, this);
   registerHybridMethod("setLensProjection", &CameraWrapper::setLensProjection, this);
   registerHybridMethod("setProjection", &CameraWrapper::setProjection, this);
+  registerHybridMethod("setOrthographicProjection", &CameraWrapper::setOrthographicProjection, this);
 }
 
 void margelo::CameraWrapper::lookAtCameraManipulator(std::shared_ptr<ManipulatorWrapper> cameraManipulator) {
@@ -36,4 +37,8 @@ void margelo::CameraWrapper::setProjection(double fovInDegrees, double aspect, d
 
   pointee()->setProjection(static_cast<float>(fovInDegrees), static_cast<float>(aspect), static_cast<float>(near), static_cast<float>(far),
                            direction);
+}
+
+void margelo::CameraWrapper::setOrthographicProjection(double left, double right, double bottom, double top, double near, double far) {
+  pointee()->setProjection(Camera::Projection::ORTHO, left, right, bottom, top, near, far);
 }

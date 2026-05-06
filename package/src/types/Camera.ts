@@ -98,4 +98,16 @@ export interface RNFCamera extends PointerHolder {
    * @see Fov.
    */
   setProjection(fov: number, aspect: number, near: number, far: number): void
+
+  /**
+   * Sets an orthographic projection matrix from six clip planes.
+   *
+   * @param left   distance in world units from the camera to the left plane.
+   * @param right  distance in world units from the camera to the right plane.
+   * @param bottom distance in world units from the camera to the bottom plane.
+   * @param top    distance in world units from the camera to the top plane.
+   * @param near   distance in world units from the camera to the near plane. near != far.
+   * @param far    distance in world units from the camera to the far plane. far != near.
+   */
+  setOrthographicProjection(left: number, right: number, bottom: number, top: number, near: number, far: number): void
 }
