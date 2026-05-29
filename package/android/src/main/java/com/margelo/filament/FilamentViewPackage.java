@@ -4,7 +4,7 @@ package com.margelo.filament;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.facebook.react.TurboReactPackage;
+import com.facebook.react.BaseReactPackage;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.module.model.ReactModuleInfo;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 // The TurboReactPackage is backwards compatible with old arch
-public class FilamentViewPackage extends TurboReactPackage {
+public class FilamentViewPackage extends BaseReactPackage {
     @Nullable
     @Override
     public NativeModule getModule(@NonNull String name, @NonNull ReactApplicationContext reactApplicationContext) {
