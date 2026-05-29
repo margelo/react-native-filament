@@ -31,8 +31,14 @@ export interface BufferProps {
 /**
  * Asynchronously load an asset from the given web URL, local file path, or resource ID.
  */
-export function useBuffer({ source: source, releaseOnUnmount = true }: BufferProps): FilamentBuffer | undefined {
+export interface UseBufferResult {
+  buffer?: FilamentBuffer
+  error?: Error
+}
+
+export function useBuffer({ source: source, releaseOnUnmount = true }: BufferProps): UseBufferResult {
   const [buffer, setBuffer] = useState<FilamentBuffer | undefined>(undefined)
+  const [error, setError] = useState<Error | undefined>(undefined)
 
   const uri = useMemo(() => {
     if (typeof source === 'object') {
@@ -57,8 +63,9 @@ export function useBuffer({ source: source, releaseOnUnmount = true }: BufferPro
         localBuffer = asset
         setBuffer(asset)
       })
-      .catch((error) => {
-        console.error(`Failed to load asset: ${uri}`, error)
+      .catch((e) => {
+        console.error(`Failed to load asset: ${uri}`, e)
+        setError(e instanceof Error ? e : new Error(String(e)))
       })
     return withCleanupScope(() => {
       if (releaseOnUnmount) {
@@ -67,5 +74,5 @@ export function useBuffer({ source: source, releaseOnUnmount = true }: BufferPro
     })
   }, [releaseOnUnmount, uri])
 
-  return buffer
+  return { buffer, error }
 }

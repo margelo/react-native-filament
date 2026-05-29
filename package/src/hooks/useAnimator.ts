@@ -19,7 +19,7 @@ export function useAnimator(modelOrAsset?: FilamentAsset | FilamentInstance | Fi
     if (modelOrAsset == null) return undefined
 
     if (isFilamentModel(modelOrAsset)) {
-      if (modelOrAsset.state === 'loading') return undefined
+      if (modelOrAsset.state !== 'loaded') return undefined
       const { asset } = modelOrAsset
       return asset.createAnimator(nameComponentManager)
     }

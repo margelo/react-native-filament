@@ -55,7 +55,7 @@ function SkyboxByColor(props: ColorProps) {
 }
 
 function SkyboxBySource(props: TextureProps) {
-  const textureBuffer = useBuffer({ source: props.source, releaseOnUnmount: false })
+  const { buffer: textureBuffer } = useBuffer({ source: props.source, releaseOnUnmount: false })
 
   if (textureBuffer == null) return null
   return <SkyboxByLoadedBuffer {...props} buffer={textureBuffer} />
