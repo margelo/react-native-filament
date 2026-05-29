@@ -1,4 +1,4 @@
-import { Worklets } from 'react-native-worklets-core'
+import { runOnJS } from 'react-native-worklets'
 
 /**
  * Report an error to react native's `ErrorUtils` if available, or log to console otherwise.
@@ -18,7 +18,7 @@ export function reportError(error: unknown, fatal: boolean): void {
   }
 }
 
-const throwErrorOnJS = Worklets.createRunOnJS((message: string, stack: string | undefined, fatal: boolean) => {
+const throwErrorOnJS = runOnJS((message: string, stack: string | undefined, fatal: boolean) => {
   const error = new Error()
   error.message = message
   error.stack = stack

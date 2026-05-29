@@ -120,7 +120,20 @@ if [ "$BUILD_ANDROID" = "true" ]; then
   # TODO(Marc): Use Filament from the Maven/Gradle library, to avoid shipping this huge dependency over npm.
   echo "[Filament] Building Filament for Android ($target)"
   # -v = Exclude Vulkan support
-  ./build.sh -p android "$target"
+  if [ "$CI" = "true" ]; then
+    # In CI, pipe through tail to keep only last 1000 lines (prevents disk space issues)
+    ./build.sh -p android "$target" 2>&1 | tail -n 1000 > filament-android-build.log
+    # Check the exit code of build.sh (first command in pipe)
+    if [ "${PIPESTATUS[0]}" -ne 0 ]; then
+      echo "Build failed! Last 1000 lines of output:"
+      cat filament-android-build.log
+      rm filament-android-build.log
+      exit 1
+    fi
+    rm filament-android-build.log
+  else
+    ./build.sh -p android "$target"
+  fi
 
   # echo "Building Android .aar ($target)..."
   # cd android

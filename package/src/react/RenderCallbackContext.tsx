@@ -1,6 +1,6 @@
 import React, { createContext, DependencyList, PropsWithChildren, useCallback, useContext, useEffect, useMemo } from 'react'
 import { RenderCallback } from 'react-native-filament'
-import { ISharedValue, useSharedValue } from 'react-native-worklets-core'
+import { SharedValue, useSharedValue } from 'react-native-reanimated'
 
 type RenderCallbackList = {
   callback: RenderCallback
@@ -12,22 +12,12 @@ type RenderCallbackList = {
  * This context allows us to have multiple render callbacks, as we call them in the render callback.
  */
 export type RenderContextType = {
-  renderCallbacks: ISharedValue<RenderCallbackList>
+  renderCallbacks: SharedValue<RenderCallbackList>
   addRenderCallback: (callback: RenderCallback) => () => void
 }
 
 export const makeRenderContext = () => {
-  const RenderContext = createContext<RenderContextType>({
-    renderCallbacks: {
-      value: [],
-      addListener: () => {
-        throw new Error('RenderContextProvider not found')
-      },
-    },
-    addRenderCallback: () => {
-      throw new Error('RenderContextProvider not found')
-    },
-  })
+  const RenderContext = createContext<RenderContextType>(null!)
 
   const RenderContextProvider = ({ children }: PropsWithChildren) => {
     const renderCallbacks = useSharedValue<RenderCallbackList>([])
@@ -35,9 +25,9 @@ export const makeRenderContext = () => {
       (callback: RenderCallback) => {
         const id = Math.random().toString(36).substring(7)
         const entry = { callback, id }
-        renderCallbacks.value.push(entry)
+        renderCallbacks.set((prev) => [...prev, entry])
         return () => {
-          renderCallbacks.value = renderCallbacks.value.filter((e) => e.id !== id)
+          renderCallbacks.set((prev) => prev.filter((e) => e.id !== id))
         }
       },
       [renderCallbacks]

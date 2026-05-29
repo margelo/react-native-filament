@@ -1,4 +1,4 @@
-import { useSharedValue } from 'react-native-worklets-core'
+import { useSharedValue } from 'react-native-reanimated'
 import { CameraManipulator, Float3 } from '../types'
 import { useFilamentContext } from '../hooks/useFilamentContext'
 import { RenderCallbackContext } from './RenderCallbackContext'

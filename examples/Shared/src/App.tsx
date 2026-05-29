@@ -3,6 +3,7 @@ import { StyleSheet, Pressable, Text, View, ScrollView } from 'react-native'
 import { NavigationContainer, useNavigation } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
+import {SafeAreaView} from 'react-native-safe-area-context'
 
 import { AnimationTransitions } from './AnimationTransitions'
 import { AnimationTransitionsRecording } from './AnimationTransitionsRecording'
@@ -50,6 +51,7 @@ function NavigationItem(props: { name: string; route: string }) {
 
 function HomeScreen() {
   return (
+    <SafeAreaView style={{ flex: 1 }}>
     <ScrollView style={{ flex: 1 }}>
       <NavigationItem name="▶️ Animation Transitions" route="AnimationTransitions" />
       <NavigationItem name="📸 Camera Pan" route="CameraPan" />
@@ -69,6 +71,7 @@ function HomeScreen() {
       <NavigationItem name="☁️ Skybox" route="SkyboxExample" />
       <NavigationItem name="🔄 MorphTargets" route="MorphTargets" />
     </ScrollView>
+    </SafeAreaView>
   )
 }
 
@@ -88,30 +91,30 @@ function App() {
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen
+          {/* <Stack.Screen
             name="AnimationTransitions"
             component={AnimationTransitions}
             options={{
               headerShown: false,
             }}
-          />
-          <Stack.Screen name="CameraPan" component={CameraPan} />
-          <Stack.Screen name="AnimationTransitionsRecording" component={AnimationTransitionsRecording} />
-          <Stack.Screen name="ImageExample" component={ImageExample} />
-          <Stack.Screen name="LoadFromFile" component={LoadFromFile} />
-          <Stack.Screen name="NoneTransparent" component={NoneTransparent} />
+          /> */}
+          {/* <Stack.Screen name="CameraPan" component={CameraPan} /> */}
+          {/* <Stack.Screen name="AnimationTransitionsRecording" component={AnimationTransitionsRecording} /> */}
+          {/* <Stack.Screen name="ImageExample" component={ImageExample} /> */}
+          {/* <Stack.Screen name="LoadFromFile" component={LoadFromFile} /> */}
+          {/* <Stack.Screen name="NoneTransparent" component={NoneTransparent} /> */}
           <Stack.Screen name="MultipleInstances" component={MultipleInstances} />
-          <Stack.Screen name="AnimatedRotate" component={AnimatedRotate} />
-          <Stack.Screen name="AnimatedRotateSharedValues" component={AnimatedRotateSharedValues} />
-          <Stack.Screen name="ReanimatedRotation" component={ReanimatedRotation} />
-          <Stack.Screen name="PhysicsCoin" component={PhysicsCoin} />
-          <Stack.Screen name="FadeOut" component={FadeOut} />
-          <Stack.Screen name="CastShadow" component={CastShadow} />
-          <Stack.Screen name="ScaleEffect" component={ScaleEffect} />
-          <Stack.Screen name="ChangeMaterials" component={ChangeMaterials} />
+          {/* <Stack.Screen name="AnimatedRotate" component={AnimatedRotate} /> */}
+          {/* <Stack.Screen name="AnimatedRotateSharedValues" component={AnimatedRotateSharedValues} /> */}
+          {/* <Stack.Screen name="ReanimatedRotation" component={ReanimatedRotation} /> */}
+          {/* <Stack.Screen name="PhysicsCoin" component={PhysicsCoin} /> */}
+          {/* <Stack.Screen name="FadeOut" component={FadeOut} /> */}
+          {/* <Stack.Screen name="CastShadow" component={CastShadow} /> */}
+          {/* <Stack.Screen name="ScaleEffect" component={ScaleEffect} /> */}
+          {/* <Stack.Screen name="ChangeMaterials" component={ChangeMaterials} /> */}
           <Stack.Screen name="Test" component={TestScreen} />
           <Stack.Screen name="SkyboxExample" component={SkyboxExample} />
-          <Stack.Screen name="MorphTargets" component={MorphTargets} />
+          {/* <Stack.Screen name="MorphTargets" component={MorphTargets} /> */}
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>
