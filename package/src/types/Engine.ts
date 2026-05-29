@@ -142,4 +142,53 @@ export interface Engine extends PointerHolder {
    * Note: during on screen rendering this is handled automatically, typically used for offscreen rendering (recording).
    */
   flushAndWait(): void
+
+  /**
+   * Returns the resolved graphics backend as a string.
+   *
+   * On iOS this is typically `"metal"`, on Android `"opengl"` (or `"vulkan"` if explicitly
+   * selected). This returns the **actual** backend in use, even if `"default"` was requested
+   * at engine creation time.
+   *
+   * Useful for telemetry, diagnostics, and adaptive rendering decisions.
+   *
+   * @example
+   * ```ts
+   * const { engine } = useFilamentContext();
+   * console.log(engine.getBackend()); // "opengl" on most Android devices
+   * ```
+   */
+  getBackend(): 'opengl' | 'vulkan' | 'metal' | 'default'
+
+  /**
+   * Returns the highest feature level supported by the device's GPU.
+   *
+   * Feature levels map to OpenGL ES capabilities:
+   * - `0` — OpenGL ES 2.0 features only
+   * - `1` — OpenGL ES 3.0 features (default on most modern devices)
+   * - `2` — OpenGL ES 3.1 + 16 texture units + cubemap arrays
+   * - `3` — OpenGL ES 3.1 + 31 texture units + cubemap arrays
+   *
+   * This is a useful GPU capability signal for adaptive quality decisions. A device
+   * supporting feature level 2+ has a meaningfully more capable GPU than one at level 0-1.
+   *
+   * @example
+   * ```ts
+   * const { engine } = useFilamentContext();
+   * const level = engine.getSupportedFeatureLevel();
+   * if (level >= 2) {
+   *   // Enable higher-quality rendering options
+   * }
+   * ```
+   */
+  getSupportedFeatureLevel(): 0 | 1 | 2 | 3
+
+  /**
+   * Returns the currently active feature level.
+   *
+   * This may differ from {@link getSupportedFeatureLevel} if a lower level was explicitly
+   * set via `Engine.Builder.featureLevel()`. By default the active level equals the
+   * supported level.
+   */
+  getActiveFeatureLevel(): 0 | 1 | 2 | 3
 }
