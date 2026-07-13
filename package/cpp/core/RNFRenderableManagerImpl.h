@@ -15,6 +15,9 @@
 #include <filament/RenderableManager.h>
 #include <gltfio/TextureProvider.h>
 
+#include <map>
+#include <utility>
+
 namespace margelo {
 using namespace filament;
 using namespace gltfio;
@@ -91,8 +94,17 @@ private:
   std::shared_ptr<Engine> _engine;
   std::shared_ptr<Dispatcher> _rendererDispatcher;
   std::shared_ptr<TextureProvider> _textureProvider;
-  // Keep a list of all material instances the RenderableManager creates, so we can clean them up when the RenderableManager is
-  std::vector<std::shared_ptr<MaterialInstance>> _materialInstances;
+  // Material instances created by changeMaterialTextureMap, keyed by (entity id, primitive index).
+  // Only the latest instance per slot is attached to the renderable; replacing a slot entry
+  // releases the superseded (now detached) instance, whose deleter destroys it. At manager
+  // teardown the deleter detaches a still-attached instance first (restoring the slot's original
+  // asset-owned instance) — see changeMaterialTextureMap.
+  std::map<std::pair<uint32_t, size_t>, std::shared_ptr<MaterialInstance>> _slotMaterialInstances;
+  // The asset-owned instance each slot had before our first replacement (restore target on teardown).
+  std::map<std::pair<uint32_t, size_t>, MaterialInstance*> _slotOriginalInstances;
+  // Textures created by changeMaterialTextureMap, keyed the same way. A superseded texture is no
+  // longer sampled by the replacement instance and is destroyed eagerly (previously these leaked).
+  std::map<std::pair<uint32_t, size_t>, Texture*> _slotTextures;
   std::vector<std::unique_ptr<DebugVertex[]>> _debugVerticesList;
 
 private:

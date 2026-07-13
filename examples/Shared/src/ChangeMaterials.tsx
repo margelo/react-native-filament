@@ -9,7 +9,11 @@ import RocketGlb from '@assets/rocket.glb'
 const baseColorBlueImage = require('@assets/rocket_BaseColor_Blue.png')
 
 function Renderer() {
-  const [showBlue, setShowBlue] = React.useState(false)
+  // Regression test for a crash on scene teardown: after changing a texture map, navigating back
+  // from this screen must not abort with filament's "destroying MaterialInstance which is still
+  // in use by Renderable" precondition. Every press re-applies the texture map, which also
+  // exercises destroying the superseded material instance and texture of a slot.
+  const [applyCount, setApplyCount] = React.useState(0)
   const blueBaseColorBuffer = useBuffer({ source: baseColorBlueImage })
   const materialName = 'Toy Ship'
 
@@ -20,18 +24,18 @@ function Renderer() {
         <DefaultLight />
 
         <Model source={RocketGlb} translate={[0, -1, 0]}>
-          {blueBaseColorBuffer != null && showBlue && (
-            <>
+          {blueBaseColorBuffer != null && applyCount > 0 && (
+            <React.Fragment key={applyCount}>
               <EntitySelector byName="Tip" textureMap={{ materialName, textureSource: blueBaseColorBuffer }} />
               <EntitySelector byName="Wings" textureMap={{ materialName, textureSource: blueBaseColorBuffer }} />
-            </>
+            </React.Fragment>
           )}
         </Model>
       </FilamentView>
       <Button
         title="Change Color"
         onPress={() => {
-          setShowBlue(true)
+          setApplyCount((count) => count + 1)
         }}
       />
     </SafeAreaView>

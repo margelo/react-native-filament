@@ -137,22 +137,66 @@ void RenderableManagerImpl::changeMaterialTextureMap(std::shared_ptr<EntityWrapp
   // This material instance still belongs to the original asset and will be cleaned up when the asset is destroyed
   MaterialInstance* materialInstance = renderableManager.getMaterialInstanceAt(instance, primitiveIndex);
 
+  std::pair<uint32_t, size_t> slotKey = {entityInstance.getId(), primitiveIndex};
+
+  // Remember the asset-owned instance that was attached before our first replacement on this slot.
+  // The deleter below restores it if the duplicate is destroyed while still attached (teardown),
+  // so the renderable never references a destroyed instance and the duplicate can be destroyed
+  // without hitting filament's "still in use by Renderable" precondition. The original is only
+  // touched when the entity still exists, which implies the asset (its owner) is still alive.
+  MaterialInstance* originalInstance;
+  auto originalIt = _slotOriginalInstances.find(slotKey);
+  if (originalIt == _slotOriginalInstances.end()) {
+    originalInstance = materialInstance;
+    _slotOriginalInstances[slotKey] = originalInstance;
+  } else {
+    originalInstance = originalIt->second;
+  }
+
   // The texture might not be loaded yet, but we can already set it on the material instance
   auto engine = _engine;
   auto dispatcher = _rendererDispatcher;
+  Entity slotEntity = entityInstance;
+  size_t slotIndex = primitiveIndex;
   std::shared_ptr<MaterialInstance> newInstance =
-      std::shared_ptr<MaterialInstance>(MaterialInstance::duplicate(materialInstance), [engine, dispatcher](MaterialInstance* instance) {
-        dispatcher->runAsync([engine, instance]() {
-          Logger::log(TAG, "Destroying material instance %p", instance);
-          engine->destroy(instance);
-        });
-      });
+      std::shared_ptr<MaterialInstance>(MaterialInstance::duplicate(materialInstance),
+                                        [engine, dispatcher, slotEntity, slotIndex, originalInstance](MaterialInstance* instance) {
+                                          dispatcher->runAsync([engine, slotEntity, slotIndex, originalInstance, instance]() {
+                                            RenderableManager& renderableManager = engine->getRenderableManager();
+                                            if (renderableManager.hasComponent(slotEntity)) {
+                                              RenderableManager::Instance renderable = renderableManager.getInstance(slotEntity);
+                                              if (slotIndex < renderableManager.getPrimitiveCount(renderable) &&
+                                                  renderableManager.getMaterialInstanceAt(renderable, slotIndex) == instance) {
+                                                // Still attached (teardown path) — detach by restoring the asset's original instance.
+                                                // Destroying an attached instance, or letting the material provider destroy the parent
+                                                // material while duplicates are alive, is a fatal precondition in filament.
+                                                Logger::log(TAG, "Restoring original material instance on entity before destroy");
+                                                renderableManager.setMaterialInstanceAt(renderable, slotIndex, originalInstance);
+                                              }
+                                            }
+                                            Logger::log(TAG, "Destroying material instance %p", instance);
+                                            engine->destroy(instance);
+                                          });
+                                        });
 
   auto sampler = TextureSampler(TextureSampler::MinFilter::LINEAR, TextureSampler::MagFilter::LINEAR, TextureSampler::WrapMode::REPEAT);
   Texture* texture = createTextureFromBuffer(textureBuffer, textureFlags);
   newInstance->setParameter("baseColorMap", texture, sampler);
   renderableManager.setMaterialInstanceAt(instance, primitiveIndex, newInstance.get());
-  _materialInstances.push_back(newInstance);
+
+  // Replacing the slot entry releases the superseded instance — it is detached now (the renderable
+  // points at newInstance), so its deleter can safely destroy it.
+  _slotMaterialInstances[slotKey] = newInstance;
+  // The superseded texture is no longer sampled by any attached instance; destroy it.
+  auto previousTexture = _slotTextures.find(slotKey);
+  if (previousTexture != _slotTextures.end()) {
+    Texture* oldTexture = previousTexture->second;
+    dispatcher->runAsync([engine, oldTexture]() {
+      Logger::log(TAG, "Destroying texture %p", oldTexture);
+      engine->destroy(oldTexture);
+    });
+  }
+  _slotTextures[slotKey] = texture;
 
   // Load the texture
   startUpdateResourceLoading();
