@@ -123,6 +123,16 @@ class FilamentProxy {
         // It's a file path, read the file system directly
         if (uriString.contains("file://")) {
             String filePath = uriString.replace("file://", "");
+
+            // The URIs we get from JS are percent-encoded (e.g. `.../Application%20Support/...`),
+            // while the file system expects a decoded path. `Uri.decode()` doesn't report malformed
+            // input - it replaces it with U+FFFD - so we only use the decoded path if it actually
+            // resolves to a file, keeping file names that legitimately contain a `%` working.
+            String decodedPath = Uri.decode(filePath);
+            if (decodedPath != null && !decodedPath.equals(filePath) && new File(decodedPath).exists()) {
+                filePath = decodedPath;
+            }
+
             File file = new File(filePath);
             if (!file.exists()) {
                 throw new Exception("File does not exist: " + filePath);
