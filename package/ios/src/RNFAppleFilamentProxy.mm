@@ -54,6 +54,16 @@ std::shared_ptr<FilamentBuffer> AppleFilamentProxy::loadAsset(const std::string&
   if ([filePath hasPrefix:@"file://"]) {
     filePath = [filePath substringFromIndex:7];
 
+    // The URIs we get from JS are percent-encoded (`Image.resolveAssetSource()` returns e.g.
+    // `.../Library/Application%20Support/...` in release builds), while the file system expects a
+    // decoded path. `stringByRemovingPercentEncoding` returns nil if the string isn't valid
+    // percent-encoding, in which case we keep the path as-is so that file names that legitimately
+    // contain a `%` still work.
+    NSString* decodedPath = [filePath stringByRemovingPercentEncoding];
+    if (decodedPath != nil) {
+      filePath = decodedPath;
+    }
+
     // Load the data from the file
     NSError* errorPtr;
     NSData* bufferData = [NSData dataWithContentsOfFile:filePath options:NSDataReadingMappedIfSafe error:&errorPtr];
