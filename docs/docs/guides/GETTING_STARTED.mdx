@@ -66,6 +66,40 @@ For react-native-worklets-core its necessary to add a plugin to your `babel.conf
 cd ios && pod install
 ```
 
+## Disable native logs
+
+Native react-native-filament memory logs, such as `RNF/HybridObject` `Creating` and `Deleting`, are enabled by default. You can disable them with the following platform-specific settings:
+
+<Tabs
+  groupId="rnfLogs"
+  defaultValue="ios"
+  values={[
+    {label: '🍏 iOS', value: 'ios'},
+    {label: '🤖 Android', value: 'android'}
+  ]}>
+  <TabItem value="ios">
+    Add the following to your `ios/Podfile` before installing pods:
+
+    ```ruby
+    $RNFEnableLogs = false
+    ```
+
+    Rerun `pod install` after changing this setting.
+
+  </TabItem>
+
+  <TabItem value="android">
+    Add the following to your `android/gradle.properties`:
+
+    ```properties
+    RNF_enableLogs=false
+    ```
+
+  </TabItem>
+</Tabs>
+
+After changing either setting, rebuild the native app. Reloading Metro alone is not sufficient. This only affects native react-native-filament logs, not arbitrary application `console.log` output.
+
 4. Start Metro with clean cache:
 
 ```sh
