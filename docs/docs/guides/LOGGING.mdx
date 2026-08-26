@@ -1,1 +1,54 @@
-TODO
+---
+id: logging
+title: Logging
+sidebar_label: Logging
+slug: /guides/logging
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+## Native logs
+
+`react-native-filament` native logs are enabled by default. They are compiled
+into the native target, so disabling them also removes noisy
+`HybridObject` lifecycle messages such as `EntityWrapper` creation and
+deletion during morph-target updates.
+
+To disable these logs, set the platform-specific build setting below, then
+reinstall or clean the native build and rebuild the app:
+
+<Tabs
+  groupId="nativeLogging"
+  defaultValue="ios"
+  values={[
+    {label: 'iOS', value: 'ios'},
+    {label: 'Android', value: 'android'}
+  ]}>
+  <TabItem value="ios">
+
+    Add this near the top of `ios/Podfile`:
+
+    ```ruby
+    $RNFEnableLogs = false
+    ```
+
+    Then run `pod install` and rebuild the app.
+
+  </TabItem>
+  <TabItem value="android">
+
+    Add this to `android/gradle.properties`:
+
+    ```properties
+    RNF_enableLogs=false
+    ```
+
+    Then clean and rebuild the app so the native CMake configuration is
+    regenerated.
+
+  </TabItem>
+</Tabs>
+
+This setting controls `react-native-filament` native logs only. It is a
+build-time setting, not a runtime toggle.
