@@ -52,13 +52,19 @@ std::shared_ptr<FilamentBuffer> AppleFilamentProxy::loadAsset(const std::string&
 
   // Check if we want to load from file path:
   if ([filePath hasPrefix:@"file://"]) {
-    filePath = [filePath substringFromIndex:7];
+    NSURL* fileURL = [NSURL URLWithString:filePath];
+    NSString* decodedFilePath = fileURL.isFileURL ? fileURL.path : nil;
+    if (decodedFilePath.length == 0) {
+      throw std::runtime_error("Invalid file URL: expected a file URL with a non-empty path");
+    }
+    filePath = decodedFilePath;
 
     // Load the data from the file
-    NSError* errorPtr;
+    NSError* errorPtr = nil;
     NSData* bufferData = [NSData dataWithContentsOfFile:filePath options:NSDataReadingMappedIfSafe error:&errorPtr];
     if (!bufferData || errorPtr != nullptr) {
-      throw std::runtime_error("File not found or could not be read, error: " + std::string(errorPtr.localizedDescription.UTF8String));
+      NSString* errorDescription = errorPtr.localizedDescription ?: @"Unknown error";
+      throw std::runtime_error("File not found or could not be read, error: " + std::string(errorDescription.UTF8String));
     }
     auto managedBuffer = std::make_shared<AppleManagedBuffer>(bufferData);
     return std::make_shared<FilamentBuffer>(managedBuffer);
