@@ -41,7 +41,7 @@ FilamentAssetWrapper::createAnimator(std::shared_ptr<NameComponentManagerWrapper
   FilamentInstance* instance = pointee()->getInstance();
   Animator* animator = instance->getAnimator();
   std::shared_ptr<NameComponentManager> manager = nameComponentManagerWrapper->getManager();
-  return std::make_shared<AnimatorWrapper>(animator, instance, manager);
+  return std::make_shared<AnimatorWrapper>(animator, instance, manager, pointee());
 }
 
 std::vector<std::shared_ptr<EntityWrapper>> FilamentAssetWrapper::getEntities() {
@@ -74,7 +74,7 @@ std::optional<std::shared_ptr<EntityWrapper>> FilamentAssetWrapper::getFirstEnti
 
 std::shared_ptr<FilamentInstanceWrapper> FilamentAssetWrapper::getInstance() {
   FilamentInstance* instance = pointee()->getInstance();
-  return std::make_shared<FilamentInstanceWrapper>(instance);
+  return std::make_shared<FilamentInstanceWrapper>(instance, pointee());
 }
 
 std::vector<std::shared_ptr<FilamentInstanceWrapper>> FilamentAssetWrapper::getAssetInstances() {
@@ -82,7 +82,7 @@ std::vector<std::shared_ptr<FilamentInstanceWrapper>> FilamentAssetWrapper::getA
   FilamentInstance** instanceArray = pointee()->getAssetInstances();
   size_t instanceCount = pointee()->getAssetInstanceCount();
   for (int i = 0; i < instanceCount; i++) {
-    instances.push_back(std::make_shared<FilamentInstanceWrapper>(instanceArray[i]));
+    instances.push_back(std::make_shared<FilamentInstanceWrapper>(instanceArray[i], pointee()));
   }
   return instances;
 }
