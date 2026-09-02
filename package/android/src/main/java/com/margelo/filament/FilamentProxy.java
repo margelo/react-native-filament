@@ -58,7 +58,7 @@ class FilamentProxy {
             throw new RuntimeException("Failed to initialize react-native-filament: JSI Runtime Holder is null!");
         }
         long runtimePointer = jsRuntimeHolder.get();
-        CallInvokerHolder callInvokerHolder = context.getCatalystInstance().getJSCallInvokerHolder();
+        CallInvokerHolder callInvokerHolder = context.getJSCallInvokerHolder();
         if (!(callInvokerHolder instanceof CallInvokerHolderImpl)) {
             throw new RuntimeException("Failed to initialize react-native-filament: JS Call Invoker is null!");
         }

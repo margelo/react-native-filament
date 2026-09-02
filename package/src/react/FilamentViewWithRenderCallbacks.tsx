@@ -25,9 +25,9 @@ export function FilamentViewWithRenderCallbacks({
 
       renderCallbackProp?.(frameInfo)
 
-      renderCallbacks.value.forEach(({ callback }) => {
-        callback(frameInfo)
-      })
+      for (const entry of renderCallbacks) {
+        entry.callback(frameInfo)
+      }
     },
     [renderCallbackProp, renderCallbacks]
   )

@@ -8,9 +8,10 @@
 #pragma once
 
 #import <React/RCTBridgeModule.h>
+#import <React/RCTCallInvokerModule.h>
 #import <React/RCTEventEmitter.h>
 
-@interface FilamentModule : NSObject <RCTBridgeModule>
+@interface FilamentModule : NSObject <RCTBridgeModule, RCTCallInvokerModule>
 
 @property(nonatomic, weak) RCTBridge* bridge;
 @property(nonatomic, weak) RCTModuleRegistry* moduleRegistry;

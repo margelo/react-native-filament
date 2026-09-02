@@ -1,27 +1,23 @@
-import { getWorkletDependencies } from 'react-native-worklets-core'
+import { useMemo } from 'react'
+import { runOnRuntimeAsync } from 'react-native-worklets'
 import { useFilamentContext } from './useFilamentContext'
 import { wrapWithErrorHandler } from '../ErrorUtils'
-import { useMemo } from 'react'
+import { getWorkletDependencies } from '../utilities/worklets'
 
 /**
  * Creates a callback that can be executed in he separate worklet thread of the engine.
  */
 export function useWorkletCallback<T extends (...args: any[]) => any>(callback: T): (...args: Parameters<T>) => Promise<ReturnType<T>> {
-  const { workletContext } = useFilamentContext()
+  const { workletRuntime } = useFilamentContext()
 
-  // Note: from react-native-worklets-core/useWorklet
-  // As we want to wrap using `wrapWithErrorHandler` the dependencies must be captured from the
-  // callback, not from the wrapper.
-
-  // As a dependency for this use-memo we use all of the values captured inside the worklet,
-  // as well as the unique context name.
-  const dependencies = [...getWorkletDependencies(callback)]
-
+  // The dependencies are the values captured inside the worklet, so the returned callback
+  // stays the same for as long as the worklet's closure doesn't change.
   return useMemo(
     () => {
-      return workletContext.createRunAsync(wrapWithErrorHandler(callback))
+      const worklet = wrapWithErrorHandler(callback)
+      return (...args: Parameters<T>) => runOnRuntimeAsync(workletRuntime, worklet, ...args)
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    dependencies
+    [workletRuntime, ...getWorkletDependencies(callback)]
   )
 }

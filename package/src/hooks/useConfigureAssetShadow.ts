@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
+import { scheduleOnRuntime } from 'react-native-worklets'
 import { FilamentAsset, RenderableManager } from '../types'
 import { useFilamentContext } from './useFilamentContext'
 
@@ -17,7 +18,7 @@ export type UseAssetShadowProps = {
 }
 
 export function useConfigureAssetShadow({ renderableManager, asset, receiveShadow, castShadow }: UseAssetShadowProps) {
-  const { workletContext } = useFilamentContext()
+  const { workletRuntime } = useFilamentContext()
 
   const renderableEntities = useMemo(() => asset?.getRenderableEntities(), [asset])
   const prevCastShadowRef = useRef<boolean | null>(null)
@@ -27,14 +28,14 @@ export function useConfigureAssetShadow({ renderableManager, asset, receiveShado
     }
     prevCastShadowRef.current = castShadow
 
-    workletContext.runAsync(() => {
+    scheduleOnRuntime(workletRuntime, () => {
       'worklet'
 
       renderableEntities.forEach((entity) => {
         renderableManager.setCastShadow(entity, castShadow)
       })
     })
-  }, [castShadow, renderableManager, renderableEntities, workletContext])
+  }, [castShadow, renderableManager, renderableEntities, workletRuntime])
 
   const prevReceiveShadowRef = useRef<boolean | null>(null)
   useEffect(() => {
@@ -43,12 +44,12 @@ export function useConfigureAssetShadow({ renderableManager, asset, receiveShado
     }
     prevReceiveShadowRef.current = receiveShadow
 
-    workletContext.runAsync(() => {
+    scheduleOnRuntime(workletRuntime, () => {
       'worklet'
 
       renderableEntities.forEach((entity) => {
         renderableManager.setReceiveShadow(entity, receiveShadow)
       })
     })
-  }, [receiveShadow, renderableEntities, renderableManager, workletContext])
+  }, [receiveShadow, renderableEntities, renderableManager, workletRuntime])
 }

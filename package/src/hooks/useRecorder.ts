@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { runOnRuntimeAsync } from 'react-native-worklets'
 import { useFilamentContext } from './useFilamentContext'
 import { FilamentProxy } from '../native/FilamentProxy'
 import { useDisposableResource } from './useDisposableResource'
@@ -20,19 +21,19 @@ type Result = {
 }
 
 export function useRecorder({ width, height, fps, bitRate }: RecorderOptions): Result {
-  const { engine, workletContext } = useFilamentContext()
+  const { engine, workletRuntime } = useFilamentContext()
   const recorder = useMemo(() => {
     Logger.debug('Creating recorder JS')
     return FilamentProxy.createRecorder(width, height, fps, bitRate)
   }, [bitRate, fps, height, width])
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const swapChain = useDisposableResource(
-    workletContext.createRunAsync(() => {
-      'worklet'
-      return engine.createSwapChainForRecorder(recorder)
-    }),
-    [engine, recorder]
+    () =>
+      runOnRuntimeAsync(workletRuntime, () => {
+        'worklet'
+        return engine.createSwapChainForRecorder(recorder)
+      }),
+    [engine, recorder, workletRuntime]
   )
 
   useWorkletEffect(() => {

@@ -1,6 +1,5 @@
-import React, { createContext, DependencyList, PropsWithChildren, useCallback, useContext, useEffect, useMemo } from 'react'
+import React, { createContext, DependencyList, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { RenderCallback } from 'react-native-filament'
-import { ISharedValue, useSharedValue } from 'react-native-worklets-core'
 
 type RenderCallbackList = {
   callback: RenderCallback
@@ -12,36 +11,31 @@ type RenderCallbackList = {
  * This context allows us to have multiple render callbacks, as we call them in the render callback.
  */
 export type RenderContextType = {
-  renderCallbacks: ISharedValue<RenderCallbackList>
+  /**
+   * The registered render callbacks. A new array is created whenever a callback gets added or removed,
+   * which makes the FilamentView install a new frame listener with the current list.
+   */
+  renderCallbacks: RenderCallbackList
   addRenderCallback: (callback: RenderCallback) => () => void
 }
 
 export const makeRenderContext = () => {
   const RenderContext = createContext<RenderContextType>({
-    renderCallbacks: {
-      value: [],
-      addListener: () => {
-        throw new Error('RenderContextProvider not found')
-      },
-    },
+    renderCallbacks: [],
     addRenderCallback: () => {
       throw new Error('RenderContextProvider not found')
     },
   })
 
   const RenderContextProvider = ({ children }: PropsWithChildren) => {
-    const renderCallbacks = useSharedValue<RenderCallbackList>([])
-    const addRenderCallback = useCallback(
-      (callback: RenderCallback) => {
-        const id = Math.random().toString(36).substring(7)
-        const entry = { callback, id }
-        renderCallbacks.value.push(entry)
-        return () => {
-          renderCallbacks.value = renderCallbacks.value.filter((e) => e.id !== id)
-        }
-      },
-      [renderCallbacks]
-    )
+    const [renderCallbacks, setRenderCallbacks] = useState<RenderCallbackList>([])
+    const addRenderCallback = useCallback((callback: RenderCallback) => {
+      const entry = { callback, id: Math.random().toString(36).substring(7) }
+      setRenderCallbacks((list) => [...list, entry])
+      return () => {
+        setRenderCallbacks((list) => list.filter((e) => e !== entry))
+      }
+    }, [])
 
     const contextValue = useMemo<RenderContextType>(
       () => ({

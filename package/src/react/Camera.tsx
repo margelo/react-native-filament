@@ -1,4 +1,5 @@
-import { useSharedValue } from 'react-native-worklets-core'
+import { useMemo } from 'react'
+import { createSynchronizable } from 'react-native-worklets'
 import { CameraManipulator, Float3 } from '../types'
 import { useFilamentContext } from '../hooks/useFilamentContext'
 import { RenderCallbackContext } from './RenderCallbackContext'
@@ -79,13 +80,13 @@ export function Camera({ cameraManipulator, ...cameraConfig }: CameraProps) {
   const cameraUpY = cameraUp[1]
   const cameraUpZ = cameraUp[2]
 
-  const prevAspectRatio = useSharedValue(0)
+  const prevAspectRatio = useMemo(() => createSynchronizable(0), [])
   RenderCallbackContext.useRenderCallback(() => {
     'worklet'
 
     const aspectRatio = view.getAspectRatio()
-    if (prevAspectRatio.value !== aspectRatio) {
-      prevAspectRatio.value = aspectRatio
+    if (prevAspectRatio.getBlocking() !== aspectRatio) {
+      prevAspectRatio.setBlocking(aspectRatio)
       // Setup camera lens:
       camera.setLensProjection(focalLengthInMillimeters, aspect ?? aspectRatio, near, far)
       console.log('Setting up camera lens with aspect ratio:', aspectRatio)

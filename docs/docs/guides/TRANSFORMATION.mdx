@@ -95,13 +95,13 @@ When matrix multiplication is **enabled (default)** all transform operations wil
 
 You may want to change the transformation props very frequently (e.g. every frame). To avoid performance issues, you should **not** update the props using `useState` directly, but use shared values.
 
-You may know shared values from `reanimated`. We are using the shared values from `react-native-worklets-core`, but they work very similary.
+Shared values are the ones from `react-native-reanimated`.
 
 You can create a new shared value using `useSharedValue`:
 
 
 ```tsx
-import { useSharedValue } from "react-native-worklets-core";
+import { useSharedValue } from "react-native-reanimated";
 
 function MyScene() {
   const rotation = useSharedValue(0);
@@ -124,7 +124,7 @@ Now, lets update the rotation value every frame:
 
 ```tsx
 import { useCallback } from 'react'
-import { useSharedValue } from "react-native-worklets-core"
+import { useSharedValue } from "react-native-reanimated"
 import { RenderCallback, FilamentView, Model, Float3 } from "react-native-filament"
 
 function MyScene() {

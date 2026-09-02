@@ -13,7 +13,8 @@ import {
   FilamentScene,
   DefaultLight,
 } from 'react-native-filament'
-import { useRunOnJS, useSharedValue } from 'react-native-worklets-core'
+import { useSharedValue } from 'react-native-reanimated'
+import { runOnJS } from 'react-native-worklets'
 import Video from 'react-native-video'
 import DroneGlb from '@assets/buster_drone.glb'
 
@@ -66,7 +67,7 @@ function Renderer() {
   })
 
   const isStopping = React.useRef(false)
-  const onFinish = useRunOnJS(async () => {
+  const onFinish = React.useCallback(async () => {
     if (isStopping.current) {
       return
     }
@@ -87,7 +88,7 @@ function Renderer() {
 
     if (frameIndex > framesToRender) {
       // stop rendering
-      onFinish()
+      runOnJS(onFinish)()
       return false
     }
     if (started.value === 0) {
