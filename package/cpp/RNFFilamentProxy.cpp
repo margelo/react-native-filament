@@ -49,7 +49,7 @@ bool FilamentProxy::getHasWorklets() {
 #if HAS_WORKLETS
 std::shared_ptr<worklets::AsyncQueue> FilamentProxy::createWorkletAsyncQueue() {
   Logger::log(TAG, "Creating Worklet AsyncQueue on the render thread...");
-  return std::make_shared<WorkletAsyncQueue>(getRenderThreadDispatcher());
+  return createRenderThreadAsyncQueue(getRenderThreadDispatcher());
 }
 
 jsi::Value FilamentProxy::installDispatcher(jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t) {
