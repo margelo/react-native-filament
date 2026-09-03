@@ -11,7 +11,7 @@ function Spinning({ source }: { source: number }) {
   React.useEffect(() => {
     rotation.value = withRepeat(withTiming(Math.PI * 2, { duration: 4000 }), -1, false)
   }, [rotation])
-  const rotate = useDerivedValue(() => [0, rotation.value, 0] as [number, number, number], [rotation])
+  const rotate = useDerivedValue(() => [0, rotation.value, 0] as [number, number, number])
 
   return (
     <FilamentView style={styles.view}>
