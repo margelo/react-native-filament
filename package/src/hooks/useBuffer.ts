@@ -49,22 +49,30 @@ export function useBuffer({ source: source, releaseOnUnmount = true }: BufferPro
     return asset.uri
   }, [source])
 
-  // TODO: useDisposableResource
   useEffect(() => {
+    let isMounted = true
     let localBuffer: FilamentBuffer | undefined
     FilamentProxy.loadAsset(uri)
       .then((asset) => {
+        if (!isMounted) {
+          // The effect was cleaned up while loading (StrictMode, fast refresh, deps change): never hand out this buffer.
+          if (releaseOnUnmount) asset.release()
+          return
+        }
         localBuffer = asset
         setBuffer(asset)
       })
       .catch((error) => {
         console.error(`Failed to load asset: ${uri}`, error)
       })
-    return withCleanupScope(() => {
-      if (releaseOnUnmount) {
-        localBuffer?.release()
-      }
-    })
+    return () => {
+      isMounted = false
+      withCleanupScope(() => {
+        if (releaseOnUnmount) {
+          localBuffer?.release()
+        }
+      })()
+    }
   }, [releaseOnUnmount, uri])
 
   return buffer
