@@ -197,7 +197,16 @@ export class FilamentView extends React.PureComponent<FilamentProps> {
     const context = this.getContext()
     const handle = this.handle
     Logger.debug('Finding FilamentView with handle', handle)
-    this.view = await FilamentProxy.findFilamentView(handle)
+    try {
+      this.view = await FilamentProxy.findFilamentView(handle)
+    } catch (error) {
+      if (!this.isComponentMounted) {
+        // The native view is already gone, nothing left to set up
+        Logger.debug('➡️ Component already unmounted, skipping setup')
+        return
+      }
+      throw error
+    }
     if (this.view == null) {
       throw new Error(`Failed to find FilamentView #${handle}!`)
     }

@@ -55,8 +55,9 @@ export function useBuffer({ source: source, releaseOnUnmount = true }: BufferPro
     FilamentProxy.loadAsset(uri)
       .then((asset) => {
         if (!isMounted) {
-          // The effect was cleaned up while loading (StrictMode, fast refresh, deps change): never hand out this buffer.
-          if (releaseOnUnmount) asset.release()
+          // The effect was cleaned up while loading (StrictMode, fast refresh, deps change). Nobody will ever
+          // consume this buffer, so release it here regardless of releaseOnUnmount.
+          asset.release()
           return
         }
         localBuffer = asset
