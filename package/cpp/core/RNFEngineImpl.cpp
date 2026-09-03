@@ -14,7 +14,6 @@
 #include <filament/IndirectLight.h>
 #include <filament/LightManager.h>
 #include <filament/RenderableManager.h>
-#include <vector>
 #include <filament/Scene.h>
 #include <filament/SwapChain.h>
 #include <filament/TransformManager.h>
@@ -22,6 +21,7 @@
 #include <filament/Viewport.h>
 #include <utils/Entity.h>
 #include <utils/EntityManager.h>
+#include <vector>
 
 #include <gltfio/Animator.h>
 #include <gltfio/MaterialProvider.h>
@@ -148,19 +148,19 @@ void EngineImpl::surfaceSizeChanged(int width, int height) {
 std::shared_ptr<SwapChain> EngineImpl::createSwapChain(void* nativeWindow, u_int64_t flags, std::shared_ptr<void> nativeWindowOwner) {
   Logger::log(TAG, "Creating swapchain ...");
   auto dispatcher = _rendererDispatcher;
-  return References<SwapChain>::adoptEngineRef(
-      _engine, _engine->createSwapChain(nativeWindow, flags),
-      [dispatcher, nativeWindowOwner](std::shared_ptr<Engine> engine, SwapChain* swapChain) {
-        dispatcher->runAsync([engine, swapChain, nativeWindowOwner]() {
-          Logger::log(TAG, "Destroying swapchain...");
-          engine->destroy(swapChain);
-          // Required to ensure we don't return before Filament is done executing the destroySwapChain command.
-          // Only then may the native window go away: createSwapChain is queued on the backend thread as well, and
-          // a swapchain released right after creation would otherwise hand it an already freed window.
-          engine->flushAndWait();
-          Logger::log(TAG, "Destroyed swapchain!");
-        });
-      });
+  return References<SwapChain>::adoptEngineRef(_engine, _engine->createSwapChain(nativeWindow, flags),
+                                               [dispatcher, nativeWindowOwner](std::shared_ptr<Engine> engine, SwapChain* swapChain) {
+                                                 dispatcher->runAsync([engine, swapChain, nativeWindowOwner]() {
+                                                   Logger::log(TAG, "Destroying swapchain...");
+                                                   engine->destroy(swapChain);
+                                                   // Required to ensure we don't return before Filament is done executing the
+                                                   // destroySwapChain command. Only then may the native window go away: createSwapChain is
+                                                   // queued on the backend thread as well, and a swapchain released right after creation
+                                                   // would otherwise hand it an already freed window.
+                                                   engine->flushAndWait();
+                                                   Logger::log(TAG, "Destroyed swapchain!");
+                                                 });
+                                               });
 }
 
 void EngineImpl::setSwapChain(std::shared_ptr<SwapChain> swapChain) {

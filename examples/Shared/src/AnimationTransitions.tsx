@@ -12,7 +12,7 @@ function Renderer() {
   const currentAnimationIndex = useSharedValue(1)
   const [animations, setAnimations] = React.useState<AnimationItem[]>([])
 
-  const navigation = useNavigation()
+  const navigation = useNavigation<any>()
 
   const onPressModel = (entity: Entity) => {
     Alert.alert('Model pressed by entity with ID ' + entity.id)
