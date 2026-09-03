@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import type { SharedValue } from 'react-native-reanimated'
 import { LightConfig, LightManager } from '../types'
 import { useSharedValueListener } from './useSharedValueListener'
@@ -57,6 +57,10 @@ export function useLightEntity(lightManager: LightManager, config: UseLightEntit
     positionY,
     positionZ,
   ])
+
+  useEffect(() => {
+    return () => lightManager.destroy(entity)
+  }, [entity, lightManager])
 
   // Subscribe to the intensity shared value
   useSharedValueListener(typeof config.intensity === 'number' ? undefined : config.intensity, (intensity: number) => {

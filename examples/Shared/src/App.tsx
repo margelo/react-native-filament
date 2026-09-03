@@ -54,6 +54,7 @@ function HomeScreen() {
     <ScrollView style={{ flex: 1 }}>
       <NavigationItem name="🔥 Stress (slow, 3 rounds)" route="Stress" params={{ dwellMs: 1500, rounds: 3 }} />
       <NavigationItem name="🔥 Stress (fast, 5 rounds)" route="Stress" params={{ dwellMs: 250, rounds: 5 }} />
+      <NavigationItem name="🔥 Stress (soak, 20 rounds)" route="Stress" params={{ dwellMs: 250, rounds: 20 }} />
       <NavigationItem name="▶️ Animation Transitions" route="AnimationTransitions" />
       <NavigationItem name="📸 Camera Pan" route="CameraPan" />
       <NavigationItem name="📹 Offscreen recording" route="AnimationTransitionsRecording" />
