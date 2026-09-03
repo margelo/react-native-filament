@@ -7,7 +7,6 @@ import {
   useWorld,
   useRigidBody,
   useStaticPlaneShape,
-  useWorkletCallback,
   useFilamentContext,
   RenderCallback,
   FilamentScene,
@@ -33,20 +32,20 @@ function PhysicsCoinRenderer() {
     id: 'floor',
   })
 
-  const [coinABody, coinAEntity] = useCoin(
-    world,
-    [0, 3, 0.0],
-    useWorkletCallback<CollisionCallback>((coinRigidBody, collidedWith) => {
-      'worklet'
+  // Bullet invokes this on the engine's worklet runtime while stepping the simulation, so it has to be a
+  // plain worklet. useWorkletCallback would hand Bullet a JS function, which cannot be called from there.
+  const onCoinCollision = useCallback<CollisionCallback>((coinRigidBody, collidedWith) => {
+    'worklet'
 
-      if (collidedWith.id !== 'floor') {
-        return
-      }
+    if (collidedWith.id !== 'floor') {
+      return
+    }
 
-      console.log('Coin touched the floor!')
-      coinRigidBody.setCollisionCallback(undefined)
-    })
-  )
+    console.log('Coin touched the floor!')
+    coinRigidBody.setCollisionCallback(undefined)
+  }, [])
+
+  const [coinABody, coinAEntity] = useCoin(world, [0, 3, 0.0], onCoinCollision)
   const [coinBBody, coinBEntity] = useCoin(world, [0, 3, 0.5])
   const [coinCBody, coinCEntity] = useCoin(world, [0, 3, 1.0])
   const [coinDBody, coinDEntity] = useCoin(world, [0, 3, 1.5])

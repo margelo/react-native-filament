@@ -21,13 +21,14 @@ import { ChangeMaterials } from './ChangeMaterials'
 import { SkyboxExample } from './SkyboxExample'
 import { MorphTargets } from './MorphTargets'
 import { ReanimatedRotation } from './ReanimatedRotation'
+import { Stress } from './Stress'
 
-function NavigationItem(props: { name: string; route: string }) {
-  const navigation = useNavigation()
+function NavigationItem(props: { name: string; route: string; params?: object }) {
+  const navigation = useNavigation<any>()
   return (
     <Pressable
       onPress={() => {
-        navigation.navigate(props.route)
+        navigation.navigate(props.route, props.params)
       }}
       style={{
         height: 80,
@@ -51,6 +52,8 @@ function NavigationItem(props: { name: string; route: string }) {
 function HomeScreen() {
   return (
     <ScrollView style={{ flex: 1 }}>
+      <NavigationItem name="🔥 Stress (slow, 3 rounds)" route="Stress" params={{ dwellMs: 1500, rounds: 3 }} />
+      <NavigationItem name="🔥 Stress (fast, 5 rounds)" route="Stress" params={{ dwellMs: 250, rounds: 5 }} />
       <NavigationItem name="▶️ Animation Transitions" route="AnimationTransitions" />
       <NavigationItem name="📸 Camera Pan" route="CameraPan" />
       <NavigationItem name="📹 Offscreen recording" route="AnimationTransitionsRecording" />
@@ -112,6 +115,7 @@ function App() {
           <Stack.Screen name="Test" component={TestScreen} />
           <Stack.Screen name="SkyboxExample" component={SkyboxExample} />
           <Stack.Screen name="MorphTargets" component={MorphTargets} />
+          <Stack.Screen name="Stress" component={Stress} />
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>
