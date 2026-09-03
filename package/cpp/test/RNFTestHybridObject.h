@@ -82,9 +82,9 @@ public:
   }
 
 private:
-  int _int;
+  int _int = 0;
   std::string _string;
-  TestEnum _enum;
+  TestEnum _enum = TestEnum::FIRST;
   std::optional<std::string> _nullableString;
 
   void loadHybridMethods() override;

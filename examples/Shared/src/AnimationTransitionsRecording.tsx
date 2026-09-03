@@ -128,10 +128,12 @@ function Renderer() {
 
   React.useEffect(() => {
     return () => {
+      // StrictMode runs this cleanup before anything was recorded; stopping then throws in native.
+      if (!recorder.isRecording) return
       console.log('On unmount: stop recording')
       onFinish()
     }
-  }, [onFinish])
+  }, [onFinish, recorder])
 
   return (
     <View style={styles.container}>
