@@ -20,6 +20,7 @@ void RenderableManagerWrapper::loadHybridMethods() {
   registerHybridMethod("setReceiveShadow", &RenderableManagerWrapper::setReceiveShadow, this);
   registerHybridMethod("createPlane", &RenderableManagerWrapper::createPlane, this);
   registerHybridMethod("createImageBackgroundShape", &RenderableManagerWrapper::createImageBackgroundShape, this);
+  registerHybridMethod("destroyEntity", &RenderableManagerWrapper::destroyEntity, this);
   registerHybridMethod("scaleBoundingBox", &RenderableManagerWrapper::scaleBoundingBox, this);
   registerHybridMethod("createDebugCubeWireframe", &RenderableManagerWrapper::createDebugCubeWireframe, this);
   registerHybridMethod("getAxisAlignedBoundingBox", &RenderableManagerWrapper::getAxisAlignedBoundingBox, this);
@@ -66,6 +67,9 @@ std::shared_ptr<EntityWrapper> RenderableManagerWrapper::createImageBackgroundSh
   VertexEntity entity = pointee()->createImageBackground(defaultMaterialInstance);
 
   return std::make_shared<EntityWrapper>(entity);
+}
+void RenderableManagerWrapper::destroyEntity(std::shared_ptr<EntityWrapper> entityWrapper) {
+  pointee()->destroyEntity(entityWrapper);
 }
 void RenderableManagerWrapper::scaleBoundingBox(std::shared_ptr<FilamentAssetWrapper> assetWrapper, double scaleFactor) {
   pointee()->scaleBoundingBox(assetWrapper, scaleFactor);

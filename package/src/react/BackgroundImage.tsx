@@ -5,6 +5,7 @@ import { useWorkletCallback } from '../hooks/useWorkletCallback'
 import { useWorkletMemo } from '../hooks/useWorkletMemo'
 import { Mat3f } from '../types'
 import { useFilamentContext } from '../hooks/useFilamentContext'
+import { useEffect } from 'react'
 
 export type BackgroundImageProps = {
   source: BufferSource
@@ -109,6 +110,12 @@ export function BackgroundImage({ source, materialSource, resizeMode = 'contain'
     return renderableManager.createImageBackgroundShape(material)
   }, [material, renderableManager])
   useEntityInScene(scene, entity)
+  // Registered after useEntityInScene so the entity leaves the scene before it is destroyed,
+  // and destroyed before the deferred material release runs.
+  useEffect(() => {
+    if (entity == null) return
+    return () => renderableManager.destroyEntity(entity)
+  }, [entity, renderableManager])
 
   return null
 }
