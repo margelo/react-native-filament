@@ -21,6 +21,7 @@ export const stressRoutes = [
   'ChangeMaterials',
   'SkyboxExample',
   'MorphTargets',
+  'TwoScenes',
 ]
 
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))

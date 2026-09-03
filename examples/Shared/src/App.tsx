@@ -22,6 +22,7 @@ import { SkyboxExample } from './SkyboxExample'
 import { MorphTargets } from './MorphTargets'
 import { ReanimatedRotation } from './ReanimatedRotation'
 import { Stress } from './Stress'
+import { TwoScenes } from './TwoScenes'
 
 function NavigationItem(props: { name: string; route: string; params?: object }) {
   const navigation = useNavigation<any>()
@@ -72,6 +73,7 @@ function HomeScreen() {
       <NavigationItem name="🎨 Change Materials" route="ChangeMaterials" />
       <NavigationItem name="☁️ Skybox" route="SkyboxExample" />
       <NavigationItem name="🔄 MorphTargets" route="MorphTargets" />
+      <NavigationItem name="👯 Two Scenes" route="TwoScenes" />
     </ScrollView>
   )
 }
@@ -117,6 +119,7 @@ function App() {
           <Stack.Screen name="SkyboxExample" component={SkyboxExample} />
           <Stack.Screen name="MorphTargets" component={MorphTargets} />
           <Stack.Screen name="Stress" component={Stress} />
+          <Stack.Screen name="TwoScenes" component={TwoScenes} />
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>
