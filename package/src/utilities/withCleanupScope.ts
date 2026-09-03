@@ -1,5 +1,3 @@
-import { InteractionManager } from 'react-native'
-
 /**
  * Operations that are releasing memory from JS should be executed after cleanup functions
  * that are still operating on the resource.
@@ -22,13 +20,10 @@ import { InteractionManager } from 'react-native'
  */
 export function withCleanupScope(cleanupFunction: Function) {
   return () => {
-    // runAfterInteractions to make sure its called after all children have run their cleanup and all interactions are done
-    InteractionManager.runAfterInteractions(() => {
-      // Cleanup in worklets context, as cleanup functions might also use the worklet context
-      // and we want to queue our cleanup after all other worklets have run
-      setTimeout(() => {
-        cleanupFunction()
-      }, 0)
-    })
+    // Defer to the next tick, so all other cleanup functions of this commit (which might still use the
+    // resource) and the worklets they scheduled run first.
+    setTimeout(() => {
+      cleanupFunction()
+    }, 0)
   }
 }

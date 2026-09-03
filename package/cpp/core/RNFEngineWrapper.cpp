@@ -69,7 +69,7 @@ std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChainForSurface(std::
 
   void* nativeWindow = surface->getSurface();
   uint64_t flags = enableTransparentRendering ? SwapChain::CONFIG_TRANSPARENT : 0;
-  std::shared_ptr<SwapChain> swapChain = pointee()->createSwapChain(nativeWindow, flags);
+  std::shared_ptr<SwapChain> swapChain = pointee()->createSwapChain(nativeWindow, flags, surface);
 
   return std::make_shared<SwapChainWrapper>(swapChain);
 }
@@ -83,7 +83,7 @@ std::shared_ptr<SwapChainWrapper> EngineWrapper::createSwapChainForRecorder(std:
 
   // The flag CONFIG_APPLE_CVPIXELBUFFER is needed for iOS metal backend to allow rendering into a CVPixelBuffer. On android this flag is
   // ignored.
-  std::shared_ptr<SwapChain> swapChain = pointee()->createSwapChain(nativeWindow, SwapChain::CONFIG_APPLE_CVPIXELBUFFER);
+  std::shared_ptr<SwapChain> swapChain = pointee()->createSwapChain(nativeWindow, SwapChain::CONFIG_APPLE_CVPIXELBUFFER, recorder);
 
   int width = recorder->getWidth();
   int height = recorder->getHeight();

@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
+import type { SharedValue } from 'react-native-reanimated'
+import { createSynchronizable, scheduleOnRuntime } from 'react-native-worklets'
 import { FilamentInstance } from '../types'
 import { RenderCallbackContext } from './RenderCallbackContext'
 import { useAnimator } from '../hooks/useAnimator'
-import { ISharedValue, useSharedValue } from 'react-native-worklets-core'
-import usePrevious from '../hooks/usePrevious'
+import { useFilamentContext } from '../hooks/useFilamentContext'
+import { useSharedValueListener } from '../hooks/useSharedValueListener'
 import { ParentInstancesContext } from './ParentInstancesContext'
 
 export type AnimationItem = {
@@ -17,7 +19,7 @@ export type AnimatorProps = {
    * The index of the animation to play. To find out the index for the animation you want to play, you can use the `onAnimationsLoaded` callback.
    * @default 0
    **/
-  animationIndex?: number | ISharedValue<number>
+  animationIndex?: number | SharedValue<number>
 
   /**
    * Returns a list of all animations for the model.
@@ -61,13 +63,52 @@ type ImplProps = AnimatorProps & {
   instance: FilamentInstance
 }
 
+/**
+ * The animation state, shared between the JS thread and the Filament runtime.
+ */
+type AnimationState = {
+  index: number
+  // Set when the index changed, for cross fading from the previous animation
+  previousIndex: number | undefined
+  transitionStart: number | undefined
+  transitionElapsed: number
+}
+
 function AnimatorImpl({ instance, animationIndex: animationIndexProp = 0, transitionDuration = 0, onAnimationsLoaded }: ImplProps) {
   const animator = useAnimator(instance)
+  const { workletRuntime } = useFilamentContext()
 
-  // State for cross fading animations
-  const prevAnimationIndex = useSharedValue<number | undefined>(undefined)
-  const prevAnimationStarted = useSharedValue<number | undefined>(undefined)
-  const animationInterpolation = useSharedValue(0)
+  const state = useMemo(
+    () =>
+      createSynchronizable<AnimationState>({
+        index: typeof animationIndexProp === 'number' ? animationIndexProp : animationIndexProp.value,
+        previousIndex: undefined,
+        transitionStart: undefined,
+        transitionElapsed: 0,
+      }),
+    // The initial value is only read once, changes come in through switchAnimation
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  )
+
+  const switchAnimation = useCallback(
+    (index: number) => {
+      'worklet'
+      state.setBlocking((current) =>
+        current.index === index ? current : { index, previousIndex: current.index, transitionStart: undefined, transitionElapsed: 0 }
+      )
+    },
+    [state]
+  )
+
+  // Switch animation when the prop is a number
+  useEffect(() => {
+    if (typeof animationIndexProp !== 'number') return
+    scheduleOnRuntime(workletRuntime, switchAnimation, animationIndexProp)
+  }, [animationIndexProp, switchAnimation, workletRuntime])
+
+  // Switch animation when the prop is a shared value
+  useSharedValueListener(typeof animationIndexProp === 'number' ? undefined : animationIndexProp, switchAnimation)
 
   RenderCallbackContext.useRenderCallback(
     ({ passedSeconds }) => {
@@ -76,55 +117,30 @@ function AnimatorImpl({ instance, animationIndex: animationIndexProp = 0, transi
         return
       }
 
-      const animationIndex = typeof animationIndexProp === 'number' ? animationIndexProp : animationIndexProp.value
-
-      animator.applyAnimation(animationIndex, passedSeconds)
+      const current = state.getBlocking()
+      animator.applyAnimation(current.index, passedSeconds)
 
       // Eventually apply a cross fade
-      if (prevAnimationIndex.value != null && transitionDuration > 0) {
-        if (prevAnimationStarted.value == null) {
-          prevAnimationStarted.value = passedSeconds
-        }
-        animationInterpolation.value += passedSeconds - prevAnimationStarted.value!
-        const alpha = animationInterpolation.value / transitionDuration
+      if (current.previousIndex != null && transitionDuration > 0) {
+        const transitionStart = current.transitionStart ?? passedSeconds
+        const transitionElapsed = current.transitionElapsed + (passedSeconds - transitionStart)
+        const alpha = transitionElapsed / transitionDuration
 
         // Blend animations using a cross fade
-        animator.applyCrossFade(prevAnimationIndex.value, prevAnimationStarted.value!, alpha)
+        animator.applyCrossFade(current.previousIndex, transitionStart, alpha)
 
         // Reset the prev animation once the transition is completed
-        if (alpha >= 1) {
-          prevAnimationIndex.value = undefined
-          prevAnimationStarted.value = undefined
-          animationInterpolation.value = 0
-        }
+        state.setBlocking(
+          alpha >= 1
+            ? { index: current.index, previousIndex: undefined, transitionStart: undefined, transitionElapsed: 0 }
+            : { ...current, transitionStart, transitionElapsed }
+        )
       }
 
       animator.updateBoneMatrices()
     },
-    [animator, animationIndexProp]
+    [animator, state, transitionDuration]
   )
-
-  // Update prevAnimationIndex when animationIndexProp changes
-  const previousAnimationIndexProp = usePrevious(animationIndexProp)
-  useEffect(() => {
-    // Update previous index if the prop is just a number:
-    if (typeof animationIndexProp === 'number') {
-      if (typeof previousAnimationIndexProp !== 'number') return
-
-      prevAnimationIndex.value = previousAnimationIndexProp
-      return
-    }
-
-    // Update previous index if the prop is a shared value:
-    let value = animationIndexProp.value
-    const removeListener = animationIndexProp.addListener(() => {
-      prevAnimationIndex.value = value
-      value = animationIndexProp.value
-    })
-    return () => {
-      removeListener()
-    }
-  }, [animationIndexProp, prevAnimationIndex, previousAnimationIndexProp])
 
   // Get all animations and return them using the onAnimationsLoaded callback
   useEffect(() => {

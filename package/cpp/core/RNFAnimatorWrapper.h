@@ -19,9 +19,14 @@ using EntityNameMap = std::map<std::string, Entity>;
 
 class AnimatorWrapper : public HybridObject {
 public:
-  explicit AnimatorWrapper(Animator* animator, FilamentInstance* instance, std::shared_ptr<NameComponentManager> nameComponentManager)
+  /**
+   * `animator` and `instance` are owned by `asset`. The wrapper keeps the asset alive, so a render
+   * callback that still holds the animator after the asset was released doesn't use freed memory.
+   */
+  explicit AnimatorWrapper(Animator* animator, FilamentInstance* instance, std::shared_ptr<NameComponentManager> nameComponentManager,
+                           std::shared_ptr<gltfio::FilamentAsset> asset)
       : HybridObject("AnimatorWrapper"), _animator(animator), _instance(instance), _nameComponentManager(nameComponentManager),
-        _entityMap(createEntityNameMap(instance)) {}
+        _asset(std::move(asset)), _entityMap(createEntityNameMap(instance)) {}
 
   void loadHybridMethods() override;
 
@@ -58,6 +63,7 @@ protected:
   Animator* _animator;
   FilamentInstance* _instance;
   std::shared_ptr<NameComponentManager> _nameComponentManager;
+  std::shared_ptr<gltfio::FilamentAsset> _asset;
   // The entity map of this class's FilamentInstance
   EntityNameMap _entityMap;
   int _syncId = 0;

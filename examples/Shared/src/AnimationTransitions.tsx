@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native'
 import * as React from 'react'
 import { Alert, Button, ScrollView, StyleSheet, View } from 'react-native'
 import { FilamentScene, FilamentView, Camera, Model, Animator, AnimationItem, Entity, DefaultLight } from 'react-native-filament'
-import { useSharedValue } from 'react-native-worklets-core'
+import { useSharedValue } from 'react-native-reanimated'
 import HipHopGirlGlb from '@assets/hiphopgirl.glb'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -12,7 +12,7 @@ function Renderer() {
   const currentAnimationIndex = useSharedValue(1)
   const [animations, setAnimations] = React.useState<AnimationItem[]>([])
 
-  const navigation = useNavigation()
+  const navigation = useNavigation<any>()
 
   const onPressModel = (entity: Entity) => {
     Alert.alert('Model pressed by entity with ID ' + entity.id)

@@ -41,7 +41,7 @@ std::shared_ptr<AnimatorWrapper>
 FilamentInstanceWrapper::createAnimator(std::shared_ptr<NameComponentManagerWrapper> nameComponentManager) {
   Animator* animator = _instance->getAnimator();
   std::shared_ptr<NameComponentManager> manager = nameComponentManager->getManager();
-  return std::make_shared<AnimatorWrapper>(animator, _instance, manager);
+  return std::make_shared<AnimatorWrapper>(animator, _instance, manager, _asset);
 }
 std::shared_ptr<AABBWrapper> FilamentInstanceWrapper::getBoundingBox() {
   auto box = _instance->getBoundingBox();

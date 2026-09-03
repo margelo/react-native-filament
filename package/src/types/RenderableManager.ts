@@ -88,6 +88,14 @@ export interface RenderableManager extends PointerHolder {
   createImageBackgroundShape(material: Material): Entity
 
   /**
+   * Destroys an entity created by {@link createPlane}, {@link createImageBackgroundShape} or
+   * {@link createDebugCubeWireframe}, together with all of its components.
+   * Call this before releasing the material the entity was created with: Filament refuses to destroy
+   * a material instance that a renderable still references.
+   */
+  destroyEntity(entity: Entity): void
+
+  /**
    * Takes an asset, gets the bounding box of all renderable entities and updates the bounding box to be multiplied by the given scale
    * factor.
    * Note: This was added as a workaround as there seems to be a bug in filament. When using an animator the asset for some reason is slightly transformed.
