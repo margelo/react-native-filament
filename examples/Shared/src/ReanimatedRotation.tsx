@@ -9,23 +9,16 @@ import {
   Model,
   ModelInstance,
   Float3,
-  useSyncSharedValue,
-  useDerivedValue,
 } from 'react-native-filament'
 import DroneGlb from '@assets/buster_drone.glb'
 import { useCallback } from 'react'
-import { useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated'
-import { Worklets } from 'react-native-worklets-core'
+import { useDerivedValue, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated'
 
-const scale = Worklets.createSharedValue<Float3>([3, 3, 3])
+const scale: Float3 = [3, 3, 3]
 
 function Renderer() {
   const animatedRotationY = useSharedValue(0)
-  const rotationY = useSyncSharedValue(animatedRotationY)
-  const rotation = useDerivedValue<Float3>(() => {
-    'worklet'
-    return [0, rotationY.value, 0]
-  })
+  const rotation = useDerivedValue<Float3>(() => [0, animatedRotationY.value, 0])
 
   const spin = useCallback(() => {
     animatedRotationY.value = withSequence(withSpring(Math.PI * 2), withTiming(0, { duration: 0 }))

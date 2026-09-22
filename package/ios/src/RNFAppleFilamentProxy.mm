@@ -15,14 +15,15 @@
 #import "RNFFilamentView.h"
 #import "RNFNSThreadDispatcher.h"
 #import <Foundation/Foundation.h>
-#import <React/RCTBridge+Private.h>
 #import <React/RCTBridge.h>
-#import <React/RCTUIManager.h>
 #import <React/RCTUtils.h>
 
 #ifdef RCT_NEW_ARCH_ENABLED
 #import "RNFFilamentComponent.h"
 #import <React/RCTSurfacePresenter.h>
+#else
+#import <React/RCTBridge+Private.h>
+#import <React/RCTUIManager.h>
 #endif
 
 namespace margelo {

@@ -15,8 +15,6 @@ export * from './hooks/useSkybox'
 export * from './hooks/useRecorder'
 export * from './hooks/useRecorderRenderLoop'
 export * from './hooks/useCameraManipulator'
-export * from './hooks/useSyncSharedValue'
-export * from './hooks/useDerivedValue'
 
 // utilities
 export * from './utilities/getAssetFromModel'

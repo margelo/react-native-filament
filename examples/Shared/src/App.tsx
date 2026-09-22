@@ -21,13 +21,15 @@ import { ChangeMaterials } from './ChangeMaterials'
 import { SkyboxExample } from './SkyboxExample'
 import { MorphTargets } from './MorphTargets'
 import { ReanimatedRotation } from './ReanimatedRotation'
+import { Stress } from './Stress'
+import { TwoScenes } from './TwoScenes'
 
-function NavigationItem(props: { name: string; route: string }) {
-  const navigation = useNavigation()
+function NavigationItem(props: { name: string; route: string; params?: object }) {
+  const navigation = useNavigation<any>()
   return (
     <Pressable
       onPress={() => {
-        navigation.navigate(props.route)
+        navigation.navigate(props.route, props.params)
       }}
       style={{
         height: 80,
@@ -51,6 +53,9 @@ function NavigationItem(props: { name: string; route: string }) {
 function HomeScreen() {
   return (
     <ScrollView style={{ flex: 1 }}>
+      <NavigationItem name="🔥 Stress (slow, 3 rounds)" route="Stress" params={{ dwellMs: 1500, rounds: 3 }} />
+      <NavigationItem name="🔥 Stress (fast, 5 rounds)" route="Stress" params={{ dwellMs: 250, rounds: 5 }} />
+      <NavigationItem name="🔥 Stress (soak, 20 rounds)" route="Stress" params={{ dwellMs: 250, rounds: 20 }} />
       <NavigationItem name="▶️ Animation Transitions" route="AnimationTransitions" />
       <NavigationItem name="📸 Camera Pan" route="CameraPan" />
       <NavigationItem name="📹 Offscreen recording" route="AnimationTransitionsRecording" />
@@ -68,6 +73,7 @@ function HomeScreen() {
       <NavigationItem name="🎨 Change Materials" route="ChangeMaterials" />
       <NavigationItem name="☁️ Skybox" route="SkyboxExample" />
       <NavigationItem name="🔄 MorphTargets" route="MorphTargets" />
+      <NavigationItem name="👯 Two Scenes" route="TwoScenes" />
     </ScrollView>
   )
 }
@@ -112,6 +118,8 @@ function App() {
           <Stack.Screen name="Test" component={TestScreen} />
           <Stack.Screen name="SkyboxExample" component={SkyboxExample} />
           <Stack.Screen name="MorphTargets" component={MorphTargets} />
+          <Stack.Screen name="Stress" component={Stress} />
+          <Stack.Screen name="TwoScenes" component={TwoScenes} />
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>

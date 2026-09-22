@@ -9,6 +9,7 @@
 #include "jsi/RNFHybridObject.h"
 #include "utils/RNFEntityWrapper.h"
 
+#include <gltfio/FilamentAsset.h>
 #include <gltfio/FilamentInstance.h>
 
 namespace margelo {
@@ -20,7 +21,11 @@ class AnimatorWrapper;
 
 class FilamentInstanceWrapper : public HybridObject {
 public:
-  explicit FilamentInstanceWrapper(FilamentInstance* instance) : HybridObject("FilamentInstanceWrapper"), _instance(instance) {}
+  /**
+   * `instance` is owned by `asset`; the wrapper keeps the asset alive for as long as it is used.
+   */
+  explicit FilamentInstanceWrapper(FilamentInstance* instance, std::shared_ptr<gltfio::FilamentAsset> asset)
+      : HybridObject("FilamentInstanceWrapper"), _instance(instance), _asset(std::move(asset)) {}
 
   void loadHybridMethods() override;
 
@@ -46,5 +51,6 @@ private: // Public JS API
 
 private:
   FilamentInstance* _instance;
+  std::shared_ptr<gltfio::FilamentAsset> _asset;
 };
 } // namespace margelo

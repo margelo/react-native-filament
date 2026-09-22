@@ -2,13 +2,12 @@ import { FilamentBuffer } from './FilamentBuffer'
 import type { Engine } from '../types/Engine'
 import { FilamentView } from './FilamentViewTypes'
 import type { BulletAPI } from '../bullet/types/api'
-import type { IWorkletContext } from 'react-native-worklets-core'
 import { EngineBackend, EngineConfig } from '../types'
 import { TFilamentRecorder } from '../types/FilamentRecorder'
 import { Choreographer } from '../types/Choreographer'
 import { Dispatcher } from './Dispatcher'
 import { FilamentModule } from './FilamentModule'
-import { Worklets } from 'react-native-worklets-core'
+import { createWorkletRuntime, type WorkletRuntime } from 'react-native-worklets'
 
 interface TestHybridObject {
   int: number
@@ -75,23 +74,18 @@ export interface TFilamentProxy {
   readonly hasWorklets: boolean
 
   /**
-   * Create a Worklet context used for Rendering to Filament.
-   *
-   * This should only be called once, and the returned value should be kept strong.
-   *
-   * @example
-   * ```ts
-   * // 1. Get Render-Thread Worklet Context
-   * const context = FilamentProxy.createWorkletContext()
-   *
-   * // 2. From now on, perform all Filament calls and operations in `context`
-   * context.runAsync(() => {
-   *   const engine = FilamentProxy.createEngine()
-   *   // render...
-   * })
-   * ```
+   * Creates the queue the Filament worklet runtime drains its jobs from.
+   * Every job runs on Filament's render thread. Pass it as `queue` to `createWorkletRuntime`.
+   * @private
    */
-  createWorkletContext: () => IWorkletContext
+  createWorkletAsyncQueue(): object
+
+  /**
+   * Installs Filament's render thread dispatcher into the worklet runtime this is called from.
+   * Call it from the worklet runtime's `initializer`.
+   * @private
+   */
+  installDispatcher(): void
 
   createChoreographer(): Choreographer
 }
@@ -114,15 +108,20 @@ if (proxy == null) {
 
 if (!proxy.hasWorklets) {
   throw new Error(
-    'Failed to initialize react-native-filament - Worklets are not available (HAS_WORKLETS=false), did you install react-native-worklets-core?'
+    'Failed to initialize react-native-filament - Worklets are not available (HAS_WORKLETS=false), did you install react-native-worklets?'
   )
 }
 
 export const FilamentProxy = proxy
 
-// We must make sure that the Worklets API (module) is initialized (as its possible a lazy-loaded CxxTurboModule),
-// to initialize we must only call any property of the module:
-Worklets.defaultContext
-
-// Create our custom RNF worklet context:
-export const FilamentWorkletContext = proxy.createWorkletContext()
+/**
+ * The worklet runtime all Filament calls run on. Its jobs are executed on Filament's render thread.
+ */
+export const FilamentWorkletRuntime: WorkletRuntime = createWorkletRuntime({
+  name: 'FilamentRenderer',
+  queue: proxy.createWorkletAsyncQueue(),
+  initializer: () => {
+    'worklet'
+    proxy.installDispatcher()
+  },
+})

@@ -50,7 +50,11 @@ public:
 
   // First a surface provider must be set, then once we have a surface a swapchain can be created and finally the swapchain can be set
   void setSurfaceProvider(std::shared_ptr<SurfaceProvider> surfaceProvider);
-  std::shared_ptr<SwapChain> createSwapChain(void* nativeWindow, u_int64_t flags);
+  /**
+   * `nativeWindowOwner` is kept alive until Filament has destroyed the swapchain, so the native window
+   * (Surface, recorder) cannot be released while the backend still holds it.
+   */
+  std::shared_ptr<SwapChain> createSwapChain(void* nativeWindow, u_int64_t flags, std::shared_ptr<void> nativeWindowOwner = nullptr);
   void setSwapChain(std::shared_ptr<SwapChain> swapChain);
   void surfaceSizeChanged(int width, int height);
 

@@ -11,7 +11,6 @@
 #import <Foundation/Foundation.h>
 #import <ReactCommon/CallInvoker.h>
 
-#import <React/RCTBridge+Private.h>
 #import <React/RCTBridge.h>
 
 #import "threading/RNFCallInvokerDispatcher.h"
@@ -19,11 +18,6 @@
 
 using namespace facebook;
 using namespace margelo;
-
-// This is defined in RCTCxxBridge.mm, and we are technically using a private API here.
-@interface RCTCxxBridge (CallInvoker)
-- (std::shared_ptr<react::CallInvoker>)jsCallInvoker;
-@end
 
 @implementation FilamentInstaller
 

@@ -18,18 +18,16 @@ export function FilamentViewWithRenderCallbacks({
   renderCallback: renderCallbackProp,
   ...forwardProps
 }: PropsWithChildren<ForwardProps>) {
-  const renderCallbacks = RenderCallbackContext.useRenderCallbacks()
+  const { contextId } = RenderCallbackContext.useRenderContext()
+  const runRenderCallbacks = RenderCallbackContext.runRenderCallbacks
   const renderCallback: RenderCallback = useCallback(
     (frameInfo) => {
       'worklet'
 
       renderCallbackProp?.(frameInfo)
-
-      renderCallbacks.value.forEach(({ callback }) => {
-        callback(frameInfo)
-      })
+      runRenderCallbacks(contextId, frameInfo)
     },
-    [renderCallbackProp, renderCallbacks]
+    [renderCallbackProp, contextId, runRenderCallbacks]
   )
 
   return (

@@ -16,49 +16,23 @@ import TabItem from "@theme/TabItem";
 npm i react-native-filament
 ```
 
-2. `react-native-filament` depends on [`react-native-worklets-core`](https://github.com/margelo/react-native-worklets-core):
+2. `react-native-filament` runs on [`react-native-worklets`](https://docs.swmansion.com/react-native-worklets/) (the worklet runtime of Reanimated 4) and uses [`react-native-reanimated`](https://docs.swmansion.com/react-native-reanimated/) shared values:
 
 ```sh
-npm i react-native-worklets-core
+npm i react-native-worklets react-native-reanimated
 ```
 
-For react-native-worklets-core its necessary to add a plugin to your `babel.config.js` as well:
+Add the worklets plugin to your `babel.config.js` (if you already use reanimated 4 you have it):
 
-<Tabs
-  groupId="rnwcInstallationPlugin"
-  defaultValue="wo_rea"
-  values={[
-    {label: 'Without reanimated', value: 'wo_rea'},
-    {label: 'When using reanimated', value: 'w_rea'}
-  ]}>
-  <TabItem value="wo_rea">
-    ```js
-    module.exports = {
-      plugins: [
-        ["react-native-worklets-core/plugin", { processNestedWorklets: true }],
-        // ...
-      ],
-      // ...
-    };
-    ```
-
-  </TabItem>
-
-  <TabItem value="w_rea">
-    You should already use the reanimated babel pluginVersions, make sure to add the `processNestedWorklets` option to it:
-
-    ```js
-    module.exports = {
-      plugins: [
-        ["react-native-reanimated/plugin", { processNestedWorklets: true }],
-        // ...
-      ],
-      // ...
-    };
-    ```
-
-  </TabItem>
-</Tabs>
+```js
+module.exports = {
+  plugins: [
+    "react-native-worklets/plugin",
+    // ...
+  ],
+  // ...
+};
+```
 
 3. Update your pods:
 

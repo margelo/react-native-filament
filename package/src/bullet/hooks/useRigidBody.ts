@@ -5,7 +5,8 @@ import { useEffect, useState } from 'react'
 import { BaseShape } from '../types/Shapes'
 import { Mat4 } from '../../types/TransformManager'
 import { DiscreteDynamicWorld } from '../types/DiscreteDynamicWorld'
-import { FilamentWorkletContext } from '../../native/FilamentProxy'
+import { runOnRuntimeAsync } from 'react-native-worklets'
+import { FilamentWorkletRuntime } from '../../native/FilamentProxy'
 
 export type RigidBodyProps = {
   mass: number
@@ -44,7 +45,7 @@ export function useRigidBody(props: RigidBodyProps | undefined) {
     if (mass == null || shape == null || id == null) {
       return
     }
-    const getBody = FilamentWorkletContext.runAsync(() => {
+    const getBody = runOnRuntimeAsync(FilamentWorkletRuntime, () => {
       'worklet'
 
       if (originX != null && originY != null && originZ != null) {

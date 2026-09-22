@@ -2,10 +2,11 @@ require "json"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
-# TODO: test if this change works well in regular RN projects - however, might not needed if i remove RNWC
-workletsPath = File.dirname(`cd "#{Pod::Config.instance.installation_root.to_s}" && node --print "require.resolve('react-native-worklets-core/package.json')"`)
+workletsPath = File.dirname(`cd "#{Pod::Config.instance.installation_root.to_s}" && node --print "require.resolve('react-native-worklets/package.json')"`)
 hasWorklets = File.exist?(workletsPath)
-Pod::UI.puts("[react-native-filament] react-native-worklets-core #{hasWorklets ? "found" : "not found"}!")
+Pod::UI.puts("[react-native-filament] react-native-worklets #{hasWorklets ? "found" : "not found"}!")
+reactNativePath = File.dirname(`cd "#{Pod::Config.instance.installation_root.to_s}" && node --print "require.resolve('react-native/package.json')"`)
+reactCommonDir = Pathname.new(File.join(reactNativePath, "ReactCommon")).relative_path_from(Pathname.new(File.join(Pod::Config.instance.installation_root.to_s, "Pods"))).to_s
 
 # Logs are enabled by default, however they use NSLog and if you have a lot of logs it can slow down your app.
 enableLogs = true
@@ -27,8 +28,24 @@ Pod::Spec.new do |s|
 
   s.pod_target_xcconfig = {
     "GCC_PREPROCESSOR_DEFINITIONS" => "FILAMENT_APP_USE_METAL=1 HAS_WORKLETS=#{hasWorklets} RNF_ENABLE_LOGS=#{enableLogs} $(inherited)",
-    "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
-    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/**\" \"$(PODS_TARGET_SRCROOT)/ios/libs/bullet3/**\" \"$(PODS_TARGET_SRCROOT)/ios/libs/filament/include/**\""
+    # react-native-worklets headers need C++20
+    "CLANG_CXX_LANGUAGE_STANDARD" => "c++20",
+    "USE_HEADERMAP" => "YES",
+    "HEADER_SEARCH_PATHS" => [
+      '"$(PODS_TARGET_SRCROOT)/cpp/**"',
+      '"$(PODS_TARGET_SRCROOT)/ios/libs/bullet3/**"',
+      '"$(PODS_TARGET_SRCROOT)/ios/libs/filament/include/**"',
+      # react-native-worklets and what its headers pull in (same list RNReanimated uses)
+      '"$(PODS_ROOT)/Headers/Public/RNWorklets"',
+      '"$(PODS_ROOT)/RCT-Folly"',
+      '"$(PODS_ROOT)/boost"',
+      '"$(PODS_ROOT)/DoubleConversion"',
+      '"$(PODS_ROOT)/Headers/Private/React-Core"',
+      '"$(PODS_ROOT)/Headers/Public/React-hermes"',
+      '"$(PODS_ROOT)/Headers/Public/hermes-engine"',
+      "\"$(PODS_ROOT)/#{reactCommonDir}\"",
+      "\"$(PODS_ROOT)/#{reactCommonDir}/jsiexecutor\"",
+    ].join(' ')
   }
 
   # Configure sub podspecs for filament
@@ -161,7 +178,7 @@ Pod::Spec.new do |s|
     "ios/src/*.h"
   ]
 
-  s.dependency "react-native-worklets-core"
+  s.dependency "RNWorklets"
   
   s.ios.frameworks = 'AVFoundation', 'CoreMedia'
 

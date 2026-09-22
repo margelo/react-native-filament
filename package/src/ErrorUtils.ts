@@ -1,4 +1,4 @@
-import { Worklets } from 'react-native-worklets-core'
+import { runOnJS } from 'react-native-worklets'
 
 /**
  * Report an error to react native's `ErrorUtils` if available, or log to console otherwise.
@@ -18,7 +18,7 @@ export function reportError(error: unknown, fatal: boolean): void {
   }
 }
 
-const throwErrorOnJS = Worklets.createRunOnJS((message: string, stack: string | undefined, fatal: boolean) => {
+function reportErrorFromWorklet(message: string, stack: string | undefined, fatal: boolean): void {
   const error = new Error()
   error.message = message
   error.stack = stack
@@ -27,13 +27,13 @@ const throwErrorOnJS = Worklets.createRunOnJS((message: string, stack: string | 
   error.jsEngine = 'Filament'
   // From react-native:
   reportError(error, fatal)
-})
+}
 
 export const reportWorkletError = (error: unknown, fatal = true): void => {
   'worklet'
   const safeError = error as Error | undefined
   const message = safeError != null && 'message' in safeError ? safeError.message : 'Filament threw an error.'
-  throwErrorOnJS(message, safeError?.stack, fatal)
+  runOnJS(reportErrorFromWorklet)(message, safeError?.stack, fatal)
 }
 
 export const wrapWithErrorHandler = <T extends (...args: any[]) => any>(callback: T): ((...args: Parameters<T>) => ReturnType<T>) => {

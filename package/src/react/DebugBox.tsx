@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react'
+import { useContext, useEffect, useMemo } from 'react'
 import { useFilamentContext } from '../hooks/useFilamentContext'
 import { Float3 } from '../types'
 import { TransformationProps } from '../types/TransformProps'
@@ -31,6 +31,10 @@ export function DebugBox({ halfExtent: halfExtentProp, ...transformProps }: Debu
   useApplyTransformations({ to: boxEntity, transformProps })
 
   useEntityInScene(scene, boxEntity ?? undefined)
+  useEffect(() => {
+    if (boxEntity == null) return
+    return () => renderableManager.destroyEntity(boxEntity)
+  }, [boxEntity, renderableManager])
 
   return null
 }

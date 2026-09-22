@@ -23,15 +23,9 @@
 
 #include <ReactCommon/CallInvoker.h>
 
-#ifdef HAS_WORKLETS
-#if __has_include(<react-native-worklets-core/WKTJsiWorkletContext.h>)
-// Old arch & CocoaPod headers on apple
-#include <react-native-worklets-core/WKTJsiWorkletContext.h>
-#else
-// New arch android, where RNWC and RNF c++ modules are build inside the app's project
-#include "WKTJsiWorkletContext.h"
+#if HAS_WORKLETS
+#include <worklets/RunLoop/AsyncQueue.h>
 #endif
-#endif // HAS_WORKLETS
 
 namespace margelo {
 
@@ -93,14 +87,15 @@ private:
 
 #if HAS_WORKLETS
   /**
-   * Create a new Worklet Context that runs on the Filament Renderer Thread.
-   *
-   * The FilamentProxy does not hold a strong reference to the Worklet Context,
-   * because otherwise we would have a cyclic reference.
-   *
-   * The caller (JS) is responsible for keeping the returned reference strong.
+   * Creates the queue the Filament worklet runtime drains its jobs from.
+   * Every job runs on the Filament render thread. Pass it as `queue` to `createWorkletRuntime`.
    */
-  std::shared_ptr<RNWorklet::JsiWorkletContext> createWorkletContext();
+  std::shared_ptr<worklets::AsyncQueue> createWorkletAsyncQueue();
+  /**
+   * Installs the render thread dispatcher as the global dispatcher of the runtime this is called from.
+   * Call it from the worklet runtime's `initializer`.
+   */
+  jsi::Value installDispatcher(jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* args, size_t count);
 #endif
 
 public:

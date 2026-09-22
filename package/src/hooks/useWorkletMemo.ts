@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
+import { runOnRuntimeAsync } from 'react-native-worklets'
 import { useFilamentContext } from './useFilamentContext'
 import { wrapWithErrorHandler } from '../ErrorUtils'
 
 export function useWorkletMemo<T>(workletFunction: () => T, dependencies: any[]): T | undefined {
-  const { workletContext } = useFilamentContext()
+  const { workletRuntime } = useFilamentContext()
   const [value, setValue] = useState<T | undefined>(undefined)
 
   useEffect(
     () => {
       async function loadAsync() {
-        const result = await workletContext.runAsync(wrapWithErrorHandler(workletFunction))
+        const result = await runOnRuntimeAsync(workletRuntime, wrapWithErrorHandler(workletFunction))
         setValue(result)
       }
 

@@ -1,6 +1,7 @@
+import { useCallback } from 'react'
+import { runOnRuntimeAsync, type WorkletRuntime } from 'react-native-worklets'
 import type { Engine, EngineBackend, EngineConfig } from '../types'
 import { FilamentProxy } from '../native/FilamentProxy'
-import { IWorkletContext, useWorklet } from 'react-native-worklets-core'
 import { useDisposableResource } from './useDisposableResource'
 
 export interface EngineProps {
@@ -15,15 +16,19 @@ export interface EngineProps {
    */
   config?: EngineConfig
 
-  context: IWorkletContext
+  runtime: WorkletRuntime
 }
 
-export function useEngine({ backend, config, context }: EngineProps): Engine | undefined {
+export function useEngine({ backend, config, runtime }: EngineProps): Engine | undefined {
   // Important: create the engine on the worklet thread, so its owned by the worklet thread
-  const createEngine = useWorklet(context, () => {
-    'worklet'
-    return FilamentProxy.createEngine(backend ?? undefined, config ?? undefined)
-  })
+  const createEngine = useCallback(
+    () =>
+      runOnRuntimeAsync(runtime, () => {
+        'worklet'
+        return FilamentProxy.createEngine(backend ?? undefined, config ?? undefined)
+      }),
+    [backend, config, runtime]
+  )
 
   const engine = useDisposableResource(createEngine)
   return engine

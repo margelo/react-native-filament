@@ -1,55 +1,87 @@
 import React, { createContext, DependencyList, PropsWithChildren, useCallback, useContext, useEffect, useMemo } from 'react'
+import { scheduleOnRuntime } from 'react-native-worklets'
 import { RenderCallback } from 'react-native-filament'
-import { ISharedValue, useSharedValue } from 'react-native-worklets-core'
+import { useFilamentContext } from '../hooks/useFilamentContext'
 
-type RenderCallbackList = {
-  callback: RenderCallback
-  id: string
-}[]
+declare global {
+  var __rnfRenderCallbacks: Record<number, Record<number, RenderCallback>> | undefined
+}
+
+let nextContextId = 0
+let nextCallbackId = 0
 
 /**
  * In react-native-filament we can only have one render callback, which we provide to the FilamentView.
  * This context allows us to have multiple render callbacks, as we call them in the render callback.
+ *
+ * The callbacks are kept in a registry on the Filament runtime, keyed by context and callback id.
+ * Adding and removing are jobs on the Filament runtime, so they are ordered with everything else
+ * scheduled there (like releasing the resources a callback uses).
  */
 export type RenderContextType = {
-  renderCallbacks: ISharedValue<RenderCallbackList>
+  /**
+   * The id of this context's entry in the render callback registry on the Filament runtime.
+   */
+  contextId: number
   addRenderCallback: (callback: RenderCallback) => () => void
 }
 
 export const makeRenderContext = () => {
   const RenderContext = createContext<RenderContextType>({
-    renderCallbacks: {
-      value: [],
-      addListener: () => {
-        throw new Error('RenderContextProvider not found')
-      },
-    },
+    contextId: -1,
     addRenderCallback: () => {
       throw new Error('RenderContextProvider not found')
     },
   })
 
   const RenderContextProvider = ({ children }: PropsWithChildren) => {
-    const renderCallbacks = useSharedValue<RenderCallbackList>([])
+    const { workletRuntime } = useFilamentContext()
+    const contextId = useMemo(() => nextContextId++, [])
+
+    useEffect(() => {
+      return () => {
+        scheduleOnRuntime(
+          workletRuntime,
+          (id: number) => {
+            'worklet'
+            delete globalThis.__rnfRenderCallbacks?.[id]
+          },
+          contextId
+        )
+      }
+    }, [contextId, workletRuntime])
+
     const addRenderCallback = useCallback(
       (callback: RenderCallback) => {
-        const id = Math.random().toString(36).substring(7)
-        const entry = { callback, id }
-        renderCallbacks.value.push(entry)
+        const callbackId = nextCallbackId++
+        scheduleOnRuntime(
+          workletRuntime,
+          (ctxId: number, id: number, renderCallback: RenderCallback) => {
+            'worklet'
+            const registry = (globalThis.__rnfRenderCallbacks ??= {})
+            const callbacks = (registry[ctxId] ??= {})
+            callbacks[id] = renderCallback
+          },
+          contextId,
+          callbackId,
+          callback
+        )
         return () => {
-          renderCallbacks.value = renderCallbacks.value.filter((e) => e.id !== id)
+          scheduleOnRuntime(
+            workletRuntime,
+            (ctxId: number, id: number) => {
+              'worklet'
+              delete globalThis.__rnfRenderCallbacks?.[ctxId]?.[id]
+            },
+            contextId,
+            callbackId
+          )
         }
       },
-      [renderCallbacks]
+      [contextId, workletRuntime]
     )
 
-    const contextValue = useMemo<RenderContextType>(
-      () => ({
-        renderCallbacks,
-        addRenderCallback,
-      }),
-      [addRenderCallback, renderCallbacks]
-    )
+    const contextValue = useMemo<RenderContextType>(() => ({ contextId, addRenderCallback }), [addRenderCallback, contextId])
 
     return <RenderContext.Provider value={contextValue}>{children}</RenderContext.Provider>
   }
@@ -84,15 +116,19 @@ export const makeRenderContext = () => {
   }
 
   /**
-   * This should be called in the render callback of the FilamentView.
-   * For the default exported context this happens automatically.
+   * Calls every render callback registered in this context. Call it from the render callback
+   * of the FilamentView. For the default exported context this happens automatically.
    */
-  const useRenderCallbacks = () => {
-    const renderContext = useRenderContext()
-    return renderContext.renderCallbacks
+  const runRenderCallbacks = (contextId: number, frameInfo: Parameters<RenderCallback>[0]) => {
+    'worklet'
+    const callbacks = globalThis.__rnfRenderCallbacks?.[contextId]
+    if (callbacks == null) return
+    for (const id in callbacks) {
+      callbacks[id]?.(frameInfo)
+    }
   }
 
-  return { useRenderContext, RenderContextProvider, useRenderCallback, useRenderCallbacks }
+  return { useRenderContext, RenderContextProvider, useRenderCallback, runRenderCallbacks }
 }
 
 export const RenderCallbackContext = makeRenderContext()

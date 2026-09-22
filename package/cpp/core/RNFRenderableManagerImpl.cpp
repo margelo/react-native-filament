@@ -268,6 +268,17 @@ VertexEntity RenderableManagerImpl::createImageBackground(MaterialInstance* mate
   };
 }
 
+void RenderableManagerImpl::destroyEntity(std::shared_ptr<EntityWrapper> entityWrapper) {
+  if (entityWrapper == nullptr) {
+    throw std::invalid_argument("Entity is null");
+  }
+  Entity entity = entityWrapper->getEntity();
+  // Drops every component (renderable, transform, ...). A material instance can only be destroyed
+  // once no renderable references it anymore, so this has to run before the material is released.
+  _engine->destroy(entity);
+  utils::EntityManager::get().destroy(entity);
+}
+
 void RenderableManagerImpl::scaleBoundingBox(std::shared_ptr<FilamentAssetWrapper> assetWrapper, double scaleFactor) {
   if (assetWrapper == nullptr) {
     throw std::invalid_argument("Asset is null");

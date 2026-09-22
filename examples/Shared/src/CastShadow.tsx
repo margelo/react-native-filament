@@ -46,6 +46,10 @@ function Renderer() {
   }, [renderableManager, shadowMaterial])
 
   useEntityInScene(scene, shadowPlane)
+  React.useEffect(() => {
+    if (shadowPlane == null) return
+    return () => renderableManager.destroyEntity(shadowPlane)
+  }, [shadowPlane, renderableManager])
   //#endregion
 
   const [showShadow, setShowShadow] = React.useState(true)

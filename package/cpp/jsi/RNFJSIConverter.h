@@ -11,6 +11,7 @@
 #include "RNFPromiseFactory.h"
 #include "RNFWorkletRuntimeRegistry.h"
 #include "threading/RNFDispatcher.h"
+#include "threading/RNFWorkletRuntimeLock.h"
 #include <array>
 #include <future>
 #include <jsi/jsi.h>
@@ -203,15 +204,20 @@ template <typename ReturnType, typename... Args> struct JSIConverter<std::functi
     jsi::Function function = arg.asObject(runtime).asFunction(runtime);
 
     std::shared_ptr<jsi::Function> sharedFunction = JSIHelper::createSharedJsiFunction(runtime, std::move(function));
-    return [&runtime, sharedFunction](Args... args) -> ReturnType {
-      jsi::Value result = sharedFunction->call(runtime, JSIConverter<std::decay_t<Args>>::toJSI(runtime, args)...);
-      if constexpr (std::is_same_v<ReturnType, void>) {
-        // it is a void function (returns undefined)
-        return;
-      } else {
-        // it returns a custom type, parse it from the JSI value.
-        return JSIConverter<ReturnType>::fromJSI(runtime, std::move(result));
-      }
+    // The function may be called from a native thread (e.g. the Choreographer), so hold the
+    // worklet runtime's lock while we are inside the runtime.
+    WorkletRuntimeLock lock(runtime);
+    return [&runtime, sharedFunction, lock](Args... args) -> ReturnType {
+      return lock.run([&]() -> ReturnType {
+        jsi::Value result = sharedFunction->call(runtime, JSIConverter<std::decay_t<Args>>::toJSI(runtime, args)...);
+        if constexpr (std::is_same_v<ReturnType, void>) {
+          // it is a void function (returns undefined)
+          return;
+        } else {
+          // it returns a custom type, parse it from the JSI value.
+          return JSIConverter<ReturnType>::fromJSI(runtime, std::move(result));
+        }
+      });
     };
   }
 

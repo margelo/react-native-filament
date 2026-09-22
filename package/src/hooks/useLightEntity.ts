@@ -1,15 +1,14 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
+import type { SharedValue } from 'react-native-reanimated'
 import { LightConfig, LightManager } from '../types'
-import { ISharedValue } from 'react-native-worklets-core'
-import { useFilamentContext } from './useFilamentContext'
-import { useWorkletEffect } from './useWorkletEffect'
+import { useSharedValueListener } from './useSharedValueListener'
 import convertKelvinToLinearSRGB from '../utilities/convertKelvinToLinearSRGB'
 
 export type UseLightEntityProps =
   | LightConfig
   | (Omit<LightConfig, 'intensity' | 'colorKelvin'> & {
-      intensity?: number | ISharedValue<number>
-      colorKelvin?: number | ISharedValue<number>
+      intensity?: number | SharedValue<number>
+      colorKelvin?: number | SharedValue<number>
     })
 
 /**
@@ -59,39 +58,20 @@ export function useLightEntity(lightManager: LightManager, config: UseLightEntit
     positionZ,
   ])
 
+  useEffect(() => {
+    return () => lightManager.destroy(entity)
+  }, [entity, lightManager])
+
   // Subscribe to the intensity shared value
-  const { workletContext } = useFilamentContext()
-  useWorkletEffect(() => {
+  useSharedValueListener(typeof config.intensity === 'number' ? undefined : config.intensity, (intensity: number) => {
     'worklet'
-    const intensity = config.intensity
-    if (intensity == null) return
-    if (typeof intensity === 'number') return
-
-    const setIntensity = lightManager.setIntensity
-
-    return intensity.addListener(
-      workletContext.createRunAsync(() => {
-        'worklet'
-        setIntensity(entity, intensity.value)
-      })
-    )
+    lightManager.setIntensity(entity, intensity)
   })
 
   // Subscribe to the colorKelvin shared value
-  useWorkletEffect(() => {
+  useSharedValueListener(typeof config.colorKelvin === 'number' ? undefined : config.colorKelvin, (colorKelvin: number) => {
     'worklet'
-    const colorKelvin = config.colorKelvin
-    if (colorKelvin == null) return
-    if (typeof colorKelvin === 'number') return
-
-    const setColor = lightManager.setColor
-
-    return colorKelvin.addListener(
-      workletContext.createRunAsync(() => {
-        'worklet'
-        setColor(entity, convertKelvinToLinearSRGB(colorKelvin.value))
-      })
-    )
+    lightManager.setColor(entity, convertKelvinToLinearSRGB(colorKelvin))
   })
 
   return entity

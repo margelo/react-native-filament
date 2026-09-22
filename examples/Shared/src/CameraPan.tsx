@@ -2,7 +2,7 @@ import React from 'react'
 import { Camera, DefaultLight, FilamentScene, FilamentView, Model, useCameraManipulator } from 'react-native-filament'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import { Dimensions, StyleSheet, View } from 'react-native'
-import { useSharedValue } from 'react-native-worklets-core'
+import { useSharedValue } from 'react-native-reanimated'
 
 const modelPath = 'https://raw.githubusercontent.com/google/filament/main/third_party/models/DamagedHelmet/DamagedHelmet.glb'
 

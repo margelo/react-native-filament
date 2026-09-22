@@ -11,6 +11,8 @@ export interface NativeProps extends ViewProps {
    * Every pixel of the view that is not covered by the Filament scene will be transparent.
    *
    * @note if you use a skybox you should disable this feature.
+   * @note with `false` the view no longer clears between frames, so the scene needs a {@link Skybox}
+   * to paint the background. Without one the previous frames stay visible as trails.
    *
    * @default true
    */

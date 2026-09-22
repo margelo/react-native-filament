@@ -79,7 +79,7 @@ jobs:
 
       - name: Setup Android SDK
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Install Android NDK and CMake
         if: steps.cache.outputs.cache-hit != 'true'
@@ -129,7 +129,7 @@ jobs:
 
       - name: Setup Android SDK
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Install Android NDK
         if: steps.cache.outputs.cache-hit != 'true'

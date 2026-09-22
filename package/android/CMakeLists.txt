@@ -4,7 +4,8 @@ cmake_minimum_required(VERSION 3.9.0)
 set(PACKAGE_NAME "react-native-filament")
 set(BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
 set(CMAKE_VERBOSE_MAKEFILE ON)
-set(CMAKE_CXX_STANDARD 17)
+# react-native-worklets headers need C++20
+set(CMAKE_CXX_STANDARD 20)
 
 set(FILAMENT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/filament")
 set(BULLET3_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/bullet3")
@@ -23,6 +24,10 @@ endif()
 find_package(ReactAndroid REQUIRED CONFIG)
 find_package(fbjni REQUIRED CONFIG)
 find_library(LOG_LIB log)
+
+# react-native-worklets headers pull in folly, which needs React Native's folly flags
+include("${NODE_MODULES_DIR}/react-native/ReactAndroid/cmake-utils/folly-flags.cmake")
+add_compile_options(${folly_FLAGS})
 
 # Add react-native-filament sources
 add_library(
@@ -44,6 +49,7 @@ add_library(
     ../cpp/jsi/RNFRuntimeCache.cpp
     ../cpp/jsi/RNFWorkletRuntimeRegistry.cpp
     ../cpp/threading/RNFDispatcher.cpp
+    ../cpp/threading/RNFWorkletRuntimeLock.cpp
     ../cpp/test/RNFTestHybridObject.cpp
 
     # Filament Core
@@ -109,6 +115,7 @@ target_include_directories(
     "src/main/cpp/java-bindings"
     "${NODE_MODULES_DIR}/react-native/ReactCommon"
     "${NODE_MODULES_DIR}/react-native/ReactCommon/callinvoker"
+    "${NODE_MODULES_DIR}/react-native/ReactCommon/jsiexecutor" # <-- pulled in by react-native-worklets headers
     "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/react/turbomodule" # <-- CallInvokerHolder JNI wrapper
     "${FILAMENT_DIR}/include"
     "${BULLET3_DIR}/include"
@@ -141,13 +148,12 @@ else()
     )
 endif()
 
-# Link with RNWC:
-find_package(react-native-worklets-core REQUIRED CONFIG)
-message("RN Filament: react-native-worklets core found! Enabling Worklets support...")
-message("RN Filament: react-native-worklets-core found in ${react-native-worklets-core_DIR}")
+# Link with react-native-worklets (prefab):
+find_package(react-native-worklets REQUIRED CONFIG)
+message("RN Filament: react-native-worklets found in ${react-native-worklets_DIR}, enabling Worklets support...")
 target_link_libraries(
     ${PACKAGE_NAME}
-    react-native-worklets-core::rnworklets
+    react-native-worklets::worklets
 )
 add_definitions(-DHAS_WORKLETS=1)
 

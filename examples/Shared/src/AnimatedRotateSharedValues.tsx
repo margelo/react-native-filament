@@ -13,7 +13,7 @@ import {
 } from 'react-native-filament'
 import DroneGlb from '@assets/buster_drone.glb'
 import { useCallback } from 'react'
-import { useSharedValue } from 'react-native-worklets-core'
+import { useSharedValue } from 'react-native-reanimated'
 
 function Renderer() {
   const rotation = useSharedValue<Float3>([0, 0, 0])
