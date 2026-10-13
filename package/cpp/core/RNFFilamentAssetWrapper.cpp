@@ -2,6 +2,9 @@
 #include "RNFAnimatorWrapper.h"
 #include "RNFFilamentInstanceWrapper.h"
 #include "RNFSceneWrapper.h"
+#include <algorithm>
+#include <filament/Engine.h>
+#include <filament/RenderableManager.h>
 
 #include <utils/Entity.h>
 #include <utils/EntityInstance.h>
@@ -11,6 +14,7 @@ namespace margelo {
 using namespace utils;
 
 void FilamentAssetWrapper::loadHybridMethods() {
+  registerHybridMethod("setMaterialForPrimitive", &FilamentAssetWrapper::setMaterialForPrimitive, this);
   registerHybridMethod("getRoot", &FilamentAssetWrapper::getRoot, this);
   registerHybridMethod("releaseSourceData", &FilamentAssetWrapper::releaseSourceData, this);
   registerHybridMethod("createAnimator", &FilamentAssetWrapper::createAnimator, this);
@@ -24,6 +28,25 @@ void FilamentAssetWrapper::loadHybridMethods() {
   registerHybridMethod("getAssetInstances", &FilamentAssetWrapper::getAssetInstances, this);
   registerHybridMethod("getMorphTargetNameAt", &FilamentAssetWrapper::getMorphTargetNameAt, this);
   registerHybridMethod("getMorphTargetCountAt", &FilamentAssetWrapper::getMorphTargetCountAt, this);
+}
+
+void FilamentAssetWrapper::setMaterialForPrimitive(std::shared_ptr<EntityWrapper> entityWrapper, int primitiveIndex,
+                                                   std::shared_ptr<MaterialWrapper> materialWrapper) {
+  std::unique_lock lock(_mutex);
+  auto asset = pointee();
+  auto material = materialWrapper->getMaterialImpl();
+  auto entity = entityWrapper->getEntity();
+  auto begin = asset->getRenderableEntities();
+  auto end = begin + asset->getRenderableEntityCount();
+  if (std::find(begin, end, entity) == end)
+    throw std::runtime_error("Material target does not belong to this asset");
+  auto& manager = _engine->getRenderableManager();
+  auto instance = manager.getInstance(entity);
+  if (primitiveIndex < 0 || static_cast<size_t>(primitiveIndex) >= manager.getPrimitiveCount(instance))
+    throw std::runtime_error("Material target primitive is missing");
+  // The asset's native deleter holds this owner until its renderables have been destroyed.
+  _materials->push_back(material);
+  manager.setMaterialInstanceAt(instance, primitiveIndex, material->getMaterial()->getDefaultInstance());
 }
 
 std::shared_ptr<EntityWrapper> FilamentAssetWrapper::getRoot() {

@@ -17,6 +17,10 @@ public:
   explicit MaterialWrapper(std::shared_ptr<MaterialImpl> material) : PointerHolder("MaterialWrapper", material) {}
 
   void loadHybridMethods() override;
+  /** Retains native material ownership independently of the releasable JS wrapper. */
+  std::shared_ptr<MaterialImpl> getMaterialImpl() {
+    return pointee();
+  }
 
 public: // Public JS API
   std::shared_ptr<MaterialInstanceWrapper> createInstance();

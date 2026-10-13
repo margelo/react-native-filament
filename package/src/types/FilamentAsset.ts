@@ -2,8 +2,20 @@ import { Entity } from './Entity'
 import { FilamentInstance } from './FilamentInstance'
 import { FilamentInstanceBase } from './FilamentInstanceBase'
 import { PointerHolder } from './PointerHolder'
+import { Material } from './Material'
 
 export interface FilamentAsset extends PointerHolder, FilamentInstanceBase {
+  /**
+   * Assigns the material's shared default instance to one renderable primitive.
+   * Call on the renderer worklet with a material from this asset's engine. The asset retains
+   * every assigned material, including replacements, until native asset teardown;
+   * releasing the Material wrapper does not detach the assigned instance.
+   * @param entity A renderable entity belonging to this asset.
+   * @param primitiveIndex The zero-based primitive index. Invalid targets throw.
+   * @param material The material whose default instance will be assigned.
+   * @worklet
+   */
+  setMaterialForPrimitive(entity: Entity, primitiveIndex: number, material: Material): void
   /**
    * Gets the list of entities in the asset that have renderable components.
    */

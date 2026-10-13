@@ -84,3 +84,33 @@ You can also load assets from the web. This is useful if you want to load assets
 ```tsx
 <Model source={{ uri: "https://example.com/BusterDrone.glb" }}>
 ```
+
+## Assign a custom material to an asset
+
+Use `asset.setMaterialForPrimitive(entity, primitiveIndex, material)` to assign
+the default instance of a material created by the same engine to an asset's
+renderable primitive. The entity must belong to that asset and the zero-based
+primitive index must exist; invalid targets throw.
+
+```ts
+const entity = asset.getRenderableEntities()[0]
+const material = engine.createMaterial(materialBuffer)
+asset.setMaterialForPrimitive(entity, 0, material)
+material.release()
+```
+
+Run this with your other Filament mutations on the renderer worklet. The default
+instance is shared: changing its parameters affects every primitive using it.
+The asset retains native ownership even after `material.release()` releases the
+JavaScript wrapper. Retained materials are destroyed only after the native asset's
+renderables have been destroyed and other owners have released them. An asset
+also retains replaced materials until teardown, so avoid creating new materials
+on every frame or repeatedly replacing them on a long-lived asset.
+
+To check lifetime handling in a native example, assign a material to a loaded
+model, release its wrapper immediately, and keep rendering. Repeat with a second
+material, then unload the model. Both rendering and teardown should complete
+without a use-after-free or a Filament "material still in use" precondition
+failure. Repeat while assigning one material to two loaded assets, releasing the
+wrapper and then unloading the assets one at a time. The remaining asset should
+continue rendering until it is also unloaded.

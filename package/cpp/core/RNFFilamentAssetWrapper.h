@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RNFAABBWrapper.h"
+#include "RNFMaterialWrapper.h"
 #include "RNFNameComponentManagerWrapper.h"
 #include "core/utils/RNFEntityWrapper.h"
 #include "jsi/RNFPointerHolder.h"
@@ -17,7 +18,9 @@ using namespace filament;
 
 class FilamentAssetWrapper : public PointerHolder<gltfio::FilamentAsset> {
 public:
-  explicit FilamentAssetWrapper(std::shared_ptr<gltfio::FilamentAsset> asset) : PointerHolder("FilamentAssetWrapper", asset) {}
+  explicit FilamentAssetWrapper(std::shared_ptr<gltfio::FilamentAsset> asset, Engine* engine,
+                                std::shared_ptr<std::vector<std::shared_ptr<MaterialImpl>>> materials)
+      : PointerHolder("FilamentAssetWrapper", asset), _engine(engine), _materials(materials) {}
 
   void loadHybridMethods() override;
 
@@ -26,6 +29,7 @@ public:
   }
 
 private: // Public API functions:
+  void setMaterialForPrimitive(std::shared_ptr<EntityWrapper> entity, int primitiveIndex, std::shared_ptr<MaterialWrapper> material);
   std::shared_ptr<EntityWrapper> getRoot();
   void releaseSourceData();
   std::shared_ptr<AnimatorWrapper> createAnimator(std::shared_ptr<NameComponentManagerWrapper> nameComponentManagerWrapper);
@@ -53,6 +57,9 @@ private: // Public API functions:
   ;
 
 private: // Internal state:
+  // Access only while holding pointee(); the native asset deleter retains EngineImpl.
+  Engine* _engine;
+  std::shared_ptr<std::vector<std::shared_ptr<MaterialImpl>>> _materials;
   std::mutex _mutex;
 };
 
