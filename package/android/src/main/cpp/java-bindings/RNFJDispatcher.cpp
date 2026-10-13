@@ -22,8 +22,11 @@ void JDispatcher::registerNatives() {
 }
 
 void JDispatcher::scheduleTrigger() {
-  static const auto method = javaClassLocal()->getMethod<void()>("scheduleTrigger");
-  method(_javaPart);
+  // Resource deleters can dispatch from Hermes GC threads that are not attached to JNI.
+  jni::ThreadScope::WithClassLoader([&]() {
+    static const auto method = javaClassLocal()->getMethod<void()>("scheduleTrigger");
+    method(_javaPart);
+  });
 }
 
 void JDispatcher::trigger() {
