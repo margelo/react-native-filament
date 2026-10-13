@@ -94,9 +94,11 @@ primitive index must exist; invalid targets throw.
 
 ```ts
 const entity = asset.getRenderableEntities()[0]
-const material = engine.createMaterial(materialBuffer)
-asset.setMaterialForPrimitive(entity, 0, material)
-material.release()
+if (entity !== undefined) {
+  const material = engine.createMaterial(materialBuffer)
+  asset.setMaterialForPrimitive(entity, 0, material)
+  material.release()
+}
 ```
 
 Run this with your other Filament mutations on the renderer worklet. The default
