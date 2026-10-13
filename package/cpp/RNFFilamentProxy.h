@@ -89,6 +89,8 @@ private:
                                               std::optional<std::unordered_map<std::string, int>> arguments = std::nullopt);
   std::shared_ptr<BulletWrapper> createBullet();
   bool getHasWorklets();
+  /** Returns the material ABI compiled into this native binding. */
+  double getFilamentMaterialVersion();
   jsi::Value createChoreographerWrapper(jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* args, size_t count);
 
 #if HAS_WORKLETS

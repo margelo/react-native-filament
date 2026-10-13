@@ -3,6 +3,7 @@
 //
 
 #include "RNFFilamentProxy.h"
+#include <filament/MaterialEnums.h>
 #include <jsi/jsi.h>
 
 #include "RNFReferences.h"
@@ -22,6 +23,7 @@ using namespace facebook;
 
 void FilamentProxy::loadHybridMethods() {
   registerHybridMethod("loadAsset", &FilamentProxy::loadAssetAsync, this);
+  registerHybridMethod("getFilamentMaterialVersion", &FilamentProxy::getFilamentMaterialVersion, this);
   registerHybridMethod("findFilamentView", &FilamentProxy::findFilamentViewAsync, this);
   registerHybridMethod("createTestObject", &FilamentProxy::createTestObject, this);
   registerHybridMethod("createEngine", &FilamentProxy::createEngine, this);
@@ -33,6 +35,10 @@ void FilamentProxy::loadHybridMethods() {
 #if HAS_WORKLETS
   registerHybridMethod("createWorkletContext", &FilamentProxy::createWorkletContext, this);
 #endif
+}
+
+double FilamentProxy::getFilamentMaterialVersion() {
+  return static_cast<double>(filament::MATERIAL_VERSION);
 }
 
 bool FilamentProxy::getHasWorklets() {

@@ -26,6 +26,12 @@ interface TestHybridObject {
 
 export interface TFilamentProxy {
   /**
+   * Returns the material package version supported by the installed native Filament build.
+   * Use this to select compatible precompiled materials before calling `Engine.createMaterial`.
+   * This is Filament's material ABI, not its release version.
+   */
+  getFilamentMaterialVersion(): number
+  /**
    * Asynchronously loads the the given asset into a ByteBuffer.
    * @param path A web URL (http:// or https://), local file (file://) or resource ID. (Only resource ID supported for now)
    */
