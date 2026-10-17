@@ -1,0 +1,9 @@
+{
+  "version": "1.78.0",
+  "baseUrl": "https://github.com/google/filament/releases/download/v1.78.0",
+  "assets": {
+    "android": { "name": "filament-v1.78.0-android-native.tgz", "sha256": "fdaf3e8c08b3c99133135b168145426ef7f532459f4624d72497e059dc7967a0" },
+    "ios": { "name": "filament-v1.78.0-ios.tgz", "sha256": "a5476b14496401847854f9aa26a1c11e2e6b3d77a3834d1deedc762abf025242" },
+    "macTools": { "name": "filament-v1.78.0-mac.tgz", "sha256": "dc2fbc7681998842e85ccc211ed1292b15631a97731fa49ef07c2698870ce9c5" }
+  }
+}

@@ -12,9 +12,6 @@ const config = {
   resolver: {
     assetExts: [...defaultConfig.resolver.assetExts, 'glb', 'ktx', 'filamat'],
     nodeModulesPaths: [path.join(root, 'node_modules')],
-    extraNodeModules: {
-      'react-native-filament-test': path.join(root, 'packages', 'react-native-filament', 'src', 'test', 'RunTests'),
-    },
     // Shared assets are served from this app's `assets` symlink so their URLs stay under /assets/.
     resolveRequest: (context, moduleName, platform) => {
       const fileName = path.basename(moduleName)

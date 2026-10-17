@@ -12,9 +12,6 @@
       "email": "hanno@margelo.com"
     }
   ],
-  "scripts": {
-    "postinstall": "bunx patch-package"
-  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/margelo/react-native-filament/issues"

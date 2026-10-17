@@ -1,0 +1,121 @@
+import groovy.json.JsonSlurper
+
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
+import java.nio.file.FileAlreadyExistsException
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardCopyOption
+import java.security.MessageDigest
+import java.time.Duration
+import javax.inject.Inject
+
+abstract class PrepareFilamentTask extends DefaultTask {
+  @Input abstract Property<String> getArchiveUrl()
+  @Input abstract Property<String> getSha256()
+  @Input @Optional abstract Property<String> getLocalArchive()
+  @Internal abstract DirectoryProperty getEntryDir()
+
+  @Inject abstract ArchiveOperations getArchives()
+  @Inject abstract FileSystemOperations getFileSystem()
+
+  @TaskAction
+  void prepare() {
+    Path entry = entryDir.get().asFile.toPath()
+    Path dist = entry.resolve("dist")
+    if (Files.isDirectory(dist)) return
+
+    Files.createDirectories(entry)
+    Path archive = entry.resolve("archive.tgz")
+    if (!Files.isRegularFile(archive)) {
+      publish(fetchVerified(entry), archive)
+    }
+    Path extracted = extractValidated(entry, archive)
+    publish(extracted.resolve("filament"), dist)
+    extracted.toFile().deleteDir()
+  }
+
+  private Path fetchVerified(Path entry) {
+    Path part = Files.createTempFile(entry, "archive.", ".part")
+    try {
+      return verified(part)
+    } catch (Exception e) {
+      Files.deleteIfExists(part)
+      throw e
+    }
+  }
+
+  private Path verified(Path part) {
+    if (localArchive.present) {
+      Files.copy(Path.of(localArchive.get()), part, StandardCopyOption.REPLACE_EXISTING)
+    } else {
+      logger.lifecycle("[react-native-filament] Downloading ${archiveUrl.get()}")
+      def client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).connectTimeout(Duration.ofSeconds(30)).build()
+      def response = client.send(HttpRequest.newBuilder(URI.create(archiveUrl.get())).build(), HttpResponse.BodyHandlers.ofFile(part))
+      if (response.statusCode() != 200) {
+        throw new GradleException("[react-native-filament] Downloading ${archiveUrl.get()} failed with HTTP ${response.statusCode()}. Set RNF_filamentArchive to a local copy or RNF_filamentBaseUrl to a mirror.")
+      }
+    }
+    String actual = sha256Of(part)
+    if (actual != sha256.get()) {
+      throw new GradleException("[react-native-filament] ${localArchive.present ? localArchive.get() : archiveUrl.get()} has SHA-256 ${actual}, expected ${sha256.get()}. Set RNF_filamentArchive to a verified copy or RNF_filamentBaseUrl to a mirror.")
+    }
+    return part
+  }
+
+  private Path extractValidated(Path entry, Path archive) {
+    def tree = archives.tarTree(archives.gzip(archive.toFile()))
+    tree.visit { details ->
+      String[] segments = details.relativePath.segments
+      if (segments[0] != "filament" || segments.contains("..")) {
+        throw new GradleException("[react-native-filament] Unexpected entry '${details.relativePath.pathString}' in ${archive}")
+      }
+    }
+    Path tmp = Files.createTempDirectory(entry, "dist.")
+    fileSystem.copy {
+      from tree
+      into tmp.toFile()
+    }
+    return tmp
+  }
+
+  private static void publish(Path source, Path target) {
+    try {
+      Files.move(source, target, StandardCopyOption.ATOMIC_MOVE)
+    } catch (FileAlreadyExistsException ignored) {
+      source.toFile().deleteDir()
+    }
+  }
+
+  private static String sha256Of(Path file) {
+    def digest = MessageDigest.getInstance("SHA-256")
+    file.withInputStream { input ->
+      byte[] buffer = new byte[1 << 20]
+      int read
+      while ((read = input.read(buffer)) != -1) digest.update(buffer, 0, read)
+    }
+    return digest.digest().encodeHex().toString()
+  }
+}
+
+def filamentPin = new JsonSlurper().parse(file("${projectDir}/../filament.json"))
+def androidAsset = filamentPin.assets.android
+def baseUrl = rootProject.findProperty("RNF_filamentBaseUrl") ?: System.getenv("RNF_FILAMENT_BASE_URL") ?: filamentPin.baseUrl
+def localArchivePath = rootProject.findProperty("RNF_filamentArchive") ?: System.getenv("RNF_FILAMENT_ARCHIVE")
+def filamentEntryDir = new File(gradle.gradleUserHomeDir, "caches/react-native-filament/sha256-${androidAsset.sha256}")
+
+ext.filamentDistDir = new File(filamentEntryDir, "dist").absolutePath
+ext.filamentVersion = filamentPin.version
+
+def prepareFilament = tasks.register("prepareFilament", PrepareFilamentTask) {
+  archiveUrl = "${baseUrl}/${androidAsset.name}"
+  sha256 = androidAsset.sha256
+  if (localArchivePath != null) localArchive = rootProject.file(localArchivePath).absolutePath
+  entryDir = filamentEntryDir
+  outputs.upToDateWhen { false }
+}
+
+tasks.matching { it.name.startsWith("configureCMake") }.configureEach {
+  dependsOn prepareFilament
+}

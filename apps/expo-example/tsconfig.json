@@ -3,8 +3,7 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "react-native-filament": ["../../packages/react-native-filament/src/index"],
-      "react-native-filament-test": ["../../packages/react-native-filament/src/test/RunTests"],
+      "react-native-filament": ["../../packages/react-native-filament/src/index"]
     }
   }
 }

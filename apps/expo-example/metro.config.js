@@ -7,9 +7,6 @@ const config = getDefaultConfig(__dirname)
 const sharedAssetNames = new Set(fs.readdirSync(path.join(root, 'apps', 'shared', 'assets')))
 
 config.resolver.assetExts = [...config.resolver.assetExts, 'glb', 'ktx', 'filamat']
-config.resolver.extraNodeModules = {
-  'react-native-filament-test': path.join(root, 'packages', 'react-native-filament', 'src', 'test', 'RunTests'),
-}
 // Shared assets are served from this app's `assets` symlink so their URLs stay under /assets/.
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   const fileName = path.basename(moduleName)

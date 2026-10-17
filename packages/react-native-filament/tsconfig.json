@@ -1,9 +1,11 @@
 {
+  "include": [
+    "src"
+  ],
   "compilerOptions": {
-    "paths": {
-      "react-native-filament": ["./src/index"]
-    },
-    "declaration": true,
+    "composite": true,
+    "outDir": "lib",
+    "rootDir": "src",
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "esModuleInterop": true,
@@ -11,18 +13,17 @@
     "jsx": "react",
     "lib": ["esnext"],
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
+    "noEmit": false,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
-    "noImplicitUseStrict": false,
-    "noStrictGenericChecks": false,
     "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "esnext"
-  },
-  "exclude": ["node_modules", "lib"]
+    "target": "esnext",
+    "verbatimModuleSyntax": true
+  }
 }

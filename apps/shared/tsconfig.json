@@ -1,12 +1,21 @@
 {
-  "extends": "../../packages/react-native-filament/tsconfig",
+  "extends": "@react-native/typescript-config",
   "compilerOptions": {
     "paths": {
-      "react-native-filament": ["../../packages/react-native-filament/src/index"],
-      "react-native-filament-test": ["../../packages/react-native-filament/src/test/RunTests"],
-      "~/assets/*": ["../assets/*"]
-    }
+      "react-native-filament": [
+        "../../packages/react-native-filament/src/index"
+      ]
+    },
+    "types": [
+      "react-native"
+    ],
+    "lib": [
+      "es2023"
+    ],
+    "skipLibCheck": true,
+    "esModuleInterop": true
   },
-  "include": ["index.js", "src", "../../packages/react-native-filament/src/types/CustomFileExtensions.d.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "src"
+  ]
 }

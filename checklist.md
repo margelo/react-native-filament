@@ -71,9 +71,9 @@ Checked in review for every PR (§11.7, §12).
 Plan §10 Phase 0. The exit is a decision gate: every spike has a measured result and a recorded decision. No spike result is assumed in advance.
 
 **Setup**
-- [ ] **P0.0** Stacked branches `nitro/NN-topic` managed with `gh stack`, one atomic PR each. Cut a `v1` maintenance branch from `main` (§4.2, D16).
-- [ ] **P0.0b** Bun monorepo hoisted at the root: `packages/react-native-filament`, `apps/example`, `apps/expo-example`, `apps/shared`, `docs/`; no `node_modules` outside the root (D15).
-- [ ] **P0.1** One trivial harness test runs on the plugged-in phone and on the simulator (harness 1.6). If the phone cannot be driven, record that and run through `adb`-launched instrumentation instead.
+- [x] **P0.0** Stacked branches `nitro/NN-topic` managed with `gh stack`, one atomic PR each. Cut a `v1` maintenance branch from `main` (§4.2, D16).
+- [x] **P0.0b** Bun monorepo hoisted at the root: `packages/react-native-filament`, `apps/example`, `apps/expo-example`, `apps/shared`, `docs/`; no `node_modules` outside the root (D15).
+- [x] **P0.1** One trivial harness test runs on the plugged-in phone and on the simulator (harness 1.6). If the phone cannot be driven, record that and run through `adb`-launched instrumentation instead.
 - [ ] **P0.2** Capture the v1 baseline on both targets with the §11.5 protocol into `benchmarks/v1-baseline/`:
   - per-thread CPU, frame times, SurfaceFlinger present times and jank;
   - memory, time to first frame and model load time;
@@ -184,14 +184,14 @@ Plan §10 Phase 0. The exit is a decision gate: every spike has a measured resul
 Plan §10 Phase 1, §4.1, §4.2, Appendix A.
 
 **Binaries and tools**
-- [ ] **P1.1** Prebuilt binaries on both platforms, as built in spikes A and B. Overrides:
+- [x] **P1.1** Prebuilt binaries on both platforms, as built in spikes A and B. Overrides:
   - `RNF_filamentArchive` / `RNF_FILAMENT_IOS_ARCHIVE`;
   - `RNF_filamentBaseUrl` / `RNF_FILAMENT_BASE_URL`.
-- [ ] **P1.2** Error messages name the URL, the expected and actual hashes, and the override options.
+- [x] **P1.2** Error messages name the URL, the expected and actual hashes, and the override options.
 - [ ] **P1.3** `scripts/filament/tools.ts` fetches and verifies `filament-v1.78.0-mac.tgz` (`matc`, `cmgen`) with the same store rules.
 - [ ] **P1.4** `scripts/filament/compile-materials.ts` recompiles `examples/Shared/assets/*.mat` and the package materials with matc 1.78. CI fails on drift.
 - [ ] **P1.5** The default IBL KTX (`RNF_default_env_ibl.ktx`) is verified, and regenerated with `cmgen` if spike B found a problem.
-- [ ] **P1.6** CI caches both stores, keyed on `filament.json`.
+- [x] **P1.6** CI caches both stores, keyed on `filament.json`.
 - [ ] **P1.7** Bullet is compiled from a vendored, pruned source set (zlib license) by the package's CMake and podspec.
 - [ ] **P1.8** Build settings (§8.4):
   - C++20, release builds at `-O2`/`-O3`;
@@ -200,18 +200,18 @@ Plan §10 Phase 1, §4.1, §4.2, Appendix A.
 - [ ] **P1.9** Review the Filament 1.68 → 1.78 API changes (TAA overhaul, material version, deprecations) and write the notes down.
 
 **Nitro scaffolding**
-- [ ] **P1.10** Nitro wiring in `package/`:
+- [x] **P1.10** Nitro wiring in `package/`:
   - `nitro.json` and nitrogen 0.37.1;
   - podspec and CMake wiring, including `NitroFilament+autolinking.cmake`;
   - a Kotlin package that registers the HybridView manager.
-- [ ] **P1.11** Naming: C++ namespace `margelo::nitro::filament`, Kotlin package `com.margelo.nitro.filament`, and an iOS module name that matches the existing podspec.
-- [ ] **P1.12** Generated code is committed, with a CI drift check (§14.3).
+- [x] **P1.11** Naming: C++ namespace `margelo::nitro::filament`, Kotlin package `com.margelo.nitro.filament`, and an iOS module name that matches the existing podspec.
+- [x] **P1.12** Generated code is committed, with a CI drift check (§14.3).
 
 **Dependencies and lanes** (§3)
-- [ ] **P1.13** worklets-core is removed everywhere, including `patches/react-native-worklets-core+1.6.2.patch`. The babel plugin is `react-native-worklets/plugin`.
-- [ ] **P1.14** The CLI example is pinned to the §3 lane: RN 0.83.1, react 19.2.0, worklets 0.7.4, Reanimated 4.2.1, RNGH 2.30.0, Nitro 0.37.1, harness 1.6.0.
-- [ ] **P1.15** ExpoExample moves to SDK 55.0.31 with worklets 0.7.4.
-- [ ] **P1.16** Library peer ranges:
+- [x] **P1.13** worklets-core is removed everywhere, including `patches/react-native-worklets-core+1.6.2.patch`. The babel plugin is `react-native-worklets/plugin`.
+- [x] **P1.14** The CLI example is pinned to the §3 lane: RN 0.83.10, react 19.2.0, worklets 0.7.4, Reanimated 4.2.1, RNGH 2.30.0, Nitro 0.37.1, harness 1.6.0.
+- [x] **P1.15** ExpoExample moves to SDK 55.0.31 with worklets 0.7.4.
+- [x] **P1.16** Library peer ranges:
   - RN `>=0.83.0 <0.84.0`;
   - Nitro `>=0.37.1 <0.38.0`;
   - worklets `>=0.7.4 <0.8.0`;
@@ -220,7 +220,7 @@ Plan §10 Phase 1, §4.1, §4.2, Appendix A.
   - Skia and WebGPU are not peers.
 
 **CI**
-- [ ] **P1.17** CI baseline:
+- [x] **P1.17** CI baseline:
   - install, typecheck, lint, spec drift, clang-format, swift-format, ktlint, banned-pattern grep;
   - Android and iOS builds of both apps;
   - an installed-package build from the `npm pack` tarball.
@@ -725,14 +725,14 @@ Plan Appendix B. Tick a defect when its regression test exists and passes on bot
 
 Plan §4.2. Each item is removed only when its replacement's tests pass.
 
-- [ ] **R.1** `filament` and `bullet3` submodules.
-- [ ] **R.2** `package/scripts/build-filament.sh`, `setup-filament-quick.sh` and `build-bullet3.sh`.
-- [ ] **R.3** The three Filament patches and `patches/react-native-worklets-core+1.6.2.patch`.
-- [ ] **R.4** The copied private header `VirtualMachineEnv.h`.
-- [ ] **R.5** `codegenConfig`, the TurboModule installer, and the Paper code (`package/android/src/oldarch`, `RNFFilamentViewManager.mm`).
-- [ ] **R.6** `package/cpp/jsi/`, `package/cpp/threading/`, `RNFListener*`, `RNFManagedBuffer.h`, `RNFFilamentBuffer.h`, the platform dispatchers and the managed buffers.
-- [ ] **R.7** `package/cpp/test`.
-- [ ] **R.8** v1's Java `HandlerThread`, `Choreographer` and fbjni dispatcher files on Android.
+- [x] **R.1** `filament` and `bullet3` submodules.
+- [x] **R.2** `package/scripts/build-filament.sh`, `setup-filament-quick.sh` and `build-bullet3.sh`.
+- [x] **R.3** The three Filament patches and `patches/react-native-worklets-core+1.6.2.patch`.
+- [x] **R.4** The copied private header `VirtualMachineEnv.h`.
+- [x] **R.5** `codegenConfig`, the TurboModule installer, and the Paper code (`package/android/src/oldarch`, `RNFFilamentViewManager.mm`).
+- [x] **R.6** `package/cpp/jsi/`, `package/cpp/threading/`, `RNFListener*`, `RNFManagedBuffer.h`, `RNFFilamentBuffer.h`, the platform dispatchers and the managed buffers.
+- [x] **R.7** `package/cpp/test`.
+- [x] **R.8** v1's Java `HandlerThread`, `Choreographer` and fbjni dispatcher files on Android.
 
 ---
 

@@ -100,7 +100,7 @@ The migration keeps the React Native 0.83 line the CLI example already uses, so 
 
 | Package | CLI example (`examples/AppExampleFabric`) | Expo example (`examples/ExpoExample`) |
 |---|---|---|
-| react-native | 0.83.1 | 0.83.10 (Expo SDK 55.0.31) |
+| react-native | 0.83.10 | 0.83.10 (Expo SDK 55.0.31) |
 | react | 19.2.0 | as pinned by SDK 55 |
 | react-native-nitro-modules / nitrogen | 0.37.1 | 0.37.1 |
 | react-native-worklets | 0.7.4 (patch bump from today's 0.7.1, to match Expo and the WebGPU peer) | 0.7.4 |
@@ -115,7 +115,7 @@ The migration keeps the React Native 0.83 line the CLI example already uses, so 
 
 | Peer | Range | Validation lane | Why |
 |---|---|---|---|
-| react-native | `>=0.83.0 <0.84.0` | 0.83.1, 0.83.10 | New Architecture only. Nitro HybridViews need ≥ 0.78; iOS `onDropView()` needs ≥ 0.82. 0.82 and 0.84 are candidate bounds, not declared until a lane tests them. |
+| react-native | `>=0.83.0 <0.84.0` | 0.83.10 | New Architecture only. Nitro HybridViews need ≥ 0.78; iOS `onDropView()` needs ≥ 0.82. 0.82 and 0.84 are candidate bounds, not declared until a lane tests them. |
 | react-native-nitro-modules | `>=0.37.1 <0.38.0` | 0.37.1 | Generated code comes from nitrogen 0.37.1. |
 | react-native-worklets | `>=0.7.4 <0.8.0` | 0.7.4 | The C++ API used (`AsyncQueue`, `WorkletRuntime::runSync`/`schedule`, `extractWorkletRuntime`) is verified at 0.7.4. 0.5.1, today's Expo SDK 54 lane, lacks `customQueue` and `registerCustomSerializable`. |
 | react-native-reanimated (optional) | `>=4.2.1 <4.3.0` | 4.2.1 | Only `scheduleOnUI` and `SharedValue.addListener` on the UI runtime are used. |
@@ -1617,6 +1617,9 @@ Each has a recommended default that the plan assumes until the user says otherwi
 | D14 | 2026-10-18 | RNF enters the render runtime only through the runtime-lambda `runSync`. Filament callbacks run their owner work only on the render thread while the engine is `live`; after the queue closes they only release their payload, inline on the posting thread. | Codex FEEDBACK 5, F5 and F9, checked against Filament v1.78.0 `CallbackHandler.h`/`Driver.cpp` and worklets 0.7.4 `WorkletRuntime.h`. |
 | D15 | 2026-10-18 | Bun monorepo hoisted at the root, library in `packages/` created with `nitrogen init`, apps in `apps/`, docs in `docs/`. Supersedes the layout part of D5. | The user, 2026-10-18. |
 | D16 | 2026-10-18 | Atomic stacked PRs through `gh stack` in the private repository; each runtime change verified with screenshots on the iOS simulator and the physical Android phone; tests use react-native-harness. | The user, 2026-10-18. |
+| D17 | 2026-10-18 | Both example apps use React Native 0.83.10, Expo SDK 55's pin, because a hoisted install cannot hold two React Native versions without nesting. | Follows from D15. |
+| D18 | 2026-10-18 | The iOS example builds with React Native's prebuilt core and dependencies (`RCT_USE_PREBUILT_RNCORE`, `RCT_USE_RN_DEP`). With Xcode 27, RN 0.83's from-source glog cannot be built as a Clang module for Swift targets using C++ interop, which NitroModules needs. | Found while building the Nitro scaffold. |
+| D19 | 2026-10-18 | Harness suites live in `apps/example/harness/`; harness resolves test files from the app directory. | Found while setting up react-native-harness. |
 
 ---
 
