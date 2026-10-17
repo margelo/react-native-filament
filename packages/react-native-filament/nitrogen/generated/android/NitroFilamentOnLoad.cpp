@@ -15,7 +15,12 @@
 #include <fbjni/fbjni.h>
 #include <NitroModules/HybridObjectRegistry.hpp>
 
+#include "JHybridNativeSurfaceSpec.hpp"
+#include "JHybridFilamentViewSpec.hpp"
+#include "JFunc_void_std__shared_ptr_HybridNativeSurfaceSpec_.hpp"
+#include "views/JHybridFilamentViewStateUpdater.hpp"
 #include "HybridFilamentFactory.hpp"
+#include <NitroModules/DefaultConstructableObject.hpp>
 
 namespace margelo::nitro::filament {
 
@@ -25,14 +30,24 @@ int initialize(JavaVM* vm) {
   });
 }
 
-
+struct JHybridFilamentViewSpecImpl: public jni::JavaClass<JHybridFilamentViewSpecImpl, JHybridFilamentViewSpec::JavaPart> {
+  static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/filament/HybridFilamentView;";
+  static std::shared_ptr<JHybridFilamentViewSpec> create() {
+    static const auto constructorFn = javaClassStatic()->getConstructor<JHybridFilamentViewSpecImpl::javaobject()>();
+    jni::local_ref<JHybridFilamentViewSpec::JavaPart> javaPart = javaClassStatic()->newObject(constructorFn);
+    return javaPart->getJHybridFilamentViewSpec();
+  }
+};
 
 void registerAllNatives() {
   using namespace margelo::nitro;
   using namespace margelo::nitro::filament;
 
   // Register native JNI methods
-  
+  margelo::nitro::filament::JHybridNativeSurfaceSpec::CxxPart::registerNatives();
+  margelo::nitro::filament::JHybridFilamentViewSpec::CxxPart::registerNatives();
+  margelo::nitro::filament::JFunc_void_std__shared_ptr_HybridNativeSurfaceSpec__cxx::registerNatives();
+  margelo::nitro::filament::views::JHybridFilamentViewStateUpdater::registerNatives();
 
   // Register Nitro Hybrid Objects
   HybridObjectRegistry::registerHybridObjectConstructor(
@@ -42,6 +57,12 @@ void registerAllNatives() {
                     "The HybridObject \"HybridFilamentFactory\" is not default-constructible! "
                     "Create a public constructor that takes zero arguments to be able to autolink this HybridObject.");
       return std::make_shared<HybridFilamentFactory>();
+    }
+  );
+  HybridObjectRegistry::registerHybridObjectConstructor(
+    "FilamentView",
+    []() -> std::shared_ptr<HybridObject> {
+      return JHybridFilamentViewSpecImpl::create();
     }
   );
 }

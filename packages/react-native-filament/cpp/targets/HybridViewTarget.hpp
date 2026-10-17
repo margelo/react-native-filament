@@ -1,0 +1,34 @@
+#pragma once
+
+#include "HybridFilamentViewSpec.hpp"
+#include "HybridViewTargetSpec.hpp"
+#include "ViewTargetCore.hpp"
+
+#include <atomic>
+#include <memory>
+
+namespace margelo::nitro::filament {
+
+class HybridEngine;
+class EngineCore;
+
+class HybridViewTarget final : public HybridViewTargetSpec {
+public:
+  HybridViewTarget(std::shared_ptr<HybridEngine> engine, std::shared_ptr<ViewTargetCore> core,
+                   std::shared_ptr<HybridFilamentViewSpec> view);
+  ~HybridViewTarget() override;
+
+  double getWidth() override;
+  double getHeight() override;
+  void dispose() override;
+
+private:
+  static SurfaceObserver makeSurfaceObserver(std::weak_ptr<EngineCore> engine, std::weak_ptr<ViewTargetCore> target);
+
+  std::shared_ptr<HybridEngine> engine_;
+  std::shared_ptr<ViewTargetCore> core_;
+  std::shared_ptr<HybridFilamentViewSpec> view_;
+  std::atomic<bool> disposed_{false};
+};
+
+} // namespace margelo::nitro::filament

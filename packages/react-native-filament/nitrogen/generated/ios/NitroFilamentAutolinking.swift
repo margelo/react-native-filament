@@ -12,5 +12,15 @@ import NitroModules
 public final class NitroFilamentAutolinking {
   public typealias bridge = margelo.nitro.filament.bridge.swift
 
+  public static func createFilamentView() -> bridge.std__shared_ptr_HybridFilamentViewSpec_ {
+    let hybridObject = HybridFilamentView()
+    return { () -> bridge.std__shared_ptr_HybridFilamentViewSpec_ in
+      let __cxxWrapped = hybridObject.getCxxWrapper()
+      return __cxxWrapped.getCxxPart()
+    }()
+  }
   
+  public static func isFilamentViewRecyclable() -> Bool {
+    return HybridFilamentView.self is any RecyclableView.Type
+  }
 }

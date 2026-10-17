@@ -7,3 +7,4 @@ bullet3/
 node_modules/
 # react-native-harness cache
 .harness/
+*.tsbuildinfo

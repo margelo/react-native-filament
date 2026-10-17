@@ -18,6 +18,16 @@
         "language": "c++",
         "implementationClassName": "HybridFilamentFactory"
       }
+    },
+    "FilamentView": {
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "HybridFilamentView"
+      },
+      "android": {
+        "language": "kotlin",
+        "implementationClassName": "HybridFilamentView"
+      }
     }
   },
   "ignorePaths": [

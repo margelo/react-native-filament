@@ -1,0 +1,10 @@
+{
+  "uiViewClassName": "FilamentView",
+  "supportsRawText": false,
+  "bubblingEventTypes": {},
+  "directEventTypes": {},
+  "validAttributes": {
+    "transparent": true,
+    "hybridRef": true
+  }
+}

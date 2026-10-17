@@ -8,13 +8,28 @@
 #pragma once
 
 // Forward declarations of C++ defined types
-
+// Forward declaration of `HybridFilamentViewSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridFilamentViewSpec; }
+// Forward declaration of `HybridNativeSurfaceSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridNativeSurfaceSpec; }
+// Forward declaration of `SurfaceObserver` to properly resolve imports.
+namespace margelo::nitro::filament { struct SurfaceObserver; }
 
 // Forward declarations of Swift defined types
-
+// Forward declaration of `HybridFilamentViewSpec_cxx` to properly resolve imports.
+namespace NitroFilament { class HybridFilamentViewSpec_cxx; }
+// Forward declaration of `HybridNativeSurfaceSpec_cxx` to properly resolve imports.
+namespace NitroFilament { class HybridNativeSurfaceSpec_cxx; }
 
 // Include C++ defined types
-
+#include "HybridFilamentViewSpec.hpp"
+#include "HybridNativeSurfaceSpec.hpp"
+#include "SurfaceObserver.hpp"
+#include <NitroModules/Result.hpp>
+#include <exception>
+#include <functional>
+#include <memory>
+#include <optional>
 
 /**
  * Contains specialized versions of C++ templated types so they can be accessed from Swift,
@@ -22,6 +37,89 @@
  */
 namespace margelo::nitro::filament::bridge::swift {
 
+  // pragma MARK: std::shared_ptr<HybridNativeSurfaceSpec>
+  /**
+   * Specialized version of `std::shared_ptr<HybridNativeSurfaceSpec>`.
+   */
+  using std__shared_ptr_HybridNativeSurfaceSpec_ = std::shared_ptr<HybridNativeSurfaceSpec>;
+  std::shared_ptr<HybridNativeSurfaceSpec> create_std__shared_ptr_HybridNativeSurfaceSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
+  void* NON_NULL get_std__shared_ptr_HybridNativeSurfaceSpec_(std__shared_ptr_HybridNativeSurfaceSpec_ cppType);
   
+  // pragma MARK: std::weak_ptr<HybridNativeSurfaceSpec>
+  using std__weak_ptr_HybridNativeSurfaceSpec_ = std::weak_ptr<HybridNativeSurfaceSpec>;
+  inline std__weak_ptr_HybridNativeSurfaceSpec_ weakify_std__shared_ptr_HybridNativeSurfaceSpec_(const std::shared_ptr<HybridNativeSurfaceSpec>& strong) noexcept { return strong; }
+  
+  // pragma MARK: Result<void>
+  using Result_void_ = Result<void>;
+  inline Result_void_ create_Result_void_() noexcept {
+    return Result<void>::withValue();
+  }
+  inline Result_void_ create_Result_void_(const std::exception_ptr& error) noexcept {
+    return Result<void>::withError(error);
+  }
+  
+  // pragma MARK: std::optional<bool>
+  /**
+   * Specialized version of `std::optional<bool>`.
+   */
+  using std__optional_bool_ = std::optional<bool>;
+  inline std::optional<bool> create_std__optional_bool_(const bool& value) noexcept {
+    return std::optional<bool>(value);
+  }
+  inline bool has_value_std__optional_bool_(const std::optional<bool>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline bool get_std__optional_bool_(const std::optional<bool>& optional) noexcept {
+    return optional.value();
+  }
+  
+  // pragma MARK: std::function<void(const std::shared_ptr<HybridNativeSurfaceSpec>& /* surface */)>
+  /**
+   * Specialized version of `std::function<void(const std::shared_ptr<HybridNativeSurfaceSpec>&)>`.
+   */
+  using Func_void_std__shared_ptr_HybridNativeSurfaceSpec_ = std::function<void(const std::shared_ptr<HybridNativeSurfaceSpec>& /* surface */)>;
+  /**
+   * Wrapper class for a `std::function<void(const std::shared_ptr<HybridNativeSurfaceSpec>& / * surface * /)>`, this can be used from Swift.
+   */
+  class Func_void_std__shared_ptr_HybridNativeSurfaceSpec__Wrapper final {
+  public:
+    explicit Func_void_std__shared_ptr_HybridNativeSurfaceSpec__Wrapper(std::function<void(const std::shared_ptr<HybridNativeSurfaceSpec>& /* surface */)>&& func): _function(std::make_unique<std::function<void(const std::shared_ptr<HybridNativeSurfaceSpec>& /* surface */)>>(std::move(func))) {}
+    inline void call(std::shared_ptr<HybridNativeSurfaceSpec> surface) const noexcept {
+      _function->operator()(surface);
+    }
+  private:
+    std::unique_ptr<std::function<void(const std::shared_ptr<HybridNativeSurfaceSpec>& /* surface */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_std__shared_ptr_HybridNativeSurfaceSpec_ create_Func_void_std__shared_ptr_HybridNativeSurfaceSpec_(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_std__shared_ptr_HybridNativeSurfaceSpec__Wrapper wrap_Func_void_std__shared_ptr_HybridNativeSurfaceSpec_(Func_void_std__shared_ptr_HybridNativeSurfaceSpec_ value) noexcept {
+    return Func_void_std__shared_ptr_HybridNativeSurfaceSpec__Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::optional<SurfaceObserver>
+  /**
+   * Specialized version of `std::optional<SurfaceObserver>`.
+   */
+  using std__optional_SurfaceObserver_ = std::optional<SurfaceObserver>;
+  inline std::optional<SurfaceObserver> create_std__optional_SurfaceObserver_(const SurfaceObserver& value) noexcept {
+    return std::optional<SurfaceObserver>(value);
+  }
+  inline bool has_value_std__optional_SurfaceObserver_(const std::optional<SurfaceObserver>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline SurfaceObserver get_std__optional_SurfaceObserver_(const std::optional<SurfaceObserver>& optional) noexcept {
+    return optional.value();
+  }
+  
+  // pragma MARK: std::shared_ptr<HybridFilamentViewSpec>
+  /**
+   * Specialized version of `std::shared_ptr<HybridFilamentViewSpec>`.
+   */
+  using std__shared_ptr_HybridFilamentViewSpec_ = std::shared_ptr<HybridFilamentViewSpec>;
+  std::shared_ptr<HybridFilamentViewSpec> create_std__shared_ptr_HybridFilamentViewSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
+  void* NON_NULL get_std__shared_ptr_HybridFilamentViewSpec_(std__shared_ptr_HybridFilamentViewSpec_ cppType);
+  
+  // pragma MARK: std::weak_ptr<HybridFilamentViewSpec>
+  using std__weak_ptr_HybridFilamentViewSpec_ = std::weak_ptr<HybridFilamentViewSpec>;
+  inline std__weak_ptr_HybridFilamentViewSpec_ weakify_std__shared_ptr_HybridFilamentViewSpec_(const std::shared_ptr<HybridFilamentViewSpec>& strong) noexcept { return strong; }
 
 } // namespace margelo::nitro::filament::bridge::swift

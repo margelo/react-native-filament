@@ -34,8 +34,15 @@ target_sources(
   ../nitrogen/generated/android/NitroFilamentOnLoad.cpp
   # Shared Nitrogen C++ sources
   ../nitrogen/generated/shared/c++/HybridFilamentFactorySpec.cpp
+  ../nitrogen/generated/shared/c++/HybridEngineSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridNativeSurfaceSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridFilamentViewSpec.cpp
+  ../nitrogen/generated/shared/c++/views/HybridFilamentViewComponent.cpp
+  ../nitrogen/generated/shared/c++/HybridViewTargetSpec.cpp
   # Android-specific Nitrogen C++ sources
-  
+  ../nitrogen/generated/android/c++/JHybridNativeSurfaceSpec.cpp
+  ../nitrogen/generated/android/c++/JHybridFilamentViewSpec.cpp
+  ../nitrogen/generated/android/c++/views/JHybridFilamentViewStateUpdater.cpp
 )
 
 # From node_modules/react-native/ReactAndroid/cmake-utils/folly-flags.cmake

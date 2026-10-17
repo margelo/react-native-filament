@@ -15,10 +15,18 @@
 
 // Forward declaration of `EngineBackend` to properly resolve imports.
 namespace margelo::nitro::filament { enum class EngineBackend; }
+// Forward declaration of `HybridEngineSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridEngineSpec; }
+// Forward declaration of `EngineOptions` to properly resolve imports.
+namespace margelo::nitro::filament { struct EngineOptions; }
 
 #include <string>
 #include "EngineBackend.hpp"
 #include <vector>
+#include <memory>
+#include "HybridEngineSpec.hpp"
+#include <NitroModules/Promise.hpp>
+#include "EngineOptions.hpp"
 
 namespace margelo::nitro::filament {
 
@@ -52,7 +60,7 @@ namespace margelo::nitro::filament {
 
     public:
       // Methods
-      
+      virtual std::shared_ptr<Promise<std::shared_ptr<HybridEngineSpec>>> createEngine(const EngineOptions& options) = 0;
 
     protected:
       // Hybrid Setup

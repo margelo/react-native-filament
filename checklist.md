@@ -245,7 +245,7 @@ Plan §10 Phase 2. Reanimated and gestures are proven here, not after the full r
   - a thread that calls `ALooper_prepare`, with jobs delivered through an `eventfd` registered with `ALooper_addFd`;
   - `AChoreographer_postFrameCallback64` on API 29+ and `AChoreographer_postFrameCallback` on API 24–28;
   - measured against the Java `Choreographer` fallback.
-- [ ] **P2.3** Job queue:
+- [x] **P2.3** Job queue:
   - FIFO, with surface-teardown jobs at the front;
   - every job has a run path and a cancel path;
   - closed under its lock, after which pushes are refused.
@@ -321,16 +321,16 @@ Plan §10 Phase 2. Reanimated and gestures are proven here, not after the full r
   - iOS: a Swift `UIView` with a `CAMetalLayer`;
   - Android: a Kotlin `FrameLayout` hosting a `SurfaceView` (default) or a `TextureView` when `transparent` is set;
   - props `transparent` (default false) and `targetFrameRate`.
-- [ ] **P2.35** Internal `NativeSurface` lease:
+- [x] **P2.35** Internal `NativeSurface` lease:
   - one per OS surface, never reused;
   - Android takes the window with `ANativeWindow_fromSurface` and releases it with `ANativeWindow_release`; iOS holds the layer strongly;
   - the handle is read once, on the render thread.
-- [ ] **P2.36** `ViewTarget` state machine with lease-tagged attach and detach. Stale completions are dropped.
-- [ ] **P2.37** SurfaceView teardown:
+- [x] **P2.36** `ViewTarget` state machine with lease-tagged attach and detach. Stale completions are dropped.
+- [x] **P2.37** SurfaceView teardown:
   - the revoke flag is set first; the teardown job goes to the front;
   - destroy the SwapChain → `flushAndWait` → `lease.release()` → ack, while main waits;
   - never timeout-and-continue.
-- [ ] **P2.38** TextureView: `onSurfaceTextureDestroyed` returns false, and the lease is released asynchronously after destroy plus `flushAndWait`.
+- [x] **P2.38** TextureView: `onSurfaceTextureDestroyed` returns false, and the lease is released asynchronously after destroy plus `flushAndWait`.
 - [ ] **P2.39** iOS:
   - resize from `layoutSubviews` (bounds × scale) with no fence waits;
   - the display link pauses in the background;

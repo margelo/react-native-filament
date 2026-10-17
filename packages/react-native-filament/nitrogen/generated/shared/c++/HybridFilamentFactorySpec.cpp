@@ -16,6 +16,7 @@ namespace margelo::nitro::filament {
     registerHybrids(this, [](Prototype& prototype) {
       prototype.registerHybridGetter("filamentVersion", &HybridFilamentFactorySpec::getFilamentVersion);
       prototype.registerHybridGetter("supportedBackends", &HybridFilamentFactorySpec::getSupportedBackends);
+      prototype.registerHybridMethod("createEngine", &HybridFilamentFactorySpec::createEngine);
     });
   }
 

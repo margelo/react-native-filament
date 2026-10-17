@@ -8,10 +8,51 @@
 #include "NitroFilament-Swift-Cxx-Bridge.hpp"
 
 // Include C++ implementation defined types
-
+#include "HybridFilamentViewSpecSwift.hpp"
+#include "HybridNativeSurfaceSpecSwift.hpp"
+#include "NitroFilament-Swift-Cxx-Umbrella.hpp"
+#include <NitroModules/NitroDefines.hpp>
 
 namespace margelo::nitro::filament::bridge::swift {
 
+  // pragma MARK: std::shared_ptr<HybridNativeSurfaceSpec>
+  std::shared_ptr<HybridNativeSurfaceSpec> create_std__shared_ptr_HybridNativeSurfaceSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
+    NitroFilament::HybridNativeSurfaceSpec_cxx swiftPart = NitroFilament::HybridNativeSurfaceSpec_cxx::fromUnsafe(swiftUnsafePointer);
+    return std::make_shared<margelo::nitro::filament::HybridNativeSurfaceSpecSwift>(swiftPart);
+  }
+  void* NON_NULL get_std__shared_ptr_HybridNativeSurfaceSpec_(std__shared_ptr_HybridNativeSurfaceSpec_ cppType) {
+    std::shared_ptr<margelo::nitro::filament::HybridNativeSurfaceSpecSwift> swiftWrapper = std::dynamic_pointer_cast<margelo::nitro::filament::HybridNativeSurfaceSpecSwift>(cppType);
+    #ifdef NITRO_DEBUG
+    if (swiftWrapper == nullptr) [[unlikely]] {
+      throw std::runtime_error("Class \"HybridNativeSurfaceSpec\" is not implemented in Swift!");
+    }
+    #endif
+    NitroFilament::HybridNativeSurfaceSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
+    return swiftPart.toUnsafe();
+  }
   
+  // pragma MARK: std::function<void(const std::shared_ptr<HybridNativeSurfaceSpec>& /* surface */)>
+  Func_void_std__shared_ptr_HybridNativeSurfaceSpec_ create_Func_void_std__shared_ptr_HybridNativeSurfaceSpec_(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = NitroFilament::Func_void_std__shared_ptr_HybridNativeSurfaceSpec_::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](const std::shared_ptr<HybridNativeSurfaceSpec>& surface) mutable -> void {
+      swiftClosure.call(surface);
+    };
+  }
+  
+  // pragma MARK: std::shared_ptr<HybridFilamentViewSpec>
+  std::shared_ptr<HybridFilamentViewSpec> create_std__shared_ptr_HybridFilamentViewSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
+    NitroFilament::HybridFilamentViewSpec_cxx swiftPart = NitroFilament::HybridFilamentViewSpec_cxx::fromUnsafe(swiftUnsafePointer);
+    return std::make_shared<margelo::nitro::filament::HybridFilamentViewSpecSwift>(swiftPart);
+  }
+  void* NON_NULL get_std__shared_ptr_HybridFilamentViewSpec_(std__shared_ptr_HybridFilamentViewSpec_ cppType) {
+    std::shared_ptr<margelo::nitro::filament::HybridFilamentViewSpecSwift> swiftWrapper = std::dynamic_pointer_cast<margelo::nitro::filament::HybridFilamentViewSpecSwift>(cppType);
+    #ifdef NITRO_DEBUG
+    if (swiftWrapper == nullptr) [[unlikely]] {
+      throw std::runtime_error("Class \"HybridFilamentViewSpec\" is not implemented in Swift!");
+    }
+    #endif
+    NitroFilament::HybridFilamentViewSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
+    return swiftPart.toUnsafe();
+  }
 
 } // namespace margelo::nitro::filament::bridge::swift

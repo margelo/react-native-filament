@@ -16,7 +16,10 @@ include(${CMAKE_SOURCE_DIR}/cmake/FilamentLibraries.cmake)
 target_include_directories(${PACKAGE_NAME} PRIVATE
   "${CMAKE_SOURCE_DIR}/src/main/cpp"
   "${CMAKE_SOURCE_DIR}/../cpp"
+  "${CMAKE_SOURCE_DIR}/../cpp/engine"
 )
+target_compile_definitions(${PACKAGE_NAME} PRIVATE __ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__)
+target_compile_options(${PACKAGE_NAME} PRIVATE -Werror=unguarded-availability)
 
 find_library(LOG_LIB log)
 target_link_libraries(${PACKAGE_NAME} ${LOG_LIB} android)

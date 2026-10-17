@@ -7,10 +7,11 @@
 
 #import <Foundation/Foundation.h>
 #import <NitroModules/HybridObjectRegistry.hpp>
-
+#import "NitroFilament-Swift-Cxx-Umbrella.hpp"
 #import <type_traits>
 
 #include "HybridFilamentFactory.hpp"
+#include "HybridFilamentViewSpecSwift.hpp"
 
 @interface NitroFilamentAutolinking : NSObject
 @end
@@ -28,6 +29,13 @@
                     "The HybridObject \"HybridFilamentFactory\" is not default-constructible! "
                     "Create a public constructor that takes zero arguments to be able to autolink this HybridObject.");
       return std::make_shared<HybridFilamentFactory>();
+    }
+  );
+  HybridObjectRegistry::registerHybridObjectConstructor(
+    "FilamentView",
+    []() -> std::shared_ptr<HybridObject> {
+      std::shared_ptr<HybridFilamentViewSpec> hybridObject = NitroFilament::NitroFilamentAutolinking::createFilamentView();
+      return hybridObject;
     }
   );
 }
