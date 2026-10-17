@@ -22,8 +22,8 @@ namespace margelo::nitro::filament { class HybridModelInstanceSpec; }
 #include "Aabb.hpp"
 #include <memory>
 #include "HybridModelInstanceSpec.hpp"
-#include <optional>
 #include <string>
+#include <optional>
 
 namespace margelo::nitro::filament {
 
@@ -60,7 +60,10 @@ namespace margelo::nitro::filament {
     public:
       // Methods
       virtual std::shared_ptr<HybridModelInstanceSpec> getInstance(double index) = 0;
+      virtual std::shared_ptr<HybridModelInstanceSpec> createInstance() = 0;
+      virtual std::vector<std::string> getMorphTargetNames(double entity) = 0;
       virtual std::optional<double> getEntityByName(const std::string& name) = 0;
+      virtual std::optional<std::string> getEntityName(double entity) = 0;
 
     protected:
       // Hybrid Setup

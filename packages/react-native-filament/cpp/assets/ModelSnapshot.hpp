@@ -4,6 +4,7 @@
 #include "AnimationInfo.hpp"
 
 #include <gltfio/FilamentAsset.h>
+#include <gltfio/FilamentInstance.h>
 
 #include <optional>
 #include <string>
@@ -13,9 +14,13 @@
 namespace margelo::nitro::filament {
 
 struct ModelInstanceSnapshot {
+  static ModelInstanceSnapshot capture(::filament::gltfio::FilamentInstance& instance);
+
   double rootEntity;
   std::vector<double> entities;
   std::vector<AnimationInfo> animations;
+  std::vector<std::string> materialVariants;
+  size_t skinCount;
 };
 
 struct ModelSnapshot {
@@ -24,9 +29,7 @@ struct ModelSnapshot {
   std::optional<double> entityByName(const std::string& name) const;
 
   double rootEntity;
-  std::vector<double> entities;
   Aabb boundingBox;
-  std::vector<ModelInstanceSnapshot> instances;
   std::unordered_map<std::string, double> entitiesByName;
 };
 

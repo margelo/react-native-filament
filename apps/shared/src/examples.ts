@@ -3,8 +3,10 @@ import { CameraOrbitExample } from './CameraOrbitExample'
 import { ChangeMaterialsExample } from './ChangeMaterialsExample'
 import { ClearColorExample } from './ClearColorExample'
 import { FrameListenerExample } from './FrameListenerExample'
+import { InstancesExample } from './InstancesExample'
 import { LightsExample } from './LightsExample'
 import { ModelExample } from './ModelExample'
+import { MorphTargetsExample } from './MorphTargetsExample'
 import { ReanimatedRotateExample } from './ReanimatedRotateExample'
 import { SceneExample } from './SceneExample'
 
@@ -23,4 +25,6 @@ export const examples: Example[] = [
   { route: 'CameraOrbit', title: '🎥 Orbit gestures', component: CameraOrbitExample },
   { route: 'Lights', title: '💡 Lights and view options', component: LightsExample },
   { route: 'ChangeMaterials', title: '🎨 Change materials', component: ChangeMaterialsExample },
+  { route: 'MorphTargets', title: '😮 Morph targets', component: MorphTargetsExample },
+  { route: 'Instances', title: '👯 Instances and skeletons', component: InstancesExample },
 ]

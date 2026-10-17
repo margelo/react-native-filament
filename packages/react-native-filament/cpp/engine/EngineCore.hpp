@@ -29,6 +29,7 @@ namespace margelo::nitro::filament {
 class AnimationPlayerCore;
 class ManipulatorCore;
 class SceneCore;
+class SkeletonFollower;
 class TransformBindingCore;
 class ViewTargetCore;
 
@@ -57,6 +58,7 @@ public:
   void addAnimationPlayer(const std::shared_ptr<AnimationPlayerCore>& player);
   void addTransformBinding(const std::shared_ptr<TransformBindingCore>& binding);
   void addManipulator(const std::shared_ptr<ManipulatorCore>& manipulator);
+  void addSkeletonFollower(const std::shared_ptr<SkeletonFollower>& follower);
   Users<SceneCore>& scenes();
   MaterialAssignments& materialAssignments();
   void decodeTexture(const uint8_t* bytes, size_t size, bool srgb, TextureDecoder::Completion completion);
@@ -92,6 +94,7 @@ private:
   WeakRegistry<AnimationPlayerCore> players_;
   WeakRegistry<TransformBindingCore> transformBindings_;
   WeakRegistry<ManipulatorCore> manipulators_;
+  WeakRegistry<SkeletonFollower> skeletonFollowers_;
   Users<SceneCore> scenes_;
   std::vector<std::shared_ptr<ViewTargetCore>> targets_;
   FrameListeners frameListeners_;

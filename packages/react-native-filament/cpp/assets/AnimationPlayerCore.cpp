@@ -15,7 +15,7 @@ const std::shared_ptr<ModelCore>& AnimationPlayerCore::model() const {
 }
 
 size_t AnimationPlayerCore::animationCount() const {
-  return model_->snapshot().instances[instanceIndex_].animations.size();
+  return model_->instanceSnapshot(instanceIndex_)->animations.size();
 }
 
 void AnimationPlayerCore::send(AnimationCommand command) {

@@ -23,6 +23,9 @@ export interface RenderableManager extends HybridObject<{ ios: 'c++'; android: '
   setPriority(entity: Entity, priority: number): void
   /** Frustum culling of the entity. @default true */
   setCulling(entity: Entity, enabled: boolean): void
+  getMorphTargetCount(entity: Entity): number
+  /** Sets the weights of the morph targets starting at `offset`. */
+  setMorphWeights(entity: Entity, weights: number[], offset: number): void
   /**
    * The material instance of one primitive. For a model's entity it is the model's instance, usable
    * while the model is alive.

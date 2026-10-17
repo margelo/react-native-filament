@@ -19,6 +19,7 @@ namespace margelo::nitro::filament { struct Aabb; }
 namespace margelo::nitro::filament { class HybridMaterialInstanceSpec; }
 
 #include "Aabb.hpp"
+#include <vector>
 #include <memory>
 #include "HybridMaterialInstanceSpec.hpp"
 
@@ -63,6 +64,8 @@ namespace margelo::nitro::filament {
       virtual void scaleBoundingBox(double entity, double scale) = 0;
       virtual void setPriority(double entity, double priority) = 0;
       virtual void setCulling(double entity, bool enabled) = 0;
+      virtual double getMorphTargetCount(double entity) = 0;
+      virtual void setMorphWeights(double entity, const std::vector<double>& weights, double offset) = 0;
       virtual std::shared_ptr<HybridMaterialInstanceSpec> getMaterialInstanceAt(double entity, double primitiveIndex) = 0;
       virtual void setMaterialInstanceAt(double entity, double primitiveIndex, const std::shared_ptr<HybridMaterialInstanceSpec>& instance) = 0;
 

@@ -3,7 +3,6 @@
 #include "utils/EntityConversion.hpp"
 
 #include <gltfio/Animator.h>
-#include <gltfio/FilamentInstance.h>
 
 namespace margelo::nitro::filament {
 
@@ -27,12 +26,13 @@ namespace {
     return animations;
   }
 
-  ModelInstanceSnapshot captureInstance(::filament::gltfio::FilamentInstance& instance) {
-    return {
-        .rootEntity = fromEntity(instance.getRoot()),
-        .entities = toEntityIds(instance.getEntities(), instance.getEntityCount()),
-        .animations = captureAnimations(*instance.getAnimator()),
-    };
+  std::vector<std::string> captureVariants(const ::filament::gltfio::FilamentInstance& instance) {
+    std::vector<std::string> variants;
+    for (size_t i = 0; i < instance.getMaterialVariantCount(); i++) {
+      const char* name = instance.getMaterialVariantName(i);
+      variants.emplace_back(name == nullptr ? "" : name);
+    }
+    return variants;
   }
 
   Aabb toAabb(const ::filament::Aabb& box) {
@@ -43,15 +43,18 @@ namespace {
 
 } // namespace
 
-ModelSnapshot ModelSnapshot::capture(::filament::gltfio::FilamentAsset& asset) {
-  ModelSnapshot snapshot{
-      .rootEntity = fromEntity(asset.getRoot()),
-      .entities = toEntityIds(asset.getEntities(), asset.getEntityCount()),
-      .boundingBox = toAabb(asset.getBoundingBox()),
+ModelInstanceSnapshot ModelInstanceSnapshot::capture(::filament::gltfio::FilamentInstance& instance) {
+  return {
+      .rootEntity = fromEntity(instance.getRoot()),
+      .entities = toEntityIds(instance.getEntities(), instance.getEntityCount()),
+      .animations = captureAnimations(*instance.getAnimator()),
+      .materialVariants = captureVariants(instance),
+      .skinCount = instance.getSkinCount(),
   };
-  for (size_t i = 0; i < asset.getAssetInstanceCount(); i++) {
-    snapshot.instances.push_back(captureInstance(*asset.getAssetInstances()[i]));
-  }
+}
+
+ModelSnapshot ModelSnapshot::capture(::filament::gltfio::FilamentAsset& asset) {
+  ModelSnapshot snapshot{.rootEntity = fromEntity(asset.getRoot()), .boundingBox = toAabb(asset.getBoundingBox())};
   for (size_t i = 0; i < asset.getEntityCount(); i++) {
     if (const char* name = asset.getName(asset.getEntities()[i])) {
       snapshot.entitiesByName.try_emplace(name, fromEntity(asset.getEntities()[i]));

@@ -15,10 +15,15 @@
 
 // Forward declaration of `HybridAnimatorSpec` to properly resolve imports.
 namespace margelo::nitro::filament { class HybridAnimatorSpec; }
+// Forward declaration of `HybridModelInstanceSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridModelInstanceSpec; }
 
 #include <vector>
 #include <memory>
 #include "HybridAnimatorSpec.hpp"
+#include <string>
+#include "HybridModelInstanceSpec.hpp"
+#include <optional>
 
 namespace margelo::nitro::filament {
 
@@ -50,10 +55,16 @@ namespace margelo::nitro::filament {
       virtual double getRootEntity() = 0;
       virtual std::vector<double> getEntities() = 0;
       virtual std::shared_ptr<HybridAnimatorSpec> getAnimator() = 0;
+      virtual std::vector<std::string> getMaterialVariants() = 0;
+      virtual double getSkinCount() = 0;
 
     public:
       // Methods
-      
+      virtual void applyMaterialVariant(double index) = 0;
+      virtual void attachSkin(double skinIndex, double target) = 0;
+      virtual void detachSkin(double skinIndex, double target) = 0;
+      virtual void followSkeleton(const std::optional<std::shared_ptr<HybridModelInstanceSpec>>& source) = 0;
+      virtual void recomputeBoundingBoxes() = 0;
 
     protected:
       // Hybrid Setup

@@ -17,6 +17,13 @@ namespace margelo::nitro::filament {
       prototype.registerHybridGetter("rootEntity", &HybridModelInstanceSpec::getRootEntity);
       prototype.registerHybridGetter("entities", &HybridModelInstanceSpec::getEntities);
       prototype.registerHybridGetter("animator", &HybridModelInstanceSpec::getAnimator);
+      prototype.registerHybridGetter("materialVariants", &HybridModelInstanceSpec::getMaterialVariants);
+      prototype.registerHybridGetter("skinCount", &HybridModelInstanceSpec::getSkinCount);
+      prototype.registerHybridMethod("applyMaterialVariant", &HybridModelInstanceSpec::applyMaterialVariant);
+      prototype.registerHybridMethod("attachSkin", &HybridModelInstanceSpec::attachSkin);
+      prototype.registerHybridMethod("detachSkin", &HybridModelInstanceSpec::detachSkin);
+      prototype.registerHybridMethod("followSkeleton", &HybridModelInstanceSpec::followSkeleton);
+      prototype.registerHybridMethod("recomputeBoundingBoxes", &HybridModelInstanceSpec::recomputeBoundingBoxes);
     });
   }
 

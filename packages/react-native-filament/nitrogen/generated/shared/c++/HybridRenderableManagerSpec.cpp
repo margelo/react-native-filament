@@ -24,6 +24,8 @@ namespace margelo::nitro::filament {
       prototype.registerHybridMethod("scaleBoundingBox", &HybridRenderableManagerSpec::scaleBoundingBox);
       prototype.registerHybridMethod("setPriority", &HybridRenderableManagerSpec::setPriority);
       prototype.registerHybridMethod("setCulling", &HybridRenderableManagerSpec::setCulling);
+      prototype.registerHybridMethod("getMorphTargetCount", &HybridRenderableManagerSpec::getMorphTargetCount);
+      prototype.registerHybridMethod("setMorphWeights", &HybridRenderableManagerSpec::setMorphWeights);
       prototype.registerHybridMethod("getMaterialInstanceAt", &HybridRenderableManagerSpec::getMaterialInstanceAt);
       prototype.registerHybridMethod("setMaterialInstanceAt", &HybridRenderableManagerSpec::setMaterialInstanceAt);
     });

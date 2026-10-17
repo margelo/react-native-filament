@@ -4,6 +4,7 @@
 #include "ModelCore.hpp"
 
 #include <memory>
+#include <mutex>
 #include <vector>
 
 namespace margelo::nitro::filament {
@@ -19,15 +20,21 @@ public:
   Aabb getBoundingBox() override;
   double getInstanceCount() override;
   std::shared_ptr<HybridModelInstanceSpec> getInstance(double index) override;
+  std::shared_ptr<HybridModelInstanceSpec> createInstance() override;
+  std::vector<std::string> getMorphTargetNames(double entity) override;
   std::optional<double> getEntityByName(const std::string& name) override;
+  std::optional<std::string> getEntityName(double entity) override;
   void dispose() override;
 
   const std::shared_ptr<EngineCore>& engineCore() const;
   const std::shared_ptr<ModelCore>& core() const;
 
 private:
+  std::shared_ptr<HybridModelInstanceSpec> instanceAt(size_t index);
+
   std::shared_ptr<HybridEngine> engine_;
   std::shared_ptr<ModelCore> core_;
+  std::mutex instancesMutex_;
   std::vector<std::shared_ptr<HybridModelInstanceSpec>> instances_;
 };
 

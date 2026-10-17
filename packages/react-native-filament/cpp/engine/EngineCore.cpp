@@ -3,6 +3,7 @@
 #include "BackendConversion.hpp"
 #include "RenderRuntimeDispatcher.hpp"
 #include "assets/AnimationPlayerCore.hpp"
+#include "assets/SkeletonFollower.hpp"
 #include "control/ManipulatorCore.hpp"
 #include "control/TransformBindingCore.hpp"
 #include "targets/ViewTargetCore.hpp"
@@ -131,6 +132,10 @@ void EngineCore::addManipulator(const std::shared_ptr<ManipulatorCore>& manipula
   manipulators_.add(manipulator);
 }
 
+void EngineCore::addSkeletonFollower(const std::shared_ptr<SkeletonFollower>& follower) {
+  skeletonFollowers_.add(follower);
+}
+
 MaterialAssignments& EngineCore::materialAssignments() {
   return materialAssignments_;
 }
@@ -241,6 +246,7 @@ void EngineCore::renderFrame(int64_t frameTimeNanos) {
   }
   playersWantFrame_ = false;
   players_.forEachActive([&](AnimationPlayerCore& player) { playersWantFrame_ = player.advance(frame.deltaSeconds) || playersWantFrame_; });
+  skeletonFollowers_.forEachActive([&](SkeletonFollower& follower) { follower.apply(transforms); });
   for (const std::shared_ptr<ViewTargetCore>& target : targets_) {
     target->render(frameTimeNanos);
   }
@@ -268,6 +274,7 @@ void EngineCore::shutdownOnRenderThread() {
   players_.clear();
   transformBindings_.clear();
   manipulators_.clear();
+  skeletonFollowers_.clear();
   resources_->markDisposing();
   resources_->destroyTree();
   targets_.clear();

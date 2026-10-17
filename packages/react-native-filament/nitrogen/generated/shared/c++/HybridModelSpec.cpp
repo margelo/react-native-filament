@@ -19,7 +19,10 @@ namespace margelo::nitro::filament {
       prototype.registerHybridGetter("boundingBox", &HybridModelSpec::getBoundingBox);
       prototype.registerHybridGetter("instanceCount", &HybridModelSpec::getInstanceCount);
       prototype.registerHybridMethod("getInstance", &HybridModelSpec::getInstance);
+      prototype.registerHybridMethod("createInstance", &HybridModelSpec::createInstance);
+      prototype.registerHybridMethod("getMorphTargetNames", &HybridModelSpec::getMorphTargetNames);
       prototype.registerHybridMethod("getEntityByName", &HybridModelSpec::getEntityByName);
+      prototype.registerHybridMethod("getEntityName", &HybridModelSpec::getEntityName);
     });
   }
 

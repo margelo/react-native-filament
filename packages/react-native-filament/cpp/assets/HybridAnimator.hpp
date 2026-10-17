@@ -11,7 +11,8 @@ class HybridEngine;
 
 class HybridAnimator final : public HybridAnimatorSpec {
 public:
-  HybridAnimator(std::shared_ptr<HybridEngine> engine, std::shared_ptr<ModelCore> core, size_t instanceIndex);
+  HybridAnimator(std::shared_ptr<HybridEngine> engine, std::shared_ptr<ModelCore> core, size_t instanceIndex,
+                 std::shared_ptr<const ModelInstanceSnapshot> snapshot);
 
   std::vector<AnimationInfo> getAnimations() override;
   void applyAnimation(double animationIndex, double timeSeconds) override;
@@ -28,6 +29,7 @@ private:
   std::shared_ptr<HybridEngine> engine_;
   std::shared_ptr<ModelCore> core_;
   size_t instanceIndex_;
+  std::shared_ptr<const ModelInstanceSnapshot> snapshot_;
 };
 
 } // namespace margelo::nitro::filament

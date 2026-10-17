@@ -8,6 +8,10 @@
 #include "utils/MatrixConversion.hpp"
 #include "utils/ThreadChecks.hpp"
 
+#include <stdexcept>
+#include <string>
+#include <vector>
+
 namespace margelo::nitro::filament {
 
 HybridRenderableManager::HybridRenderableManager(std::shared_ptr<EngineCore> engine) : HybridObject(TAG), engine_(std::move(engine)) {}
@@ -65,6 +69,23 @@ void HybridRenderableManager::setPriority(double entity, double priority) {
 void HybridRenderableManager::setCulling(double entity, bool enabled) {
   auto [manager, instance] = renderable(entity, "RenderableManager.setCulling()");
   manager.setCulling(instance, enabled);
+}
+
+double HybridRenderableManager::getMorphTargetCount(double entity) {
+  auto [manager, instance] = renderable(entity, "RenderableManager.getMorphTargetCount()");
+  return static_cast<double>(manager.getMorphTargetCount(instance));
+}
+
+void HybridRenderableManager::setMorphWeights(double entity, const std::vector<double>& weights, double offset) {
+  auto [manager, instance] = renderable(entity, "RenderableManager.setMorphWeights()");
+  size_t count = manager.getMorphTargetCount(instance);
+  size_t start = requireIndex(offset, count, "RenderableManager.setMorphWeights()", "morph targets");
+  if (start + weights.size() > count) {
+    throw std::out_of_range("RenderableManager.setMorphWeights() received " + std::to_string(weights.size()) + " weights at offset " +
+                            std::to_string(start) + ", but there are " + std::to_string(count) + " morph targets.");
+  }
+  std::vector<float> values(weights.begin(), weights.end());
+  manager.setMorphWeights(instance, values.data(), values.size(), start);
 }
 
 std::shared_ptr<HybridMaterialInstanceSpec> HybridRenderableManager::getMaterialInstanceAt(double entity, double primitiveIndex) {
