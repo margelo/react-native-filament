@@ -17,6 +17,8 @@
 namespace margelo::nitro::filament { enum class EngineBackend; }
 // Forward declaration of `HybridRenderThreadSpec` to properly resolve imports.
 namespace margelo::nitro::filament { class HybridRenderThreadSpec; }
+// Forward declaration of `HybridTransformManagerSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridTransformManagerSpec; }
 // Forward declaration of `RenderMode` to properly resolve imports.
 namespace margelo::nitro::filament { enum class RenderMode; }
 // Forward declaration of `HybridViewTargetSpec` to properly resolve imports.
@@ -45,6 +47,10 @@ namespace margelo::nitro::filament { struct ModelLoadOptions; }
 namespace margelo::nitro::filament { class HybridIndirectLightSpec; }
 // Forward declaration of `IndirectLightOptions` to properly resolve imports.
 namespace margelo::nitro::filament { struct IndirectLightOptions; }
+// Forward declaration of `HybridTransformBindingSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridTransformBindingSpec; }
+// Forward declaration of `HybridValueBindingSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridValueBindingSpec; }
 // Forward declaration of `HybridFrameListenerSubscriptionSpec` to properly resolve imports.
 namespace margelo::nitro::filament { class HybridFrameListenerSubscriptionSpec; }
 // Forward declaration of `FrameInfo` to properly resolve imports.
@@ -53,6 +59,7 @@ namespace margelo::nitro::filament { struct FrameInfo; }
 #include "EngineBackend.hpp"
 #include <memory>
 #include "HybridRenderThreadSpec.hpp"
+#include "HybridTransformManagerSpec.hpp"
 #include "RenderMode.hpp"
 #include "HybridViewTargetSpec.hpp"
 #include <NitroModules/Promise.hpp>
@@ -71,6 +78,8 @@ namespace margelo::nitro::filament { struct FrameInfo; }
 #include "ModelLoadOptions.hpp"
 #include "HybridIndirectLightSpec.hpp"
 #include "IndirectLightOptions.hpp"
+#include "HybridTransformBindingSpec.hpp"
+#include "HybridValueBindingSpec.hpp"
 #include "HybridFrameListenerSubscriptionSpec.hpp"
 #include "FrameInfo.hpp"
 #include <functional>
@@ -104,6 +113,7 @@ namespace margelo::nitro::filament {
       // Properties
       virtual EngineBackend getBackend() = 0;
       virtual std::shared_ptr<HybridRenderThreadSpec> getRenderThread() = 0;
+      virtual std::shared_ptr<HybridTransformManagerSpec> getTransformManager() = 0;
       virtual RenderMode getRenderMode() = 0;
       virtual void setRenderMode(RenderMode renderMode) = 0;
 
@@ -116,6 +126,8 @@ namespace margelo::nitro::filament {
       virtual std::shared_ptr<HybridLightSpec> createDirectionalLight(const DirectionalLightOptions& options) = 0;
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridModelSpec>>> loadModel(const std::variant<std::shared_ptr<ArrayBuffer>, AssetUri>& source, const ModelLoadOptions& options) = 0;
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridIndirectLightSpec>>> loadIndirectLight(const std::variant<std::shared_ptr<ArrayBuffer>, AssetUri>& source, const IndirectLightOptions& options) = 0;
+      virtual std::shared_ptr<HybridTransformBindingSpec> createTransformBinding(double entity) = 0;
+      virtual std::shared_ptr<HybridValueBindingSpec> createValueBinding(double initialValue) = 0;
       virtual std::shared_ptr<HybridFrameListenerSubscriptionSpec> addOnFrameListener(const std::function<bool(const FrameInfo& /* frame */)>& listener) = 0;
       virtual void requestFrame() = 0;
       virtual std::shared_ptr<Promise<void>> shutdown() = 0;

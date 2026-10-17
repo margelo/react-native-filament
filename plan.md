@@ -1625,6 +1625,8 @@ Each has a recommended default that the plan assumes until the user says otherwi
 | D22 | 2026-10-18 | Each `loadModel` owns its gltfio `ResourceLoader` and texture providers until its upload finishes, so loads run concurrently. A pending load is vsync demand even before a view exists. The per-Engine `AssetLoader` and ubershader `MaterialProvider` are created on first use. | `ResourceLoader` tracks one asynchronous asset at a time (`gltfio/ResourceLoader.h`). |
 | D23 | 2026-10-18 | A Scene keeps the models, skybox and indirect light set on it alive. `addEntity` does not keep the entity's owner alive; disposing or collecting a `Light` removes its entity from every scene. | Found while writing the model example. |
 | D24 | 2026-10-18 | Promise rejections from Kotlin reach C++ as `facebook::jni::JniException`, which Nitro 0.37.1 reports as "Unknown … error" because the type does not match `std::exception` across libraries. RNF converts them to `std::runtime_error` with the Java message before rejecting. | Found while testing missing assets on Android. |
+| D25 | 2026-10-18 | `Mat4` is a 16-number column-major tuple in TransformManager methods; binding setters take primitive arguments because they are the per-frame path. Spike F.1 can still replace the tuple if measurements show a cost. | Decided before spike F, so the TransformManager could ship. |
+| D26 | 2026-10-18 | `bindSharedValue(value, apply)` accepts any `ListenableValue` (a Reanimated `SharedValue` fits structurally) and uses only `scheduleOnUI` from react-native-worklets, so Reanimated stays optional without a module proxy. | Replaces the lazy module proxy of 7.1 for bindings. |
 
 ---
 

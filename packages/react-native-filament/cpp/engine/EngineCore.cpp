@@ -119,6 +119,10 @@ void EngineCore::addAnimationPlayer(const std::shared_ptr<AnimationPlayerCore>& 
   players_.add(player);
 }
 
+void EngineCore::addTransformBinding(const std::shared_ptr<TransformBindingCore>& binding) {
+  transformBindings_.add(binding);
+}
+
 Users<SceneCore>& EngineCore::scenes() {
   return scenes_;
 }
@@ -201,6 +205,7 @@ void EngineCore::renderFrame(int64_t frameTimeNanos) {
   }
   frameRequested_ = false;
   FrameInfo frame = nextFrameInfo(frameTimeNanos);
+  transformBindings_.apply(engine_->getTransformManager());
   if (!frameListeners_.empty()) {
     if (std::shared_ptr<worklets::WorkletRuntime> runtime = this->runtime()) {
       listenersWantFrame_ = frameListeners_.dispatch(frame, *runtime);
@@ -231,6 +236,7 @@ void EngineCore::shutdownOnRenderThread() {
   }
   loads_.cancelAll();
   players_.clear();
+  transformBindings_.clear();
   resources_->markDisposing();
   resources_->destroyTree();
   targets_.clear();

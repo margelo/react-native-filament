@@ -15,6 +15,7 @@ public:
 
   EngineBackend getBackend() override;
   std::shared_ptr<HybridRenderThreadSpec> getRenderThread() override;
+  std::shared_ptr<HybridTransformManagerSpec> getTransformManager() override;
   RenderMode getRenderMode() override;
   void setRenderMode(RenderMode renderMode) override;
 
@@ -27,6 +28,8 @@ public:
   std::shared_ptr<Promise<std::shared_ptr<HybridModelSpec>>> loadModel(const AssetSource& source, const ModelLoadOptions& options) override;
   std::shared_ptr<Promise<std::shared_ptr<HybridIndirectLightSpec>>> loadIndirectLight(const AssetSource& source,
                                                                                        const IndirectLightOptions& options) override;
+  std::shared_ptr<HybridTransformBindingSpec> createTransformBinding(double entity) override;
+  std::shared_ptr<HybridValueBindingSpec> createValueBinding(double initialValue) override;
   std::shared_ptr<HybridFrameListenerSubscriptionSpec> addOnFrameListener(const std::function<bool(const FrameInfo&)>& listener) override;
   void requestFrame() override;
   std::shared_ptr<Promise<void>> shutdown() override;
@@ -41,6 +44,7 @@ private:
 
   std::shared_ptr<EngineCore> core_;
   std::shared_ptr<HybridRenderThreadSpec> renderThread_;
+  std::shared_ptr<HybridTransformManagerSpec> transformManager_;
 };
 
 } // namespace margelo::nitro::filament

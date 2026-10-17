@@ -38,6 +38,8 @@ target_sources(
   ../nitrogen/generated/shared/c++/HybridAnimatorSpec.cpp
   ../nitrogen/generated/shared/c++/HybridModelSpec.cpp
   ../nitrogen/generated/shared/c++/HybridModelInstanceSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridTransformBindingSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridValueBindingSpec.cpp
   ../nitrogen/generated/shared/c++/HybridEngineSpec.cpp
   ../nitrogen/generated/shared/c++/HybridFrameListenerSubscriptionSpec.cpp
   ../nitrogen/generated/shared/c++/HybridRenderThreadSpec.cpp
@@ -48,6 +50,7 @@ target_sources(
   ../nitrogen/generated/shared/c++/HybridLightSpec.cpp
   ../nitrogen/generated/shared/c++/HybridSceneSpec.cpp
   ../nitrogen/generated/shared/c++/HybridSkyboxSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridTransformManagerSpec.cpp
   ../nitrogen/generated/shared/c++/HybridFilamentViewSpec.cpp
   ../nitrogen/generated/shared/c++/views/HybridFilamentViewComponent.cpp
   ../nitrogen/generated/shared/c++/HybridViewTargetSpec.cpp

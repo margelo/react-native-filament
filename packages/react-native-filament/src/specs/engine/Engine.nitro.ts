@@ -1,5 +1,6 @@
 import type { HybridObject, Sync } from 'react-native-nitro-modules'
 import type { EngineBackend } from '../types/EngineBackend'
+import type { Entity } from '../types/Entity'
 import type { AssetSource } from '../types/AssetSource'
 import type { DirectionalLightOptions } from '../types/DirectionalLightOptions'
 import type { Float4 } from '../types/Float4'
@@ -16,6 +17,9 @@ import type { IndirectLight } from '../scene/IndirectLight.nitro'
 import type { Light } from '../scene/Light.nitro'
 import type { Scene } from '../scene/Scene.nitro'
 import type { Skybox } from '../scene/Skybox.nitro'
+import type { TransformManager } from '../scene/TransformManager.nitro'
+import type { TransformBinding } from '../control/TransformBinding.nitro'
+import type { ValueBinding } from '../control/ValueBinding.nitro'
 import type { FrameListenerSubscription } from './FrameListenerSubscription.nitro'
 import type { RenderThread } from './RenderThread.nitro'
 
@@ -24,6 +28,11 @@ export interface Engine extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   readonly backend: EngineBackend
   /** @thread any */
   readonly renderThread: RenderThread
+  /**
+   * The object is usable from any thread; its methods run on the render thread.
+   * @thread any
+   */
+  readonly transformManager: TransformManager
   /**
    * Cheap atomic store; wakes the render thread when demand changes.
    * @thread any
@@ -55,6 +64,14 @@ export interface Engine extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
    * @thread any
    */
   loadIndirectLight(source: AssetSource, options: IndirectLightOptions): Promise<IndirectLight>
+  /**
+   * Binds the local transform of `entity`, starting from its current value. Validates the entity
+   * here; the binding's setters work from any thread.
+   * @thread render
+   */
+  createTransformBinding(entity: Entity): TransformBinding
+  /** @thread any */
+  createValueBinding(initialValue: number): ValueBinding
   /**
    * Calls `listener` once per rendered frame, before native systems run and the targets render.
    * The listener returns whether it needs another frame: in `on-demand` mode the Engine keeps

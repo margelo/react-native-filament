@@ -16,6 +16,7 @@ namespace margelo::nitro::filament {
     registerHybrids(this, [](Prototype& prototype) {
       prototype.registerHybridGetter("backend", &HybridEngineSpec::getBackend);
       prototype.registerHybridGetter("renderThread", &HybridEngineSpec::getRenderThread);
+      prototype.registerHybridGetter("transformManager", &HybridEngineSpec::getTransformManager);
       prototype.registerHybridGetter("renderMode", &HybridEngineSpec::getRenderMode);
       prototype.registerHybridSetter("renderMode", &HybridEngineSpec::setRenderMode);
       prototype.registerHybridMethod("createViewTarget", &HybridEngineSpec::createViewTarget);
@@ -25,6 +26,8 @@ namespace margelo::nitro::filament {
       prototype.registerHybridMethod("createDirectionalLight", &HybridEngineSpec::createDirectionalLight);
       prototype.registerHybridMethod("loadModel", &HybridEngineSpec::loadModel);
       prototype.registerHybridMethod("loadIndirectLight", &HybridEngineSpec::loadIndirectLight);
+      prototype.registerHybridMethod("createTransformBinding", &HybridEngineSpec::createTransformBinding);
+      prototype.registerHybridMethod("createValueBinding", &HybridEngineSpec::createValueBinding);
       prototype.registerHybridMethod("addOnFrameListener", &HybridEngineSpec::addOnFrameListener);
       prototype.registerHybridMethod("requestFrame", &HybridEngineSpec::requestFrame);
       prototype.registerHybridMethod("shutdown", &HybridEngineSpec::shutdown);

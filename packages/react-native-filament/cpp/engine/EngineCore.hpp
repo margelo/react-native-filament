@@ -6,6 +6,7 @@
 #include "assets/AnimationPlayers.hpp"
 #include "assets/GltfLoader.hpp"
 #include "assets/ModelLoads.hpp"
+#include "control/TransformBindings.hpp"
 #include "resources/ResourceRoot.hpp"
 #include "resources/Users.hpp"
 #include "threading/RenderThread.hpp"
@@ -50,6 +51,7 @@ public:
   GltfLoader& gltf();
   void startModelLoad(::filament::gltfio::FilamentAsset* asset, ModelLoad::Completion completion);
   void addAnimationPlayer(const std::shared_ptr<AnimationPlayerCore>& player);
+  void addTransformBinding(const std::shared_ptr<TransformBindingCore>& binding);
   Users<SceneCore>& scenes();
 
   void addTarget(std::shared_ptr<ViewTargetCore> target);
@@ -79,6 +81,7 @@ private:
   std::unique_ptr<GltfLoader> gltf_;
   ModelLoads loads_;
   AnimationPlayers players_;
+  TransformBindings transformBindings_;
   Users<SceneCore> scenes_;
   std::vector<std::shared_ptr<ViewTargetCore>> targets_;
   FrameListeners frameListeners_;

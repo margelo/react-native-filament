@@ -3,12 +3,17 @@
 #include "HybridFrameListenerSubscription.hpp"
 #include "HybridRenderThread.hpp"
 #include "assets/HybridModel.hpp"
+#include "control/HybridTransformBinding.hpp"
+#include "control/HybridValueBinding.hpp"
 #include "scene/HybridCamera.hpp"
 #include "scene/HybridIndirectLight.hpp"
 #include "scene/HybridLight.hpp"
 #include "scene/HybridScene.hpp"
 #include "scene/HybridSkybox.hpp"
+#include "scene/HybridTransformManager.hpp"
 #include "utils/ThreadChecks.hpp"
+#include "utils/TransformChecks.hpp"
+#include "utils/Trs.hpp"
 
 #include "targets/HybridViewTarget.hpp"
 #include "targets/ViewTargetCore.hpp"
@@ -22,7 +27,8 @@
 namespace margelo::nitro::filament {
 
 HybridEngine::HybridEngine(std::shared_ptr<EngineCore> core)
-    : HybridObject(TAG), core_(std::move(core)), renderThread_(std::make_shared<HybridRenderThread>(core_)) {}
+    : HybridObject(TAG), core_(std::move(core)), renderThread_(std::make_shared<HybridRenderThread>(core_)),
+      transformManager_(std::make_shared<HybridTransformManager>(core_)) {}
 
 HybridEngine::~HybridEngine() {
   core_->shutdown();
@@ -34,6 +40,10 @@ EngineBackend HybridEngine::getBackend() {
 
 std::shared_ptr<HybridRenderThreadSpec> HybridEngine::getRenderThread() {
   return renderThread_;
+}
+
+std::shared_ptr<HybridTransformManagerSpec> HybridEngine::getTransformManager() {
+  return transformManager_;
 }
 
 RenderMode HybridEngine::getRenderMode() {
@@ -155,6 +165,19 @@ void HybridEngine::withAssetBytes(const AssetSource& source, const std::shared_p
     });
   });
   bytes->addOnRejectedListener([promise](const std::exception_ptr& error) { promise->reject(error); });
+}
+
+std::shared_ptr<HybridTransformBindingSpec> HybridEngine::createTransformBinding(double entity) {
+  requireRenderThread(core_->thread(), "Engine.createTransformBinding()");
+  ::filament::TransformManager& transforms = core_->engine().getTransformManager();
+  auto instance = requireTransform(transforms, entity, "Engine.createTransformBinding()");
+  auto binding = std::make_shared<TransformBindingCore>(toEntity(entity), Trs::decompose(transforms.getTransform(instance)));
+  core_->addTransformBinding(binding);
+  return std::make_shared<HybridTransformBinding>(core_, binding);
+}
+
+std::shared_ptr<HybridValueBindingSpec> HybridEngine::createValueBinding(double initialValue) {
+  return std::make_shared<HybridValueBinding>(core_, initialValue);
 }
 
 std::shared_ptr<HybridFrameListenerSubscriptionSpec>

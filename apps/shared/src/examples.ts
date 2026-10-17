@@ -2,6 +2,7 @@ import type { ComponentType } from 'react'
 import { ClearColorExample } from './ClearColorExample'
 import { FrameListenerExample } from './FrameListenerExample'
 import { ModelExample } from './ModelExample'
+import { ReanimatedRotateExample } from './ReanimatedRotateExample'
 import { SceneExample } from './SceneExample'
 
 export interface Example {
@@ -15,4 +16,5 @@ export const examples: Example[] = [
   { route: 'FrameListener', title: '🌈 Frame listener', component: FrameListenerExample },
   { route: 'Scene', title: '🌅 Scene and skybox', component: SceneExample },
   { route: 'Model', title: '🚁 Animated model', component: ModelExample },
+  { route: 'ReanimatedRotate', title: '🔄 Reanimated rotation', component: ReanimatedRotateExample },
 ]

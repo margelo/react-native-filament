@@ -342,10 +342,10 @@ Plan §10 Phase 2. Reanimated and gestures are proven here, not after the full r
   - `FilamentFactory` (`filamentVersion`, `supportedBackends`, `createEngine`);
   - a minimal `Engine`, `Scene`, `View` and `Camera`;
   - async `loadModel`, `Model`, `ModelInstance`, `Animator` and `AnimationPlayer`.
-- [ ] **P2.42** `TransformBinding` and `ValueBinding`:
+- [x] **P2.42** `TransformBinding` and `ValueBinding`:
   - `createTransformBinding` validates on the render thread;
   - `set*` works from any thread, through a mutex latest-value slot plus a dirty flag, and wakes the thread.
-- [ ] **P2.43** Reanimated binding helpers:
+- [x] **P2.43** Reanimated binding helpers:
   - `scheduleOnUI` plus `sv.addListener` on the UI runtime, removed on unmount;
   - Reanimated stays optional, loaded through a lazy module proxy.
 - [ ] **P2.44** `CameraManipulator` command queue per §7.2:
@@ -382,7 +382,7 @@ Plan §10 Phase 3, §5, §8.2.
 
 **Objects** (§5.4)
 - [ ] **P3.5** `View`: every option as a typed struct (AO, bloom, TAA with float `upscaling`, `varianceGamma` and `filterWidth`, dynamic resolution, dithering, anti-aliasing), plus `projectWorldToScreen`.
-- [ ] **P3.6** `TransformManager`.
+- [x] **P3.6** `TransformManager`.
 - [ ] **P3.7** `RenderableManager` and `Renderable`:
   - `setAxisAlignedBoundingBox` and `scaleBoundingBox`;
   - `recomputeBoundingBoxes` exposed with its documented limits;
