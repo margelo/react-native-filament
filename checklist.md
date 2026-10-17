@@ -392,7 +392,7 @@ Plan §10 Phase 3, §5, §8.2.
 - [ ] **P3.10** Material variants, `Material`, and `MaterialInstance` with `setTexture(name, texture, sampler)`.
 - [ ] **P3.11** `Texture`, `IndirectLight`, `Skybox` and background images.
 - [x] **P3.12** Clothing: `attachSkin(skinIndex, target)`, plus the name-mapped retarget, which commits the local-transform transaction first and then calls `setBones()`.
-- [ ] **P3.13** Picking and snapshots:
+- [x] **P3.13** Picking and snapshots:
   - picking in points with a top-left origin, per view; a tap gesture calls `viewTarget.pick(x, y)` and the result reaches React through `scheduleOnRN` (§7.2);
   - snapshots as a `Snapshot` HybridObject with lazy `toArrayBuffer()` and `saveToFile()`.
 - [x] **P3.14** `ViewTarget`: `setScene`, `setCamera`, `setClearOptions`, `width`/`height` from the current lease, and the resize and first-frame listeners (§5.5).

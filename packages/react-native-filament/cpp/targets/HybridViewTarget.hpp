@@ -22,6 +22,8 @@ public:
   double getHeight() override;
   std::shared_ptr<HybridViewSpec> getView() override;
   ListenerSubscription addOnFirstFrameListener(const std::function<void()>& listener) override;
+  std::shared_ptr<Promise<std::optional<PickResult>>> pick(double x, double y) override;
+  std::shared_ptr<Promise<std::shared_ptr<HybridSnapshotSpec>>> takeSnapshot() override;
   ListenerSubscription addOnResizeListener(const std::function<void(double width, double height)>& listener) override;
   void setScene(const std::shared_ptr<HybridSceneSpec>& scene) override;
   void setCamera(const std::shared_ptr<HybridCameraSpec>& camera) override;

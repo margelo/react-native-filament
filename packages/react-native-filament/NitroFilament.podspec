@@ -24,6 +24,7 @@ Pod::Spec.new do |s|
   s.resources = ["assets/*"]
   s.vendored_frameworks = filament[:frameworks]
   s.frameworks = ["Metal", "QuartzCore", "CoreVideo"]
+  s.libraries = ["z"]
   s.pod_target_xcconfig = {
     "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/#{filament[:include_dir]}\" \"$(PODS_TARGET_SRCROOT)/cpp\"",
     "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) RNF_FILAMENT_VERSION=\\\"#{filament[:version]}\\\"",

@@ -9,11 +9,11 @@
 
 
 
+#include <string>
 #include <NitroModules/ArrayBuffer.hpp>
 #include <NitroModules/Promise.hpp>
 #include <NitroModules/JPromise.hpp>
 #include <NitroModules/JArrayBuffer.hpp>
-#include <string>
 
 namespace margelo::nitro::filament {
 
@@ -45,7 +45,11 @@ namespace margelo::nitro::filament {
   }
 
   // Properties
-  
+  std::string JHybridAssetIOSpec::getTemporaryDirectory() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JString>()>("getTemporaryDirectory");
+    auto __result = method(_javaPart);
+    return __result->toStdString();
+  }
 
   // Methods
   std::shared_ptr<Promise<std::shared_ptr<ArrayBuffer>>> JHybridAssetIOSpec::read(const std::string& uri) {

@@ -121,7 +121,12 @@ open class HybridAssetIOSpec_cxx {
   }
 
   // Properties
-  
+  public final var temporaryDirectory: std.string {
+    @inline(__always)
+    get {
+      return std.string(self.__implementation.temporaryDirectory)
+    }
+  }
 
   // Methods
   @inline(__always)

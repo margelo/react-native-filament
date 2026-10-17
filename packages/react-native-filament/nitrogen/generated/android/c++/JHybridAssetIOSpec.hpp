@@ -50,7 +50,7 @@ namespace margelo::nitro::filament {
 
   public:
     // Properties
-    
+    std::string getTemporaryDirectory() override;
 
   public:
     // Methods

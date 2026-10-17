@@ -21,6 +21,10 @@ namespace margelo::nitro::filament { struct ListenerSubscription; }
 namespace margelo::nitro::filament { class HybridSceneSpec; }
 // Forward declaration of `HybridCameraSpec` to properly resolve imports.
 namespace margelo::nitro::filament { class HybridCameraSpec; }
+// Forward declaration of `PickResult` to properly resolve imports.
+namespace margelo::nitro::filament { struct PickResult; }
+// Forward declaration of `HybridSnapshotSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridSnapshotSpec; }
 // Forward declaration of `ClearOptions` to properly resolve imports.
 namespace margelo::nitro::filament { struct ClearOptions; }
 
@@ -30,6 +34,10 @@ namespace margelo::nitro::filament { struct ClearOptions; }
 #include <functional>
 #include "HybridSceneSpec.hpp"
 #include "HybridCameraSpec.hpp"
+#include "PickResult.hpp"
+#include <optional>
+#include <NitroModules/Promise.hpp>
+#include "HybridSnapshotSpec.hpp"
 #include "ClearOptions.hpp"
 
 namespace margelo::nitro::filament {
@@ -69,6 +77,8 @@ namespace margelo::nitro::filament {
       virtual void setScene(const std::shared_ptr<HybridSceneSpec>& scene) = 0;
       virtual void setCamera(const std::shared_ptr<HybridCameraSpec>& camera) = 0;
       virtual ListenerSubscription addOnFirstFrameListener(const std::function<void()>& listener) = 0;
+      virtual std::shared_ptr<Promise<std::optional<PickResult>>> pick(double x, double y) = 0;
+      virtual std::shared_ptr<Promise<std::shared_ptr<HybridSnapshotSpec>>> takeSnapshot() = 0;
       virtual void setClearOptions(const ClearOptions& options) = 0;
 
     protected:

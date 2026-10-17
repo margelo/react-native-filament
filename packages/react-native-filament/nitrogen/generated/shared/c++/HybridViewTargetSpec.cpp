@@ -21,6 +21,8 @@ namespace margelo::nitro::filament {
       prototype.registerHybridMethod("setScene", &HybridViewTargetSpec::setScene);
       prototype.registerHybridMethod("setCamera", &HybridViewTargetSpec::setCamera);
       prototype.registerHybridMethod("addOnFirstFrameListener", &HybridViewTargetSpec::addOnFirstFrameListener);
+      prototype.registerHybridMethod("pick", &HybridViewTargetSpec::pick);
+      prototype.registerHybridMethod("takeSnapshot", &HybridViewTargetSpec::takeSnapshot);
       prototype.registerHybridMethod("setClearOptions", &HybridViewTargetSpec::setClearOptions);
     });
   }

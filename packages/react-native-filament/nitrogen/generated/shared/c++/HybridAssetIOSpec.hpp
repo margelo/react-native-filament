@@ -15,9 +15,9 @@
 
 
 
+#include <string>
 #include <NitroModules/ArrayBuffer.hpp>
 #include <NitroModules/Promise.hpp>
-#include <string>
 
 namespace margelo::nitro::filament {
 
@@ -46,7 +46,7 @@ namespace margelo::nitro::filament {
 
     public:
       // Properties
-      
+      virtual std::string getTemporaryDirectory() = 0;
 
     public:
       // Methods

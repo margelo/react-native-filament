@@ -8,6 +8,7 @@
 #include "utils/ThreadChecks.hpp"
 
 #include <future>
+#include <stdexcept>
 
 namespace margelo::nitro::filament {
 
@@ -37,6 +38,46 @@ std::shared_ptr<HybridViewSpec> HybridViewTarget::getView() {
 ListenerSubscription HybridViewTarget::addOnFirstFrameListener(const std::function<void()>& listener) {
   core_->requireLive("ViewTarget.addOnFirstFrameListener()");
   return ListenerSubscription(core_->addFirstFrameListener(listener));
+}
+
+std::shared_ptr<Promise<std::optional<PickResult>>> HybridViewTarget::pick(double x, double y) {
+  core_->requireLive("ViewTarget.pick()");
+  auto promise = Promise<std::optional<PickResult>>::create();
+  const std::shared_ptr<EngineCore>& engine = engine_->core();
+  engine->thread().post({
+      .run =
+          [engine, core = core_, promise, x, y] {
+            if (!core->isLive()) {
+              promise->reject(std::make_exception_ptr(
+                  std::runtime_error("FilamentDisposedError: ViewTarget.pick() was called on a disposed ViewTarget.")));
+              return;
+            }
+            core->pick(x, y, promise);
+            engine->requestFrame();
+          },
+      .cancel = [promise] { promise->reject(std::make_exception_ptr(std::runtime_error("The Engine was shut down."))); },
+  });
+  return promise;
+}
+
+std::shared_ptr<Promise<std::shared_ptr<HybridSnapshotSpec>>> HybridViewTarget::takeSnapshot() {
+  core_->requireLive("ViewTarget.takeSnapshot()");
+  auto promise = Promise<std::shared_ptr<HybridSnapshotSpec>>::create();
+  const std::shared_ptr<EngineCore>& engine = engine_->core();
+  engine->thread().post({
+      .run =
+          [engine, core = core_, promise] {
+            if (!core->isLive()) {
+              promise->reject(std::make_exception_ptr(
+                  std::runtime_error("FilamentDisposedError: ViewTarget.takeSnapshot() was called on a disposed ViewTarget.")));
+              return;
+            }
+            core->takeSnapshot(promise);
+            engine->requestFrame();
+          },
+      .cancel = [promise] { promise->reject(std::make_exception_ptr(std::runtime_error("The Engine was shut down."))); },
+  });
+  return promise;
 }
 
 ListenerSubscription HybridViewTarget::addOnResizeListener(const std::function<void(double width, double height)>& listener) {

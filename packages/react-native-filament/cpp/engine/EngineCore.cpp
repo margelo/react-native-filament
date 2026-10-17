@@ -18,6 +18,7 @@ namespace margelo::nitro::filament {
 std::shared_ptr<EngineCore> EngineCore::create(EngineBackend backend, StartedHandler onStarted) {
   std::shared_ptr<EngineCore> core(new EngineCore(backend));
   core->thread_ = std::make_unique<RenderThread>([raw = core.get()](int64_t frameTimeNanos) { raw->renderFrame(frameTimeNanos); });
+  core->callbacks_ = std::make_unique<RenderThreadCallbackHandler>(*core->thread_);
   core->thread_->post({
       .run =
           [core, onStarted] {
@@ -46,6 +47,10 @@ EngineBackend EngineCore::backend() const {
 
 RenderThread& EngineCore::thread() {
   return *thread_;
+}
+
+RenderThreadCallbackHandler& EngineCore::callbacks() {
+  return *callbacks_;
 }
 
 ::filament::Engine& EngineCore::engine() {

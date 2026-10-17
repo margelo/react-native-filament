@@ -3,6 +3,7 @@
 #include "EngineBackend.hpp"
 #include "FrameListeners.hpp"
 #include "RenderMode.hpp"
+#include "RenderThreadCallbackHandler.hpp"
 #include "assets/GltfLoader.hpp"
 #include "assets/ModelLoads.hpp"
 #include "materials/MaterialAssignments.hpp"
@@ -41,6 +42,7 @@ public:
 
   EngineBackend backend() const;
   RenderThread& thread();
+  RenderThreadCallbackHandler& callbacks();
   ::filament::Engine& engine();
   bool isLive() const;
 
@@ -85,6 +87,7 @@ private:
 
   const EngineBackend backend_;
   std::unique_ptr<RenderThread> thread_;
+  std::unique_ptr<RenderThreadCallbackHandler> callbacks_;
   ::filament::Engine* engine_ = nullptr;
   std::shared_ptr<ResourceRoot> resources_ = std::make_shared<ResourceRoot>();
   std::unique_ptr<GltfLoader> gltf_;

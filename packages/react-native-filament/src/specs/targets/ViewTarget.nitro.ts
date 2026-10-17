@@ -1,9 +1,11 @@
 import type { HybridObject } from 'react-native-nitro-modules'
 import type { ClearOptions } from '../types/ClearOptions'
 import type { ListenerSubscription } from '../types/ListenerSubscription'
+import type { PickResult } from '../types/PickResult'
 import type { Camera } from '../scene/Camera.nitro'
 import type { Scene } from '../scene/Scene.nitro'
 import type { View } from '../scene/View.nitro'
+import type { Snapshot } from './Snapshot.nitro'
 
 export interface ViewTarget extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   /**
@@ -40,6 +42,18 @@ export interface ViewTarget extends HybridObject<{ ios: 'c++'; android: 'c++' }>
    * @thread any
    */
   addOnFirstFrameListener(listener: () => void): ListenerSubscription
+  /**
+   * The renderable under a point, in points from the top-left corner of the view, or `undefined`
+   * if there is none. Resolves after the next rendered frame; rejects with `FilamentDisposedError`
+   * if the target is disposed first.
+   * @thread any
+   */
+  pick(x: number, y: number): Promise<PickResult | undefined>
+  /**
+   * Captures the next rendered frame.
+   * @thread any
+   */
+  takeSnapshot(): Promise<Snapshot>
   /**
    * How the target is cleared before each frame.
    * @thread render

@@ -60,6 +60,7 @@ target_sources(
   ../nitrogen/generated/shared/c++/HybridViewSpec.cpp
   ../nitrogen/generated/shared/c++/HybridFilamentViewSpec.cpp
   ../nitrogen/generated/shared/c++/views/HybridFilamentViewComponent.cpp
+  ../nitrogen/generated/shared/c++/HybridSnapshotSpec.cpp
   ../nitrogen/generated/shared/c++/HybridViewTargetSpec.cpp
   # Android-specific Nitrogen C++ sources
   ../nitrogen/generated/android/c++/JHybridAssetIOSpec.cpp

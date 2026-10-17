@@ -7,6 +7,7 @@ import { InstancesExample } from './InstancesExample'
 import { LightsExample } from './LightsExample'
 import { ModelExample } from './ModelExample'
 import { MorphTargetsExample } from './MorphTargetsExample'
+import { PickingExample } from './PickingExample'
 import { ReanimatedRotateExample } from './ReanimatedRotateExample'
 import { SceneExample } from './SceneExample'
 
@@ -27,4 +28,5 @@ export const examples: Example[] = [
   { route: 'ChangeMaterials', title: '🎨 Change materials', component: ChangeMaterialsExample },
   { route: 'MorphTargets', title: '😮 Morph targets', component: MorphTargetsExample },
   { route: 'Instances', title: '👯 Instances and skeletons', component: InstancesExample },
+  { route: 'Picking', title: '👆 Picking and snapshots', component: PickingExample },
 ]

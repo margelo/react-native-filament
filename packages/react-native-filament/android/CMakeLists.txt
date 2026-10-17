@@ -26,5 +26,5 @@ target_compile_options(${PACKAGE_NAME} PRIVATE -Werror=unguarded-availability)
 find_package(react-native-worklets REQUIRED CONFIG)
 
 find_library(LOG_LIB log)
-target_link_libraries(${PACKAGE_NAME} ${LOG_LIB} android react-native-worklets::worklets)
+target_link_libraries(${PACKAGE_NAME} ${LOG_LIB} android z react-native-worklets::worklets)
 target_link_options(${PACKAGE_NAME} PRIVATE "-Wl,--no-undefined" "-Wl,--gc-sections")

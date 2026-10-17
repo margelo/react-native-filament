@@ -1,6 +1,8 @@
 #pragma once
 
 #include "HybridNativeSurfaceSpec.hpp"
+#include "HybridSnapshotSpec.hpp"
+#include "PickResult.hpp"
 #include "resources/Resource.hpp"
 #include "utils/ListenerRegistry.hpp"
 #include "utils/OnceEvent.hpp"
@@ -13,9 +15,16 @@
 #include <filament/View.h>
 #include <utils/Entity.h>
 
+#include <NitroModules/Promise.hpp>
+#include <backend/CallbackHandler.h>
+
 #include <array>
 #include <atomic>
+#include <cstdint>
 #include <memory>
+#include <optional>
+#include <unordered_map>
+#include <vector>
 
 namespace margelo::nitro::filament {
 
@@ -30,7 +39,10 @@ public:
     bool discard;
   };
 
-  ViewTargetCore(::filament::Engine& engine, ClearSettings clear);
+  using PickPromise = Promise<std::optional<PickResult>>;
+  using SnapshotPromise = Promise<std::shared_ptr<HybridSnapshotSpec>>;
+
+  ViewTargetCore(::filament::Engine& engine, ::filament::backend::CallbackHandler& callbacks, ClearSettings clear);
 
   void attach(const std::shared_ptr<HybridNativeSurfaceSpec>& surface);
   void resize(const std::shared_ptr<HybridNativeSurfaceSpec>& surface);
@@ -49,15 +61,22 @@ public:
   double height() const;
   std::function<void()> addResizeListener(std::function<void(double width, double height)> listener);
   std::function<void()> addFirstFrameListener(std::function<void()> listener);
+  void pick(double x, double y, std::shared_ptr<PickPromise> promise);
+  void completePick(uint64_t id, const ::filament::View::PickingQueryResult& result);
+  void takeSnapshot(std::shared_ptr<SnapshotPromise> promise);
+  void completeSnapshot(uint64_t id, std::vector<uint8_t>&& pixels, uint32_t width, uint32_t height);
 
 protected:
   void destroyNative() override;
 
 private:
   void destroySwapChain();
+  void readRequestedSnapshots();
+  void rejectPendingQueries();
   void updateViewport(const std::shared_ptr<HybridNativeSurfaceSpec>& surface);
 
   ::filament::Engine& engine_;
+  ::filament::backend::CallbackHandler& callbacks_;
   ::filament::Renderer* renderer_;
   ::filament::Scene* emptyScene_;
   ::filament::View* view_;
@@ -72,6 +91,10 @@ private:
   double contentScale_ = 1;
   ListenerRegistry<double, double> resizeListeners_;
   OnceEvent firstFrame_;
+  uint64_t nextQueryId_ = 1;
+  std::unordered_map<uint64_t, std::shared_ptr<PickPromise>> pendingPicks_;
+  std::unordered_map<uint64_t, std::shared_ptr<SnapshotPromise>> pendingSnapshots_;
+  std::vector<uint64_t> requestedSnapshots_;
 };
 
 } // namespace margelo::nitro::filament

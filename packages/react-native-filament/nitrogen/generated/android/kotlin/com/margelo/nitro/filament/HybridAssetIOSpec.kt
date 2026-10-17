@@ -28,7 +28,9 @@ import com.margelo.nitro.core.HybridObject
 )
 abstract class HybridAssetIOSpec: HybridObject() {
   // Properties
-  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val temporaryDirectory: String
 
   // Methods
   @DoNotStrip

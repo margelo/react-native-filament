@@ -21,6 +21,10 @@ namespace {
 
 } // namespace
 
+std::string temporaryDirectory() {
+  return createAssetIO()->getTemporaryDirectory();
+}
+
 std::shared_ptr<Promise<std::shared_ptr<ArrayBuffer>>> readAssetBytes(const AssetSource& source) {
   if (const auto* buffer = std::get_if<std::shared_ptr<ArrayBuffer>>(&source)) {
     if ((*buffer)->size() == 0) {

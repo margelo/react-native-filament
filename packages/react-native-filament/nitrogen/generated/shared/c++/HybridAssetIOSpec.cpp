@@ -14,6 +14,7 @@ namespace margelo::nitro::filament {
     HybridObject::loadHybridMethods();
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
+      prototype.registerHybridGetter("temporaryDirectory", &HybridAssetIOSpec::getTemporaryDirectory);
       prototype.registerHybridMethod("read", &HybridAssetIOSpec::read);
     });
   }

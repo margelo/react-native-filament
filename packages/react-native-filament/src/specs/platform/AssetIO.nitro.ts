@@ -6,4 +6,6 @@ import type { HybridObject } from 'react-native-nitro-modules'
  */
 export interface AssetIO extends HybridObject<{ ios: 'swift'; android: 'kotlin' }> {
   read(uri: string): Promise<ArrayBuffer>
+  /** Absolute path of a directory the app can write temporary files to. */
+  readonly temporaryDirectory: string
 }

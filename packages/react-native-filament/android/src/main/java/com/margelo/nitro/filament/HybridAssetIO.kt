@@ -12,6 +12,9 @@ import kotlinx.coroutines.SupervisorJob
 @Keep
 @DoNotStrip
 class HybridAssetIO : HybridAssetIOSpec() {
+  override val temporaryDirectory: String
+    get() = (NitroModules.applicationContext ?: throw IllegalStateException("React Native has not started yet.")).cacheDir.absolutePath
+
   override fun read(uri: String): Promise<ArrayBuffer> = Promise.async(scope) {
     val context = NitroModules.applicationContext ?: throw IllegalStateException("React Native has not started yet.")
     ArrayBuffer.wrap(AssetLocation.parse(uri).map(context))

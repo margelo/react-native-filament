@@ -10,7 +10,7 @@ import NitroModules
 /// See ``HybridAssetIOSpec``
 public protocol HybridAssetIOSpec_protocol: HybridObject {
   // Properties
-  
+  var temporaryDirectory: String { get }
 
   // Methods
   func read(uri: String) throws -> Promise<ArrayBuffer>
