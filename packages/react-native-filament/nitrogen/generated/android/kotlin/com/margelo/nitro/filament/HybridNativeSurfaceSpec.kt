@@ -45,6 +45,10 @@ abstract class HybridNativeSurfaceSpec: HybridObject() {
   
   @get:DoNotStrip
   @get:Keep
+  abstract val contentScale: Double
+  
+  @get:DoNotStrip
+  @get:Keep
   abstract val transparent: Boolean
   
   @get:DoNotStrip

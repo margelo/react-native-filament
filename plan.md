@@ -1582,6 +1582,7 @@ Where a port changes how an example is built (rows 9, 12 and 14), the visible be
 | Filament 1.68 → 1.78 behaviour changes (TAA overhaul, material version) | Visual differences | Recompile materials; golden images; release notes |
 | Testing covers one Android phone (one GPU vendor) and the iOS simulator only | Bugs specific to other GPUs, real iPhones, ProMotion or thermals can slip through | Record the phone's details in every report; run both Filament backends; gate iOS performance only relatively; document the tested configuration in the release notes |
 | A scene-specific performance regression | Misses the main goal | v1 baseline plus noise-aware per-example gates |
+| Intermittent startup crash in React Native's `MountingCoordinator::pullTransaction` through Reanimated 4.2.1's mounting override (seen twice on the phone, before any Filament view mounts) | Example app crashes at launch in development | Upstream; Reanimated 4.7.0 serializes config updates with `pullTransaction`. Re-test when the Expo SDK pin allows a newer Reanimated (D17). |
 
 ---
 

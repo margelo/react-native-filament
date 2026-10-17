@@ -1,8 +1,9 @@
 import type { HybridObject } from 'react-native-nitro-modules'
-import type { Float4 } from '../types/Float4'
+import type { ClearOptions } from '../types/ClearOptions'
 import type { ListenerSubscription } from '../types/ListenerSubscription'
 import type { Camera } from '../scene/Camera.nitro'
 import type { Scene } from '../scene/Scene.nitro'
+import type { View } from '../scene/View.nitro'
 
 export interface ViewTarget extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   /**
@@ -15,6 +16,12 @@ export interface ViewTarget extends HybridObject<{ ios: 'c++'; android: 'c++' }>
    * @thread any
    */
   readonly height: number
+  /**
+   * Rendering options of this target. The object is usable from any thread; its members run on the
+   * render thread.
+   * @thread any
+   */
+  readonly view: View
   /**
    * Called with the drawable size in pixels whenever it changes, and once right away if the
    * target already has a surface.
@@ -29,8 +36,13 @@ export interface ViewTarget extends HybridObject<{ ios: 'c++'; android: 'c++' }>
   /** @thread render */
   setCamera(camera: Camera): void
   /**
-   * Linear RGBA the target is cleared to before each frame.
+   * Called once after this target renders its first frame, or right away if it already has.
+   * @thread any
+   */
+  addOnFirstFrameListener(listener: () => void): ListenerSubscription
+  /**
+   * How the target is cleared before each frame.
    * @thread render
    */
-  setClearColor(color: Float4): void
+  setClearOptions(options: ClearOptions): void
 }

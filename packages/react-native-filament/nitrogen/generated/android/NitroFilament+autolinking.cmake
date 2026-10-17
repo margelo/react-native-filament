@@ -49,9 +49,12 @@ target_sources(
   ../nitrogen/generated/shared/c++/HybridCameraSpec.cpp
   ../nitrogen/generated/shared/c++/HybridIndirectLightSpec.cpp
   ../nitrogen/generated/shared/c++/HybridLightSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridLightManagerSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridRenderableManagerSpec.cpp
   ../nitrogen/generated/shared/c++/HybridSceneSpec.cpp
   ../nitrogen/generated/shared/c++/HybridSkyboxSpec.cpp
   ../nitrogen/generated/shared/c++/HybridTransformManagerSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridViewSpec.cpp
   ../nitrogen/generated/shared/c++/HybridFilamentViewSpec.cpp
   ../nitrogen/generated/shared/c++/views/HybridFilamentViewComponent.cpp
   ../nitrogen/generated/shared/c++/HybridViewTargetSpec.cpp

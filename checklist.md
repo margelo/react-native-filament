@@ -381,13 +381,13 @@ Plan §10 Phase 3, §5, §8.2.
 - [ ] **P3.4** Textures are decoded on an IO thread, then `Texture::setImage` with a release callback. KTX2 and Basis go through Filament's provider.
 
 **Objects** (§5.4)
-- [ ] **P3.5** `View`: every option as a typed struct (AO, bloom, TAA with float `upscaling`, `varianceGamma` and `filterWidth`, dynamic resolution, dithering, anti-aliasing), plus `projectWorldToScreen`.
+- [x] **P3.5** `View`: every option as a typed struct (AO, bloom, TAA with float `upscaling`, `varianceGamma` and `filterWidth`, dynamic resolution, dithering, anti-aliasing), plus `projectWorldToScreen`.
 - [x] **P3.6** `TransformManager`.
 - [ ] **P3.7** `RenderableManager` and `Renderable`:
   - `setAxisAlignedBoundingBox` and `scaleBoundingBox`;
   - `recomputeBoundingBoxes` exposed with its documented limits;
   - planes, background and debug geometry are owned objects.
-- [ ] **P3.8** `LightManager` and `Light`, with one factory per light type and the kebab-case `'focused-spot'`.
+- [x] **P3.8** `LightManager` and `Light`, with one factory per light type and the kebab-case `'focused-spot'`.
 - [ ] **P3.9** Instancing and morph targets.
 - [ ] **P3.10** Material variants, `Material`, and `MaterialInstance` with `setTexture(name, texture, sampler)`.
 - [ ] **P3.11** `Texture`, `IndirectLight`, `Skybox` and background images.
@@ -395,7 +395,7 @@ Plan §10 Phase 3, §5, §8.2.
 - [ ] **P3.13** Picking and snapshots:
   - picking in points with a top-left origin, per view; a tap gesture calls `viewTarget.pick(x, y)` and the result reaches React through `scheduleOnRN` (§7.2);
   - snapshots as a `Snapshot` HybridObject with lazy `toArrayBuffer()` and `saveToFile()`.
-- [ ] **P3.14** `ViewTarget`: `setScene`, `setCamera`, `setClearOptions`, `width`/`height` from the current lease, and the resize and first-frame listeners (§5.5).
+- [x] **P3.14** `ViewTarget`: `setScene`, `setCamera`, `setClearOptions`, `width`/`height` from the current lease, and the resize and first-frame listeners (§5.5).
 - [ ] **P3.15** `Model` and `Camera`:
   - `Model`: `getInstance(i)`, `boundingBox` and `getEntities()` as immutable reads; `createInstance` on the render thread; `getEntityByName` and `getEntityName` (§5.4);
   - `Camera`: `followManipulator`.

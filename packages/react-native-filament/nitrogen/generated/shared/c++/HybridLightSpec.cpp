@@ -15,6 +15,7 @@ namespace margelo::nitro::filament {
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
       prototype.registerHybridGetter("entity", &HybridLightSpec::getEntity);
+      prototype.registerHybridGetter("type", &HybridLightSpec::getType);
     });
   }
 

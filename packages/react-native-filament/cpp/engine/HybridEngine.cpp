@@ -9,11 +9,13 @@
 #include "scene/HybridCamera.hpp"
 #include "scene/HybridIndirectLight.hpp"
 #include "scene/HybridLight.hpp"
+#include "scene/HybridLightManager.hpp"
+#include "scene/HybridRenderableManager.hpp"
 #include "scene/HybridScene.hpp"
 #include "scene/HybridSkybox.hpp"
 #include "scene/HybridTransformManager.hpp"
+#include "utils/ComponentChecks.hpp"
 #include "utils/ThreadChecks.hpp"
-#include "utils/TransformChecks.hpp"
 #include "utils/Trs.hpp"
 
 #include "targets/HybridViewTarget.hpp"
@@ -29,7 +31,8 @@ namespace margelo::nitro::filament {
 
 HybridEngine::HybridEngine(std::shared_ptr<EngineCore> core)
     : HybridObject(TAG), core_(std::move(core)), renderThread_(std::make_shared<HybridRenderThread>(core_)),
-      transformManager_(std::make_shared<HybridTransformManager>(core_)) {}
+      transformManager_(std::make_shared<HybridTransformManager>(core_)), lightManager_(std::make_shared<HybridLightManager>(core_)),
+      renderableManager_(std::make_shared<HybridRenderableManager>(core_)) {}
 
 HybridEngine::~HybridEngine() {
   core_->shutdown();
@@ -47,6 +50,14 @@ std::shared_ptr<HybridTransformManagerSpec> HybridEngine::getTransformManager() 
   return transformManager_;
 }
 
+std::shared_ptr<HybridLightManagerSpec> HybridEngine::getLightManager() {
+  return lightManager_;
+}
+
+std::shared_ptr<HybridRenderableManagerSpec> HybridEngine::getRenderableManager() {
+  return renderableManager_;
+}
+
 RenderMode HybridEngine::getRenderMode() {
   return core_->renderMode();
 }
@@ -58,13 +69,12 @@ void HybridEngine::setRenderMode(RenderMode renderMode) {
 std::shared_ptr<Promise<std::shared_ptr<HybridViewTargetSpec>>>
 HybridEngine::createViewTarget(const std::shared_ptr<HybridFilamentViewSpec>& view, const ViewTargetOptions& options) {
   auto promise = Promise<std::shared_ptr<HybridViewTargetSpec>>::create();
-  auto [r, g, b, a] = options.clearColor.value_or(std::make_tuple(0.0, 0.0, 0.0, 0.0));
-  std::array<float, 4> clearColor{static_cast<float>(r), static_cast<float>(g), static_cast<float>(b), static_cast<float>(a)};
+  ViewTargetCore::ClearSettings clear = HybridViewTarget::toClearSettings(options.clearOptions);
   auto engine = shared_cast<HybridEngine>();
   core_->thread().post({
       .run =
-          [engine, view, clearColor, promise] {
-            auto target = std::make_shared<ViewTargetCore>(engine->core()->engine(), clearColor);
+          [engine, view, clear, promise] {
+            auto target = std::make_shared<ViewTargetCore>(engine->core()->engine(), clear);
             engine->core()->adopt(target);
             engine->core()->addTarget(target);
             promise->resolve(std::make_shared<HybridViewTarget>(engine, target, view));
@@ -100,9 +110,32 @@ std::shared_ptr<HybridSkyboxSpec> HybridEngine::createSkybox(const std::tuple<do
 
 std::shared_ptr<HybridLightSpec> HybridEngine::createDirectionalLight(const DirectionalLightOptions& options) {
   requireRenderThread(core_->thread(), "Engine.createDirectionalLight()");
-  auto light = LightCore::createDirectional(core_, options);
+  return adoptLight(LightCore::createDirectional(core_, options));
+}
+
+std::shared_ptr<HybridLightSpec> HybridEngine::createSunLight(const SunLightOptions& options) {
+  requireRenderThread(core_->thread(), "Engine.createSunLight()");
+  return adoptLight(LightCore::createSun(core_, options));
+}
+
+std::shared_ptr<HybridLightSpec> HybridEngine::createPointLight(const PointLightOptions& options) {
+  requireRenderThread(core_->thread(), "Engine.createPointLight()");
+  return adoptLight(LightCore::createPoint(core_, options));
+}
+
+std::shared_ptr<HybridLightSpec> HybridEngine::createSpotLight(const SpotLightOptions& options) {
+  requireRenderThread(core_->thread(), "Engine.createSpotLight()");
+  return adoptLight(LightCore::createSpot(core_, options, false));
+}
+
+std::shared_ptr<HybridLightSpec> HybridEngine::createFocusedSpotLight(const SpotLightOptions& options) {
+  requireRenderThread(core_->thread(), "Engine.createFocusedSpotLight()");
+  return adoptLight(LightCore::createSpot(core_, options, true));
+}
+
+std::shared_ptr<HybridLightSpec> HybridEngine::adoptLight(std::shared_ptr<LightCore> light) {
   core_->adopt(light);
-  return std::make_shared<HybridLight>(shared_cast<HybridEngine>(), light);
+  return std::make_shared<HybridLight>(shared_cast<HybridEngine>(), std::move(light));
 }
 
 std::shared_ptr<Promise<std::shared_ptr<HybridModelSpec>>> HybridEngine::loadModel(const AssetSource& source,
@@ -171,7 +204,7 @@ void HybridEngine::withAssetBytes(const AssetSource& source, const std::shared_p
 std::shared_ptr<HybridTransformBindingSpec> HybridEngine::createTransformBinding(double entity) {
   requireRenderThread(core_->thread(), "Engine.createTransformBinding()");
   ::filament::TransformManager& transforms = core_->engine().getTransformManager();
-  auto instance = requireTransform(transforms, entity, "Engine.createTransformBinding()");
+  auto instance = requireComponent(transforms, entity, "Engine.createTransformBinding()", "transform");
   auto binding = std::make_shared<TransformBindingCore>(toEntity(entity), Trs::decompose(transforms.getTransform(instance)));
   core_->addTransformBinding(binding);
   return std::make_shared<HybridTransformBinding>(core_, binding);

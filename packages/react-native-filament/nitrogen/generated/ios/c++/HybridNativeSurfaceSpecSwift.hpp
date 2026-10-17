@@ -71,6 +71,9 @@ namespace margelo::nitro::filament {
     inline double getHeight() noexcept override {
       return _swiftPart.getHeight();
     }
+    inline double getContentScale() noexcept override {
+      return _swiftPart.getContentScale();
+    }
     inline bool getTransparent() noexcept override {
       return _swiftPart.getTransparent();
     }

@@ -53,6 +53,7 @@ namespace margelo::nitro::filament {
     uint64_t getHandle() override;
     double getWidth() override;
     double getHeight() override;
+    double getContentScale() override;
     bool getTransparent() override;
     bool getSynchronousTeardown() override;
 

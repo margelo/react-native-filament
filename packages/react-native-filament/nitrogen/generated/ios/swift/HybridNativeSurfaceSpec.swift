@@ -13,6 +13,7 @@ public protocol HybridNativeSurfaceSpec_protocol: HybridObject {
   var handle: UInt64 { get }
   var width: Double { get }
   var height: Double { get }
+  var contentScale: Double { get }
   var transparent: Bool { get }
   var synchronousTeardown: Bool { get }
 

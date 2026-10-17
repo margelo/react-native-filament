@@ -32,9 +32,12 @@ final class HybridFilamentView: HybridFilamentViewSpec_base, HybridFilamentViewS
 
   private var isTransparent: Bool { transparent ?? false }
 
+  private var contentScale: CGFloat {
+    view.window?.screen.scale ?? UIScreen.main.scale
+  }
+
   private var pixelSize: CGSize {
-    let scale = view.window?.screen.scale ?? UIScreen.main.scale
-    return CGSize(width: view.bounds.width * scale, height: view.bounds.height * scale)
+    CGSize(width: view.bounds.width * contentScale, height: view.bounds.height * contentScale)
   }
 
   private func applyTransparency() {
@@ -60,7 +63,8 @@ final class HybridFilamentView: HybridFilamentViewSpec_base, HybridFilamentViewS
         observer.onResized(surface)
       }
     } else if isVisible {
-      let created = HybridNativeSurface(layer: view.metalLayer, pixelSize: size, transparent: isTransparent)
+      let created = HybridNativeSurface(
+        layer: view.metalLayer, pixelSize: size, contentScale: Double(contentScale), transparent: isTransparent)
       surface = created
       observer.onCreated(created)
     } else if let surface {

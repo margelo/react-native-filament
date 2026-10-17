@@ -3,6 +3,7 @@
 #include "HybridNativeSurfaceSpec.hpp"
 #include "resources/Resource.hpp"
 #include "utils/ListenerRegistry.hpp"
+#include "utils/OnceEvent.hpp"
 
 #include <filament/Camera.h>
 #include <filament/Engine.h>
@@ -23,7 +24,13 @@ class SceneCore;
 
 class ViewTargetCore final : public Resource {
 public:
-  ViewTargetCore(::filament::Engine& engine, std::array<float, 4> clearColor);
+  struct ClearSettings {
+    std::array<float, 4> color;
+    bool clear;
+    bool discard;
+  };
+
+  ViewTargetCore(::filament::Engine& engine, ClearSettings clear);
 
   void attach(const std::shared_ptr<HybridNativeSurfaceSpec>& surface);
   void resize(const std::shared_ptr<HybridNativeSurfaceSpec>& surface);
@@ -33,12 +40,15 @@ public:
 
   void setScene(const std::shared_ptr<SceneCore>& scene);
   void setCamera(const std::shared_ptr<CameraCore>& camera);
-  void setClearColor(std::array<float, 4> color);
+  void setClearOptions(ClearSettings clear);
+  ::filament::View& view();
+  ::filament::math::float2 projectWorldToPoints(::filament::math::float3 position) const;
 
   void revoke();
   double width() const;
   double height() const;
   std::function<void()> addResizeListener(std::function<void(double width, double height)> listener);
+  std::function<void()> addFirstFrameListener(std::function<void()> listener);
 
 protected:
   void destroyNative() override;
@@ -59,7 +69,9 @@ private:
   std::atomic<bool> revoked_{false};
   std::atomic<double> width_{0};
   std::atomic<double> height_{0};
+  double contentScale_ = 1;
   ListenerRegistry<double, double> resizeListeners_;
+  OnceEvent firstFrame_;
 };
 
 } // namespace margelo::nitro::filament

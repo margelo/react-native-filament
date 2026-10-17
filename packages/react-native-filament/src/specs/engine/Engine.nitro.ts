@@ -5,6 +5,9 @@ import type { AssetSource } from '../types/AssetSource'
 import type { DirectionalLightOptions } from '../types/DirectionalLightOptions'
 import type { Float4 } from '../types/Float4'
 import type { IndirectLightOptions } from '../types/IndirectLightOptions'
+import type { PointLightOptions } from '../types/PointLightOptions'
+import type { SpotLightOptions } from '../types/SpotLightOptions'
+import type { SunLightOptions } from '../types/SunLightOptions'
 import type { ModelLoadOptions } from '../types/ModelLoadOptions'
 import type { FrameInfo } from '../types/FrameInfo'
 import type { RenderMode } from '../types/RenderMode'
@@ -15,6 +18,8 @@ import type { Model } from '../assets/Model.nitro'
 import type { Camera } from '../scene/Camera.nitro'
 import type { IndirectLight } from '../scene/IndirectLight.nitro'
 import type { Light } from '../scene/Light.nitro'
+import type { LightManager } from '../scene/LightManager.nitro'
+import type { RenderableManager } from '../scene/RenderableManager.nitro'
 import type { Scene } from '../scene/Scene.nitro'
 import type { Skybox } from '../scene/Skybox.nitro'
 import type { TransformManager } from '../scene/TransformManager.nitro'
@@ -36,6 +41,16 @@ export interface Engine extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
    */
   readonly transformManager: TransformManager
   /**
+   * The object is usable from any thread; its methods run on the render thread.
+   * @thread any
+   */
+  readonly lightManager: LightManager
+  /**
+   * The object is usable from any thread; its methods run on the render thread.
+   * @thread any
+   */
+  readonly renderableManager: RenderableManager
+  /**
    * Cheap atomic store; wakes the render thread when demand changes.
    * @thread any
    */
@@ -56,6 +71,20 @@ export interface Engine extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   createSkybox(color: Float4): Skybox
   /** @thread render */
   createDirectionalLight(options: DirectionalLightOptions): Light
+  /**
+   * A directional light that also draws a sun disk in the skybox.
+   * @thread render
+   */
+  createSunLight(options: SunLightOptions): Light
+  /** @thread render */
+  createPointLight(options: PointLightOptions): Light
+  /** @thread render */
+  createSpotLight(options: SpotLightOptions): Light
+  /**
+   * A spot light whose intensity stays the same when its cone changes.
+   * @thread render
+   */
+  createFocusedSpotLight(options: SpotLightOptions): Light
   /**
    * Loads a glTF 2.0 binary (.glb). Resolves once every texture and buffer is uploaded.
    * @thread any

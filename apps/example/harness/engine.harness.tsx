@@ -25,7 +25,7 @@ describe('Engine', () => {
   it('creates a view target that follows the view surface', async () => {
     const engine = await Filament.createEngine({})
     const view = await renderView()
-    const target = await engine.createViewTarget(view, { clearColor: [1, 0, 0, 1] })
+    const target = await engine.createViewTarget(view, { clearOptions: { color: [1, 0, 0, 1] } })
     expect(target.width).toBeGreaterThanOrEqual(0)
     await engine.shutdown()
   })

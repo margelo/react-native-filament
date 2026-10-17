@@ -11,7 +11,7 @@ export function ClearColorExample() {
     if (view == null) return
     const creating = Filament.createEngine({})
     creating.then(async (created) => {
-      await created.createViewTarget(view, { clearColor: [0.05, 0.35, 0.8, 1] })
+      await created.createViewTarget(view, { clearOptions: { color: [0.05, 0.35, 0.8, 1] } })
       setEngine(created)
     })
     return () => {

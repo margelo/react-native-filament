@@ -19,6 +19,10 @@ namespace margelo::nitro::filament { enum class EngineBackend; }
 namespace margelo::nitro::filament { class HybridRenderThreadSpec; }
 // Forward declaration of `HybridTransformManagerSpec` to properly resolve imports.
 namespace margelo::nitro::filament { class HybridTransformManagerSpec; }
+// Forward declaration of `HybridLightManagerSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridLightManagerSpec; }
+// Forward declaration of `HybridRenderableManagerSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridRenderableManagerSpec; }
 // Forward declaration of `RenderMode` to properly resolve imports.
 namespace margelo::nitro::filament { enum class RenderMode; }
 // Forward declaration of `HybridViewTargetSpec` to properly resolve imports.
@@ -37,6 +41,12 @@ namespace margelo::nitro::filament { class HybridSkyboxSpec; }
 namespace margelo::nitro::filament { class HybridLightSpec; }
 // Forward declaration of `DirectionalLightOptions` to properly resolve imports.
 namespace margelo::nitro::filament { struct DirectionalLightOptions; }
+// Forward declaration of `SunLightOptions` to properly resolve imports.
+namespace margelo::nitro::filament { struct SunLightOptions; }
+// Forward declaration of `PointLightOptions` to properly resolve imports.
+namespace margelo::nitro::filament { struct PointLightOptions; }
+// Forward declaration of `SpotLightOptions` to properly resolve imports.
+namespace margelo::nitro::filament { struct SpotLightOptions; }
 // Forward declaration of `HybridModelSpec` to properly resolve imports.
 namespace margelo::nitro::filament { class HybridModelSpec; }
 // Forward declaration of `AssetUri` to properly resolve imports.
@@ -64,6 +74,8 @@ namespace margelo::nitro::filament { struct FrameInfo; }
 #include <memory>
 #include "HybridRenderThreadSpec.hpp"
 #include "HybridTransformManagerSpec.hpp"
+#include "HybridLightManagerSpec.hpp"
+#include "HybridRenderableManagerSpec.hpp"
 #include "RenderMode.hpp"
 #include "HybridViewTargetSpec.hpp"
 #include <NitroModules/Promise.hpp>
@@ -75,6 +87,9 @@ namespace margelo::nitro::filament { struct FrameInfo; }
 #include <tuple>
 #include "HybridLightSpec.hpp"
 #include "DirectionalLightOptions.hpp"
+#include "SunLightOptions.hpp"
+#include "PointLightOptions.hpp"
+#include "SpotLightOptions.hpp"
 #include "HybridModelSpec.hpp"
 #include <NitroModules/ArrayBuffer.hpp>
 #include "AssetUri.hpp"
@@ -120,6 +135,8 @@ namespace margelo::nitro::filament {
       virtual EngineBackend getBackend() = 0;
       virtual std::shared_ptr<HybridRenderThreadSpec> getRenderThread() = 0;
       virtual std::shared_ptr<HybridTransformManagerSpec> getTransformManager() = 0;
+      virtual std::shared_ptr<HybridLightManagerSpec> getLightManager() = 0;
+      virtual std::shared_ptr<HybridRenderableManagerSpec> getRenderableManager() = 0;
       virtual RenderMode getRenderMode() = 0;
       virtual void setRenderMode(RenderMode renderMode) = 0;
 
@@ -130,6 +147,10 @@ namespace margelo::nitro::filament {
       virtual std::shared_ptr<HybridCameraSpec> createCamera() = 0;
       virtual std::shared_ptr<HybridSkyboxSpec> createSkybox(const std::tuple<double, double, double, double>& color) = 0;
       virtual std::shared_ptr<HybridLightSpec> createDirectionalLight(const DirectionalLightOptions& options) = 0;
+      virtual std::shared_ptr<HybridLightSpec> createSunLight(const SunLightOptions& options) = 0;
+      virtual std::shared_ptr<HybridLightSpec> createPointLight(const PointLightOptions& options) = 0;
+      virtual std::shared_ptr<HybridLightSpec> createSpotLight(const SpotLightOptions& options) = 0;
+      virtual std::shared_ptr<HybridLightSpec> createFocusedSpotLight(const SpotLightOptions& options) = 0;
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridModelSpec>>> loadModel(const std::variant<std::shared_ptr<ArrayBuffer>, AssetUri>& source, const ModelLoadOptions& options) = 0;
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridIndirectLightSpec>>> loadIndirectLight(const std::variant<std::shared_ptr<ArrayBuffer>, AssetUri>& source, const IndirectLightOptions& options) = 0;
       virtual std::shared_ptr<HybridTransformBindingSpec> createTransformBinding(double entity) = 0;

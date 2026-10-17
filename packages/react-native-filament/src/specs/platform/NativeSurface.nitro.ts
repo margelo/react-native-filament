@@ -8,6 +8,8 @@ export interface NativeSurface extends HybridObject<{ ios: 'swift'; android: 'ko
   readonly handle: UInt64
   readonly width: number
   readonly height: number
+  /** Pixels per point. */
+  readonly contentScale: number
   /** Composites with the views behind it. */
   readonly transparent: boolean
   /** The OS destroys this surface once its destroyed callback returns, so teardown must finish first. */

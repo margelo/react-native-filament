@@ -8,12 +8,12 @@
 
 namespace margelo::nitro::filament {
 
-ViewTargetCore::ViewTargetCore(::filament::Engine& engine, std::array<float, 4> clearColor)
+ViewTargetCore::ViewTargetCore(::filament::Engine& engine, ClearSettings clear)
     : Resource("ViewTarget"), engine_(engine), renderer_(engine.createRenderer()), emptyScene_(engine.createScene()),
       view_(engine.createView()), defaultCameraEntity_(utils::EntityManager::get().create()) {
   view_->setScene(emptyScene_);
   view_->setCamera(engine_.createCamera(defaultCameraEntity_));
-  setClearColor(clearColor);
+  setClearOptions(clear);
 }
 
 void ViewTargetCore::attach(const std::shared_ptr<HybridNativeSurfaceSpec>& surface) {
@@ -55,6 +55,7 @@ void ViewTargetCore::render(int64_t frameTimeNanos) {
   if (renderer_->beginFrame(swapChain_, static_cast<uint64_t>(frameTimeNanos))) {
     renderer_->render(view_);
     renderer_->endFrame();
+    firstFrame_.fire();
   }
 }
 
@@ -82,8 +83,23 @@ void ViewTargetCore::setCamera(const std::shared_ptr<CameraCore>& camera) {
   view_->setCamera(camera_ == nullptr ? engine_.getCameraComponent(defaultCameraEntity_) : &camera_->camera());
 }
 
-void ViewTargetCore::setClearColor(std::array<float, 4> color) {
-  renderer_->setClearOptions({.clearColor = {color[0], color[1], color[2], color[3]}, .clear = true, .discard = true});
+void ViewTargetCore::setClearOptions(ClearSettings clear) {
+  renderer_->setClearOptions(
+      {.clearColor = {clear.color[0], clear.color[1], clear.color[2], clear.color[3]}, .clear = clear.clear, .discard = clear.discard});
+}
+
+::filament::View& ViewTargetCore::view() {
+  return *view_;
+}
+
+::filament::math::float2 ViewTargetCore::projectWorldToPoints(::filament::math::float3 position) const {
+  const ::filament::Camera& camera = view_->getCamera();
+  ::filament::math::double4 clip = camera.getProjectionMatrix() * camera.getViewMatrix() * ::filament::math::double4(position, 1.0);
+  ::filament::math::double2 ndc = clip.xy / clip.w;
+  const ::filament::Viewport& viewport = view_->getViewport();
+  double x = (ndc.x * 0.5 + 0.5) * viewport.width;
+  double y = (0.5 - ndc.y * 0.5) * viewport.height;
+  return {static_cast<float>(x / contentScale_), static_cast<float>(y / contentScale_)};
 }
 
 void ViewTargetCore::revoke() {
@@ -98,6 +114,10 @@ double ViewTargetCore::height() const {
   return height_;
 }
 
+std::function<void()> ViewTargetCore::addFirstFrameListener(std::function<void()> listener) {
+  return firstFrame_.add(std::move(listener));
+}
+
 std::function<void()> ViewTargetCore::addResizeListener(std::function<void(double width, double height)> listener) {
   std::function<void()> remove = resizeListeners_.add(listener);
   double width = width_;
@@ -110,6 +130,7 @@ std::function<void()> ViewTargetCore::addResizeListener(std::function<void(doubl
 
 void ViewTargetCore::destroyNative() {
   resizeListeners_.clear();
+  firstFrame_.clear();
   if (surface_ != nullptr) {
     detach(surface_);
   }
@@ -134,6 +155,7 @@ void ViewTargetCore::destroySwapChain() {
 void ViewTargetCore::updateViewport(const std::shared_ptr<HybridNativeSurfaceSpec>& surface) {
   double width = surface->getWidth();
   double height = surface->getHeight();
+  contentScale_ = surface->getContentScale() > 0 ? surface->getContentScale() : 1;
   bool changed = width != width_ || height != height_;
   width_ = width;
   height_ = height;

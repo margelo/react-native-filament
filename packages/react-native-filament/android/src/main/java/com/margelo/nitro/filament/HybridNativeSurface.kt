@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 class HybridNativeSurface(
   surface: Surface,
   size: Size,
+  override val contentScale: Double,
   override val transparent: Boolean,
   override val synchronousTeardown: Boolean,
   private val onReleased: () -> Unit,

@@ -3,6 +3,7 @@ import QuartzCore
 
 final class HybridNativeSurface: HybridNativeSurfaceSpec_base, HybridNativeSurfaceSpec_protocol {
   let handle: UInt64
+  let contentScale: Double
   let transparent: Bool
   let synchronousTeardown = false
 
@@ -10,7 +11,8 @@ final class HybridNativeSurface: HybridNativeSurfaceSpec_base, HybridNativeSurfa
   private var layer: CAMetalLayer?
   private var pixelSize: CGSize
 
-  init(layer: CAMetalLayer, pixelSize: CGSize, transparent: Bool) {
+  init(layer: CAMetalLayer, pixelSize: CGSize, contentScale: Double, transparent: Bool) {
+    self.contentScale = contentScale
     self.handle = UInt64(UInt(bitPattern: Unmanaged.passUnretained(layer).toOpaque()))
     self.layer = layer
     self.pixelSize = pixelSize

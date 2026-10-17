@@ -28,9 +28,10 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+// Forward declaration of `ClearOptions` to properly resolve imports.
+namespace margelo::nitro::filament { struct ClearOptions; }
 
-
-#include <tuple>
+#include "ClearOptions.hpp"
 #include <optional>
 
 namespace margelo::nitro::filament {
@@ -40,11 +41,11 @@ namespace margelo::nitro::filament {
    */
   struct ViewTargetOptions final {
   public:
-    std::optional<std::tuple<double, double, double, double>> clearColor     SWIFT_PRIVATE;
+    std::optional<ClearOptions> clearOptions     SWIFT_PRIVATE;
 
   public:
     ViewTargetOptions() = default;
-    explicit ViewTargetOptions(std::optional<std::tuple<double, double, double, double>> clearColor): clearColor(clearColor) {}
+    explicit ViewTargetOptions(std::optional<ClearOptions> clearOptions): clearOptions(clearOptions) {}
 
   public:
     friend bool operator==(const ViewTargetOptions& lhs, const ViewTargetOptions& rhs) = default;
@@ -60,12 +61,12 @@ namespace margelo::nitro {
     static inline margelo::nitro::filament::ViewTargetOptions fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
       jsi::Object obj = arg.asObject(runtime);
       return margelo::nitro::filament::ViewTargetOptions(
-        JSIConverter<std::optional<std::tuple<double, double, double, double>>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "clearColor")))
+        JSIConverter<std::optional<margelo::nitro::filament::ClearOptions>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "clearOptions")))
       );
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, const margelo::nitro::filament::ViewTargetOptions& arg) {
       jsi::Object obj(runtime);
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "clearColor"), JSIConverter<std::optional<std::tuple<double, double, double, double>>>::toJSI(runtime, arg.clearColor));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "clearOptions"), JSIConverter<std::optional<margelo::nitro::filament::ClearOptions>>::toJSI(runtime, arg.clearOptions));
       return obj;
     }
     static inline bool canConvert(jsi::Runtime& runtime, const jsi::Value& value) {
@@ -76,7 +77,7 @@ namespace margelo::nitro {
       if (!nitro::isPlainObject(runtime, obj)) {
         return false;
       }
-      if (!JSIConverter<std::optional<std::tuple<double, double, double, double>>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "clearColor")))) return false;
+      if (!JSIConverter<std::optional<margelo::nitro::filament::ClearOptions>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "clearOptions")))) return false;
       return true;
     }
   };

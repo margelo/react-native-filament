@@ -1,8 +1,6 @@
-import type { Float4 } from './Float4'
+import type { ClearOptions } from './ClearOptions'
 
 export interface ViewTargetOptions {
-  /**
-   * Linear RGBA the target is cleared to before each frame. Defaults to transparent black.
-   */
-  clearColor?: Float4
+  /** How the target is cleared before each frame. */
+  clearOptions?: ClearOptions
 }

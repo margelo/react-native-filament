@@ -14,6 +14,7 @@ public:
   HybridLight(std::shared_ptr<HybridEngine> engine, std::shared_ptr<LightCore> core);
 
   double getEntity() override;
+  LightType getType() override;
   void dispose() override;
 
 private:

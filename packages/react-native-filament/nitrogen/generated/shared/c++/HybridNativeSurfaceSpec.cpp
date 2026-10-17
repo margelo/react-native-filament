@@ -17,6 +17,7 @@ namespace margelo::nitro::filament {
       prototype.registerHybridGetter("handle", &HybridNativeSurfaceSpec::getHandle);
       prototype.registerHybridGetter("width", &HybridNativeSurfaceSpec::getWidth);
       prototype.registerHybridGetter("height", &HybridNativeSurfaceSpec::getHeight);
+      prototype.registerHybridGetter("contentScale", &HybridNativeSurfaceSpec::getContentScale);
       prototype.registerHybridGetter("transparent", &HybridNativeSurfaceSpec::getTransparent);
       prototype.registerHybridGetter("synchronousTeardown", &HybridNativeSurfaceSpec::getSynchronousTeardown);
       prototype.registerHybridMethod("release", &HybridNativeSurfaceSpec::release);

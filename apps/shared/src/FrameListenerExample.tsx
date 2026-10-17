@@ -14,7 +14,7 @@ export function FrameListenerExample() {
         'worklet'
         return engine.addOnFrameListener((frame) => {
           const t = frame.elapsedSeconds
-          target.setClearColor([0.5 + 0.5 * Math.sin(t), 0.5 + 0.5 * Math.sin(t + 2.1), 0.5 + 0.5 * Math.sin(t + 4.2), 1])
+          target.setClearOptions({ color: [0.5 + 0.5 * Math.sin(t), 0.5 + 0.5 * Math.sin(t + 2.1), 0.5 + 0.5 * Math.sin(t + 4.2), 1] })
           return true
         })
       })

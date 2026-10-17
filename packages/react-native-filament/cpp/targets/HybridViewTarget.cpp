@@ -3,6 +3,7 @@
 #include "engine/HybridEngine.hpp"
 #include "scene/HybridCamera.hpp"
 #include "scene/HybridScene.hpp"
+#include "scene/HybridView.hpp"
 #include "utils/EngineChecks.hpp"
 #include "utils/ThreadChecks.hpp"
 
@@ -12,7 +13,8 @@ namespace margelo::nitro::filament {
 
 HybridViewTarget::HybridViewTarget(std::shared_ptr<HybridEngine> engine, std::shared_ptr<ViewTargetCore> core,
                                    std::shared_ptr<HybridFilamentViewSpec> view)
-    : HybridObject(TAG), engine_(std::move(engine)), core_(std::move(core)), view_(std::move(view)) {
+    : HybridObject(TAG), engine_(std::move(engine)), core_(std::move(core)), view_(std::move(view)),
+      renderView_(std::make_shared<HybridView>(engine_->core(), core_)) {
   view_->setSurfaceObserver(makeSurfaceObserver(engine_->core(), core_));
 }
 
@@ -26,6 +28,15 @@ double HybridViewTarget::getWidth() {
 
 double HybridViewTarget::getHeight() {
   return core_->height();
+}
+
+std::shared_ptr<HybridViewSpec> HybridViewTarget::getView() {
+  return renderView_;
+}
+
+ListenerSubscription HybridViewTarget::addOnFirstFrameListener(const std::function<void()>& listener) {
+  core_->requireLive("ViewTarget.addOnFirstFrameListener()");
+  return ListenerSubscription(core_->addFirstFrameListener(listener));
 }
 
 ListenerSubscription HybridViewTarget::addOnResizeListener(const std::function<void(double width, double height)>& listener) {
@@ -49,11 +60,18 @@ void HybridViewTarget::setCamera(const std::shared_ptr<HybridCameraSpec>& camera
   core_->setCamera(resolved->core());
 }
 
-void HybridViewTarget::setClearColor(const std::tuple<double, double, double, double>& color) {
-  requireRenderThread(engine_->core()->thread(), "ViewTarget.setClearColor()");
-  core_->requireLive("ViewTarget.setClearColor()");
-  auto [r, g, b, a] = color;
-  core_->setClearColor({static_cast<float>(r), static_cast<float>(g), static_cast<float>(b), static_cast<float>(a)});
+void HybridViewTarget::setClearOptions(const ClearOptions& options) {
+  requireRenderThread(engine_->core()->thread(), "ViewTarget.setClearOptions()");
+  core_->requireLive("ViewTarget.setClearOptions()");
+  core_->setClearOptions(toClearSettings(options));
+}
+
+ViewTargetCore::ClearSettings HybridViewTarget::toClearSettings(const std::optional<ClearOptions>& options) {
+  ClearOptions resolved = options.value_or(ClearOptions());
+  auto [r, g, b, a] = resolved.color.value_or(std::make_tuple(0.0, 0.0, 0.0, 0.0));
+  return {.color = {static_cast<float>(r), static_cast<float>(g), static_cast<float>(b), static_cast<float>(a)},
+          .clear = resolved.clear.value_or(true),
+          .discard = resolved.discard.value_or(true)};
 }
 
 void HybridViewTarget::dispose() {

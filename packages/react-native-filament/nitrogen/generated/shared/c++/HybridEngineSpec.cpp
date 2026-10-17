@@ -17,6 +17,8 @@ namespace margelo::nitro::filament {
       prototype.registerHybridGetter("backend", &HybridEngineSpec::getBackend);
       prototype.registerHybridGetter("renderThread", &HybridEngineSpec::getRenderThread);
       prototype.registerHybridGetter("transformManager", &HybridEngineSpec::getTransformManager);
+      prototype.registerHybridGetter("lightManager", &HybridEngineSpec::getLightManager);
+      prototype.registerHybridGetter("renderableManager", &HybridEngineSpec::getRenderableManager);
       prototype.registerHybridGetter("renderMode", &HybridEngineSpec::getRenderMode);
       prototype.registerHybridSetter("renderMode", &HybridEngineSpec::setRenderMode);
       prototype.registerHybridMethod("createViewTarget", &HybridEngineSpec::createViewTarget);
@@ -24,6 +26,10 @@ namespace margelo::nitro::filament {
       prototype.registerHybridMethod("createCamera", &HybridEngineSpec::createCamera);
       prototype.registerHybridMethod("createSkybox", &HybridEngineSpec::createSkybox);
       prototype.registerHybridMethod("createDirectionalLight", &HybridEngineSpec::createDirectionalLight);
+      prototype.registerHybridMethod("createSunLight", &HybridEngineSpec::createSunLight);
+      prototype.registerHybridMethod("createPointLight", &HybridEngineSpec::createPointLight);
+      prototype.registerHybridMethod("createSpotLight", &HybridEngineSpec::createSpotLight);
+      prototype.registerHybridMethod("createFocusedSpotLight", &HybridEngineSpec::createFocusedSpotLight);
       prototype.registerHybridMethod("loadModel", &HybridEngineSpec::loadModel);
       prototype.registerHybridMethod("loadIndirectLight", &HybridEngineSpec::loadIndirectLight);
       prototype.registerHybridMethod("createTransformBinding", &HybridEngineSpec::createTransformBinding);

@@ -16,10 +16,12 @@ namespace margelo::nitro::filament {
     registerHybrids(this, [](Prototype& prototype) {
       prototype.registerHybridGetter("width", &HybridViewTargetSpec::getWidth);
       prototype.registerHybridGetter("height", &HybridViewTargetSpec::getHeight);
+      prototype.registerHybridGetter("view", &HybridViewTargetSpec::getView);
       prototype.registerHybridMethod("addOnResizeListener", &HybridViewTargetSpec::addOnResizeListener);
       prototype.registerHybridMethod("setScene", &HybridViewTargetSpec::setScene);
       prototype.registerHybridMethod("setCamera", &HybridViewTargetSpec::setCamera);
-      prototype.registerHybridMethod("setClearColor", &HybridViewTargetSpec::setClearColor);
+      prototype.registerHybridMethod("addOnFirstFrameListener", &HybridViewTargetSpec::addOnFirstFrameListener);
+      prototype.registerHybridMethod("setClearOptions", &HybridViewTargetSpec::setClearOptions);
     });
   }
 

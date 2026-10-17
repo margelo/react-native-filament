@@ -47,6 +47,7 @@ namespace margelo::nitro::filament {
       virtual uint64_t getHandle() = 0;
       virtual double getWidth() = 0;
       virtual double getHeight() = 0;
+      virtual double getContentScale() = 0;
       virtual bool getTransparent() = 0;
       virtual bool getSynchronousTeardown() = 0;
 

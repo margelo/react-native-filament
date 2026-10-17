@@ -20,10 +20,13 @@ public:
 
   double getWidth() override;
   double getHeight() override;
+  std::shared_ptr<HybridViewSpec> getView() override;
+  ListenerSubscription addOnFirstFrameListener(const std::function<void()>& listener) override;
   ListenerSubscription addOnResizeListener(const std::function<void(double width, double height)>& listener) override;
   void setScene(const std::shared_ptr<HybridSceneSpec>& scene) override;
   void setCamera(const std::shared_ptr<HybridCameraSpec>& camera) override;
-  void setClearColor(const std::tuple<double, double, double, double>& color) override;
+  void setClearOptions(const ClearOptions& options) override;
+  static ViewTargetCore::ClearSettings toClearSettings(const std::optional<ClearOptions>& options);
   void dispose() override;
 
 private:
@@ -32,6 +35,7 @@ private:
   std::shared_ptr<HybridEngine> engine_;
   std::shared_ptr<ViewTargetCore> core_;
   std::shared_ptr<HybridFilamentViewSpec> view_;
+  std::shared_ptr<HybridViewSpec> renderView_;
   std::atomic<bool> disposed_{false};
 };
 

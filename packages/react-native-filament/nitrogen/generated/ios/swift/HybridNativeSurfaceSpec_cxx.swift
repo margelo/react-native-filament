@@ -142,6 +142,13 @@ open class HybridNativeSurfaceSpec_cxx {
     }
   }
   
+  public final var contentScale: Double {
+    @inline(__always)
+    get {
+      return self.__implementation.contentScale
+    }
+  }
+  
   public final var transparent: Bool {
     @inline(__always)
     get {

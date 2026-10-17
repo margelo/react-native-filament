@@ -12,6 +12,10 @@ double HybridLight::getEntity() {
   return fromEntity(core_->entity());
 }
 
+LightType HybridLight::getType() {
+  return core_->type();
+}
+
 void HybridLight::dispose() {
   engine_->core()->dispose(core_);
 }

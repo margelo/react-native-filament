@@ -13,9 +13,10 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+// Forward declaration of `LightType` to properly resolve imports.
+namespace margelo::nitro::filament { enum class LightType; }
 
-
-
+#include "LightType.hpp"
 
 namespace margelo::nitro::filament {
 
@@ -45,6 +46,7 @@ namespace margelo::nitro::filament {
     public:
       // Properties
       virtual double getEntity() = 0;
+      virtual LightType getType() = 0;
 
     public:
       // Methods

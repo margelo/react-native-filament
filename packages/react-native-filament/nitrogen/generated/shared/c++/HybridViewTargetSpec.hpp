@@ -13,19 +13,24 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+// Forward declaration of `HybridViewSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridViewSpec; }
 // Forward declaration of `ListenerSubscription` to properly resolve imports.
 namespace margelo::nitro::filament { struct ListenerSubscription; }
 // Forward declaration of `HybridSceneSpec` to properly resolve imports.
 namespace margelo::nitro::filament { class HybridSceneSpec; }
 // Forward declaration of `HybridCameraSpec` to properly resolve imports.
 namespace margelo::nitro::filament { class HybridCameraSpec; }
+// Forward declaration of `ClearOptions` to properly resolve imports.
+namespace margelo::nitro::filament { struct ClearOptions; }
 
+#include <memory>
+#include "HybridViewSpec.hpp"
 #include "ListenerSubscription.hpp"
 #include <functional>
-#include <memory>
 #include "HybridSceneSpec.hpp"
 #include "HybridCameraSpec.hpp"
-#include <tuple>
+#include "ClearOptions.hpp"
 
 namespace margelo::nitro::filament {
 
@@ -56,13 +61,15 @@ namespace margelo::nitro::filament {
       // Properties
       virtual double getWidth() = 0;
       virtual double getHeight() = 0;
+      virtual std::shared_ptr<HybridViewSpec> getView() = 0;
 
     public:
       // Methods
       virtual ListenerSubscription addOnResizeListener(const std::function<void(double /* width */, double /* height */)>& listener) = 0;
       virtual void setScene(const std::shared_ptr<HybridSceneSpec>& scene) = 0;
       virtual void setCamera(const std::shared_ptr<HybridCameraSpec>& camera) = 0;
-      virtual void setClearColor(const std::tuple<double, double, double, double>& color) = 0;
+      virtual ListenerSubscription addOnFirstFrameListener(const std::function<void()>& listener) = 0;
+      virtual void setClearOptions(const ClearOptions& options) = 0;
 
     protected:
       // Hybrid Setup

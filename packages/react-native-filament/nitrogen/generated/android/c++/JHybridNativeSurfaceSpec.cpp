@@ -56,6 +56,11 @@ namespace margelo::nitro::filament {
     auto __result = method(_javaPart);
     return __result;
   }
+  double JHybridNativeSurfaceSpec::getContentScale() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<double()>("getContentScale");
+    auto __result = method(_javaPart);
+    return __result;
+  }
   bool JHybridNativeSurfaceSpec::getTransparent() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jboolean()>("getTransparent");
     auto __result = method(_javaPart);
