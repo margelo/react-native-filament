@@ -35,6 +35,8 @@ target_sources(
   # Shared Nitrogen C++ sources
   ../nitrogen/generated/shared/c++/HybridFilamentFactorySpec.cpp
   ../nitrogen/generated/shared/c++/HybridEngineSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridFrameListenerSubscriptionSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridRenderThreadSpec.cpp
   ../nitrogen/generated/shared/c++/HybridNativeSurfaceSpec.cpp
   ../nitrogen/generated/shared/c++/HybridFilamentViewSpec.cpp
   ../nitrogen/generated/shared/c++/views/HybridFilamentViewComponent.cpp

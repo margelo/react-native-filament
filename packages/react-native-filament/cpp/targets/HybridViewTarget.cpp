@@ -1,6 +1,7 @@
 #include "HybridViewTarget.hpp"
 
 #include "engine/HybridEngine.hpp"
+#include "utils/ThreadChecks.hpp"
 
 #include <future>
 
@@ -22,6 +23,12 @@ double HybridViewTarget::getWidth() {
 
 double HybridViewTarget::getHeight() {
   return core_->height();
+}
+
+void HybridViewTarget::setClearColor(const std::tuple<double, double, double, double>& color) {
+  requireRenderThread(engine_->core()->thread(), "ViewTarget.setClearColor()");
+  auto [r, g, b, a] = color;
+  core_->setClearColor({static_cast<float>(r), static_cast<float>(g), static_cast<float>(b), static_cast<float>(a)});
 }
 
 void HybridViewTarget::dispose() {

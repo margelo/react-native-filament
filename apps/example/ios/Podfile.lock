@@ -48,6 +48,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
+    - RNWorklets
     - Yoga
   - NitroModules (0.37.1):
     - hermes-engine
@@ -2526,7 +2527,7 @@ SPEC CHECKSUMS:
   FBLazyVector: b88945378388c6651d3725b0e8c2624fbb37ec64
   HarnessUI: 797af26709443ecbe67e6552c2b294dd0f2635e6
   hermes-engine: a2a9fc7160af80292783f30b771f14a477f29712
-  NitroFilament: a6c2d4f04726efb96d89eeb9206e39e127f56b91
+  NitroFilament: fdb7c6be3bf8d45555297325e82cc9e5746d9d06
   NitroModules: ec72e184ad11adcc47ce9544bff224ee45cdbeba
   RCTDeprecation: 86774ca0048c2293d01cc7dfb71811fd32ebbd46
   RCTRequired: c7f2bc9661a7c341d33f411fc161f057c97cc731

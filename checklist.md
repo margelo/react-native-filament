@@ -134,14 +134,14 @@ Plan §10 Phase 0. The exit is a decision gate: every spike has a measured resul
   - address sanitizer reports no leak.
 
 **Spike D: render thread plus worklets 0.7.4** (§4.3)
-- [ ] **D.1** Runtime setup works: creation with `customQueue`, `bindRuntime` with `extractWorkletRuntime`, and the Dispatcher installed through the runtime-lambda `runSync`.
-- [ ] **D.2** Frame listeners run inline at stage 4, and stages 5–6 start only after they return.
-- [ ] **D.3** Promise continuations:
+- [x] **D.1** Runtime setup works: creation with `customQueue`, `bindRuntime` with `extractWorkletRuntime`, and the Dispatcher installed through the runtime-lambda `runSync`.
+- [x] **D.2** Frame listeners run inline at stage 4, and stages 5–6 start only after they return.
+- [x] **D.3** Promise continuations:
   - record the route on the pinned Hermes (worklets' `setImmediate` or Hermes' job queue) and apply the matching §4.3 rule;
   - gate: Promises created by a listener and by a `runOnRenderThread` job settle on an otherwise idle engine;
   - if they do not, the spike fails and the lane changes.
 - [ ] **D.4** Worklets' timer thread sleeps while no timer is pending, and the Dispatcher's `runSync` throws off-thread.
-- [ ] **D.5** `runOnRenderThread` racing `shutdown()` from another runtime: every call settles exactly once, by its wrapper or by cancellation.
+- [x] **D.5** `runOnRenderThread` racing `shutdown()` from another runtime: every call settles exactly once, by its wrapper or by cancellation.
 - [ ] **D.6** Shutdown and reload:
   - shutdown settles render-runtime Promises before the runtime is released;
   - the IO executor's join resolves `shutdown()`;
@@ -264,21 +264,21 @@ Plan §10 Phase 2. Reanimated and gestures are proven here, not after the full r
 - [ ] **P2.10** A thread-local check on every render-thread entry throws `FilamentThreadError` in every build. Every method carries its `@thread` class.
 
 **Worklets binding** (§4.3, §5.2)
-- [ ] **P2.11** `RenderThreadQueue` implements `worklets::AsyncQueue`. Raw method `createQueue()` returns it.
-- [ ] **P2.12** Lazy runtime creation on the RN thread: `createWorkletRuntime({ name, useDefaultQueue: false, customQueue })`.
+- [x] **P2.11** `RenderThreadQueue` implements `worklets::AsyncQueue`. Raw method `createQueue()` returns it.
+- [x] **P2.12** Lazy runtime creation on the RN thread: `createWorkletRuntime({ name, useDefaultQueue: false, customQueue })`.
   - no RNF initializer;
   - the event loop is left at its default;
   - RNF's JS code does not keep the runtime object.
-- [ ] **P2.13** Raw method `bindRuntime(runtime)`:
+- [x] **P2.13** Raw method `bindRuntime(runtime)`:
   - calls `extractWorkletRuntime` and installs the Nitro `Dispatcher`;
   - the Dispatcher's `runAsync` queues a job;
   - its `runSync` runs inline on the render thread and throws elsewhere.
-- [ ] **P2.14** Every entry uses the runtime-lambda `runSync([&](jsi::Runtime&) { … })`. Never the `jsi::Function` or `SerializableWorklet` overloads, and never `schedule(std::function<void()>)`.
-- [ ] **P2.15** `runOnRenderThread(engine, worklet)` JS helper:
+- [x] **P2.14** Every entry uses the runtime-lambda `runSync([&](jsi::Runtime&) { … })`. Never the `jsi::Function` or `SerializableWorklet` overloads, and never `schedule(std::function<void()>)`.
+- [x] **P2.15** `runOnRenderThread(engine, worklet)` JS helper:
   - a `createSerializable` wrapper settles through `scheduleOnRN(resolve | reject)`;
   - raw method `runAsync(wrapper, onCancelled)` extracts it with `extractSerializableOrThrow` and converts `onCancelled` with Nitro's function converter;
   - exactly-once settlement.
-- [ ] **P2.16** Promise-continuation rule applied as spike D decided. `drainMicrotasks()` is called at the end of each entry only on the Hermes job-queue route. No private worklets globals.
+- [x] **P2.16** Promise-continuation rule applied as spike D decided. `drainMicrotasks()` is called at the end of each entry only on the Hermes job-queue route. No private worklets globals.
 - [ ] **P2.17** Debug builds time each listener and report overruns (default 4 ms) through `engine.addOnErrorListener`.
 - [ ] **P2.18** Callback exceptions are caught and reported through `addOnErrorListener` and `console.error`, never `reportFatalError` (§4.10).
 

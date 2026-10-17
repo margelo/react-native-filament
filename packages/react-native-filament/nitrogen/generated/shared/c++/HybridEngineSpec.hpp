@@ -15,6 +15,8 @@
 
 // Forward declaration of `EngineBackend` to properly resolve imports.
 namespace margelo::nitro::filament { enum class EngineBackend; }
+// Forward declaration of `HybridRenderThreadSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridRenderThreadSpec; }
 // Forward declaration of `RenderMode` to properly resolve imports.
 namespace margelo::nitro::filament { enum class RenderMode; }
 // Forward declaration of `HybridViewTargetSpec` to properly resolve imports.
@@ -23,14 +25,22 @@ namespace margelo::nitro::filament { class HybridViewTargetSpec; }
 namespace margelo::nitro::filament { class HybridFilamentViewSpec; }
 // Forward declaration of `ViewTargetOptions` to properly resolve imports.
 namespace margelo::nitro::filament { struct ViewTargetOptions; }
+// Forward declaration of `HybridFrameListenerSubscriptionSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridFrameListenerSubscriptionSpec; }
+// Forward declaration of `FrameInfo` to properly resolve imports.
+namespace margelo::nitro::filament { struct FrameInfo; }
 
 #include "EngineBackend.hpp"
-#include "RenderMode.hpp"
 #include <memory>
+#include "HybridRenderThreadSpec.hpp"
+#include "RenderMode.hpp"
 #include "HybridViewTargetSpec.hpp"
 #include <NitroModules/Promise.hpp>
 #include "HybridFilamentViewSpec.hpp"
 #include "ViewTargetOptions.hpp"
+#include "HybridFrameListenerSubscriptionSpec.hpp"
+#include "FrameInfo.hpp"
+#include <functional>
 
 namespace margelo::nitro::filament {
 
@@ -60,12 +70,14 @@ namespace margelo::nitro::filament {
     public:
       // Properties
       virtual EngineBackend getBackend() = 0;
+      virtual std::shared_ptr<HybridRenderThreadSpec> getRenderThread() = 0;
       virtual RenderMode getRenderMode() = 0;
       virtual void setRenderMode(RenderMode renderMode) = 0;
 
     public:
       // Methods
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridViewTargetSpec>>> createViewTarget(const std::shared_ptr<HybridFilamentViewSpec>& view, const ViewTargetOptions& options) = 0;
+      virtual std::shared_ptr<HybridFrameListenerSubscriptionSpec> addOnFrameListener(const std::function<bool(const FrameInfo& /* frame */)>& listener) = 0;
       virtual void requestFrame() = 0;
       virtual std::shared_ptr<Promise<void>> shutdown() = 0;
 

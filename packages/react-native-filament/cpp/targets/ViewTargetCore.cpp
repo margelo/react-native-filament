@@ -11,7 +11,11 @@ ViewTargetCore::ViewTargetCore(::filament::Engine& engine, std::array<float, 4> 
   ::filament::Camera* camera = engine_.createCamera(cameraEntity_);
   view_->setScene(scene_);
   view_->setCamera(camera);
-  renderer_->setClearOptions({.clearColor = {clearColor[0], clearColor[1], clearColor[2], clearColor[3]}, .clear = true, .discard = true});
+  setClearColor(clearColor);
+}
+
+void ViewTargetCore::setClearColor(std::array<float, 4> color) {
+  renderer_->setClearOptions({.clearColor = {color[0], color[1], color[2], color[3]}, .clear = true, .discard = true});
 }
 
 void ViewTargetCore::attach(const std::shared_ptr<HybridNativeSurfaceSpec>& surface) {

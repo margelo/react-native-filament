@@ -13,11 +13,13 @@ public:
   ~HybridEngine() override;
 
   EngineBackend getBackend() override;
+  std::shared_ptr<HybridRenderThreadSpec> getRenderThread() override;
   RenderMode getRenderMode() override;
   void setRenderMode(RenderMode renderMode) override;
 
   std::shared_ptr<Promise<std::shared_ptr<HybridViewTargetSpec>>> createViewTarget(const std::shared_ptr<HybridFilamentViewSpec>& view,
                                                                                    const ViewTargetOptions& options) override;
+  std::shared_ptr<HybridFrameListenerSubscriptionSpec> addOnFrameListener(const std::function<bool(const FrameInfo&)>& listener) override;
   void requestFrame() override;
   std::shared_ptr<Promise<void>> shutdown() override;
   void dispose() override;
@@ -26,6 +28,7 @@ public:
 
 private:
   std::shared_ptr<EngineCore> core_;
+  std::shared_ptr<HybridRenderThreadSpec> renderThread_;
 };
 
 } // namespace margelo::nitro::filament

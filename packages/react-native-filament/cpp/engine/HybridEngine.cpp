@@ -1,5 +1,9 @@
 #include "HybridEngine.hpp"
 
+#include "HybridFrameListenerSubscription.hpp"
+#include "HybridRenderThread.hpp"
+#include "utils/ThreadChecks.hpp"
+
 #include "targets/HybridViewTarget.hpp"
 #include "targets/ViewTargetCore.hpp"
 
@@ -7,7 +11,8 @@
 
 namespace margelo::nitro::filament {
 
-HybridEngine::HybridEngine(std::shared_ptr<EngineCore> core) : HybridObject(TAG), core_(std::move(core)) {}
+HybridEngine::HybridEngine(std::shared_ptr<EngineCore> core)
+    : HybridObject(TAG), core_(std::move(core)), renderThread_(std::make_shared<HybridRenderThread>(core_)) {}
 
 HybridEngine::~HybridEngine() {
   core_->shutdown();
@@ -15,6 +20,10 @@ HybridEngine::~HybridEngine() {
 
 EngineBackend HybridEngine::getBackend() {
   return core_->backend();
+}
+
+std::shared_ptr<HybridRenderThreadSpec> HybridEngine::getRenderThread() {
+  return renderThread_;
 }
 
 RenderMode HybridEngine::getRenderMode() {
@@ -41,6 +50,13 @@ HybridEngine::createViewTarget(const std::shared_ptr<HybridFilamentViewSpec>& vi
       .cancel = [promise] { promise->reject(std::make_exception_ptr(std::runtime_error("The Engine was shut down."))); },
   });
   return promise;
+}
+
+std::shared_ptr<HybridFrameListenerSubscriptionSpec>
+HybridEngine::addOnFrameListener(const std::function<bool(const FrameInfo&)>& listener) {
+  requireRenderThread(core_->thread(), "Engine.addOnFrameListener()");
+  std::shared_ptr<FrameListener> registered = core_->addFrameListener(listener);
+  return std::make_shared<HybridFrameListenerSubscription>(core_, registered);
 }
 
 void HybridEngine::requestFrame() {

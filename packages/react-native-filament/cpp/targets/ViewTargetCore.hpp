@@ -26,6 +26,7 @@ public:
   bool canRender() const;
   void render(int64_t frameTimeNanos);
   void destroy();
+  void setClearColor(std::array<float, 4> color);
 
   void revoke();
   double width() const;

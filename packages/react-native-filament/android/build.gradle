@@ -28,6 +28,11 @@ if (isNewArchitectureEnabled()) {
   apply plugin: "com.facebook.react"
 }
 
+def reactNativeDir = providers.exec {
+  workingDir projectDir
+  commandLine("node", "--print", "require('path').dirname(require.resolve('react-native/package.json'))")
+}.standardOutput.asText.get().trim()
+
 def getExtOrDefault(name) {
   return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties["NitroFilament_" + name]
 }
@@ -50,7 +55,7 @@ android {
     externalNativeBuild {
       cmake {
         cppFlags "-frtti -fexceptions -Wall -Wextra -fstack-protector-all -ffunction-sections -fdata-sections"
-        arguments "-DANDROID_STL=c++_shared", "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON", "-DFILAMENT_DIST_DIR=${filamentDistDir}"
+        arguments "-DANDROID_STL=c++_shared", "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON", "-DFILAMENT_DIST_DIR=${filamentDistDir}", "-DREACT_NATIVE_DIR=${reactNativeDir}"
         abiFilters (*reactNativeArchitectures())
 
         buildTypes {
@@ -132,11 +137,8 @@ repositories {
 
 
 dependencies {
-  // For < 0.71, this will be from the local maven repo
-  // For > 0.71, this will be replaced by `com.facebook.react:react-android:$version` by react gradle plugin
-  //noinspection GradleDynamicVersion
   implementation "com.facebook.react:react-native:+"
 
-  // Add a dependency on NitroModules
   implementation project(":react-native-nitro-modules")
+  implementation project(":react-native-worklets")
 }

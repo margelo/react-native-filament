@@ -20,6 +20,7 @@ public:
 
   double getWidth() override;
   double getHeight() override;
+  void setClearColor(const std::tuple<double, double, double, double>& color) override;
   void dispose() override;
 
 private:

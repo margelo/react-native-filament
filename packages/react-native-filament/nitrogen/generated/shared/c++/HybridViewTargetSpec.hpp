@@ -15,7 +15,7 @@
 
 
 
-
+#include <tuple>
 
 namespace margelo::nitro::filament {
 
@@ -49,7 +49,7 @@ namespace margelo::nitro::filament {
 
     public:
       // Methods
-      
+      virtual void setClearColor(const std::tuple<double, double, double, double>& color) = 0;
 
     protected:
       // Hybrid Setup

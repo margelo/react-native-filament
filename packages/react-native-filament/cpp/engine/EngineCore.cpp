@@ -1,8 +1,10 @@
 #include "EngineCore.hpp"
 
 #include "BackendConversion.hpp"
+#include "RenderRuntimeDispatcher.hpp"
 #include "targets/ViewTargetCore.hpp"
 #include "threading/WorkerPool.hpp"
+#include "utils/Logger.hpp"
 
 #include <algorithm>
 #include <stdexcept>
@@ -74,6 +76,20 @@ void EngineCore::scheduleDemandUpdate() {
   }});
 }
 
+void EngineCore::updateDemand() {
+  bool canRender =
+      std::any_of(targets_.begin(), targets_.end(), [](const std::shared_ptr<ViewTargetCore>& target) { return target->canRender(); });
+  bool wantsFrame = renderMode_ == RenderMode::CONTINUOUS || frameRequested_ || listenersWantFrame_;
+  bool enabled = canRender && wantsFrame;
+  if (!enabled) {
+    lastFrameTimeNanos_ = 0;
+  }
+  if (enabled != vsyncEnabled_) {
+    vsyncEnabled_ = enabled;
+    thread_->setVsyncEnabled(enabled);
+  }
+}
+
 void EngineCore::addTarget(std::shared_ptr<ViewTargetCore> target) {
   targets_.push_back(std::move(target));
 }
@@ -83,19 +99,74 @@ void EngineCore::removeTarget(const std::shared_ptr<ViewTargetCore>& target) {
   updateDemand();
 }
 
+void EngineCore::bindRuntime(std::shared_ptr<worklets::WorkletRuntime> runtime) {
+  {
+    std::unique_lock lock(runtimeMutex_);
+    if (runtime_ != nullptr) {
+      throw std::runtime_error("This Engine's render thread already has a worklet runtime.");
+    }
+    runtime_ = runtime;
+  }
+  auto dispatcher = std::make_shared<RenderRuntimeDispatcher>(weak_from_this(), runtime);
+  runtime->runSync([&](jsi::Runtime& rt) { Dispatcher::installRuntimeGlobalDispatcher(rt, dispatcher); });
+}
+
+bool EngineCore::hasRuntime() const {
+  return runtime() != nullptr;
+}
+
+std::shared_ptr<worklets::WorkletRuntime> EngineCore::runtime() const {
+  std::unique_lock lock(runtimeMutex_);
+  return runtime_;
+}
+
+void EngineCore::runWorklet(const std::shared_ptr<worklets::SerializableWorklet>& worklet) {
+  std::shared_ptr<worklets::WorkletRuntime> runtime = this->runtime();
+  try {
+    runtime->runSync([&](jsi::Runtime& rt) { worklet->toJSValue(rt).asObject(rt).asFunction(rt).call(rt); });
+  } catch (const std::exception& error) {
+    logError(std::string("A render thread job threw: ") + error.what());
+  }
+}
+
+std::shared_ptr<FrameListener> EngineCore::addFrameListener(std::function<bool(const FrameInfo&)> callback) {
+  std::shared_ptr<FrameListener> listener = frameListeners_.add(std::move(callback));
+  listenersWantFrame_ = true;
+  updateDemand();
+  return listener;
+}
+
+void EngineCore::removeFrameListener(const std::shared_ptr<FrameListener>& listener) {
+  if (std::shared_ptr<worklets::WorkletRuntime> runtime = this->runtime()) {
+    runtime->runSync([&](jsi::Runtime&) { frameListeners_.remove(listener); });
+  } else {
+    frameListeners_.remove(listener);
+  }
+  if (frameListeners_.empty()) {
+    listenersWantFrame_ = false;
+    updateDemand();
+  }
+}
+
+FrameInfo EngineCore::nextFrameInfo(int64_t frameTimeNanos) {
+  double deltaSeconds = lastFrameTimeNanos_ == 0 ? 0 : static_cast<double>(frameTimeNanos - lastFrameTimeNanos_) / 1e9;
+  lastFrameTimeNanos_ = frameTimeNanos;
+  elapsedSeconds_ += deltaSeconds;
+  return FrameInfo(static_cast<double>(frameTimeNanos), deltaSeconds, elapsedSeconds_, frameIndex_++);
+}
+
 void EngineCore::renderFrame(int64_t frameTimeNanos) {
   frameRequested_ = false;
+  FrameInfo frame = nextFrameInfo(frameTimeNanos);
+  if (!frameListeners_.empty()) {
+    if (std::shared_ptr<worklets::WorkletRuntime> runtime = this->runtime()) {
+      listenersWantFrame_ = frameListeners_.dispatch(frame, *runtime);
+    }
+  }
   for (const std::shared_ptr<ViewTargetCore>& target : targets_) {
     target->render(frameTimeNanos);
   }
   updateDemand();
-}
-
-void EngineCore::updateDemand() {
-  bool canRender =
-      std::any_of(targets_.begin(), targets_.end(), [](const std::shared_ptr<ViewTargetCore>& target) { return target->canRender(); });
-  bool wantsFrame = renderMode_ == RenderMode::CONTINUOUS || frameRequested_;
-  thread_->setVsyncEnabled(canRender && wantsFrame);
 }
 
 std::shared_ptr<Promise<void>> EngineCore::shutdown() {
@@ -111,10 +182,17 @@ std::shared_ptr<Promise<void>> EngineCore::shutdown() {
 
 void EngineCore::shutdownOnRenderThread() {
   thread_->close();
+  if (std::shared_ptr<worklets::WorkletRuntime> runtime = this->runtime()) {
+    runtime->runSync([&](jsi::Runtime&) { frameListeners_.clear(); });
+  }
   for (const std::shared_ptr<ViewTargetCore>& target : targets_) {
     target->destroy();
   }
   targets_.clear();
+  {
+    std::unique_lock lock(runtimeMutex_);
+    runtime_ = nullptr;
+  }
   if (engine_ != nullptr) {
     ::filament::Engine::destroy(&engine_);
   }

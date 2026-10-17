@@ -17,10 +17,14 @@ target_include_directories(${PACKAGE_NAME} PRIVATE
   "${CMAKE_SOURCE_DIR}/src/main/cpp"
   "${CMAKE_SOURCE_DIR}/../cpp"
   "${CMAKE_SOURCE_DIR}/../cpp/engine"
+  "${REACT_NATIVE_DIR}/ReactCommon"
+  "${REACT_NATIVE_DIR}/ReactCommon/jsiexecutor"
 )
 target_compile_definitions(${PACKAGE_NAME} PRIVATE __ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__)
 target_compile_options(${PACKAGE_NAME} PRIVATE -Werror=unguarded-availability)
 
+find_package(react-native-worklets REQUIRED CONFIG)
+
 find_library(LOG_LIB log)
-target_link_libraries(${PACKAGE_NAME} ${LOG_LIB} android)
+target_link_libraries(${PACKAGE_NAME} ${LOG_LIB} android react-native-worklets::worklets)
 target_link_options(${PACKAGE_NAME} PRIVATE "-Wl,--no-undefined" "-Wl,--gc-sections")

@@ -15,9 +15,11 @@ namespace margelo::nitro::filament {
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
       prototype.registerHybridGetter("backend", &HybridEngineSpec::getBackend);
+      prototype.registerHybridGetter("renderThread", &HybridEngineSpec::getRenderThread);
       prototype.registerHybridGetter("renderMode", &HybridEngineSpec::getRenderMode);
       prototype.registerHybridSetter("renderMode", &HybridEngineSpec::setRenderMode);
       prototype.registerHybridMethod("createViewTarget", &HybridEngineSpec::createViewTarget);
+      prototype.registerHybridMethod("addOnFrameListener", &HybridEngineSpec::addOnFrameListener);
       prototype.registerHybridMethod("requestFrame", &HybridEngineSpec::requestFrame);
       prototype.registerHybridMethod("shutdown", &HybridEngineSpec::shutdown);
     });

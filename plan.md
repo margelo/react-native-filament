@@ -1620,6 +1620,7 @@ Each has a recommended default that the plan assumes until the user says otherwi
 | D17 | 2026-10-18 | Both example apps use React Native 0.83.10, Expo SDK 55's pin, because a hoisted install cannot hold two React Native versions without nesting. | Follows from D15. |
 | D18 | 2026-10-18 | The iOS example builds with React Native's prebuilt core and dependencies (`RCT_USE_PREBUILT_RNCORE`, `RCT_USE_RN_DEP`). With Xcode 27, RN 0.83's from-source glog cannot be built as a Clang module for Swift targets using C++ interop, which NitroModules needs. | Found while building the Nitro scaffold. |
 | D19 | 2026-10-18 | Harness suites live in `apps/example/harness/`; harness resolves test files from the app directory. | Found while setting up react-native-harness. |
+| D20 | 2026-10-18 | Frame listeners are `Sync<(frame: FrameInfo) => boolean>` and return whether they need another frame; in `on-demand` mode the Engine keeps rendering while any listener returns `true`. Nitro treats a void-returning function as asynchronous, so a synchronous listener must return a value; giving it a meaning replaces the 'listeners imply continuous demand' rule of D9. | Found while implementing frame listeners with Nitro 0.37.1. |
 
 ---
 
