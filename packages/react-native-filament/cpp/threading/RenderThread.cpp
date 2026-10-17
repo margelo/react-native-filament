@@ -1,5 +1,10 @@
 #include "RenderThread.hpp"
 
+#include "utils/Logger.hpp"
+
+#include <exception>
+#include <string>
+
 namespace margelo::nitro::filament {
 
 RenderThread::RenderThread(VsyncHandler onVsync) : onVsync_(std::move(onVsync)) {
@@ -97,12 +102,22 @@ std::optional<Job> RenderThread::takeNext() {
 
 void RenderThread::onWake() {
   for (std::optional<Job> job = takeNext(); job.has_value(); job = takeNext()) {
-    job->run();
+    runGuarded("A render thread job", job->run);
   }
 }
 
 void RenderThread::onVsync(int64_t frameTimeNanos) {
-  onVsync_(frameTimeNanos);
+  runGuarded("A frame", [&] { onVsync_(frameTimeNanos); });
+}
+
+void RenderThread::runGuarded(const char* what, const std::function<void()>& work) {
+  try {
+    work();
+  } catch (const std::exception& error) {
+    logError(std::string(what) + " threw: " + error.what());
+  } catch (...) {
+    logError(std::string(what) + " threw a non-standard exception.");
+  }
 }
 
 } // namespace margelo::nitro::filament

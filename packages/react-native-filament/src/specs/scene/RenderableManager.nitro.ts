@@ -1,6 +1,7 @@
 import type { HybridObject } from 'react-native-nitro-modules'
 import type { Aabb } from '../types/Aabb'
 import type { Entity } from '../types/Entity'
+import type { MaterialInstance } from '../materials/MaterialInstance.nitro'
 
 /**
  * Reads and writes the renderable components of entities. Every method runs on the render thread
@@ -22,4 +23,15 @@ export interface RenderableManager extends HybridObject<{ ios: 'c++'; android: '
   setPriority(entity: Entity, priority: number): void
   /** Frustum culling of the entity. @default true */
   setCulling(entity: Entity, enabled: boolean): void
+  /**
+   * The material instance of one primitive. For a model's entity it is the model's instance, usable
+   * while the model is alive.
+   */
+  getMaterialInstanceAt(entity: Entity, primitiveIndex: number): MaterialInstance
+  /**
+   * Draws one primitive with `instance`. The renderable keeps the instance alive until it is
+   * replaced. Disposing the instance falls back to its material's default instance, and disposing
+   * the material falls back to Filament's default material.
+   */
+  setMaterialInstanceAt(entity: Entity, primitiveIndex: number, instance: MaterialInstance): void
 }

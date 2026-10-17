@@ -32,6 +32,7 @@ private:
   std::optional<Job> takeNext();
   void onWake() override;
   void onVsync(int64_t frameTimeNanos) override;
+  static void runGuarded(const char* what, const std::function<void()>& work);
 
   VsyncHandler onVsync_;
   std::mutex mutex_;

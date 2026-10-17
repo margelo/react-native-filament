@@ -23,6 +23,8 @@ public:
   void scaleBoundingBox(double entity, double scale) override;
   void setPriority(double entity, double priority) override;
   void setCulling(double entity, bool enabled) override;
+  std::shared_ptr<HybridMaterialInstanceSpec> getMaterialInstanceAt(double entity, double primitiveIndex) override;
+  void setMaterialInstanceAt(double entity, double primitiveIndex, const std::shared_ptr<HybridMaterialInstanceSpec>& instance) override;
 
 private:
   struct Renderable {

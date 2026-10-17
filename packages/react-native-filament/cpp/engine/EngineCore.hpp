@@ -5,6 +5,8 @@
 #include "RenderMode.hpp"
 #include "assets/GltfLoader.hpp"
 #include "assets/ModelLoads.hpp"
+#include "materials/MaterialAssignments.hpp"
+#include "materials/TextureDecoder.hpp"
 #include "resources/ResourceRoot.hpp"
 #include "resources/Users.hpp"
 #include "threading/RenderThread.hpp"
@@ -56,6 +58,8 @@ public:
   void addTransformBinding(const std::shared_ptr<TransformBindingCore>& binding);
   void addManipulator(const std::shared_ptr<ManipulatorCore>& manipulator);
   Users<SceneCore>& scenes();
+  MaterialAssignments& materialAssignments();
+  void decodeTexture(const uint8_t* bytes, size_t size, bool srgb, TextureDecoder::Completion completion);
 
   void addTarget(std::shared_ptr<ViewTargetCore> target);
   void removeTarget(const std::shared_ptr<ViewTargetCore>& target);
@@ -83,6 +87,8 @@ private:
   std::shared_ptr<ResourceRoot> resources_ = std::make_shared<ResourceRoot>();
   std::unique_ptr<GltfLoader> gltf_;
   ModelLoads loads_;
+  std::unique_ptr<TextureDecoder> textures_;
+  MaterialAssignments materialAssignments_;
   WeakRegistry<AnimationPlayerCore> players_;
   WeakRegistry<TransformBindingCore> transformBindings_;
   WeakRegistry<ManipulatorCore> manipulators_;

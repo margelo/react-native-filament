@@ -33,6 +33,10 @@ public:
   std::shared_ptr<HybridLightSpec> createSpotLight(const SpotLightOptions& options) override;
   std::shared_ptr<HybridLightSpec> createFocusedSpotLight(const SpotLightOptions& options) override;
   std::shared_ptr<Promise<std::shared_ptr<HybridModelSpec>>> loadModel(const AssetSource& source, const ModelLoadOptions& options) override;
+  std::shared_ptr<Promise<std::shared_ptr<HybridMaterialSpec>>> loadMaterial(const AssetSource& source) override;
+  std::shared_ptr<Promise<std::shared_ptr<HybridTextureSpec>>> loadTexture(const AssetSource& source,
+                                                                           const TextureLoadOptions& options) override;
+  std::shared_ptr<Promise<std::shared_ptr<HybridSkyboxSpec>>> loadSkybox(const AssetSource& source) override;
   std::shared_ptr<Promise<std::shared_ptr<HybridIndirectLightSpec>>> loadIndirectLight(const AssetSource& source,
                                                                                        const IndirectLightOptions& options) override;
   std::shared_ptr<HybridTransformBindingSpec> createTransformBinding(double entity) override;

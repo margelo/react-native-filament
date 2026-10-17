@@ -44,6 +44,9 @@ target_sources(
   ../nitrogen/generated/shared/c++/HybridEngineSpec.cpp
   ../nitrogen/generated/shared/c++/HybridFrameListenerSubscriptionSpec.cpp
   ../nitrogen/generated/shared/c++/HybridRenderThreadSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridMaterialSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridMaterialInstanceSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridTextureSpec.cpp
   ../nitrogen/generated/shared/c++/HybridAssetIOSpec.cpp
   ../nitrogen/generated/shared/c++/HybridNativeSurfaceSpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraSpec.cpp

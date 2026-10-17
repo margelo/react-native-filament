@@ -378,7 +378,7 @@ Plan §10 Phase 3, §5, §8.2.
 - [x] **P3.3** User `ArrayBuffer`s:
   - read in place when consumed during the call;
   - one snapshot copy at call time, with bounds and format checks, when consumed after the call returns (D10).
-- [ ] **P3.4** Textures are decoded on an IO thread, then `Texture::setImage` with a release callback. KTX2 and Basis go through Filament's provider.
+- [x] **P3.4** Textures are decoded on an IO thread, then `Texture::setImage` with a release callback. KTX2 and Basis go through Filament's provider.
 
 **Objects** (§5.4)
 - [x] **P3.5** `View`: every option as a typed struct (AO, bloom, TAA with float `upscaling`, `varianceGamma` and `filterWidth`, dynamic resolution, dithering, anti-aliasing), plus `projectWorldToScreen`.

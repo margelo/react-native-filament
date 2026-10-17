@@ -81,7 +81,8 @@ void EngineCore::scheduleDemandUpdate() {
 
 void EngineCore::updateDemand() {
   bool wantsFrame = renderMode_ == RenderMode::CONTINUOUS || frameRequested_ || listenersWantFrame_ || playersWantFrame_;
-  bool enabled = (canRenderAnyTarget() && wantsFrame) || !loads_.empty();
+  bool uploading = !loads_.empty() || (textures_ != nullptr && !textures_->empty());
+  bool enabled = (canRenderAnyTarget() && wantsFrame) || uploading;
   if (!enabled) {
     lastFrameTimeNanos_ = 0;
   }
@@ -130,6 +131,21 @@ void EngineCore::addManipulator(const std::shared_ptr<ManipulatorCore>& manipula
   manipulators_.add(manipulator);
 }
 
+MaterialAssignments& EngineCore::materialAssignments() {
+  return materialAssignments_;
+}
+
+void EngineCore::decodeTexture(const uint8_t* bytes, size_t size, bool srgb, TextureDecoder::Completion completion) {
+  if (textures_ == nullptr) {
+    textures_ = std::make_unique<TextureDecoder>(*engine_);
+  }
+  textures_->push(bytes, size, srgb, [self = shared_from_this(), completion](::filament::Texture* texture, std::exception_ptr error) {
+    self->frameRequested_ = true;
+    completion(texture, std::move(error));
+  });
+  updateDemand();
+}
+
 Users<SceneCore>& EngineCore::scenes() {
   return scenes_;
 }
@@ -169,7 +185,7 @@ void EngineCore::runWorklet(const std::shared_ptr<worklets::SerializableWorklet>
   try {
     runtime->runSync([&](jsi::Runtime& rt) { worklet->toJSValue(rt).asObject(rt).asFunction(rt).call(rt); });
   } catch (const std::exception& error) {
-    logError(std::string("A render thread job threw: ") + error.what());
+    logError(std::string("A render thread worklet threw: ") + error.what());
   }
 }
 
@@ -205,6 +221,9 @@ FrameInfo EngineCore::nextFrameInfo(int64_t frameTimeNanos) {
 
 void EngineCore::renderFrame(int64_t frameTimeNanos) {
   loads_.update();
+  if (textures_ != nullptr) {
+    textures_->update();
+  }
   if (!canRenderAnyTarget()) {
     lastFrameTimeNanos_ = 0;
     updateDemand();
@@ -245,12 +264,14 @@ void EngineCore::shutdownOnRenderThread() {
     runtime->runSync([&](jsi::Runtime&) { frameListeners_.clear(); });
   }
   loads_.cancelAll();
+  textures_.reset();
   players_.clear();
   transformBindings_.clear();
   manipulators_.clear();
   resources_->markDisposing();
   resources_->destroyTree();
   targets_.clear();
+  materialAssignments_.clear();
   gltf_.reset();
   {
     std::unique_lock lock(runtimeMutex_);

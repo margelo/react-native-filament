@@ -1,6 +1,9 @@
 #include "HybridRenderableManager.hpp"
 
+#include "materials/HybridMaterialInstance.hpp"
 #include "utils/ComponentChecks.hpp"
+#include "utils/EngineChecks.hpp"
+#include "utils/EntityConversion.hpp"
 #include "utils/IndexChecks.hpp"
 #include "utils/MatrixConversion.hpp"
 #include "utils/ThreadChecks.hpp"
@@ -62,6 +65,28 @@ void HybridRenderableManager::setPriority(double entity, double priority) {
 void HybridRenderableManager::setCulling(double entity, bool enabled) {
   auto [manager, instance] = renderable(entity, "RenderableManager.setCulling()");
   manager.setCulling(instance, enabled);
+}
+
+std::shared_ptr<HybridMaterialInstanceSpec> HybridRenderableManager::getMaterialInstanceAt(double entity, double primitiveIndex) {
+  auto [manager, instance] = renderable(entity, "RenderableManager.getMaterialInstanceAt()");
+  size_t primitive =
+      requireIndex(primitiveIndex, manager.getPrimitiveCount(instance), "RenderableManager.getMaterialInstanceAt()", "primitives");
+  MaterialInstanceRef::Borrowed borrowed{.engine = engine_,
+                                         .entity = toEntity(entity),
+                                         .primitive = primitive,
+                                         .instance = manager.getMaterialInstanceAt(instance, primitive)};
+  return std::make_shared<HybridMaterialInstance>(MaterialInstanceRef(borrowed));
+}
+
+void HybridRenderableManager::setMaterialInstanceAt(double entity, double primitiveIndex,
+                                                    const std::shared_ptr<HybridMaterialInstanceSpec>& materialInstance) {
+  auto [manager, instance] = renderable(entity, "RenderableManager.setMaterialInstanceAt()");
+  size_t primitive =
+      requireIndex(primitiveIndex, manager.getPrimitiveCount(instance), "RenderableManager.setMaterialInstanceAt()", "primitives");
+  auto resolved = requireSameEngine<HybridMaterialInstance>(materialInstance, *engine_, "RenderableManager.setMaterialInstanceAt()");
+  std::shared_ptr<void> owner = resolved->ref().assignableOwner("RenderableManager.setMaterialInstanceAt()");
+  ::filament::MaterialInstance& filamentInstance = resolved->ref().require("RenderableManager.setMaterialInstanceAt()");
+  engine_->materialAssignments().assign(engine_->engine(), toEntity(entity), primitive, &filamentInstance, std::move(owner));
 }
 
 HybridRenderableManager::Renderable HybridRenderableManager::renderable(double entity, const char* method) {

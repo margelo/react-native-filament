@@ -6,6 +6,9 @@
 #include "control/HybridCameraManipulator.hpp"
 #include "control/HybridTransformBinding.hpp"
 #include "control/HybridValueBinding.hpp"
+#include "materials/HybridMaterial.hpp"
+#include "materials/HybridTexture.hpp"
+#include "materials/MaterialFile.hpp"
 #include "scene/HybridCamera.hpp"
 #include "scene/HybridIndirectLight.hpp"
 #include "scene/HybridLight.hpp"
@@ -14,6 +17,7 @@
 #include "scene/HybridScene.hpp"
 #include "scene/HybridSkybox.hpp"
 #include "scene/HybridTransformManager.hpp"
+#include "scene/Ktx1Cubemap.hpp"
 #include "utils/ComponentChecks.hpp"
 #include "utils/ThreadChecks.hpp"
 #include "utils/Trs.hpp"
@@ -21,7 +25,9 @@
 #include "targets/HybridViewTarget.hpp"
 #include "targets/ViewTargetCore.hpp"
 
+#include <filament/Material.h>
 #include <gltfio/FilamentInstance.h>
+#include <ktxreader/Ktx1Reader.h>
 
 #include <cmath>
 #include <stdexcept>
@@ -181,6 +187,64 @@ std::shared_ptr<Promise<std::shared_ptr<HybridIndirectLightSpec>>> HybridEngine:
       auto light = std::make_shared<IndirectLightCore>(engine->core(), bytes->data(), bytes->size(), intensity);
       engine->core()->adopt(light);
       promise->resolve(std::make_shared<HybridIndirectLight>(engine, light));
+    } catch (...) {
+      promise->reject(std::current_exception());
+    }
+  });
+  return promise;
+}
+
+std::shared_ptr<Promise<std::shared_ptr<HybridMaterialSpec>>> HybridEngine::loadMaterial(const AssetSource& source) {
+  auto promise = Promise<std::shared_ptr<HybridMaterialSpec>>::create();
+  auto engine = shared_cast<HybridEngine>();
+  withAssetBytes(source, promise, [engine, promise](const std::shared_ptr<ArrayBuffer>& bytes) {
+    try {
+      requireMaterialFile(bytes->data(), bytes->size());
+      ::filament::Material* material =
+          ::filament::Material::Builder().package(bytes->data(), bytes->size()).build(engine->core()->engine());
+      if (material == nullptr) {
+        throw std::invalid_argument("FilamentAssetError: Filament could not build the material.");
+      }
+      auto core = std::make_shared<MaterialCore>(engine->core(), material);
+      engine->core()->adopt(core);
+      promise->resolve(std::make_shared<HybridMaterial>(engine->core(), core));
+    } catch (...) {
+      promise->reject(std::current_exception());
+    }
+  });
+  return promise;
+}
+
+std::shared_ptr<Promise<std::shared_ptr<HybridTextureSpec>>> HybridEngine::loadTexture(const AssetSource& source,
+                                                                                       const TextureLoadOptions& options) {
+  bool srgb = options.srgb.value_or(true);
+  auto promise = Promise<std::shared_ptr<HybridTextureSpec>>::create();
+  auto engine = shared_cast<HybridEngine>();
+  withAssetBytes(source, promise, [engine, promise, srgb](const std::shared_ptr<ArrayBuffer>& bytes) {
+    engine->core()->decodeTexture(bytes->data(), bytes->size(), srgb,
+                                  [engine, promise](::filament::Texture* texture, std::exception_ptr error) {
+                                    if (error != nullptr) {
+                                      promise->reject(error);
+                                      return;
+                                    }
+                                    auto core = std::make_shared<TextureCore>(engine->core(), texture);
+                                    engine->core()->adopt(core);
+                                    promise->resolve(std::make_shared<HybridTexture>(engine->core(), core));
+                                  });
+  });
+  return promise;
+}
+
+std::shared_ptr<Promise<std::shared_ptr<HybridSkyboxSpec>>> HybridEngine::loadSkybox(const AssetSource& source) {
+  auto promise = Promise<std::shared_ptr<HybridSkyboxSpec>>::create();
+  auto engine = shared_cast<HybridEngine>();
+  withAssetBytes(source, promise, [engine, promise](const std::shared_ptr<ArrayBuffer>& bytes) {
+    try {
+      std::unique_ptr<image::Ktx1Bundle> bundle = parseKtx1Cubemap(bytes->data(), bytes->size(), "skybox");
+      ::filament::Texture* environment = ktxreader::Ktx1Reader::createTexture(&engine->core()->engine(), bundle.release(), false);
+      auto core = std::make_shared<SkyboxCore>(engine->core(), environment);
+      engine->core()->adopt(core);
+      promise->resolve(std::make_shared<HybridSkybox>(engine, core));
     } catch (...) {
       promise->reject(std::current_exception());
     }

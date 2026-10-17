@@ -9,12 +9,15 @@ import type { PointLightOptions } from '../types/PointLightOptions'
 import type { SpotLightOptions } from '../types/SpotLightOptions'
 import type { SunLightOptions } from '../types/SunLightOptions'
 import type { ModelLoadOptions } from '../types/ModelLoadOptions'
+import type { TextureLoadOptions } from '../types/TextureLoadOptions'
 import type { FrameInfo } from '../types/FrameInfo'
 import type { RenderMode } from '../types/RenderMode'
 import type { ViewTargetOptions } from '../types/ViewTargetOptions'
 import type { FilamentView } from '../targets/FilamentView.nitro'
 import type { ViewTarget } from '../targets/ViewTarget.nitro'
 import type { Model } from '../assets/Model.nitro'
+import type { Material } from '../materials/Material.nitro'
+import type { Texture } from '../materials/Texture.nitro'
 import type { Camera } from '../scene/Camera.nitro'
 import type { IndirectLight } from '../scene/IndirectLight.nitro'
 import type { Light } from '../scene/Light.nitro'
@@ -90,6 +93,21 @@ export interface Engine extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
    * @thread any
    */
   loadModel(source: AssetSource, options: ModelLoadOptions): Promise<Model>
+  /**
+   * Loads a compiled material (`.filamat`).
+   * @thread any
+   */
+  loadMaterial(source: AssetSource): Promise<Material>
+  /**
+   * Loads a PNG, JPEG or KTX2 image. Resolves once every mip level is uploaded.
+   * @thread any
+   */
+  loadTexture(source: AssetSource, options: TextureLoadOptions): Promise<Texture>
+  /**
+   * Loads a skybox from a KTX1 cubemap, as `cmgen` writes it.
+   * @thread any
+   */
+  loadSkybox(source: AssetSource): Promise<Skybox>
   /**
    * Loads image-based lighting from a KTX1 cubemap with spherical harmonics, as `cmgen` writes it.
    * @thread any

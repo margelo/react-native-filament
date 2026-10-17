@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import { CameraOrbitExample } from './CameraOrbitExample'
+import { ChangeMaterialsExample } from './ChangeMaterialsExample'
 import { ClearColorExample } from './ClearColorExample'
 import { FrameListenerExample } from './FrameListenerExample'
 import { LightsExample } from './LightsExample'
@@ -21,4 +22,5 @@ export const examples: Example[] = [
   { route: 'ReanimatedRotate', title: '🔄 Reanimated rotation', component: ReanimatedRotateExample },
   { route: 'CameraOrbit', title: '🎥 Orbit gestures', component: CameraOrbitExample },
   { route: 'Lights', title: '💡 Lights and view options', component: LightsExample },
+  { route: 'ChangeMaterials', title: '🎨 Change materials', component: ChangeMaterialsExample },
 ]

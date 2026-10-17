@@ -5,6 +5,7 @@
 #include "resources/Users.hpp"
 
 #include <filament/Skybox.h>
+#include <filament/Texture.h>
 
 #include <array>
 #include <memory>
@@ -16,6 +17,7 @@ class SceneCore;
 class SkyboxCore final : public Resource {
 public:
   SkyboxCore(std::shared_ptr<EngineCore> engine, std::array<float, 4> color);
+  SkyboxCore(std::shared_ptr<EngineCore> engine, ::filament::Texture* environment);
   ~SkyboxCore() override;
 
   ::filament::Skybox* skybox() const;
@@ -27,6 +29,7 @@ protected:
 private:
   std::shared_ptr<EngineCore> engine_;
   ::filament::Skybox* skybox_;
+  ::filament::Texture* environment_ = nullptr;
   Users<SceneCore> users_;
 };
 

@@ -53,6 +53,12 @@ namespace margelo::nitro::filament { class HybridModelSpec; }
 namespace margelo::nitro::filament { struct AssetUri; }
 // Forward declaration of `ModelLoadOptions` to properly resolve imports.
 namespace margelo::nitro::filament { struct ModelLoadOptions; }
+// Forward declaration of `HybridMaterialSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridMaterialSpec; }
+// Forward declaration of `HybridTextureSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridTextureSpec; }
+// Forward declaration of `TextureLoadOptions` to properly resolve imports.
+namespace margelo::nitro::filament { struct TextureLoadOptions; }
 // Forward declaration of `HybridIndirectLightSpec` to properly resolve imports.
 namespace margelo::nitro::filament { class HybridIndirectLightSpec; }
 // Forward declaration of `IndirectLightOptions` to properly resolve imports.
@@ -95,6 +101,9 @@ namespace margelo::nitro::filament { struct FrameInfo; }
 #include "AssetUri.hpp"
 #include <variant>
 #include "ModelLoadOptions.hpp"
+#include "HybridMaterialSpec.hpp"
+#include "HybridTextureSpec.hpp"
+#include "TextureLoadOptions.hpp"
 #include "HybridIndirectLightSpec.hpp"
 #include "IndirectLightOptions.hpp"
 #include "HybridTransformBindingSpec.hpp"
@@ -152,6 +161,9 @@ namespace margelo::nitro::filament {
       virtual std::shared_ptr<HybridLightSpec> createSpotLight(const SpotLightOptions& options) = 0;
       virtual std::shared_ptr<HybridLightSpec> createFocusedSpotLight(const SpotLightOptions& options) = 0;
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridModelSpec>>> loadModel(const std::variant<std::shared_ptr<ArrayBuffer>, AssetUri>& source, const ModelLoadOptions& options) = 0;
+      virtual std::shared_ptr<Promise<std::shared_ptr<HybridMaterialSpec>>> loadMaterial(const std::variant<std::shared_ptr<ArrayBuffer>, AssetUri>& source) = 0;
+      virtual std::shared_ptr<Promise<std::shared_ptr<HybridTextureSpec>>> loadTexture(const std::variant<std::shared_ptr<ArrayBuffer>, AssetUri>& source, const TextureLoadOptions& options) = 0;
+      virtual std::shared_ptr<Promise<std::shared_ptr<HybridSkyboxSpec>>> loadSkybox(const std::variant<std::shared_ptr<ArrayBuffer>, AssetUri>& source) = 0;
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridIndirectLightSpec>>> loadIndirectLight(const std::variant<std::shared_ptr<ArrayBuffer>, AssetUri>& source, const IndirectLightOptions& options) = 0;
       virtual std::shared_ptr<HybridTransformBindingSpec> createTransformBinding(double entity) = 0;
       virtual std::shared_ptr<HybridValueBindingSpec> createValueBinding(double initialValue) = 0;

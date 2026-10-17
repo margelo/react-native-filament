@@ -1,0 +1,8 @@
+import type { HybridObject } from 'react-native-nitro-modules'
+
+export interface Texture extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
+  /** @thread any */
+  readonly width: number
+  /** @thread any */
+  readonly height: number
+}
