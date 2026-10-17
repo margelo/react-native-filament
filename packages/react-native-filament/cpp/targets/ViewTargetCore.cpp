@@ -1,21 +1,19 @@
 #include "ViewTargetCore.hpp"
 
+#include "scene/CameraCore.hpp"
+#include "scene/SceneCore.hpp"
+
 #include <filament/Viewport.h>
 #include <utils/EntityManager.h>
 
 namespace margelo::nitro::filament {
 
 ViewTargetCore::ViewTargetCore(::filament::Engine& engine, std::array<float, 4> clearColor)
-    : engine_(engine), renderer_(engine.createRenderer()), scene_(engine.createScene()), view_(engine.createView()),
-      cameraEntity_(utils::EntityManager::get().create()) {
-  ::filament::Camera* camera = engine_.createCamera(cameraEntity_);
-  view_->setScene(scene_);
-  view_->setCamera(camera);
+    : Resource("ViewTarget"), engine_(engine), renderer_(engine.createRenderer()), emptyScene_(engine.createScene()),
+      view_(engine.createView()), defaultCameraEntity_(utils::EntityManager::get().create()) {
+  view_->setScene(emptyScene_);
+  view_->setCamera(engine_.createCamera(defaultCameraEntity_));
   setClearColor(clearColor);
-}
-
-void ViewTargetCore::setClearColor(std::array<float, 4> color) {
-  renderer_->setClearOptions({.clearColor = {color[0], color[1], color[2], color[3]}, .clear = true, .discard = true});
 }
 
 void ViewTargetCore::attach(const std::shared_ptr<HybridNativeSurfaceSpec>& surface) {
@@ -47,7 +45,7 @@ void ViewTargetCore::detach(const std::shared_ptr<HybridNativeSurfaceSpec>& surf
 }
 
 bool ViewTargetCore::canRender() const {
-  return swapChain_ != nullptr && !revoked_ && width_ > 0 && height_ > 0;
+  return isLive() && swapChain_ != nullptr && !revoked_ && width_ > 0 && height_ > 0;
 }
 
 void ViewTargetCore::render(int64_t frameTimeNanos) {
@@ -60,18 +58,32 @@ void ViewTargetCore::render(int64_t frameTimeNanos) {
   }
 }
 
-void ViewTargetCore::destroy() {
-  if (surface_ != nullptr) {
-    detach(surface_);
+void ViewTargetCore::setScene(const std::shared_ptr<SceneCore>& scene) {
+  auto self = std::static_pointer_cast<ViewTargetCore>(shared_from_this());
+  if (scene_ != nullptr) {
+    scene_->users().remove(self);
   }
-  ::filament::Camera* camera = engine_.getCameraComponent(cameraEntity_);
-  if (camera != nullptr) {
-    engine_.destroyCameraComponent(cameraEntity_);
+  scene_ = scene;
+  if (scene_ != nullptr) {
+    scene_->users().add(self);
   }
-  utils::EntityManager::get().destroy(cameraEntity_);
-  engine_.destroy(view_);
-  engine_.destroy(scene_);
-  engine_.destroy(renderer_);
+  view_->setScene(scene_ == nullptr ? emptyScene_ : &scene_->scene());
+}
+
+void ViewTargetCore::setCamera(const std::shared_ptr<CameraCore>& camera) {
+  auto self = std::static_pointer_cast<ViewTargetCore>(shared_from_this());
+  if (camera_ != nullptr) {
+    camera_->users().remove(self);
+  }
+  camera_ = camera;
+  if (camera_ != nullptr) {
+    camera_->users().add(self);
+  }
+  view_->setCamera(camera_ == nullptr ? engine_.getCameraComponent(defaultCameraEntity_) : &camera_->camera());
+}
+
+void ViewTargetCore::setClearColor(std::array<float, 4> color) {
+  renderer_->setClearOptions({.clearColor = {color[0], color[1], color[2], color[3]}, .clear = true, .discard = true});
 }
 
 void ViewTargetCore::revoke() {
@@ -84,6 +96,19 @@ double ViewTargetCore::width() const {
 
 double ViewTargetCore::height() const {
   return height_;
+}
+
+void ViewTargetCore::destroyNative() {
+  if (surface_ != nullptr) {
+    detach(surface_);
+  }
+  setScene(nullptr);
+  setCamera(nullptr);
+  engine_.destroyCameraComponent(defaultCameraEntity_);
+  utils::EntityManager::get().destroy(defaultCameraEntity_);
+  engine_.destroy(view_);
+  engine_.destroy(emptyScene_);
+  engine_.destroy(renderer_);
 }
 
 void ViewTargetCore::destroySwapChain() {

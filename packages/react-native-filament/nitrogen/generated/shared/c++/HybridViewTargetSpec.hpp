@@ -13,8 +13,14 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+// Forward declaration of `HybridSceneSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridSceneSpec; }
+// Forward declaration of `HybridCameraSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridCameraSpec; }
 
-
+#include <memory>
+#include "HybridSceneSpec.hpp"
+#include "HybridCameraSpec.hpp"
 #include <tuple>
 
 namespace margelo::nitro::filament {
@@ -49,6 +55,8 @@ namespace margelo::nitro::filament {
 
     public:
       // Methods
+      virtual void setScene(const std::shared_ptr<HybridSceneSpec>& scene) = 0;
+      virtual void setCamera(const std::shared_ptr<HybridCameraSpec>& camera) = 0;
       virtual void setClearColor(const std::tuple<double, double, double, double>& color) = 0;
 
     protected:

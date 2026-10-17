@@ -3,6 +3,7 @@
 #include "EngineBackend.hpp"
 #include "FrameListeners.hpp"
 #include "RenderMode.hpp"
+#include "resources/ResourceRoot.hpp"
 #include "threading/RenderThread.hpp"
 
 #include <NitroModules/Promise.hpp>
@@ -38,6 +39,9 @@ public:
   void scheduleDemandUpdate();
   void updateDemand();
 
+  void adopt(const std::shared_ptr<Resource>& resource);
+  void dispose(const std::shared_ptr<Resource>& resource);
+
   void addTarget(std::shared_ptr<ViewTargetCore> target);
   void removeTarget(const std::shared_ptr<ViewTargetCore>& target);
 
@@ -60,6 +64,7 @@ private:
   const EngineBackend backend_;
   std::unique_ptr<RenderThread> thread_;
   ::filament::Engine* engine_ = nullptr;
+  std::shared_ptr<ResourceRoot> resources_ = std::make_shared<ResourceRoot>();
   std::vector<std::shared_ptr<ViewTargetCore>> targets_;
   FrameListeners frameListeners_;
   bool listenersWantFrame_ = false;

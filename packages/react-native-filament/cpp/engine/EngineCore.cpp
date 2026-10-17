@@ -90,6 +90,17 @@ void EngineCore::updateDemand() {
   }
 }
 
+void EngineCore::adopt(const std::shared_ptr<Resource>& resource) {
+  resources_->adopt(resource);
+}
+
+void EngineCore::dispose(const std::shared_ptr<Resource>& resource) {
+  if (!resource->markDisposing()) {
+    return;
+  }
+  thread_->post({.run = [resource] { resource->destroyTree(); }});
+}
+
 void EngineCore::addTarget(std::shared_ptr<ViewTargetCore> target) {
   targets_.push_back(std::move(target));
 }
@@ -185,9 +196,8 @@ void EngineCore::shutdownOnRenderThread() {
   if (std::shared_ptr<worklets::WorkletRuntime> runtime = this->runtime()) {
     runtime->runSync([&](jsi::Runtime&) { frameListeners_.clear(); });
   }
-  for (const std::shared_ptr<ViewTargetCore>& target : targets_) {
-    target->destroy();
-  }
+  resources_->markDisposing();
+  resources_->destroyTree();
   targets_.clear();
   {
     std::unique_lock lock(runtimeMutex_);

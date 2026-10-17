@@ -38,6 +38,9 @@ target_sources(
   ../nitrogen/generated/shared/c++/HybridFrameListenerSubscriptionSpec.cpp
   ../nitrogen/generated/shared/c++/HybridRenderThreadSpec.cpp
   ../nitrogen/generated/shared/c++/HybridNativeSurfaceSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridCameraSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridSceneSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridSkyboxSpec.cpp
   ../nitrogen/generated/shared/c++/HybridFilamentViewSpec.cpp
   ../nitrogen/generated/shared/c++/views/HybridFilamentViewComponent.cpp
   ../nitrogen/generated/shared/c++/HybridViewTargetSpec.cpp

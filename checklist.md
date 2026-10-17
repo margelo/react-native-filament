@@ -283,17 +283,17 @@ Plan §10 Phase 2. Reanimated and gestures are proven here, not after the full r
 - [ ] **P2.18** Callback exceptions are caught and reported through `addOnErrorListener` and `console.error`, never `reportFatalError` (§4.10).
 
 **Ownership, disposal, shutdown** (§4.7)
-- [ ] **P2.19** Resource graph basics:
+- [x] **P2.19** Resource graph basics:
   - `EngineContext` and `ResourceHandle` with an atomic `live → disposing → destroyed` state shared by every wrapper;
   - children hold their parents strongly, owners hold children weakly.
-- [ ] **P2.20** Every method checks the state and throws `FilamentDisposedError` unless `live`.
+- [x] **P2.20** Every method checks the state and throws `FilamentDisposedError` unless `live`.
   - The `dispose()` override compare-and-sets, marks descendants and queues one destruction job.
   - The destruction job removes entities from scenes, severs non-owning references, destroys children first, then marks handles `destroyed`.
 - [ ] **P2.21** Controller and immutable methods touch only memory their HybridObject owns, never Filament objects.
 - [ ] **P2.22** Pending-operation registry: each operation settles exactly once.
   - IO tasks hold CPU memory and a token, never Filament objects.
   - A refused completion offer frees its buffers and stops.
-- [ ] **P2.23** GC path: the last native reference queues the destruction job. Destructors never call Filament.
+- [x] **P2.23** GC path: the last native reference queues the destruction job. Destructors never call Filament.
 - [ ] **P2.24** `shutdown()`:
   - compare-and-set at call time; one shared native Promise;
   - RN and UI runtimes only, `FilamentThreadError` on the render runtime;

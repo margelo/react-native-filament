@@ -1,6 +1,9 @@
 #include "HybridViewTarget.hpp"
 
 #include "engine/HybridEngine.hpp"
+#include "scene/HybridCamera.hpp"
+#include "scene/HybridScene.hpp"
+#include "utils/EngineChecks.hpp"
 #include "utils/ThreadChecks.hpp"
 
 #include <future>
@@ -25,8 +28,25 @@ double HybridViewTarget::getHeight() {
   return core_->height();
 }
 
+void HybridViewTarget::setScene(const std::shared_ptr<HybridSceneSpec>& scene) {
+  requireRenderThread(engine_->core()->thread(), "ViewTarget.setScene()");
+  core_->requireLive("ViewTarget.setScene()");
+  auto resolved = requireSameEngine<HybridScene>(scene, *engine_->core(), "ViewTarget.setScene()");
+  resolved->core()->requireLive("ViewTarget.setScene()");
+  core_->setScene(resolved->core());
+}
+
+void HybridViewTarget::setCamera(const std::shared_ptr<HybridCameraSpec>& camera) {
+  requireRenderThread(engine_->core()->thread(), "ViewTarget.setCamera()");
+  core_->requireLive("ViewTarget.setCamera()");
+  auto resolved = requireSameEngine<HybridCamera>(camera, *engine_->core(), "ViewTarget.setCamera()");
+  resolved->core()->requireLive("ViewTarget.setCamera()");
+  core_->setCamera(resolved->core());
+}
+
 void HybridViewTarget::setClearColor(const std::tuple<double, double, double, double>& color) {
   requireRenderThread(engine_->core()->thread(), "ViewTarget.setClearColor()");
+  core_->requireLive("ViewTarget.setClearColor()");
   auto [r, g, b, a] = color;
   core_->setClearColor({static_cast<float>(r), static_cast<float>(g), static_cast<float>(b), static_cast<float>(a)});
 }
@@ -37,9 +57,12 @@ void HybridViewTarget::dispose() {
   }
   view_->setSurfaceObserver(std::nullopt);
   const std::shared_ptr<EngineCore>& engine = engine_->core();
+  if (!core_->markDisposing()) {
+    return;
+  }
   engine->thread().post({.run = [engine, core = core_] {
     engine->removeTarget(core);
-    core->destroy();
+    core->destroyTree();
   }});
 }
 

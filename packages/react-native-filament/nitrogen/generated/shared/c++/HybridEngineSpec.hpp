@@ -25,6 +25,12 @@ namespace margelo::nitro::filament { class HybridViewTargetSpec; }
 namespace margelo::nitro::filament { class HybridFilamentViewSpec; }
 // Forward declaration of `ViewTargetOptions` to properly resolve imports.
 namespace margelo::nitro::filament { struct ViewTargetOptions; }
+// Forward declaration of `HybridSceneSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridSceneSpec; }
+// Forward declaration of `HybridCameraSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridCameraSpec; }
+// Forward declaration of `HybridSkyboxSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridSkyboxSpec; }
 // Forward declaration of `HybridFrameListenerSubscriptionSpec` to properly resolve imports.
 namespace margelo::nitro::filament { class HybridFrameListenerSubscriptionSpec; }
 // Forward declaration of `FrameInfo` to properly resolve imports.
@@ -38,6 +44,10 @@ namespace margelo::nitro::filament { struct FrameInfo; }
 #include <NitroModules/Promise.hpp>
 #include "HybridFilamentViewSpec.hpp"
 #include "ViewTargetOptions.hpp"
+#include "HybridSceneSpec.hpp"
+#include "HybridCameraSpec.hpp"
+#include "HybridSkyboxSpec.hpp"
+#include <tuple>
 #include "HybridFrameListenerSubscriptionSpec.hpp"
 #include "FrameInfo.hpp"
 #include <functional>
@@ -77,6 +87,9 @@ namespace margelo::nitro::filament {
     public:
       // Methods
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridViewTargetSpec>>> createViewTarget(const std::shared_ptr<HybridFilamentViewSpec>& view, const ViewTargetOptions& options) = 0;
+      virtual std::shared_ptr<HybridSceneSpec> createScene() = 0;
+      virtual std::shared_ptr<HybridCameraSpec> createCamera() = 0;
+      virtual std::shared_ptr<HybridSkyboxSpec> createSkybox(const std::tuple<double, double, double, double>& color) = 0;
       virtual std::shared_ptr<HybridFrameListenerSubscriptionSpec> addOnFrameListener(const std::function<bool(const FrameInfo& /* frame */)>& listener) = 0;
       virtual void requestFrame() = 0;
       virtual std::shared_ptr<Promise<void>> shutdown() = 0;

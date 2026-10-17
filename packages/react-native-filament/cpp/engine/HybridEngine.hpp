@@ -19,6 +19,9 @@ public:
 
   std::shared_ptr<Promise<std::shared_ptr<HybridViewTargetSpec>>> createViewTarget(const std::shared_ptr<HybridFilamentViewSpec>& view,
                                                                                    const ViewTargetOptions& options) override;
+  std::shared_ptr<HybridSceneSpec> createScene() override;
+  std::shared_ptr<HybridCameraSpec> createCamera() override;
+  std::shared_ptr<HybridSkyboxSpec> createSkybox(const std::tuple<double, double, double, double>& color) override;
   std::shared_ptr<HybridFrameListenerSubscriptionSpec> addOnFrameListener(const std::function<bool(const FrameInfo&)>& listener) override;
   void requestFrame() override;
   std::shared_ptr<Promise<void>> shutdown() override;

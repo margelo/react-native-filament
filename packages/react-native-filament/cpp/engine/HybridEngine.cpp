@@ -2,6 +2,9 @@
 
 #include "HybridFrameListenerSubscription.hpp"
 #include "HybridRenderThread.hpp"
+#include "scene/HybridCamera.hpp"
+#include "scene/HybridScene.hpp"
+#include "scene/HybridSkybox.hpp"
 #include "utils/ThreadChecks.hpp"
 
 #include "targets/HybridViewTarget.hpp"
@@ -44,12 +47,36 @@ HybridEngine::createViewTarget(const std::shared_ptr<HybridFilamentViewSpec>& vi
       .run =
           [engine, view, clearColor, promise] {
             auto target = std::make_shared<ViewTargetCore>(engine->core()->engine(), clearColor);
+            engine->core()->adopt(target);
             engine->core()->addTarget(target);
             promise->resolve(std::make_shared<HybridViewTarget>(engine, target, view));
           },
       .cancel = [promise] { promise->reject(std::make_exception_ptr(std::runtime_error("The Engine was shut down."))); },
   });
   return promise;
+}
+
+std::shared_ptr<HybridSceneSpec> HybridEngine::createScene() {
+  requireRenderThread(core_->thread(), "Engine.createScene()");
+  auto scene = std::make_shared<SceneCore>(core_);
+  core_->adopt(scene);
+  return std::make_shared<HybridScene>(shared_cast<HybridEngine>(), scene);
+}
+
+std::shared_ptr<HybridCameraSpec> HybridEngine::createCamera() {
+  requireRenderThread(core_->thread(), "Engine.createCamera()");
+  auto camera = std::make_shared<CameraCore>(core_);
+  core_->adopt(camera);
+  return std::make_shared<HybridCamera>(shared_cast<HybridEngine>(), camera);
+}
+
+std::shared_ptr<HybridSkyboxSpec> HybridEngine::createSkybox(const std::tuple<double, double, double, double>& color) {
+  requireRenderThread(core_->thread(), "Engine.createSkybox()");
+  auto [r, g, b, a] = color;
+  std::array<float, 4> linear{static_cast<float>(r), static_cast<float>(g), static_cast<float>(b), static_cast<float>(a)};
+  auto skybox = std::make_shared<SkyboxCore>(core_, linear);
+  core_->adopt(skybox);
+  return std::make_shared<HybridSkybox>(shared_cast<HybridEngine>(), skybox);
 }
 
 std::shared_ptr<HybridFrameListenerSubscriptionSpec>
