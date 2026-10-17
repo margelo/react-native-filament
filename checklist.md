@@ -348,13 +348,13 @@ Plan §10 Phase 2. Reanimated and gestures are proven here, not after the full r
 - [x] **P2.43** Reanimated binding helpers:
   - `scheduleOnUI` plus `sv.addListener` on the UI runtime, removed on unmount;
   - Reanimated stays optional, loaded through a lazy module proxy.
-- [ ] **P2.44** `CameraManipulator` command queue per §7.2:
+- [x] **P2.44** `CameraManipulator` command queue per §7.2:
   - two preallocated 256-entry buffers swapped at frame start; FIFO order;
   - coalescing rules and grab sessions;
   - `reservedEnd` admission and `FilamentQueueFullError`;
   - an implicit end when a new grab begins, in one critical section;
   - commands discarded after dispose; `getLookAt()`.
-- [ ] **P2.45** `useOrbitGestures`: pan → grab, pinch → scroll, double tap → `jumpToHome`, using the RNGH builder API.
+- [x] **P2.45** `useOrbitGestures`: pan → grab, pinch → scroll, double tap → `jumpToHome`, using the RNGH builder API.
 
 **Slice verification**
 - [ ] **P2.46** Harness suites `engine`, `resources`, `entities`, `render-thread`, `surfaces`, `reanimated` and `gestures`, plus reload, pass on both targets.

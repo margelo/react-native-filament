@@ -3,6 +3,7 @@
 #include "HybridFrameListenerSubscription.hpp"
 #include "HybridRenderThread.hpp"
 #include "assets/HybridModel.hpp"
+#include "control/HybridCameraManipulator.hpp"
 #include "control/HybridTransformBinding.hpp"
 #include "control/HybridValueBinding.hpp"
 #include "scene/HybridCamera.hpp"
@@ -178,6 +179,12 @@ std::shared_ptr<HybridTransformBindingSpec> HybridEngine::createTransformBinding
 
 std::shared_ptr<HybridValueBindingSpec> HybridEngine::createValueBinding(double initialValue) {
   return std::make_shared<HybridValueBinding>(core_, initialValue);
+}
+
+std::shared_ptr<HybridCameraManipulatorSpec> HybridEngine::createOrbitManipulator(const OrbitManipulatorOptions& options) {
+  auto manipulator = std::make_shared<ManipulatorCore>(options);
+  core_->thread().post({.run = [core = core_, manipulator] { core->addManipulator(manipulator); }});
+  return std::make_shared<HybridCameraManipulator>(core_, manipulator);
 }
 
 std::shared_ptr<HybridFrameListenerSubscriptionSpec>

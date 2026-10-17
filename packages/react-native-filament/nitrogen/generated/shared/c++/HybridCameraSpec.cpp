@@ -20,6 +20,7 @@ namespace margelo::nitro::filament {
       prototype.registerHybridMethod("setProjection", &HybridCameraSpec::setProjection);
       prototype.registerHybridMethod("setOrthographicProjection", &HybridCameraSpec::setOrthographicProjection);
       prototype.registerHybridMethod("setExposure", &HybridCameraSpec::setExposure);
+      prototype.registerHybridMethod("followManipulator", &HybridCameraSpec::followManipulator);
     });
   }
 

@@ -3,13 +3,12 @@
 #include "EngineBackend.hpp"
 #include "FrameListeners.hpp"
 #include "RenderMode.hpp"
-#include "assets/AnimationPlayers.hpp"
 #include "assets/GltfLoader.hpp"
 #include "assets/ModelLoads.hpp"
-#include "control/TransformBindings.hpp"
 #include "resources/ResourceRoot.hpp"
 #include "resources/Users.hpp"
 #include "threading/RenderThread.hpp"
+#include "utils/WeakRegistry.hpp"
 
 #include <NitroModules/Promise.hpp>
 #include <filament/Engine.h>
@@ -25,7 +24,10 @@
 
 namespace margelo::nitro::filament {
 
+class AnimationPlayerCore;
+class ManipulatorCore;
 class SceneCore;
+class TransformBindingCore;
 class ViewTargetCore;
 
 class EngineCore final : public std::enable_shared_from_this<EngineCore> {
@@ -52,6 +54,7 @@ public:
   void startModelLoad(::filament::gltfio::FilamentAsset* asset, ModelLoad::Completion completion);
   void addAnimationPlayer(const std::shared_ptr<AnimationPlayerCore>& player);
   void addTransformBinding(const std::shared_ptr<TransformBindingCore>& binding);
+  void addManipulator(const std::shared_ptr<ManipulatorCore>& manipulator);
   Users<SceneCore>& scenes();
 
   void addTarget(std::shared_ptr<ViewTargetCore> target);
@@ -80,8 +83,9 @@ private:
   std::shared_ptr<ResourceRoot> resources_ = std::make_shared<ResourceRoot>();
   std::unique_ptr<GltfLoader> gltf_;
   ModelLoads loads_;
-  AnimationPlayers players_;
-  TransformBindings transformBindings_;
+  WeakRegistry<AnimationPlayerCore> players_;
+  WeakRegistry<TransformBindingCore> transformBindings_;
+  WeakRegistry<ManipulatorCore> manipulators_;
   Users<SceneCore> scenes_;
   std::vector<std::shared_ptr<ViewTargetCore>> targets_;
   FrameListeners frameListeners_;

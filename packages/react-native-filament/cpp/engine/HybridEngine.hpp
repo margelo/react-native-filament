@@ -30,6 +30,7 @@ public:
                                                                                        const IndirectLightOptions& options) override;
   std::shared_ptr<HybridTransformBindingSpec> createTransformBinding(double entity) override;
   std::shared_ptr<HybridValueBindingSpec> createValueBinding(double initialValue) override;
+  std::shared_ptr<HybridCameraManipulatorSpec> createOrbitManipulator(const OrbitManipulatorOptions& options) override;
   std::shared_ptr<HybridFrameListenerSubscriptionSpec> addOnFrameListener(const std::function<bool(const FrameInfo&)>& listener) override;
   void requestFrame() override;
   std::shared_ptr<Promise<void>> shutdown() override;

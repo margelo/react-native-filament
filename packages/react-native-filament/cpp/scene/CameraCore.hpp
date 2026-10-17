@@ -1,5 +1,6 @@
 #pragma once
 
+#include "LookAt.hpp"
 #include "engine/EngineCore.hpp"
 #include "resources/Resource.hpp"
 #include "resources/Users.hpp"
@@ -11,6 +12,7 @@
 
 namespace margelo::nitro::filament {
 
+class ManipulatorCore;
 class ViewTargetCore;
 
 class CameraCore final : public Resource {
@@ -21,6 +23,8 @@ public:
   utils::Entity entity() const;
   ::filament::Camera& camera();
   Users<ViewTargetCore>& users();
+  void lookAt(const LookAt& pose);
+  void followManipulator(const std::shared_ptr<ManipulatorCore>& manipulator);
 
 protected:
   void destroyNative() override;
@@ -30,6 +34,7 @@ private:
   utils::Entity entity_;
   ::filament::Camera* camera_;
   Users<ViewTargetCore> users_;
+  std::shared_ptr<ManipulatorCore> manipulator_;
 };
 
 } // namespace margelo::nitro::filament

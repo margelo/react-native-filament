@@ -1,6 +1,8 @@
 #include "HybridCamera.hpp"
 
+#include "control/HybridCameraManipulator.hpp"
 #include "engine/HybridEngine.hpp"
+#include "utils/EngineChecks.hpp"
 #include "utils/EntityConversion.hpp"
 #include "utils/ThreadChecks.hpp"
 
@@ -41,6 +43,16 @@ void HybridCamera::setOrthographicProjection(double left, double right, double b
 void HybridCamera::setExposure(double aperture, double shutterSpeedSeconds, double sensitivityIso) {
   usableCamera("Camera.setExposure()")
       .setExposure(static_cast<float>(aperture), static_cast<float>(shutterSpeedSeconds), static_cast<float>(sensitivityIso));
+}
+
+void HybridCamera::followManipulator(const std::optional<std::shared_ptr<HybridCameraManipulatorSpec>>& manipulator) {
+  usableCamera("Camera.followManipulator()");
+  if (!manipulator.has_value()) {
+    core_->followManipulator(nullptr);
+    return;
+  }
+  auto resolved = requireSameEngine<HybridCameraManipulator>(manipulator.value(), *engineCore(), "Camera.followManipulator()");
+  core_->followManipulator(resolved->core());
 }
 
 void HybridCamera::dispose() {

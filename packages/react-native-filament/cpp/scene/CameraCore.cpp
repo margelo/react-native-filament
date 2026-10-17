@@ -1,6 +1,8 @@
 #include "CameraCore.hpp"
 
+#include "control/ManipulatorCore.hpp"
 #include "targets/ViewTargetCore.hpp"
+#include "utils/MatrixConversion.hpp"
 
 #include <utils/EntityManager.h>
 
@@ -33,8 +35,27 @@ Users<ViewTargetCore>& CameraCore::users() {
   return users_;
 }
 
+void CameraCore::lookAt(const LookAt& pose) {
+  ::filament::math::float3 eye = toFloat3(pose.eye);
+  ::filament::math::float3 target = toFloat3(pose.target);
+  ::filament::math::float3 up = toFloat3(pose.up);
+  camera_->lookAt(eye, target, up);
+}
+
+void CameraCore::followManipulator(const std::shared_ptr<ManipulatorCore>& manipulator) {
+  auto self = std::static_pointer_cast<CameraCore>(shared_from_this());
+  if (manipulator_ != nullptr) {
+    manipulator_->unfollow(self);
+  }
+  manipulator_ = manipulator;
+  if (manipulator_ != nullptr) {
+    manipulator_->follow(self);
+  }
+}
+
 void CameraCore::destroyNative() {
   users_.forEach([](const std::shared_ptr<ViewTargetCore>& target) { target->setCamera(nullptr); });
+  followManipulator(nullptr);
   destroyCamera(engine_->engine(), entity_);
 }
 

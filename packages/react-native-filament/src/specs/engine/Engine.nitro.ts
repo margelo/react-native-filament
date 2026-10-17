@@ -20,6 +20,8 @@ import type { Skybox } from '../scene/Skybox.nitro'
 import type { TransformManager } from '../scene/TransformManager.nitro'
 import type { TransformBinding } from '../control/TransformBinding.nitro'
 import type { ValueBinding } from '../control/ValueBinding.nitro'
+import type { CameraManipulator } from '../control/CameraManipulator.nitro'
+import type { OrbitManipulatorOptions } from '../types/OrbitManipulatorOptions'
 import type { FrameListenerSubscription } from './FrameListenerSubscription.nitro'
 import type { RenderThread } from './RenderThread.nitro'
 
@@ -72,6 +74,11 @@ export interface Engine extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   createTransformBinding(entity: Entity): TransformBinding
   /** @thread any */
   createValueBinding(initialValue: number): ValueBinding
+  /**
+   * A manipulator in orbit mode. Cameras follow it through `camera.followManipulator()`.
+   * @thread any
+   */
+  createOrbitManipulator(options: OrbitManipulatorOptions): CameraManipulator
   /**
    * Calls `listener` once per rendered frame, before native systems run and the targets render.
    * The listener returns whether it needs another frame: in `on-demand` mode the Engine keeps

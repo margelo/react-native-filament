@@ -20,6 +20,7 @@ public:
   void setProjection(double fovDegrees, double aspect, double near, double far) override;
   void setOrthographicProjection(double left, double right, double bottom, double top, double near, double far) override;
   void setExposure(double aperture, double shutterSpeedSeconds, double sensitivityIso) override;
+  void followManipulator(const std::optional<std::shared_ptr<HybridCameraManipulatorSpec>>& manipulator) override;
   void dispose() override;
 
   const std::shared_ptr<EngineCore>& engineCore() const;

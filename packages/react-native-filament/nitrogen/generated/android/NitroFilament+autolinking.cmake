@@ -38,6 +38,7 @@ target_sources(
   ../nitrogen/generated/shared/c++/HybridAnimatorSpec.cpp
   ../nitrogen/generated/shared/c++/HybridModelSpec.cpp
   ../nitrogen/generated/shared/c++/HybridModelInstanceSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridCameraManipulatorSpec.cpp
   ../nitrogen/generated/shared/c++/HybridTransformBindingSpec.cpp
   ../nitrogen/generated/shared/c++/HybridValueBindingSpec.cpp
   ../nitrogen/generated/shared/c++/HybridEngineSpec.cpp

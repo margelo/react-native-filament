@@ -51,6 +51,10 @@ namespace margelo::nitro::filament { struct IndirectLightOptions; }
 namespace margelo::nitro::filament { class HybridTransformBindingSpec; }
 // Forward declaration of `HybridValueBindingSpec` to properly resolve imports.
 namespace margelo::nitro::filament { class HybridValueBindingSpec; }
+// Forward declaration of `HybridCameraManipulatorSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridCameraManipulatorSpec; }
+// Forward declaration of `OrbitManipulatorOptions` to properly resolve imports.
+namespace margelo::nitro::filament { struct OrbitManipulatorOptions; }
 // Forward declaration of `HybridFrameListenerSubscriptionSpec` to properly resolve imports.
 namespace margelo::nitro::filament { class HybridFrameListenerSubscriptionSpec; }
 // Forward declaration of `FrameInfo` to properly resolve imports.
@@ -80,6 +84,8 @@ namespace margelo::nitro::filament { struct FrameInfo; }
 #include "IndirectLightOptions.hpp"
 #include "HybridTransformBindingSpec.hpp"
 #include "HybridValueBindingSpec.hpp"
+#include "HybridCameraManipulatorSpec.hpp"
+#include "OrbitManipulatorOptions.hpp"
 #include "HybridFrameListenerSubscriptionSpec.hpp"
 #include "FrameInfo.hpp"
 #include <functional>
@@ -128,6 +134,7 @@ namespace margelo::nitro::filament {
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridIndirectLightSpec>>> loadIndirectLight(const std::variant<std::shared_ptr<ArrayBuffer>, AssetUri>& source, const IndirectLightOptions& options) = 0;
       virtual std::shared_ptr<HybridTransformBindingSpec> createTransformBinding(double entity) = 0;
       virtual std::shared_ptr<HybridValueBindingSpec> createValueBinding(double initialValue) = 0;
+      virtual std::shared_ptr<HybridCameraManipulatorSpec> createOrbitManipulator(const OrbitManipulatorOptions& options) = 0;
       virtual std::shared_ptr<HybridFrameListenerSubscriptionSpec> addOnFrameListener(const std::function<bool(const FrameInfo& /* frame */)>& listener) = 0;
       virtual void requestFrame() = 0;
       virtual std::shared_ptr<Promise<void>> shutdown() = 0;

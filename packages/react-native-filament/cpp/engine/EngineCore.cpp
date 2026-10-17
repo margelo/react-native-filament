@@ -2,6 +2,9 @@
 
 #include "BackendConversion.hpp"
 #include "RenderRuntimeDispatcher.hpp"
+#include "assets/AnimationPlayerCore.hpp"
+#include "control/ManipulatorCore.hpp"
+#include "control/TransformBindingCore.hpp"
 #include "targets/ViewTargetCore.hpp"
 #include "threading/WorkerPool.hpp"
 #include "utils/Logger.hpp"
@@ -123,6 +126,10 @@ void EngineCore::addTransformBinding(const std::shared_ptr<TransformBindingCore>
   transformBindings_.add(binding);
 }
 
+void EngineCore::addManipulator(const std::shared_ptr<ManipulatorCore>& manipulator) {
+  manipulators_.add(manipulator);
+}
+
 Users<SceneCore>& EngineCore::scenes() {
   return scenes_;
 }
@@ -205,13 +212,16 @@ void EngineCore::renderFrame(int64_t frameTimeNanos) {
   }
   frameRequested_ = false;
   FrameInfo frame = nextFrameInfo(frameTimeNanos);
-  transformBindings_.apply(engine_->getTransformManager());
+  ::filament::TransformManager& transforms = engine_->getTransformManager();
+  transformBindings_.forEachActive([&](TransformBindingCore& binding) { binding.apply(transforms); });
+  manipulators_.forEachActive([&](ManipulatorCore& manipulator) { manipulator.drain(frame.deltaSeconds); });
   if (!frameListeners_.empty()) {
     if (std::shared_ptr<worklets::WorkletRuntime> runtime = this->runtime()) {
       listenersWantFrame_ = frameListeners_.dispatch(frame, *runtime);
     }
   }
-  playersWantFrame_ = players_.advance(frame.deltaSeconds);
+  playersWantFrame_ = false;
+  players_.forEachActive([&](AnimationPlayerCore& player) { playersWantFrame_ = player.advance(frame.deltaSeconds) || playersWantFrame_; });
   for (const std::shared_ptr<ViewTargetCore>& target : targets_) {
     target->render(frameTimeNanos);
   }
@@ -237,6 +247,7 @@ void EngineCore::shutdownOnRenderThread() {
   loads_.cancelAll();
   players_.clear();
   transformBindings_.clear();
+  manipulators_.clear();
   resources_->markDisposing();
   resources_->destroyTree();
   targets_.clear();

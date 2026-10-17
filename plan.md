@@ -1627,6 +1627,7 @@ Each has a recommended default that the plan assumes until the user says otherwi
 | D24 | 2026-10-18 | Promise rejections from Kotlin reach C++ as `facebook::jni::JniException`, which Nitro 0.37.1 reports as "Unknown … error" because the type does not match `std::exception` across libraries. RNF converts them to `std::runtime_error` with the Java message before rejecting. | Found while testing missing assets on Android. |
 | D25 | 2026-10-18 | `Mat4` is a 16-number column-major tuple in TransformManager methods; binding setters take primitive arguments because they are the per-frame path. Spike F.1 can still replace the tuple if measurements show a cost. | Decided before spike F, so the TransformManager could ship. |
 | D26 | 2026-10-18 | `bindSharedValue(value, apply)` accepts any `ListenableValue` (a Reanimated `SharedValue` fits structurally) and uses only `scheduleOnUI` from react-native-worklets, so Reanimated stays optional without a module proxy. | Replaces the lazy module proxy of 7.1 for bindings. |
+| D27 | 2026-10-18 | Manipulator input is in points from the top-left of the view and keeps 1/16-point precision internally, because camutils takes integer pixels. `getLookAt().target` is the orbit pivot, tracked natively, because camutils reports a point one unit along the gaze. The viewport is set with `setViewport(width, height)` in points. | Found while implementing the orbit manipulator. |
 
 ---
 

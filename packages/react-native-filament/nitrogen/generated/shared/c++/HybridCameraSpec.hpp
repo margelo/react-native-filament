@@ -13,9 +13,13 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
-
+// Forward declaration of `HybridCameraManipulatorSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridCameraManipulatorSpec; }
 
 #include <tuple>
+#include <memory>
+#include "HybridCameraManipulatorSpec.hpp"
+#include <optional>
 
 namespace margelo::nitro::filament {
 
@@ -53,6 +57,7 @@ namespace margelo::nitro::filament {
       virtual void setProjection(double fovDegrees, double aspect, double near, double far) = 0;
       virtual void setOrthographicProjection(double left, double right, double bottom, double top, double near, double far) = 0;
       virtual void setExposure(double aperture, double shutterSpeedSeconds, double sensitivityIso) = 0;
+      virtual void followManipulator(const std::optional<std::shared_ptr<HybridCameraManipulatorSpec>>& manipulator) = 0;
 
     protected:
       // Hybrid Setup
