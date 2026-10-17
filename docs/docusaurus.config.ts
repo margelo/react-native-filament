@@ -92,7 +92,7 @@ const config: Config = {
             },
             {
               label: 'Example App',
-              href: 'https://github.com/margelo/react-native-filament/tree/main/package/example',
+              href: 'https://github.com/margelo/react-native-filament/tree/main/apps',
             },
           ],
         },
@@ -135,17 +135,14 @@ const config: Config = {
       'docusaurus-plugin-typedoc',
       {
         name: "React Native Filament",
-        entryPoints: ['../package/src'],
-        tsconfig: '../package/tsconfig.json',
+        entryPoints: ['../packages/react-native-filament/src'],
+        tsconfig: '../packages/react-native-filament/tsconfig.json',
         watch: process.env.TYPEDOC_WATCH,
         excludePrivate: true,
         excludeProtected: true,
         excludeExternals: true,
         excludeInternal: true,
         readme: "none",
-        sidebar: {
-          indexLabel: 'Overview'
-        }
       },
     ],
   ],

@@ -24,9 +24,8 @@
     "registry": "https://registry.npmjs.org/"
   },
   "workspaces": [
-      "examples/AppExampleFabric",
-      "examples/ExpoExample",
-      "examples/Shared",
-      "package"
+    "packages/*",
+    "apps/*",
+    "docs"
   ]
 }

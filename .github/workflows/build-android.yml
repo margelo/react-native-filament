@@ -7,16 +7,16 @@ on:
       - main
     paths:
       - '.github/workflows/build-android.yml'
-      - 'package/cpp/**'
-      - 'package/android/**'
-      - 'examples/**/android/**'
+      - 'packages/react-native-filament/cpp/**'
+      - 'packages/react-native-filament/android/**'
+      - 'apps/**/android/**'
       - 'bun.lock'
   pull_request:
     paths:
       - '.github/workflows/build-android.yml'
-      - 'package/cpp/**'
-      - 'package/android/**'
-      - 'examples/**/android/**'
+      - 'packages/react-native-filament/cpp/**'
+      - 'packages/react-native-filament/android/**'
+      - 'apps/**/android/**'
       - 'bun.lock'
 
 jobs:
@@ -53,7 +53,7 @@ jobs:
 
       - name: Apply patches and calculate hash
         id: hash
-        working-directory: package/
+        working-directory: packages/react-native-filament
         run: |
           bun patch-filament
           HASH=$(find ../filament -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.cc" -o -name "CMakeLists.txt" \) -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1 | head -c 16)
@@ -64,7 +64,7 @@ jobs:
         id: cache
         uses: actions/cache/restore@v4
         with:
-          path: package/android/libs/filament/
+          path: packages/react-native-filament/android/libs/filament/
           key: filament-android-debug-${{ steps.hash.outputs.hash }}
 
       - name: Install build dependencies
@@ -88,21 +88,21 @@ jobs:
 
       - name: Build Filament
         if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: package/
+        working-directory: packages/react-native-filament
         run: bash scripts/build-filament.sh debug --platform android
 
       - name: Save to cache
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
-          path: package/android/libs/filament/
+          path: packages/react-native-filament/android/libs/filament/
           key: filament-android-debug-${{ steps.hash.outputs.hash }}
 
       - name: Upload Filament libraries
         uses: actions/upload-artifact@v4
         with:
           name: filament-android
-          path: package/android/libs/filament/
+          path: packages/react-native-filament/android/libs/filament/
           retention-days: 1
 
   build-bullet3:
@@ -124,7 +124,7 @@ jobs:
         id: cache
         uses: actions/cache/restore@v4
         with:
-          path: package/android/libs/bullet3/
+          path: packages/react-native-filament/android/libs/bullet3/
           key: bullet3-android-${{ steps.hash.outputs.hash }}
 
       - name: Setup Android SDK
@@ -138,21 +138,21 @@ jobs:
 
       - name: Build bullet3
         if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: package/
+        working-directory: packages/react-native-filament
         run: bash scripts/build-bullet3.sh --platform android
 
       - name: Save to cache
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
-          path: package/android/libs/bullet3/
+          path: packages/react-native-filament/android/libs/bullet3/
           key: bullet3-android-${{ steps.hash.outputs.hash }}
 
       - name: Upload bullet3 libraries
         uses: actions/upload-artifact@v4
         with:
           name: bullet3-android
-          path: package/android/libs/bullet3/
+          path: packages/react-native-filament/android/libs/bullet3/
           retention-days: 1
 
   build:
@@ -195,13 +195,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: filament-android
-          path: package/android/libs/filament/
+          path: packages/react-native-filament/android/libs/filament/
 
       - name: Download bullet3 libraries
         uses: actions/download-artifact@v4
         with:
           name: bullet3-android
-          path: package/android/libs/bullet3/
+          path: packages/react-native-filament/android/libs/bullet3/
 
       - name: Restore Gradle cache
         uses: actions/cache@v4
@@ -215,22 +215,22 @@ jobs:
 
       - name: Build Android app (AppExampleFabric)
         if: matrix.app == 'AppExampleFabric'
-        working-directory: examples/AppExampleFabric/android
+        working-directory: apps/example/android
         run: ./gradlew assemble${{ matrix.variant == 'debug' && 'Debug' || 'Release' }} --build-cache
 
       - name: Prebuild Expo app
         if: matrix.app == 'ExpoExample'
-        working-directory: examples/ExpoExample
+        working-directory: apps/expo-example
         run: bunx expo prebuild --platform android
 
       - name: Build Android app (ExpoExample)
         if: matrix.app == 'ExpoExample'
-        working-directory: examples/ExpoExample/android
+        working-directory: apps/expo-example/android
         run: ./gradlew assemble${{ matrix.variant == 'debug' && 'Debug' || 'Release' }} --build-cache
 
       - name: Upload .apk to GitHub
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.app }}-${{ matrix.variant }}.apk
-          path: examples/${{ matrix.app }}/android/app/build/outputs/apk/${{ matrix.variant }}/app-${{ matrix.variant }}.apk
+          path: ${{ matrix.app == 'AppExampleFabric' && 'apps/example' || 'apps/expo-example' }}/android/app/build/outputs/apk/${{ matrix.variant }}/app-${{ matrix.variant }}.apk
           if-no-files-found: error

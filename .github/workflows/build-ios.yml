@@ -6,17 +6,17 @@ on:
       - main
     paths:
       - ".github/workflows/build-ios.yml"
-      - "package/cpp/**"
-      - "package/ios/**"
-      - "package/*.podspec"
-      - "examples/**/ios/**"
+      - "packages/react-native-filament/cpp/**"
+      - "packages/react-native-filament/ios/**"
+      - "packages/react-native-filament/*.podspec"
+      - "apps/**/ios/**"
   pull_request:
     paths:
       - ".github/workflows/build-ios.yml"
-      - "package/cpp/**"
-      - "package/ios/**"
-      - "package/*.podspec"
-      - "examples/**/ios/**"
+      - "packages/react-native-filament/cpp/**"
+      - "packages/react-native-filament/ios/**"
+      - "packages/react-native-filament/*.podspec"
+      - "apps/**/ios/**"
 
 jobs:
   build-filament:
@@ -34,7 +34,7 @@ jobs:
 
       - name: Apply patches and calculate hash
         id: hash
-        working-directory: package/
+        working-directory: packages/react-native-filament
         run: |
           bun patch-filament
           HASH=$(find ../filament -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.cc" -o -name "CMakeLists.txt" \) -print0 | sort -z | xargs -0 shasum -a 256 | shasum -a 256 | cut -d' ' -f1 | head -c 16)
@@ -45,26 +45,26 @@ jobs:
         id: cache
         uses: actions/cache/restore@v4
         with:
-          path: package/ios/libs/filament/
+          path: packages/react-native-filament/ios/libs/filament/
           key: filament-ios-debug-${{ steps.hash.outputs.hash }}
 
       - name: Build Filament
         if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: package/
+        working-directory: packages/react-native-filament
         run: bash scripts/build-filament.sh debug --platform ios
 
       - name: Save to cache
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
-          path: package/ios/libs/filament/
+          path: packages/react-native-filament/ios/libs/filament/
           key: filament-ios-debug-${{ steps.hash.outputs.hash }}
 
       - name: Upload Filament libraries
         uses: actions/upload-artifact@v4
         with:
           name: filament-ios
-          path: package/ios/libs/filament/
+          path: packages/react-native-filament/ios/libs/filament/
           retention-days: 1
 
   build-bullet3:
@@ -86,26 +86,26 @@ jobs:
         id: cache
         uses: actions/cache/restore@v4
         with:
-          path: package/ios/libs/bullet3/
+          path: packages/react-native-filament/ios/libs/bullet3/
           key: bullet3-ios-${{ steps.hash.outputs.hash }}
 
       - name: Build bullet3
         if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: package/
+        working-directory: packages/react-native-filament
         run: bash scripts/build-bullet3.sh --platform ios
 
       - name: Save to cache
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
-          path: package/ios/libs/bullet3/
+          path: packages/react-native-filament/ios/libs/bullet3/
           key: bullet3-ios-${{ steps.hash.outputs.hash }}
 
       - name: Upload bullet3 libraries
         uses: actions/upload-artifact@v4
         with:
           name: bullet3-ios
-          path: package/ios/libs/bullet3/
+          path: packages/react-native-filament/ios/libs/bullet3/
           retention-days: 1
 
   build:
@@ -137,13 +137,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: filament-ios
-          path: package/ios/libs/filament/
+          path: packages/react-native-filament/ios/libs/filament/
 
       - name: Download bullet3 libraries
         uses: actions/download-artifact@v4
         with:
           name: bullet3-ios
-          path: package/ios/libs/bullet3/
+          path: packages/react-native-filament/ios/libs/bullet3/
 
       - name: Restore buildcache
         uses: mikehardy/buildcache-action@v2
@@ -154,25 +154,25 @@ jobs:
         with:
           ruby-version: 3.4.4
           bundler-cache: true
-          working-directory: examples/AppExampleFabric
+          working-directory: apps/example
 
       - name: Restore Pods cache
         uses: actions/cache@v4
         with:
-          path: examples/AppExampleFabric/ios/Pods
+          path: apps/example/ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-pods-
 
       - name: Install Pods
-        working-directory: examples/AppExampleFabric/ios
+        working-directory: apps/example/ios
         run: bundle exec pod install
 
       - name: Install xcpretty
         run: gem install xcpretty
 
       - name: Build App
-        working-directory: examples/AppExampleFabric/ios
+        working-directory: apps/example/ios
         run: |
           set -o pipefail
           xcodebuild \
@@ -191,5 +191,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ios-build-log
-          path: examples/AppExampleFabric/ios/xcodebuild.log
+          path: apps/example/ios/xcodebuild.log
           if-no-files-found: warn

@@ -1,0 +1,10 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "react-native-filament": ["../../packages/react-native-filament/src/index"],
+      "react-native-filament-test": ["../../packages/react-native-filament/src/test/RunTests"],
+    }
+  }
+}

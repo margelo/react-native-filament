@@ -50,7 +50,7 @@ function App() {
 }
 ```
 
-> See the [example](./package/example/Shared) app
+> See the [example](./apps/shared) app
 
 
 ### Comparison with other libraries
@@ -88,7 +88,7 @@ bun build-bullet3
 bun build-filament:release # or yarn build-filament:debug
 ```
 
-You can then build one of the example apps in `package/example/AppExamplePaper` or `package/example/AppExampleFabric`.
+You can then build one of the example apps in `apps/example` or `apps/expo-example`.
 
 Note: If building filament fails for you, you can download the pre-built binaries from the npm package.
 Simply run `bun setup-filament-quick`. The binaries will be in release build and any edits in /filament will be ignored (as you're not building from source in this case).

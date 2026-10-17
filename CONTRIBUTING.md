@@ -6,7 +6,7 @@ We want this community to be friendly and respectful to each other. Please follo
 
 ## Development workflow
 
-The code is in `package/`, and the Example app (`package/example/`) is used for testing and development.
+The library is in `packages/react-native-filament/`, and the example apps in `apps/` are used for testing and development.
 
 Open the Example app in Xcode or Android Studio to work on react-native-filament.
 
