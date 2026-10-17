@@ -8,6 +8,7 @@
 #include "NitroFilament-Swift-Cxx-Bridge.hpp"
 
 // Include C++ implementation defined types
+#include "HybridAssetIOSpecSwift.hpp"
 #include "HybridFilamentViewSpecSwift.hpp"
 #include "HybridNativeSurfaceSpecSwift.hpp"
 #include "NitroFilament-Swift-Cxx-Umbrella.hpp"
@@ -15,6 +16,38 @@
 
 namespace margelo::nitro::filament::bridge::swift {
 
+  // pragma MARK: std::function<void(const std::shared_ptr<ArrayBuffer>& /* result */)>
+  Func_void_std__shared_ptr_ArrayBuffer_ create_Func_void_std__shared_ptr_ArrayBuffer_(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = NitroFilament::Func_void_std__shared_ptr_ArrayBuffer_::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](const std::shared_ptr<ArrayBuffer>& result) mutable -> void {
+      swiftClosure.call(ArrayBufferHolder(result));
+    };
+  }
+  
+  // pragma MARK: std::function<void(const std::exception_ptr& /* error */)>
+  Func_void_std__exception_ptr create_Func_void_std__exception_ptr(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = NitroFilament::Func_void_std__exception_ptr::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](const std::exception_ptr& error) mutable -> void {
+      swiftClosure.call(error);
+    };
+  }
+  
+  // pragma MARK: std::shared_ptr<HybridAssetIOSpec>
+  std::shared_ptr<HybridAssetIOSpec> create_std__shared_ptr_HybridAssetIOSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
+    NitroFilament::HybridAssetIOSpec_cxx swiftPart = NitroFilament::HybridAssetIOSpec_cxx::fromUnsafe(swiftUnsafePointer);
+    return std::make_shared<margelo::nitro::filament::HybridAssetIOSpecSwift>(swiftPart);
+  }
+  void* NON_NULL get_std__shared_ptr_HybridAssetIOSpec_(std__shared_ptr_HybridAssetIOSpec_ cppType) {
+    std::shared_ptr<margelo::nitro::filament::HybridAssetIOSpecSwift> swiftWrapper = std::dynamic_pointer_cast<margelo::nitro::filament::HybridAssetIOSpecSwift>(cppType);
+    #ifdef NITRO_DEBUG
+    if (swiftWrapper == nullptr) [[unlikely]] {
+      throw std::runtime_error("Class \"HybridAssetIOSpec\" is not implemented in Swift!");
+    }
+    #endif
+    NitroFilament::HybridAssetIOSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
+    return swiftPart.toUnsafe();
+  }
+  
   // pragma MARK: std::shared_ptr<HybridNativeSurfaceSpec>
   std::shared_ptr<HybridNativeSurfaceSpec> create_std__shared_ptr_HybridNativeSurfaceSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
     NitroFilament::HybridNativeSurfaceSpec_cxx swiftPart = NitroFilament::HybridNativeSurfaceSpec_cxx::fromUnsafe(swiftUnsafePointer);

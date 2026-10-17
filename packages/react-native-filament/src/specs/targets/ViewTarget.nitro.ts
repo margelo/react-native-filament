@@ -1,5 +1,6 @@
 import type { HybridObject } from 'react-native-nitro-modules'
 import type { Float4 } from '../types/Float4'
+import type { ListenerSubscription } from '../types/ListenerSubscription'
 import type { Camera } from '../scene/Camera.nitro'
 import type { Scene } from '../scene/Scene.nitro'
 
@@ -14,6 +15,12 @@ export interface ViewTarget extends HybridObject<{ ios: 'c++'; android: 'c++' }>
    * @thread any
    */
   readonly height: number
+  /**
+   * Called with the drawable size in pixels whenever it changes, and once right away if the
+   * target already has a surface.
+   * @thread any
+   */
+  addOnResizeListener(listener: (width: number, height: number) => void): ListenerSubscription
   /**
    * Scene this target renders. Without one, the target only clears.
    * @thread render

@@ -28,6 +28,11 @@ double HybridViewTarget::getHeight() {
   return core_->height();
 }
 
+ListenerSubscription HybridViewTarget::addOnResizeListener(const std::function<void(double width, double height)>& listener) {
+  core_->requireLive("ViewTarget.addOnResizeListener()");
+  return ListenerSubscription(core_->addResizeListener(listener));
+}
+
 void HybridViewTarget::setScene(const std::shared_ptr<HybridSceneSpec>& scene) {
   requireRenderThread(engine_->core()->thread(), "ViewTarget.setScene()");
   core_->requireLive("ViewTarget.setScene()");

@@ -21,6 +21,7 @@ Pod::Spec.new do |s|
     "cpp/**/*.{hpp,cpp}",
   ]
 
+  s.resources = ["assets/*"]
   s.vendored_frameworks = filament[:frameworks]
   s.frameworks = ["Metal", "QuartzCore", "CoreVideo"]
   s.pod_target_xcconfig = {

@@ -15,6 +15,7 @@
 #include <fbjni/fbjni.h>
 #include <NitroModules/HybridObjectRegistry.hpp>
 
+#include "JHybridAssetIOSpec.hpp"
 #include "JHybridNativeSurfaceSpec.hpp"
 #include "JHybridFilamentViewSpec.hpp"
 #include "JFunc_void_std__shared_ptr_HybridNativeSurfaceSpec_.hpp"
@@ -38,12 +39,21 @@ struct JHybridFilamentViewSpecImpl: public jni::JavaClass<JHybridFilamentViewSpe
     return javaPart->getJHybridFilamentViewSpec();
   }
 };
+struct JHybridAssetIOSpecImpl: public jni::JavaClass<JHybridAssetIOSpecImpl, JHybridAssetIOSpec::JavaPart> {
+  static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/filament/HybridAssetIO;";
+  static std::shared_ptr<JHybridAssetIOSpec> create() {
+    static const auto constructorFn = javaClassStatic()->getConstructor<JHybridAssetIOSpecImpl::javaobject()>();
+    jni::local_ref<JHybridAssetIOSpec::JavaPart> javaPart = javaClassStatic()->newObject(constructorFn);
+    return javaPart->getJHybridAssetIOSpec();
+  }
+};
 
 void registerAllNatives() {
   using namespace margelo::nitro;
   using namespace margelo::nitro::filament;
 
   // Register native JNI methods
+  margelo::nitro::filament::JHybridAssetIOSpec::CxxPart::registerNatives();
   margelo::nitro::filament::JHybridNativeSurfaceSpec::CxxPart::registerNatives();
   margelo::nitro::filament::JHybridFilamentViewSpec::CxxPart::registerNatives();
   margelo::nitro::filament::JFunc_void_std__shared_ptr_HybridNativeSurfaceSpec__cxx::registerNatives();
@@ -63,6 +73,12 @@ void registerAllNatives() {
     "FilamentView",
     []() -> std::shared_ptr<HybridObject> {
       return JHybridFilamentViewSpecImpl::create();
+    }
+  );
+  HybridObjectRegistry::registerHybridObjectConstructor(
+    "AssetIO",
+    []() -> std::shared_ptr<HybridObject> {
+      return JHybridAssetIOSpecImpl::create();
     }
   );
 }

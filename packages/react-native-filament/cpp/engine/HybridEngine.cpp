@@ -2,7 +2,10 @@
 
 #include "HybridFrameListenerSubscription.hpp"
 #include "HybridRenderThread.hpp"
+#include "assets/HybridModel.hpp"
 #include "scene/HybridCamera.hpp"
+#include "scene/HybridIndirectLight.hpp"
+#include "scene/HybridLight.hpp"
 #include "scene/HybridScene.hpp"
 #include "scene/HybridSkybox.hpp"
 #include "utils/ThreadChecks.hpp"
@@ -10,7 +13,11 @@
 #include "targets/HybridViewTarget.hpp"
 #include "targets/ViewTargetCore.hpp"
 
+#include <gltfio/FilamentInstance.h>
+
+#include <cmath>
 #include <stdexcept>
+#include <vector>
 
 namespace margelo::nitro::filament {
 
@@ -60,6 +67,7 @@ std::shared_ptr<HybridSceneSpec> HybridEngine::createScene() {
   requireRenderThread(core_->thread(), "Engine.createScene()");
   auto scene = std::make_shared<SceneCore>(core_);
   core_->adopt(scene);
+  core_->scenes().add(scene);
   return std::make_shared<HybridScene>(shared_cast<HybridEngine>(), scene);
 }
 
@@ -77,6 +85,76 @@ std::shared_ptr<HybridSkyboxSpec> HybridEngine::createSkybox(const std::tuple<do
   auto skybox = std::make_shared<SkyboxCore>(core_, linear);
   core_->adopt(skybox);
   return std::make_shared<HybridSkybox>(shared_cast<HybridEngine>(), skybox);
+}
+
+std::shared_ptr<HybridLightSpec> HybridEngine::createDirectionalLight(const DirectionalLightOptions& options) {
+  requireRenderThread(core_->thread(), "Engine.createDirectionalLight()");
+  auto light = LightCore::createDirectional(core_, options);
+  core_->adopt(light);
+  return std::make_shared<HybridLight>(shared_cast<HybridEngine>(), light);
+}
+
+std::shared_ptr<Promise<std::shared_ptr<HybridModelSpec>>> HybridEngine::loadModel(const AssetSource& source,
+                                                                                   const ModelLoadOptions& options) {
+  double requested = options.instanceCount.value_or(1);
+  if (requested < 1 || requested != std::floor(requested)) {
+    throw std::invalid_argument("Engine.loadModel() needs an integer instanceCount >= 1.");
+  }
+  auto instanceCount = static_cast<size_t>(requested);
+  auto promise = Promise<std::shared_ptr<HybridModelSpec>>::create();
+  auto engine = shared_cast<HybridEngine>();
+  withAssetBytes(source, promise, [engine, promise, instanceCount](const std::shared_ptr<ArrayBuffer>& bytes) {
+    std::vector<::filament::gltfio::FilamentInstance*> instances(instanceCount);
+    ::filament::gltfio::FilamentAsset* asset =
+        bytes->size() > UINT32_MAX ? nullptr
+                                   : engine->core()->gltf().assetLoader().createInstancedAsset(
+                                         bytes->data(), static_cast<uint32_t>(bytes->size()), instances.data(), instanceCount);
+    if (asset == nullptr) {
+      promise->reject(
+          std::make_exception_ptr(std::invalid_argument("FilamentAssetError: The source is not a valid glTF 2.0 binary (.glb).")));
+      return;
+    }
+    engine->core()->startModelLoad(asset, [engine, promise](::filament::gltfio::FilamentAsset* loaded, std::exception_ptr error) {
+      if (error != nullptr) {
+        promise->reject(error);
+        return;
+      }
+      auto model = std::make_shared<ModelCore>(engine->core(), loaded);
+      engine->core()->adopt(model);
+      promise->resolve(std::make_shared<HybridModel>(engine, model));
+    });
+  });
+  return promise;
+}
+
+std::shared_ptr<Promise<std::shared_ptr<HybridIndirectLightSpec>>> HybridEngine::loadIndirectLight(const AssetSource& source,
+                                                                                                   const IndirectLightOptions& options) {
+  auto intensity = static_cast<float>(options.intensity.value_or(30000));
+  auto promise = Promise<std::shared_ptr<HybridIndirectLightSpec>>::create();
+  auto engine = shared_cast<HybridEngine>();
+  withAssetBytes(source, promise, [engine, promise, intensity](const std::shared_ptr<ArrayBuffer>& bytes) {
+    try {
+      auto light = std::make_shared<IndirectLightCore>(engine->core(), bytes->data(), bytes->size(), intensity);
+      engine->core()->adopt(light);
+      promise->resolve(std::make_shared<HybridIndirectLight>(engine, light));
+    } catch (...) {
+      promise->reject(std::current_exception());
+    }
+  });
+  return promise;
+}
+
+template <typename T>
+void HybridEngine::withAssetBytes(const AssetSource& source, const std::shared_ptr<Promise<T>>& promise,
+                                  std::function<void(const std::shared_ptr<ArrayBuffer>& bytes)> onRenderThread) {
+  std::shared_ptr<Promise<std::shared_ptr<ArrayBuffer>>> bytes = readAssetBytes(source);
+  bytes->addOnResolvedListener([core = core_, promise, onRenderThread](const std::shared_ptr<ArrayBuffer>& data) {
+    core->thread().post({
+        .run = [onRenderThread, data] { onRenderThread(data); },
+        .cancel = [promise] { promise->reject(std::make_exception_ptr(std::runtime_error("The Engine was shut down."))); },
+    });
+  });
+  bytes->addOnRejectedListener([promise](const std::exception_ptr& error) { promise->reject(error); });
 }
 
 std::shared_ptr<HybridFrameListenerSubscriptionSpec>

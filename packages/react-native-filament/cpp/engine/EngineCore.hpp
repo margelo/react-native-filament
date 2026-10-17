@@ -3,7 +3,11 @@
 #include "EngineBackend.hpp"
 #include "FrameListeners.hpp"
 #include "RenderMode.hpp"
+#include "assets/AnimationPlayers.hpp"
+#include "assets/GltfLoader.hpp"
+#include "assets/ModelLoads.hpp"
 #include "resources/ResourceRoot.hpp"
+#include "resources/Users.hpp"
 #include "threading/RenderThread.hpp"
 
 #include <NitroModules/Promise.hpp>
@@ -20,6 +24,7 @@
 
 namespace margelo::nitro::filament {
 
+class SceneCore;
 class ViewTargetCore;
 
 class EngineCore final : public std::enable_shared_from_this<EngineCore> {
@@ -42,6 +47,11 @@ public:
   void adopt(const std::shared_ptr<Resource>& resource);
   void dispose(const std::shared_ptr<Resource>& resource);
 
+  GltfLoader& gltf();
+  void startModelLoad(::filament::gltfio::FilamentAsset* asset, ModelLoad::Completion completion);
+  void addAnimationPlayer(const std::shared_ptr<AnimationPlayerCore>& player);
+  Users<SceneCore>& scenes();
+
   void addTarget(std::shared_ptr<ViewTargetCore> target);
   void removeTarget(const std::shared_ptr<ViewTargetCore>& target);
 
@@ -57,6 +67,7 @@ public:
 private:
   explicit EngineCore(EngineBackend backend);
   std::shared_ptr<worklets::WorkletRuntime> runtime() const;
+  bool canRenderAnyTarget() const;
   FrameInfo nextFrameInfo(int64_t frameTimeNanos);
   void renderFrame(int64_t frameTimeNanos);
   void shutdownOnRenderThread();
@@ -65,9 +76,14 @@ private:
   std::unique_ptr<RenderThread> thread_;
   ::filament::Engine* engine_ = nullptr;
   std::shared_ptr<ResourceRoot> resources_ = std::make_shared<ResourceRoot>();
+  std::unique_ptr<GltfLoader> gltf_;
+  ModelLoads loads_;
+  AnimationPlayers players_;
+  Users<SceneCore> scenes_;
   std::vector<std::shared_ptr<ViewTargetCore>> targets_;
   FrameListeners frameListeners_;
   bool listenersWantFrame_ = false;
+  bool playersWantFrame_ = false;
   bool vsyncEnabled_ = false;
   int64_t lastFrameTimeNanos_ = 0;
   double elapsedSeconds_ = 0;

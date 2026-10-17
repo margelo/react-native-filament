@@ -33,6 +33,6 @@ foreach(lib IN LISTS FILAMENT_LIBS)
 endforeach()
 list(TRANSFORM FILAMENT_LIBS PREPEND filament_ OUTPUT_VARIABLE FILAMENT_TARGETS)
 
-target_include_directories(${PACKAGE_NAME} PRIVATE "${FILAMENT_DIST_DIR}/include")
+target_include_directories(${PACKAGE_NAME} SYSTEM PRIVATE "${FILAMENT_DIST_DIR}/include")
 target_compile_definitions(${PACKAGE_NAME} PRIVATE RNF_FILAMENT_VERSION="${FILAMENT_VERSION}")
 target_link_libraries(${PACKAGE_NAME} ${FILAMENT_TARGETS} EGL GLESv3)

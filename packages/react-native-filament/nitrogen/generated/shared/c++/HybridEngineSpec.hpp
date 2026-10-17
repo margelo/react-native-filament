@@ -31,6 +31,20 @@ namespace margelo::nitro::filament { class HybridSceneSpec; }
 namespace margelo::nitro::filament { class HybridCameraSpec; }
 // Forward declaration of `HybridSkyboxSpec` to properly resolve imports.
 namespace margelo::nitro::filament { class HybridSkyboxSpec; }
+// Forward declaration of `HybridLightSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridLightSpec; }
+// Forward declaration of `DirectionalLightOptions` to properly resolve imports.
+namespace margelo::nitro::filament { struct DirectionalLightOptions; }
+// Forward declaration of `HybridModelSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridModelSpec; }
+// Forward declaration of `AssetUri` to properly resolve imports.
+namespace margelo::nitro::filament { struct AssetUri; }
+// Forward declaration of `ModelLoadOptions` to properly resolve imports.
+namespace margelo::nitro::filament { struct ModelLoadOptions; }
+// Forward declaration of `HybridIndirectLightSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridIndirectLightSpec; }
+// Forward declaration of `IndirectLightOptions` to properly resolve imports.
+namespace margelo::nitro::filament { struct IndirectLightOptions; }
 // Forward declaration of `HybridFrameListenerSubscriptionSpec` to properly resolve imports.
 namespace margelo::nitro::filament { class HybridFrameListenerSubscriptionSpec; }
 // Forward declaration of `FrameInfo` to properly resolve imports.
@@ -48,6 +62,15 @@ namespace margelo::nitro::filament { struct FrameInfo; }
 #include "HybridCameraSpec.hpp"
 #include "HybridSkyboxSpec.hpp"
 #include <tuple>
+#include "HybridLightSpec.hpp"
+#include "DirectionalLightOptions.hpp"
+#include "HybridModelSpec.hpp"
+#include <NitroModules/ArrayBuffer.hpp>
+#include "AssetUri.hpp"
+#include <variant>
+#include "ModelLoadOptions.hpp"
+#include "HybridIndirectLightSpec.hpp"
+#include "IndirectLightOptions.hpp"
 #include "HybridFrameListenerSubscriptionSpec.hpp"
 #include "FrameInfo.hpp"
 #include <functional>
@@ -90,6 +113,9 @@ namespace margelo::nitro::filament {
       virtual std::shared_ptr<HybridSceneSpec> createScene() = 0;
       virtual std::shared_ptr<HybridCameraSpec> createCamera() = 0;
       virtual std::shared_ptr<HybridSkyboxSpec> createSkybox(const std::tuple<double, double, double, double>& color) = 0;
+      virtual std::shared_ptr<HybridLightSpec> createDirectionalLight(const DirectionalLightOptions& options) = 0;
+      virtual std::shared_ptr<Promise<std::shared_ptr<HybridModelSpec>>> loadModel(const std::variant<std::shared_ptr<ArrayBuffer>, AssetUri>& source, const ModelLoadOptions& options) = 0;
+      virtual std::shared_ptr<Promise<std::shared_ptr<HybridIndirectLightSpec>>> loadIndirectLight(const std::variant<std::shared_ptr<ArrayBuffer>, AssetUri>& source, const IndirectLightOptions& options) = 0;
       virtual std::shared_ptr<HybridFrameListenerSubscriptionSpec> addOnFrameListener(const std::function<bool(const FrameInfo& /* frame */)>& listener) = 0;
       virtual void requestFrame() = 0;
       virtual std::shared_ptr<Promise<void>> shutdown() = 0;

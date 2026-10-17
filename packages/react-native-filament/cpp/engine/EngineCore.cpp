@@ -77,10 +77,8 @@ void EngineCore::scheduleDemandUpdate() {
 }
 
 void EngineCore::updateDemand() {
-  bool canRender =
-      std::any_of(targets_.begin(), targets_.end(), [](const std::shared_ptr<ViewTargetCore>& target) { return target->canRender(); });
-  bool wantsFrame = renderMode_ == RenderMode::CONTINUOUS || frameRequested_ || listenersWantFrame_;
-  bool enabled = canRender && wantsFrame;
+  bool wantsFrame = renderMode_ == RenderMode::CONTINUOUS || frameRequested_ || listenersWantFrame_ || playersWantFrame_;
+  bool enabled = (canRenderAnyTarget() && wantsFrame) || !loads_.empty();
   if (!enabled) {
     lastFrameTimeNanos_ = 0;
   }
@@ -99,6 +97,30 @@ void EngineCore::dispose(const std::shared_ptr<Resource>& resource) {
     return;
   }
   thread_->post({.run = [resource] { resource->destroyTree(); }});
+}
+
+GltfLoader& EngineCore::gltf() {
+  if (gltf_ == nullptr) {
+    gltf_ = std::make_unique<GltfLoader>(*engine_);
+  }
+  return *gltf_;
+}
+
+void EngineCore::startModelLoad(::filament::gltfio::FilamentAsset* asset, ModelLoad::Completion completion) {
+  loads_.start(std::make_unique<ModelLoad>(*engine_, gltf().assetLoader(), asset,
+                                           [self = shared_from_this(), completion](auto* loaded, std::exception_ptr error) {
+                                             self->frameRequested_ = true;
+                                             completion(loaded, std::move(error));
+                                           }));
+  updateDemand();
+}
+
+void EngineCore::addAnimationPlayer(const std::shared_ptr<AnimationPlayerCore>& player) {
+  players_.add(player);
+}
+
+Users<SceneCore>& EngineCore::scenes() {
+  return scenes_;
 }
 
 void EngineCore::addTarget(std::shared_ptr<ViewTargetCore> target) {
@@ -159,6 +181,10 @@ void EngineCore::removeFrameListener(const std::shared_ptr<FrameListener>& liste
   }
 }
 
+bool EngineCore::canRenderAnyTarget() const {
+  return std::any_of(targets_.begin(), targets_.end(), [](const std::shared_ptr<ViewTargetCore>& target) { return target->canRender(); });
+}
+
 FrameInfo EngineCore::nextFrameInfo(int64_t frameTimeNanos) {
   double deltaSeconds = lastFrameTimeNanos_ == 0 ? 0 : static_cast<double>(frameTimeNanos - lastFrameTimeNanos_) / 1e9;
   lastFrameTimeNanos_ = frameTimeNanos;
@@ -167,6 +193,12 @@ FrameInfo EngineCore::nextFrameInfo(int64_t frameTimeNanos) {
 }
 
 void EngineCore::renderFrame(int64_t frameTimeNanos) {
+  loads_.update();
+  if (!canRenderAnyTarget()) {
+    lastFrameTimeNanos_ = 0;
+    updateDemand();
+    return;
+  }
   frameRequested_ = false;
   FrameInfo frame = nextFrameInfo(frameTimeNanos);
   if (!frameListeners_.empty()) {
@@ -174,6 +206,7 @@ void EngineCore::renderFrame(int64_t frameTimeNanos) {
       listenersWantFrame_ = frameListeners_.dispatch(frame, *runtime);
     }
   }
+  playersWantFrame_ = players_.advance(frame.deltaSeconds);
   for (const std::shared_ptr<ViewTargetCore>& target : targets_) {
     target->render(frameTimeNanos);
   }
@@ -196,9 +229,12 @@ void EngineCore::shutdownOnRenderThread() {
   if (std::shared_ptr<worklets::WorkletRuntime> runtime = this->runtime()) {
     runtime->runSync([&](jsi::Runtime&) { frameListeners_.clear(); });
   }
+  loads_.cancelAll();
+  players_.clear();
   resources_->markDisposing();
   resources_->destroyTree();
   targets_.clear();
+  gltf_.reset();
   {
     std::unique_lock lock(runtimeMutex_);
     runtime_ = nullptr;

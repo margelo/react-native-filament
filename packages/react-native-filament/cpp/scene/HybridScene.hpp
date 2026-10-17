@@ -16,6 +16,9 @@ public:
   double getEntityCount() override;
   void addEntity(double entity) override;
   void removeEntity(double entity) override;
+  void addModel(const std::shared_ptr<HybridModelSpec>& model) override;
+  void removeModel(const std::shared_ptr<HybridModelSpec>& model) override;
+  void setIndirectLight(const std::optional<std::shared_ptr<HybridIndirectLightSpec>>& light) override;
   void setSkybox(const std::optional<std::shared_ptr<HybridSkyboxSpec>>& skybox) override;
   void dispose() override;
 

@@ -338,7 +338,7 @@ Plan §10 Phase 2. Reanimated and gestures are proven here, not after the full r
 - [ ] **P2.40** `prepareForRecycle()` detaches, and `onDropView()` disposes.
 
 **Slice objects and integrations** (§5.5, §7.1, §7.2)
-- [ ] **P2.41** Core objects:
+- [x] **P2.41** Core objects:
   - `FilamentFactory` (`filamentVersion`, `supportedBackends`, `createEngine`);
   - a minimal `Engine`, `Scene`, `View` and `Camera`;
   - async `loadModel`, `Model`, `ModelInstance`, `Animator` and `AnimationPlayer`.
@@ -370,12 +370,12 @@ Plan §10 Phase 3, §5, §8.2.
 
 **API and data paths**
 - [ ] **P3.1** Every spec is reviewed against the api-design rules, follows the §5.3 layout, has complete JSDoc, and is typechecked against the generated code.
-- [ ] **P3.2** Platform IO through the internal `AssetIO` spec. `AssetSource` is `{ uri }` or an `ArrayBuffer`.
+- [x] **P3.2** Platform IO through the internal `AssetIO` spec. `AssetSource` is `{ uri }` or an `ArrayBuffer`.
   - iOS: memory-mapped `Data`/`NSData` as an owning `ArrayBuffer`.
   - Android: `FileChannel.map` or an `AssetFileDescriptor` mmap → direct `ByteBuffer` → `ArrayBuffer`. A compressed APK entry gets one streamed read. The docs recommend `noCompress` for `.glb`.
   - http(s): downloaded to a cache file keyed by URL, then mapped.
   - Metro dev URLs are cached per session; Android raw and asset resources are supported.
-- [ ] **P3.3** User `ArrayBuffer`s:
+- [x] **P3.3** User `ArrayBuffer`s:
   - read in place when consumed during the call;
   - one snapshot copy at call time, with bounds and format checks, when consumed after the call returns (D10).
 - [ ] **P3.4** Textures are decoded on an IO thread, then `Texture::setImage` with a release callback. KTX2 and Basis go through Filament's provider.
@@ -671,7 +671,7 @@ Plan §9. Tick a row when the v1 code is gone and its replacement is tested.
 - [ ] **W.4** `flushAndWait` in every swapchain deleter → only in surface teardown.
 - [ ] **W.5** Recorder `while` loops → readiness callbacks and backpressure.
 - [ ] **W.6** Per-frame surface validity checks and the double `onSurfaceCreated` → leases and the `ViewTarget` state machine.
-- [ ] **W.7** Per-frame aspect-ratio polling → resize listener.
+- [x] **W.7** Per-frame aspect-ratio polling → resize listener.
 - [ ] **W.8** Touching `Worklets.defaultContext` to force initialisation → removed.
 - [ ] **W.9** worklets-core patch-package → removed.
 - [ ] **W.10** Three Filament source patches → upstream fixes and public APIs.

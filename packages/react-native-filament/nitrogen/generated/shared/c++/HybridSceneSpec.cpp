@@ -17,6 +17,9 @@ namespace margelo::nitro::filament {
       prototype.registerHybridGetter("entityCount", &HybridSceneSpec::getEntityCount);
       prototype.registerHybridMethod("addEntity", &HybridSceneSpec::addEntity);
       prototype.registerHybridMethod("removeEntity", &HybridSceneSpec::removeEntity);
+      prototype.registerHybridMethod("addModel", &HybridSceneSpec::addModel);
+      prototype.registerHybridMethod("removeModel", &HybridSceneSpec::removeModel);
+      prototype.registerHybridMethod("setIndirectLight", &HybridSceneSpec::setIndirectLight);
       prototype.registerHybridMethod("setSkybox", &HybridSceneSpec::setSkybox);
     });
   }

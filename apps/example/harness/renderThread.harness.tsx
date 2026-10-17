@@ -1,14 +1,7 @@
-import React from 'react'
-import { afterEach, beforeEach, describe, expect, it, render } from 'react-native-harness'
-import { callback } from 'react-native-nitro-modules'
+import { afterEach, beforeEach, describe, expect, it } from 'react-native-harness'
 import { scheduleOnRN } from 'react-native-worklets'
-import { Filament, NativeFilamentView, runOnRenderThread, type Engine, type FilamentView, type FrameInfo } from 'react-native-filament'
-
-function renderView(): Promise<FilamentView> {
-  return new Promise((resolve) => {
-    render(<NativeFilamentView style={{ width: 200, height: 200 }} hybridRef={callback(resolve)} />)
-  })
-}
+import { Filament, runOnRenderThread, type Engine, type FrameInfo } from 'react-native-filament'
+import { renderView } from './renderView'
 
 describe('Render thread', () => {
   let engine: Engine

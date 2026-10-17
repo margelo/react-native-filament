@@ -98,7 +98,18 @@ double ViewTargetCore::height() const {
   return height_;
 }
 
+std::function<void()> ViewTargetCore::addResizeListener(std::function<void(double width, double height)> listener) {
+  std::function<void()> remove = resizeListeners_.add(listener);
+  double width = width_;
+  double height = height_;
+  if (width > 0 && height > 0) {
+    listener(width, height);
+  }
+  return remove;
+}
+
 void ViewTargetCore::destroyNative() {
+  resizeListeners_.clear();
   if (surface_ != nullptr) {
     detach(surface_);
   }
@@ -121,9 +132,15 @@ void ViewTargetCore::destroySwapChain() {
 }
 
 void ViewTargetCore::updateViewport(const std::shared_ptr<HybridNativeSurfaceSpec>& surface) {
-  width_ = surface->getWidth();
-  height_ = surface->getHeight();
-  view_->setViewport({0, 0, static_cast<uint32_t>(width_), static_cast<uint32_t>(height_)});
+  double width = surface->getWidth();
+  double height = surface->getHeight();
+  bool changed = width != width_ || height != height_;
+  width_ = width;
+  height_ = height;
+  view_->setViewport({0, 0, static_cast<uint32_t>(width), static_cast<uint32_t>(height)});
+  if (changed && width > 0 && height > 0) {
+    resizeListeners_.emit(width, height);
+  }
 }
 
 } // namespace margelo::nitro::filament

@@ -8,6 +8,8 @@
 #pragma once
 
 // Forward declarations of C++ defined types
+// Forward declaration of `HybridAssetIOSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridAssetIOSpec; }
 // Forward declaration of `HybridFilamentViewSpec` to properly resolve imports.
 namespace margelo::nitro::filament { class HybridFilamentViewSpec; }
 // Forward declaration of `HybridNativeSurfaceSpec` to properly resolve imports.
@@ -16,14 +18,18 @@ namespace margelo::nitro::filament { class HybridNativeSurfaceSpec; }
 namespace margelo::nitro::filament { struct SurfaceObserver; }
 
 // Include C++ defined types
+#include "HybridAssetIOSpec.hpp"
 #include "HybridFilamentViewSpec.hpp"
 #include "HybridNativeSurfaceSpec.hpp"
 #include "SurfaceObserver.hpp"
+#include <NitroModules/ArrayBuffer.hpp>
+#include <NitroModules/Promise.hpp>
 #include <NitroModules/Result.hpp>
 #include <exception>
 #include <functional>
 #include <memory>
 #include <optional>
+#include <string>
 
 // C++ helpers for Swift
 #include "NitroFilament-Swift-Cxx-Bridge.hpp"
@@ -35,6 +41,8 @@ namespace margelo::nitro::filament { struct SurfaceObserver; }
 #include <NitroModules/DateToChronoDate.hpp>
 
 // Forward declarations of Swift defined types
+// Forward declaration of `HybridAssetIOSpec_cxx` to properly resolve imports.
+namespace NitroFilament { class HybridAssetIOSpec_cxx; }
 // Forward declaration of `HybridFilamentViewSpec_cxx` to properly resolve imports.
 namespace NitroFilament { class HybridFilamentViewSpec_cxx; }
 // Forward declaration of `HybridNativeSurfaceSpec_cxx` to properly resolve imports.

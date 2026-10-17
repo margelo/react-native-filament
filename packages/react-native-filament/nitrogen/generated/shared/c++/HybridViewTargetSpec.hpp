@@ -13,11 +13,15 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+// Forward declaration of `ListenerSubscription` to properly resolve imports.
+namespace margelo::nitro::filament { struct ListenerSubscription; }
 // Forward declaration of `HybridSceneSpec` to properly resolve imports.
 namespace margelo::nitro::filament { class HybridSceneSpec; }
 // Forward declaration of `HybridCameraSpec` to properly resolve imports.
 namespace margelo::nitro::filament { class HybridCameraSpec; }
 
+#include "ListenerSubscription.hpp"
+#include <functional>
 #include <memory>
 #include "HybridSceneSpec.hpp"
 #include "HybridCameraSpec.hpp"
@@ -55,6 +59,7 @@ namespace margelo::nitro::filament {
 
     public:
       // Methods
+      virtual ListenerSubscription addOnResizeListener(const std::function<void(double /* width */, double /* height */)>& listener) = 0;
       virtual void setScene(const std::shared_ptr<HybridSceneSpec>& scene) = 0;
       virtual void setCamera(const std::shared_ptr<HybridCameraSpec>& camera) = 0;
       virtual void setClearColor(const std::tuple<double, double, double, double>& color) = 0;

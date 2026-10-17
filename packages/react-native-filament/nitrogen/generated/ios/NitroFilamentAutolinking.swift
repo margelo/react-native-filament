@@ -23,4 +23,16 @@ public final class NitroFilamentAutolinking {
   public static func isFilamentViewRecyclable() -> Bool {
     return HybridFilamentView.self is any RecyclableView.Type
   }
+  
+  public static func createAssetIO() -> bridge.std__shared_ptr_HybridAssetIOSpec_ {
+    let hybridObject = HybridAssetIO()
+    return { () -> bridge.std__shared_ptr_HybridAssetIOSpec_ in
+      let __cxxWrapped = hybridObject.getCxxWrapper()
+      return __cxxWrapped.getCxxPart()
+    }()
+  }
+  
+  public static func isAssetIORecyclable() -> Bool {
+    return HybridAssetIO.self is any RecyclableView.Type
+  }
 }

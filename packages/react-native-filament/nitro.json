@@ -28,6 +28,16 @@
         "language": "kotlin",
         "implementationClassName": "HybridFilamentView"
       }
+    },
+    "AssetIO": {
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "HybridAssetIO"
+      },
+      "android": {
+        "language": "kotlin",
+        "implementationClassName": "HybridAssetIO"
+      }
     }
   },
   "ignorePaths": [

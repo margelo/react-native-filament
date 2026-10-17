@@ -13,12 +13,18 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+// Forward declaration of `HybridModelSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridModelSpec; }
+// Forward declaration of `HybridIndirectLightSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridIndirectLightSpec; }
 // Forward declaration of `HybridSkyboxSpec` to properly resolve imports.
 namespace margelo::nitro::filament { class HybridSkyboxSpec; }
 
 #include <memory>
-#include "HybridSkyboxSpec.hpp"
+#include "HybridModelSpec.hpp"
+#include "HybridIndirectLightSpec.hpp"
 #include <optional>
+#include "HybridSkyboxSpec.hpp"
 
 namespace margelo::nitro::filament {
 
@@ -53,6 +59,9 @@ namespace margelo::nitro::filament {
       // Methods
       virtual void addEntity(double entity) = 0;
       virtual void removeEntity(double entity) = 0;
+      virtual void addModel(const std::shared_ptr<HybridModelSpec>& model) = 0;
+      virtual void removeModel(const std::shared_ptr<HybridModelSpec>& model) = 0;
+      virtual void setIndirectLight(const std::optional<std::shared_ptr<HybridIndirectLightSpec>>& light) = 0;
       virtual void setSkybox(const std::optional<std::shared_ptr<HybridSkyboxSpec>>& skybox) = 0;
 
     protected:

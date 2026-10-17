@@ -126,6 +126,7 @@ android {
           "${project.buildDir}/generated/source/codegen/java"
         ]
       }
+      assets.srcDirs += ["../assets"]
     }
   }
 }

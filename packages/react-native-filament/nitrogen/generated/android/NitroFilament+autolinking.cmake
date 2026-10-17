@@ -34,17 +34,25 @@ target_sources(
   ../nitrogen/generated/android/NitroFilamentOnLoad.cpp
   # Shared Nitrogen C++ sources
   ../nitrogen/generated/shared/c++/HybridFilamentFactorySpec.cpp
+  ../nitrogen/generated/shared/c++/HybridAnimationPlayerSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridAnimatorSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridModelSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridModelInstanceSpec.cpp
   ../nitrogen/generated/shared/c++/HybridEngineSpec.cpp
   ../nitrogen/generated/shared/c++/HybridFrameListenerSubscriptionSpec.cpp
   ../nitrogen/generated/shared/c++/HybridRenderThreadSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridAssetIOSpec.cpp
   ../nitrogen/generated/shared/c++/HybridNativeSurfaceSpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridIndirectLightSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridLightSpec.cpp
   ../nitrogen/generated/shared/c++/HybridSceneSpec.cpp
   ../nitrogen/generated/shared/c++/HybridSkyboxSpec.cpp
   ../nitrogen/generated/shared/c++/HybridFilamentViewSpec.cpp
   ../nitrogen/generated/shared/c++/views/HybridFilamentViewComponent.cpp
   ../nitrogen/generated/shared/c++/HybridViewTargetSpec.cpp
   # Android-specific Nitrogen C++ sources
+  ../nitrogen/generated/android/c++/JHybridAssetIOSpec.cpp
   ../nitrogen/generated/android/c++/JHybridNativeSurfaceSpec.cpp
   ../nitrogen/generated/android/c++/JHybridFilamentViewSpec.cpp
   ../nitrogen/generated/android/c++/views/JHybridFilamentViewStateUpdater.cpp

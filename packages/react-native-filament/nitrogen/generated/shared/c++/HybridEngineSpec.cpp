@@ -22,6 +22,9 @@ namespace margelo::nitro::filament {
       prototype.registerHybridMethod("createScene", &HybridEngineSpec::createScene);
       prototype.registerHybridMethod("createCamera", &HybridEngineSpec::createCamera);
       prototype.registerHybridMethod("createSkybox", &HybridEngineSpec::createSkybox);
+      prototype.registerHybridMethod("createDirectionalLight", &HybridEngineSpec::createDirectionalLight);
+      prototype.registerHybridMethod("loadModel", &HybridEngineSpec::loadModel);
+      prototype.registerHybridMethod("loadIndirectLight", &HybridEngineSpec::loadIndirectLight);
       prototype.registerHybridMethod("addOnFrameListener", &HybridEngineSpec::addOnFrameListener);
       prototype.registerHybridMethod("requestFrame", &HybridEngineSpec::requestFrame);
       prototype.registerHybridMethod("shutdown", &HybridEngineSpec::shutdown);

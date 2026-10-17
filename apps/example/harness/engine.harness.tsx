@@ -1,14 +1,7 @@
-import React from 'react'
-import { describe, expect, it, render } from 'react-native-harness'
+import { describe, expect, it } from 'react-native-harness'
 import { Platform } from 'react-native'
-import { callback } from 'react-native-nitro-modules'
-import { Filament, NativeFilamentView, type FilamentView } from 'react-native-filament'
-
-function renderView(): Promise<FilamentView> {
-  return new Promise((resolve) => {
-    render(<NativeFilamentView style={{ width: 200, height: 200 }} hybridRef={callback(resolve)} />)
-  })
-}
+import { Filament } from 'react-native-filament'
+import { renderView } from './renderView'
 
 describe('Engine', () => {
   it('creates an engine with the preferred backend', async () => {

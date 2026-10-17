@@ -12,6 +12,7 @@
 
 #include "HybridFilamentFactory.hpp"
 #include "HybridFilamentViewSpecSwift.hpp"
+#include "HybridAssetIOSpecSwift.hpp"
 
 @interface NitroFilamentAutolinking : NSObject
 @end
@@ -35,6 +36,13 @@
     "FilamentView",
     []() -> std::shared_ptr<HybridObject> {
       std::shared_ptr<HybridFilamentViewSpec> hybridObject = NitroFilament::NitroFilamentAutolinking::createFilamentView();
+      return hybridObject;
+    }
+  );
+  HybridObjectRegistry::registerHybridObjectConstructor(
+    "AssetIO",
+    []() -> std::shared_ptr<HybridObject> {
+      std::shared_ptr<HybridAssetIOSpec> hybridObject = NitroFilament::NitroFilamentAutolinking::createAssetIO();
       return hybridObject;
     }
   );

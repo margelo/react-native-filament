@@ -1,6 +1,8 @@
 #include "HybridScene.hpp"
 
+#include "HybridIndirectLight.hpp"
 #include "HybridSkybox.hpp"
+#include "assets/HybridModel.hpp"
 #include "engine/HybridEngine.hpp"
 #include "utils/EngineChecks.hpp"
 #include "utils/EntityConversion.hpp"
@@ -37,6 +39,30 @@ void HybridScene::addEntity(double entity) {
 void HybridScene::removeEntity(double entity) {
   requireUsable("Scene.removeEntity()");
   core_->scene().remove(toEntity(entity));
+}
+
+void HybridScene::addModel(const std::shared_ptr<HybridModelSpec>& model) {
+  requireUsable("Scene.addModel()");
+  auto resolved = requireSameEngine<HybridModel>(model, *engineCore(), "Scene.addModel()");
+  resolved->core()->requireLive("Scene.addModel()");
+  core_->addModel(resolved->core());
+}
+
+void HybridScene::removeModel(const std::shared_ptr<HybridModelSpec>& model) {
+  requireUsable("Scene.removeModel()");
+  auto resolved = requireSameEngine<HybridModel>(model, *engineCore(), "Scene.removeModel()");
+  core_->removeModel(resolved->core());
+}
+
+void HybridScene::setIndirectLight(const std::optional<std::shared_ptr<HybridIndirectLightSpec>>& light) {
+  requireUsable("Scene.setIndirectLight()");
+  if (!light.has_value()) {
+    core_->setIndirectLight(nullptr);
+    return;
+  }
+  auto resolved = requireSameEngine<HybridIndirectLight>(light.value(), *engineCore(), "Scene.setIndirectLight()");
+  resolved->core()->requireLive("Scene.setIndirectLight()");
+  core_->setIndirectLight(resolved->core());
 }
 
 void HybridScene::setSkybox(const std::optional<std::shared_ptr<HybridSkyboxSpec>>& skybox) {

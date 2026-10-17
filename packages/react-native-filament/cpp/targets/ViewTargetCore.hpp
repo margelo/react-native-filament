@@ -2,6 +2,7 @@
 
 #include "HybridNativeSurfaceSpec.hpp"
 #include "resources/Resource.hpp"
+#include "utils/ListenerRegistry.hpp"
 
 #include <filament/Camera.h>
 #include <filament/Engine.h>
@@ -37,6 +38,7 @@ public:
   void revoke();
   double width() const;
   double height() const;
+  std::function<void()> addResizeListener(std::function<void(double width, double height)> listener);
 
 protected:
   void destroyNative() override;
@@ -57,6 +59,7 @@ private:
   std::atomic<bool> revoked_{false};
   std::atomic<double> width_{0};
   std::atomic<double> height_{0};
+  ListenerRegistry<double, double> resizeListeners_;
 };
 
 } // namespace margelo::nitro::filament

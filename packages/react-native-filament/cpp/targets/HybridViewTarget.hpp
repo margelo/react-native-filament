@@ -20,6 +20,7 @@ public:
 
   double getWidth() override;
   double getHeight() override;
+  ListenerSubscription addOnResizeListener(const std::function<void(double width, double height)>& listener) override;
   void setScene(const std::shared_ptr<HybridSceneSpec>& scene) override;
   void setCamera(const std::shared_ptr<HybridCameraSpec>& camera) override;
   void setClearColor(const std::tuple<double, double, double, double>& color) override;

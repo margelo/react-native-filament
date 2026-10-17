@@ -1,5 +1,6 @@
 #pragma once
 
+#include "IndirectLightCore.hpp"
 #include "SkyboxCore.hpp"
 #include "engine/EngineCore.hpp"
 #include "resources/Resource.hpp"
@@ -8,9 +9,11 @@
 #include <filament/Scene.h>
 
 #include <memory>
+#include <vector>
 
 namespace margelo::nitro::filament {
 
+class ModelCore;
 class ViewTargetCore;
 
 class SceneCore final : public Resource {
@@ -19,6 +22,9 @@ public:
   ~SceneCore() override;
 
   ::filament::Scene& scene();
+  void addModel(const std::shared_ptr<ModelCore>& model);
+  void removeModel(const std::shared_ptr<ModelCore>& model);
+  void setIndirectLight(const std::shared_ptr<IndirectLightCore>& light);
   void setSkybox(const std::shared_ptr<SkyboxCore>& skybox);
   Users<ViewTargetCore>& users();
 
@@ -26,8 +32,12 @@ protected:
   void destroyNative() override;
 
 private:
+  std::shared_ptr<SceneCore> self();
+
   std::shared_ptr<EngineCore> engine_;
   ::filament::Scene* scene_;
+  std::vector<std::shared_ptr<ModelCore>> models_;
+  std::shared_ptr<IndirectLightCore> indirectLight_;
   std::shared_ptr<SkyboxCore> skybox_;
   Users<ViewTargetCore> users_;
 };
