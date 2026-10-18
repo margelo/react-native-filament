@@ -28,7 +28,6 @@ public:
   void setScene(const std::shared_ptr<HybridSceneSpec>& scene) override;
   void setCamera(const std::shared_ptr<HybridCameraSpec>& camera) override;
   void setClearOptions(const ClearOptions& options) override;
-  static ViewTargetCore::ClearSettings toClearSettings(const std::optional<ClearOptions>& options);
   void dispose() override;
 
 private:

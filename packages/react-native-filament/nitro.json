@@ -38,6 +38,16 @@
         "language": "kotlin",
         "implementationClassName": "HybridAssetIO"
       }
+    },
+    "VideoEncoderFactory": {
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "HybridVideoEncoderFactory"
+      },
+      "android": {
+        "language": "kotlin",
+        "implementationClassName": "HybridVideoEncoderFactory"
+      }
     }
   },
   "ignorePaths": [

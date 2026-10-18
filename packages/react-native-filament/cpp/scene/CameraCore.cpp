@@ -1,7 +1,7 @@
 #include "CameraCore.hpp"
 
 #include "control/ManipulatorCore.hpp"
-#include "targets/ViewTargetCore.hpp"
+#include "targets/ViewHost.hpp"
 #include "utils/MatrixConversion.hpp"
 
 #include <utils/EntityManager.h>
@@ -31,7 +31,7 @@ utils::Entity CameraCore::entity() const {
   return *camera_;
 }
 
-Users<ViewTargetCore>& CameraCore::users() {
+Users<ViewHost>& CameraCore::users() {
   return users_;
 }
 
@@ -54,7 +54,7 @@ void CameraCore::followManipulator(const std::shared_ptr<ManipulatorCore>& manip
 }
 
 void CameraCore::destroyNative() {
-  users_.forEach([](const std::shared_ptr<ViewTargetCore>& target) { target->setCamera(nullptr); });
+  users_.forEach([](const std::shared_ptr<ViewHost>& target) { target->setCamera(nullptr); });
   followManipulator(nullptr);
   destroyCamera(engine_->engine(), entity_);
 }

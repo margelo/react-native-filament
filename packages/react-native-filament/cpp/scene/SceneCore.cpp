@@ -1,7 +1,7 @@
 #include "SceneCore.hpp"
 
 #include "assets/ModelCore.hpp"
-#include "targets/ViewTargetCore.hpp"
+#include "targets/ViewHost.hpp"
 
 #include <algorithm>
 
@@ -63,12 +63,12 @@ void SceneCore::setSkybox(const std::shared_ptr<SkyboxCore>& skybox) {
   scene_->setSkybox(skybox_ == nullptr ? nullptr : skybox_->skybox());
 }
 
-Users<ViewTargetCore>& SceneCore::users() {
+Users<ViewHost>& SceneCore::users() {
   return users_;
 }
 
 void SceneCore::destroyNative() {
-  users_.forEach([](const std::shared_ptr<ViewTargetCore>& target) { target->setScene(nullptr); });
+  users_.forEach([](const std::shared_ptr<ViewHost>& target) { target->setScene(nullptr); });
   std::vector<std::shared_ptr<ModelCore>> models = models_;
   for (const std::shared_ptr<ModelCore>& model : models) {
     removeModel(model);

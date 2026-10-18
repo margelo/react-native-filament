@@ -13,7 +13,7 @@
 namespace margelo::nitro::filament {
 
 class ManipulatorCore;
-class ViewTargetCore;
+class ViewHost;
 
 class CameraCore final : public Resource {
 public:
@@ -22,7 +22,7 @@ public:
 
   utils::Entity entity() const;
   ::filament::Camera& camera();
-  Users<ViewTargetCore>& users();
+  Users<ViewHost>& users();
   void lookAt(const LookAt& pose);
   void followManipulator(const std::shared_ptr<ManipulatorCore>& manipulator);
 
@@ -33,7 +33,7 @@ private:
   std::shared_ptr<EngineCore> engine_;
   utils::Entity entity_;
   ::filament::Camera* camera_;
-  Users<ViewTargetCore> users_;
+  Users<ViewHost> users_;
   std::shared_ptr<ManipulatorCore> manipulator_;
 };
 

@@ -35,4 +35,16 @@ public final class NitroFilamentAutolinking {
   public static func isAssetIORecyclable() -> Bool {
     return HybridAssetIO.self is any RecyclableView.Type
   }
+  
+  public static func createVideoEncoderFactory() -> bridge.std__shared_ptr_HybridVideoEncoderFactorySpec_ {
+    let hybridObject = HybridVideoEncoderFactory()
+    return { () -> bridge.std__shared_ptr_HybridVideoEncoderFactorySpec_ in
+      let __cxxWrapped = hybridObject.getCxxWrapper()
+      return __cxxWrapped.getCxxPart()
+    }()
+  }
+  
+  public static func isVideoEncoderFactoryRecyclable() -> Bool {
+    return HybridVideoEncoderFactory.self is any RecyclableView.Type
+  }
 }

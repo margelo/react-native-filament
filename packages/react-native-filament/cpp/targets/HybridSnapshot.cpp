@@ -1,11 +1,9 @@
 #include "HybridSnapshot.hpp"
 
-#include "assets/AssetBytes.hpp"
 #include "threading/WorkerPool.hpp"
 #include "utils/PngEncoder.hpp"
+#include "utils/TemporaryFiles.hpp"
 
-#include <atomic>
-#include <chrono>
 #include <fstream>
 #include <stdexcept>
 #include <string>
@@ -27,13 +25,7 @@ std::shared_ptr<ArrayBuffer> HybridSnapshot::toArrayBuffer() {
 }
 
 std::shared_ptr<Promise<std::string>> HybridSnapshot::saveToTemporaryFile() {
-  static std::atomic<uint64_t> nextFile{0};
-  std::string directory = temporaryDirectory();
-  if (!directory.empty() && directory.back() == '/') {
-    directory.pop_back();
-  }
-  std::string path = directory + "/rnf-snapshot-" + std::to_string(std::chrono::system_clock::now().time_since_epoch().count()) + "-" +
-                     std::to_string(nextFile++) + ".png";
+  std::string path = newTemporaryFilePath("rnf-snapshot", "png");
   auto promise = Promise<std::string>::create();
   WorkerPool::shared().post([core = core_, path, promise] {
     try {

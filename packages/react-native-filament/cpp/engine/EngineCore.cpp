@@ -88,7 +88,7 @@ void EngineCore::scheduleDemandUpdate() {
 void EngineCore::updateDemand() {
   bool wantsFrame = renderMode_ == RenderMode::CONTINUOUS || frameRequested_ || listenersWantFrame_ || playersWantFrame_;
   bool uploading = !loads_.empty() || (textures_ != nullptr && !textures_->empty());
-  bool enabled = (canRenderAnyTarget() && wantsFrame) || uploading;
+  bool enabled = (!recording_ && canRenderAnyTarget() && wantsFrame) || uploading;
   if (!enabled) {
     lastFrameTimeNanos_ = 0;
   }
@@ -234,13 +234,20 @@ void EngineCore::renderFrame(int64_t frameTimeNanos) {
   if (textures_ != nullptr) {
     textures_->update();
   }
-  if (!canRenderAnyTarget()) {
+  if (recording_ || !canRenderAnyTarget()) {
     lastFrameTimeNanos_ = 0;
     updateDemand();
     return;
   }
   frameRequested_ = false;
-  FrameInfo frame = nextFrameInfo(frameTimeNanos);
+  runFrameStages(nextFrameInfo(frameTimeNanos));
+  for (const std::shared_ptr<ViewTargetCore>& target : targets_) {
+    target->render(frameTimeNanos);
+  }
+  updateDemand();
+}
+
+void EngineCore::runFrameStages(const FrameInfo& frame) {
   ::filament::TransformManager& transforms = engine_->getTransformManager();
   transformBindings_.forEachActive([&](TransformBindingCore& binding) { binding.apply(transforms); });
   manipulators_.forEachActive([&](ManipulatorCore& manipulator) { manipulator.drain(frame.deltaSeconds); });
@@ -252,9 +259,11 @@ void EngineCore::renderFrame(int64_t frameTimeNanos) {
   playersWantFrame_ = false;
   players_.forEachActive([&](AnimationPlayerCore& player) { playersWantFrame_ = player.advance(frame.deltaSeconds) || playersWantFrame_; });
   skeletonFollowers_.forEachActive([&](SkeletonFollower& follower) { follower.apply(transforms); });
-  for (const std::shared_ptr<ViewTargetCore>& target : targets_) {
-    target->render(frameTimeNanos);
-  }
+}
+
+void EngineCore::setRecording(bool recording) {
+  recording_ = recording;
+  lastFrameTimeNanos_ = 0;
   updateDemand();
 }
 

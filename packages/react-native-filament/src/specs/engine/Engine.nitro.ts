@@ -17,6 +17,8 @@ import type { RenderMode } from '../types/RenderMode'
 import type { ViewTargetOptions } from '../types/ViewTargetOptions'
 import type { FilamentView } from '../targets/FilamentView.nitro'
 import type { ViewTarget } from '../targets/ViewTarget.nitro'
+import type { Recorder } from '../targets/Recorder.nitro'
+import type { RecorderOptions } from '../types/RecorderOptions'
 import type { Model } from '../assets/Model.nitro'
 import type { Material } from '../materials/Material.nitro'
 import type { Texture } from '../materials/Texture.nitro'
@@ -67,6 +69,11 @@ export interface Engine extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
    * @thread any
    */
   createViewTarget(view: FilamentView, options: ViewTargetOptions): Promise<ViewTarget>
+  /**
+   * An offscreen MP4 recorder with its own View. Use an Engine dedicated to recording.
+   * @thread render
+   */
+  createRecorder(options: RecorderOptions): Recorder
   /** @thread render */
   createScene(): Scene
   /** @thread render */

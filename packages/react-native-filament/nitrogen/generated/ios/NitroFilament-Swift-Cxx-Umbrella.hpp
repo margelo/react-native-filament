@@ -14,14 +14,23 @@ namespace margelo::nitro::filament { class HybridAssetIOSpec; }
 namespace margelo::nitro::filament { class HybridFilamentViewSpec; }
 // Forward declaration of `HybridNativeSurfaceSpec` to properly resolve imports.
 namespace margelo::nitro::filament { class HybridNativeSurfaceSpec; }
+// Forward declaration of `HybridVideoEncoderFactorySpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridVideoEncoderFactorySpec; }
+// Forward declaration of `HybridVideoEncoderSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridVideoEncoderSpec; }
 // Forward declaration of `SurfaceObserver` to properly resolve imports.
 namespace margelo::nitro::filament { struct SurfaceObserver; }
+// Forward declaration of `VideoEncoderOptions` to properly resolve imports.
+namespace margelo::nitro::filament { struct VideoEncoderOptions; }
 
 // Include C++ defined types
 #include "HybridAssetIOSpec.hpp"
 #include "HybridFilamentViewSpec.hpp"
 #include "HybridNativeSurfaceSpec.hpp"
+#include "HybridVideoEncoderFactorySpec.hpp"
+#include "HybridVideoEncoderSpec.hpp"
 #include "SurfaceObserver.hpp"
+#include "VideoEncoderOptions.hpp"
 #include <NitroModules/ArrayBuffer.hpp>
 #include <NitroModules/Promise.hpp>
 #include <NitroModules/Result.hpp>
@@ -47,6 +56,10 @@ namespace NitroFilament { class HybridAssetIOSpec_cxx; }
 namespace NitroFilament { class HybridFilamentViewSpec_cxx; }
 // Forward declaration of `HybridNativeSurfaceSpec_cxx` to properly resolve imports.
 namespace NitroFilament { class HybridNativeSurfaceSpec_cxx; }
+// Forward declaration of `HybridVideoEncoderFactorySpec_cxx` to properly resolve imports.
+namespace NitroFilament { class HybridVideoEncoderFactorySpec_cxx; }
+// Forward declaration of `HybridVideoEncoderSpec_cxx` to properly resolve imports.
+namespace NitroFilament { class HybridVideoEncoderSpec_cxx; }
 
 // Include Swift defined types
 #if __has_include("NitroFilament-Swift.h")

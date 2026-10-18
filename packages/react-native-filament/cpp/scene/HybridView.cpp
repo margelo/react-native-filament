@@ -7,7 +7,7 @@
 
 namespace margelo::nitro::filament {
 
-HybridView::HybridView(std::shared_ptr<EngineCore> engine, std::shared_ptr<ViewTargetCore> target)
+HybridView::HybridView(std::shared_ptr<EngineCore> engine, std::shared_ptr<ViewHost> target)
     : HybridObject(TAG), engine_(std::move(engine)), target_(std::move(target)) {}
 
 AntiAliasing HybridView::getAntiAliasing() {

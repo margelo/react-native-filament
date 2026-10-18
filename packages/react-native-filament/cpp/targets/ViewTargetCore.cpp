@@ -2,12 +2,10 @@
 
 #include "HybridSnapshot.hpp"
 #include "QueryTickets.hpp"
-#include "scene/CameraCore.hpp"
-#include "scene/SceneCore.hpp"
 
 #include <backend/PixelBufferDescriptor.h>
+#include <filament/Camera.h>
 #include <filament/Viewport.h>
-#include <utils/EntityManager.h>
 
 #include <algorithm>
 #include <stdexcept>
@@ -15,12 +13,7 @@
 namespace margelo::nitro::filament {
 
 ViewTargetCore::ViewTargetCore(::filament::Engine& engine, ::filament::backend::CallbackHandler& callbacks, ClearSettings clear)
-    : Resource("ViewTarget"), engine_(engine), callbacks_(callbacks), renderer_(engine.createRenderer()), emptyScene_(engine.createScene()),
-      view_(engine.createView()), defaultCameraEntity_(utils::EntityManager::get().create()) {
-  view_->setScene(emptyScene_);
-  view_->setCamera(engine_.createCamera(defaultCameraEntity_));
-  setClearOptions(clear);
-}
+    : ViewHost("ViewTarget", engine, clear), callbacks_(callbacks) {}
 
 void ViewTargetCore::attach(const std::shared_ptr<HybridNativeSurfaceSpec>& surface) {
   if (surface_ != nullptr) {
@@ -64,49 +57,6 @@ void ViewTargetCore::render(int64_t frameTimeNanos) {
     renderer_->endFrame();
     firstFrame_.fire();
   }
-}
-
-void ViewTargetCore::setScene(const std::shared_ptr<SceneCore>& scene) {
-  auto self = std::static_pointer_cast<ViewTargetCore>(shared_from_this());
-  if (scene_ != nullptr) {
-    scene_->users().remove(self);
-  }
-  scene_ = scene;
-  if (scene_ != nullptr) {
-    scene_->users().add(self);
-  }
-  view_->setScene(scene_ == nullptr ? emptyScene_ : &scene_->scene());
-}
-
-void ViewTargetCore::setCamera(const std::shared_ptr<CameraCore>& camera) {
-  auto self = std::static_pointer_cast<ViewTargetCore>(shared_from_this());
-  if (camera_ != nullptr) {
-    camera_->users().remove(self);
-  }
-  camera_ = camera;
-  if (camera_ != nullptr) {
-    camera_->users().add(self);
-  }
-  view_->setCamera(camera_ == nullptr ? engine_.getCameraComponent(defaultCameraEntity_) : &camera_->camera());
-}
-
-void ViewTargetCore::setClearOptions(ClearSettings clear) {
-  renderer_->setClearOptions(
-      {.clearColor = {clear.color[0], clear.color[1], clear.color[2], clear.color[3]}, .clear = clear.clear, .discard = clear.discard});
-}
-
-::filament::View& ViewTargetCore::view() {
-  return *view_;
-}
-
-::filament::math::float2 ViewTargetCore::projectWorldToPoints(::filament::math::float3 position) const {
-  const ::filament::Camera& camera = view_->getCamera();
-  ::filament::math::double4 clip = camera.getProjectionMatrix() * camera.getViewMatrix() * ::filament::math::double4(position, 1.0);
-  ::filament::math::double2 ndc = clip.xy / clip.w;
-  const ::filament::Viewport& viewport = view_->getViewport();
-  double x = (ndc.x * 0.5 + 0.5) * viewport.width;
-  double y = (0.5 - ndc.y * 0.5) * viewport.height;
-  return {static_cast<float>(x / contentScale_), static_cast<float>(y / contentScale_)};
 }
 
 void ViewTargetCore::revoke() {
@@ -235,13 +185,11 @@ void ViewTargetCore::destroyNative() {
   if (surface_ != nullptr) {
     detach(surface_);
   }
-  setScene(nullptr);
-  setCamera(nullptr);
-  engine_.destroyCameraComponent(defaultCameraEntity_);
-  utils::EntityManager::get().destroy(defaultCameraEntity_);
-  engine_.destroy(view_);
-  engine_.destroy(emptyScene_);
-  engine_.destroy(renderer_);
+  destroyViewHost();
+}
+
+double ViewTargetCore::pointsPerPixel() const {
+  return 1 / contentScale_;
 }
 
 void ViewTargetCore::destroySwapChain() {

@@ -160,14 +160,14 @@ Plan §10 Phase 0. The exit is a decision gate: every spike has a measured resul
 - [ ] **F.3** HybridObject return caching, and worklet capture (box/unbox) cost.
 
 **Spike G: recorder and interop** (§4.4, §7.3, §7.4)
-- [ ] **G.1** iOS pump:
+- [x] **G.1** iOS pump:
   - frame-completed callback plus key-value observation of `isReadyForMoreMediaData`;
   - pool exhaustion;
   - a frame that completes while the input is not ready is held.
-- [ ] **G.2** Android pump:
+- [x] **G.2** Android pump:
   - frame-scheduled callback, BufferQueue backpressure, codec output drain, end of stream;
   - decide whether the final `flushAndWait` is needed.
-- [ ] **G.3** Both pumps:
+- [x] **G.3** Both pumps:
   - at most `N` (default 2) frames outstanding, with deterministic timestamps;
   - stop, error and cancel paths;
   - shutdown with frame callbacks pending, with the same exactly-once check as C.4.
@@ -408,7 +408,7 @@ Plan §10 Phase 3, §5, §8.2.
 - [ ] **P3.18** Investigate v1's shadow-clipping case, and test conservative bounds at extreme skinned and morph poses.
 
 **Recorder and physics**
-- [ ] **P3.19** `Recorder` rewrite, on its own engine:
+- [x] **P3.19** `Recorder` rewrite, on its own engine:
   - C++ `Recorder` plus an internal `VideoEncoder` (Swift `AVAssetWriter`; Kotlin `MediaCodec` plus `MediaMuxer`);
   - the §4.4 pumps as spike G decided;
   - presentation timestamps `frameIndex / fps`.

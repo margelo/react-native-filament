@@ -14,7 +14,7 @@
 namespace margelo::nitro::filament {
 
 class ModelCore;
-class ViewTargetCore;
+class ViewHost;
 
 class SceneCore final : public Resource {
 public:
@@ -26,7 +26,7 @@ public:
   void removeModel(const std::shared_ptr<ModelCore>& model);
   void setIndirectLight(const std::shared_ptr<IndirectLightCore>& light);
   void setSkybox(const std::shared_ptr<SkyboxCore>& skybox);
-  Users<ViewTargetCore>& users();
+  Users<ViewHost>& users();
 
 protected:
   void destroyNative() override;
@@ -39,7 +39,7 @@ private:
   std::vector<std::shared_ptr<ModelCore>> models_;
   std::shared_ptr<IndirectLightCore> indirectLight_;
   std::shared_ptr<SkyboxCore> skybox_;
-  Users<ViewTargetCore> users_;
+  Users<ViewHost> users_;
 };
 
 } // namespace margelo::nitro::filament

@@ -65,6 +65,9 @@ public:
   MaterialAssignments& materialAssignments();
   void decodeTexture(const uint8_t* bytes, size_t size, bool srgb, TextureDecoder::Completion completion);
 
+  void runFrameStages(const FrameInfo& frame);
+  void setRecording(bool recording);
+
   void addTarget(std::shared_ptr<ViewTargetCore> target);
   void removeTarget(const std::shared_ptr<ViewTargetCore>& target);
 
@@ -104,6 +107,7 @@ private:
   bool listenersWantFrame_ = false;
   bool playersWantFrame_ = false;
   bool vsyncEnabled_ = false;
+  bool recording_ = false;
   int64_t lastFrameTimeNanos_ = 0;
   double elapsedSeconds_ = 0;
   double frameIndex_ = 0;

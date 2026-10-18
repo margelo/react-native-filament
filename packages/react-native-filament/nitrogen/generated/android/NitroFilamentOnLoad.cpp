@@ -17,6 +17,10 @@
 
 #include "JHybridAssetIOSpec.hpp"
 #include "JHybridNativeSurfaceSpec.hpp"
+#include "JHybridVideoEncoderSpec.hpp"
+#include "JFunc_void.hpp"
+#include "JFunc_void_std__exception_ptr.hpp"
+#include "JHybridVideoEncoderFactorySpec.hpp"
 #include "JHybridFilamentViewSpec.hpp"
 #include "JFunc_void_std__shared_ptr_HybridNativeSurfaceSpec_.hpp"
 #include "views/JHybridFilamentViewStateUpdater.hpp"
@@ -47,6 +51,14 @@ struct JHybridAssetIOSpecImpl: public jni::JavaClass<JHybridAssetIOSpecImpl, JHy
     return javaPart->getJHybridAssetIOSpec();
   }
 };
+struct JHybridVideoEncoderFactorySpecImpl: public jni::JavaClass<JHybridVideoEncoderFactorySpecImpl, JHybridVideoEncoderFactorySpec::JavaPart> {
+  static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/filament/HybridVideoEncoderFactory;";
+  static std::shared_ptr<JHybridVideoEncoderFactorySpec> create() {
+    static const auto constructorFn = javaClassStatic()->getConstructor<JHybridVideoEncoderFactorySpecImpl::javaobject()>();
+    jni::local_ref<JHybridVideoEncoderFactorySpec::JavaPart> javaPart = javaClassStatic()->newObject(constructorFn);
+    return javaPart->getJHybridVideoEncoderFactorySpec();
+  }
+};
 
 void registerAllNatives() {
   using namespace margelo::nitro;
@@ -55,6 +67,10 @@ void registerAllNatives() {
   // Register native JNI methods
   margelo::nitro::filament::JHybridAssetIOSpec::CxxPart::registerNatives();
   margelo::nitro::filament::JHybridNativeSurfaceSpec::CxxPart::registerNatives();
+  margelo::nitro::filament::JHybridVideoEncoderSpec::CxxPart::registerNatives();
+  margelo::nitro::filament::JFunc_void_cxx::registerNatives();
+  margelo::nitro::filament::JFunc_void_std__exception_ptr_cxx::registerNatives();
+  margelo::nitro::filament::JHybridVideoEncoderFactorySpec::CxxPart::registerNatives();
   margelo::nitro::filament::JHybridFilamentViewSpec::CxxPart::registerNatives();
   margelo::nitro::filament::JFunc_void_std__shared_ptr_HybridNativeSurfaceSpec__cxx::registerNatives();
   margelo::nitro::filament::views::JHybridFilamentViewStateUpdater::registerNatives();
@@ -79,6 +95,12 @@ void registerAllNatives() {
     "AssetIO",
     []() -> std::shared_ptr<HybridObject> {
       return JHybridAssetIOSpecImpl::create();
+    }
+  );
+  HybridObjectRegistry::registerHybridObjectConstructor(
+    "VideoEncoderFactory",
+    []() -> std::shared_ptr<HybridObject> {
+      return JHybridVideoEncoderFactorySpecImpl::create();
     }
   );
 }

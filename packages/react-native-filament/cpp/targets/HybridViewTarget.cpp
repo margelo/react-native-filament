@@ -1,10 +1,8 @@
 #include "HybridViewTarget.hpp"
 
+#include "ViewHostCommands.hpp"
 #include "engine/HybridEngine.hpp"
-#include "scene/HybridCamera.hpp"
-#include "scene/HybridScene.hpp"
 #include "scene/HybridView.hpp"
-#include "utils/EngineChecks.hpp"
 #include "utils/ThreadChecks.hpp"
 
 #include <future>
@@ -87,32 +85,18 @@ ListenerSubscription HybridViewTarget::addOnResizeListener(const std::function<v
 
 void HybridViewTarget::setScene(const std::shared_ptr<HybridSceneSpec>& scene) {
   requireRenderThread(engine_->core()->thread(), "ViewTarget.setScene()");
-  core_->requireLive("ViewTarget.setScene()");
-  auto resolved = requireSameEngine<HybridScene>(scene, *engine_->core(), "ViewTarget.setScene()");
-  resolved->core()->requireLive("ViewTarget.setScene()");
-  core_->setScene(resolved->core());
+  setHostScene(*core_, *engine_->core(), scene, "ViewTarget.setScene()");
 }
 
 void HybridViewTarget::setCamera(const std::shared_ptr<HybridCameraSpec>& camera) {
   requireRenderThread(engine_->core()->thread(), "ViewTarget.setCamera()");
-  core_->requireLive("ViewTarget.setCamera()");
-  auto resolved = requireSameEngine<HybridCamera>(camera, *engine_->core(), "ViewTarget.setCamera()");
-  resolved->core()->requireLive("ViewTarget.setCamera()");
-  core_->setCamera(resolved->core());
+  setHostCamera(*core_, *engine_->core(), camera, "ViewTarget.setCamera()");
 }
 
 void HybridViewTarget::setClearOptions(const ClearOptions& options) {
   requireRenderThread(engine_->core()->thread(), "ViewTarget.setClearOptions()");
   core_->requireLive("ViewTarget.setClearOptions()");
   core_->setClearOptions(toClearSettings(options));
-}
-
-ViewTargetCore::ClearSettings HybridViewTarget::toClearSettings(const std::optional<ClearOptions>& options) {
-  ClearOptions resolved = options.value_or(ClearOptions());
-  auto [r, g, b, a] = resolved.color.value_or(std::make_tuple(0.0, 0.0, 0.0, 0.0));
-  return {.color = {static_cast<float>(r), static_cast<float>(g), static_cast<float>(b), static_cast<float>(a)},
-          .clear = resolved.clear.value_or(true),
-          .discard = resolved.discard.value_or(true)};
 }
 
 void HybridViewTarget::dispose() {

@@ -2,7 +2,7 @@
 
 #include "HybridViewSpec.hpp"
 #include "engine/EngineCore.hpp"
-#include "targets/ViewTargetCore.hpp"
+#include "targets/ViewHost.hpp"
 
 #include <filament/View.h>
 
@@ -12,7 +12,7 @@ namespace margelo::nitro::filament {
 
 class HybridView final : public HybridViewSpec {
 public:
-  HybridView(std::shared_ptr<EngineCore> engine, std::shared_ptr<ViewTargetCore> target);
+  HybridView(std::shared_ptr<EngineCore> engine, std::shared_ptr<ViewHost> target);
 
   AntiAliasing getAntiAliasing() override;
   void setAntiAliasing(AntiAliasing antiAliasing) override;
@@ -36,7 +36,7 @@ private:
   ::filament::View& usableView(const char* method);
 
   std::shared_ptr<EngineCore> engine_;
-  std::shared_ptr<ViewTargetCore> target_;
+  std::shared_ptr<ViewHost> target_;
 };
 
 } // namespace margelo::nitro::filament

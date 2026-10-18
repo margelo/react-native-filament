@@ -11,6 +11,8 @@
 #include "HybridAssetIOSpecSwift.hpp"
 #include "HybridFilamentViewSpecSwift.hpp"
 #include "HybridNativeSurfaceSpecSwift.hpp"
+#include "HybridVideoEncoderFactorySpecSwift.hpp"
+#include "HybridVideoEncoderSpecSwift.hpp"
 #include "NitroFilament-Swift-Cxx-Umbrella.hpp"
 #include <NitroModules/NitroDefines.hpp>
 
@@ -61,6 +63,62 @@ namespace margelo::nitro::filament::bridge::swift {
     }
     #endif
     NitroFilament::HybridNativeSurfaceSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
+    return swiftPart.toUnsafe();
+  }
+  
+  // pragma MARK: std::function<void()>
+  Func_void create_Func_void(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = NitroFilament::Func_void::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)]() mutable -> void {
+      swiftClosure.call();
+    };
+  }
+  
+  // pragma MARK: std::function<void(const std::string& /* result */)>
+  Func_void_std__string create_Func_void_std__string(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = NitroFilament::Func_void_std__string::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](const std::string& result) mutable -> void {
+      swiftClosure.call(result);
+    };
+  }
+  
+  // pragma MARK: std::shared_ptr<HybridVideoEncoderSpec>
+  std::shared_ptr<HybridVideoEncoderSpec> create_std__shared_ptr_HybridVideoEncoderSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
+    NitroFilament::HybridVideoEncoderSpec_cxx swiftPart = NitroFilament::HybridVideoEncoderSpec_cxx::fromUnsafe(swiftUnsafePointer);
+    return std::make_shared<margelo::nitro::filament::HybridVideoEncoderSpecSwift>(swiftPart);
+  }
+  void* NON_NULL get_std__shared_ptr_HybridVideoEncoderSpec_(std__shared_ptr_HybridVideoEncoderSpec_ cppType) {
+    std::shared_ptr<margelo::nitro::filament::HybridVideoEncoderSpecSwift> swiftWrapper = std::dynamic_pointer_cast<margelo::nitro::filament::HybridVideoEncoderSpecSwift>(cppType);
+    #ifdef NITRO_DEBUG
+    if (swiftWrapper == nullptr) [[unlikely]] {
+      throw std::runtime_error("Class \"HybridVideoEncoderSpec\" is not implemented in Swift!");
+    }
+    #endif
+    NitroFilament::HybridVideoEncoderSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
+    return swiftPart.toUnsafe();
+  }
+  
+  // pragma MARK: std::function<void(const std::shared_ptr<HybridVideoEncoderSpec>& /* result */)>
+  Func_void_std__shared_ptr_HybridVideoEncoderSpec_ create_Func_void_std__shared_ptr_HybridVideoEncoderSpec_(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = NitroFilament::Func_void_std__shared_ptr_HybridVideoEncoderSpec_::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](const std::shared_ptr<HybridVideoEncoderSpec>& result) mutable -> void {
+      swiftClosure.call(result);
+    };
+  }
+  
+  // pragma MARK: std::shared_ptr<HybridVideoEncoderFactorySpec>
+  std::shared_ptr<HybridVideoEncoderFactorySpec> create_std__shared_ptr_HybridVideoEncoderFactorySpec_(void* NON_NULL swiftUnsafePointer) noexcept {
+    NitroFilament::HybridVideoEncoderFactorySpec_cxx swiftPart = NitroFilament::HybridVideoEncoderFactorySpec_cxx::fromUnsafe(swiftUnsafePointer);
+    return std::make_shared<margelo::nitro::filament::HybridVideoEncoderFactorySpecSwift>(swiftPart);
+  }
+  void* NON_NULL get_std__shared_ptr_HybridVideoEncoderFactorySpec_(std__shared_ptr_HybridVideoEncoderFactorySpec_ cppType) {
+    std::shared_ptr<margelo::nitro::filament::HybridVideoEncoderFactorySpecSwift> swiftWrapper = std::dynamic_pointer_cast<margelo::nitro::filament::HybridVideoEncoderFactorySpecSwift>(cppType);
+    #ifdef NITRO_DEBUG
+    if (swiftWrapper == nullptr) [[unlikely]] {
+      throw std::runtime_error("Class \"HybridVideoEncoderFactorySpec\" is not implemented in Swift!");
+    }
+    #endif
+    NitroFilament::HybridVideoEncoderFactorySpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
     return swiftPart.toUnsafe();
   }
   

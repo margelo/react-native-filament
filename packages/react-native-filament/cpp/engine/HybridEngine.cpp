@@ -27,7 +27,10 @@
 #include "utils/ThreadChecks.hpp"
 #include "utils/Trs.hpp"
 
+#include "targets/HybridRecorder.hpp"
 #include "targets/HybridViewTarget.hpp"
+#include "targets/RecorderCore.hpp"
+#include "targets/ViewHostCommands.hpp"
 #include "targets/ViewTargetCore.hpp"
 
 #include <filament/Material.h>
@@ -80,7 +83,7 @@ void HybridEngine::setRenderMode(RenderMode renderMode) {
 std::shared_ptr<Promise<std::shared_ptr<HybridViewTargetSpec>>>
 HybridEngine::createViewTarget(const std::shared_ptr<HybridFilamentViewSpec>& view, const ViewTargetOptions& options) {
   auto promise = Promise<std::shared_ptr<HybridViewTargetSpec>>::create();
-  ViewTargetCore::ClearSettings clear = HybridViewTarget::toClearSettings(options.clearOptions);
+  ViewHost::ClearSettings clear = toClearSettings(options.clearOptions);
   auto engine = shared_cast<HybridEngine>();
   core_->thread().post({
       .run =
@@ -93,6 +96,24 @@ HybridEngine::createViewTarget(const std::shared_ptr<HybridFilamentViewSpec>& vi
       .cancel = [promise] { promise->reject(std::make_exception_ptr(std::runtime_error("The Engine was shut down."))); },
   });
   return promise;
+}
+
+std::shared_ptr<HybridRecorderSpec> HybridEngine::createRecorder(const RecorderOptions& options) {
+  constexpr const char* method = "Engine.createRecorder()";
+  requireRenderThread(core_->thread(), method);
+  if (!(options.width >= 2) || !(options.height >= 2) || !(options.fps > 0)) {
+    throw std::invalid_argument(std::string(method) + " needs a width and height of at least 2 pixels and a positive fps, got " +
+                                std::to_string(options.width) + " x " + std::to_string(options.height) + " at " +
+                                std::to_string(options.fps) + " fps.");
+  }
+  auto width = static_cast<uint32_t>(options.width) & ~1u;
+  auto height = static_cast<uint32_t>(options.height) & ~1u;
+  double bitRate = options.bitRate.value_or(std::round(width * height * options.fps * 0.1));
+  auto recorder =
+      std::make_shared<RecorderCore>(core_, RecorderCore::Format{.width = width, .height = height, .fps = options.fps, .bitRate = bitRate},
+                                     toClearSettings(options.clearOptions));
+  core_->adopt(recorder);
+  return std::make_shared<HybridRecorder>(shared_cast<HybridEngine>(), std::move(recorder));
 }
 
 std::shared_ptr<HybridSceneSpec> HybridEngine::createScene() {

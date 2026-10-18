@@ -13,6 +13,7 @@
 #include "HybridFilamentFactory.hpp"
 #include "HybridFilamentViewSpecSwift.hpp"
 #include "HybridAssetIOSpecSwift.hpp"
+#include "HybridVideoEncoderFactorySpecSwift.hpp"
 
 @interface NitroFilamentAutolinking : NSObject
 @end
@@ -43,6 +44,13 @@
     "AssetIO",
     []() -> std::shared_ptr<HybridObject> {
       std::shared_ptr<HybridAssetIOSpec> hybridObject = NitroFilament::NitroFilamentAutolinking::createAssetIO();
+      return hybridObject;
+    }
+  );
+  HybridObjectRegistry::registerHybridObjectConstructor(
+    "VideoEncoderFactory",
+    []() -> std::shared_ptr<HybridObject> {
+      std::shared_ptr<HybridVideoEncoderFactorySpec> hybridObject = NitroFilament::NitroFilamentAutolinking::createVideoEncoderFactory();
       return hybridObject;
     }
   );

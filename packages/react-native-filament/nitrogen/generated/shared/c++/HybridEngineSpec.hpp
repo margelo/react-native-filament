@@ -31,6 +31,10 @@ namespace margelo::nitro::filament { class HybridViewTargetSpec; }
 namespace margelo::nitro::filament { class HybridFilamentViewSpec; }
 // Forward declaration of `ViewTargetOptions` to properly resolve imports.
 namespace margelo::nitro::filament { struct ViewTargetOptions; }
+// Forward declaration of `HybridRecorderSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridRecorderSpec; }
+// Forward declaration of `RecorderOptions` to properly resolve imports.
+namespace margelo::nitro::filament { struct RecorderOptions; }
 // Forward declaration of `HybridSceneSpec` to properly resolve imports.
 namespace margelo::nitro::filament { class HybridSceneSpec; }
 // Forward declaration of `HybridCameraSpec` to properly resolve imports.
@@ -95,6 +99,8 @@ namespace margelo::nitro::filament { struct FrameInfo; }
 #include <NitroModules/Promise.hpp>
 #include "HybridFilamentViewSpec.hpp"
 #include "ViewTargetOptions.hpp"
+#include "HybridRecorderSpec.hpp"
+#include "RecorderOptions.hpp"
 #include "HybridSceneSpec.hpp"
 #include "HybridCameraSpec.hpp"
 #include "HybridSkyboxSpec.hpp"
@@ -164,6 +170,7 @@ namespace margelo::nitro::filament {
     public:
       // Methods
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridViewTargetSpec>>> createViewTarget(const std::shared_ptr<HybridFilamentViewSpec>& view, const ViewTargetOptions& options) = 0;
+      virtual std::shared_ptr<HybridRecorderSpec> createRecorder(const RecorderOptions& options) = 0;
       virtual std::shared_ptr<HybridSceneSpec> createScene() = 0;
       virtual std::shared_ptr<HybridCameraSpec> createCamera() = 0;
       virtual std::shared_ptr<HybridSkyboxSpec> createSkybox(const std::tuple<double, double, double, double>& color) = 0;

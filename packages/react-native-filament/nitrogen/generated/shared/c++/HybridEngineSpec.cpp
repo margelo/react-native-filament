@@ -22,6 +22,7 @@ namespace margelo::nitro::filament {
       prototype.registerHybridGetter("renderMode", &HybridEngineSpec::getRenderMode);
       prototype.registerHybridSetter("renderMode", &HybridEngineSpec::setRenderMode);
       prototype.registerHybridMethod("createViewTarget", &HybridEngineSpec::createViewTarget);
+      prototype.registerHybridMethod("createRecorder", &HybridEngineSpec::createRecorder);
       prototype.registerHybridMethod("createScene", &HybridEngineSpec::createScene);
       prototype.registerHybridMethod("createCamera", &HybridEngineSpec::createCamera);
       prototype.registerHybridMethod("createSkybox", &HybridEngineSpec::createSkybox);
