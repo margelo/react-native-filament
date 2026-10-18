@@ -7,6 +7,7 @@
     "api": "typedoc --options typedoc.json && bun scripts/generate-api.ts",
     "dev": "bun run api && fumadocs-mdx && next dev",
     "build": "bun run api && fumadocs-mdx && next build",
+    "check:api": "node scripts/check-api-types.cjs",
     "typecheck": "bun run api && fumadocs-mdx && next typegen && tsc --noEmit"
   },
   "dependencies": {

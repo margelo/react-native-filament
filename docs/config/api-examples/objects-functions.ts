@@ -468,6 +468,42 @@ async function inspectRenderThread() {
 `,
   },
 
+  'hybrid-objects/RenderThreadCleanup': {
+    declarative: `
+import { useFilamentContext, useRenderThreadEffect, type Entity } from 'react-native-filament'
+
+// useRenderThreadEffect keeps its cleanup on the render thread through a RenderThreadCleanup.
+function HiddenWhileMounted({ entity }: { entity: Entity }) {
+  const { transformManager } = useFilamentContext()
+  useRenderThreadEffect(() => {
+    'worklet'
+    const original = transformManager.getTransform(entity)
+    transformManager.setScale(entity, [0, 0, 0])
+    return () => transformManager.setTransform(entity, original)
+  }, [transformManager, entity])
+  return null
+}
+`,
+    imperative: `
+import { runOnRenderThread, type Engine, type Entity } from 'react-native-filament'
+
+async function hideUntilRestored(engine: Engine, entity: Entity) {
+  const cleanup = await runOnRenderThread(engine, () => {
+    'worklet'
+    const original = engine.transformManager.getTransform(entity)
+    engine.transformManager.setScale(entity, [0, 0, 0])
+    // The cleanup captures a render-runtime value, so it stays on the render thread.
+    return engine.renderThread.retainCleanup(() => {
+      'worklet'
+      engine.transformManager.setTransform(entity, original)
+    })
+  })
+  // Runs the cleanup once on the render thread; later calls do nothing.
+  return () => cleanup.run()
+}
+`,
+  },
+
   'hybrid-objects/FilamentFactory': {
     declarative: `
 import React from 'react'

@@ -25,3 +25,7 @@ jobs:
       - name: Test build website
         run: bun run build
         working-directory: docs
+
+      - name: Check API reference types
+        run: bun run check:api
+        working-directory: docs

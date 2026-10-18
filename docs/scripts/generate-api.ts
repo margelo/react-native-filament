@@ -172,6 +172,7 @@ function isInternal(reflection: Reflection): boolean {
  * unless the target already has a page or is internal.
  */
 const publicNameById = new Map<number, string>()
+const publicIds = new Set(indexModule.children!.map((child) => (child.kind === KIND.reference && typeof child.target === 'number' ? child.target : child.id)))
 const aliases: [number, number][] = []
 const exported: Reflection[] = []
 for (const child of indexModule.children!) {
@@ -180,7 +181,9 @@ for (const child of indexModule.children!) {
     continue
   }
   const target = child.target == null ? undefined : byId.get(child.target)
-  if (target == null || isInternal(target)) continue
+  if (target == null) continue
+  if (target.name !== child.name && !publicNames.has(target.name)) publicNameById.set(target.id, child.name)
+  if (isInternal(target)) continue
   if (urlById.has(target.id) || indexModule.children!.includes(target)) {
     aliases.push([child.id, target.id])
     continue
@@ -218,7 +221,7 @@ function referenceName(type: TypeNode): string {
   return (typeof type.target === 'number' ? publicNameById.get(type.target) : undefined) ?? type.name!
 }
 
-/** Nitro's `Sync<T>` is `T & { __syncTag?: never }`, which TypeDoc emits as an intersection with an empty object. */
+/** Nitro's `Sync<T>` is `T & { __syncTag?: never }`, which TypeDoc emits as an intersection with an empty object; it is printed as `Sync<T>`. */
 function isEmptyObject(type: TypeNode): boolean {
   const declaration = type.type === 'reflection' ? type.declaration : undefined
   return declaration != null && !declaration.children?.length && !declaration.signatures?.length && !declaration.indexSignatures?.length
@@ -276,6 +279,8 @@ function typeText(type: TypeNode | undefined, nested = false): string {
       return typeof type.value === 'string' ? `'${type.value}'` : String(type.value)
     case 'reference': {
       if (type.name === 'Element' && type.typeArguments == null) return 'JSX.Element'
+      const target = typeof type.target === 'number' ? byId.get(type.target) : undefined
+      if (target != null && target.kind === KIND.typeAlias && !publicIds.has(target.id) && !publicNameById.has(target.id) && !urlById.has(target.id)) return typeText(target.type, nested)
       const args = type.typeArguments?.length ? `<${type.typeArguments.map((arg) => typeText(arg)).join(', ')}>` : ''
       return `${referenceName(type)}${args}`
     }
@@ -285,7 +290,7 @@ function typeText(type: TypeNode | undefined, nested = false): string {
     }
     case 'intersection': {
       const members = type.types!.filter((member) => !isEmptyObject(member))
-      if (members.length === 1) return typeText(members[0], nested)
+      if (members.length === 1 && type.types!.length === 2) return `Sync<${typeText(members[0])}>`
       return (members.length > 0 ? members : type.types!).map((member) => typeText(member, true)).join(' & ')
     }
     case 'array':
@@ -413,7 +418,7 @@ function memberSection(members: Reflection[], self: string): string {
     out += `## Methods\n\n`
     for (const method of methods) {
       const signatures = method.signatures ?? []
-      out += `### ${method.name}()\n\n\`\`\`ts\n${signatures.map((signature) => `${method.name}(${paramsText(signature)}): ${typeText(signature.type)}`).join('\n')}\n\`\`\`\n\n`
+      out += `### ${method.name}()\n\n\`\`\`ts\n${signatures.map((signature) => `${method.name}${typeParamsText(signature)}(${paramsText(signature)}): ${typeText(signature.type)}`).join('\n')}\n\`\`\`\n\n`
       for (const signature of signatures) {
         out += `${partsToMd(signature.comment?.summary).trim()}\n\n${tagsMd(signature.comment)}\n\n`
         const documented = (signature.parameters ?? []).filter((parameter) => parameter.comment != null)
@@ -551,7 +556,7 @@ function signatureMd(reflection: Reflection, destructured: string): string {
   if (reflection.kind === KIND.variable) return `\`\`\`ts\nconst ${reflection.name}: ${typeText(reflection.type)}\n\`\`\`\n\n`
   if (reflection.kind === KIND.interface) {
     const extended = reflection.extendedTypes?.length ? ` extends ${reflection.extendedTypes.map((type) => (type.name === 'HybridObject' ? type.name : typeText(type))).join(', ')}` : ''
-    return `\`\`\`ts\ninterface ${reflection.name}${extended}\n\`\`\`\n\n`
+    return `\`\`\`ts\ninterface ${reflection.name}${typeParamsText(reflection)}${extended}\n\`\`\`\n\n`
   }
   return `\`\`\`ts\ntype ${reflection.name} = ${typeText(reflection.type)}\n\`\`\`\n\n`
 }
