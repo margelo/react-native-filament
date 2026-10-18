@@ -26,6 +26,7 @@ IndirectLightCore::IndirectLightCore(std::shared_ptr<EngineCore> engine, const u
   byteSize_ = estimateTextureBytes(*reflections_);
   indirectLight_ =
       ::filament::IndirectLight::Builder().reflections(reflections_).irradiance(3, harmonics).intensity(intensity).build(filament);
+  engine_->noteUploads();
 }
 
 IndirectLightCore::~IndirectLightCore() {

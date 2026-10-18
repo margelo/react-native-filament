@@ -53,25 +53,30 @@ bool ViewTargetCore::canRender() const {
   return isLive() && swapChain_ != nullptr && !revoked_ && width_ > 0 && height_ > 0;
 }
 
-bool ViewTargetCore::render(int64_t frameTimeNanos) {
+bool ViewTargetCore::hasPendingQueries() const {
+  return !pendingPicks_.empty() || !pendingSnapshots_.empty();
+}
+
+ViewTargetCore::FrameResult ViewTargetCore::render(int64_t frameTimeNanos) {
   if (!canRender()) {
-    return false;
+    return FrameResult::NONE;
   }
   double framesPerSecond = targetFrameRate_;
   if (framesPerSecond > 0 && lastRenderedNanos_ != 0) {
     auto intervalNanos = static_cast<int64_t>(1e9 / framesPerSecond);
     if (frameTimeNanos - lastRenderedNanos_ < intervalNanos - intervalNanos / 4) {
-      return true;
+      return FrameResult::DEFERRED;
     }
   }
-  if (renderer_->beginFrame(swapChain_, static_cast<uint64_t>(frameTimeNanos))) {
-    renderer_->render(view_);
-    readRequestedSnapshots();
-    renderer_->endFrame();
-    lastRenderedNanos_ = frameTimeNanos;
-    firstFrame_.fire();
+  if (!renderer_->beginFrame(swapChain_, static_cast<uint64_t>(frameTimeNanos))) {
+    return FrameResult::DEFERRED;
   }
-  return false;
+  renderer_->render(view_);
+  readRequestedSnapshots();
+  renderer_->endFrame();
+  lastRenderedNanos_ = frameTimeNanos;
+  firstFrame_.fire();
+  return FrameResult::RENDERED;
 }
 
 void ViewTargetCore::setTargetFrameRate(double framesPerSecond) {

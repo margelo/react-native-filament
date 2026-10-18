@@ -176,8 +176,12 @@ function platformSection(platform: keyof typeof PLATFORMS): string[] {
   const reference = columns[columns.length - 1]!.data
   const lines = [`## ${PLATFORMS[platform]}`, '']
   if (reference.device != null) lines.push(`Device: ${reference.device}.`, '')
+  const runCounts = columns.flatMap(({ data }) =>
+    Object.keys(SCENES).map((scene) => data.results.filter((result) => result.scene === scene).length)
+  )
+  const [fewestRuns, mostRuns] = [Math.min(...runCounts), Math.max(...runCounts)]
   lines.push(
-    `Each scene ran ${reference.results.length / Object.keys(SCENES).length} times from a cold launch, warmed up for ${reference.warmupSeconds} s and was measured for ${reference.measureSeconds} s. Changes compare each Nitro configuration with ${baseline!.label}.`,
+    `Each scene ran ${fewestRuns === mostRuns ? fewestRuns : `${fewestRuns} to ${mostRuns}`} times from a cold launch, warmed up for ${reference.warmupSeconds} s and was measured for ${reference.measureSeconds} s. Changes compare each Nitro configuration with ${baseline!.label}.`,
     ''
   )
   const header = ['Scene', baseline!.label, ...candidates.flatMap((column) => [column.label, 'Change'])]

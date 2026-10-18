@@ -57,6 +57,7 @@ public:
   void requestFrame();
   void scheduleDemandUpdate();
   void updateDemand();
+  void noteUploads();
 
   void adopt(const std::shared_ptr<Resource>& resource);
   void dispose(const std::shared_ptr<Resource>& resource);
@@ -95,8 +96,12 @@ private:
   EngineCore(EngineBackend backend, std::shared_ptr<RenderRuntimePool> runtimes);
   void returnRuntimeToPool();
   bool canRenderAnyTarget() const;
+  bool hasPendingReadbacks() const;
+  bool isUploading() const;
+  bool wantsFrame() const;
   FrameInfo nextFrameInfo(int64_t frameTimeNanos);
   void renderFrame(int64_t frameTimeNanos);
+  void settleUploads();
   void shutdownOnRenderThread();
 
   const EngineBackend backend_;
@@ -121,6 +126,8 @@ private:
   bool physicsWantsFrame_ = false;
   bool vsyncEnabled_ = false;
   bool recording_ = false;
+  bool unsettledUploads_ = false;
+  int settleFrames_ = 0;
   int64_t lastFrameTimeNanos_ = 0;
   double elapsedSeconds_ = 0;
   double frameIndex_ = 0;

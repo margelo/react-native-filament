@@ -43,7 +43,7 @@ Inside components, prefer the hooks: each `FilamentScene` collects the render-th
 
 ## Each frame
 
-In the default `continuous` render mode the render thread renders every display refresh. In `on-demand` mode it renders only when something needs a frame: a changed binding, a playing animation, a manipulator gesture, a physics world with awake bodies, a frame listener that asks for another frame, or `engine.requestFrame()`. Each frame runs these stages in order:
+In the default `continuous` render mode the render thread renders every display refresh. In `on-demand` mode it renders only when something needs a frame: a changed binding, a playing animation, a manipulator gesture, a physics world with awake bodies, a frame listener that asks for another frame, a pending `takeSnapshot()` or `pick()`, or `engine.requestFrame()`. After a model, texture, skybox or indirect light finishes uploading, it waits for the GPU once it has nothing left to render and draws a few more frames, so that Filament frees the upload memory before the render thread goes idle. Each frame runs these stages in order:
 
 1. queued jobs (`runOnRenderThread`, the render-thread hooks);
 2. asset uploads;

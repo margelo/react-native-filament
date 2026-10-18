@@ -27,14 +27,17 @@ public:
   using PickPromise = Promise<std::optional<PickResult>>;
   using SnapshotPromise = Promise<std::shared_ptr<HybridSnapshotSpec>>;
 
+  /** DEFERRED: the target skipped this frame, to keep its frame rate or because Filament asked to, and wants a later one. */
+  enum class FrameResult { RENDERED, DEFERRED, NONE };
+
   ViewTargetCore(::filament::Engine& engine, ::filament::backend::CallbackHandler& callbacks, ClearSettings clear);
 
   void attach(const std::shared_ptr<HybridNativeSurfaceSpec>& surface);
   void resize(const std::shared_ptr<HybridNativeSurfaceSpec>& surface);
   void detach(const std::shared_ptr<HybridNativeSurfaceSpec>& surface);
   bool canRender() const;
-  /** Returns whether the target skipped this frame to keep its frame rate and wants a later one. */
-  [[nodiscard]] bool render(int64_t frameTimeNanos);
+  bool hasPendingQueries() const;
+  [[nodiscard]] FrameResult render(int64_t frameTimeNanos);
   void setTargetFrameRate(double framesPerSecond);
   double targetFrameRate() const;
 

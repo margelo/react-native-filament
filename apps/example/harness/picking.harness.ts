@@ -75,3 +75,35 @@ describe('Picking and snapshots', () => {
     await expect(pending).rejects.toThrow('FilamentDisposedError')
   })
 })
+
+describe('On-demand picking and snapshots', () => {
+  it('resolves on every backend once the renderer goes idle', async () => {
+    for (const backend of Filament.supportedBackends) {
+      const engine = await Filament.createEngine({ backend })
+      try {
+        engine.renderMode = 'on-demand'
+        const target = await engine.createViewTarget(await renderView(), { clearOptions: { color: [1, 0, 0, 1] } })
+        const model = await engine.loadModel({ uri: coin.uri }, {})
+        await runOnRenderThread(engine, () => {
+          'worklet'
+          const scene = engine.createScene()
+          scene.addModel(model)
+          engine.transformManager.transformToUnitCube(model.rootEntity, model.boundingBox)
+          const camera = engine.createCamera()
+          camera.lookAt([0, 0, 6], [0, 0, 0], [0, 1, 0])
+          camera.setProjection(45, 1, 0.1, 100)
+          target.setScene(scene)
+          target.setCamera(camera)
+        })
+        engine.requestFrame()
+        await new Promise<void>((resolve) => target.addOnFirstFrameListener(resolve))
+        const snapshot = await target.takeSnapshot()
+        const hit = await target.pick(100, 100)
+        expect([backend, snapshot.width]).toEqual([backend, target.width])
+        expect([backend, model.entities.includes(hit?.entity ?? -1)]).toEqual([backend, true])
+      } finally {
+        await engine.shutdown()
+      }
+    }
+  })
+})

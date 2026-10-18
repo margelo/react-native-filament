@@ -10,12 +10,29 @@
 #include "physics/PhysicsWorldCore.hpp"
 #include "targets/ViewTargetCore.hpp"
 #include "threading/WorkerPool.hpp"
+#include "utils/HeapRelease.hpp"
 #include "utils/Logger.hpp"
 
 #include <algorithm>
 #include <stdexcept>
 
 namespace margelo::nitro::filament {
+
+namespace {
+
+  /** Frames after which Filament frees idle staging buffers: MetalBufferPool keeps them 10 frames, VulkanStagePool 3. */
+  int stagingEvictionFrames(EngineBackend backend) {
+    switch (backend) {
+      case EngineBackend::METAL:
+        return 11;
+      case EngineBackend::VULKAN:
+        return 4;
+      case EngineBackend::OPENGL:
+        return 0;
+    }
+  }
+
+} // namespace
 
 std::shared_ptr<EngineCore> EngineCore::create(EngineBackend backend, std::shared_ptr<RenderRuntimePool> runtimes,
                                                StartedHandler onStarted) {
@@ -98,10 +115,7 @@ void EngineCore::scheduleDemandUpdate() {
 }
 
 void EngineCore::updateDemand() {
-  bool wantsFrame =
-      renderMode_ == RenderMode::CONTINUOUS || frameRequested_ || listenersWantFrame_ || playersWantFrame_ || physicsWantsFrame_;
-  bool uploading = !loads_.empty() || (textures_ != nullptr && !textures_->empty());
-  bool enabled = (!recording_ && canRenderAnyTarget() && wantsFrame) || uploading;
+  bool enabled = (!recording_ && canRenderAnyTarget() && wantsFrame()) || isUploading();
   if (!enabled) {
     lastFrameTimeNanos_ = 0;
   }
@@ -109,6 +123,11 @@ void EngineCore::updateDemand() {
     vsyncEnabled_ = enabled;
     thread_->setVsyncEnabled(enabled);
   }
+}
+
+void EngineCore::noteUploads() {
+  unsettledUploads_ = true;
+  requestFrame();
 }
 
 void EngineCore::adopt(const std::shared_ptr<Resource>& resource) {
@@ -138,7 +157,7 @@ GltfLoader& EngineCore::gltf() {
 void EngineCore::startModelLoad(::filament::gltfio::FilamentAsset* asset, ModelLoad::Completion completion) {
   loads_.start(std::make_unique<ModelLoad>(*engine_, gltf().assetLoader(), asset,
                                            [self = shared_from_this(), completion](auto* loaded, std::exception_ptr error) {
-                                             self->frameRequested_ = true;
+                                             self->noteUploads();
                                              completion(loaded, std::move(error));
                                            }));
   updateDemand();
@@ -173,7 +192,7 @@ void EngineCore::decodeTexture(const uint8_t* bytes, size_t size, bool srgb, Tex
     textures_ = std::make_unique<TextureDecoder>(*engine_);
   }
   textures_->push(bytes, size, srgb, [self = shared_from_this(), completion](::filament::Texture* texture, std::exception_ptr error) {
-    self->frameRequested_ = true;
+    self->noteUploads();
     completion(texture, std::move(error));
   });
   updateDemand();
@@ -272,6 +291,20 @@ bool EngineCore::canRenderAnyTarget() const {
   return std::any_of(targets_.begin(), targets_.end(), [](const std::shared_ptr<ViewTargetCore>& target) { return target->canRender(); });
 }
 
+bool EngineCore::hasPendingReadbacks() const {
+  return std::any_of(targets_.begin(), targets_.end(),
+                     [](const std::shared_ptr<ViewTargetCore>& target) { return target->hasPendingQueries(); });
+}
+
+bool EngineCore::isUploading() const {
+  return !loads_.empty() || (textures_ != nullptr && !textures_->empty());
+}
+
+bool EngineCore::wantsFrame() const {
+  return renderMode_ == RenderMode::CONTINUOUS || frameRequested_ || listenersWantFrame_ || playersWantFrame_ || physicsWantsFrame_ ||
+         settleFrames_ > 0 || hasPendingReadbacks();
+}
+
 FrameInfo EngineCore::nextFrameInfo(int64_t frameTimeNanos) {
   double deltaSeconds = lastFrameTimeNanos_ == 0 ? 0 : static_cast<double>(frameTimeNanos - lastFrameTimeNanos_) / 1e9;
   lastFrameTimeNanos_ = frameTimeNanos;
@@ -291,14 +324,36 @@ void EngineCore::renderFrame(int64_t frameTimeNanos) {
   }
   frameRequested_ = false;
   runFrameStages(nextFrameInfo(frameTimeNanos));
-  bool deferred = false;
+  bool rendered = false;
   for (const std::shared_ptr<ViewTargetCore>& target : targets_) {
-    deferred = target->render(frameTimeNanos) || deferred;
+    switch (target->render(frameTimeNanos)) {
+      case ViewTargetCore::FrameResult::RENDERED:
+        rendered = true;
+        break;
+      case ViewTargetCore::FrameResult::DEFERRED:
+        frameRequested_ = true;
+        break;
+      case ViewTargetCore::FrameResult::NONE:
+        break;
+    }
   }
-  if (deferred) {
-    frameRequested_ = true;
+  if (rendered) {
+    settleUploads();
   }
   updateDemand();
+}
+
+void EngineCore::settleUploads() {
+  if (settleFrames_ > 0) {
+    settleFrames_--;
+  }
+  if (settleFrames_ > 0 || !unsettledUploads_ || isUploading() || wantsFrame()) {
+    return;
+  }
+  unsettledUploads_ = false;
+  engine_->flushAndWait();
+  releaseFreeHeapPages();
+  settleFrames_ = stagingEvictionFrames(backend_);
 }
 
 void EngineCore::runFrameStages(const FrameInfo& frame) {

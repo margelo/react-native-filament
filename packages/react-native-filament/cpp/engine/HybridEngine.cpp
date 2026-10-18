@@ -324,6 +324,7 @@ std::shared_ptr<Promise<std::shared_ptr<HybridSkyboxSpec>>> HybridEngine::loadSk
     try {
       std::unique_ptr<image::Ktx1Bundle> bundle = parseKtx1Cubemap(bytes->data(), bytes->size(), "skybox");
       ::filament::Texture* environment = ktxreader::Ktx1Reader::createTexture(&engine->core()->engine(), bundle.release(), false);
+      engine->core()->noteUploads();
       auto core = std::make_shared<SkyboxCore>(engine->core(), environment);
       engine->core()->adopt(core);
       promise->resolve(std::make_shared<HybridSkybox>(engine, core));
