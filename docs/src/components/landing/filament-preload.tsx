@@ -7,6 +7,7 @@ import { startFilament } from './start-filament'
  * filament.js runs as soon as it arrives, and startFilament begins right away.
  */
 export function FilamentPreload() {
+  preload(FILAMENT_BOOT.poster, { as: 'image', fetchPriority: 'high' })
   preload(FILAMENT_BOOT.wasm, { as: 'fetch', crossOrigin: 'anonymous' })
   preload(FILAMENT_BOOT.iblGzip, { as: 'fetch', crossOrigin: 'anonymous' })
   preinit(FILAMENT_BOOT.script, { as: 'script' })

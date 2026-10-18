@@ -46,3 +46,5 @@ bun run --cwd docs deploy:cloudflare
 
 The home page preloads `filament.wasm` and the hero IBL with the HTML and starts Filament before React hydrates (`src/components/landing/filament-preload.tsx`). The IBL (`public/filament/hero_ibl.ktx`) is the library's `default_env_ibl.ktx` without its 256 px mip level, and is also shipped gzipped (`hero_ibl.ktx.gz`) because not every host compresses `.ktx` files.
 
+Until the first live frame, the hero shows `public/filament/hero-poster.webp`, a transparent capture of that frame placed with CSS by `src/components/landing/hero-poster.json`. Regenerate both with `bun run --cwd docs poster` (needs Chrome and a running docs server) after changing the hero camera, the bottle or its material.
+

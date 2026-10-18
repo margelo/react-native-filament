@@ -143,6 +143,31 @@ article .prose :not(pre) > code {
   pointer-events: none;
 }
 
+/* The hero poster: the bottle's box is stored in units of the camera's focal length, which is half
+   the canvas height times --rnf-focal-landscape, or half its width times --rnf-focal-portrait. */
+.rnf-poster-frame {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  pointer-events: none;
+}
+
+.rnf-poster {
+  --rnf-focal: calc(50cqh * var(--rnf-focal-landscape));
+  position: absolute;
+  left: calc(50cqw + var(--rnf-poster-x) * var(--rnf-focal));
+  top: calc(50cqh + var(--rnf-poster-y) * var(--rnf-focal));
+  width: calc(var(--rnf-poster-width) * var(--rnf-focal));
+  height: calc(var(--rnf-poster-height) * var(--rnf-focal));
+  max-width: none;
+}
+
+@container (aspect-ratio < 1) {
+  .rnf-poster {
+    --rnf-focal: calc(50cqw * var(--rnf-focal-portrait));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rnf-aurora-blob,
   .rnf-floor {

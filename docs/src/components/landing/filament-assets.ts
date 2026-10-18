@@ -10,6 +10,7 @@ export const FILAMENT_BOOT = {
   wasm: withBasePath('/filament/filament.wasm'),
   ibl: withBasePath('/filament/hero_ibl.ktx'),
   iblGzip: withBasePath('/filament/hero_ibl.ktx.gz'),
+  poster: withBasePath('/filament/hero-poster.webp'),
 }
 
 export type FilamentBoot = typeof FILAMENT_BOOT

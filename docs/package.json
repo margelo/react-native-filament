@@ -8,6 +8,7 @@
     "dev": "bun run api && fumadocs-mdx && next dev",
     "build": "bun run api && fumadocs-mdx && next build",
     "check:api": "node scripts/check-api-types.cjs",
+    "poster": "bun scripts/render-hero-poster.mjs",
     "build:cloudflare": "DOCS_BASE_PATH= DOCS_SITE_URL=https://react-native-filament-docs.riteshshukla2381.workers.dev bun run build",
     "deploy:cloudflare": "bun run build:cloudflare && wrangler deploy",
     "typecheck": "bun run api && fumadocs-mdx && next typegen && tsc --noEmit"

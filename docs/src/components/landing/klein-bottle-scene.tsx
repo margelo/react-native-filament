@@ -1,8 +1,10 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { type CSSProperties, useEffect, useRef, useState } from 'react'
 import type * as FilamentTypes from '@/lib/filament/filament'
 import { FILAMENT_BOOT } from './filament-assets'
+import { focalScale, HERO_CAMERA } from './hero-camera'
+import poster from './hero-poster.json'
 import { createKleinBottleGlb } from './klein-bottle-glb'
 import { startFilament } from './start-filament'
 
@@ -33,7 +35,20 @@ function rotationZ(angle: number): Mat4 {
   return [c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
 }
 
-/** A Klein bottle rendered live with Filament for WebGL 2 on a transparent canvas. */
+/** Places hero-poster.webp where the first frame draws the bottle, for any canvas size (see .rnf-poster). */
+const posterStyle = {
+  '--rnf-poster-x': poster.x,
+  '--rnf-poster-y': poster.y,
+  '--rnf-poster-width': poster.width,
+  '--rnf-poster-height': poster.height,
+  '--rnf-focal-landscape': focalScale(HERO_CAMERA.landscapeFovDegrees),
+  '--rnf-focal-portrait': focalScale(HERO_CAMERA.portraitFovDegrees),
+} as CSSProperties
+
+/**
+ * A Klein bottle rendered live with Filament for WebGL 2 on a transparent canvas. A poster of the
+ * first frame shows until then, and stays if WebGL 2 is unavailable.
+ */
 export function KleinBottleScene({ className }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [ready, setReady] = useState(false)
@@ -79,7 +94,7 @@ export function KleinBottleScene({ className }: { className?: string }) {
       const transforms = engine.getTransformManager()
       const root = transforms.getInstance(asset.getRoot())
 
-      camera.lookAt([0, 0, 4.4], [0, -0.16, 0], [0, 1, 0])
+      camera.lookAt(HERO_CAMERA.eye, HERO_CAMERA.target, [0, 1, 0])
 
       const resize = () => {
         const ratio = Math.min(window.devicePixelRatio, 2)
@@ -89,7 +104,8 @@ export function KleinBottleScene({ className }: { className?: string }) {
         canvas.height = height
         view.setViewport([0, 0, width, height])
         const portrait = width < height
-        camera.setProjectionFov(portrait ? 22 : 30, width / height, 0.1, 50, portrait ? Filament.Camera$Fov.HORIZONTAL : Filament.Camera$Fov.VERTICAL)
+        const fov = portrait ? HERO_CAMERA.portraitFovDegrees : HERO_CAMERA.landscapeFovDegrees
+        camera.setProjectionFov(fov, width / height, 0.1, 50, portrait ? Filament.Camera$Fov.HORIZONTAL : Filament.Camera$Fov.VERTICAL)
       }
       resize()
       const observer = new ResizeObserver(resize)
@@ -143,5 +159,12 @@ export function KleinBottleScene({ className }: { className?: string }) {
     }
   }, [])
 
-  return <canvas ref={canvasRef} className={`${className ?? ''} transition-opacity duration-1000 ${ready ? 'opacity-100' : 'opacity-0'}`} aria-label="A Klein bottle rendered live with Filament" />
+  return (
+    <>
+      <div className={`rnf-poster-frame ${ready ? 'hidden' : ''}`} style={posterStyle} aria-hidden="true">
+        <img className="rnf-poster" src={FILAMENT_BOOT.poster} alt="" width={poster.imageWidth} height={poster.imageHeight} fetchPriority="high" decoding="async" />
+      </div>
+      <canvas ref={canvasRef} className={`${className ?? ''} ${ready ? 'opacity-100' : 'opacity-0'}`} aria-label="A Klein bottle rendered live with Filament" />
+    </>
+  )
 }
