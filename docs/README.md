@@ -37,10 +37,10 @@ The site also deploys as a Cloudflare Worker with static assets (`wrangler.jsonc
 
 ```sh
 bunx wrangler login
-bun run --cwd docs deploy:cloudflare
+DOCS_SITE_URL=https://react-native-filament-docs.<your-subdomain>.workers.dev bun run --cwd docs deploy:cloudflare
 ```
 
-`deploy:cloudflare` builds with `DOCS_BASE_PATH` empty and `DOCS_SITE_URL` set to the Worker's URL, then runs `wrangler deploy`. `public/_headers` sets long-lived caching for hashed Next.js assets on Cloudflare.
+`deploy:cloudflare` builds with `DOCS_BASE_PATH` empty, so the site is served from the root, then runs `wrangler deploy`. `DOCS_SITE_URL` sets the absolute URL used in metadata and `llms.txt`. `public/_headers` sets long-lived caching for hashed Next.js assets on Cloudflare.
 
 ## Landing page loading
 
