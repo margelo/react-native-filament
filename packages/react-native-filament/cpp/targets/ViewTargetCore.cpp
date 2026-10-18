@@ -12,8 +12,9 @@
 
 namespace margelo::nitro::filament {
 
-ViewTargetCore::ViewTargetCore(::filament::Engine& engine, ::filament::backend::CallbackHandler& callbacks, ClearSettings clear)
-    : ViewHost("ViewTarget", engine, clear), callbacks_(callbacks) {}
+ViewTargetCore::ViewTargetCore(::filament::Engine& engine, ::filament::Renderer& renderer,
+                               ::filament::backend::CallbackHandler& callbacks, ClearSettings clear)
+    : ViewHost("ViewTarget", engine, renderer, clear), callbacks_(callbacks) {}
 
 void ViewTargetCore::attach(const std::shared_ptr<HybridNativeSurfaceSpec>& surface) {
   if (surface_ != nullptr) {
@@ -68,9 +69,7 @@ ViewTargetCore::FrameResult ViewTargetCore::render(int64_t frameTimeNanos) {
       return FrameResult::DEFERRED;
     }
   }
-  if (!renderer_->beginFrame(swapChain_, static_cast<uint64_t>(frameTimeNanos))) {
-    return FrameResult::DEFERRED;
-  }
+  beginFrame(swapChain_, static_cast<uint64_t>(frameTimeNanos));
   renderer_->render(view_);
   readRequestedSnapshots();
   renderer_->endFrame();

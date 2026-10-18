@@ -252,7 +252,7 @@ Plan §10 Phase 2. Reanimated and gestures are proven here, not after the full r
 - [ ] **P2.4** One iteration runs stages 1–7 in order.
   - The listener list is snapshotted at stage 4.
   - A dispose during stage 4 skips the rest of that frame.
-  - `beginFrame` returning false skips the frame; it is never queued.
+  - When the Engine's shared Renderer reports the GPU is behind (`shouldRenderFrame()`), every target skips the frame and it stays pending (D39).
 - [ ] **P2.5** Frame demand per §4.4. Vsync is re-armed only while there is demand, and jobs wake the thread whether or not a surface exists.
 - [ ] **P2.6** Wake protocol:
   - the producer publishes, then posts a wake job only if `wakePending.exchange(true)` returned false;

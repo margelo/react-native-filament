@@ -13,8 +13,8 @@
 
 namespace margelo::nitro::filament {
 
-ViewHost::ViewHost(const char* kind, ::filament::Engine& engine, ClearSettings clear)
-    : Resource(kind), engine_(engine), renderer_(engine.createRenderer()), view_(engine.createView()), emptyScene_(engine.createScene()),
+ViewHost::ViewHost(const char* kind, ::filament::Engine& engine, ::filament::Renderer& renderer, ClearSettings clear)
+    : Resource(kind), engine_(engine), renderer_(&renderer), view_(engine.createView()), emptyScene_(engine.createScene()),
       defaultCameraEntity_(utils::EntityManager::get().create()) {
   view_->setScene(emptyScene_);
   view_->setCamera(engine_.createCamera(defaultCameraEntity_));
@@ -50,8 +50,13 @@ void ViewHost::setCamera(const std::shared_ptr<CameraCore>& camera) {
 }
 
 void ViewHost::setClearOptions(ClearSettings clear) {
-  renderer_->setClearOptions(
-      {.clearColor = {clear.color[0], clear.color[1], clear.color[2], clear.color[3]}, .clear = clear.clear, .discard = clear.discard});
+  clearOptions_ = {
+      .clearColor = {clear.color[0], clear.color[1], clear.color[2], clear.color[3]}, .clear = clear.clear, .discard = clear.discard};
+}
+
+void ViewHost::beginFrame(::filament::SwapChain* swapChain, uint64_t vsyncNanos) {
+  renderer_->setClearOptions(clearOptions_);
+  renderer_->beginFrame(swapChain, vsyncNanos);
 }
 
 ::filament::View& ViewHost::view() {
@@ -79,7 +84,6 @@ void ViewHost::destroyViewHost() {
   utils::EntityManager::get().destroy(defaultCameraEntity_);
   engine_.destroy(view_);
   engine_.destroy(emptyScene_);
-  engine_.destroy(renderer_);
 }
 
 } // namespace margelo::nitro::filament

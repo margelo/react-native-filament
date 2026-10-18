@@ -12,7 +12,7 @@
 namespace margelo::nitro::filament {
 
 RecorderCore::RecorderCore(std::shared_ptr<EngineCore> engine, Format format, ClearSettings clear)
-    : ViewHost("Recorder", engine->engine(), clear), engineCore_(std::move(engine)), format_(format),
+    : ViewHost("Recorder", engine->engine(), engine->renderer(), clear), engineCore_(std::move(engine)), format_(format),
       rendersIntoPixelBuffers_(engine_.getBackend() == ::filament::backend::Backend::METAL) {
   view_->setViewport({0, 0, format_.width, format_.height});
 }
@@ -120,7 +120,7 @@ void RecorderCore::renderFrame(const std::shared_ptr<RecordingSession>& session,
   session->rendering++;
   session->unaccepted++;
   renderer_->setPresentationTime(session->presentationBaseNanos + static_cast<int64_t>(frame.timestampNs));
-  renderer_->beginFrame(swapChain);
+  beginFrame(swapChain);
   renderer_->render(view_);
   renderer_->endFrame();
 }

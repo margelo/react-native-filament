@@ -1,7 +1,7 @@
 import React from 'react'
 import { afterEach, beforeEach, describe, expect, it, render, waitUntil } from 'react-native-harness'
 import { Camera, Filament, FilamentScene, FilamentView, runOnRenderThread, type Engine, type EngineBackend } from 'react-native-filament'
-import { renderView } from './renderView'
+import { renderView, renderViews } from './renderView'
 
 const backend: EngineBackend | undefined = Filament.supportedBackends.find((supported) => supported === 'vulkan')
 
@@ -96,5 +96,18 @@ describe('Surfaces', () => {
     } finally {
       await other.shutdown()
     }
+  })
+
+  it('renders more views on one engine than Vulkan has timer queries for', async () => {
+    const views = await renderViews(12)
+    const targets = await Promise.all(
+      views.map((view, index) => engine.createViewTarget(view, { clearOptions: { color: index % 2 === 0 ? [1, 0, 0, 1] : [0, 0, 1, 1] } }))
+    )
+    await Promise.all(targets.map((target) => new Promise<void>((resolve) => target.addOnFirstFrameListener(resolve))))
+    const snapshots = await Promise.all(targets.map((target) => target.takeSnapshot()))
+    snapshots.forEach((snapshot, index) => {
+      const [red, , blue] = Array.from(new Uint8Array(snapshot.toArrayBuffer()).slice(0, 3))
+      expect(index % 2 === 0 ? red! - blue! : blue! - red!).toBeGreaterThan(150)
+    })
   })
 })

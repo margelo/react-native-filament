@@ -89,7 +89,8 @@ HybridEngine::createViewTarget(const std::shared_ptr<HybridFilamentViewSpec>& vi
   core_->thread().post({
       .run =
           [engine, view, clear, promise] {
-            auto target = std::make_shared<ViewTargetCore>(engine->core()->engine(), engine->core()->callbacks(), clear);
+            auto target = std::make_shared<ViewTargetCore>(engine->core()->engine(), engine->core()->renderer(),
+                                                           engine->core()->callbacks(), clear);
             engine->core()->adopt(target);
             engine->core()->addTarget(target);
             promise->resolve(std::make_shared<HybridViewTarget>(engine, target, view));

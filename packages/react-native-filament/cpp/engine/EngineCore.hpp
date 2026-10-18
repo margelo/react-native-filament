@@ -16,6 +16,7 @@
 
 #include <NitroModules/Promise.hpp>
 #include <filament/Engine.h>
+#include <filament/Renderer.h>
 #include <worklets/SharedItems/Serializable.h>
 #include <worklets/WorkletRuntime/WorkletRuntime.h>
 
@@ -49,6 +50,7 @@ public:
   RenderThread& thread();
   RenderThreadCallbackHandler& callbacks();
   ::filament::Engine& engine();
+  ::filament::Renderer& renderer();
   bool isLive() const;
   size_t configuredBytes() const;
 
@@ -108,6 +110,7 @@ private:
   std::unique_ptr<RenderThread> thread_;
   std::unique_ptr<RenderThreadCallbackHandler> callbacks_;
   ::filament::Engine* engine_ = nullptr;
+  ::filament::Renderer* renderer_ = nullptr;
   std::shared_ptr<ResourceRoot> resources_ = std::make_shared<ResourceRoot>();
   std::unique_ptr<GltfLoader> gltf_;
   ModelLoads loads_;

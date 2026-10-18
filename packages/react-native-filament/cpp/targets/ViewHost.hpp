@@ -11,6 +11,7 @@
 #include <utils/Entity.h>
 
 #include <array>
+#include <cstdint>
 #include <memory>
 
 namespace margelo::nitro::filament {
@@ -33,15 +34,18 @@ public:
   ::filament::math::float2 projectWorldToPoints(::filament::math::float3 position) const;
 
 protected:
-  ViewHost(const char* kind, ::filament::Engine& engine, ClearSettings clear);
+  ViewHost(const char* kind, ::filament::Engine& engine, ::filament::Renderer& renderer, ClearSettings clear);
   void destroyViewHost();
   virtual double pointsPerPixel() const;
+  // Ignores Filament's frame skipping: the Engine skips whole vsyncs for every host sharing its Renderer (D39).
+  void beginFrame(::filament::SwapChain* swapChain, uint64_t vsyncNanos = 0);
 
   ::filament::Engine& engine_;
   ::filament::Renderer* renderer_;
   ::filament::View* view_;
 
 private:
+  ::filament::Renderer::ClearOptions clearOptions_;
   ::filament::Scene* emptyScene_;
   utils::Entity defaultCameraEntity_;
   std::shared_ptr<SceneCore> scene_;

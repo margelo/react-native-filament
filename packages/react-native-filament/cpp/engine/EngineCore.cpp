@@ -49,6 +49,7 @@ std::shared_ptr<EngineCore> EngineCore::create(EngineBackend backend, std::share
               core->shutdown();
               return;
             }
+            core->renderer_ = core->engine_->createRenderer();
             const ::filament::Engine::Config& config = core->engine_->getConfig();
             core->configuredBytes_ = static_cast<size_t>(config.commandBufferSizeMB + config.perRenderPassArenaSizeMB +
                                                          config.driverHandleArenaSizeMB + config.perFrameCommandsSizeMB)
@@ -80,6 +81,10 @@ RenderThreadCallbackHandler& EngineCore::callbacks() {
 
 ::filament::Engine& EngineCore::engine() {
   return *engine_;
+}
+
+::filament::Renderer& EngineCore::renderer() {
+  return *renderer_;
 }
 
 bool EngineCore::isLive() const {
@@ -324,6 +329,11 @@ void EngineCore::renderFrame(int64_t frameTimeNanos) {
   }
   frameRequested_ = false;
   runFrameStages(nextFrameInfo(frameTimeNanos));
+  if (!renderer_->shouldRenderFrame()) {
+    frameRequested_ = true;
+    updateDemand();
+    return;
+  }
   bool rendered = false;
   for (const std::shared_ptr<ViewTargetCore>& target : targets_) {
     switch (target->render(frameTimeNanos)) {
@@ -426,6 +436,7 @@ void EngineCore::shutdownOnRenderThread() {
   gltf_.reset();
   returnRuntimeToPool();
   if (engine_ != nullptr) {
+    engine_->destroy(renderer_);
     ::filament::Engine::destroy(&engine_);
   }
   thread_->setVsyncEnabled(false);
