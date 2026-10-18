@@ -22,9 +22,20 @@ To access the different instances, you can use the `<ModelInstance>` component t
 ```tsx
 {/* We transform the root model to a unit cube, meaning all instances will be scaled to unit cubes */}
 <Model source={DroneGlb} instanceCount={2} transformToUnitCube>
-  <ModelInstance index={1} translate={[x, y, z]} />
-  <ModelInstance index={2} translate={[x, y, z]} />
+  <ModelInstance index={0} translate={[-150, 0, 0]}>
+    <Animator />
+  </ModelInstance>
+  <ModelInstance index={1} translate={[150, 0, 0]} />
 </Model>
 ```
 
-The `index` prop is used to select the instance you want to modify.
+The `index` prop selects the instance, from `0` to `instanceCount - 1`. Instances are children of the model, so their transforms apply inside the model's transform; here the translation is in the model's own units, before the unit-cube fit.
+
+## Sharing skeletons
+
+Instances of the same character can share animation without playing it twice:
+
+- `instance.followSkeleton(source)` copies the joint transforms of `source` every frame, so both dance in sync at their own positions;
+- `instance.attachSkin(skinIndex, entity)` skins another mesh, such as clothing, with the instance's skeleton.
+
+Both run on the render thread; see the "Skeleton sharing" example.

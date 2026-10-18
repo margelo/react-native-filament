@@ -26,7 +26,7 @@ Pod::Spec.new do |s|
     bullet.compiler_flags = "-w"
   end
 
-  s.resources = ["assets/*"]
+  s.resources = ["assets/*"] unless $RNFExcludeAssets
   s.vendored_frameworks = filament[:frameworks]
   s.frameworks = ["Metal", "QuartzCore", "CoreVideo"]
   s.libraries = ["z"]

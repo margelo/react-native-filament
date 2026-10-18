@@ -5,151 +5,105 @@ sidebar_label: Getting Started
 slug: /guides
 ---
 
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
+## Requirements
+
+- React Native 0.83 with the New Architecture.
+- iOS 15.1 or later, Android 7 (API 24) or later.
 
 ## Installing the library
 
-1. Install [react-native-filament](https://www.npmjs.com/package/react-native-filament):
+1. Install react-native-filament with its two required peers, [Nitro Modules](https://nitro.margelo.com) and [react-native-worklets](https://docs.swmansion.com/react-native-worklets):
 
 ```sh
-npm i react-native-filament
+npm i react-native-filament react-native-nitro-modules react-native-worklets
 ```
 
-2. `react-native-filament` depends on [`react-native-worklets-core`](https://github.com/margelo/react-native-worklets-core):
+2. Add the worklets babel plugin. If the app uses Reanimated 4, its plugin already includes it.
 
-```sh
-npm i react-native-worklets-core
+```js title="babel.config.js"
+module.exports = {
+  presets: ['module:@react-native/babel-preset'],
+  plugins: ['react-native-worklets/plugin'],
+}
 ```
 
-For react-native-worklets-core its necessary to add a plugin to your `babel.config.js` as well:
-
-<Tabs
-  groupId="rnwcInstallationPlugin"
-  defaultValue="wo_rea"
-  values={[
-    {label: 'Without reanimated', value: 'wo_rea'},
-    {label: 'When using reanimated', value: 'w_rea'}
-  ]}>
-  <TabItem value="wo_rea">
-    ```js
-    module.exports = {
-      plugins: [
-        ["react-native-worklets-core/plugin", { processNestedWorklets: true }],
-        // ...
-      ],
-      // ...
-    };
-    ```
-
-  </TabItem>
-
-  <TabItem value="w_rea">
-    You should already use the reanimated babel pluginVersions, make sure to add the `processNestedWorklets` option to it:
-
-    ```js
-    module.exports = {
-      plugins: [
-        ["react-native-reanimated/plugin", { processNestedWorklets: true }],
-        // ...
-      ],
-      // ...
-    };
-    ```
-
-  </TabItem>
-</Tabs>
-
-3. Update your pods:
+3. Install the pods. The first `pod install` and the first Android build download the prebuilt Filament binaries from GitHub, verify their checksums and cache them for every later build:
 
 ```sh
 cd ios && pod install
 ```
 
-4. Start Metro with clean cache:
+[Reanimated](https://docs.swmansion.com/react-native-reanimated) and [Gesture Handler](https://docs.swmansion.com/react-native-gesture-handler) are optional. Every animatable prop accepts a Reanimated `SharedValue`, and `useOrbitGestures` returns a Gesture Handler gesture.
 
-```sh
-npm start -- --reset-cache
-```
+### Expo
 
-:::tip Good to know
-The npm package of react-native-filament is quite huge, around ~400mb. That's because we need to ship all static libraries for all architectures for both android and iOS. **The actual size of the library in your downloadable app is around ~4mb**.
-:::
+react-native-filament works in Expo development builds (it is not part of Expo Go). After installing, run `npx expo prebuild` or `npx expo run:ios`.
 
-## Configure metro
+## Configure Metro
 
-You'll likely import 3D related files when using react-native-filament. To make sure metro can resolve these files, you need to add the following to your `metro.config.js`:
+Let Metro bundle 3D assets next to your code:
 
-```js
-const { getDefaultConfig, mergeConfig } = require("@react-native/metro-config");
+```js title="metro.config.js"
+const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config')
 
-const defaultConfig = getDefaultConfig(__dirname);
+const defaultConfig = getDefaultConfig(__dirname)
 
-/**
- * Metro configuration
- * https://metrobundler.dev/docs/configuration
- *
- * @type {import('metro-config').MetroConfig}
- */
-const config = {
+module.exports = mergeConfig(defaultConfig, {
   resolver: {
-    // This makes it possible to import .glb files in your code:
-    assetExts: [...(defaultConfig.resolver?.assetExts || []), "glb"],
+    assetExts: [...defaultConfig.resolver.assetExts, 'glb', 'ktx', 'filamat'],
   },
-};
-
-module.exports = mergeConfig(defaultConfig, config);
+})
 ```
 
 :::info
-Currently only loading `.glb` files is supported. You can convert any other 3D models (gltf, obj, FBX, etc) to .glb using blender or online converter tools.
+Models load from glTF binaries (`.glb`). Convert other formats (glTF, OBJ, FBX) with Blender or an online converter.
 :::
 
-## Basic example: Render your first 3D model
+## Render your first model
 
-For seeing some 3D content on the screen in your app, you need the following things:
+A scene needs:
 
-- 🏞️ A view to draw the 3D content to (the `<FilamentView>` component)
-- 💡 A light source, otherwise the scene will be black (the `<DefaultLight>` component)
-- 📦 A 3D model file (e.g. a .glb file)
-- 📹 A camera through which the scene is observed and projected onto the view (the `<Camera>` component)
+- 🏞️ a view to draw into, `<FilamentView>`;
+- 💡 light, otherwise everything is black, for example `<DefaultLight>`;
+- 📦 a model, `<Model>`;
+- 📹 a camera, `<Camera>`.
 
-```jsx
-import {
-  FilamentScene,
-  FilamentView,
-  DefaultLight,
-  Model,
-  Camera,
-} from "react-native-filament";
-import MyModel from "./MyModel.glb";
+```tsx
+import { Camera, DefaultLight, FilamentScene, FilamentView, Model } from 'react-native-filament'
 
-function MyScene() {
+export function MyScene() {
   return (
     <FilamentScene>
-      {/* 🏞️ A view to draw the 3D content to */}
       <FilamentView style={{ flex: 1 }}>
-        {/* 💡 A light source, otherwise the scene will be black */}
-        <DefaultLight />
-
-        {/* 📦 A 3D model */}
-        <Model source={MyModel} />
-
-        {/* 📹 A camera through which the scene is observed and projected onto the view */}
         <Camera />
+        <DefaultLight />
+        <Model source={require('./drone.glb')} transformToUnitCube />
       </FilamentView>
     </FilamentScene>
-  );
+  )
 }
 ```
 
-Additionally you see that we use the `<FilamentScene>` component to wrap our scene. This is necessary to provide the necessary react context for the scene to work correctly.
+`<FilamentScene>` creates the Engine, a scene and its camera, and disposes them when it unmounts. Components below it that render nothing on screen, like `Camera` and `Model`, configure that scene. Render regular React Native views on top of a `FilamentView` with absolute positioning instead of inside it.
 
-Everything that's part of your 3D scene should be rendered as part of the `<FilamentView>` component.
+The scene renders natively on Filament's render thread: animations, camera manipulators, SharedValue-driven props and physics run there without JS, and a scene that does not change does not render again.
 
-:::warning
-Trying to render regular react-native components inside the `<FilamentView>` might work, but is not directly supported and might lead to unexpected behavior. Instead you can
-render on top of it by using a `position: absolute` view.
-:::
+## Imperative API
 
-In general react-native-filament leans towards a declartive API that works well with React.
+Everything the components do is available on the native objects, which you can use directly or mix with the components through `useFilamentContext()`:
+
+```tsx
+import { Filament, NativeFilamentView, runOnRenderThread } from 'react-native-filament'
+
+const engine = await Filament.createEngine({})
+const target = await engine.createViewTarget(view, {})
+const model = await engine.loadModel({ uri: modelUri }, {})
+await runOnRenderThread(engine, () => {
+  'worklet'
+  const scene = engine.createScene()
+  scene.addModel(model)
+  target.setScene(scene)
+})
+```
+
+Methods that touch Filament run on the Engine's render thread; [Threading](./THREADING.mdx) explains which thread each method expects.

@@ -7,7 +7,7 @@ slug: /guides/transformation
 
 import useBaseUrl from '@docusaurus/useBaseUrl'
 
-Transforming refers to changing the position, rotation or scale of an object in the scene.
+Transforming changes the position, rotation or scale of an object in the scene.
 
 <div class="image-container">
   <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535">
@@ -16,211 +16,93 @@ Transforming refers to changing the position, rotation or scale of an object in 
   </svg>
 </div>
 
-## Translate / Position
+## Transform props
 
-By default models are rendered at the origin `[0, 0, 0]`. You can change the position of a model by providing a `translate` prop:
+`Model`, `ModelInstance`, `EntitySelector` and `DebugBox` take three transform props. Units are physical: one unit is one meter.
 
 ```tsx
-import { Model } from "react-native-filament"
-
-const x = 0
-const y = -1
-const z = 0
-
-<Model translate={[x, y, z]} />
+<Model
+  source={require('./drone.glb')}
+  translate={[0, -1, 0]}
+  rotate={[0, Math.PI / 4, 0]} // radians around X, then Y, then Z
+  scale={[2, 2, 2]}
+/>
 ```
 
-Units in filament are physically based, so 1 unit is 1 meter.
+The local transform of the object is `translate · rotate · scale`. The props are absolute: changing `scale` from `[2, 2, 2]` to `[3, 3, 3]` gives a scale of 3, and React re-renders, StrictMode and fast refresh never accumulate. Removing every transform prop gives the object back its original transform.
 
-## Rotation
+### Fitting into view
 
-You can rotate a model by providing a `rotation` prop:
+`transformToUnitCube` first scales and centers a model so its bounding box fits into a cube from -1 to 1 around the origin; the transform props then apply on top of that:
 
 ```tsx
-import { Model } from "react-native-filament"
-
-const rotationInDegree = 45;
-const angleInRadians = rotationInDegree * (Math.PI / 180);
-const rotateOnAxis = [0, angleInRadians, 0]; // Rotate on the y-axis
-
-<Model rotate={rotateOnAxis} />
+<Model source={require('./drone.glb')} transformToUnitCube scale={[2, 2, 2]} />
 ```
 
-The `rotation` props expects a 3D vector (called `Float3` in RNF), where each value represents the rotation in radians around the x, y and z axis respectively.
+### Composing transforms
 
-## Scale
-
-You can scale a model by providing a `scale` prop for the x, y and z axis:
+Instances are children of their model, so transforms on a `ModelInstance` apply inside the model's transform. An `EntitySelector` applies its props on top of the selected node's own transform from the glTF file:
 
 ```tsx
-import { Model } from "react-native-filament"
-
-const scale = 2;
-
-<Model scale={[scale, scale, scale]} />
+<Model source={require('./car.glb')} transformToUnitCube instanceCount={2}>
+  <ModelInstance index={0} translate={[-150, 0, 0]} />
+  <ModelInstance index={1} translate={[150, 0, 0]}>
+    <EntitySelector byName="FrontWheel" rotate={[0, 0.3, 0]} />
+  </ModelInstance>
+</Model>
 ```
 
-## Matrix multiplication
+## Animating transforms
 
-By default the transformation props are being multiplied to the current transform of the model. They are being multiplied in the order `scale` -> `rotation` -> `position` (SRT).
-This means that if you first apply a scale of `[2,2,2]` and then later apply a scale of `[3,3,3]` the final scale will be `[6,6,6]`. To avoid this behaviour you
-can specify the `multiplyWithCurrentTransform` prop and set it to false to disable this behaviour:
+Every transform prop accepts a Reanimated `SharedValue<Float3>`. The value goes from Reanimated's UI runtime straight to a native `TransformBinding`, which applies translation, rotation and scale together at the start of the next frame, with no JS thread work and no React render:
 
 ```tsx
-import { Model } from "react-native-filament"
+import { Easing, useDerivedValue, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated'
 
-function GrowingModel() {
-  const [scale, setScale] = useState(1);
-  const growModel = () => setScale(scale + 1);
+function SpinningDrone() {
+  const angle = useSharedValue(0)
+  const rotate = useDerivedValue<Float3>(() => [0, angle.value, 0])
 
-  return (
-    <Model
-      scale={[scale, scale, scale]}
-      // Disables multiplication with current, and grows the model by 1 unit each time growModel is called
-      multiplyWithCurrentTransform={false}
-    />
-  )
+  useEffect(() => {
+    angle.value = withRepeat(withTiming(2 * Math.PI, { duration: 4000, easing: Easing.linear }), -1)
+  }, [angle])
+
+  return <Model source={require('./drone.glb')} transformToUnitCube rotate={rotate} />
 }
 ```
 
-:::warning
-When **disabling** the multiplication with the current transform, you'll reset all previous transformations (including rotation and position) and only apply the new transformations.
-:::
+Updating transform props through React state also works, but each change re-renders the component; use SharedValues for anything that changes every frame.
 
-:::warning
-When matrix multiplication is **enabled (default)** all transform operations will be applied on a fast refresh. Keep this in mind during development if something starts to look off.
-:::
+## Bindings
 
-## Animate the transform props
-
-You may want to change the transformation props very frequently (e.g. every frame). To avoid performance issues, you should **not** update the props using `useState` directly, but use shared values.
-
-You may know shared values from `reanimated`. We are using the shared values from `react-native-worklets-core`, but they work very similary.
-
-You can create a new shared value using `useSharedValue`:
-
+For full control, bind an entity's transform yourself. `useTransformBinding(entity)` returns a binding whose setters work from any thread, for example from a `renderCallback` on the render thread:
 
 ```tsx
-import { useSharedValue } from "react-native-worklets-core";
+const model = useModel(require('./drone.glb'))
+const binding = useTransformBinding(model.state === 'loaded' ? model.rootEntity : undefined)
 
-function MyScene() {
-  const rotation = useSharedValue(0);
-
-  // ...
-}
+const renderCallback = useCallback(
+  ({ elapsedSeconds }: FrameInfo) => {
+    'worklet'
+    const [x, y, z, w] = quaternionFromAxisAngle([0, 1, 0], elapsedSeconds)
+    binding?.setRotation(x, y, z, w)
+  },
+  [binding]
+)
 ```
 
-You can pass a shared value to any of the transformation props:
+`setBase(matrix)` sets a transform applied before the others, such as `unitCubeTransform(model.boundingBox)`.
+
+## The transform manager
+
+On the render thread, `TransformManager` reads and writes local and world transforms directly. Matrices are column-major `Mat4` arrays; quaternions are `[x, y, z, w]`:
 
 ```tsx
-function MyScene() {
-  const rotation = useSharedValue<Float3>([0, 0, 0]);
-
-  return <Model rotate={rotation} />
-}
+await runOnRenderThread(engine, () => {
+  'worklet'
+  const tm = engine.transformManager
+  tm.setTranslation(entity, [0, 1, 0])
+  tm.setRotation(entity, quaternionFromAxisAngle([0, 1, 0], Math.PI / 2))
+  const world = tm.getWorldTransform(entity)
+})
 ```
-
-Now, lets update the rotation value every frame:
-
-```tsx
-import { useCallback } from 'react'
-import { useSharedValue } from "react-native-worklets-core"
-import { RenderCallback, FilamentView, Model, Float3 } from "react-native-filament"
-
-function MyScene() {
-  const rotation = useSharedValue<Float3>([0, 0, 0]);
-
-  const renderCallback: RenderCallback = useCallback(() => {
-    "worklet"
-
-    // Add a rotation of 1 degree every frame
-    const newY = rotation.value[1] + 0.01,
-
-    // We need to create a new array for the internal listeners to trigger
-    rotation.value = [0, newY, 0]
-  }, [rotation])
-
-  return (
-    <FilamentView renderCallback={renderCallback}>
-      <Model rotate={rotation} />
-    </FilamentView>
-  )
-}
-```
-
-## Transform to unit cube
-
-There is a helper prop that you can use called `transformToUnitCube` which will make the asset fit into a 1x1x1 (unit) cube.
-
-## Apply imperatively using `TransformManager`
-
-Sometimes you have use cases where you want to update a model's transformation imperatively.
-For this we can use the [`TransformManager`](../api/interfaces/TransformManager) directly.
-
-For this, you first need to render the model using the `useModel` and the accompanying `ModelRenderer` component:
-
-```tsx
-import { useModel, ModelRenderer } from "react-native-filament"
-
-function MyScene() {
-  const model = useModel(MyModel)
-
-  return <ModelRenderer model={model} />
-}
-```
-
-`ModelRenderer` accepts all props that `Model` does. 
-
-The `TransformManager` only works on entities, so we need to select one first. A model is made out of many entities. When transforming our model we usually want to transform all entities of the model (isValidElement. the whole model).
-For that we can use the `rootEntity`:
-
-```tsx
-import { useModel } from "react-native-filament"
-
-const model = useModel(MyModel)
-const rootEntity = model.state === "loaded" ? model.rootEntity : undefined
-```
-
-Now we can use the `TransformManager` to apply transformations. For example for rotating a model continuously, we can just apply a multipying rotation every frame:
-
-```tsx
-import { useCallback } from 'react'
-import { TransformManager, useModel, RenderCallback } from "react-native-filament"
-
-function MyScene() {
-  const model = useModel(MyModel)
-  const rootEntity = model.state === "loaded" ? model.rootEntity : undefined
-
-  // We get the transformManager for the filament context.
-  // For this to work <MyScene /> needs to be wrapped with a <FilamentScene>
-  const { transformManager } = useFilamentContext()
-
-  const renderCallback: RenderCallback = useCallback(() => {
-    "worklet"
-
-    // We have to check if the model is ready yet:
-    if (rootEntity == null) return;
-
-    // Add a rotation of 1 degree every frame on the y-axis and 
-    // multiply it with the current transform by setting `true` as last argument
-    transformManager.setEntityRotation(rootEntity, 0.01, [0, 1, 0], true)
-  }, [rootEntity, transformManager])
-}
-```
-
-The `transformManager` has lots of APIs, you can [check them out in the API docs](../api/interfaces/TransformManager).
-
-### Setting all transform data yourself
-
-Using the `transformManager` its also possible to manually set a 4x4 matrix yourself, using a 16 element array:
-
-```tsx
-transformManager.setTransform(entity, [
-  1, 0, 0, 0,
-  0, 1, 0, 0,
-  0, 0, 1, 0,
-  0, 0, 0, 1
-])
-```
-
-Matrices in filament are column-major.

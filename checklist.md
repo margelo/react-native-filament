@@ -462,7 +462,7 @@ Plan §10 Phase 4, §6, Appendix C.
 **Examples and docs**
 - [x] **P4.13** All 17 examples ported in both apps with identical visible behaviour.
 - [x] **P4.14** New coverage examples: clothing through `attachSkin`, several views in a scrolling list, and `useOrbitGestures`.
-- [ ] **P4.15** Docs:
+- [x] **P4.15** Docs:
   - architecture and threading pages;
   - updated guides;
   - TypeDoc API reference;

@@ -12,23 +12,26 @@ import useBaseUrl from '@docusaurus/useBaseUrl'
 Your 3D scene needs to be projected to a 2D surface, your view. The camera is the "eye" through which you're looking
 in the 3D space and which determines how the 3D scene is projected to the 2D surface.
 
-- Only one camera per scene is supported currently
-- Only perspective cameras are supported currently
+Each `FilamentScene` has one camera, which every `FilamentView` of the scene renders through. The `<Camera />` component configures its perspective lens and its pose:
 
-The perspective camera has a 
-
-- Position
-- A point in space it looks at
-- (An up vector that determines the orientation of the camera, but usually the default is fine)
+- `cameraPosition`: where the camera is (default `[0, 0, 8]`);
+- `cameraTarget`: the point it looks at (default `[0, 0, 0]`);
+- `cameraUp`: its up direction (default `[0, 1, 0]`).
 
 ```tsx
 import { Camera } from 'react-native-filament'
 
-<Camera
-  position={[0, 0, 10]}
-  target={[0, 0, 0]} // "Look at" point
-/>
+<Camera cameraPosition={[0, 1, 10]} cameraTarget={[0, 0, 0]} />
 ```
+
+Each pose prop also accepts a Reanimated `SharedValue<Float3>`, which moves the camera without React renders:
+
+```tsx
+const position = useDerivedValue<Float3>(() => [Math.sin(angle.value) * 8, 1, Math.cos(angle.value) * 8])
+<Camera cameraPosition={position} />
+```
+
+For orthographic projections or exposure, use the native camera from `useFilamentContext().camera` on the render thread: `setOrthographicProjection()`, `setProjection()` and `setExposure()`.
 
 <img src={useBaseUrl('img/camera-projection.png')} width="70%" />
 
@@ -67,6 +70,10 @@ The table below shows how the precision drops for various `near` plane values (s
 - Objects farther from the camera than the far plane are clipped and not displayed
 - Default is `100m`
 
+#### `focalLengthInMillimeters` and `aspect`
+
+The lens's focal length defaults to `28` mm. The aspect ratio follows the size of the closest `FilamentView`; set `aspect` when there is no view, for example for a `useRecorder` video.
+
 ## The camera manipulator
 
 <div class="image-container">
@@ -76,35 +83,30 @@ The table below shows how the precision drops for various `near` plane values (s
   </svg>
 </div>
 
-The camera can be controlled by a helper utility called [`CameraManipulator`](../api/interfaces/CameraManipulator), which enables complex gestures such as orbiting, panning, and zooming.
+The camera can follow a [`CameraManipulator`](../api/interfaces/CameraManipulator), which turns gestures into orbiting, panning and zooming. It runs natively: gestures queue commands from Reanimated's UI runtime and the render thread applies them each frame, with no JS per frame.
 
-Currently only a `ORBIT` mode is supported (in the future `MAP` and `FREE_FLIGHT` could be added as well).
-
-This shows how to implement a simple camera manipulator, for the full example see the [CameraPan example](https://github.com/margelo/react-native-filament/blob/main/package/example/Shared/src/CameraPan.tsx):
+`useOrbitGestures(manipulator)` builds the Gesture Handler gesture: one-finger pan orbits, pinch zooms and a double tap returns home.
 
 ```tsx
-import { Camera, useCameraManipulator } from 'react-native-filament'
-import { Gesture } from 'react-native-gesture-handler'
+import { GestureDetector } from 'react-native-gesture-handler'
+import { Camera, FilamentView, useCameraManipulator, useOrbitGestures, type CameraManipulator } from 'react-native-filament'
 
-const cameraManipulator = useCameraManipulator({
-  orbitHomePosition: [0, 0, 8], // "Camera location"
-  targetPosition: [0, 0, 0], // "Looking at"
-  orbitSpeed: [0.003, 0.003],
-})
+function OrbitView({ manipulator }: { manipulator: CameraManipulator }) {
+  const gesture = useOrbitGestures(manipulator)
+  return (
+    <GestureDetector gesture={gesture}>
+      <FilamentView style={{ flex: 1 }}>
+        <Camera cameraManipulator={manipulator} />
+        {/* lights and models */}
+      </FilamentView>
+    </GestureDetector>
+  )
+}
 
-const panGesture = Gesture.Pan()
-  .onBegin((event) => {
-    const yCorrected = viewHeight - event.translationY
-    cameraManipulator?.grabBegin(event.translationX, yCorrected, false) // false means rotation instead of translation
-  })
-  .onUpdate((event) => {
-    const yCorrected = viewHeight - event.translationY
-    cameraManipulator?.grabUpdate(event.translationX, yCorrected)
-  })
-  .onEnd(() => {
-    cameraManipulator?.grabEnd()
-  })
-
-return <Camera cameraManipulator={cameraManipulator} />
+function Scene() {
+  const manipulator = useCameraManipulator({ homePosition: [0, 0, 8], targetPosition: [0, 0, 0], orbitSpeed: 0.003 })
+  return manipulator == null ? null : <OrbitView manipulator={manipulator} />
+}
 ```
 
+`Camera` sizes the manipulator's viewport to its view. For custom gestures, call `grabBegin`, `grabUpdate`, `grabEnd`, `scroll` and `jumpToHome` from any thread.

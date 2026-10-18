@@ -1,0 +1,52 @@
+---
+id: architecture
+title: Architecture
+sidebar_label: Architecture
+slug: /guides/architecture
+---
+
+# Architecture
+
+react-native-filament wraps Google's [Filament](https://google.github.io/filament) renderer as [Nitro Modules](https://nitro.margelo.com). Its imperative API is the set of Nitro HybridObjects; the React components are a thin layer that creates and configures them.
+
+## Objects
+
+```
+Filament (FilamentFactory)
+└── Engine ─────────────── render thread, render loop, managers
+    ├── ViewTarget ─────── one FilamentView's surface, View options, picking, snapshots
+    ├── Recorder ───────── offscreen MP4 rendering
+    ├── Scene, Camera, Light, Skybox, IndirectLight, Renderable
+    ├── Model ──────────── a glTF asset and its instances
+    │   └── ModelInstance → Animator, AnimationPlayer
+    ├── Material → MaterialInstance, Texture
+    ├── TransformBinding, ValueBinding, CameraManipulator
+    └── PhysicsWorld → CollisionShape, RigidBody
+```
+
+- **`Filament`** creates Engines and reports the supported backends (Metal on iOS, OpenGL ES on Android).
+- **`Engine`** owns a Filament engine and its render thread. Everything else is created by an Engine and destroyed with it.
+- **`FilamentView`** is a Nitro HybridView: a `CAMetalLayer` on iOS, a `SurfaceView` (or a `TextureView` when `transparent`) on Android. A `ViewTarget` attaches to its surface and follows surface changes.
+- **Managers** (`TransformManager`, `RenderableManager`, `LightManager`) read and write components of entities by entity number.
+
+## Resources and ownership
+
+Each native object is a resource in its Engine's ownership tree. Disposing a resource destroys its descendants first, then itself, on the render thread. Objects that depend on another one keep it alive: a scene keeps its skybox, a rigid body keeps its world and shape, a material instance keeps its textures. A disposed object fails with `FilamentDisposedError`, so nothing touches destroyed Filament memory.
+
+`engine.getDebugStats()` counts the live resources by kind, and heavy objects report their native size to the JS garbage collector through Nitro's `getExternalMemorySize()`.
+
+## The render loop
+
+The render loop is native: a `CADisplayLink` on iOS and a `Choreographer` on Android drive the render thread only while something needs a frame. JS never runs per frame unless you register a frame callback. Asset loading decodes on a worker pool and uploads on the render thread without blocking it.
+
+See [Threading](./threading) for the frame stages and how JS reaches the render thread.
+
+## Assets
+
+Loaders take a `{ uri }` or an `ArrayBuffer`:
+
+- bundle asset names and `file://` paths are memory-mapped;
+- `http(s)://` URLs are downloaded natively and cached;
+- an `ArrayBuffer` is copied once, so the caller can reuse it.
+
+Bytes never pass through JS. The prebuilt Filament 1.78.0 binaries are downloaded and verified by checksum during the first build.

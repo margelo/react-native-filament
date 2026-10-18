@@ -135,7 +135,7 @@ const config: Config = {
       'docusaurus-plugin-typedoc',
       {
         name: "React Native Filament",
-        entryPoints: ['../packages/react-native-filament/src'],
+        entryPoints: ['../packages/react-native-filament/src/index.ts'],
         tsconfig: '../packages/react-native-filament/tsconfig.json',
         watch: process.env.TYPEDOC_WATCH,
         excludePrivate: true,

@@ -1,0 +1,77 @@
+---
+id: threading
+title: Threading
+sidebar_label: Threading
+slug: /guides/threading
+---
+
+# Threading
+
+Filament is not thread-safe, so each Engine owns one **render thread** that makes every Filament call. JavaScript reaches it in three ways, and every method's documentation names the thread it expects with a `@thread` tag.
+
+## The three kinds of methods
+
+| `@thread` | Examples | Called from |
+|---|---|---|
+| `any` | `engine.loadModel()`, `player.play()`, `binding.setTranslation()`, `target.pick()`, `engine.requestFrame()` | Any JS runtime: React Native's, Reanimated's UI runtime or the render runtime. Loads resolve Promises; setters store the latest value and wake the render thread. |
+| `render` | `engine.createScene()`, `scene.addModel()`, `transformManager.setTransform()`, `camera.lookAt()` | A worklet on the render thread, through `runOnRenderThread`, the render-thread hooks or a `renderCallback`. Calling them from another thread throws `FilamentThreadError` instead of racing with rendering. |
+| `RN or UI runtime` | `engine.shutdown()` | The runtime that created the Engine. |
+
+## Running code on the render thread
+
+`runOnRenderThread(engine, worklet)` runs a worklet on the Engine's render thread and resolves with its result. Jobs run in the order they were submitted:
+
+```tsx
+const camera = await runOnRenderThread(engine, () => {
+  'worklet'
+  const created = engine.createCamera()
+  created.lookAt([0, 1, 5], [0, 0, 0], [0, 1, 0])
+  return created
+})
+```
+
+Values a worklet captures are copied into the render runtime by react-native-worklets; native objects such as models, scenes and bindings are passed by reference. The render runtime is a separate JS runtime, so React state is not visible there; pass what the worklet needs.
+
+Inside components, prefer the hooks: each `FilamentScene` collects the render-thread work of one React commit and runs it as one job.
+
+| Hook | Runs |
+|---|---|
+| `useRenderThreadEffect(effect, deps)` | `effect` after commits that change `deps`. A function it returns runs on the render thread before the next run and on unmount. |
+| `useRenderThreadCallback(callback, deps)` | Returns a function that runs `callback` on the render thread and resolves with its result. |
+| `useRenderThreadMemo(factory, deps)` | Returns `factory`'s render-thread result, or `undefined` until it arrives. |
+| `useFrameCallback(callback, deps)` | `callback` at the start of every frame. |
+
+## Each frame
+
+The render thread renders when something needs a frame: a changed binding, a playing animation, a manipulator gesture, a physics world with awake bodies, a frame listener that asks for another frame, or `engine.requestFrame()`. In `continuous` render mode it renders every display refresh. Each frame runs these stages in order:
+
+1. queued jobs (`runOnRenderThread`, the render-thread hooks);
+2. asset uploads;
+3. frame info (`deltaSeconds`, `elapsedSeconds`);
+4. transform bindings and camera manipulators;
+5. frame listeners (`renderCallback`, `useFrameCallback`, `engine.addOnFrameListener`);
+6. animation players;
+7. physics worlds;
+8. skeleton followers;
+9. rendering of every view target.
+
+## SharedValues and gestures
+
+Reanimated runs gesture and animation worklets on its UI runtime. react-native-filament never reads a SharedValue from another runtime, which would block on the UI thread. Instead, a listener on the UI runtime writes each new value into a native slot:
+
+- `TransformBinding` holds a translation, rotation, scale and base, applied together at stage 4.
+- `ValueBinding` holds a number that render-thread code reads with `binding.value`.
+- `CameraManipulator` queues pan, pinch and tap commands and applies them at stage 4.
+
+Components do this for you when you pass a SharedValue:
+
+```tsx
+const rotate = useDerivedValue<Float3>(() => [0, angle.value, 0])
+// <Model source={drone} rotate={rotate} />
+```
+
+A SharedValue update costs no work on the JS thread and no React render.
+
+## Lifetime
+
+Native objects belong to their Engine. `dispose()` releases one object and everything it owns; `engine.shutdown()` releases everything and resolves once the render thread has finished. Using a disposed object throws `FilamentDisposedError`. Components and hooks dispose what they create when they unmount, and a `FilamentScene` that borrows an Engine through its `engine` prop never shuts it down.

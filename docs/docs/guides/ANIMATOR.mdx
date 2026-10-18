@@ -14,26 +14,40 @@ import useBaseUrl from '@docusaurus/useBaseUrl'
   </svg>
 </div>
 
-The `<Animator />` component can be used to control the animation of a 3D asset.
-
-**Example:**
+The `<Animator />` component plays an animation of the parent `<Model>` or `<ModelInstance>`. Playback runs natively on the render thread through an `AnimationPlayer`, so no JS runs per frame.
 
 ```tsx
-import { Model, Animator } from 'react-native-filament'
+import { Animator, Model, type AnimationItem } from 'react-native-filament'
 
-<Model source={require('path/to/asset_with_animations.gltf')}>
-    <Animator
-        // The animation index to play (alternatively you can provide a useSharedValue)
-        animationIndex={0}
-        onAnimationsLoaded={(animations) => {
-            // The animations have been loaded
-        }}
-    />
+<Model source={require('./dancer.glb')}>
+  <Animator
+    animationIndex={0}
+    transitionDuration={0.4} // seconds to cross-fade from the previous animation
+    onAnimationsLoaded={(animations: AnimationItem[]) => console.log(animations)}
+  />
 </Model>
 ```
 
-When switching between animations you might want to transition / blend between the animation (so that the mesh is transitioning from animation A to B).
-You can specify the `transitionDuration` prop to control the duration of the transition. A duration of `0` will make the transition instant.
+| Prop | Default | |
+|---|---|---|
+| `animationIndex` | `0` | The animation to play. A Reanimated `SharedValue<number>` switches animations from the UI runtime without React renders. |
+| `transitionDuration` | `0` | Seconds to blend from the previous animation. |
+| `loop` | `true` | |
+| `speed` | `1` | Playback rate. |
+| `time` | | Holds the animation at this time in seconds instead of playing, for scrubbing. Accepts a SharedValue. |
+| `onAnimationsLoaded` | | Called once with `{ index, name, duration }` of each animation. |
 
-For pausing the animation it is recommended to render the `<Animator />` component conditionally (e.g. based on a state variable).
+Unmount the `<Animator />` to stop playing.
 
+## Controlling playback yourself
+
+`useAnimationPlayer(instance)` returns the native player. Its methods work from any thread, including Reanimated worklets:
+
+```tsx
+const player = useAnimationPlayer(instance)
+player?.play(2, { loop: false, crossFadeSeconds: 0.3 })
+player?.pause()
+player?.seek(1.5)
+```
+
+For frame-by-frame control, apply animations on the render thread with the instance's `animator`: `applyAnimation(index, seconds)`, `applyCrossFade(...)` and `updateBoneMatrices()`, for example in a `renderCallback`.

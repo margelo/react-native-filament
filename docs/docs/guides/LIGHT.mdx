@@ -10,12 +10,12 @@ import TabItem from "@theme/TabItem";
 
 Your scene needs light otherwise nothing will be visible in your view (either transparent or fully black). The following light types are supported:
 
-- `DIRECTIONAL`: Directional light, emits light in a given direction.
-- `SUN`: Directional light that also draws a sun's disk in the sky.
-- `POINT`: Point light, emits light from a position, in all directions.
-- `FOCUSED_SPOT`: Physically correct spot light.
-- `SPOT`: Spot light with coupling of outer cone and illumination disabled.
-- `Image based lighting (IBL)`: Environment light based on an image.
+- `directional`: emits light in one direction, like the sun.
+- `sun`: a directional light that also draws a sun disk in the skybox.
+- `point`: emits light from a position in all directions.
+- `focused-spot`: a physically correct spot light whose intensity stays the same when its cone changes.
+- `spot`: a spot light with the coupling of outer cone and illumination disabled.
+- Image based lighting (IBL): environment light from an image, with `<EnvironmentalLight />`.
 
 ## The `<Light />` component
 
@@ -275,10 +275,23 @@ import { Light } from "react-native-filament";
   type="spot"
   intensity={10_000}
   colorKelvin={6_500}
-  innerConeAngle={Math.PI / 4}
-  outerConeAngle={Math.PI / 3}
+  position={[0, 3, 0]}
+  direction={[0, -1, 0]}
+  spotLightCone={[Math.PI / 4, Math.PI / 3]} // [inner, outer] in radians
 />
 ```
+
+### Animating lights
+
+`intensity`, `colorKelvin`, `direction` and `position` accept Reanimated SharedValues. Updates reach the light on the render thread without recreating it and without React renders:
+
+```tsx
+const intensity = useSharedValue(10_000)
+// intensity.value = withTiming(100_000)
+<Light type="directional" intensity={intensity} />
+```
+
+On the render thread, `engine.lightManager` reads and writes the light components of any entity, including lights loaded with a glTF model.
 
 ### Optimizing point lights
 
@@ -296,9 +309,7 @@ The whole environment contributes light to a given point on the object's surface
 ```tsx
 import { EnvironmentalLight } from "react-native-filament";
 
-<EnvironmentalLight 
-  source={require('../assets/RNF_default_env_ibl.ktx')}
-/>
+<EnvironmentalLight source={require('./assets/studio_ibl.ktx')} intensity={25_000} />
 ```
 
 Example of an IBL:
@@ -323,7 +334,11 @@ You can opt-out of including the default IBL in your app as explained [here](#op
 https://polyhaven.com/hdris is a wonderful source for high-quality IBL images.
 You'll download a `.hdr` file which you need to convert to a ktx file.
 
-TODO: explain how to convert hdr to ktx
+Convert it with Filament's `cmgen` tool, which writes the KTX cubemap with spherical harmonics that `EnvironmentalLight` and `engine.loadIndirectLight()` expect:
+
+```sh
+cmgen --format=ktx --size=256 --deploy=./out environment.hdr
+```
 
 
 ## Additional resources

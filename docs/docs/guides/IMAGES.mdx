@@ -69,8 +69,8 @@ For rendering a background image you can use the pre-compiled material from the 
 
 This material receives an image texture as input, which the `BackgroundImage` component will automatically set using the image you've provided.
 
-:::warning
-Only `.png` and `.jpg` images are supported yet. [Support for `.webp` is coming soon](https://github.com/google/filament/issues/7962).
+:::info
+Textures load from PNG, JPEG and KTX2 files. Images are decoded on a worker thread and their mip levels uploaded without blocking rendering.
 :::
 
 If you're curious how materials are defined you can have a [look at the material definition](https://github.com/margelo/react-native-filament/blob/e11899be9e9ae4b6417215e583891ef502211b16/package/example/Shared/assets/background_image.mat#L3-L6) for the background material.
@@ -114,27 +114,23 @@ For example, let's say we have [this 3D model of a rocket](https://www.cgtrader.
 Now we can apply the new texture to the model:
 
 ```tsx
-import RocketGlb from '~/assets/rocket.glb'
-const baseColorBlueImage = require('~/assets/rocket_BaseColor_Blue.png')
+const rocket = require('./assets/rocket.glb')
+const blueBaseColor = require('./assets/rocket_BaseColor_Blue.png')
+
+// The name of the material on the entities we want to change
+const materialName = 'Toy Ship'
 
 function Renderer() {
-  // Load the texture as a buffer
-  const blueBaseColorBuffer = useBuffer({ source: baseColorBlueImage })
-
-  // The name of the material on the entity we want to change
-  const materialName = 'Toy Ship'
-
   return (
-    <FilamentView style={styles.filamentView}>
-
-      <Model source={RocketGlb}>
-        {blueBaseColorBuffer != null && (
-          <>
-            {/* Inside the <Model> we can use the <EntitySelector> to apply modifiers */}
-            <EntitySelector byName="Tip" textureMap={{ materialName, textureSource: blueBaseColorBuffer }} />
-            <EntitySelector byName="Wings" textureMap={{ materialName, textureSource: blueBaseColorBuffer }} />
-          </>
-        )}
+    <FilamentView style={{ flex: 1 }}>
+      <Camera />
+      <DefaultLight />
+      <Model source={rocket}>
+        {/* Inside a <Model>, <EntitySelector> changes one node of the glTF file */}
+        <EntitySelector byName="Tip" textureMap={{ materialName, textureSource: blueBaseColor }} />
+        <EntitySelector byName="Wings" textureMap={{ materialName, textureSource: blueBaseColor }} />
       </Model>
     </FilamentView>
+  )
+}
 ```

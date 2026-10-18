@@ -1,0 +1,54 @@
+---
+id: recording
+title: Recording videos
+sidebar_label: Recording videos
+slug: /guides/recording
+---
+
+# Recording videos
+
+A `Recorder` renders a scene offscreen into an H.264 MP4, faster than real time where the device allows. Frames advance on a fixed clock: frame `i` shows the scene at `i / fps` seconds, so animations, bindings, physics and frame callbacks are deterministic in the video whatever the device's speed.
+
+```tsx
+import { useState } from 'react'
+import { Button } from 'react-native'
+import Video from 'react-native-video'
+import { Animator, Camera, DefaultLight, FilamentScene, Model, useRecorder } from 'react-native-filament'
+
+const WIDTH = 720
+const HEIGHT = 1280
+const FPS = 60
+
+function Recording() {
+  const recorder = useRecorder({ width: WIDTH, height: HEIGHT, fps: FPS })
+  const [uri, setUri] = useState<string>()
+  return (
+    <>
+      <Camera aspect={WIDTH / HEIGHT} />
+      <DefaultLight />
+      <Model source={require('./drone.glb')} transformToUnitCube>
+        <Animator />
+      </Model>
+      {uri != null && <Video source={{ uri }} style={{ flex: 1 }} repeat />}
+      <Button title="Record 5 s" disabled={recorder == null} onPress={async () => setUri(await recorder?.record(FPS * 5))} />
+    </>
+  )
+}
+
+export function RecordingScreen() {
+  return (
+    <FilamentScene>
+      <Recording />
+    </FilamentScene>
+  )
+}
+```
+
+- `record(frameCount)` resolves with the file URI of the finished MP4 in the app's temporary directory.
+- The recorder renders the scene and camera of its `FilamentScene`; `Camera`'s `aspect` matches the video because there is no view to take it from.
+- While it records, the Engine's views pause. Record with an Engine that is not showing anything important, or give the recording its own `FilamentScene`.
+- `bitRate` defaults to 0.1 bits per pixel per frame; `clearOptions` sets the background.
+
+`useRecorderRenderLoop(recorder, render, deps)` runs a render-thread worklet before every frame, including each recorded frame, for per-frame changes that are not driven by an animation or a binding.
+
+On iOS, frames render into `CVPixelBuffer`s that `AVAssetWriter` encodes without copies. On Android, frames render into `MediaCodec`'s input surface and are muxed with `MediaMuxer`.

@@ -6,7 +6,7 @@ slug: /guides/skybox
 ---
 
 :::info
-By default the `<FilamentView>` renders the background transparent. So every pixel that has no content will be transparent.
+A `<FilamentView>` is opaque by default and clears to black. Set its `transparent` prop to show the views behind it, or `clearOptions={{ color: [r, g, b, a] }}` for another clear color.
 :::
 
 The "background" of your scene can be controlled using a [Skybox](https://en.wikipedia.org/wiki/Skybox_(video_games)). Every pixel that has no content will then
@@ -18,6 +18,8 @@ be filled with the skybox. The Skybox can be rendered from either:
 import { Skybox } from 'react-native-filament';
 
 <Skybox colorInHex="#00ff00" />
+// or linear RGBA:
+<Skybox color={[0, 1, 0, 1]} />
 ```
 
 ### 🏞️ A [cubemap texture](https://learnopengl.com/img/advanced/cubemaps_skybox.png)
@@ -32,3 +34,5 @@ function Scene() {
         </FilamentView>
     )
 }
+
+Generate cubemaps from HDR images with Filament's `cmgen` tool (`cmgen --format=ktx --size=512 environment.hdr`); `useSkybox(options)` does the same as the component.

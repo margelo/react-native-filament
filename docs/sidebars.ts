@@ -4,6 +4,8 @@ const sidebars: SidebarsConfig = {
   sidebar: {
     Guides: [
       "guides/getting-started",
+      "guides/architecture",
+      "guides/threading",
       "guides/asset-loading",
       "guides/transformation",
       "guides/light",
@@ -13,7 +15,9 @@ const sidebars: SidebarsConfig = {
       "guides/images",
       "guides/physics",
       "guides/instancing",
-      "guides/reanimated"
+      "guides/reanimated",
+      "guides/recording",
+      "guides/migration"
     ],
     API: [
       "api/index",

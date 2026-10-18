@@ -126,7 +126,9 @@ android {
           "${project.buildDir}/generated/source/codegen/java"
         ]
       }
-      assets.srcDirs += ["../assets"]
+      if (rootProject.findProperty("RNF_excludeAssets") != "true") {
+        assets.srcDirs += ["../assets"]
+      }
     }
   }
 }
