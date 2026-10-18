@@ -1,19 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { Image, StyleSheet } from 'react-native'
 import { callback } from 'react-native-nitro-modules'
-import {
-  defaultIndirectLightSource,
-  Filament,
-  NativeFilamentView,
-  quaternionFromAxisAngle,
-  runOnRenderThread,
-  type FilamentView,
-} from 'react-native-filament'
+import { defaultIndirectLightSource, Filament, NativeFilamentView, runOnRenderThread, type FilamentView } from 'react-native-filament'
 
-const drone = Image.resolveAssetSource(require('../assets/buster_drone.glb'))
-const RADIANS_PER_SECOND = 0.6
+const drone = Image.resolveAssetSource(require('../../assets/buster_drone.glb'))
 
-export function AnimatedRotateExample() {
+export function NoneTransparentExample() {
   const [view, setView] = useState<FilamentView>()
 
   useEffect(() => {
@@ -33,13 +25,12 @@ export function AnimatedRotateExample() {
         scene.addModel(model)
         const tm = engine.transformManager
         tm.transformToUnitCube(model.rootEntity, model.boundingBox)
-        const fitted = tm.getTransform(model.rootEntity)
-        tm.setScale(model.rootEntity, [fitted[0] * 1.5, fitted[5] * 1.5, fitted[10] * 1.5])
-        tm.setTranslation(model.rootEntity, [fitted[12] * 1.5, fitted[13] * 1.5, fitted[14] * 1.5])
-        engine.addOnFrameListener((frame) => {
-          tm.setRotation(model.rootEntity, quaternionFromAxisAngle([0, 1, 0], frame.elapsedSeconds * RADIANS_PER_SECOND))
-          return true
-        })
+        const unitCube = tm.getTransform(model.rootEntity)
+        tm.setScale(model.rootEntity, [unitCube[0] * 2, unitCube[5] * 2, unitCube[10] * 2])
+        tm.setTranslation(model.rootEntity, [unitCube[12] * 2, unitCube[13] * 2, unitCube[14] * 2])
+        const bounds = engine.createDebugBox({ halfExtent: model.boundingBox.halfExtent, center: model.boundingBox.center, color: [1, 1, 0, 1] })
+        tm.setParent(bounds.entity, model.rootEntity)
+        scene.addEntity(bounds.entity)
         const lens = engine.createCamera()
         lens.lookAt([0, 0, 8], [0, 0, 0], [0, 1, 0])
         target.setScene(scene)
@@ -52,7 +43,9 @@ export function AnimatedRotateExample() {
           camera.setLensProjection(28, width / height, 0.1, 100)
         })
       })
-      return { engine, resize }
+      const player = model.getInstance(0).animator.createPlayer()
+      player.play(0, {})
+      return { engine, resize, player }
     })
     return () => {
       starting.then(({ engine, resize }) => {

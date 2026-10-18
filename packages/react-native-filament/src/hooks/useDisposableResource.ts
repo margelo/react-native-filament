@@ -5,18 +5,11 @@ interface Disposable {
   dispose(): void
 }
 
-function startCreating<T>(create: () => Promise<T> | T): Promise<T> {
-  try {
-    return Promise.resolve(create())
-  } catch (error) {
-    return Promise.reject(error)
-  }
-}
-
 /**
  * Creates a native object whenever `deps` change and disposes it when they change again or the
- * component unmounts, including an object whose creation finishes after that. A failed creation is
- * thrown to the closest error boundary.
+ * component unmounts, including an object whose creation finishes after that. Creation starts after
+ * the commit's effects, so an effect that StrictMode cleans up right away creates nothing. A failed
+ * creation is thrown to the closest error boundary.
  */
 export function useDisposableResource<T extends Disposable>(
   create: () => Promise<T | undefined> | T | undefined,
@@ -26,7 +19,7 @@ export function useDisposableResource<T extends Disposable>(
   const fail = useReportFailure()
   useEffect(() => {
     let active = true
-    const created = startCreating(create)
+    const created = Promise.resolve().then(() => (active ? create() : undefined))
     created.then(
       (value) => {
         if (active) setResource(value)

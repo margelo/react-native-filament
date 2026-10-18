@@ -82,7 +82,7 @@ export function FilamentScene({ fallback, children, ...props }: FilamentScenePro
 
   useEffect(() => {
     let active = true
-    const creating = createScene(borrowed, backend)
+    const creating = Promise.resolve().then(() => (active ? createScene(borrowed, backend) : undefined))
     creating.then(
       (next) => {
         if (active) setCreated(next)
@@ -95,7 +95,9 @@ export function FilamentScene({ fallback, children, ...props }: FilamentScenePro
       active = false
       setCreated(undefined)
       creating.then(
-        (current) => release(current),
+        (current) => {
+          if (current != null) release(current)
+        },
         () => undefined
       )
     }

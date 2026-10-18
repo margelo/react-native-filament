@@ -460,8 +460,8 @@ Plan §10 Phase 4, §6, Appendix C.
   - no timers, no `InteractionManager`, no module-level mutable tables.
 
 **Examples and docs**
-- [ ] **P4.13** All 17 examples ported in both apps with identical visible behaviour.
-- [ ] **P4.14** New coverage examples: clothing through `attachSkin`, several views in a scrolling list, and `useOrbitGestures`.
+- [x] **P4.13** All 17 examples ported in both apps with identical visible behaviour.
+- [x] **P4.14** New coverage examples: clothing through `attachSkin`, several views in a scrolling list, and `useOrbitGestures`.
 - [ ] **P4.15** Docs:
   - architecture and threading pages;
   - updated guides;

@@ -16,7 +16,10 @@ import type { Camera as NativeCamera } from '../specs/scene/Camera.nitro'
 export interface CameraProps {
   /** Focal length of the lens in millimeters. @default 28 */
   focalLengthInMillimeters?: number
-  /** Width divided by height. @default the aspect ratio of the closest `FilamentView` */
+  /**
+   * Width divided by height, for example of a `useRecorder` video. @default the aspect ratio of the
+   * closest `FilamentView`
+   */
   aspect?: number
   /** Distance to the near plane in meters. @default 0.1 */
   near?: number
@@ -65,14 +68,25 @@ export function Camera({
   const target = useContext(FilamentViewContext)?.target
 
   useEffect(() => {
+    if (aspect == null) return
+    commit
+      .run(() => {
+        'worklet'
+        camera.setLensProjection(focalLengthInMillimeters, aspect, near, far)
+      })
+      .catch(fail)
+  }, [camera, commit, fail, focalLengthInMillimeters, aspect, near, far])
+
+  useEffect(() => {
     if (target == null) return
     const subscription = target.addOnResizeListener((width, height) => {
       const pixelRatio = PixelRatio.get()
       cameraManipulator?.setViewport(width / pixelRatio, height / pixelRatio)
+      if (aspect != null) return
       commit
         .run(() => {
           'worklet'
-          camera.setLensProjection(focalLengthInMillimeters, aspect ?? width / height, near, far)
+          camera.setLensProjection(focalLengthInMillimeters, width / height, near, far)
         })
         .catch(fail)
     })

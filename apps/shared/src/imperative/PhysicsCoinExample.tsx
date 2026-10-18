@@ -17,8 +17,8 @@ import {
   type RigidBody,
 } from 'react-native-filament'
 
-const coin = Image.resolveAssetSource(require('../assets/coin.glb'))
-const shadowMaterial = Image.resolveAssetSource(require('../assets/transparent_shadow_material.filamat'))
+const coin = Image.resolveAssetSource(require('../../assets/coin.glb'))
+const shadowMaterial = Image.resolveAssetSource(require('../../assets/transparent_shadow_material.filamat'))
 
 const COIN_SCALE = 0.5
 const FLOOR_HEIGHT = -1.5

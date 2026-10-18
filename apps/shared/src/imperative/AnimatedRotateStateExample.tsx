@@ -1,11 +1,23 @@
 import React, { useEffect, useState } from 'react'
 import { Image, StyleSheet } from 'react-native'
 import { callback } from 'react-native-nitro-modules'
-import { defaultIndirectLightSource, Filament, NativeFilamentView, runOnRenderThread, type FilamentView } from 'react-native-filament'
+import {
+  defaultIndirectLightSource,
+  Filament,
+  NativeFilamentView,
+  quaternionFromAxisAngle,
+  runOnRenderThread,
+  type FilamentView,
+} from 'react-native-filament'
 
-const drone = Image.resolveAssetSource(require('../assets/buster_drone.glb'))
+const drone = Image.resolveAssetSource(require('../../assets/buster_drone.glb'))
+const RADIANS_PER_SECOND = 0.6
 
-export function NoneTransparentExample() {
+/**
+ * v1 kept the angle in a worklets-core shared value. Here it lives in a ValueBinding that the
+ * render thread advances by each frame's delta and applies to the model instance.
+ */
+export function AnimatedRotateStateExample() {
   const [view, setView] = useState<FilamentView>()
 
   useEffect(() => {
@@ -16,6 +28,7 @@ export function NoneTransparentExample() {
         engine.loadModel({ uri: drone.uri }, {}),
         engine.loadIndirectLight(defaultIndirectLightSource, {}),
       ])
+      const angle = engine.createValueBinding(0)
       const camera = await runOnRenderThread(engine, () => {
         'worklet'
         const scene = engine.createScene()
@@ -24,13 +37,16 @@ export function NoneTransparentExample() {
         scene.addEntity(engine.createDirectionalLight({ direction: [0.3, -1, -0.6] }).entity)
         scene.addModel(model)
         const tm = engine.transformManager
-        tm.transformToUnitCube(model.rootEntity, model.boundingBox)
-        const unitCube = tm.getTransform(model.rootEntity)
-        tm.setScale(model.rootEntity, [unitCube[0] * 2, unitCube[5] * 2, unitCube[10] * 2])
-        tm.setTranslation(model.rootEntity, [unitCube[12] * 2, unitCube[13] * 2, unitCube[14] * 2])
-        const bounds = engine.createDebugBox({ halfExtent: model.boundingBox.halfExtent, center: model.boundingBox.center, color: [1, 1, 0, 1] })
-        tm.setParent(bounds.entity, model.rootEntity)
-        scene.addEntity(bounds.entity)
+        const instance = model.getInstance(0)
+        tm.transformToUnitCube(instance.rootEntity, model.boundingBox)
+        const fitted = tm.getTransform(instance.rootEntity)
+        tm.setScale(instance.rootEntity, [fitted[0] * 1.5, fitted[5] * 1.5, fitted[10] * 1.5])
+        tm.setTranslation(instance.rootEntity, [fitted[12] * 1.5, fitted[13] * 1.5, fitted[14] * 1.5])
+        engine.addOnFrameListener((frame) => {
+          angle.set((angle.value + frame.deltaSeconds * RADIANS_PER_SECOND) % (Math.PI * 2))
+          tm.setRotation(instance.rootEntity, quaternionFromAxisAngle([0, 1, 0], angle.value))
+          return true
+        })
         const lens = engine.createCamera()
         lens.lookAt([0, 0, 8], [0, 0, 0], [0, 1, 0])
         target.setScene(scene)
@@ -43,9 +59,7 @@ export function NoneTransparentExample() {
           camera.setLensProjection(28, width / height, 0.1, 100)
         })
       })
-      const player = model.getInstance(0).animator.createPlayer()
-      player.play(0, {})
-      return { engine, resize, player }
+      return { engine, resize, angle }
     })
     return () => {
       starting.then(({ engine, resize }) => {

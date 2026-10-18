@@ -13,7 +13,7 @@ export function useEngine(backend?: EngineBackend): Engine | undefined {
   const fail = useReportFailure()
   useEffect(() => {
     let active = true
-    const creating = Filament.createEngine({ backend })
+    const creating = Promise.resolve().then(() => (active ? Filament.createEngine({ backend }) : undefined))
     creating.then(
       (created) => {
         if (active) setEngine(created)
@@ -26,7 +26,7 @@ export function useEngine(backend?: EngineBackend): Engine | undefined {
       active = false
       setEngine(undefined)
       creating.then(
-        (created) => created.shutdown(),
+        (created) => created?.shutdown(),
         () => undefined
       )
     }

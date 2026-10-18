@@ -11,12 +11,12 @@ import {
   type Renderable,
   type Scene,
 } from 'react-native-filament'
-import { imageFitTransform } from './utils/imageFitTransform'
+import { imageFitTransform } from '../utils/imageFitTransform'
 
-const rocket = Image.resolveAssetSource(require('../assets/rocket.glb'))
-const photo = Image.resolveAssetSource(require('../assets/background.jpg'))
-const backgroundMaterial = Image.resolveAssetSource(require('../assets/background_image.filamat'))
-const shadowMaterial = Image.resolveAssetSource(require('../assets/transparent_shadow_material.filamat'))
+const rocket = Image.resolveAssetSource(require('../../assets/rocket.glb'))
+const photo = Image.resolveAssetSource(require('../../assets/background.jpg'))
+const backgroundMaterial = Image.resolveAssetSource(require('../../assets/background_image.filamat'))
+const shadowMaterial = Image.resolveAssetSource(require('../../assets/transparent_shadow_material.filamat'))
 
 interface Bounds {
   engine: Engine

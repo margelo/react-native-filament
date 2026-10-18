@@ -1,62 +1,43 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Image, StyleSheet, View } from 'react-native'
+import { Button, Image, StyleSheet, Text, View } from 'react-native'
+import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import { callback } from 'react-native-nitro-modules'
+import { scheduleOnRN } from 'react-native-worklets'
 import {
   defaultIndirectLightSource,
   Filament,
   NativeFilamentView,
   runOnRenderThread,
-  type Engine,
   type FilamentView,
   type Model,
-  type Texture,
+  type ViewTarget,
 } from 'react-native-filament'
 
-const rocket = Image.resolveAssetSource(require('../assets/rocket.glb'))
-const blueBaseColor = Image.resolveAssetSource(require('../assets/rocket_BaseColor_Blue.png'))
-const skybox = Image.resolveAssetSource(require('../assets/default_env_skybox.ktx'))
+const rocket = Image.resolveAssetSource(require('../../assets/rocket.glb'))
 
 interface Loaded {
-  engine: Engine
+  target: ViewTarget
   model: Model
-  blue: Texture
 }
 
-function paintBlue({ engine, model, blue }: Loaded): Promise<void> {
-  return runOnRenderThread(engine, () => {
-    'worklet'
-    const rm = engine.renderableManager
-    for (const name of ['Tip', 'Wings']) {
-      const entity = model.getEntityByName(name)
-      if (entity == null) continue
-      for (let primitive = 0; primitive < rm.getPrimitiveCount(entity); primitive++) {
-        const instance = rm.getMaterialInstanceAt(entity, primitive)
-        if (instance.instanceName === 'Toy Ship') instance.setTexture('baseColorMap', blue, {})
-      }
-    }
-  })
-}
-
-export function ChangeMaterialsExample() {
+export function PickingExample() {
   const [view, setView] = useState<FilamentView>()
   const [loaded, setLoaded] = useState<Loaded>()
+  const [message, setMessage] = useState('Tap a part of the rocket')
 
   useEffect(() => {
     if (view == null) return
     let active = true
     const starting = Filament.createEngine({}).then(async (engine) => {
-      const [target, model, environment, background, blue] = await Promise.all([
+      const [target, model, environment] = await Promise.all([
         engine.createViewTarget(view, {}),
         engine.loadModel({ uri: rocket.uri }, {}),
         engine.loadIndirectLight(defaultIndirectLightSource, {}),
-        engine.loadSkybox({ uri: skybox.uri }),
-        engine.loadTexture({ uri: blueBaseColor.uri }, {}),
       ])
       const camera = await runOnRenderThread(engine, () => {
         'worklet'
         const scene = engine.createScene()
         scene.setIndirectLight(environment)
-        scene.setSkybox(background)
         scene.addModel(model)
         engine.transformManager.transformToUnitCube(model.rootEntity, model.boundingBox)
         const lens = engine.createCamera()
@@ -71,7 +52,7 @@ export function ChangeMaterialsExample() {
           camera.setLensProjection(28, width / height, 0.1, 100)
         })
       })
-      if (active) setLoaded({ engine, model, blue })
+      if (active) setLoaded({ target, model })
       return { engine, resize }
     })
     return () => {
@@ -83,14 +64,42 @@ export function ChangeMaterialsExample() {
     }
   }, [view])
 
+  const describePick = async (x: number, y: number) => {
+    if (loaded == null) return
+    const hit = await loaded.target.pick(x, y)
+    if (hit == null) {
+      setMessage('Nothing there')
+      return
+    }
+    const [px, py, pz] = hit.worldPosition.map((value) => value.toFixed(2))
+    setMessage(`Entity ${hit.entity} at (${px}, ${py}, ${pz})`)
+  }
+
+  const tap = Gesture.Tap().onEnd(({ x, y }) => {
+    'worklet'
+    scheduleOnRN(describePick, x, y)
+  })
+
+  const snapshot = async () => {
+    if (loaded == null) return
+    const frame = await loaded.target.takeSnapshot()
+    setMessage(`Saved ${frame.width}×${frame.height} to ${await frame.saveToTemporaryFile()}`)
+  }
+
   return (
     <View style={styles.container}>
-      <NativeFilamentView style={styles.container} hybridRef={callback(setView)} />
-      <Button title="Paint it blue" disabled={loaded == null} onPress={() => loaded != null && paintBlue(loaded)} />
+      <GestureDetector gesture={tap}>
+        <View style={styles.container}>
+          <NativeFilamentView style={styles.container} hybridRef={callback(setView)} />
+        </View>
+      </GestureDetector>
+      <Text style={styles.message}>{message}</Text>
+      <Button title="Take snapshot" disabled={loaded == null} onPress={snapshot} />
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  message: { padding: 12, fontSize: 15 },
 })

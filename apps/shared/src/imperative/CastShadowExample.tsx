@@ -12,8 +12,8 @@ import {
   type ViewTarget,
 } from 'react-native-filament'
 
-const coin = Image.resolveAssetSource(require('../assets/coin.glb'))
-const shadowMaterial = Image.resolveAssetSource(require('../assets/transparent_shadow_material.filamat'))
+const coin = Image.resolveAssetSource(require('../../assets/coin.glb'))
+const shadowMaterial = Image.resolveAssetSource(require('../../assets/transparent_shadow_material.filamat'))
 
 interface Loaded {
   engine: Engine

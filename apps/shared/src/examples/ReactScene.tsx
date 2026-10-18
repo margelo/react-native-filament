@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native'
 import { Easing, useDerivedValue, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated'
 import { Animator, Camera, DefaultLight, FilamentScene, FilamentView, Model, type AnimationItem, type Entity, type Float3 } from 'react-native-filament'
 
-const drone = require('../assets/buster_drone.glb')
+const drone = require('../../assets/buster_drone.glb')
 
 function DroneScene() {
   const angle = useSharedValue(0)
@@ -42,7 +42,7 @@ function DroneScene() {
   )
 }
 
-export function ReactSceneExample() {
+export function ReactScene() {
   return (
     <FilamentScene fallback={<Text style={styles.caption}>Starting Filament…</Text>}>
       <DroneScene />

@@ -12,11 +12,11 @@ import {
   type Texture,
   type ViewTarget,
 } from 'react-native-filament'
-import { imageFitTransform, type ImageFit } from './utils/imageFitTransform'
+import { imageFitTransform, type ImageFit } from '../utils/imageFitTransform'
 
-const drone = Image.resolveAssetSource(require('../assets/buster_drone.glb'))
-const photo = Image.resolveAssetSource(require('../assets/background.jpg'))
-const backgroundMaterial = Image.resolveAssetSource(require('../assets/background_image.filamat'))
+const drone = Image.resolveAssetSource(require('../../assets/buster_drone.glb'))
+const photo = Image.resolveAssetSource(require('../../assets/background.jpg'))
+const backgroundMaterial = Image.resolveAssetSource(require('../../assets/background_image.filamat'))
 
 interface Background {
   engine: Engine

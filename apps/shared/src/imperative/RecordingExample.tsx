@@ -10,7 +10,7 @@ import {
   type Recorder,
 } from 'react-native-filament'
 
-const drone = Image.resolveAssetSource(require('../assets/buster_drone.glb'))
+const drone = Image.resolveAssetSource(require('../../assets/buster_drone.glb'))
 
 const FPS = 60
 const SECONDS = 5

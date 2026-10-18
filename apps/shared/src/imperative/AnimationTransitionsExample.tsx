@@ -12,7 +12,7 @@ import {
   type ViewTarget,
 } from 'react-native-filament'
 
-const dancer = Image.resolveAssetSource(require('../assets/hiphopgirl.glb'))
+const dancer = Image.resolveAssetSource(require('../../assets/hiphopgirl.glb'))
 const CROSS_FADE_SECONDS = 5
 
 interface Loaded {

@@ -3,7 +3,7 @@ import { Image, StyleSheet, Text, View } from 'react-native'
 import { callback } from 'react-native-nitro-modules'
 import { defaultIndirectLightSource, Filament, NativeFilamentView, runOnRenderThread, type FilamentView } from 'react-native-filament'
 
-const drone = Image.resolveAssetSource(require('../assets/buster_drone.glb'))
+const drone = Image.resolveAssetSource(require('../../assets/buster_drone.glb'))
 
 export function LightsExample() {
   const [view, setView] = useState<FilamentView>()

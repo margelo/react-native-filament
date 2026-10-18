@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Image, StyleSheet } from 'react-native'
-import { Easing, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated'
 import { callback } from 'react-native-nitro-modules'
 import {
-  bindSharedValue,
   defaultIndirectLightSource,
   Filament,
   NativeFilamentView,
@@ -12,15 +10,11 @@ import {
   type FilamentView,
 } from 'react-native-filament'
 
-const drone = Image.resolveAssetSource(require('../assets/buster_drone.glb'))
+const drone = Image.resolveAssetSource(require('../../assets/buster_drone.glb'))
+const RADIANS_PER_SECOND = 0.6
 
-export function ReanimatedRotateExample() {
+export function AnimatedRotateExample() {
   const [view, setView] = useState<FilamentView>()
-  const angle = useSharedValue(0)
-
-  useEffect(() => {
-    angle.value = withRepeat(withTiming(2 * Math.PI, { duration: 4000, easing: Easing.linear }), -1, false)
-  }, [angle])
 
   useEffect(() => {
     if (view == null) return
@@ -30,19 +24,27 @@ export function ReanimatedRotateExample() {
         engine.loadModel({ uri: drone.uri }, {}),
         engine.loadIndirectLight(defaultIndirectLightSource, {}),
       ])
-      const { camera, sun, spin } = await runOnRenderThread(engine, () => {
+      const camera = await runOnRenderThread(engine, () => {
         'worklet'
         const scene = engine.createScene()
-        const light = engine.createDirectionalLight({ direction: [0.3, -1, -0.6] })
         scene.setIndirectLight(environment)
-        scene.addEntity(light.entity)
+        scene.setSkybox(engine.createSkybox([0.25, 0.73, 0.96, 1]))
+        scene.addEntity(engine.createDirectionalLight({ direction: [0.3, -1, -0.6] }).entity)
         scene.addModel(model)
-        engine.transformManager.transformToUnitCube(model.getInstance(0).rootEntity, model.boundingBox)
+        const tm = engine.transformManager
+        tm.transformToUnitCube(model.rootEntity, model.boundingBox)
+        const fitted = tm.getTransform(model.rootEntity)
+        tm.setScale(model.rootEntity, [fitted[0] * 1.5, fitted[5] * 1.5, fitted[10] * 1.5])
+        tm.setTranslation(model.rootEntity, [fitted[12] * 1.5, fitted[13] * 1.5, fitted[14] * 1.5])
+        engine.addOnFrameListener((frame) => {
+          tm.setRotation(model.rootEntity, quaternionFromAxisAngle([0, 1, 0], frame.elapsedSeconds * RADIANS_PER_SECOND))
+          return true
+        })
         const lens = engine.createCamera()
-        lens.lookAt([0, 0.6, 3.6], [0, 0, 0], [0, 1, 0])
+        lens.lookAt([0, 0, 8], [0, 0, 0], [0, 1, 0])
         target.setScene(scene)
         target.setCamera(lens)
-        return { camera: lens, sun: light, spin: engine.createTransformBinding(model.rootEntity) }
+        return lens
       })
       const resize = target.addOnResizeListener((width, height) => {
         runOnRenderThread(engine, () => {
@@ -50,21 +52,15 @@ export function ReanimatedRotateExample() {
           camera.setLensProjection(28, width / height, 0.1, 100)
         })
       })
-      const unbind = bindSharedValue(angle, (radians) => {
-        'worklet'
-        const [x, y, z, w] = quaternionFromAxisAngle([0, 1, 0], radians)
-        spin.setRotation(x, y, z, w)
-      })
-      return { engine, resources: [sun, spin], resize, unbind }
+      return { engine, resize }
     })
     return () => {
-      starting.then(({ engine, resize, unbind }) => {
-        unbind()
+      starting.then(({ engine, resize }) => {
         resize.remove()
         engine.shutdown()
       })
     }
-  }, [view, angle])
+  }, [view])
 
   return <NativeFilamentView style={styles.container} hybridRef={callback(setView)} />
 }

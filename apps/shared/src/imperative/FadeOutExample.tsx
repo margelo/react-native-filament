@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Image, StyleSheet, View } from 'react-native'
-import { useSharedValue, withSpring } from 'react-native-reanimated'
+import { useSharedValue, withTiming } from 'react-native-reanimated'
 import { callback } from 'react-native-nitro-modules'
 import {
   bindSharedValue,
@@ -12,11 +12,15 @@ import {
   type FilamentView,
 } from 'react-native-filament'
 
-const coin = Image.resolveAssetSource(require('../assets/coin.glb'))
+const coin = Image.resolveAssetSource(require('../../assets/coin_with_alpha.glb'))
 
-export function ScaleEffectExample() {
+/**
+ * Reanimated drives the opacity on the UI runtime into a ValueBinding; a render-thread frame
+ * listener writes it into every primitive's `baseColorFactor` alpha when it changes.
+ */
+export function FadeOutExample() {
   const [view, setView] = useState<FilamentView>()
-  const scale = useSharedValue(0)
+  const opacity = useSharedValue(1)
 
   useEffect(() => {
     if (view == null) return
@@ -26,7 +30,8 @@ export function ScaleEffectExample() {
         engine.loadModel({ uri: coin.uri }, {}),
         engine.loadIndirectLight(defaultIndirectLightSource, {}),
       ])
-      const { camera, binding, unitScale } = await runOnRenderThread(engine, () => {
+      const alpha = engine.createValueBinding(1)
+      const camera = await runOnRenderThread(engine, () => {
         'worklet'
         const scene = engine.createScene()
         scene.setIndirectLight(environment)
@@ -34,16 +39,29 @@ export function ScaleEffectExample() {
         scene.addModel(model)
         const tm = engine.transformManager
         tm.transformToUnitCube(model.rootEntity, model.boundingBox)
-        const fitted = tm.getTransform(model.rootEntity)
-        const created = engine.createTransformBinding(model.rootEntity)
-        const [x, y, z, w] = quaternionFromAxisAngle([1, 0, 0], (75 * Math.PI) / 180)
-        created.setRotation(x, y, z, w)
-        created.setScale(0, 0, 0)
+        tm.setRotation(model.rootEntity, quaternionFromAxisAngle([1, 0, 0], (75 * Math.PI) / 180))
+        const rm = engine.renderableManager
+        const instances = model.entities
+          .filter((entity) => rm.hasComponent(entity))
+          .flatMap((entity) => Array.from({ length: rm.getPrimitiveCount(entity) }, (_, primitive) => rm.getMaterialInstanceAt(entity, primitive)))
+          .filter((instance) => instance.hasParameter('baseColorFactor'))
+        const colors = instances.map((instance) => instance.getFloat4Parameter('baseColorFactor'))
+        let applied = 1
+        engine.addOnFrameListener(() => {
+          if (alpha.value !== applied) {
+            applied = alpha.value
+            instances.forEach((instance, index) => {
+              const [r, g, b, a] = colors[index]!
+              instance.setFloat4Parameter('baseColorFactor', [r, g, b, a * applied])
+            })
+          }
+          return false
+        })
         const lens = engine.createCamera()
         lens.lookAt([0, 0, 8], [0, 0, 0], [0, 1, 0])
         target.setScene(scene)
         target.setCamera(lens)
-        return { camera: lens, binding: created, unitScale: fitted[0] }
+        return lens
       })
       const resize = target.addOnResizeListener((width, height) => {
         runOnRenderThread(engine, () => {
@@ -51,11 +69,11 @@ export function ScaleEffectExample() {
           camera.setLensProjection(35, width / height, 0.1, 100)
         })
       })
-      const unbind = bindSharedValue(scale, (value) => {
+      const unbind = bindSharedValue(opacity, (value) => {
         'worklet'
-        binding.setScale(value * unitScale, value * unitScale, value * unitScale)
+        alpha.set(value)
       })
-      return { engine, resize, unbind, binding }
+      return { engine, resize, unbind }
     })
     return () => {
       starting.then(({ engine, resize, unbind }) => {
@@ -64,17 +82,17 @@ export function ScaleEffectExample() {
         engine.shutdown()
       })
     }
-  }, [view, scale])
+  }, [view, opacity])
 
-  const grow = () => {
-    scale.value = 0
-    scale.value = withSpring(1, { mass: 3, stiffness: 1000, damping: 500 })
+  const fadeOut = () => {
+    opacity.value = 1
+    opacity.value = withTiming(0, { duration: 1000 })
   }
 
   return (
     <View style={styles.background}>
       <NativeFilamentView style={styles.container} transparent hybridRef={callback(setView)} />
-      <Button title="Scale" onPress={grow} />
+      <Button title="Fade out" onPress={fadeOut} />
     </View>
   )
 }
