@@ -13,8 +13,7 @@ describe('FilamentFactory', () => {
     if (Platform.OS === 'ios') {
       expect(backends).toEqual(['metal'])
     } else {
-      expect(backends[0]).toBe('opengl')
-      expect(backends.every((backend) => backend === 'opengl' || backend === 'vulkan')).toBe(true)
+      expect(backends).toEqual(backends.includes('vulkan') ? ['vulkan', 'opengl'] : ['opengl'])
     }
   })
 })

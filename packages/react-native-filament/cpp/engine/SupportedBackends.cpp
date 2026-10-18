@@ -26,7 +26,7 @@ std::vector<EngineBackend> supportedBackends() {
   return {EngineBackend::METAL};
 #else
   if (isVulkan11Available()) {
-    return {EngineBackend::OPENGL, EngineBackend::VULKAN};
+    return {EngineBackend::VULKAN, EngineBackend::OPENGL};
   }
   return {EngineBackend::OPENGL};
 #endif
