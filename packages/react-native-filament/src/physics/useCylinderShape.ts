@@ -4,6 +4,11 @@ import type { CylinderAxis } from '../specs/types/CylinderAxis'
 import type { Float3 } from '../specs/types/Float3'
 import { useCollisionShape } from './useCollisionShape'
 
+/**
+ * A cylinder shape in `world` with half extents in meters along `axis`, created once `world` exists,
+ * recreated when an argument changes and disposed on unmount.
+ * @param axis The cylinder's axis. Defaults to `'y'`.
+ */
 export function useCylinderShape(
   world: PhysicsWorld | undefined,
   halfExtent: Float3,

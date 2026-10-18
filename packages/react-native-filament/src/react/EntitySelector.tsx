@@ -11,15 +11,27 @@ import { useFilamentScene } from './useFilamentScene'
 import { useModelContext } from './useModelContext'
 import { useTransformProps } from './useTransformProps'
 
-interface SelectorModifiers extends Omit<TransformationProps, 'transformToUnitCube'> {
+/** What `EntitySelector` changes on the entity it selects. */
+export interface EntitySelectorModifiers extends Omit<TransformationProps, 'transformToUnitCube'> {
   /** Changes material parameters of the entity's primitives. */
   materialParameters?: MaterialParameters
+  /** Replaces the `baseColorMap` of the entity's material instances named `materialName`. */
   textureMap?: TextureMap
   /** Weights of the entity's morph targets, in target order. Accepts a SharedValue. */
   morphWeights?: number[] | ListenableValue<number[]>
 }
 
-export type EntitySelectorProps = SelectorModifiers & ({ byName: string } | { byIndex: number })
+export type EntitySelectorProps = EntitySelectorModifiers &
+  (
+    | {
+        /** glTF node name of the entity. */
+        byName: string
+      }
+    | {
+        /** Index of the entity in the instance's `entities`. */
+        byIndex: number
+      }
+  )
 
 function materialItems(parameters: MaterialParameters | undefined): MaterialParametersItem[] {
   if (parameters == null) return []
@@ -27,8 +39,9 @@ function materialItems(parameters: MaterialParameters | undefined): MaterialPara
 }
 
 /**
- * Configures one entity of the parent `Model` or `ModelInstance`, found by glTF node name or by index
- * in the instance's entities. Transform props apply on top of the entity's own transform.
+ * Configures one entity of the parent `ModelInstance`, or of the first instance of the parent `Model`,
+ * found by glTF node name or by index in that instance's entities. Transform props apply on top of the
+ * entity's own transform.
  */
 export function EntitySelector({
   translate,

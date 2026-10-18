@@ -16,7 +16,8 @@ Filament (FilamentFactory)
     ├── Scene, Camera, Light, Skybox, IndirectLight, Renderable
     ├── Model ──────────── a glTF asset and its instances
     │   └── ModelInstance → Animator, AnimationPlayer
-    ├── Material → MaterialInstance, Texture
+    ├── Material → MaterialInstance
+    ├── Texture
     ├── TransformBinding, ValueBinding, CameraManipulator
     └── PhysicsWorld → CollisionShape, RigidBody
 ```
@@ -83,7 +84,9 @@ async function start(nativeView: FilamentView) {
 
 ## Resources and ownership
 
-Each native object is a resource in its Engine's ownership tree. Disposing a resource destroys its descendants first, then itself, on the render thread. Objects that depend on another one keep it alive: a scene keeps its skybox, a rigid body keeps its world and shape, and a material instance keeps its textures. Calling a method of a disposed object throws an error whose message starts with `FilamentDisposedError`, so nothing touches destroyed Filament memory.
+Scenes, cameras, lights, renderables, skyboxes, indirect lights, models, materials, material instances, textures, view targets, recorders and physics objects are resources in their Engine's ownership tree. Disposing a resource destroys its descendants first, then itself, on the render thread. Objects that depend on another one keep it alive: a scene keeps its skybox, a rigid body keeps its world and shape, and a material instance keeps its textures. Calls that reach the native state of a disposed object throw an error whose message starts with `FilamentDisposedError`, so nothing touches destroyed Filament memory. Values captured at creation, such as `entity`, `rootEntity` or `boundingBox`, stay readable.
+
+Transform bindings, camera manipulators and animation players are not resources: disposing one stops it right away. A `ValueBinding` holds no native state. Model instances and animators are parts of their model and fail like it once the model is disposed.
 
 <ApiTabs>
 <Declarative>
@@ -118,7 +121,7 @@ await engine.shutdown()
 
 A `FilamentScene` that creates its own Engine shuts it down on unmount. A `FilamentScene` that borrows an Engine through its `engine` prop disposes only its scene and camera.
 
-`engine.getDebugStats()` counts the live resources by kind, which helps find leaks. Heavy objects report their native size to the JS garbage collector through Nitro's `getExternalMemorySize()`. See [Rendering](/docs/rendering#debug-stats).
+`engine.getDebugStats()` counts the live resources by kind, which helps find leaks. It does not count bindings, manipulators, model instances, animators or animation players. Heavy objects report their native size to the JS garbage collector through Nitro's `getExternalMemorySize()`. See [Rendering](/docs/rendering#debug-stats).
 
 ## The render loop
 
@@ -131,7 +134,7 @@ See [Threading](/docs/threading) for the frame stages and how JS reaches the ren
 Loaders take an `{ uri }` or an `ArrayBuffer`:
 
 - bundled asset names and `file://` paths are memory-mapped;
-- `http(s)://` URLs are downloaded natively and cached;
+- `http(s)://` URLs are downloaded natively once per app launch and reused for later loads of the same URL;
 - an `ArrayBuffer` is copied once, so the caller can reuse it right away.
 
 Components and hooks also accept a `require()`d asset or a URI string.

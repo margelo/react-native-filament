@@ -7,8 +7,9 @@ import type { LightType } from '../types/LightType'
 /**
  * Reads and writes the light components of entities, including lights loaded with a model. Every
  * method runs on the render thread and throws `FilamentInvalidEntityError` for an entity without a
- * light component in this Engine. Intensity is in lux for directional and sun lights and in lumens
- * for point and spot lights.
+ * light component in this Engine. `setIntensity` takes lux for directional and sun lights and lumens
+ * for point and spot lights; `getIntensity` returns lux for directional and sun lights but candela for
+ * point and spot lights.
  */
 export interface LightManager extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   getType(entity: Entity): LightType

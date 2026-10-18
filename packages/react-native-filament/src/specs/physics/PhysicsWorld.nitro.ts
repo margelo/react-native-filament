@@ -8,8 +8,9 @@ import type { CollisionShape } from './CollisionShape.nitro'
 import type { RigidBody } from './RigidBody.nitro'
 
 /**
- * A Bullet dynamics world. Every member runs on the render thread. Disposing it disposes its bodies
- * and shapes.
+ * A Bullet dynamics world. Every member runs on the render thread. The world and its bodies keep each
+ * other alive until you call `dispose()` or the Engine shuts down. Disposing it disposes its bodies and
+ * shapes.
  */
 export interface PhysicsWorld extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   gravity: Float3
@@ -17,7 +18,7 @@ export interface PhysicsWorld extends HybridObject<{ ios: 'c++'; android: 'c++' 
   createBoxShape(halfExtent: Float3): CollisionShape
   createSphereShape(radius: number): CollisionShape
   createCylinderShape(halfExtent: Float3, axis: CylinderAxis): CollisionShape
-  /** The plane `dot(normal, point) = constant`; only static bodies may use it. */
+  /** The plane `dot(normalize(normal), point) = constant`; only static bodies may use it. */
   createStaticPlaneShape(normal: Float3, constant: number): CollisionShape
   createRigidBody(options: RigidBodyOptions): RigidBody
   /** Advances the simulation by `deltaSeconds` in fixed steps, then syncs bound entities. */

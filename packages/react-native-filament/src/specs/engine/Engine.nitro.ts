@@ -67,7 +67,8 @@ export interface Engine extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
    */
   readonly renderableManager: RenderableManager
   /**
-   * Cheap atomic store; wakes the render thread when demand changes.
+   * When the Engine renders its targets.
+   * @default 'continuous'
    * @thread any
    */
   renderMode: RenderMode
@@ -93,7 +94,8 @@ export interface Engine extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   /** @thread render */
   createDirectionalLight(options: DirectionalLightOptions): Light
   /**
-   * A directional light that also draws a sun disk in the skybox.
+   * A directional light whose angular radius shapes its highlight on glossy surfaces. The skyboxes this
+   * library creates do not draw the sun disk.
    * @thread render
    */
   createSunLight(options: SunLightOptions): Light
@@ -102,7 +104,7 @@ export interface Engine extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   /** @thread render */
   createSpotLight(options: SpotLightOptions): Light
   /**
-   * A spot light whose intensity stays the same when its cone changes.
+   * A physically correct spot light: its power spreads over its cone, so a wider cone looks dimmer.
    * @thread render
    */
   createFocusedSpotLight(options: SpotLightOptions): Light
@@ -113,7 +115,7 @@ export interface Engine extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
    */
   createPlane(options: PlaneOptions, material: MaterialInstance): Renderable
   /**
-   * A full-screen triangle drawn before everything else, for a material whose vertex domain is
+   * A full-screen triangle drawn behind everything else, for a material whose vertex domain is
    * `device`, such as an image background.
    * @thread render
    */
@@ -172,9 +174,11 @@ export interface Engine extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
    */
   createPhysicsWorld(options: PhysicsWorldOptions): PhysicsWorld
   /**
-   * Calls `listener` once per rendered frame, before native systems run and the targets render.
-   * The listener returns whether it needs another frame: in `on-demand` mode the Engine keeps
-   * rendering while any listener returns `true`. In `continuous` mode every frame renders anyway.
+   * Calls `listener` once per rendered frame, after transform bindings and camera manipulators are
+   * applied and before animation players and physics run and the targets render, so a
+   * TransformBinding set in the listener takes effect on the next frame. The listener returns
+   * whether it needs another frame: in `on-demand` mode the Engine keeps rendering while any
+   * listener returns `true`. In `continuous` mode every frame renders anyway.
    * @thread render
    */
   addOnFrameListener(listener: Sync<(frame: FrameInfo) => boolean>): FrameListenerSubscription

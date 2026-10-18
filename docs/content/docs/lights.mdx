@@ -7,10 +7,10 @@ icon: Sun
 A scene without light renders black or transparent. react-native-filament supports these light types:
 
 - `directional`: light that travels in one direction, like sunlight.
-- `sun`: a directional light that also draws a sun disk in the skybox.
+- `sun`: a directional light whose angular size shapes its highlight on glossy surfaces.
 - `point`: light from one position in all directions.
 - `spot`: light from one position inside a cone.
-- `focused-spot`: a physically correct spot light whose intensity stays the same when its cone changes.
+- `focused-spot`: a physically correct spot light. Its power spreads over its cone, so a wider cone looks dimmer.
 - Image-based lighting (IBL): light from an environment image, with `<EnvironmentalLight />`.
 
 ## The `<Light />` component
@@ -72,9 +72,9 @@ In this table, "spot" covers both `spot` and `focused-spot`.
 | `position` | point, spot | `[0, 0, 0]` | Position in meters. Accepts a SharedValue. |
 | `falloffRadius` | point, spot | `1` | Distance in meters at which the light stops having an effect. |
 | `spotLightCone` | spot | `[π/8, π/4]` | `[inner, outer]` cone angles in radians. |
-| `angularRadiusDegrees` | sun | `0.545` | Angular radius of the sun disk in degrees. |
-| `haloSize` | sun | `10` | Size of the halo around the sun disk. |
-| `haloFalloff` | sun | `80` | Falloff of the halo around the sun disk. |
+| `angularRadiusDegrees` | sun | `0.545` | Angular radius of the sun in degrees, which sizes its highlight on glossy surfaces. |
+| `haloSize` | sun | `10` | Halo size of the sun disk. The library's skyboxes don't draw the disk, so it has no visible effect. |
+| `haloFalloff` | sun | `80` | Halo falloff of the sun disk. No visible effect, as above. |
 
 The props map to the options of the `engine.create*Light()` methods. `intensity` becomes `intensityLux` for `createDirectionalLight()` and `createSunLight()`, and `intensityLumens` for `createPointLight()`, `createSpotLight()` and `createFocusedSpotLight()`. `spotLightCone` becomes `innerConeRadians` and `outerConeRadians`.
 
@@ -163,7 +163,9 @@ RNF_excludeAssets=true
 
 ## Directional and sun lights
 
-Directional lights recreate light sources that are far away, such as the sun or the moon. They have a direction but no position. A `sun` light also draws a sun disk in the skybox, sized by `angularRadiusDegrees`, `haloSize` and `haloFalloff`.
+Directional lights recreate light sources that are far away, such as the sun or the moon. They have a direction but no position. A `sun` light is a directional light whose `angularRadiusDegrees` sets the size of its highlight on glossy surfaces. react-native-filament's skyboxes do not draw the sun disk, so `haloSize` and `haloFalloff` currently have no visible effect.
+
+Filament uses only the brightest directional or sun light in a scene. Any other directional light adds neither light nor shadows. `<DefaultLight />` already contains one, so don't add a second directional light next to it.
 
 <ApiTabs>
 <Declarative>
@@ -269,7 +271,7 @@ Point and spot lights, called punctual lights, have a position. Their intensity 
 | 500 W halogen | 10,000 |
 | 1,000 W halogen | 20,000 |
 
-A point light shines from its `position` in all directions. A spot light also has a `direction` and two cone angles: the light starts to fade at the inner angle and ends at the outer angle. With `spot`, a wider cone spreads the same power over a larger area, so it looks dimmer. With `focused-spot`, the intensity stays the same when the cone changes.
+A point light shines from its `position` in all directions. A spot light also has a `direction` and two cone angles: the light starts to fade at the inner angle and ends at the outer angle. With `focused-spot`, a wider cone spreads the same power over a larger area, so it looks dimmer. With `spot`, the intensity stays the same when the cone changes, which makes the cone easier to tune.
 
 <ApiTabs>
 <Declarative>
@@ -326,7 +328,7 @@ Lights are expensive in Filament, especially when they overlap. `falloffRadius` 
 
 In real life, light reaches an object from every direction: directly from light sources, and indirectly after bouncing off the environment. Image-based lighting, also called indirect lighting, encodes this environment light in a cubemap. Filament reads the irradiance (light arriving at a surface) from the cubemap's spherical harmonics and the reflections from its mip levels.
 
-`<EnvironmentalLight />` loads a KTX1 cubemap and lights the scene with it while mounted. `intensity` is a brightness scale in lux and defaults to 25,000. `useIndirectLight(source, intensity)` does the same and returns the `IndirectLight`. Imperatively, load it with `engine.loadIndirectLight()` (its `intensity` option defaults to 30,000) and set it on the scene with `scene.setIndirectLight()`. A scene has at most one indirect light.
+`<EnvironmentalLight />` loads a KTX1 cubemap and lights the scene with it while mounted. `intensity` is a brightness scale in lux and defaults to 25,000. `useIndirectLight(source, intensity)` does the same and returns the `IndirectLight`; with `intensity` undefined it uses 30,000. Imperatively, load it with `engine.loadIndirectLight()` (its `intensity` option defaults to 30,000) and set it on the scene with `scene.setIndirectLight()`. A scene has at most one indirect light.
 
 <ApiTabs>
 <Declarative>
@@ -415,7 +417,7 @@ Use the `*_ibl.ktx` file it writes for lighting. The `*_skybox.ktx` file next to
 
 `intensity`, `colorKelvin`, `direction` and `position` accept Reanimated SharedValues. New values reach the light on the render thread without recreating it and without React renders. See [Reanimated](/docs/reanimated) for how this works.
 
-Imperatively, `engine.lightManager` reads and writes the light component of any entity on the render thread, including lights loaded with a glTF model. It has getters and setters for intensity, color (linear RGB), position, direction, falloff, the spot cone and whether the light casts shadows.
+Imperatively, `engine.lightManager` reads and writes the light component of any entity on the render thread, including lights loaded with a glTF model. It has getters and setters for intensity, color (linear RGB), position, direction, falloff, the spot cone and whether the light casts shadows. `setIntensity()` takes lux for directional and sun lights and lumens for point and spot lights, but `getIntensity()` returns candela, not lumens, for point and spot lights.
 
 <ApiTabs>
 <Declarative>
@@ -475,7 +477,7 @@ function OrbitingLight() {
 
 Three settings decide whether a shadow appears:
 
-1. The light casts shadows. Directional and sun lights do by default, point and spot lights do not. Directional shadows work with one directional light, so keep a single shadow-casting directional light per scene.
+1. The light casts shadows. Directional and sun lights do by default, point and spot lights do not. Filament uses only the brightest directional or sun light in a scene, so only that light casts directional shadows.
 2. The models cast and receive shadows. `<Model castShadow receiveShadow>` sets this for every renderable of a model; by default a model keeps its own settings. `useConfigureAssetShadow({ entities, castShadow, receiveShadow })` does the same for any list of entities.
 3. The view renders shadows. `shadowing` is `true` by default. `shadowType` picks the filtering: `'pcf'` (the default), `'vsm'`, `'dpcf'` or `'pcss'`. On the iOS Simulator the default is `'vsm'`, because its Metal reports every PCF depth comparison as shadowed.
 
@@ -492,6 +494,7 @@ export function Shadows() {
         <Camera cameraPosition={[0, 3, 8]} />
         <Light type="directional" direction={[0.3, -1, -0.2]} castShadows />
         <Model source={require('./coin.glb')} translate={[0, 2, 0]} castShadow receiveShadow />
+        {/* Add a surface to receive the shadow, such as the shadow plane below. */}
       </FilamentView>
     </FilamentScene>
   )
@@ -518,7 +521,7 @@ return light // keep it until you dispose it
 </Imperative>
 </ApiTabs>
 
-To show a shadow on the ground without drawing the ground itself, add a plane with a shadow-only material, such as the example app's `transparent_shadow_material.filamat`. `engine.createPlane({ width, depth }, materialInstance)` creates a horizontal plane that receives shadows by default.
+To show a shadow on the ground without drawing the ground itself, add a plane with a shadow-only material, such as the example app's `transparent_shadow_material.filamat`, whose `strength` float parameter sets the shadow opacity (for example `instance.setFloatParameter('strength', 0.2)`). `engine.createPlane({ width, depth }, materialInstance)` creates a horizontal plane that receives shadows by default.
 
 ## Additional resources
 

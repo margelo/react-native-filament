@@ -63,9 +63,11 @@ function ScrubbedDancer({ speed }: { speed: number }) {
     imperative: `
 import { runOnRenderThread, type Engine, type Model } from 'react-native-filament'
 
-function crossFade(engine: Engine, model: Model, from: number, to: number, fadeSeconds: number) {
+// fromSeconds is the time the previous animation had reached, so it keeps moving during the fade.
+function crossFade(engine: Engine, model: Model, from: number, fromSeconds: number, to: number, fadeSeconds: number) {
   const { animator } = model.getInstance(0)
-  if (to >= animator.animations.length) throw new Error('The model has no animation ' + to)
+  const count = animator.animations.length
+  if (from >= count || to >= count) throw new Error('The model has only ' + count + ' animations')
   return runOnRenderThread(engine, () => {
     'worklet'
     let start = -1
@@ -73,7 +75,7 @@ function crossFade(engine: Engine, model: Model, from: number, to: number, fadeS
       if (start < 0) start = elapsedSeconds
       const time = elapsedSeconds - start
       animator.applyAnimation(to, time)
-      if (time < fadeSeconds) animator.applyCrossFade(from, time, time / fadeSeconds)
+      if (time < fadeSeconds) animator.applyCrossFade(from, fromSeconds + time, time / fadeSeconds)
       animator.updateBoneMatrices()
       return true
     })
@@ -184,7 +186,7 @@ async function showDancers(engine: Engine, scene: Scene) {
     declarative: `
 import React from 'react'
 import { GestureDetector } from 'react-native-gesture-handler'
-import { Camera, DefaultLight, FilamentView, Model, useCameraManipulator, useOrbitGestures, type CameraManipulator } from 'react-native-filament'
+import { Camera, DefaultLight, FilamentScene, FilamentView, Model, useCameraManipulator, useOrbitGestures, type CameraManipulator } from 'react-native-filament'
 
 function OrbitView({ manipulator }: { manipulator: CameraManipulator }) {
   const gesture = useOrbitGestures(manipulator)
@@ -199,9 +201,17 @@ function OrbitView({ manipulator }: { manipulator: CameraManipulator }) {
   )
 }
 
-function Scene() {
+function OrbitScene() {
   const manipulator = useCameraManipulator({ homePosition: [0, 0, 6], orbitSpeed: 0.003 })
   return manipulator == null ? null : <OrbitView manipulator={manipulator} />
+}
+
+export function App() {
+  return (
+    <FilamentScene>
+      <OrbitScene />
+    </FilamentScene>
+  )
 }
 `,
     imperative: `
@@ -338,7 +348,7 @@ import { Camera, DefaultLight, FilamentScene, FilamentView, Model, useFilamentCo
 function EngineInfo() {
   const { engine } = useFilamentContext()
   useEffect(() => {
-    console.log(engine.backend, engine.renderMode, engine.getDebugStats().liveResources)
+    console.log(engine.backend, engine.getDebugStats().liveResources)
     engine.requestFrame()
   }, [engine])
   return null
@@ -464,6 +474,8 @@ import React from 'react'
 import { Platform, Text } from 'react-native'
 import { Camera, DefaultLight, Filament, FilamentScene, FilamentView } from 'react-native-filament'
 
+// Opt into OpenGL ES on Android, for example to work around a Vulkan driver bug.
+// Leave backend undefined to use the first supported one: Metal on iOS, Vulkan where available on Android.
 const backend = Platform.OS === 'android' && Filament.supportedBackends.includes('opengl') ? 'opengl' : undefined
 
 export function App() {
@@ -483,6 +495,8 @@ import { Filament, type Engine } from 'react-native-filament'
 
 async function createEngine(): Promise<Engine> {
   console.log(Filament.filamentVersion, Filament.supportedBackends)
+  // Opt into OpenGL ES, for example to work around a Vulkan driver bug.
+  // Leave backend undefined to use the first supported one: Metal on iOS, Vulkan where available on Android.
   const backend = Filament.supportedBackends.includes('opengl') ? 'opengl' : undefined
   const engine = await Filament.createEngine({ backend })
   console.log(engine.backend)
@@ -696,11 +710,12 @@ function dropModel(engine: Engine, model: Model) {
       const landed = events.some((event) => event.kind === 'began')
       return !landed
     })
-    engine.addOnFrameListener(({ deltaSeconds }) => {
+    const stepping = engine.addOnFrameListener(({ deltaSeconds }) => {
       world.step(deltaSeconds)
       return true
     })
-    return world
+    // Call stepping.remove() before world.dispose().
+    return { world, stepping }
   })
 }
 `,
@@ -710,9 +725,10 @@ function dropModel(engine: Engine, model: Model) {
     declarative: `
 import React from 'react'
 import { Button } from 'react-native'
-import { useRenderThreadCallback, useRigidBody, useSphereShape, type Entity, type PhysicsWorld } from 'react-native-filament'
+import { useFilamentContext, useRenderThreadCallback, useRigidBody, useSphereShape, type Entity, type PhysicsWorld } from 'react-native-filament'
 
 function Ball({ world, entity }: { world: PhysicsWorld; entity: Entity }) {
+  const { engine } = useFilamentContext()
   const shape = useSphereShape(world, 0.5)
   const body = useRigidBody(world, shape == null ? undefined : { shape, mass: 1, position: [0, 4, 0], restitution: 0.6, entity })
 
@@ -721,7 +737,9 @@ function Ball({ world, entity }: { world: PhysicsWorld; entity: Entity }) {
     if (body == null) return
     body.activationState = 'active'
     body.applyCentralImpulse([0, 5, 0])
-  }, [body])
+    // Changing a body does not request a frame; on-demand mode needs one to show the change.
+    engine.requestFrame()
+  }, [body, engine])
 
   return <Button title="Kick" onPress={() => kick()} />
 }
@@ -746,6 +764,8 @@ function resetBall(engine: Engine, ball: RigidBody) {
     ball.setTransform(composeTransform([0, 4, 0], [0, 0, 0, 1]))
     ball.linearVelocity = [0, 0, 0]
     ball.angularVelocity = [0, 0, 0]
+    // Changing a body does not request a frame; on-demand mode needs one to show the change.
+    engine.requestFrame()
     return ball.getTransform()
   })
 }
@@ -761,7 +781,7 @@ function Exposure() {
   const { camera } = useFilamentContext()
   useRenderThreadEffect(() => {
     'worklet'
-    camera.setExposure(16, 1 / 125, 100)
+    camera.setExposure(11, 1 / 125, 100) // one stop brighter than the default f/16, 1/125 s, ISO 100
   }, [camera])
   return null
 }
@@ -787,7 +807,7 @@ async function setUpCamera(engine: Engine, target: ViewTarget) {
     'worklet'
     const created = engine.createCamera()
     created.lookAt([0, 1, 5], [0, 0, 0], [0, 1, 0])
-    created.setExposure(16, 1 / 125, 100)
+    created.setExposure(11, 1 / 125, 100) // one stop brighter than the default f/16, 1/125 s, ISO 100
     target.setCamera(created)
     return created
   })
@@ -864,17 +884,17 @@ import { runOnRenderThread, type Engine, type Scene } from 'react-native-filamen
 function addLights(engine: Engine, scene: Scene) {
   return runOnRenderThread(engine, () => {
     'worklet'
+    // A scene uses only its brightest directional or sun light, so add one of them.
     const sun = engine.createSunLight({ direction: [0.4, -1, -0.5], intensityLux: 100_000 })
-    const key = engine.createDirectionalLight({ direction: [0.3, -1, -0.5], castShadows: true })
     const lamp = engine.createPointLight({ position: [0, 2, 0], intensityLumens: 50_000, falloffRadius: 5 })
     const spot = engine.createFocusedSpotLight({ position: [0, 3, 0], direction: [0, -1, 0], outerConeRadians: 0.5, falloffRadius: 6 })
-    const lights = [sun, key, lamp, spot]
+    const lights = [sun, lamp, spot]
     for (const light of lights) scene.addEntity(light.entity)
     return lights
   })
 }
 
-// light.type is 'sun', 'directional', 'point' or 'focused-spot'; light.dispose() removes it from every scene.
+// light.type is 'sun', 'point' or 'focused-spot' here; light.dispose() removes it from every scene.
 `,
   },
 
@@ -908,10 +928,11 @@ function warmUp(engine: Engine, light: Light) {
   return runOnRenderThread(engine, () => {
     'worklet'
     const lm = engine.lightManager
-    lm.setColor(entity, kelvinToLinearRgb(2700))
-    lm.setIntensity(entity, lm.getIntensity(entity) * 0.5)
-    lm.setShadowCaster(entity, true)
     const type = lm.getType(entity)
+    lm.setColor(entity, kelvinToLinearRgb(2700))
+    // Directional and sun lights read and take lux; point and spot lights read candela but take lumens.
+    lm.setIntensity(entity, type === 'directional' || type === 'sun' ? lm.getIntensity(entity) * 0.5 : 25_000)
+    lm.setShadowCaster(entity, true)
     if (type === 'spot' || type === 'focused-spot') lm.setSpotLightCone(entity, 0.2, 0.6)
     return { position: lm.getPosition(entity), direction: lm.getDirection(entity) }
   })
@@ -942,7 +963,9 @@ import { runOnRenderThread, type Engine, type Material, type Scene } from 'react
 async function showHelpers(engine: Engine, scene: Scene, shadowMaterial: Material) {
   const helpers = await runOnRenderThread(engine, () => {
     'worklet'
-    const floor = engine.createPlane({ width: 10, depth: 10, receiveShadows: true }, shadowMaterial.createInstance())
+    const shadow = shadowMaterial.createInstance()
+    shadow.setFloatParameter('strength', 0.4)
+    const floor = engine.createPlane({ width: 10, depth: 10, receiveShadows: true }, shadow)
     const bounds = engine.createDebugBox({ halfExtent: [1, 1, 1], color: [0, 1, 0, 1] })
     engine.transformManager.setTranslation(floor.entity, [0, -1, 0])
     scene.addEntity(floor.entity)
@@ -1022,13 +1045,13 @@ function buildScene(engine: Engine, target: ViewTarget, model: Model, environmen
   return runOnRenderThread(engine, () => {
     'worklet'
     const scene = engine.createScene()
-    const sun = engine.createDirectionalLight({ direction: [0.3, -1, -0.5] })
+    const key = engine.createDirectionalLight({ direction: [0.3, -1, -0.5] })
     scene.addModel(model)
-    scene.addEntity(sun.entity)
+    scene.addEntity(key.entity)
     scene.setIndirectLight(environment)
     scene.setSkybox(engine.createSkybox([0.1, 0.1, 0.12, 1]))
     target.setScene(scene)
-    return { scene, sun, entityCount: scene.entityCount }
+    return { scene, key, entityCount: scene.entityCount }
   })
 }
 `,
@@ -1545,6 +1568,7 @@ function placeCamera(engine: Engine, camera: Camera, eye: Float3, target: Float3
   const { entity } = camera
   return runOnRenderThread(engine, () => {
     'worklet'
+    // up must not be parallel to eye - target; for a top-down view use [0, 0, -1] instead.
     const rotation = lookAtRotation(eye, target, [0, 1, 0])
     engine.transformManager.setTransform(entity, composeTransform(eye, rotation))
   })
@@ -1555,19 +1579,20 @@ function placeCamera(engine: Engine, camera: Camera, eye: Float3, target: Float3
   'functions/quaternionFromAxisAngle': {
     declarative: `
 import React, { useCallback } from 'react'
-import { Camera, DefaultLight, FilamentView, ModelRenderer, quaternionFromAxisAngle, useModel, useTransformBinding, type FrameInfo } from 'react-native-filament'
+import { Camera, DefaultLight, FilamentView, ModelRenderer, quaternionFromAxisAngle, useFilamentContext, useModel, type FrameInfo } from 'react-native-filament'
 
 function Turntable() {
+  const { transformManager } = useFilamentContext()
   const drone = useModel(require('./drone.glb'))
-  const binding = useTransformBinding(drone.state === 'loaded' ? drone.rootEntity : undefined)
+  const rootEntity = drone.state === 'loaded' ? drone.rootEntity : undefined
+  // renderCallback runs on the render thread, so the TransformManager applies the rotation this frame.
   const renderCallback = useCallback(
     ({ elapsedSeconds }: FrameInfo) => {
       'worklet'
-      if (binding == null) return
-      const [x, y, z, w] = quaternionFromAxisAngle([0, 1, 0], elapsedSeconds * 0.6)
-      binding.setRotation(x, y, z, w)
+      if (rootEntity == null) return
+      transformManager.setRotation(rootEntity, quaternionFromAxisAngle([0, 1, 0], elapsedSeconds * 0.6))
     },
-    [binding]
+    [transformManager, rootEntity]
   )
   return (
     <FilamentView style={{ flex: 1 }} renderCallback={renderCallback}>

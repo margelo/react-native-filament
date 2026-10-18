@@ -4,12 +4,13 @@ description: Update a react-native-filament 1.x app to the Nitro Modules rewrite
 icon: ArrowRightLeft
 ---
 
-react-native-filament 2.0 is a rewrite on [Nitro Modules](https://nitro.margelo.com). The React components keep their names and most of their props, so most apps migrate by updating dependencies and replacing the APIs listed below.
+react-native-filament 2.0 is a rewrite on [Nitro Modules](https://nitro.margelo.com). The React components keep their names and most of their props, so most apps migrate by updating dependencies, replacing the APIs listed below and following the type errors that remain.
 
 ## Requirements
 
 - New Architecture only, on React Native 0.83.
 - [`react-native-nitro-modules`](https://nitro.margelo.com) 0.37.
+- [`react-native-gesture-handler`](https://docs.swmansion.com/react-native-gesture-handler) 2.30 or later, only for `useOrbitGestures`.
 - [`react-native-worklets`](https://docs.swmansion.com/react-native-worklets) 0.7 replaces `react-native-worklets-core`. Use its babel plugin:
 
 ```js title="babel.config.js"
@@ -24,14 +25,16 @@ When the app uses Reanimated 4, keep `react-native-reanimated/plugin` instead; i
 Add the new peers next to react-native-filament 2.0:
 
 ```npm
-npm i react-native-nitro-modules react-native-worklets
+npm i react-native-nitro-modules@0.37 react-native-worklets@0.7
 ```
 
 react-native-filament no longer uses `react-native-worklets-core`. Remove it unless another library in the app needs it.
 
 ## Rendering is native
 
-v1 ran a JS render callback every frame and called `beginFrame`/`render`/`endFrame` from it. In 2.0 the render loop is native: animations, camera manipulators, SharedValue bindings and physics run on Filament's render thread without JS. Like v1 it renders every frame by default; `renderMode="on-demand"` on `FilamentScene` or the Engine renders only after something changed. A `renderCallback` still exists for per-frame render-thread work.
+v1 ran a JS render callback every frame and called `beginFrame`/`render`/`endFrame` from it. In 2.0 the render loop is native: animations, camera manipulators and physics run natively on Filament's render thread, and SharedValue bindings update through worklets, so none of them need the React Native JS thread. Like v1 it renders every frame by default; `renderMode="on-demand"` on `FilamentScene` or the Engine renders only after something changed. A `renderCallback` still exists for per-frame render-thread work. While it is set, it keeps the Engine rendering every frame, even in `on-demand` mode.
+
+`FrameInfo` fields are renamed: `timestamp` → `timestampNs`, `passedSeconds` → `elapsedSeconds` and `timeSinceLastFrame` → `deltaSeconds`; `startTime` is removed and `frameIndex` is new. `RenderCallbackContext.useRenderCallback(callback, deps)` becomes `useFrameCallback(callback, deps)`, whose callback is a worklet.
 
 <ApiTabs>
 <Declarative>
@@ -63,11 +66,11 @@ const subscription = await runOnRenderThread(engine, () => {
 
 See [Rendering](/docs/rendering#render-modes) and [Threading](/docs/threading#per-frame-code).
 
-## Removed and replaced APIs
+## Changed and removed APIs
 
 ### `useWorkletEffect`, `useWorkletCallback`, `useWorkletMemo` and `workletContext`
 
-They keep their 1.x signatures. They now run on the Engine's render thread through react-native-worklets instead of worklets-core:
+They keep their 1.x parameters; `useWorkletCallback`'s type parameters are now `<Args, Result>`, so explicit type arguments from 1.x, such as `useWorkletCallback<typeof fn>(...)`, need updating. They now run on the Engine's render thread through react-native-worklets instead of worklets-core:
 
 - `useWorkletEffect` and `useWorkletCallback` take their dependencies from the values the worklet captures, as in 1.x.
 - `useWorkletMemo` takes an explicit dependency list.
@@ -101,7 +104,7 @@ useWorkletEffect(() => {
 })
 ```
 
-`workletContext` queues its jobs after the render-thread work of the current commit:
+`workletContext` queues its jobs behind the render-thread work that components have already submitted in the current commit:
 
 ```tsx
 const { scene, workletContext } = useFilamentContext()
@@ -146,7 +149,7 @@ const renderCallback = useCallback(() => {
 
 ### `useBuffer` and `FilamentBuffer`
 
-Loaders take sources directly; bytes never pass through JS.
+Loaders take a `{ uri }` or an `ArrayBuffer`. A `{ uri }` is read natively, so its bytes never pass through JS.
 
 ```tsx title="Before"
 const buffer = useBuffer({ source: require('./material.filamat') })
@@ -209,6 +212,8 @@ Transform props are absolute and StrictMode safe: the local transform is `transl
 | `getTransform(entity).translation` | `getTransform(entity)[12..14]` (column-major `Mat4`) |
 | `updateTransformByRigidBody(entity, body)` | create the body with `entity` |
 
+With `multiply` set to `false`, the 1.x setters replaced the whole local transform; the 2.0 setters replace only their part and keep the rest. For 1.x's `multiply` set to `true`, multiply the new matrix by `getTransform(entity)` yourself and write the result with `setTransform`.
+
 For per-frame transforms, write a `TransformBinding` from any thread, such as a Reanimated worklet or a `renderCallback`:
 
 ```tsx
@@ -227,6 +232,8 @@ const renderCallback = useCallback(({ elapsedSeconds }: FrameInfo) => {
 ### Camera manipulators and gestures
 
 `useCameraManipulator` takes `homePosition`, `targetPosition`, `upVector`, `orbitSpeed` (radians per point) and `zoomSpeed`. `useOrbitGestures(manipulator)` returns a Gesture Handler gesture that orbits, zooms and returns home; pass the manipulator to `Camera`, which sizes its viewport.
+
+1.x's `orbitHomePosition` is now `homePosition`, and `orbitSpeed` and `zoomSpeed` are numbers instead of arrays. The default home position moved from `[0, 0, 8]` to `[0, 0, 4]`; pass `homePosition: [0, 0, 8]` to keep 1.x framing.
 
 <ApiTabs>
 <Declarative>
@@ -310,17 +317,26 @@ Physics objects belong to a world, which steps itself with the Engine's frames a
 | `useBoxShape(x, y, z)` | `useBoxShape(world, [x, y, z])` |
 | `useStaticPlaneShape(nx, ny, nz, c)` | `useStaticPlaneShape(world, [nx, ny, nz], c)` |
 | `useRigidBody({ world, mass, origin, shape, id })` | `useRigidBody(world, { mass, position, shape, id, entity })` |
-| `world.stepSimulation(...)` in a render callback | automatic; `autoStep: false` and `world.step()` to step manually |
+| `world.stepSimulation(...)` in a render callback | automatic; `autoStep: false` and `world.step(deltaSeconds)` to step manually |
 | `collisionCallback` | `world.addOnCollisionListener(events => keepListening)` |
 
 ### Values and types
 
 - `Entity` is a number instead of `{ id }`.
-- String unions are kebab-case: `'FXAA'` → `'fxaa'`, `'LOW'` → `'low'`, `'focused_spot'` → `'focused-spot'`, `'disable_deactivation'` → `'never-sleep'`.
+- String unions are kebab-case: `'FXAA'` → `'fxaa'`, `'LOW'` → `'low'`, `'focused_point'` → `'focused-spot'`, `'disable_deactivation'` → `'never-sleep'`.
 - `Mat4`, `Aabb` and quaternions are plain arrays and objects, not host objects.
 - Options are plain objects; the `create*Options()` helpers are removed.
 - Light intensities are `intensityLux` and `intensityLumens` in the imperative options; the `Light` component keeps `intensity`.
 
+### Other changed APIs
+
+- `useFilamentContext()`: `view` is `View | undefined` and is set only inside a `FilamentView`, which also provides `target`. `renderer`, `nameComponentManager` and `choreographer` are removed.
+- `useModel()`: a loaded model has `model` instead of `asset`, and the `shouldReleaseSourceData` option is removed.
+- `FilamentScene`: the `config` and `frameRateOptions` props are removed. To cap how often a view renders, use `targetFrameRate` on `FilamentView`.
+- `useRecorder(options)` returns the `Recorder`, or `undefined` until it exists, instead of `{ recorder, swapChain }`. `bitRate` is optional.
+- `useRecorderRenderLoop(recorder, render, deps)` takes a dependency list, and `render` receives a `FrameInfo` and returns nothing.
+- `setLogger` and `getAssetFromModel` are removed. The `AABB` type is now `Aabb`, with `center` and `halfExtent` but no `min` or `max`.
+
 ### Threading
 
-Methods that touch Filament run on the render thread and throw `FilamentThreadError` when called from another thread, instead of racing with rendering. Each method's documentation names its thread; see [Threading](/docs/threading).
+Methods that touch Filament run on the render thread and throw an error whose message starts with `FilamentThreadError` when called from another thread, instead of racing with rendering. Each method's documentation names its thread; see [Threading](/docs/threading).

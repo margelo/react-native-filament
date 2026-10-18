@@ -320,13 +320,12 @@ function CarPaint({ model }: { model: Model }) {
       await runOnRenderThread(engine, () => {
         'worklet'
         const body = model.getEntityByName('Body')
-        if (body != null) {
-          const paint = renderableManager.getMaterialInstanceAt(body, 0)
-          paint.setFloat4Parameter('baseColorFactor', [0.8, 0.1, 0.1, 1])
-          paint.setFloatParameter('metallicFactor', 0.9)
-        }
+        if (body == null) throw new Error('No entity named "Body"')
+        const paint = renderableManager.getMaterialInstanceAt(body, 0)
+        paint.setFloat4Parameter('baseColorFactor', [0.8, 0.1, 0.1, 1])
+        paint.setFloatParameter('metallicFactor', 0.9)
         const spoiler = model.getEntityByName('Spoiler')
-        if (spoiler == null) return
+        if (spoiler == null) throw new Error('No entity named "Spoiler"')
         for (let index = 0; index < renderableManager.getPrimitiveCount(spoiler); index++) {
           const instance = renderableManager.getMaterialInstanceAt(spoiler, index)
           if (instance.instanceName === 'Carbon') instance.setTexture('baseColorMap', texture, {})
@@ -624,7 +623,7 @@ function Drone() {
 import { runOnRenderThread, unitCubeTransform, useFilamentContext, type Model } from 'react-native-filament'
 
 function PlacedModel({ model }: { model: Model }) {
-  const { engine, renderableManager } = useFilamentContext()
+  const { engine, renderableManager, transformManager } = useFilamentContext()
 
   useEffect(() => {
     const base = unitCubeTransform(model.boundingBox)
@@ -639,9 +638,16 @@ function PlacedModel({ model }: { model: Model }) {
       return created
     })
     return () => {
-      binding.then((created) => created.dispose())
+      binding.then((created) => {
+        created.dispose()
+        // Give the root entity back its original transform.
+        runOnRenderThread(engine, () => {
+          'worklet'
+          transformManager.setTransform(model.rootEntity, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1])
+        })
+      })
     }
-  }, [engine, renderableManager, model])
+  }, [engine, renderableManager, transformManager, model])
 
   return null
 }`,
@@ -1064,6 +1070,7 @@ export function App() {
 
   useEffect(() => {
     if (view == null) return
+    let active = true
     const starting = Filament.createEngine({}).then(async (engine) => {
       const created = await engine.createViewTarget(view, {})
       await runOnRenderThread(engine, () => {
@@ -1071,10 +1078,11 @@ export function App() {
         created.setScene(engine.createScene())
         created.setCamera(engine.createCamera())
       })
-      setTarget(created)
+      if (active) setTarget(created)
       return engine
     })
     return () => {
+      active = false
       setTarget(undefined)
       starting.then((engine) => engine.shutdown())
     }
@@ -1236,7 +1244,7 @@ import { runOnRenderThread, useFilamentContext, type Model } from 'react-native-
 const drone = Image.resolveAssetSource(require('./assets/drone.glb'))
 
 function useDrone() {
-  const { engine, scene } = useFilamentContext()
+  const { engine, scene, transformManager } = useFilamentContext()
   const [model, setModel] = useState<Model>()
 
   useEffect(() => {
@@ -1245,7 +1253,9 @@ function useDrone() {
       await runOnRenderThread(engine, () => {
         'worklet'
         scene.addModel(loaded)
+        transformManager.transformToUnitCube(loaded.rootEntity, loaded.boundingBox)
       })
+      console.log('Bounds', loaded.boundingBox)
       if (active) setModel(loaded)
       return loaded
     })
@@ -1254,7 +1264,7 @@ function useDrone() {
       setModel(undefined)
       loading.then((loaded) => loaded.dispose())
     }
-  }, [engine, scene])
+  }, [engine, scene, transformManager])
 
   return model
 }`,
@@ -1319,7 +1329,13 @@ export function useManipulatorGesture(manipulator: CameraManipulator, pinchSpeed
       })
     return Gesture.Simultaneous(pan, pinch, home)
   }, [manipulator, pinchSpeed])
-}`,
+}
+
+// Attach it like the declarative version, around the view the camera follows the manipulator in:
+// <GestureDetector gesture={useManipulatorGesture(manipulator)}>
+//   <NativeFilamentView style={{ flex: 1 }} hybridRef={callback(setView)} />
+// </GestureDetector>
+// See the useCameraManipulator example for creating the manipulator and following it with a camera.`,
   },
 
   'hooks/useRecorder': {
@@ -1467,22 +1483,26 @@ function Tint({ entity, color }: { entity: Entity; color: Float4 }) {
 
   return null
 }`,
-    imperative: `import { useEffect } from 'react'
+    imperative: `import { useEffect, useRef } from 'react'
 import { runOnRenderThread, useFilamentContext, type Entity, type Float4 } from 'react-native-filament'
 
 function Tint({ entity, color }: { entity: Entity; color: Float4 }) {
   const { engine, renderableManager } = useFilamentContext()
+  // Each run waits for the previous restore, as useRenderThreadEffect orders cleanups before the next run.
+  const restored = useRef<Promise<unknown>>(Promise.resolve())
 
   useEffect(() => {
-    const applying = runOnRenderThread(engine, () => {
-      'worklet'
-      const material = renderableManager.getMaterialInstanceAt(entity, 0)
-      const original = material.getFloat4Parameter('baseColorFactor')
-      material.setFloat4Parameter('baseColorFactor', color)
-      return original
-    })
+    const applying = restored.current.then(() =>
+      runOnRenderThread(engine, () => {
+        'worklet'
+        const material = renderableManager.getMaterialInstanceAt(entity, 0)
+        const original = material.getFloat4Parameter('baseColorFactor')
+        material.setFloat4Parameter('baseColorFactor', color)
+        return original
+      })
+    )
     return () => {
-      applying.then((original) =>
+      restored.current = applying.then((original) =>
         runOnRenderThread(engine, () => {
           'worklet'
           renderableManager.getMaterialInstanceAt(entity, 0).setFloat4Parameter('baseColorFactor', original)
@@ -1534,15 +1554,18 @@ function NodeNames({ model }: { model: Model }) {
 
   'hooks/useRigidBody': {
     declarative: `import { Button } from 'react-native'
-import { useRenderThreadCallback, useRigidBody, useSphereShape, type Entity, type PhysicsWorld } from 'react-native-filament'
+import { useFilamentContext, useRenderThreadCallback, useRigidBody, useSphereShape, type Entity, type PhysicsWorld } from 'react-native-filament'
 
 function Ball({ world, entity }: { world: PhysicsWorld | undefined; entity: Entity }) {
+  const { engine } = useFilamentContext()
   const shape = useSphereShape(world, 0.25)
   const body = useRigidBody(world, shape == null ? undefined : { shape, mass: 1, position: [0, 3, 0], restitution: 0.6, id: 'ball', entity })
   const kick = useRenderThreadCallback(() => {
     'worklet'
     body?.applyCentralImpulse([0, 4, 0])
-  }, [body])
+    // Changing a body does not request a frame in on-demand mode.
+    engine.requestFrame()
+  }, [body, engine])
   return <Button title="Kick" disabled={body == null} onPress={() => kick()} />
 }`,
     imperative: `import { useEffect, useState } from 'react'
@@ -1574,6 +1597,8 @@ function Ball({ world, entity }: { world: PhysicsWorld; entity: Entity }) {
     runOnRenderThread(engine, () => {
       'worklet'
       body?.applyCentralImpulse([0, 4, 0])
+      // Changing a body does not request a frame in on-demand mode.
+      engine.requestFrame()
     })
   return <Button title="Kick" disabled={body == null} onPress={kick} />
 }`,

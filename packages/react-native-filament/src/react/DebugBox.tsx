@@ -10,9 +10,9 @@ import { useRenderCommit } from './useRenderCommit'
 import { useTransformProps } from './useTransformProps'
 
 export interface DebugBoxProps extends Omit<TransformationProps, 'transformToUnitCube'> {
-  /** @default the bounding box of the parent `Model`, which the box then follows */
+  /** @default the bounding box of the parent `Model`, which the box then follows; required outside a `Model` */
   halfExtent?: Float3
-  /** @default the bounding box center of the parent `Model` */
+  /** @default the bounding box center of the parent `Model`, or `[0, 0, 0]` outside one */
   center?: Float3
   /** Linear RGBA color of the edges. @default [0, 1, 0, 1] */
   color?: Float4

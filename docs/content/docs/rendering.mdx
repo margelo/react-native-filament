@@ -142,7 +142,7 @@ console.log(engine.backend, Filament.filamentVersion)
 | `continuous` (default) | On every display refresh while a view is visible. |
 | `on-demand` | Only when something needs a frame, then the render thread sleeps. |
 
-In `on-demand` mode these request frames: a changed binding (including SharedValue-driven props), a playing animation, a camera manipulator gesture, a physics world with awake bodies, a frame listener that asks for another frame, an asset upload, a pending `takeSnapshot()` or `pick()`, and `engine.requestFrame()`. `renderCallback` and `useFrameCallback` keep the Engine rendering while they are set.
+In `on-demand` mode these request frames: a changed binding (including SharedValue-driven props), a playing animation, a camera manipulator gesture, an automatically stepped physics world with awake bodies, a frame listener that asks for another frame, an asset upload, a pending `takeSnapshot()` or `pick()`, and `engine.requestFrame()`. `renderCallback` and `useFrameCallback` keep the Engine rendering while they are set.
 
 A job on the render thread does not request a frame by itself. When you change the scene in `runOnRenderThread` or a render-thread hook while the Engine is in `on-demand` mode, call `engine.requestFrame()`. It works from any thread.
 
@@ -308,7 +308,7 @@ Each `set*Options` call replaces every option of its group, and omitted fields t
 
 ## Debug stats
 
-`engine.getDebugStats()` counts the native resources the Engine still holds, by kind, for example `{ Model: 1, Scene: 2 }`. Use it to find leaks. It works from any thread.
+`engine.getDebugStats().liveResources` counts the native resources the Engine still holds, by kind, for example `{ Model: 1, Scene: 2 }`. Use it to find leaks. It works from any thread.
 
 <ApiTabs>
 <Declarative>
@@ -338,7 +338,14 @@ model.dispose()
 
 ## Shutting down
 
-`engine.shutdown()` destroys every native resource of the Engine and resolves once the render thread has exited. Every caller gets the same Promise. Call it from the runtime that created the Engine. `engine.dispose()` starts the same shutdown without returning a Promise. After shutdown, jobs submitted with `runOnRenderThread` reject and methods of the Engine's objects throw `FilamentDisposedError`.
+`engine.shutdown()` destroys every native resource of the Engine and resolves once the render thread has exited. Every call returns a Promise that settles at the same time. Call it from the React Native runtime or Reanimated's UI runtime, never inside a render-thread worklet, where its Promise may never settle. `engine.dispose()` starts the same shutdown without returning a Promise.
+
+After shutdown:
+
+- `runOnRenderThread` jobs reject with an error whose message starts with `FilamentDisposedError`;
+- the Engine's async methods, such as `loadModel()` and `createViewTarget()`, reject with an error saying the Engine was shut down;
+- methods that check their object, such as `target.pick()`, throw `FilamentDisposedError`, while `@thread render` methods called from JS throw `FilamentThreadError`;
+- binding setters and `requestFrame()` do nothing, and `getDebugStats()` reports no live resources; none of them throw.
 
 <ApiTabs>
 <Declarative>

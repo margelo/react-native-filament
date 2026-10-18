@@ -9,7 +9,7 @@ icon: Image
 There are two ways to show an image:
 
 - **Background image**: a 2D image drawn behind the scene. Cameras and lights do not affect it, and it always covers the whole view.
-- **Image in the scene**: a texture on a 3D surface, lit and seen through the camera like any other object. To change the textures of a model, see [Materials and textures](/docs/materials#replacing-textures). To show an image on its own, put it on a [plane](#images-on-a-plane).
+- **Image in the scene**: a texture on a 3D surface, seen through the camera like any other object and lit or unlit depending on its material. To change the textures of a model, see [Materials and textures](/docs/materials#replacing-textures). To show an image on its own, put it on a [plane](#images-on-a-plane).
 
 Images load from PNG, JPEG and KTX2 files, from the same [sources](/docs/models#asset-sources) as models.
 
@@ -17,7 +17,7 @@ Images load from PNG, JPEG and KTX2 files, from the same [sources](/docs/models#
 
 [`<BackgroundImage>`](/api/components/background-image) draws an image behind the scene of the closest `<FilamentScene>` and fits it to the closest `<FilamentView>`. Use one per scene.
 
-Imperatively, create the material instance yourself and pass it to `engine.createBackground()`, which returns a [`Renderable`](/api/hybrid-objects/renderable): a full-screen triangle drawn before everything else. Fit the image to the view with [`imageFitTransform`](/api/functions/image-fit-transform) whenever the view's size changes.
+Imperatively, create the material instance yourself and pass it to `engine.createBackground()`, which returns a [`Renderable`](/api/hybrid-objects/renderable): a full-screen triangle drawn behind everything else. Fit the image to the view with [`imageFitTransform`](/api/functions/image-fit-transform) whenever the view's size changes.
 
 <ApiTabs>
 <Declarative>
@@ -77,7 +77,7 @@ const resize = target.addOnResizeListener((width, height) => {
   })
 })
 
-// To remove it: resize.remove(); background.dispose()
+// To remove it: resize.remove(); background.dispose(); material.dispose(); image.dispose()
 ```
 
 </Imperative>
@@ -101,7 +101,7 @@ const resize = target.addOnResizeListener((width, height) => {
 Use `background_image.filamat` from the example app in the [react-native-filament repository](https://github.com/margelo/react-native-filament/tree/main/apps/shared/assets), next to its human-readable definition `background_image.mat`. Compiled materials are `.filamat` files; definitions are `.mat` files that Filament's `matc` compiles.
 
 <Callout type="info" title="Material versions">
-A `.filamat` only loads in the Filament version it was compiled for. If you edit `background_image.mat`, compile it with `matc` from Filament 1.78.
+A `.filamat` only loads if it was compiled for the material version of the bundled Filament. If you edit `background_image.mat`, compile it with `matc` from Filament 1.78.
 </Callout>
 
 ### Resize modes
@@ -116,13 +116,14 @@ A `.filamat` only loads in the Filament version it was compiled for. If you edit
 
 ## Images on a plane
 
-To place an image inside the scene, draw it on a plane. `engine.createPlane(options, materialInstance)` creates a horizontal plane centered at the origin and facing +Y, `width` meters along X and `depth` meters along Z, with texture coordinates from 0 to 1 across it. Draw it with an unlit material that samples a texture:
+To place an image inside the scene, draw it on a plane. `engine.createPlane(options, materialInstance)` creates a horizontal plane centered at the origin and facing +Y, `width` meters along X and `depth` meters along Z, with texture coordinates from 0 to 1 across it. Draw it with an unlit material that samples a texture. Set `flipUV : false`: Filament materials flip the V coordinate by default, which would show the image upside down.
 
 ```glsl title="image_plane.mat"
 material {
     name : ImagePlane,
     shadingModel : unlit,
     requires : [ uv0 ],
+    flipUV : false,
     parameters : [
         { type : sampler2d, name : image }
     ]
@@ -198,7 +199,7 @@ const plane = await runOnRenderThread(engine, () => {
   return created
 })
 
-// To remove it: plane.dispose()
+// To remove it: plane.dispose(); material.dispose(); texture.dispose()
 ```
 
 </Imperative>

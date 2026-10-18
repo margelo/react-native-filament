@@ -77,7 +77,8 @@ await runOnRenderThread(engine, () => {
   engine.transformManager.transformToUnitCube(model.rootEntity, model.boundingBox)
 })
 
-// The fit with a scale on top. The binding owns the transform until you dispose() it.
+// Or, instead of the fit above, the fit with a scale on top.
+// The binding owns the transform until you dispose() it.
 const binding = await runOnRenderThread(engine, () => {
   'worklet'
   const created = engine.createTransformBinding(model.rootEntity)
@@ -288,7 +289,7 @@ On the render thread, the [`TransformManager`](/api/hybrid-objects/transform-man
 | `transformToUnitCube(entity, boundingBox)` | Sets the local transform that fits `boundingBox` into the cube from -1 to 1. |
 | `openLocalTransformTransaction()` / `commitLocalTransformTransaction()` | Defers world-transform updates while you change many entities in one frame. |
 
-In components, get it from `useFilamentContext()` and call it from a render-thread hook. Imperatively, use `engine.transformManager` inside `runOnRenderThread`.
+In components, get it from `useFilamentContext()` and call it from a render-thread hook. Imperatively, use `engine.transformManager` inside `runOnRenderThread`. In `on-demand` [render mode](/docs/rendering#render-modes), call `engine.requestFrame()` after writing through the TransformManager; bindings request a frame themselves.
 
 <ApiTabs>
 <Declarative>
@@ -365,12 +366,13 @@ function FacePoint({ entity, position, target }: { entity: Entity; position: Flo
 <Imperative>
 
 ```tsx
-import { composeTransform, lookAtRotation, runOnRenderThread } from 'react-native-filament'
+import { lookAtRotation, runOnRenderThread } from 'react-native-filament'
 
 await runOnRenderThread(engine, () => {
   'worklet'
-  const rotation = lookAtRotation(target, position, [0, 1, 0])
-  engine.transformManager.setTransform(entity, composeTransform(position, rotation))
+  const tm = engine.transformManager
+  tm.setTranslation(entity, position)
+  tm.setRotation(entity, lookAtRotation(target, position, [0, 1, 0]))
 })
 ```
 

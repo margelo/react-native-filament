@@ -23,8 +23,10 @@ react-native-filament renders 3D scenes in React Native with Google's [Filament]
 Install react-native-filament with its two required peers, [Nitro Modules](https://nitro.margelo.com) and [react-native-worklets](https://docs.swmansion.com/react-native-worklets):
 
 ```npm
-npm i react-native-filament react-native-nitro-modules react-native-worklets
+npm i react-native-filament react-native-nitro-modules@0.37 react-native-worklets@0.7
 ```
+
+react-native-filament 2.0 supports React Native 0.83, Nitro Modules 0.37.x and react-native-worklets 0.7.x, so pin the peers to those versions.
 
 [Reanimated](https://docs.swmansion.com/react-native-reanimated) and [Gesture Handler](https://docs.swmansion.com/react-native-gesture-handler) are optional. Every animatable prop accepts a Reanimated `SharedValue`, and [`useOrbitGestures`](/api/hooks/use-orbit-gestures) returns a Gesture Handler gesture.
 
@@ -130,39 +132,48 @@ export function MyScene() {
   useEffect(() => {
     if (view == null) return
     const starting = Filament.createEngine({}).then(async (engine) => {
-      const [target, model, environment] = await Promise.all([
-        engine.createViewTarget(view, {}),
-        engine.loadModel({ uri: drone.uri }, {}),
-        engine.loadIndirectLight(defaultIndirectLightSource, { intensity: 25_000 }),
-      ])
-      const { camera, sun } = await runOnRenderThread(engine, () => {
-        'worklet'
-        const scene = engine.createScene()
-        const sun = engine.createDirectionalLight({ castShadows: true })
-        scene.setIndirectLight(environment)
-        scene.addEntity(sun.entity)
-        scene.addModel(model)
-        engine.transformManager.transformToUnitCube(model.rootEntity, model.boundingBox)
-        const lens = engine.createCamera()
-        lens.lookAt([0, 0, 8], [0, 0, 0], [0, 1, 0])
-        target.setScene(scene)
-        target.setCamera(lens)
-        return { camera: lens, sun }
-      })
-      const resize = target.addOnResizeListener((width, height) => {
-        runOnRenderThread(engine, () => {
+      try {
+        const [target, model, environment] = await Promise.all([
+          engine.createViewTarget(view, {}),
+          engine.loadModel({ uri: drone.uri }, {}),
+          engine.loadIndirectLight(defaultIndirectLightSource, { intensity: 25_000 }),
+        ])
+        const { camera, sun } = await runOnRenderThread(engine, () => {
           'worklet'
-          camera.setLensProjection(28, width / height, 0.1, 100)
+          const scene = engine.createScene()
+          const sun = engine.createDirectionalLight({ castShadows: true })
+          scene.setIndirectLight(environment)
+          scene.addEntity(sun.entity)
+          scene.addModel(model)
+          engine.transformManager.transformToUnitCube(model.rootEntity, model.boundingBox)
+          const lens = engine.createCamera()
+          lens.lookAt([0, 0, 8], [0, 0, 0], [0, 1, 0])
+          target.setScene(scene)
+          target.setCamera(lens)
+          return { camera: lens, sun }
         })
-      })
-      // Keep the target and the light: the scene stores only the light's entity.
-      return { engine, target, resize, sun }
+        const resize = target.addOnResizeListener((width, height) => {
+          runOnRenderThread(engine, () => {
+            'worklet'
+            camera.setLensProjection(28, width / height, 0.1, 100)
+          })
+        })
+        // Keep the target and the light: the scene stores only the light's entity.
+        return { engine, target, resize, sun }
+      } catch (error) {
+        // Free the Engine and its render thread if setup fails, for example on a wrong .glb path.
+        await engine.shutdown()
+        throw error
+      }
     })
     return () => {
-      starting.then(({ engine, resize }) => {
-        resize.remove()
-        engine.shutdown()
-      })
+      starting.then(
+        ({ engine, resize }) => {
+          resize.remove()
+          engine.shutdown()
+        },
+        () => undefined
+      )
     }
   }, [view])
 
@@ -195,7 +206,7 @@ You can mix both styles. Inside a `FilamentScene`, [`useFilamentContext()`](/api
 
 ## How it renders
 
-The scene renders natively on the Engine's render thread. Animations, camera manipulators, SharedValue-driven props and physics run there without JS. By default it renders on every display refresh. With `<FilamentScene renderMode="on-demand">` it renders only after something changed.
+The scene renders natively on the Engine's render thread. Animations, camera manipulators and physics run there natively, and SharedValue-driven props update through worklets, so none of them need the React Native JS thread. By default it renders on every display refresh. With `<FilamentScene renderMode="on-demand">` it renders only after something changed.
 
 ## Next steps
 

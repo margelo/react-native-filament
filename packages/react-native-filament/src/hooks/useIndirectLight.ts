@@ -8,7 +8,11 @@ import { useReportFailure } from '../react/useReportFailure'
 import type { IndirectLight } from '../specs/scene/IndirectLight.nitro'
 import { useDisposableResource } from './useDisposableResource'
 
-/** Loads image-based lighting from a KTX1 cubemap and lights the scene with it while mounted. */
+/**
+ * Loads image-based lighting from a KTX1 cubemap and lights the scene with it while mounted.
+ * @param intensity Brightness in lux; `undefined` uses 30,000. Changing it reloads the KTX file, and the
+ * scene has no image-based lighting until the reload finishes.
+ */
 export function useIndirectLight(source: AssetLike, intensity: number | undefined): IndirectLight | undefined {
   const { engine, scene } = useFilamentScene()
   const commit = useRenderCommit()

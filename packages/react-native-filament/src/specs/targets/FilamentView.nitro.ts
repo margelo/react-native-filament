@@ -1,6 +1,7 @@
 import type { HybridView, HybridViewMethods, HybridViewProps } from 'react-native-nitro-modules'
 import type { SurfaceObserver } from '../types/SurfaceObserver'
 
+/** Props of the native view, exported as `NativeFilamentViewProps`. */
 export interface FilamentViewProps extends HybridViewProps {
   /**
    * Composite with the views behind it. Uses a `TextureView` on Android.
@@ -9,6 +10,7 @@ export interface FilamentViewProps extends HybridViewProps {
   transparent?: boolean
 }
 
+/** Internal methods of the native view, used by `ViewTarget`. */
 export interface FilamentViewMethods extends HybridViewMethods {
   /**
    * Internal: a ViewTarget observes the view's surfaces through this.

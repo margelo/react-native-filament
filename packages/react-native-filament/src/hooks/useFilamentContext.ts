@@ -6,9 +6,12 @@ import type { View } from '../specs/scene/View.nitro'
 import type { ViewTarget } from '../specs/targets/ViewTarget.nitro'
 
 export interface FilamentContextValue extends FilamentSceneValue {
-  /** Rendering options of the closest `FilamentView`, once its surface exists. */
+  /** Rendering options of the closest `FilamentView`. `undefined` until the view's `ViewTarget` is created. */
   view: View | undefined
-  /** The target of the closest `FilamentView`, once its surface exists. */
+  /**
+   * The target of the closest `FilamentView`. `undefined` until the view's `ViewTarget` is created.
+   * The target can exist before its surface does; until then its `width` and `height` are 0.
+   */
   target: ViewTarget | undefined
 }
 

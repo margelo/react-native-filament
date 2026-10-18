@@ -1,17 +1,13 @@
 import { useEffect, useState, type DependencyList } from 'react'
 import { useReportFailure } from '../react/useReportFailure'
 
-interface Disposable {
-  dispose(): void
-}
-
 /**
  * Creates a native object whenever `deps` change and disposes it when they change again or the
  * component unmounts, including an object whose creation finishes after that. Creation starts after
  * the commit's effects, so an effect that StrictMode cleans up right away creates nothing. A failed
  * creation is thrown to the closest error boundary.
  */
-export function useDisposableResource<T extends Disposable>(
+export function useDisposableResource<T extends { dispose(): void }>(
   create: () => Promise<T | undefined> | T | undefined,
   deps: DependencyList
 ): T | undefined {

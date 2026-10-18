@@ -42,7 +42,7 @@ await runOnRenderThread(engine, () => {
   tm.setTranslation(model.getInstance(1).rootEntity, [150, 0, 0])
 })
 
-// Keep a reference: the player stops when it is disposed
+// Keep a reference: the player stops when it is garbage collected or disposed
 const player = model.getInstance(0).animator.createPlayer()
 player.play(0, {})
 ```
@@ -124,7 +124,7 @@ function AddInstanceButton({ model }: { model: Model }) {
     const instance = model.createInstance()
     transformManager.setTranslation(instance.rootEntity, [offset * 2, 0, 0])
   }, [model, transformManager])
-  return <Button title="Add instance" onPress={addInstance} />
+  return <Button title="Add instance" onPress={() => addInstance()} />
 }
 ```
 
@@ -216,6 +216,7 @@ function SkinWithLeader({ model }: { model: Model }) {
         leader.detachSkin(0, entity)
         follower.attachSkin(0, entity)
       })
+      follower.animator.updateBoneMatrices()
     }
   }, [model, renderableManager])
   return null

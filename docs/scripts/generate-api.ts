@@ -1,6 +1,7 @@
 /**
  * Turns `.source/typedoc.json` into `content/api/**`: one MDX page per public export, grouped into
- * components, hooks, hybrid objects, functions and types, each with Declarative and Imperative usage.
+ * components, hooks, hybrid objects, functions and types. Every page except a type's has Declarative
+ * and Imperative usage.
  */
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -15,12 +16,14 @@ interface CommentPart {
 
 interface Comment {
   summary: CommentPart[]
+  modifierTags?: string[]
   blockTags?: { tag: string; content: CommentPart[] }[]
 }
 
 interface TypeNode {
   type: string
   name?: string
+  qualifiedName?: string
   value?: unknown
   target?: number | object
   typeArguments?: TypeNode[]
@@ -49,6 +52,7 @@ interface TypeNode {
 
 interface Reflection {
   defaultValue?: string
+  default?: TypeNode
   id: number
   name: string
   kind: number
@@ -93,7 +97,7 @@ const CATEGORY_DESCRIPTIONS: Record<Category, string> = {
   components: 'React components that build a scene declaratively.',
   hooks: 'React hooks for engines, models, physics, threading and bindings.',
   'hybrid-objects': 'The native Nitro objects behind every component, for imperative use.',
-  functions: 'Entry points and math helpers that run in any runtime.',
+  functions: 'The `Filament` entry point, `runOnRenderThread` and `bindSharedValue`, the bundled `defaultIndirectLightSource`, and math helpers that run in any runtime.',
   types: 'Option, value and result types.',
 }
 
@@ -130,8 +134,10 @@ interface Page {
 const indexModule = project.children!.find((child) => child.name === 'index')!
 const specModules = project.children!.filter((child) => child.name.endsWith('.nitro'))
 const byId = new Map<number, Reflection>()
+const parentById = new Map<number, Reflection>()
 const visit = (reflection: Reflection) => {
   byId.set(reflection.id, reflection)
+  reflection.children?.forEach((child) => parentById.set(child.id, reflection))
   reflection.children?.forEach(visit)
 }
 project.children!.forEach(visit)
@@ -154,19 +160,68 @@ for (const module of specModules) {
 }
 const hybridByName = new Map(pages.filter((page) => page.category === 'hybrid-objects').map((page) => [page.reflection.name, page]))
 
+function isInternal(reflection: Reflection): boolean {
+  const comment = reflection.comment ?? reflection.signatures?.[0]?.comment
+  const tagged = (comment?.modifierTags ?? []).some((tag) => tag === '@internal' || tag === '@hidden')
+  return tagged || /^internal\b/i.test(partsToPlain(comment?.summary).trim())
+}
+
+/**
+ * The index exports. A re-export TypeDoc emits as a reference (for example a renamed one, such as
+ * `FilamentViewProps as NativeFilamentViewProps`) is resolved to its target under the exported name,
+ * unless the target already has a page or is internal.
+ */
+const publicNameById = new Map<number, string>()
+const aliases: [number, number][] = []
+const exported: Reflection[] = []
 for (const child of indexModule.children!) {
+  if (child.kind !== KIND.reference) {
+    exported.push(child)
+    continue
+  }
+  const target = child.target == null ? undefined : byId.get(child.target)
+  if (target == null || isInternal(target)) continue
+  if (urlById.has(target.id) || indexModule.children!.includes(target)) {
+    aliases.push([child.id, target.id])
+    continue
+  }
+  if (target.name !== child.name) publicNameById.set(target.id, child.name)
+  exported.push({ ...target, name: child.name })
+}
+
+for (const child of exported) {
   const isComponent = (child.kind === KIND.function && /^[A-Z]/.test(child.name)) || child.name === 'NativeFilamentView'
   if (isComponent) addPage('components', child)
   else if (child.kind === KIND.function && child.name.startsWith('use')) addPage('hooks', child)
   else if (child.kind === KIND.function || child.kind === KIND.variable) addPage('functions', child)
 }
-for (const child of indexModule.children!) {
+for (const child of exported) {
   const hybrid = hybridByName.get(child.name)
-  if (child.kind === KIND.reference || (child.kind === KIND.typeAlias && hybrid != null)) {
-    if (hybrid != null) urlById.set(child.id, urlById.get(hybrid.reflection.id)!)
+  if (child.kind === KIND.typeAlias && hybrid != null) {
+    urlById.set(child.id, urlById.get(hybrid.reflection.id)!)
     continue
   }
   if (child.kind === KIND.interface || child.kind === KIND.typeAlias) addPage('types', child)
+}
+for (const [alias, target] of aliases) {
+  const url = urlById.get(target)
+  if (url != null) urlById.set(alias, url)
+}
+
+/** Components whose native objects are not just the hybrid object of the same name. `{Name}` links a hybrid object. */
+const COMPONENT_NATIVE_OBJECTS: Record<string, string> = {
+  Animator: 'The native objects behind this component are {Animator} and the {AnimationPlayer} it creates.',
+}
+
+/** The exported name of a reference, which differs from its declared name for a renamed re-export. */
+function referenceName(type: TypeNode): string {
+  return (typeof type.target === 'number' ? publicNameById.get(type.target) : undefined) ?? type.name!
+}
+
+/** Nitro's `Sync<T>` is `T & { __syncTag?: never }`, which TypeDoc emits as an intersection with an empty object. */
+function isEmptyObject(type: TypeNode): boolean {
+  const declaration = type.type === 'reflection' ? type.declaration : undefined
+  return declaration != null && !declaration.children?.length && !declaration.signatures?.length && !declaration.indexSignatures?.length
 }
 
 function escapeMdx(text: string): string {
@@ -222,14 +277,17 @@ function typeText(type: TypeNode | undefined, nested = false): string {
     case 'reference': {
       if (type.name === 'Element' && type.typeArguments == null) return 'JSX.Element'
       const args = type.typeArguments?.length ? `<${type.typeArguments.map((arg) => typeText(arg)).join(', ')}>` : ''
-      return `${type.name}${args}`
+      return `${referenceName(type)}${args}`
     }
     case 'union': {
       const text = type.types!.map((member) => typeText(member, true)).join(' | ')
       return nested ? `(${text})` : text
     }
-    case 'intersection':
-      return type.types!.map((member) => typeText(member, true)).join(' & ')
+    case 'intersection': {
+      const members = type.types!.filter((member) => !isEmptyObject(member))
+      if (members.length === 1) return typeText(members[0], nested)
+      return (members.length > 0 ? members : type.types!).map((member) => typeText(member, true)).join(' & ')
+    }
     case 'array':
       return `${typeText(type.elementType, true)}[]`
     case 'tuple':
@@ -258,8 +316,12 @@ function typeText(type: TypeNode | undefined, nested = false): string {
         const text = declaration.signatures.map((signature) => `(${paramsText(signature)}) => ${typeText(signature.type)}`).join(' | ')
         return nested ? `(${text})` : text
       }
-      const members = (declaration.children ?? []).map((child) => `${child.flags.isReadonly ? 'readonly ' : ''}${child.name}${child.flags.isOptional ? '?' : ''}: ${typeText(child.type)}`)
-      return `{ ${members.join('; ')} }`
+      const members = (declaration.children ?? []).flatMap((child) => {
+        const name = `${child.flags.isReadonly ? 'readonly ' : ''}${child.name}${child.flags.isOptional ? '?' : ''}`
+        if (child.type == null && child.signatures?.length) return child.signatures.map((signature) => `${name}(${paramsText(signature)}): ${typeText(signature.type)}`)
+        return [`${name}: ${typeText(child.type)}`]
+      })
+      return members.length === 0 ? '{}' : `{ ${members.join('; ')} }`
     }
     default:
       return type.name ?? 'unknown'
@@ -282,8 +344,9 @@ function paramsText(signature: Reflection, destructured = 'props'): string {
 function linkedTypes(type: TypeNode | undefined, found = new Map<string, string>()): Map<string, string> {
   if (type == null) return found
   if (type.type === 'reference') {
-    const url = linkFor(type.target, type.name!)
-    if (url != null) found.set(type.name!, url)
+    const name = referenceName(type)
+    const url = linkFor(type.target, name)
+    if (url != null) found.set(name, url)
   }
   for (const child of [...(type.types ?? []), ...(type.typeArguments ?? []), ...(type.elements ?? [])]) linkedTypes(child, found)
   for (const child of [type.elementType, type.element, type.objectType, type.indexType, type.queryType]) linkedTypes(child, found)
@@ -341,9 +404,9 @@ function memberSection(members: Reflection[], self: string): string {
     for (const property of properties) {
       const type = property.type ?? property.getSignature?.type
       const comment = property.comment ?? property.getSignature?.comment
-      const inherited = property.inheritedFrom == null ? '' : `Inherited from \`${typeText(property.inheritedFrom).split('.')[0]}\`.\n\n`
+      const only = onlyIn.get(property)
       out += `### ${property.name}\n\n\`\`\`ts\n${property.flags.isReadonly ? 'readonly ' : ''}${property.name}${property.flags.isOptional ? '?' : ''}: ${typeText(type)}\n\`\`\`\n\n`
-      out += `${partsToMd(comment?.summary).trim()}\n\n${tagsMd(comment)}\n\n${seeAlso([type], self)}${inherited}`
+      out += `${partsToMd(comment?.summary).trim()}\n\n${tagsMd(comment)}\n\n${only == null ? '' : `${only}\n\n`}${seeAlso([type], self)}${inheritedMd(property)}`
     }
   }
   if (methods.length > 0) {
@@ -362,6 +425,14 @@ function memberSection(members: Reflection[], self: string): string {
   return out
 }
 
+/** Where a member is inherited from, linked; nothing when that type has no page. */
+function inheritedMd(member: Reflection): string {
+  const from = member.inheritedFrom
+  const owner = typeof from?.target === 'number' ? parentById.get(from.target) : undefined
+  const url = owner == null ? undefined : urlById.get(owner.id)
+  return owner == null || url == null ? '' : `Inherited from [\`${publicNameById.get(owner.id) ?? owner.name}\`](${url}).\n\n`
+}
+
 function membersOf(type: TypeNode | undefined): Reflection[] {
   if (type == null) return []
   if (type.type === 'reference' && typeof type.target === 'number') {
@@ -371,8 +442,91 @@ function membersOf(type: TypeNode | undefined): Reflection[] {
     if (target.kind === KIND.typeAlias) return membersOf(target.type)
   }
   if (type.type === 'intersection') return type.types!.flatMap(membersOf)
+  if (type.type === 'union') {
+    const variants = type.types!.filter((member) => !(member.type === 'intrinsic' && (member.name === 'undefined' || member.name === 'null')))
+    const groups = variants.map((variant) => ({ members: membersOf(variant), label: variantLabel(variant) }))
+    if (groups.length === 0 || groups.some((group) => group.members.length === 0)) return []
+    if (groups.every((group) => group.label != null)) return mergeVariants(groups, (labels) => `Only in ${listMd(labels, 'and')}.`)
+    const key = discriminant(groups.map((group) => group.members))
+    if (key == null) {
+      // Variants such as `{ byName: string } | { byIndex: number }`: each requires a member the others lack.
+      const names = (members: Reflection[]) => members.filter((member) => !member.flags.isOptional && groups.every((group) => group.members === members || !group.members.some((other) => other.name === member.name)))
+      const exclusive = groups.map(({ members }) => names(members))
+      const pass = exclusive.every((list) => list.length === 1) ? `Pass one of ${listMd(exclusive.map((list) => `\`${list[0]!.name}\``), 'or')}.` : undefined
+      return mergeVariants(groups.map(({ members }) => ({ members, label: pass })), () => pass ?? '')
+    }
+    const values = (members: Reflection[]) => literalsOf(members.find((member) => member.name === key)!.type).map((value) => `\`${typeText(value)}\``)
+    return mergeVariants(
+      groups.map(({ members }) => ({ members, label: listMd(values(members), 'or') })),
+      (labels) => `Only when \`${key}\` is ${listMd(labels, 'or')}.`
+    )
+  }
   if (type.type === 'reflection') return type.declaration?.children ?? []
   return []
+}
+
+/** Members of a union that only some of its variants have, mapped to a note naming those variants. */
+const onlyIn = new Map<Reflection, string>()
+
+function listMd(items: string[], conjunction: 'and' | 'or'): string {
+  return items.length === 1 ? items[0]! : `${items.slice(0, -1).join(', ')} ${conjunction} ${items.at(-1)}`
+}
+
+/** The literal types a type allows, or none when it allows anything else. */
+function literalsOf(type: TypeNode | undefined): TypeNode[] {
+  if (type?.type === 'literal') return [type]
+  if (type?.type !== 'union') return []
+  const literals = type.types!.flatMap(literalsOf)
+  return literals.length === type.types!.length ? literals : []
+}
+
+/** The member that tells the variants of a union apart: one every variant has, typed as literals. */
+function discriminant(groups: Reflection[][]): string | undefined {
+  return groups[0]!.find((member) => groups.every((group) => literalsOf(group.find((other) => other.name === member.name)?.type).length > 0))?.name
+}
+
+/** A union variant's name as Markdown, linked when it has a page; undefined for an inline object. */
+function variantLabel(variant: TypeNode): string | undefined {
+  if (variant.type !== 'reference') return undefined
+  const name = referenceName(variant)
+  const url = linkFor(variant.target, name)
+  return url == null ? `\`${name}\`` : `[\`${name}\`](${url})`
+}
+
+const isUndefined = (type: TypeNode | undefined) => type?.type === 'intrinsic' && type.name === 'undefined'
+
+/**
+ * Merges the members of union variants by name. A member is optional unless every variant requires it,
+ * and its type is the union of its variants' types. Its description is the one of a variant that takes
+ * a value, followed by the one of a variant that only allows `undefined` (such as "leave unset to ...").
+ */
+function mergeVariants(groups: { members: Reflection[]; label?: string }[], note: (labels: string[]) => string): Reflection[] {
+  if (groups.length === 1) return groups[0]!.members
+  const byName = new Map<string, { member: Reflection; label?: string }[]>()
+  for (const { members, label } of groups) for (const member of members) byName.set(member.name, [...(byName.get(member.name) ?? []), { member, label }])
+  return [...byName.values()].map((entries) => {
+    const variants = entries.map((entry) => entry.member)
+    const optional = variants.length < groups.length || variants.some((variant) => variant.flags.isOptional)
+    const types = new Map<string, TypeNode>()
+    for (const variant of variants) {
+      const type = variant.type ?? variant.getSignature?.type
+      for (const member of type?.type === 'union' ? type.types! : type == null ? [] : [type]) {
+        if (!(optional && isUndefined(member))) types.set(typeText(member, true), member)
+      }
+    }
+    const documented = variants.filter((variant) => variant.comment != null)
+    const valued = documented.find((variant) => !isUndefined(variant.type))
+    const unset = documented.find((variant) => isUndefined(variant.type))
+    const base = valued ?? unset ?? variants[0]!
+    const merged: Reflection = { ...base, flags: { ...base.flags, isOptional: optional } }
+    if (valued != null && unset != null) merged.comment = { ...valued.comment!, summary: [...valued.comment!.summary, { kind: 'text', text: ' ' }, ...unset.comment!.summary] }
+    if (types.size > 0) merged.type = types.size === 1 ? [...types.values()][0] : { type: 'union', types: [...types.values()] }
+    const origin = (variant: Reflection) => variant.inheritedFrom?.qualifiedName ?? variant.inheritedFrom?.name
+    if (!variants.every((variant) => origin(variant) === origin(variants[0]!))) delete merged.inheritedFrom
+    const labels = entries.map((entry) => entry.label)
+    if (variants.length < groups.length && labels.every((label) => label != null)) onlyIn.set(merged, note(labels as string[]))
+    return merged
+  })
 }
 
 function usageMd(page: Page, examples: Record<string, ApiExample>): string {
@@ -382,9 +536,16 @@ function usageMd(page: Page, examples: Record<string, ApiExample>): string {
   return `## Usage\n\n<ApiTabs>\n<Declarative>\n\n${fence(example.declarative)}\n\n</Declarative>\n<Imperative>\n\n${fence(example.imperative)}\n\n</Imperative>\n</ApiTabs>\n\n`
 }
 
+function typeParamsText(signature: Reflection): string {
+  const params = signature.typeParameters ?? []
+  if (params.length === 0) return ''
+  const text = params.map((param) => `${param.name}${param.type ? ` extends ${typeText(param.type)}` : ''}${param.default ? ` = ${typeText(param.default)}` : ''}`)
+  return `<${text.join(', ')}>`
+}
+
 function signatureMd(reflection: Reflection, destructured: string): string {
   if (reflection.kind === KIND.function) {
-    const lines = (reflection.signatures ?? []).map((signature) => `function ${reflection.name}(${paramsText(signature, destructured)}): ${typeText(signature.type)}`)
+    const lines = (reflection.signatures ?? []).map((signature) => `function ${reflection.name}${typeParamsText(signature)}(${paramsText(signature, destructured)}): ${typeText(signature.type)}`)
     return `\`\`\`ts\n${lines.join('\n')}\n\`\`\`\n\n`
   }
   if (reflection.kind === KIND.variable) return `\`\`\`ts\nconst ${reflection.name}: ${typeText(reflection.type)}\n\`\`\`\n\n`
@@ -409,9 +570,14 @@ function pageMd(page: Page, examples: Record<string, ApiExample>): string {
   if (page.category === 'components') {
     const props = membersOf(signatures[0]?.parameters?.[0]?.type)
     if (props.length > 0) body += memberSection(props, reflection.name).replace('## Properties', '## Props')
-    body += seeAlso([signatures[0]?.parameters?.[0]?.type], reflection.name)
-    const hybrid = hybridByName.get(reflection.name)
-    if (hybrid != null) body += `The native object behind this component is [\`${reflection.name}\`](${urlById.get(hybrid.reflection.id)}).\n`
+    body += seeAlso(signatures.length > 0 ? [signatures[0]?.parameters?.[0]?.type] : [reflection.type], reflection.name)
+    const native = COMPONENT_NATIVE_OBJECTS[reflection.name] ?? (hybridByName.has(reflection.name) ? `The native object behind this component is {${reflection.name}}.` : undefined)
+    if (native != null) {
+      body += `${native.replace(/\{(\w+)\}/g, (_, name: string) => {
+        const url = linkFor(undefined, name)
+        return url == null ? `\`${name}\`` : `[\`${name}\`](${url})`
+      })}\n`
+    }
   } else if (reflection.kind === KIND.function) {
     const parameters = signatures.flatMap((signature) => signature.parameters ?? [])
     if (parameters.length > 0) {
@@ -455,7 +621,7 @@ const overview = categories
   .join('\n\n')
 write(
   join(outDir, 'index.mdx'),
-  `---\ntitle: API Reference\ndescription: Every public export of react-native-filament, with Declarative and Imperative usage.\n---\n\nEvery component and hook has a native counterpart. Each page shows both: the **Declarative** tab uses React components and hooks, the **Imperative** tab uses the native Nitro objects directly.\n\n\`\`\`npm\nnpm i react-native-filament react-native-nitro-modules react-native-worklets\n\`\`\`\n\n${overview}\n`
+  `---\ntitle: API Reference\ndescription: Every public export of react-native-filament, with Declarative and Imperative usage for components, hooks, hybrid objects and functions.\n---\n\nEvery component and hook has a native counterpart. Each component, hook, hybrid object and function page shows both: the **Declarative** tab uses React components and hooks, the **Imperative** tab uses the native Nitro objects directly.\n\n\`\`\`npm\nnpm i react-native-filament react-native-nitro-modules react-native-worklets\n\`\`\`\n\n${overview}\n`
 )
 const missing = pages.filter((page) => page.category !== 'types' && examples[`${page.category}/${page.reflection.name}`] == null).map((page) => `${page.category}/${page.reflection.name}`)
 console.log(`Generated ${pages.length} API pages.${missing.length > 0 ? ` Missing usage examples: ${missing.join(', ')}` : ''}`)

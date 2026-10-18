@@ -115,7 +115,7 @@ export async function recordDrone(): Promise<string> {
 ## Things to know
 
 - **Views pause while recording.** During a recording, the Engine renders only the recorder's frames, and its `<FilamentView>`s stop updating. Record with an Engine that is not showing anything important, for example by giving the recording its own `<FilamentScene>`, which creates its own Engine.
-- **One recording at a time.** `record()` rejects with `FilamentBusyError` while another recording runs, and with `FilamentDisposedError` when the recorder or its Engine is disposed before it finishes.
+- **One recording per Engine at a time.** `record()` rejects with `FilamentBusyError` while the same recorder is still recording, and with `FilamentDisposedError` when the recorder or its Engine is disposed before it finishes. Two recorders of one Engine are not stopped from recording at once, but do not do it: the frames of both advance the Engine's animations and physics, and the first to finish resumes the views while the other still records.
 - **Set the camera's aspect ratio.** A recorder has no view to take the aspect ratio from. Pass `aspect` to `<Camera />`, or call `camera.setLensProjection()` with `recorder.width / recorder.height`.
 - **Background.** Without a skybox, frames clear to `clearOptions.color`. Add a [skybox](/docs/skybox) for a colored or cubemap background, or call `recorder.setClearOptions()` on the render thread.
 - **Rendering options.** `recorder.view` is the recorder's `View`. Use it on the render thread to change anti-aliasing, bloom, ambient occlusion and the other view options of the video.

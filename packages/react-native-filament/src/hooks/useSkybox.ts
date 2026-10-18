@@ -10,7 +10,7 @@ import type { Float4 } from '../specs/types/Float4'
 import type { SkyboxOptions } from './SkyboxOptions'
 import { useDisposableResource } from './useDisposableResource'
 
-/** Sets the background of the scene while mounted, or none for `undefined`. */
+/** Sets the background of the scene while mounted. `undefined` sets none and leaves the current background. */
 export function useSkybox(options: SkyboxOptions | undefined): Skybox | undefined {
   const { engine, scene } = useFilamentScene()
   const commit = useRenderCommit()

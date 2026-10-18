@@ -4,8 +4,8 @@ import type { Entity } from '../types/Entity'
 import type { Float3 } from '../types/Float3'
 
 /**
- * A camera created with `Engine.createCamera()`: its pose, projection and exposure. A ViewTarget
- * renders through it after `ViewTarget.setCamera()`.
+ * A camera created with `Engine.createCamera()`: its pose, projection and exposure. A ViewTarget or
+ * Recorder renders through it after its `setCamera()`.
  */
 export interface Camera extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   /** @thread any */

@@ -219,6 +219,6 @@ For scrubbing alone, `<Animator time={seconds} />` with a SharedValue does the s
 
 ## Without Reanimated
 
-Reanimated is optional. The props and `bindSharedValue` accept any `ListenableValue`: an object with a `value`, `addListener(listenerId, listener)` and `removeListener(listenerId)`, whose listeners are called on the UI runtime. Reanimated's `SharedValue` is one such object.
+Reanimated is optional. The props and `bindSharedValue` accept any `ListenableValue`: an object that lives on the UI runtime, with a `value` and `addListener(listenerId, listener)` and `removeListener(listenerId)` methods that react-native-filament calls there. Some props also read `value` on the JS thread. Reanimated's `SharedValue` is one such object.
 
 You can also call the setters of a `TransformBinding`, a `ValueBinding`, an `AnimationPlayer` or a `CameraManipulator` directly from any thread, for example from a gesture handler worklet, without a SharedValue in between.

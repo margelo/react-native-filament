@@ -5,8 +5,8 @@ import type { IndirectLight } from './IndirectLight.nitro'
 import type { Skybox } from './Skybox.nitro'
 
 /**
- * The set of entities, lights, indirect light and skybox a ViewTarget renders. Create one with
- * `Engine.createScene()`.
+ * The set of entities, lights, indirect light and skybox a ViewTarget or Recorder renders. Create
+ * one with `Engine.createScene()`.
  */
 export interface Scene extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   /**

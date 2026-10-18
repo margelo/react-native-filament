@@ -16,7 +16,11 @@ export interface Recorder extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   readonly height: number
   /** @thread any */
   readonly fps: number
-  /** @thread render */
+  /**
+   * Rendering options of this recorder. The object is usable from any thread; its members run on
+   * the render thread.
+   * @thread any
+   */
   readonly view: View
   /** @thread render */
   setScene(scene: Scene): void
@@ -28,8 +32,9 @@ export interface Recorder extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
    * Renders `frameCount` frames and resolves with the `file://` URI of the finished MP4 in the
    * temporary directory. Before each frame the Engine runs its bindings, frame listeners and
    * animation players on a fixed clock: frame `i` has `elapsedSeconds = i / fps` and
-   * `deltaSeconds = 1 / fps` (0 for the first frame). Rejects while another recording runs, and
-   * with `FilamentDisposedError` when the recorder or its Engine is disposed first.
+   * `deltaSeconds = 1 / fps` (0 for the first frame). Rejects with `FilamentBusyError` while this
+   * recorder is already recording, and with `FilamentDisposedError` when the recorder or its Engine
+   * is disposed first.
    * @thread any
    */
   record(frameCount: number): Promise<string>

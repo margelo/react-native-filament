@@ -20,13 +20,16 @@ interface SceneBaseProps {
   children?: ReactNode
 }
 
-interface OwnedEngineProps extends SceneBaseProps {
+/** Props of a `FilamentScene` that creates its own Engine and shuts it down on unmount. */
+export interface FilamentSceneOwnedEngineProps extends SceneBaseProps {
+  /** Leave unset to let the scene create its own Engine. */
   engine?: undefined
   /** Graphics API of the Engine this scene creates. Defaults to the first supported backend. */
   backend?: EngineBackend
 }
 
-interface BorrowedEngineProps extends SceneBaseProps {
+/** Props of a `FilamentScene` that renders with an Engine passed as `engine`. */
+export interface FilamentSceneBorrowedEngineProps extends SceneBaseProps {
   /**
    * An Engine to render with instead of creating one. The scene disposes only what it created and
    * never shuts the Engine down, so several scenes and views can share it.
@@ -34,7 +37,8 @@ interface BorrowedEngineProps extends SceneBaseProps {
   engine: Engine
 }
 
-export type FilamentSceneProps = OwnedEngineProps | BorrowedEngineProps
+/** Props of `<FilamentScene>`: it creates its own Engine, optionally with a `backend`, or borrows one passed as `engine`. */
+export type FilamentSceneProps = FilamentSceneOwnedEngineProps | FilamentSceneBorrowedEngineProps
 
 interface Created {
   value: FilamentSceneValue

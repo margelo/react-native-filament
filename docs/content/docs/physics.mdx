@@ -179,7 +179,7 @@ function FallingCoin() {
 
 ## Collisions
 
-`world.addOnCollisionListener(listener)` calls `listener` on the render thread after each step in which contacts began or ended. Each `CollisionEvent` has a `kind`, `'began'` on the first step two bodies touch and `'ended'` on the first step they no longer do, and the two bodies as `bodyA` and `bodyB`. Use the body `id` to tell them apart. Return `true` to keep listening or `false` to remove the listener; `subscription.remove()` also removes it.
+`world.addOnCollisionListener(listener)` calls `listener` on the render thread after each `step()` in which contacts began or ended; with `autoStep`, that is once per frame. Contacts are compared once per `step()`, after all of its fixed sub-steps, so a touch that begins and ends within one `step()` is not reported. Each `CollisionEvent` has a `kind`, `'began'` on the first step two bodies touch and `'ended'` on the first step they no longer do, and the two bodies as `bodyA` and `bodyB`. Use the body `id` to tell them apart. Return `true` to keep listening or `false` to remove the listener; `subscription.remove()` also removes it.
 
 To reach React state from the listener, schedule a call on the React Native runtime with `scheduleOnRN` from `react-native-worklets`.
 
@@ -237,9 +237,10 @@ This example puts a body back at its starting point and pushes it upward:
 
 ```tsx
 import { Button } from 'react-native'
-import { composeTransform, useRenderThreadCallback, type RigidBody } from 'react-native-filament'
+import { composeTransform, useFilamentContext, useRenderThreadCallback, type RigidBody } from 'react-native-filament'
 
 function ResetButton({ body }: { body: RigidBody | undefined }) {
+  const { engine } = useFilamentContext()
   const reset = useRenderThreadCallback(() => {
     'worklet'
     if (body == null) return
@@ -247,7 +248,8 @@ function ResetButton({ body }: { body: RigidBody | undefined }) {
     body.linearVelocity = [0, 0, 0]
     body.angularVelocity = [0, 0, 0]
     body.applyCentralImpulse([0, 5, 0])
-  }, [body])
+    engine.requestFrame() // in on-demand mode, step a world whose bodies all sleep
+  }, [body, engine])
   return <Button title="Throw again" onPress={() => reset()} />
 }
 // const body = useRigidBody(world, options)
@@ -266,6 +268,7 @@ function throwAgain(engine: Engine, body: RigidBody) {
     body.linearVelocity = [0, 0, 0]
     body.angularVelocity = [0, 0, 0]
     body.applyCentralImpulse([0, 5, 0])
+    engine.requestFrame()
   })
 }
 ```
@@ -315,6 +318,6 @@ const subscription = engine.addOnFrameListener((frame) => {
 
 ## Rendering on demand
 
-With `renderMode="on-demand"`, an automatically stepped world keeps the Engine rendering while any of its bodies is awake. Once every body sleeps, the Engine stops rendering until something else changes.
+With `renderMode="on-demand"`, an automatically stepped world keeps the Engine rendering while any of its bodies is awake. Once every body sleeps, the Engine stops rendering. Creating a body requests a frame, but changing a body (`setTransform()`, a velocity, an impulse or a force) or `gravity` on the render thread does not, so call [`engine.requestFrame()`](/docs/rendering#render-modes) afterwards to step the world again, as the examples above do.
 
 See the [Bullet user manual](https://github.com/bulletphysics/bullet3/blob/master/docs/Bullet_User_Manual.pdf) for more about the concepts.

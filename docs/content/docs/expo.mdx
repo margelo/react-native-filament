@@ -11,7 +11,7 @@ The repository's `apps/expo-example` is an Expo app that runs the same shared ex
 ## Requirements
 
 - Expo SDK 55, which ships React Native 0.83.
-- The New Architecture. It is the default in SDK 55; the example app also sets `newArchEnabled: true`.
+- The New Architecture, which React Native 0.83 always uses. The example's `newArchEnabled: true` in `app.json` is a leftover that SDK 55 ignores.
 - iOS 15.1 or later and Android 7 (API 24) or later, as in [Getting Started](/docs#requirements).
 
 ## Installation
@@ -22,24 +22,17 @@ The repository's `apps/expo-example` is an Expo app that runs the same shared ex
 ### Install the packages
 
 ```sh
-npx expo install react-native-filament react-native-nitro-modules react-native-worklets
+npx expo install react-native-filament react-native-nitro-modules@0.37 react-native-worklets
 ```
 
-`npx expo install` picks the version of `react-native-worklets` that matches your SDK. Install the optional peers, `react-native-reanimated` and `react-native-gesture-handler`, the same way if you use them.
+`npx expo install` picks the version of `react-native-worklets` that matches your SDK. It does not pin Nitro Modules, so pin it to 0.37, the version react-native-filament 2.0 supports. Install `react-native-reanimated` and `react-native-gesture-handler` the same way if you use them. Both are optional.
 
 </Step>
 <Step>
 
-### Add the worklets babel plugin
+### Babel: nothing to add
 
-```js title="babel.config.js"
-module.exports = {
-  presets: ['babel-preset-expo'],
-  plugins: ['react-native-worklets/plugin'],
-}
-```
-
-If the app uses Reanimated 4, use `react-native-reanimated/plugin` instead. It already includes the worklets plugin.
+`babel-preset-expo` adds the worklets Babel plugin automatically when `react-native-worklets` is installed, with or without Reanimated. If you have a custom `babel.config.js`, keep `presets: ['babel-preset-expo']`; you don't need to list the plugin yourself.
 
 </Step>
 <Step>
@@ -98,7 +91,6 @@ react-native-filament has no config plugin, so there is nothing to add to `plugi
 ```json title="app.json"
 {
   "expo": {
-    "newArchEnabled": true,
     "plugins": [
       "./plugins/withMinimumPodDeploymentTarget",
       "./plugins/withGradleMemory",

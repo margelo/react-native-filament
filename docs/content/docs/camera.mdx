@@ -68,11 +68,15 @@ Each pose prop also accepts a Reanimated `SharedValue<Float3>`, which moves the 
 <Declarative>
 
 ```tsx
-import { useDerivedValue, useSharedValue } from 'react-native-reanimated'
+import { useEffect } from 'react'
+import { Easing, useDerivedValue, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated'
 import { Camera, type Float3 } from 'react-native-filament'
 
 function OrbitingCamera() {
   const angle = useSharedValue(0)
+  useEffect(() => {
+    angle.value = withRepeat(withTiming(2 * Math.PI, { duration: 8000, easing: Easing.linear }), -1)
+  }, [angle])
   const position = useDerivedValue<Float3>(() => [Math.sin(angle.value) * 8, 1, Math.cos(angle.value) * 8])
   return <Camera cameraPosition={position} />
 }
@@ -113,8 +117,8 @@ function Exposure() {
   const { camera } = useFilamentContext()
   useRenderThreadEffect(() => {
     'worklet'
-    // Aperture f/16, shutter 1/125 s, ISO 100.
-    camera.setExposure(16, 1 / 125, 100)
+    // f/8: two stops brighter than the default f/16, 1/125 s, ISO 100.
+    camera.setExposure(8, 1 / 125, 100)
   }, [camera])
   return null
 }
@@ -129,7 +133,7 @@ import { runOnRenderThread } from 'react-native-filament'
 await runOnRenderThread(engine, () => {
   'worklet'
   camera.setProjection(45, target.width / target.height, 0.1, 100)
-  camera.setExposure(16, 1 / 125, 100)
+  camera.setExposure(8, 1 / 125, 100) // f/8: two stops brighter than the default f/16
   // Or: camera.setOrthographicProjection(left, right, bottom, top, near, far)
 })
 ```
@@ -140,6 +144,8 @@ await runOnRenderThread(engine, () => {
 <Callout type="warn" title="Camera sets a perspective projection">
 `<Camera>` calls `setLensProjection()` whenever its view resizes or its lens props change. For an orthographic projection, leave out `<Camera>` and set the projection and the pose of `useFilamentContext().camera` yourself.
 </Callout>
+
+In `on-demand` [render mode](/docs/rendering#render-modes), camera changes made on the render thread, including plain-value `<Camera>` props, show up with the next frame something else requests, so call `engine.requestFrame()` after them.
 
 ## The projection
 
@@ -153,7 +159,9 @@ The camera's coordinate system defines the view space. The camera looks toward i
 - Objects closer than the near plane are clipped.
 - Defaults to `0.1` meters.
 
-The near plane has a large effect on depth buffer precision. Keep it as far from the camera as the scene allows. The table shows the depth precision at several distances for several `near` values; smaller is better.
+On OpenGL ES without the `EXT_clip_control` extension, the near plane has a large effect on depth buffer precision; on Metal and Vulkan much less. Keep it as far from the camera as the scene allows. The tables show the depth precision at several distances for several `near` values; smaller is better.
+
+OpenGL ES without clip control (32-bit float depth):
 
 | near (m) | 1 m | 10 m | 100 m | 1 km |
 |---|---|---|---|---|
@@ -162,10 +170,19 @@ The near plane has a large effect on depth buffer precision. Keep it as far from
 | 0.1 | 3.6e-7 | 7.0e-5 | 0.0072 | 0.43 |
 | 1.0 | 0 | 3.8e-6 | 0.0007 | 0.07 |
 
+Metal, Vulkan and OpenGL ES with clip control:
+
+| near (m) | 1 m | 10 m | 100 m | 1 km |
+|---|---|---|---|---|
+| 0.001 | 1.2e-7 | 9.5e-7 | 7.6e-6 | 6.1e-5 |
+| 0.01 | 1.2e-7 | 9.5e-7 | 7.6e-6 | 6.1e-5 |
+| 0.1 | 5.9e-8 | 9.5e-7 | 1.5e-5 | 1.2e-4 |
+| 1.0 | 0 | 9.5e-7 | 7.6e-6 | 1.8e-4 |
+
 ### `far` plane
 
-- The farthest distance from the camera at which objects are rendered.
-- Objects farther than the far plane are clipped.
+- Objects entirely beyond the far plane are culled. Geometry that crosses it is not clipped, because Filament renders with the far plane at infinity. `far` is also used for shadow calculations.
+- Keep the ratio of near to far between about 1:100 and 1:100000.
 - Defaults to `100` meters.
 
 ### Focal length and aspect

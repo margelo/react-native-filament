@@ -11,7 +11,12 @@ export interface Animator extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   readonly animations: AnimationInfo[]
   /** @thread render */
   applyAnimation(animationIndex: number, timeSeconds: number): void
-  /** @thread render */
+  /**
+   * Blends the previous animation at `previousTimeSeconds` into the pose from `applyAnimation`.
+   * `alpha` 0 shows only the previous animation and 1 only the current one. Call it after
+   * `applyAnimation` and before `updateBoneMatrices`.
+   * @thread render
+   */
   applyCrossFade(previousIndex: number, previousTimeSeconds: number, alpha: number): void
   /** @thread render */
   updateBoneMatrices(): void

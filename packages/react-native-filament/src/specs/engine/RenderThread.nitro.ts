@@ -12,7 +12,8 @@ export interface RenderThread extends HybridObject<{ ios: 'c++'; android: 'c++' 
    */
   readonly isCurrentThread: boolean
   /**
-   * Whether a worklet runtime runs on this thread yet. `runOnRenderThread` creates it on first use.
+   * Whether a worklet runtime runs on this thread yet. `runOnRenderThread` creates or reuses one on
+   * first use.
    * @thread any
    */
   readonly hasRuntime: boolean

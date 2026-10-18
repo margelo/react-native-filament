@@ -10,11 +10,14 @@ Every native object, such as a model, scene, light or physics world, belongs to 
 
 `dispose()` releases an object and everything it owns. You can call it from any thread; the native destruction runs as a job on the Engine's render thread. Calling it again does nothing.
 
-After `dispose()`, calls on the object fail with `FilamentDisposedError`, also through other references to it, so nothing ever touches destroyed Filament memory. Disposal also cleans up after the object:
+After `dispose()`, calls that reach the object's native state fail with an error whose message starts with `FilamentDisposedError`, also through other references to it, so nothing ever touches destroyed Filament memory. Values captured at creation, such as `entity`, `rootEntity` or `boundingBox`, stay readable. Disposal also cleans up after the object:
 
 - a disposed light, renderable, model, skybox or indirect light is removed from every scene that shows it;
 - a disposed rigid body is removed from its world;
-- a disposed `TransformBinding` ignores further setter calls, including those from a UI-runtime listener that still holds it.
+- a disposed `TransformBinding` ignores further setter calls, including those from a UI-runtime listener that still holds it;
+- a disposed `CameraManipulator` ignores further gesture commands and stops moving its cameras.
+
+A `ValueBinding` holds no native state, so `dispose()` does not change it.
 
 <ApiTabs>
 <Declarative>
@@ -65,13 +68,15 @@ Separately, an object keeps the objects it uses alive while it uses them, even i
 
 ### Keep references to what you create
 
-A scene stores only the entity number of a light or renderable that you add with `scene.addEntity()`. The object itself stays alive only while JavaScript references it: when the garbage collector releases the last reference, the light or renderable is destroyed and disappears from the scene. The same applies to a `ViewTarget`, which stops rendering, to a `TransformBinding`, which stops applying its values, and to an Engine, which shuts down.
+A scene stores only the entity number of a light or renderable that you add with `scene.addEntity()`. The object itself stays alive only while JavaScript references it: when the garbage collector releases the last reference, the light or renderable is destroyed and disappears from the scene. The same applies to a `ViewTarget`, which stops rendering, a `TransformBinding`, which stops applying its values, an `AnimationPlayer`, which stops playing, a `CameraManipulator`, which stops moving its cameras, and an Engine, which shuts down once nothing references it or any object it created.
 
 Keep such objects in a variable, a ref, state or the result of your effect until you dispose them. Components and hooks do this for you.
 
+Dispose a physics world explicitly: it and its rigid bodies keep each other alive, so dropping your references does not free it before the Engine shuts down. Until then an automatically stepped world keeps stepping, and in `on-demand` mode it keeps the Engine rendering while any body is awake.
+
 ## Shutting down an Engine
 
-`engine.shutdown()` destroys every object of the Engine, then stops its render thread. Every caller's Promise resolves once all native resources are destroyed and the render thread has exited, so it is safe to call more than once. Call it from the React Native runtime or Reanimated's UI runtime. Render-thread jobs that have not run yet are rejected with `FilamentDisposedError`.
+`engine.shutdown()` destroys every object of the Engine, then stops its render thread. Every caller's Promise resolves once all native resources are destroyed and the render thread has exited, so it is safe to call more than once. Call it from the React Native runtime or Reanimated's UI runtime. Pending `runOnRenderThread()` jobs are rejected with an error whose message starts with `FilamentDisposedError`. Loads and `createViewTarget()` calls still in flight reject with an error saying the Engine was shut down, without that prefix, and so can a pending `pick()` or `takeSnapshot()`.
 
 <ApiTabs>
 <Declarative>
@@ -202,7 +207,7 @@ function Marker() {
         runOnRenderThread(engine, () => {
           'worklet'
           scene.removeEntity(box.entity)
-        })
+        }).catch(() => undefined) // the scene or Engine may already be gone
         box.dispose()
       })
     }

@@ -7,7 +7,8 @@ import type { CollisionShape } from './CollisionShape.nitro'
 
 /**
  * A body in a `PhysicsWorld`. The world keeps it until `dispose()` or until the world is disposed.
- * Every member except `id`, `mass` and `shape` runs on the render thread.
+ * Every member except `id`, `mass` and `shape` runs on the render thread. Changing a body does not
+ * request a frame: in `on-demand` mode, call `engine.requestFrame()` after waking a resting body.
  */
 export interface RigidBody extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   /** @thread any */

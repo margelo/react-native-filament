@@ -28,8 +28,9 @@ export interface RenderableManager extends HybridObject<{ ios: 'c++'; android: '
   /** Sets the weights of the morph targets starting at `offset`. */
   setMorphWeights(entity: Entity, weights: number[], offset: number): void
   /**
-   * The material instance of one primitive. For a model's entity it is the model's instance, usable
-   * while the model is alive.
+   * The material instance one primitive draws with now. It stays usable while that primitive keeps
+   * it: until it is replaced or the renderable or model is destroyed. It cannot be assigned to a
+   * renderable; use `Material.createInstance()` for that.
    */
   getMaterialInstanceAt(entity: Entity, primitiveIndex: number): MaterialInstance
   /**

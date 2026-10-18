@@ -38,6 +38,8 @@ At runtime, `renderableManager.getMaterialInstanceAt(entity, primitiveIndex)` re
 
 Imperatively, get the material instance on the render thread and call its setters. Setting a parameter the material does not declare, or with the wrong type, throws. Removing a parameter from `materialParameters` does not restore its original value.
 
+In `on-demand` [render mode](/docs/rendering#render-modes), only SharedValue parameters request a frame; after any other parameter or texture change, call `engine.requestFrame()`.
+
 <ApiTabs>
 <Declarative>
 
@@ -142,7 +144,7 @@ The alpha only shows when the glTF material blends, that is, when it was exporte
 |---|---|
 | ![Original base color texture](/img/example-Toy_Rocket_Toy%20Ship_BaseColor.jpg) | ![Blue base color texture](/img/example-Toy_Rocket_Toy%20Ship_BaseColorBlue.jpg) |
 
-`<EntitySelector textureMap={...}>` loads an image and sets it as the `baseColorMap` of every material instance of the entity named `materialName`. Imperatively, load the texture with `engine.loadTexture()` and bind it with `instance.setTexture()` on the render thread.
+`<EntitySelector textureMap={...}>` loads an image and sets it as the `baseColorMap` of each of the selected entity's material instances whose name (the glTF material name) is `materialName`. Imperatively, load the texture with `engine.loadTexture()` and bind it with `instance.setTexture()` on the render thread.
 
 <ApiTabs>
 <Declarative>
@@ -185,7 +187,7 @@ await runOnRenderThread(engine, () => {
 </Imperative>
 </ApiTabs>
 
-Unmounting the `<EntitySelector>` does not restore the original texture.
+Unmounting the `<EntitySelector>` disposes the loaded texture and unbinds it from `baseColorMap`. The original texture is not restored, so keep the selector mounted while the replacement should show.
 
 ## Loading textures
 
@@ -201,7 +203,7 @@ Unmounting the `<EntitySelector>` does not restore the original texture.
 | `magFilter` | `'linear'` | `'nearest'`, `'linear'` |
 | `wrapS`, `wrapT` | `'repeat'` | `'clamp-to-edge'`, `'repeat'`, `'mirrored-repeat'` |
 
-A material instance keeps the textures bound to it alive. In components, [`useDisposableResource`](/api/hooks/use-disposable-resource) loads a resource and disposes it on unmount.
+A material instance keeps the textures bound to it alive until you dispose them: `texture.dispose()` unbinds the texture from every material instance. In components, [`useDisposableResource`](/api/hooks/use-disposable-resource) loads a resource and disposes it on unmount, which also unbinds it.
 
 <ApiTabs>
 <Declarative>
@@ -245,7 +247,7 @@ await runOnRenderThread(engine, () => {
 
 ## Custom materials
 
-`engine.loadMaterial(source)` loads a compiled material (`.filamat`). Compile your `.mat` definitions with `matc` from the [Filament release](https://github.com/google/filament/releases) that matches react-native-filament (Filament 1.78); materials compiled by another version are rejected. The [Filament materials guide](https://google.github.io/filament/Materials.html) describes the material language.
+`engine.loadMaterial(source)` loads a compiled material (`.filamat`). Compile your `.mat` definitions with `matc` from the [Filament release](https://github.com/google/filament/releases) that matches react-native-filament (Filament 1.78). A material compiled for a different material version is rejected with an error that names both versions. The [Filament materials guide](https://google.github.io/filament/Materials.html) describes the material language.
 
 | `Material` member | Thread | |
 |---|---|---|

@@ -146,7 +146,7 @@ In `on-demand` mode, these render new frames:
 - a pending `target.pick()` or `target.takeSnapshot()`, and models, textures, skyboxes and indirect lights that finish uploading;
 - `engine.requestFrame()`.
 
-Other changes made on the render thread, such as `scene.addEntity()`, a `lightManager` setter or a view option, show up with the next frame that something else requests. This includes component props that are applied that way, such as a plain-number `intensity` on `<Light />` or a plain-array `cameraPosition` on `<Camera />`. Call `engine.requestFrame()` after such changes when nothing else is rendering. To count frames without keeping the Engine awake, register a frame listener that returns `false`.
+Other changes made on the render thread, such as `scene.addEntity()`, a `lightManager` setter or a view option, show up with the next frame that something else requests. This includes component props that are applied that way, such as a plain-number `intensity` on `<Light />` or a plain-array `cameraPosition` on `<Camera />`. Call `engine.requestFrame()` after such changes when nothing else is rendering. To count frames without keeping the Engine awake, register a frame listener that returns `false`; registering it renders one frame.
 
 ## Limiting the frame rate
 
@@ -182,7 +182,7 @@ target.targetFrameRate = 30
 
 ## Measuring the frame rate
 
-Every frame listener receives a `FrameInfo` with `deltaSeconds`, `elapsedSeconds`, `frameIndex` and `timestampNs`. Summing `deltaSeconds` gives the render thread's frame rate. A listener that returns `false` counts frames without requesting any, so it does not keep an `on-demand` Engine awake:
+Every frame listener receives a `FrameInfo` with `deltaSeconds`, `elapsedSeconds`, `frameIndex` and `timestampNs`. Summing `deltaSeconds` gives the render thread's frame rate. After the one frame its registration renders, a listener that returns `false` requests no frames, so it does not keep an `on-demand` Engine awake:
 
 <ApiTabs>
 <Declarative>
@@ -248,11 +248,11 @@ function measureFps(engine: Engine, onFps: (fps: number) => void) {
 
 ## Errors
 
-Native failures throw, or reject a Promise, with a JavaScript error whose message names the error, such as `FilamentDisposedError: ...`. Components and hooks rethrow asynchronous failures during the next render, so the closest React error boundary receives them.
+Most native failures throw, or reject a Promise, with a JavaScript error whose message starts with the error's name, such as `FilamentDisposedError: ...`. Components and hooks rethrow asynchronous failures during the next render, so the closest React error boundary receives them. An error that a frame callback, such as a `renderCallback` or `useFrameCallback`, throws while it runs is only logged natively, in the Xcode console or logcat.
 
 | Error | Cause |
 |---|---|
-| `FilamentDisposedError` | A method was called on a disposed object, or the Engine shut down before a job ran. |
+| `FilamentDisposedError` | A method was called on a disposed object, or the Engine shut down before a `runOnRenderThread` job ran. Loads and `createViewTarget()` calls that shutdown cancels reject with `The Engine was shut down…` instead, and so can a pending `pick()` or `takeSnapshot()`. |
 | `FilamentThreadError` | A `@thread render` method was called outside the Engine's render thread. Move the call into `runOnRenderThread()` or a render-thread hook. |
 | `FilamentInvalidEntityError` | The entity has no component of the required kind in this Engine, for example `scene.addEntity()` with a camera's entity. |
 | `FilamentEngineMismatchError` | An object from one Engine was passed to another Engine's object. |
@@ -267,4 +267,4 @@ Native failures throw, or reject a Promise, with a JavaScript error whose messag
 - **Instance repeated models.** Load a model once with `instanceCount` instead of loading the same file several times; instances share their resources.
 - **Keep lights cheap.** Every light costs time, especially when lights overlap. Give point and spot lights a small `falloffRadius`.
 - **Turn off what you don't need.** View options such as `bloomOptions`, `ambientOcclusionOptions` and `postProcessing` cost GPU time. Shadows too: set `shadowing={false}` on a view that doesn't need them.
-- **Choose the backend.** `Filament.supportedBackends` lists the graphics APIs the device supports, preferred first, and `engine.backend` reports the one in use. On Android, pass `backend="opengl"` or `backend="vulkan"` to `<FilamentScene>`, `useEngine()` or `Filament.createEngine()` to compare them.
+- **Choose the backend.** `Filament.supportedBackends` lists the graphics APIs the device supports, preferred first, and `engine.backend` reports the one in use. On Android, pass `backend="opengl"` to `<FilamentScene>`, `useEngine('opengl')` or `Filament.createEngine({ backend: 'opengl' })` to compare them.

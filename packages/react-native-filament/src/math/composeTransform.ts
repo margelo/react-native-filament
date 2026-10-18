@@ -2,7 +2,11 @@ import type { Float3 } from '../specs/types/Float3'
 import type { Mat4 } from '../specs/types/Mat4'
 import type { Quaternion } from '../specs/types/Quaternion'
 
-/** The column-major matrix that scales, then rotates, then translates. Runs in any runtime. */
+/**
+ * The column-major matrix that scales, then rotates, then translates. Runs in any runtime.
+ * @param rotation A unit quaternion. It is not normalized.
+ * @param scale Defaults to `[1, 1, 1]`.
+ */
 export function composeTransform(translation: Float3, rotation: Quaternion, scale: Float3 = [1, 1, 1]): Mat4 {
   'worklet'
   const [x, y, z, w] = rotation

@@ -162,7 +162,7 @@ A `file://` URI loads a file from the device, for example a model you downloaded
 
 ### Web URLs
 
-An `http://` or `https://` URI is downloaded natively and cached on disk. Loading the same URL again reads the cached file.
+An `http://` or `https://` URI is downloaded natively into the app's cache directory. While the app runs, loading the same URL again reuses that file, and concurrent loads share one download. After a restart the URL is downloaded again. To keep a model offline, download it yourself and load it with a `file://` URI.
 
 ### Bytes
 
@@ -172,7 +172,7 @@ An `ArrayBuffer` is copied once when the load starts, so you can reuse or overwr
 
 [`useModel`](/api/hooks/use-model) loads a model and returns a [`FilamentModel`](/api/types/filament-model): `{ state: 'loading' }` until the model is uploaded, then `{ state: 'loaded', model, boundingBox, rootEntity }`. [`<ModelRenderer>`](/api/components/model-renderer) takes that value and renders nothing while it is loading. `<Model>` is `useModel` and `<ModelRenderer>` in one component.
 
-`engine.loadModel()` returns a Promise that resolves with the [`Model`](/api/hybrid-objects/model) once every buffer and texture is on the GPU.
+`engine.loadModel()` returns a Promise that resolves with the [`Model`](/api/hybrid-objects/model) once every buffer and texture has been uploaded.
 
 <ApiTabs>
 <Declarative>
@@ -255,7 +255,7 @@ async function setVisible(visible: boolean) {
 
 ## Lifetime
 
-A model stays alive until you call `model.dispose()` or the Engine shuts down. Disposing a model removes it from every scene. `useModel` and `<Model>` dispose the model when the component unmounts or `source` changes. Loads still pending when the Engine shuts down reject.
+A model stays alive while you hold a reference to it or a scene shows it. A model in no scene is destroyed when its JS object is garbage collected. `model.dispose()` or Engine shutdown destroys it right away, and disposing a model removes it from every scene. `useModel` and `<Model>` dispose the model when the component unmounts or `source` or `instanceCount` changes. Loads still pending when the Engine shuts down reject.
 
 ## Entities and bounds
 
@@ -304,7 +304,7 @@ const names = await runOnRenderThread(engine, () => {
 </ApiTabs>
 
 <Callout type="info" title="Bounds without accessor ranges">
-`boundingBox` comes from the min and max values of the glTF accessors. If an asset lacks correct values, call `model.getInstance(0).recomputeBoundingBoxes()` on the render thread to compute the bounds of every renderable from its vertices. It does not account for skinning or morphing.
+`boundingBox` comes from the min and max values of the glTF accessors and does not change after the load. If an asset lacks correct values, its renderables also get wrong culling bounds. Call `recomputeBoundingBoxes()` on each instance (`model.getInstance(i)`) on the render thread to compute that instance's renderable bounds from their vertices. It does not change `model.boundingBox`, and it does not account for skinning or morphing.
 </Callout>
 
 ## Pressing a model

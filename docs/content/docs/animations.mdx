@@ -10,7 +10,7 @@ glTF files can contain animations: skeletal animations that move a character's j
 
 ## Playing an animation
 
-[`<Animator>`](/api/components/animator) plays an animation of the parent `<Model>` or `<ModelInstance>`. Unmount it to stop playing. Imperatively, `instance.animator.createPlayer()` returns a player, and `player.play(index, options)` starts an animation at the next frame.
+[`<Animator>`](/api/components/animator) plays an animation of the parent `<Model>` (its first instance) or `<ModelInstance>`. Unmount it to stop playing. Imperatively, `instance.animator.createPlayer()` returns a player, and `player.play(index, options)` starts an animation at the next frame.
 
 <ApiTabs>
 <Declarative>
@@ -18,13 +18,11 @@ glTF files can contain animations: skeletal animations that move a character's j
 ```tsx
 import { Animator, Model, type AnimationItem } from 'react-native-filament'
 
+// A stable function: onAnimationsLoaded runs again whenever the function changes
+const logAnimations = (animations: AnimationItem[]) => console.log(animations)
+
 <Model source={require('./dancer.glb')}>
-  <Animator
-    animationIndex={0}
-    loop
-    speed={1}
-    onAnimationsLoaded={(animations: AnimationItem[]) => console.log(animations)}
-  />
+  <Animator animationIndex={0} loop speed={1} onAnimationsLoaded={logAnimations} />
 </Model>
 ```
 
@@ -36,7 +34,7 @@ const model = await engine.loadModel({ uri }, {})
 const animator = model.getInstance(0).animator
 console.log(animator.animations) // [{ name, durationSeconds }, ...]
 
-// Keep a reference: the player stops when it is disposed
+// Keep a reference: the player stops when it is garbage collected or disposed
 const player = animator.createPlayer()
 player.play(0, { loop: true, speed: 1 })
 
@@ -53,7 +51,9 @@ player.play(0, { loop: true, speed: 1 })
 | `loop` | `true` | |
 | `speed` | `1` | Playback rate; `1` is real time. |
 | `time` | | Holds the animation at this time in seconds instead of playing it. Accepts a SharedValue. |
-| `onAnimationsLoaded` | | Called once with an [`AnimationItem`](/api/types/animation-item) `{ index, name, duration }` per animation. |
+| `onAnimationsLoaded` | | Called with an [`AnimationItem`](/api/types/animation-item) `{ index, name, duration }` per animation when the Animator mounts, and again whenever the function changes. Pass a stable function such as a state setter or a `useCallback`. |
+
+Changing `loop`, `speed` or `transitionDuration` also restarts the animation from the beginning.
 
 `player.play()` takes [`PlayOptions`](/api/types/play-options): `loop` (default `true`), `speed` (default `1`) and `crossFadeSeconds` (default `0`). `animator.animations` lists each animation's `name` and `durationSeconds`. An index out of range throws.
 
@@ -104,6 +104,8 @@ function switchTo(index: number) {
 ## Scrubbing
 
 To show a fixed pose, or to tie an animation to a slider or gesture, hold it at a time instead of playing it. The `time` prop pauses the player and seeks to the given second. Imperatively, call `player.pause()` and `player.seek(seconds)`. Both work from any thread, including a Reanimated worklet.
+
+A paused player does not move a cross-fade forward. While `time` is set, keep `transitionDuration` at `0`: otherwise a new `animationIndex` starts a cross-fade that stays on the previous animation. The same applies to `player.play(index, { crossFadeSeconds })` followed by `player.pause()`.
 
 <ApiTabs>
 <Declarative>
@@ -209,7 +211,8 @@ import { Camera, DefaultLight, FilamentView, ModelRenderer, useAnimator, useMode
 
 const fadeSeconds = 0.5
 
-// Blends from animation 0 into animation 1 over the first half second
+// Blends from animation 0 into animation 1 during the Engine's first half second
+// (`elapsedSeconds` counts from the Engine's first frame, not from when the model loads)
 function BlendedDancer() {
   const model = useModel(require('./dancer.glb'))
   const animator = useAnimator(model)
@@ -246,12 +249,16 @@ const walkSeconds = animator.animations[0]!.durationSeconds
 const runSeconds = animator.animations[1]!.durationSeconds
 const fadeSeconds = 0.5
 
-// Blends from animation 0 into animation 1 over the first half second
+// Blends from animation 0 into animation 1 over the first half second after the listener starts.
+// `elapsedSeconds` counts from the Engine's first frame, so measure from the first call.
 const subscription = await runOnRenderThread(engine, () => {
   'worklet'
+  let start: number | undefined
   return engine.addOnFrameListener(({ elapsedSeconds }) => {
-    animator.applyAnimation(1, elapsedSeconds % runSeconds)
-    animator.applyCrossFade(0, elapsedSeconds % walkSeconds, Math.min(elapsedSeconds / fadeSeconds, 1))
+    if (start == null) start = elapsedSeconds
+    const t = elapsedSeconds - start
+    animator.applyAnimation(1, t % runSeconds)
+    animator.applyCrossFade(0, t % walkSeconds, Math.min(t / fadeSeconds, 1))
     animator.updateBoneMatrices()
     return true // keep rendering in on-demand mode
   })

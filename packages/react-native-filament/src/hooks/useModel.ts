@@ -10,8 +10,9 @@ import type { UseModelOptions } from './UseModelOptions'
 import { useDisposableResource } from './useDisposableResource'
 
 /**
- * Loads a glTF binary (`.glb`) and disposes it on unmount. For `require()`d models, add `glb` to
- * Metro's `assetExts`.
+ * Loads a glTF binary (`.glb`), adds every instance to the scene of the closest `FilamentScene` unless
+ * `addToScene` is `false`, and disposes it on unmount. For `require()`d models, add `glb` to Metro's
+ * `assetExts`.
  */
 export function useModel(source: AssetLike, { instanceCount, addToScene = true }: UseModelOptions = {}): FilamentModel {
   const { engine, scene } = useFilamentScene()

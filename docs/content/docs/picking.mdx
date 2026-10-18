@@ -13,7 +13,7 @@ Both work from any thread and resolve after the next rendered frame. In `on-dema
 
 ## Getting the view target
 
-Components inside a [`<FilamentView>`](/api/components/filament-view) get its target from [`useFilamentContext()`](/api/hooks/use-filament-context). It is `undefined` until the view's surface exists, and outside a `<FilamentView>`. Imperatively, `engine.createViewTarget(view, options)` returns the target for a [`NativeFilamentView`](/api/components/native-filament-view).
+Components inside a [`<FilamentView>`](/api/components/filament-view) get its target from [`useFilamentContext()`](/api/hooks/use-filament-context). It is `undefined` until the view's `ViewTarget` is created, and outside a `<FilamentView>`. The target can exist before its surface does; until then `target.width` and `target.height` are 0. Imperatively, `engine.createViewTarget(view, options)` returns the target for a [`NativeFilamentView`](/api/components/native-filament-view).
 
 <ApiTabs>
 <Declarative>
@@ -24,7 +24,7 @@ import { useFilamentContext } from 'react-native-filament'
 // Render inside <FilamentView>
 function UsesTarget() {
   const { target } = useFilamentContext()
-  if (target == null) return null // no surface yet
+  if (target == null) return null // target not created yet
   console.log(`${target.width}×${target.height} pixels`)
   return null
 }
@@ -44,13 +44,16 @@ function Viewport() {
 
   useEffect(() => {
     if (view == null) return
+    let active = true
     const starting = Filament.createEngine({}).then(async (engine) => {
-      setTarget(await engine.createViewTarget(view, {}))
+      const created = await engine.createViewTarget(view, {})
+      if (active) setTarget(created)
       return engine
     })
     return () => {
+      active = false
       setTarget(undefined)
-      starting.then((engine) => engine.shutdown())
+      starting.then((engine) => engine.shutdown(), () => undefined)
     }
   }, [view])
 

@@ -21,13 +21,16 @@ export interface AnimatorProps {
    * SharedValue.
    */
   time?: number | ListenableValue<number>
-  /** Called once with the animations of the model. */
+  /**
+   * Called with the animations of the model once it has loaded, and again whenever this function
+   * changes, so pass a stable function such as a state setter.
+   */
   onAnimationsLoaded?: (animations: AnimationItem[]) => void
 }
 
 /**
- * Plays an animation of the parent `Model` or `ModelInstance` natively, without JS per frame. Unmount
- * it to stop.
+ * Plays an animation of the parent `ModelInstance`, or of the first instance of the parent `Model`,
+ * natively, without JS per frame, through an `AnimationPlayer`. Unmount it to stop.
  */
 export function Animator({ animationIndex = 0, transitionDuration = 0, loop = true, speed = 1, time, onAnimationsLoaded }: AnimatorProps) {
   const instance = useModelContext('Animator').instances[0]!

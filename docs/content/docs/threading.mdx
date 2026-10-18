@@ -25,7 +25,7 @@ interface Engine {
 |---|---|---|
 | `any` | `engine.loadModel()`, `player.play()`, `binding.setTranslation()`, `target.pick()`, `engine.requestFrame()` | Any JS runtime: React Native's, Reanimated's UI runtime or the render runtime. Loads resolve Promises. Setters store the latest value and wake the render thread. |
 | `render` | `engine.createScene()`, `scene.addModel()`, `transformManager.setTransform()`, `camera.lookAt()` | A worklet on the render thread: through `runOnRenderThread`, a render-thread hook or a frame callback. |
-| `RN or UI runtime` | `engine.shutdown()` | The runtime that created the Engine. |
+| `RN or UI runtime` | `engine.shutdown()` | React Native's runtime or Reanimated's UI runtime, not the render runtime. |
 | `RN runtime` | `runOnRenderThread()`, `workletContext.runAsync()` | React Native's JS runtime. |
 
 Calling a `render` method from another thread throws an error whose message starts with `FilamentThreadError`, instead of racing with rendering.
@@ -56,7 +56,7 @@ Inside components, use the render-thread hooks. Each `FilamentScene` collects th
 | [`useRenderThreadMemo(factory, deps)`](/api/hooks/use-render-thread-memo) | Returns `factory`'s render-thread result, or `undefined` until it arrives. Results of outdated `deps` are dropped. |
 | [`useFrameCallback(callback, deps)`](/api/hooks/use-frame-callback) | `callback` at the start of every frame. See [Per-frame code](#per-frame-code). |
 
-A failure in `useRenderThreadEffect`, `useRenderThreadMemo` or `useFrameCallback` is thrown to the closest error boundary. The Promise of a `useRenderThreadCallback` function rejects instead.
+A failure in `useRenderThreadEffect` or `useRenderThreadMemo`, or in subscribing a `useFrameCallback`, is thrown to the closest error boundary. An error that a frame callback throws while it runs is only logged natively, in the Xcode console or logcat. The Promise of a `useRenderThreadCallback` function rejects instead.
 
 ### Effects
 
@@ -154,7 +154,7 @@ The 1.x names still work. They run on the same render thread through react-nativ
 | `useFilamentContext().workletContext.runAsync(worklet)` | `runOnRenderThread`, queued after the current commit's render-thread work |
 | `workletContext.createRunAsync(worklet)` | A function that runs `worklet` with its arguments and resolves with its result |
 
-`useWorkletEffect` and `useWorkletCallback` take no dependency list. Their dependencies are the values the worklet captures, as in 1.x. `useWorkletMemo` takes an explicit list. [`WorkletContext`](/api/types/worklet-context) is called from React Native's runtime.
+`useWorkletEffect` and `useWorkletCallback` take no dependency list. Their dependencies are the values the worklet captures, as in 1.x. `useWorkletMemo` takes an explicit list. Unlike 1.x, a cleanup that `useWorkletEffect` returns runs on the render thread, so it can't call React state setters or other JS-only functions. [`WorkletContext`](/api/types/worklet-context) is called from React Native's runtime.
 
 <ApiTabs>
 <Declarative>
@@ -223,7 +223,7 @@ function EntityTools() {
 </Imperative>
 </ApiTabs>
 
-The repository's Worklets example (`apps/shared/src/examples/Worklets.tsx`) uses all four 1.x APIs.
+The repository's Worklets example (`apps/shared/src/examples/Worklets.tsx`) uses the three 1.x hooks and `workletContext.runAsync`.
 
 ## Per-frame code
 
@@ -298,29 +298,30 @@ A frame listener returns whether it needs another frame. In `on-demand` mode the
 
 ## Each frame
 
-In the default `continuous` render mode the render thread renders on every display refresh. In `on-demand` mode it renders only when something needs a frame: a changed binding, a playing animation, a manipulator gesture, a physics world with awake bodies, a frame listener that asks for another frame, a pending `takeSnapshot()` or `pick()`, or `engine.requestFrame()`. See [Render modes](/docs/rendering#render-modes).
+In the default `continuous` render mode the render thread renders on every display refresh. In `on-demand` mode it renders only when something needs a frame: a changed binding, a playing animation, a manipulator gesture, a physics world with awake bodies, a frame listener that asks for another frame, an asset upload, a pending `takeSnapshot()` or `pick()`, or `engine.requestFrame()`. See [Render modes](/docs/rendering#render-modes).
 
-After a model, texture, skybox or indirect light finishes uploading, the render thread waits for the GPU once it has nothing left to render and draws a few more frames, so that Filament frees the upload memory before the render thread goes idle.
+After a model, texture, skybox or indirect light finishes uploading, the render thread waits for the GPU once it has nothing left to render and, on Metal and Vulkan, draws a few more frames, so that Filament frees the upload memory before the render thread goes idle.
+
+Queued jobs (`runOnRenderThread`, the render-thread hooks) run as soon as the render thread is free, between frames. A job is not part of a frame and does not request one: in `on-demand` mode, call `engine.requestFrame()` after a job that changes what is drawn.
 
 Each frame runs these stages in order:
 
-1. queued jobs (`runOnRenderThread`, the render-thread hooks);
-2. asset uploads;
-3. frame info (`deltaSeconds`, `elapsedSeconds`);
-4. transform bindings and camera manipulators;
-5. frame listeners (`renderCallback`, `useFrameCallback`, `engine.addOnFrameListener`);
-6. animation players;
-7. physics worlds;
-8. skeleton followers;
-9. rendering of every view target.
+1. asset uploads;
+2. frame info (`deltaSeconds`, `elapsedSeconds`);
+3. transform bindings and camera manipulators;
+4. frame listeners (`renderCallback`, `useFrameCallback`, `engine.addOnFrameListener`);
+5. animation players;
+6. physics worlds;
+7. skeleton followers;
+8. rendering of every view target.
 
 ## SharedValues and gestures
 
-Reanimated runs gesture and animation worklets on its UI runtime. react-native-filament never reads a SharedValue from another runtime, which would block on the UI thread. Instead, a listener on the UI runtime writes each new value into a native slot:
+Reanimated runs gesture and animation worklets on its UI runtime. The render thread never reads a SharedValue, which would block it on the UI runtime. Instead, a listener on the UI runtime writes each new value into a native slot:
 
-- [`TransformBinding`](/api/hybrid-objects/transform-binding) holds a translation, rotation, scale and base, applied together at stage 4.
+- [`TransformBinding`](/api/hybrid-objects/transform-binding) holds a translation, rotation, scale and base, applied together at stage 3.
 - [`ValueBinding`](/api/hybrid-objects/value-binding) holds a number that render-thread code reads with `binding.value`.
-- [`CameraManipulator`](/api/hybrid-objects/camera-manipulator) queues pan, pinch and tap commands and applies them at stage 4.
+- [`CameraManipulator`](/api/hybrid-objects/camera-manipulator) queues pan, pinch and tap commands and applies them at stage 3.
 
 Components do this for you when you pass a SharedValue. Imperative code writes the binding from a listener that [`bindSharedValue`](/api/functions/bind-shared-value) registers on the UI runtime.
 
@@ -380,4 +381,4 @@ A SharedValue update costs no work on the JS thread and no React render.
 
 ## Lifetime
 
-Native objects belong to their Engine. `dispose()` releases one object and everything it owns. `engine.shutdown()` releases everything and resolves once the render thread has finished. Using a disposed object throws `FilamentDisposedError`. Components and hooks dispose what they create when they unmount, and a `FilamentScene` that borrows an Engine through its `engine` prop never shuts it down.
+Native objects belong to their Engine. `dispose()` releases one object and everything it owns. `engine.shutdown()` releases everything and resolves once the render thread has finished. Using a disposed object throws an error whose message starts with `FilamentDisposedError`, except `TransformBinding` setters, which are ignored after `dispose()`, and `ValueBinding`, which holds no native state and keeps working. Components and hooks dispose what they create when they unmount, and a `FilamentScene` that borrows an Engine through its `engine` prop never shuts it down.
