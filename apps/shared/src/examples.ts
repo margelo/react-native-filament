@@ -20,6 +20,7 @@ import { MorphTargets } from './examples/MorphTargets'
 import { ScrollingViews } from './examples/ScrollingViews'
 import { SkeletonSharing } from './examples/SkeletonSharing'
 import { ReactScene } from './examples/ReactScene'
+import { Worklets } from './examples/Worklets'
 import { ClearColorExample } from './imperative/ClearColorExample'
 import { FrameListenerExample } from './imperative/FrameListenerExample'
 import { SceneExample } from './imperative/SceneExample'
@@ -76,6 +77,7 @@ export const examples: Example[] = [
   { route: 'ScrollingViews', title: '📜 Views in a scrolling list', section: 'React API', component: ScrollingViews },
   { route: 'SkeletonSharing', title: '👯 Skeleton sharing (attachSkin)', section: 'React API', component: SkeletonSharing },
   { route: 'ReactScene', title: '⚛️ React API', section: 'React API', component: ReactScene },
+  { route: 'Worklets', title: '🧵 Worklets (1.x hooks)', section: 'React API', component: Worklets },
   { route: 'ImperativeClearColor', title: '🟦 Clear color', section: 'Imperative API', component: ClearColorExample },
   { route: 'ImperativeFrameListener', title: '🌈 Frame listener', section: 'Imperative API', component: FrameListenerExample },
   { route: 'ImperativeScene', title: '🌅 Scene and skybox', section: 'Imperative API', component: SceneExample },

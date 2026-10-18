@@ -30,12 +30,18 @@ v1 ran a JS render callback every frame and called `beginFrame`/`render`/`endFra
 
 ## Removed and replaced APIs
 
-### `useWorkletEffect`, `useWorkletCallback`, `useWorkletMemo`
+### `useWorkletEffect`, `useWorkletCallback`, `useWorkletMemo` and `workletContext`
 
-They become `useRenderThreadEffect`, `useRenderThreadCallback` and `useRenderThreadMemo`, which run on the Engine's render thread through react-native-worklets. They take an explicit dependency list.
+They keep their 1.x signatures. They now run on the Engine's render thread through react-native-worklets instead of worklets-core:
+
+- `useWorkletEffect` and `useWorkletCallback` take their dependencies from the values the worklet captures, as in 1.x.
+- `useWorkletMemo` takes an explicit dependency list.
+- `useFilamentContext().workletContext` has `runAsync` and `createRunAsync`.
+
+Only the Filament calls inside them change:
 
 ```tsx title="Before"
-const { workletContext } = useFilamentContext()
+const { transformManager } = useFilamentContext()
 useWorkletEffect(() => {
   'worklet'
   transformManager.setEntityScale(entity, [2, 2, 2], false)
@@ -43,23 +49,34 @@ useWorkletEffect(() => {
 ```
 
 ```tsx title="After"
-useRenderThreadEffect(() => {
+const { transformManager } = useFilamentContext()
+useWorkletEffect(() => {
   'worklet'
   transformManager.setScale(entity, [2, 2, 2])
-}, [transformManager, entity])
+})
 ```
 
-A function returned from the effect runs on the render thread before the next run and on unmount, and may capture any render-thread value:
+A function returned from the effect runs on the render thread before the next run and on unmount, and may capture any render-thread value. In 1.x, a cleanup that wasn't a worklet ran on the JS thread:
 
 ```tsx
-useRenderThreadEffect(() => {
+useWorkletEffect(() => {
   'worklet'
   const subscription = world.addOnCollisionListener((events) => handle(events))
   return () => subscription.remove()
-}, [world])
+})
 ```
 
-Outside of components, use `runOnRenderThread(engine, worklet)`, which resolves with the worklet's result.
+`workletContext` queues its jobs after the render-thread work of the current commit:
+
+```tsx
+const { scene, workletContext } = useFilamentContext()
+const entityCount = await workletContext.runAsync(() => {
+  'worklet'
+  return scene.entityCount
+})
+```
+
+`useRenderThreadEffect`, `useRenderThreadCallback` and `useRenderThreadMemo` do the same with an explicit dependency list. Outside of components, use `runOnRenderThread(engine, worklet)`, which resolves with the worklet's result. The Worklets example in the example app uses all four 1.x APIs.
 
 ### `useSyncSharedValue`, `useDerivedValue` and worklets-core shared values
 

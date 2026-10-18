@@ -41,6 +41,16 @@ Inside components, prefer the hooks: each `FilamentScene` collects the render-th
 | `useRenderThreadMemo(factory, deps)` | Returns `factory`'s render-thread result, or `undefined` until it arrives. |
 | `useFrameCallback(callback, deps)` | `callback` at the start of every frame. |
 
+The 1.x names still work and run on the same render thread:
+
+| 1.x API | Same as |
+|---|---|
+| `useWorkletEffect(effect)` | `useRenderThreadEffect`, rerun when a value `effect` captures changes |
+| `useWorkletCallback(callback)` | `useRenderThreadCallback`, recreated when a value `callback` captures changes |
+| `useWorkletMemo(factory, deps)` | `useRenderThreadMemo` |
+| `useFilamentContext().workletContext.runAsync(worklet)` | `runOnRenderThread`, queued after the current commit's render-thread work |
+| `workletContext.createRunAsync(worklet)` | A function that runs `worklet` with its arguments and resolves with its result |
+
 ## Each frame
 
 In the default `continuous` render mode the render thread renders every display refresh. In `on-demand` mode it renders only when something needs a frame: a changed binding, a playing animation, a manipulator gesture, a physics world with awake bodies, a frame listener that asks for another frame, a pending `takeSnapshot()` or `pick()`, or `engine.requestFrame()`. After a model, texture, skybox or indirect light finishes uploading, it waits for the GPU once it has nothing left to render and draws a few more frames, so that Filament frees the upload memory before the render thread goes idle. Each frame runs these stages in order:

@@ -3,6 +3,7 @@ import { Filament } from '../Filament'
 import type { Engine } from '../specs/engine/Engine.nitro'
 import type { EngineBackend } from '../specs/types/EngineBackend'
 import type { RenderMode } from '../specs/types/RenderMode'
+import { createWorkletContext } from '../threading/createWorkletContext'
 import { runOnRenderThread } from '../threading/runOnRenderThread'
 import { FilamentSceneContext, type FilamentSceneValue } from './FilamentSceneContext'
 import { RenderCommit } from './RenderCommit'
@@ -48,6 +49,7 @@ async function createScene(borrowed: Engine | undefined, backend: EngineBackend 
       'worklet'
       return { scene: engine.createScene(), camera: engine.createCamera() }
     })
+    const commit = new RenderCommit(engine)
     const value: FilamentSceneValue = {
       engine,
       scene,
@@ -55,8 +57,9 @@ async function createScene(borrowed: Engine | undefined, backend: EngineBackend 
       transformManager: engine.transformManager,
       renderableManager: engine.renderableManager,
       lightManager: engine.lightManager,
+      workletContext: createWorkletContext(commit),
     }
-    return { value, commit: new RenderCommit(engine), owned: borrowed == null }
+    return { value, commit, owned: borrowed == null }
   } catch (error) {
     if (borrowed == null) await engine.shutdown()
     throw error
