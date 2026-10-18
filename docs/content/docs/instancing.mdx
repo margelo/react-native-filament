@@ -1,0 +1,243 @@
+---
+title: Instancing
+description: Render the same model many times from one load, and share skeletons between instances.
+icon: Copy
+---
+
+![Four drones rendered from one model](/img/demo-multiple-instances.gif)
+
+To show the same model several times, load it once with an `instanceCount`. Every instance shares the model's vertex data and textures, which uses less memory and loads faster than separate models. Each instance has its own transform, its own animator, and its own entities.
+
+## Creating instances
+
+`instanceCount` creates the instances at load time. [`<ModelInstance>`](/api/components/model-instance) configures one of them; `index` goes from `0` to `instanceCount - 1`, and an index out of range throws. Imperatively, `model.getInstance(index)` returns the [`ModelInstance`](/api/hybrid-objects/model-instance) object.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Animator, Model, ModelInstance } from 'react-native-filament'
+
+// Fits the whole model into a unit cube; the instances are placed inside it
+<Model source={require('./drone.glb')} instanceCount={2} transformToUnitCube>
+  <ModelInstance index={0} translate={[-150, 0, 0]}>
+    <Animator />
+  </ModelInstance>
+  <ModelInstance index={1} translate={[150, 0, 0]} />
+</Model>
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+const model = await engine.loadModel({ uri }, { instanceCount: 2 })
+
+await runOnRenderThread(engine, () => {
+  'worklet'
+  const tm = engine.transformManager
+  scene.addModel(model) // adds every instance
+  tm.transformToUnitCube(model.rootEntity, model.boundingBox)
+  tm.setTranslation(model.getInstance(0).rootEntity, [-150, 0, 0])
+  tm.setTranslation(model.getInstance(1).rootEntity, [150, 0, 0])
+})
+
+// Keep a reference: the player stops when it is disposed
+const player = model.getInstance(0).animator.createPlayer()
+player.play(0, {})
+```
+
+</Imperative>
+</ApiTabs>
+
+Every instance is a child of the model's root entity, so an instance's transform applies inside the model's transform. In the example, the model is scaled to a unit cube and the translations are in the model's own units, before that fit, so useful values depend on the size of the model in its file.
+
+Children of a `<ModelInstance>`, such as `<Animator>`, `<EntitySelector>` and `<DebugBox>`, apply to that instance only. An `<Animator>` or `<EntitySelector>` directly under the `<Model>` applies to its first instance.
+
+## With useModel
+
+[`useModel`](/api/hooks/use-model) takes the same `instanceCount` option. Render the result with `<ModelRenderer>`, which accepts the same children as `<Model>`:
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Animator, ModelInstance, ModelRenderer, useModel } from 'react-native-filament'
+
+function Dancers() {
+  const model = useModel(require('./dancer.glb'), { instanceCount: 2 })
+  return (
+    <ModelRenderer model={model}>
+      <ModelInstance index={0} translate={[-0.8, 0, 0]}>
+        <Animator animationIndex={0} />
+      </ModelInstance>
+      <ModelInstance index={1} translate={[0.8, 0, 0]}>
+        <Animator animationIndex={1} />
+      </ModelInstance>
+    </ModelRenderer>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+const model = await engine.loadModel({ uri }, { instanceCount: 2 })
+const dancers = [model.getInstance(0), model.getInstance(1)]
+
+await runOnRenderThread(engine, () => {
+  'worklet'
+  scene.addModel(model)
+  engine.transformManager.setTranslation(dancers[0]!.rootEntity, [-0.8, 0, 0])
+  engine.transformManager.setTranslation(dancers[1]!.rootEntity, [0.8, 0, 0])
+})
+
+const players = dancers.map((dancer, index) => {
+  const player = dancer.animator.createPlayer()
+  player.play(index, {})
+  return player
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+## Adding instances later
+
+`model.createInstance()` adds an instance on the render thread. Scenes that already show the model show the new instance too, `model.instanceCount` grows by one, and `model.entities` includes its entities. Prefer `instanceCount` when you know the number up front: gltfio keeps every instance until the model is disposed.
+
+`<ModelInstance>` only addresses the instances that existed when the model loaded. Configure instances you create later through the returned object.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Button } from 'react-native'
+import { useFilamentContext, useRenderThreadCallback, type Model } from 'react-native-filament'
+
+function AddInstanceButton({ model }: { model: Model }) {
+  const { transformManager } = useFilamentContext()
+  const addInstance = useRenderThreadCallback(() => {
+    'worklet'
+    const offset = model.instanceCount
+    const instance = model.createInstance()
+    transformManager.setTranslation(instance.rootEntity, [offset * 2, 0, 0])
+  }, [model, transformManager])
+  return <Button title="Add instance" onPress={addInstance} />
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+const instance = await runOnRenderThread(engine, () => {
+  'worklet'
+  const offset = model.instanceCount
+  const created = model.createInstance()
+  engine.transformManager.setTranslation(created.rootEntity, [offset * 2, 0, 0])
+  return created
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+## Sharing skeletons
+
+Skinned instances can share one animated skeleton instead of each playing its own animation. Both methods run on the render thread.
+
+### Following another skeleton
+
+`instance.followSkeleton(source)` copies the local transform of every joint of `source` to the joint with the same name in `instance`, at the start of every frame after the animation players run, and then updates the instance's bone matrices. Both instances move in sync at their own positions. Pass `undefined` to stop following.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useRenderThreadEffect, type Model } from 'react-native-filament'
+
+// Render inside the scene once the model is loaded:
+// {model.state === 'loaded' && <FollowLeader model={model.model} />}
+function FollowLeader({ model }: { model: Model }) {
+  useRenderThreadEffect(() => {
+    'worklet'
+    const leader = model.getInstance(0)
+    const follower = model.getInstance(1)
+    follower.followSkeleton(leader)
+    return () => follower.followSkeleton(undefined)
+  }, [model])
+  return null
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+const model = await engine.loadModel({ uri }, { instanceCount: 2 })
+const leader = model.getInstance(0)
+const follower = model.getInstance(1)
+
+await runOnRenderThread(engine, () => {
+  'worklet'
+  scene.addModel(model)
+  follower.followSkeleton(leader)
+})
+
+const player = leader.animator.createPlayer()
+player.play(1, {})
+```
+
+</Imperative>
+</ApiTabs>
+
+### Skinning another mesh
+
+`instance.attachSkin(skinIndex, entity)` skins `entity`, a mesh with bone indices and weights, with the instance's skeleton. Use it to make clothing or accessories follow a character. `detachSkin(skinIndex, entity)` undoes it, and `instance.skinCount` gives the number of skins.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useFilamentContext, useRenderThreadEffect, type Model } from 'react-native-filament'
+
+function SkinWithLeader({ model }: { model: Model }) {
+  const { renderableManager } = useFilamentContext()
+  useRenderThreadEffect(() => {
+    'worklet'
+    const leader = model.getInstance(0)
+    const follower = model.getInstance(1)
+    const meshes = follower.entities.filter((entity) => renderableManager.hasComponent(entity))
+    meshes.forEach((entity) => leader.attachSkin(0, entity))
+    return () => {
+      meshes.forEach((entity) => {
+        leader.detachSkin(0, entity)
+        follower.attachSkin(0, entity)
+      })
+    }
+  }, [model, renderableManager])
+  return null
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+await runOnRenderThread(engine, () => {
+  'worklet'
+  const rm = engine.renderableManager
+  const leader = model.getInstance(0)
+  const follower = model.getInstance(1)
+  for (const entity of follower.entities) {
+    if (rm.hasComponent(entity)) leader.attachSkin(0, entity)
+  }
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+The "Skeleton sharing" example in the example app switches between both modes on two dancers.

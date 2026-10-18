@@ -1,0 +1,270 @@
+---
+title: Debugging and performance
+description: Find leaked resources, visualize bounds, render only when something changes, and keep scenes fast.
+icon: Bug
+---
+
+This page covers the tools for finding problems in a scene and the settings that make it cheaper to render.
+
+## Counting live resources
+
+`engine.getDebugStats()` returns an `EngineDebugStats` object. Its `liveResources` field counts, by kind, the native resources the Engine still holds, such as `{ Model: 1, Scene: 2 }`. You can call it from any thread.
+
+The kinds are `Camera`, `CollisionShape`, `IndirectLight`, `Light`, `Material`, `MaterialInstance`, `Model`, `PhysicsWorld`, `Recorder`, `Renderable`, `RigidBody`, `Scene`, `Skybox`, `Texture` and `ViewTarget`. A kind with no live resources is left out, and after `engine.shutdown()` the object is empty.
+
+To find a leak, read the stats, mount and unmount the screen or run the code under test, then read them again. Anything that is still counted was not disposed. See [Resources](/docs/resources) for who disposes what.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Button } from 'react-native'
+import { useFilamentContext } from 'react-native-filament'
+
+function DebugStatsButton() {
+  const { engine } = useFilamentContext()
+  return <Button title="Log live resources" onPress={() => console.log(engine.getDebugStats().liveResources)} />
+}
+// Render it anywhere inside a <FilamentScene>.
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { Image } from 'react-native'
+import { Filament, runOnRenderThread } from 'react-native-filament'
+
+const coin = Image.resolveAssetSource(require('./coin.glb'))
+
+export async function checkForLeaks() {
+  const engine = await Filament.createEngine({})
+  const model = await engine.loadModel({ uri: coin.uri }, {})
+  console.log(engine.getDebugStats().liveResources) // { Model: 1 }
+  model.dispose()
+  // Disposal runs on the render thread; wait for a later job before reading again.
+  await runOnRenderThread(engine, () => {
+    'worklet'
+  })
+  console.log(engine.getDebugStats().liveResources) // {}
+  await engine.shutdown()
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+`dispose()` destroys the native object in a render-thread job, so a count can lag behind until that job runs. Render-thread jobs run in order, so the stats are up to date once a later `runOnRenderThread()` call resolves.
+
+## Visualizing bounds with `<DebugBox />`
+
+`<DebugBox />` draws the wireframe edges of a box. Inside a `<Model>`, it defaults to the model's bounding box and follows the model as it moves. Elsewhere, pass `halfExtent` and optionally `center`. `color` is linear RGBA and defaults to green, and the box accepts the `translate`, `rotate` and `scale` props. Imperatively, `engine.createDebugBox(options)` returns a `Renderable` on the render thread; parent it to the model's root entity to make it follow.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { DebugBox, Model } from 'react-native-filament'
+
+function DroneWithBounds() {
+  return (
+    <>
+      <Model source={require('./drone.glb')} transformToUnitCube>
+        <DebugBox color={[1, 1, 0, 1]} />
+      </Model>
+      {/* A box anywhere in the scene */}
+      <DebugBox halfExtent={[0.5, 0.5, 0.5]} translate={[2, 0, 0]} />
+    </>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+// Inside runOnRenderThread(engine, () => { 'worklet'; ... }) with a loaded `model`
+const { halfExtent, center } = model.boundingBox
+const box = engine.createDebugBox({ halfExtent, center, color: [1, 1, 0, 1] })
+engine.transformManager.setParent(box.entity, model.rootEntity)
+scene.addEntity(box.entity)
+return box // keep it; box.dispose() removes it from the scene
+```
+
+</Imperative>
+</ApiTabs>
+
+## Render only when something changes
+
+By default an Engine renders on every display refresh while a view is visible (`'continuous'`). For a scene that is mostly still, such as a product viewer, use `'on-demand'`: the Engine renders only when something needs a new frame and stays idle otherwise, which saves battery.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Camera, DefaultLight, FilamentScene, FilamentView, Model } from 'react-native-filament'
+
+export function ProductViewer() {
+  return (
+    <FilamentScene renderMode="on-demand">
+      <FilamentView style={{ flex: 1 }}>
+        <Camera />
+        <DefaultLight />
+        <Model source={require('./drone.glb')} transformToUnitCube />
+      </FilamentView>
+    </FilamentScene>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { runOnRenderThread, type Engine, type Entity } from 'react-native-filament'
+
+async function dimLight(engine: Engine, light: Entity) {
+  engine.renderMode = 'on-demand' // any thread
+  await runOnRenderThread(engine, () => {
+    'worklet'
+    engine.lightManager.setIntensity(light, 5_000)
+  })
+  engine.requestFrame() // draw the change now
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+In `on-demand` mode, these render new frames:
+
+- writes to a `TransformBinding` or `ValueBinding`, which includes transform props and SharedValue props;
+- a playing animation, for example from `<Animator />`;
+- a camera manipulator gesture, for example from `useOrbitGestures`;
+- an automatically stepped physics world with awake bodies;
+- a frame listener that returns `true`, which includes `useFrameCallback`, `useRecorderRenderLoop` and a `<FilamentView renderCallback>`;
+- a pending `target.pick()` or `target.takeSnapshot()`, and models, textures, skyboxes and indirect lights that finish uploading;
+- `engine.requestFrame()`.
+
+Other changes made on the render thread, such as `scene.addEntity()`, a `lightManager` setter or a view option, show up with the next frame that something else requests. This includes component props that are applied that way, such as a plain-number `intensity` on `<Light />` or a plain-array `cameraPosition` on `<Camera />`. Call `engine.requestFrame()` after such changes when nothing else is rendering. To count frames without keeping the Engine awake, register a frame listener that returns `false`.
+
+## Limiting the frame rate
+
+`targetFrameRate` caps how often a view renders, in frames per second. By default a view renders on every display refresh. Frame listeners and native systems, such as animations and physics, still run on every frame of the Engine; only the view's own rendering is skipped.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Camera, DefaultLight, FilamentView, Model } from 'react-native-filament'
+
+function Thumbnail() {
+  return (
+    <FilamentView style={{ height: 180 }} targetFrameRate={30}>
+      <Camera />
+      <DefaultLight />
+      <Model source={require('./coin.glb')} transformToUnitCube />
+    </FilamentView>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+// Any thread. 0 renders on every display refresh again.
+target.targetFrameRate = 30
+```
+
+</Imperative>
+</ApiTabs>
+
+## Measuring the frame rate
+
+Every frame listener receives a `FrameInfo` with `deltaSeconds`, `elapsedSeconds`, `frameIndex` and `timestampNs`. Summing `deltaSeconds` gives the render thread's frame rate. A listener that returns `false` counts frames without requesting any, so it does not keep an `on-demand` Engine awake:
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useState } from 'react'
+import { Text } from 'react-native'
+import { scheduleOnRN } from 'react-native-worklets'
+import { useFilamentContext, useRenderThreadEffect } from 'react-native-filament'
+
+function FpsCounter() {
+  const { engine } = useFilamentContext()
+  const [fps, setFps] = useState(0)
+  useRenderThreadEffect(() => {
+    'worklet'
+    let frames = 0
+    let seconds = 0
+    const subscription = engine.addOnFrameListener((frame) => {
+      frames++
+      seconds += frame.deltaSeconds
+      if (seconds >= 1) {
+        scheduleOnRN(setFps, Math.round(frames / seconds))
+        frames = 0
+        seconds = 0
+      }
+      return false
+    })
+    return () => subscription.remove()
+  }, [engine, setFps])
+  return <Text>{fps} fps</Text>
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { scheduleOnRN } from 'react-native-worklets'
+import { runOnRenderThread, type Engine } from 'react-native-filament'
+
+function measureFps(engine: Engine, onFps: (fps: number) => void) {
+  return runOnRenderThread(engine, () => {
+    'worklet'
+    let frames = 0
+    let seconds = 0
+    return engine.addOnFrameListener((frame) => {
+      frames++
+      seconds += frame.deltaSeconds
+      if (seconds >= 1) {
+        scheduleOnRN(onFps, Math.round(frames / seconds))
+        frames = 0
+        seconds = 0
+      }
+      return false
+    })
+  })
+}
+// const subscription = await measureFps(engine, console.log); later subscription.remove()
+```
+
+</Imperative>
+</ApiTabs>
+
+## Errors
+
+Native failures throw, or reject a Promise, with a JavaScript error whose message names the error, such as `FilamentDisposedError: ...`. Components and hooks rethrow asynchronous failures during the next render, so the closest React error boundary receives them.
+
+| Error | Cause |
+|---|---|
+| `FilamentDisposedError` | A method was called on a disposed object, or the Engine shut down before a job ran. |
+| `FilamentThreadError` | A `@thread render` method was called outside the Engine's render thread. Move the call into `runOnRenderThread()` or a render-thread hook. |
+| `FilamentInvalidEntityError` | The entity has no component of the required kind in this Engine, for example `scene.addEntity()` with a camera's entity. |
+| `FilamentEngineMismatchError` | An object from one Engine was passed to another Engine's object. |
+| `FilamentAssetError` | A source is not in the expected format, for example a model that is not a self-contained `.glb`, or an indirect light without spherical harmonics. |
+| `FilamentBusyError` | `recorder.record()` was called while another recording runs. |
+| `FilamentQueueFullError` | Too many camera manipulator commands were queued before the render thread applied them. |
+
+## Performance tips
+
+- **Use one Engine per screen.** Each Engine has its own render thread and GPU resources. A `<FilamentScene>` creates its own Engine unless you pass one, so for many views on one screen, such as a list of thumbnails, create a single Engine with `useEngine()` and pass it to every `<FilamentScene engine={engine}>`. See [Sharing an Engine](/docs/resources#sharing-an-engine).
+- **Dispose what you create.** Components and hooks dispose their objects on unmount. For objects you create yourself, call `dispose()`, and check `engine.getDebugStats()` for leftovers.
+- **Instance repeated models.** Load a model once with `instanceCount` instead of loading the same file several times; instances share their resources.
+- **Keep lights cheap.** Every light costs time, especially when lights overlap. Give point and spot lights a small `falloffRadius`.
+- **Turn off what you don't need.** View options such as `bloomOptions`, `ambientOcclusionOptions` and `postProcessing` cost GPU time. Shadows too: set `shadowing={false}` on a view that doesn't need them.
+- **Choose the backend.** `Filament.supportedBackends` lists the graphics APIs the device supports, preferred first, and `engine.backend` reports the one in use. On Android, pass `backend="opengl"` or `backend="vulkan"` to `<FilamentScene>`, `useEngine()` or `Filament.createEngine()` to compare them.

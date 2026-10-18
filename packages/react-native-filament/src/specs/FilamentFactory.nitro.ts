@@ -3,6 +3,10 @@ import type { EngineBackend } from './types/EngineBackend'
 import type { EngineOptions } from './types/EngineOptions'
 import type { Engine } from './engine/Engine.nitro'
 
+/**
+ * The root of the native API, exported as `Filament`. Reports the linked Filament version and the
+ * backends this device supports, and creates Engines.
+ */
 export interface FilamentFactory extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   /**
    * Version of the linked Filament binaries, for example `"1.78.0"`.

@@ -1,0 +1,33 @@
+{
+  "title": "Docs",
+  "root": true,
+  "pages": [
+    "---Getting Started---",
+    "index",
+    "expo",
+    "migration",
+    "---Concepts---",
+    "architecture",
+    "threading",
+    "rendering",
+    "resources",
+    "---Scene---",
+    "models",
+    "instancing",
+    "transforms",
+    "animations",
+    "materials",
+    "camera",
+    "lights",
+    "skybox",
+    "images",
+    "---Interaction---",
+    "picking",
+    "physics",
+    "reanimated",
+    "---Output---",
+    "recording",
+    "debugging",
+    "..."
+  ]
+}

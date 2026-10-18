@@ -1,0 +1,224 @@
+---
+title: Reanimated
+description: Drive transforms, cameras, lights and animations with Reanimated SharedValues, without JS work or React renders per update.
+icon: Zap
+---
+
+![A drone spinning with a Reanimated spring](/img/demo-reanimated.gif)
+
+react-native-filament and [Reanimated 4](https://docs.swmansion.com/react-native-reanimated) share [react-native-worklets](https://docs.swmansion.com/react-native-worklets), so you can pass Reanimated `SharedValue`s straight into react-native-filament's props. Imperatively, `bindSharedValue()` connects a SharedValue to a native binding.
+
+## SharedValue props
+
+These props accept either a plain value or a `SharedValue`:
+
+| Component | Props |
+|---|---|
+| `<Model />`, `<ModelInstance />`, `<EntitySelector />`, `<DebugBox />` | `translate`, `rotate`, `scale` |
+| `<Camera />` | `cameraPosition`, `cameraTarget`, `cameraUp` |
+| `<Light />` | `intensity`, `colorKelvin`, `direction`, `position` |
+| `<Animator />` | `animationIndex`, `time` |
+| `<EntitySelector />` | `morphWeights` and each value of `materialParameters` |
+
+Imperatively, create a `TransformBinding` for the entity with `engine.createTransformBinding(entity)` on the render thread, and write the SharedValue into it with `bindSharedValue(sharedValue, apply)`. `apply` is a worklet that runs on Reanimated's UI runtime with the current value and then with every new value. `bindSharedValue` returns a function that removes the listener.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Button } from 'react-native'
+import { useDerivedValue, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated'
+import { Model, type Float3 } from 'react-native-filament'
+
+function SpinningDrone() {
+  const rotationY = useSharedValue(0)
+  const rotate = useDerivedValue<Float3>(() => [0, rotationY.value, 0])
+
+  const spin = () => {
+    rotationY.value = withSequence(withSpring(Math.PI * 2), withTiming(0, { duration: 0 }))
+  }
+
+  return (
+    <>
+      <Button title="Spin" onPress={spin} />
+      <Model source={require('./drone.glb')} transformToUnitCube rotate={rotate} />
+    </>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { useEffect } from 'react'
+import { Easing, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated'
+import { bindSharedValue, quaternionFromAxisAngle, runOnRenderThread, useFilamentContext, type Model } from 'react-native-filament'
+
+function SpinningModel({ model }: { model: Model }) {
+  const { engine } = useFilamentContext()
+  const angle = useSharedValue(0)
+
+  useEffect(() => {
+    angle.value = withRepeat(withTiming(2 * Math.PI, { duration: 4_000, easing: Easing.linear }), -1, false)
+  }, [angle])
+
+  useEffect(() => {
+    const started = runOnRenderThread(engine, () => {
+      'worklet'
+      return engine.createTransformBinding(model.rootEntity)
+    }).then((binding) => ({
+      binding,
+      unbind: bindSharedValue(angle, (radians) => {
+        'worklet'
+        const [x, y, z, w] = quaternionFromAxisAngle([0, 1, 0], radians)
+        binding.setRotation(x, y, z, w)
+      }),
+    }))
+    return () => {
+      started.then(({ binding, unbind }) => {
+        unbind()
+        binding.dispose()
+      })
+    }
+  }, [engine, model, angle])
+  return null
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+## How updates travel
+
+Reanimated computes animations on its UI runtime. react-native-filament adds a listener there that writes every new value into a native binding, and the render thread applies the latest value at the start of its next frame:
+
+- no work on the JS thread and no React render per update;
+- no cross-runtime reads: the render thread never waits on the UI thread;
+- several props written in the same UI frame apply together in the same rendered frame;
+- every write requests a frame, so SharedValue props also work in `on-demand` [render mode](/docs/debugging#render-only-when-something-changes).
+
+Two kinds of bindings carry the values. A `TransformBinding` owns the local transform of one entity and applies its latest translation, rotation and scale together; transform props and `<Camera />` props use it. A `ValueBinding` holds one number that any thread can write and render-thread code can read; `<Light />`, morph weight and material parameter props use one per component of the value. `<Animator />` calls its native animation player directly, which works from the UI runtime too.
+
+## Writing transforms from any thread
+
+`useTransformBinding(entity)` creates a `TransformBinding` for `entity` while the component is mounted. Its setters (`setTranslation`, `setRotation`, `setScale` and `setBase`) work from any thread, such as a Reanimated worklet on the UI runtime, a render-thread frame callback, or the JS thread. The entity's local transform becomes `translation · rotation · scale · base`. A binding starts from the entity's current transform.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useEffect } from 'react'
+import type { SharedValue } from 'react-native-reanimated'
+import { bindSharedValue, useTransformBinding, type Entity } from 'react-native-filament'
+
+function useHeight(entity: Entity | undefined, height: SharedValue<number>) {
+  const binding = useTransformBinding(entity)
+  useEffect(() => {
+    if (binding == null) return
+    return bindSharedValue(height, (y) => {
+      'worklet'
+      binding.setTranslation(0, y, 0)
+    })
+  }, [binding, height])
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { bindSharedValue, runOnRenderThread, type Engine, type Entity } from 'react-native-filament'
+import type { SharedValue } from 'react-native-reanimated'
+
+async function bindHeight(engine: Engine, entity: Entity, height: SharedValue<number>) {
+  const binding = await runOnRenderThread(engine, () => {
+    'worklet'
+    return engine.createTransformBinding(entity)
+  })
+  const unbind = bindSharedValue(height, (y) => {
+    'worklet'
+    binding.setTranslation(0, y, 0)
+  })
+  return () => {
+    unbind()
+    binding.dispose()
+  }
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+Use either a binding or transform props for an entity, not both: each owns the entity's local transform. After `dispose()`, setter calls on the binding, including those from a UI-runtime listener that still holds it, are ignored.
+
+## Reading a SharedValue on the render thread
+
+Render-thread code cannot read `sharedValue.value`: that would block on the UI thread. Instead, mirror the SharedValue into a `ValueBinding` and read `binding.value`. `useValueBinding(value)` does this for you and returns the binding once it exists. Imperatively, create one with `engine.createValueBinding(initialValue)` from any thread and write it with `bindSharedValue`.
+
+This example scrubs a model's first animation with a `progress` SharedValue between 0 and 1:
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useMemo } from 'react'
+import type { SharedValue } from 'react-native-reanimated'
+import { useFrameCallback, useValueBinding, type Model } from 'react-native-filament'
+
+function Scrubber({ model, progress }: { model: Model; progress: SharedValue<number> }) {
+  const binding = useValueBinding(progress)
+  const animator = useMemo(() => model.getInstance(0).animator, [model])
+
+  useFrameCallback(() => {
+    'worklet'
+    if (binding == null) return
+    const duration = animator.animations[0]!.durationSeconds
+    animator.applyAnimation(0, binding.value * duration)
+    animator.updateBoneMatrices()
+  }, [binding, animator])
+  return null
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import type { SharedValue } from 'react-native-reanimated'
+import { bindSharedValue, runOnRenderThread, type Engine, type Model } from 'react-native-filament'
+
+async function scrub(engine: Engine, model: Model, progress: SharedValue<number>) {
+  const binding = engine.createValueBinding(progress.value)
+  const unbind = bindSharedValue(progress, (value) => {
+    'worklet'
+    binding.set(value)
+  })
+  const animator = model.getInstance(0).animator
+  const subscription = await runOnRenderThread(engine, () => {
+    'worklet'
+    const duration = animator.animations[0]!.durationSeconds
+    return engine.addOnFrameListener(() => {
+      animator.applyAnimation(0, binding.value * duration)
+      animator.updateBoneMatrices()
+      return true
+    })
+  })
+  return () => {
+    unbind()
+    subscription.remove()
+    binding.dispose()
+  }
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+For scrubbing alone, `<Animator time={seconds} />` with a SharedValue does the same without a frame callback. A frame callback that runs on every frame keeps the Engine rendering in `on-demand` mode; to render only when the value changes, register a frame listener that compares `binding.value` with the last applied value and returns `false`.
+
+## Without Reanimated
+
+Reanimated is optional. The props and `bindSharedValue` accept any `ListenableValue`: an object with a `value`, `addListener(listenerId, listener)` and `removeListener(listenerId)`, whose listeners are called on the UI runtime. Reanimated's `SharedValue` is one such object.
+
+You can also call the setters of a `TransformBinding`, a `ValueBinding`, an `AnimationPlayer` or a `CameraManipulator` directly from any thread, for example from a gesture handler worklet, without a SharedValue in between.

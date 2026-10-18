@@ -2,6 +2,10 @@ import type { HybridObject } from 'react-native-nitro-modules'
 import type { AnimationInfo } from '../types/AnimationInfo'
 import type { AnimationPlayer } from './AnimationPlayer.nitro'
 
+/**
+ * Applies the glTF animations of one model instance. Get it from `ModelInstance.animator`; apply
+ * animations from a render-thread worklet or use `createPlayer()` to play them natively.
+ */
 export interface Animator extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   /** @thread any */
   readonly animations: AnimationInfo[]

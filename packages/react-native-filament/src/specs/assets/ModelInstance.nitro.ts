@@ -2,6 +2,9 @@ import type { HybridObject } from 'react-native-nitro-modules'
 import type { Entity } from '../types/Entity'
 import type { Animator } from './Animator.nitro'
 
+/**
+ * One instance of a Model: its entities, animator, material variants and skins.
+ */
 export interface ModelInstance extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   /** @thread any */
   readonly rootEntity: Entity

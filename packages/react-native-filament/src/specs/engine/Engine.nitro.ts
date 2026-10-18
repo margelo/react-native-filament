@@ -42,6 +42,10 @@ import type { OrbitManipulatorOptions } from '../types/OrbitManipulatorOptions'
 import type { FrameListenerSubscription } from './FrameListenerSubscription.nitro'
 import type { RenderThread } from './RenderThread.nitro'
 
+/**
+ * A Filament engine with its own render thread. Create one with `Filament.createEngine()`; it creates
+ * and loads every other native object and renders into ViewTargets and Recorders.
+ */
 export interface Engine extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   /** @thread any */
   readonly backend: EngineBackend

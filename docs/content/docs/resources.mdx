@@ -1,0 +1,326 @@
+---
+title: Resource lifecycle
+description: How native objects are owned and disposed, how to share one Engine between scenes, and why the components are safe under StrictMode.
+icon: Recycle
+---
+
+Every native object, such as a model, scene, light or physics world, belongs to the Engine that created it and holds GPU or CPU memory until it is destroyed. Components and hooks clean up after themselves. When you create objects yourself, you decide when they go away.
+
+## Disposing objects
+
+`dispose()` releases an object and everything it owns. You can call it from any thread; the native destruction runs as a job on the Engine's render thread. Calling it again does nothing.
+
+After `dispose()`, calls on the object fail with `FilamentDisposedError`, also through other references to it, so nothing ever touches destroyed Filament memory. Disposal also cleans up after the object:
+
+- a disposed light, renderable, model, skybox or indirect light is removed from every scene that shows it;
+- a disposed rigid body is removed from its world;
+- a disposed `TransformBinding` ignores further setter calls, including those from a UI-runtime listener that still holds it.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Light, Model } from 'react-native-filament'
+
+// Components dispose what they create when they unmount.
+function Lamp({ on }: { on: boolean }) {
+  return (
+    <>
+      <Model source={require('./lamp.glb')} />
+      {on && <Light type="point" intensity={1_600} position={[0, 1, 0]} falloffRadius={3} />}
+    </>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { runOnRenderThread, type Engine, type Scene } from 'react-native-filament'
+
+async function flashLight(engine: Engine, scene: Scene) {
+  const light = await runOnRenderThread(engine, () => {
+    'worklet'
+    const created = engine.createPointLight({ intensityLumens: 1_600, position: [0, 1, 0], falloffRadius: 3 })
+    scene.addEntity(created.entity)
+    return created
+  })
+  setTimeout(() => light.dispose(), 1_000) // removes it from the scene and frees it
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+## Owners and dependencies
+
+Objects form an ownership tree under their Engine. Disposing an owner first disposes everything it owns:
+
+- the Engine owns every object it created;
+- a physics world owns its collision shapes and rigid bodies;
+- a material owns the material instances created from it.
+
+Separately, an object keeps the objects it uses alive while it uses them, even if your code drops its references: a view target or recorder keeps its scene and camera, a scene keeps the models, skybox and indirect light it shows, a rigid body keeps its world and shape, and a renderable keeps its material instance.
+
+### Keep references to what you create
+
+A scene stores only the entity number of a light or renderable that you add with `scene.addEntity()`. The object itself stays alive only while JavaScript references it: when the garbage collector releases the last reference, the light or renderable is destroyed and disappears from the scene. The same applies to a `ViewTarget`, which stops rendering, to a `TransformBinding`, which stops applying its values, and to an Engine, which shuts down.
+
+Keep such objects in a variable, a ref, state or the result of your effect until you dispose them. Components and hooks do this for you.
+
+## Shutting down an Engine
+
+`engine.shutdown()` destroys every object of the Engine, then stops its render thread. Every caller's Promise resolves once all native resources are destroyed and the render thread has exited, so it is safe to call more than once. Call it from the React Native runtime or Reanimated's UI runtime. Render-thread jobs that have not run yet are rejected with `FilamentDisposedError`.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { FilamentScene } from 'react-native-filament'
+
+// A FilamentScene without an `engine` prop creates its own Engine
+// and shuts it down when it unmounts.
+export function Screen() {
+  return <FilamentScene>{/* ... */}</FilamentScene>
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { useEffect } from 'react'
+import { Filament } from 'react-native-filament'
+
+function useOwnEngine() {
+  useEffect(() => {
+    const creating = Filament.createEngine({})
+    // ... create targets, scenes and models with the engine
+    return () => {
+      creating.then((engine) => engine.shutdown())
+    }
+  }, [])
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+## Creating objects in components
+
+`useDisposableResource(create, deps)` is the hook that the built-in components use for their own objects. It calls `create` whenever `deps` change and returns the object once it exists, or `undefined` until then. It disposes the object when `deps` change again or the component unmounts, including an object whose creation finishes after that. A failed creation is thrown to the closest error boundary. `create` may return the object, a Promise of it, or `undefined` to create nothing.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Image } from 'react-native'
+import { useDisposableResource, useFilamentContext } from 'react-native-filament'
+
+const shadowMaterial = Image.resolveAssetSource(require('./transparent_shadow_material.filamat'))
+
+function useShadowMaterial() {
+  const { engine } = useFilamentContext()
+  return useDisposableResource(() => engine.loadMaterial({ uri: shadowMaterial.uri }), [engine])
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { useEffect, useState } from 'react'
+import { Image } from 'react-native'
+import { useFilamentContext, type Material } from 'react-native-filament'
+
+const shadowMaterial = Image.resolveAssetSource(require('./transparent_shadow_material.filamat'))
+
+function useShadowMaterial() {
+  const { engine } = useFilamentContext()
+  const [material, setMaterial] = useState<Material>()
+  useEffect(() => {
+    let active = true
+    const loading = engine.loadMaterial({ uri: shadowMaterial.uri })
+    loading.then((loaded) => {
+      if (active) setMaterial(loaded)
+    })
+    return () => {
+      active = false
+      setMaterial(undefined)
+      // Also disposes a material that finishes loading after unmount.
+      loading.then((loaded) => loaded.dispose())
+    }
+  }, [engine])
+  return material
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+### Adding entities to a scene
+
+`useEntityInScene(scene, entity)` adds an entity to a scene while the component is mounted and removes it on unmount. It does nothing while `entity` is `undefined`, so you can pass the entity of an object that is still being created. Imperatively, call `scene.addEntity()` and `scene.removeEntity()` on the render thread.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useDisposableResource, useEntityInScene, useFilamentContext, useRenderThreadCallback } from 'react-native-filament'
+
+function Marker() {
+  const { engine, scene } = useFilamentContext()
+  const createBox = useRenderThreadCallback(() => {
+    'worklet'
+    return engine.createDebugBox({ halfExtent: [0.1, 0.1, 0.1] })
+  }, [engine])
+  const box = useDisposableResource(() => createBox(), [createBox])
+  useEntityInScene(scene, box?.entity)
+  return null
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { useEffect } from 'react'
+import { runOnRenderThread, useFilamentContext } from 'react-native-filament'
+
+function Marker() {
+  const { engine, scene } = useFilamentContext()
+  useEffect(() => {
+    const created = runOnRenderThread(engine, () => {
+      'worklet'
+      const box = engine.createDebugBox({ halfExtent: [0.1, 0.1, 0.1] })
+      scene.addEntity(box.entity)
+      return box
+    })
+    return () => {
+      created.then((box) => {
+        runOnRenderThread(engine, () => {
+          'worklet'
+          scene.removeEntity(box.entity)
+        })
+        box.dispose()
+      })
+    }
+  }, [engine, scene])
+  return null
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+Disposing the box would remove it from the scene on its own; `removeEntity()` is for entities you want to keep, such as one you show in different scenes over time.
+
+## Sharing an Engine
+
+Each Engine has its own render thread and GPU resources, so use one Engine per screen. A `<FilamentScene>` creates its own Engine unless you pass one through its `engine` prop. `useEngine(backend)` creates an Engine and shuts it down when the component unmounts; pass it to every `<FilamentScene>` that should share it. A scene that borrows an Engine disposes only what it created, its scene, camera and children, and never shuts the Engine down.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { FlatList, Text } from 'react-native'
+import { Camera, DefaultLight, FilamentScene, FilamentView, Model, useEngine } from 'react-native-filament'
+
+const rows = Array.from({ length: 24 }, (_, index) => String(index))
+
+export function CoinList() {
+  const engine = useEngine()
+  if (engine == null) return <Text>Starting…</Text>
+  return (
+    <FlatList
+      data={rows}
+      renderItem={() => (
+        <FilamentScene engine={engine}>
+          <FilamentView style={{ height: 180 }}>
+            <Camera cameraPosition={[0, 0, 4]} />
+            <DefaultLight />
+            <Model source={require('./coin.glb')} transformToUnitCube />
+          </FilamentView>
+        </FilamentScene>
+      )}
+    />
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { useEffect, useState } from 'react'
+import { Image, View } from 'react-native'
+import { callback } from 'react-native-nitro-modules'
+import { defaultIndirectLightSource, Filament, NativeFilamentView, runOnRenderThread, type FilamentView } from 'react-native-filament'
+
+const coin = Image.resolveAssetSource(require('./coin.glb'))
+
+export function TwoViews() {
+  const [top, setTop] = useState<FilamentView>()
+  const [bottom, setBottom] = useState<FilamentView>()
+
+  useEffect(() => {
+    if (top == null || bottom == null) return
+    const starting = Filament.createEngine({}).then(async (engine) => {
+      const [first, second, model, environment] = await Promise.all([
+        engine.createViewTarget(top, {}),
+        engine.createViewTarget(bottom, {}),
+        engine.loadModel({ uri: coin.uri }, {}),
+        engine.loadIndirectLight(defaultIndirectLightSource, {}),
+      ])
+      await runOnRenderThread(engine, () => {
+        'worklet'
+        const scene = engine.createScene()
+        scene.setIndirectLight(environment)
+        scene.addModel(model)
+        engine.transformManager.transformToUnitCube(model.rootEntity, model.boundingBox)
+        const front = engine.createCamera()
+        front.lookAt([0, 0, 4], [0, 0, 0], [0, 1, 0])
+        const side = engine.createCamera()
+        side.lookAt([4, 0, 0], [0, 0, 0], [0, 1, 0])
+        for (const camera of [front, side]) camera.setLensProjection(28, 2, 0.1, 100)
+        first.setScene(scene)
+        first.setCamera(front)
+        second.setScene(scene)
+        second.setCamera(side)
+      })
+      // Keep the targets referenced: a garbage-collected ViewTarget stops rendering.
+      return { engine, targets: [first, second] }
+    })
+    return () => {
+      starting.then(({ engine }) => engine.shutdown())
+    }
+  }, [top, bottom])
+
+  return (
+    <View style={{ flex: 1 }}>
+      <NativeFilamentView style={{ aspectRatio: 2 }} hybridRef={callback(setTop)} />
+      <NativeFilamentView style={{ aspectRatio: 2 }} hybridRef={callback(setBottom)} />
+    </View>
+  )
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+Several `<FilamentView>`s inside one `<FilamentScene>` show the same scene through the same camera. For different scenes or cameras on one Engine, use one `<FilamentScene engine={engine}>` per view, as above.
+
+`useFilamentContext()` gives the components below a `<FilamentScene>` its `engine`, `scene`, `camera`, the three managers and, inside a `<FilamentView>`, its `view` and `target`. Use it to mix imperative code into a declarative scene.
+
+## StrictMode
+
+All components and hooks are safe under React's StrictMode: in development, StrictMode mounts each component, cleans up its effects and mounts it again. A scene under StrictMode adds each model once and leaves no resources behind after it unmounts.
+
+This works because `useDisposableResource` starts creating its object after the commit's effects have run. When StrictMode cleans up an effect right away, the creation never starts. When a creation is already running, the cleanup disposes the object as soon as it exists.
+
+Follow the same rules in your own effects:
+
+- dispose in the cleanup what the effect created;
+- if creation is asynchronous, dispose the object when it arrives after the cleanup, as in the `loading.then((loaded) => loaded.dispose())` pattern above;
+- remove frame listeners, collision listeners and SharedValue bindings in the cleanup.

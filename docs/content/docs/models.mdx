@@ -1,0 +1,312 @@
+---
+title: Models
+description: Load glTF binaries from your bundle, the device, the web or memory, and show them in a scene.
+icon: Box
+---
+
+react-native-filament renders glTF 2.0 binaries (`.glb`). A model loads once, uploads its buffers and textures to the GPU, and can then be added to any scene of the same Engine. Convert other formats (glTF, OBJ, FBX) to `.glb` with Blender or an online converter.
+
+## Showing a model
+
+<ApiTabs>
+<Declarative>
+
+```tsx title="DroneScreen.tsx"
+import { Camera, DefaultLight, FilamentScene, FilamentView, Model } from 'react-native-filament'
+
+export function DroneScreen() {
+  return (
+    <FilamentScene>
+      <FilamentView style={{ flex: 1 }}>
+        <Camera />
+        <DefaultLight />
+        <Model source={require('./drone.glb')} transformToUnitCube />
+      </FilamentView>
+    </FilamentScene>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx title="DroneScreen.tsx"
+import { useEffect, useState } from 'react'
+import { Image } from 'react-native'
+import { callback } from 'react-native-nitro-modules'
+import { defaultIndirectLightSource, Filament, NativeFilamentView, runOnRenderThread, type FilamentView } from 'react-native-filament'
+
+const drone = Image.resolveAssetSource(require('./drone.glb'))
+
+export function DroneScreen() {
+  const [view, setView] = useState<FilamentView>()
+
+  useEffect(() => {
+    if (view == null) return
+    const starting = Filament.createEngine({}).then(async (engine) => {
+      const [target, model, environment] = await Promise.all([
+        engine.createViewTarget(view, {}),
+        engine.loadModel({ uri: drone.uri }, {}),
+        engine.loadIndirectLight(defaultIndirectLightSource, {}),
+      ])
+      const camera = await runOnRenderThread(engine, () => {
+        'worklet'
+        const scene = engine.createScene()
+        scene.setIndirectLight(environment)
+        scene.addModel(model)
+        engine.transformManager.transformToUnitCube(model.rootEntity, model.boundingBox)
+        const lens = engine.createCamera()
+        lens.lookAt([0, 0, 4], [0, 0, 0], [0, 1, 0])
+        target.setScene(scene)
+        target.setCamera(lens)
+        return lens
+      })
+      const resize = target.addOnResizeListener((width, height) => {
+        runOnRenderThread(engine, () => {
+          'worklet'
+          camera.setProjection(45, width / height, 0.1, 100)
+        })
+      })
+      // Keep the target: it stops rendering when it is garbage collected.
+      return { engine, target, resize }
+    })
+    return () => {
+      starting.then(({ engine, resize }) => {
+        resize.remove()
+        engine.shutdown()
+      })
+    }
+  }, [view])
+
+  return <NativeFilamentView style={{ flex: 1 }} hybridRef={callback(setView)} />
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+The remaining imperative examples on this page assume an `engine` and a `scene`, either created as above or taken from `useFilamentContext()` inside a `<FilamentScene>`. Methods marked `@thread render`, such as `scene.addModel()`, must run on the render thread through [`runOnRenderThread`](/api/functions/run-on-render-thread).
+
+## Asset sources
+
+Components and hooks accept an [`AssetLike`](/api/types/asset-like): a `require()`d asset, a URI string, a `{ uri }` object or an `ArrayBuffer`. The Engine methods (`loadModel`, `loadTexture`, `loadMaterial`, `loadSkybox`, `loadIndirectLight`) accept an [`AssetSource`](/api/types/asset-source): `{ uri }` or an `ArrayBuffer`. Resolve a `require()`d asset to a URI with `Image.resolveAssetSource` first.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+<Model source={require('./drone.glb')} />          // bundled by Metro
+<Model source={{ uri: 'drone.glb' }} />              // bundled with the native app
+<Model source={{ uri: `file://${path}` }} />         // file on the device
+<Model source="https://example.com/drone.glb" />     // web URL, same as { uri }
+<Model source={glbBytes} />                          // ArrayBuffer
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { Image } from 'react-native'
+
+const { uri } = Image.resolveAssetSource(require('./drone.glb'))
+await engine.loadModel({ uri }, {})                                 // bundled by Metro
+await engine.loadModel({ uri: 'drone.glb' }, {})                    // bundled with the native app
+await engine.loadModel({ uri: `file://${path}` }, {})               // file on the device
+await engine.loadModel({ uri: 'https://example.com/drone.glb' }, {}) // web URL
+await engine.loadModel(glbBytes, {})                                // ArrayBuffer
+```
+
+</Imperative>
+</ApiTabs>
+
+A `{ uri }` is read natively, so the file's bytes never pass through JavaScript.
+
+### Assets bundled by Metro
+
+Files next to your code load with `require()`. Let Metro bundle them by adding their extensions to `assetExts`:
+
+```js title="metro.config.js"
+const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config')
+
+const defaultConfig = getDefaultConfig(__dirname)
+
+module.exports = mergeConfig(defaultConfig, {
+  resolver: {
+    assetExts: [...defaultConfig.resolver.assetExts, 'glb', 'ktx', 'filamat'],
+  },
+})
+```
+
+In debug builds the asset is downloaded from the Metro server, for example `http://localhost:8081/assets/drone.glb`. Large files can take a moment; measure load times in a release build. In release builds React Native packs the asset into the app binary.
+
+<Callout type="warn" title="Assets outside the default folder">
+If your assets live in a directory other than the default `assets` folder, list it in `react-native.config.js` so the release build includes it. See the [React Native CLI documentation](https://github.com/react-native-community/cli/blob/main/docs/projects.md#projectandroidassets).
+
+```js title="react-native.config.js"
+module.exports = {
+  assets: ['./app/assets/3d'],
+}
+```
+</Callout>
+
+### Assets bundled with the native app
+
+A plain name such as `{ uri: 'drone.glb' }` loads a file from the app bundle. This is fast in debug builds too, because nothing goes over the network.
+
+- Android: place the file in `android/app/src/main/assets/`.
+- iOS: add the file to your Xcode target so it is copied into the app bundle.
+
+### Files on the device
+
+A `file://` URI loads a file from the device, for example a model you downloaded and cached in your app's document directory. Files in public directories, such as Downloads, may need a permission first.
+
+### Web URLs
+
+An `http://` or `https://` URI is downloaded natively and cached on disk. Loading the same URL again reads the cached file.
+
+### Bytes
+
+An `ArrayBuffer` is copied once when the load starts, so you can reuse or overwrite the buffer right away. Use it for models you generate or receive yourself.
+
+## Loading state
+
+[`useModel`](/api/hooks/use-model) loads a model and returns a [`FilamentModel`](/api/types/filament-model): `{ state: 'loading' }` until the model is uploaded, then `{ state: 'loaded', model, boundingBox, rootEntity }`. [`<ModelRenderer>`](/api/components/model-renderer) takes that value and renders nothing while it is loading. `<Model>` is `useModel` and `<ModelRenderer>` in one component.
+
+`engine.loadModel()` returns a Promise that resolves with the [`Model`](/api/hybrid-objects/model) once every buffer and texture is on the GPU.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useEffect } from 'react'
+import { ModelRenderer, useModel } from 'react-native-filament'
+
+function Drone() {
+  const model = useModel(require('./drone.glb'), { instanceCount: 1 })
+
+  useEffect(() => {
+    if (model.state !== 'loaded') return
+    console.log(`${model.model.entities.length} entities, half extent ${model.boundingBox.halfExtent}`)
+  }, [model])
+
+  return <ModelRenderer model={model} transformToUnitCube />
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+const model = await engine.loadModel({ uri }, { instanceCount: 1 })
+console.log(`${model.entities.length} entities, half extent ${model.boundingBox.halfExtent}`)
+
+await runOnRenderThread(engine, () => {
+  'worklet'
+  scene.addModel(model)
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+A failed load rejects the Promise: bytes that are not a glTF binary reject with `FilamentAssetError`, and a missing bundled asset rejects with an error that names it. In React, the failure is thrown to the closest error boundary.
+
+## Adding and removing
+
+`useModel` and `<Model>` add every instance of the model to the scene of the closest `<FilamentScene>` and remove it on unmount. Pass `addToScene: false` to load a model without showing it, and add it yourself. Imperatively, `scene.addModel(model)` adds every renderable and light entity of every instance, and `scene.removeModel(model)` removes them. Adding a model that is already in the scene changes nothing.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { ModelRenderer, useFilamentContext, useModel, useRenderThreadEffect } from 'react-native-filament'
+
+function ToggleableDrone({ visible }: { visible: boolean }) {
+  const { scene } = useFilamentContext()
+  const model = useModel(require('./drone.glb'), { addToScene: false })
+  const loaded = model.state === 'loaded' ? model.model : undefined
+
+  useRenderThreadEffect(() => {
+    'worklet'
+    if (loaded == null || !visible) return
+    scene.addModel(loaded)
+    return () => scene.removeModel(loaded)
+  }, [loaded, visible, scene])
+
+  return <ModelRenderer model={model} transformToUnitCube />
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+async function setVisible(visible: boolean) {
+  await runOnRenderThread(engine, () => {
+    'worklet'
+    if (visible) scene.addModel(model)
+    else scene.removeModel(model)
+  })
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+## Lifetime
+
+A model stays alive until you call `model.dispose()` or the Engine shuts down. Disposing a model removes it from every scene. `useModel` and `<Model>` dispose the model when the component unmounts or `source` changes. Loads still pending when the Engine shuts down reject.
+
+## Entities and bounds
+
+A model is a tree of glTF nodes, and each node is an [`Entity`](/api/types/entity): a number that Filament's managers use to look up its transform, renderable and light components. The `Model` object describes them:
+
+| Member | Thread | |
+|---|---|---|
+| `rootEntity` | any | Root of the model. Every instance is a child of it. |
+| `entities` | any | Every entity of every instance, including instances created later. |
+| `boundingBox` | any | `{ center, halfExtent }` in the model's own space, from the glTF accessors. |
+| `instanceCount` | any | Number of instances. See [Instancing](/docs/instancing). |
+| `getEntityByName(name)` | any | First entity with this glTF node name, or `undefined`. |
+| `getEntityName(entity)` | render | glTF node name of an entity, or `undefined`. |
+
+[`<EntitySelector>`](/api/components/entity-selector) picks one node of the parent `<Model>` or `<ModelInstance>` by name (`byName`) or by its index in the instance's `entities` (`byIndex`). Under a `<Model>` it selects from the first instance. It throws when no entity matches. It changes the node's [transform](/docs/transforms), [material parameters and texture](/docs/materials), or [morph weights](/docs/animations#morph-targets).
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { EntitySelector, Model } from 'react-native-filament'
+
+<Model source={require('./rocket.glb')} transformToUnitCube>
+  <EntitySelector byName="Tip" scale={[1.5, 1.5, 1.5]} />
+  <EntitySelector byIndex={2} scale={[0.5, 0.5, 0.5]} />
+</Model>
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+const tip = model.getEntityByName('Tip') // any thread, first match
+const third = model.getInstance(0).entities[2]
+
+const names = await runOnRenderThread(engine, () => {
+  'worklet'
+  const tm = engine.transformManager
+  if (tip != null) tm.setScale(tip, [1.5, 1.5, 1.5])
+  if (third != null) tm.setScale(third, [0.5, 0.5, 0.5])
+  return model.entities.map((entity) => model.getEntityName(entity)) // render thread only
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+<Callout type="info" title="Bounds without accessor ranges">
+`boundingBox` comes from the min and max values of the glTF accessors. If an asset lacks correct values, call `model.getInstance(0).recomputeBoundingBoxes()` on the render thread to compute the bounds of every renderable from its vertices. It does not account for skinning or morphing.
+</Callout>
+
+## Pressing a model
+
+`<Model>` and `<ModelRenderer>` take an `onPress` callback that receives the entity under the finger. See [Picking and snapshots](/docs/picking) for how it works and for the imperative `pick()` API.

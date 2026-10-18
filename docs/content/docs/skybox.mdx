@@ -1,0 +1,170 @@
+---
+title: Skybox and backgrounds
+description: Fill the background of a scene with a color or a cubemap, or make the view transparent.
+icon: CloudSun
+---
+
+A [skybox](https://en.wikipedia.org/wiki/Skybox_(video_games)) is the background of a scene: every pixel that no object covers shows the skybox. A skybox is either one color or a cubemap texture. It only draws the background and does not light the scene; for light from the same environment, use [image-based lighting](/docs/lights#image-based-lighting-ibl).
+
+<Callout type="info" title="Without a skybox">
+A `<FilamentView>` is opaque by default and clears to black. Set its `transparent` prop to show the React Native views behind it, or pass `clearOptions={{ color: [r, g, b, a] }}` (linear RGBA) for another clear color. Imperatively, pass `{ clearOptions }` to `engine.createViewTarget()`, or call `target.setClearOptions()` on the render thread.
+</Callout>
+
+## A static color
+
+`<Skybox />` takes either `colorInHex`, an sRGB `#rrggbb` or `#rrggbbaa` string, or `color`, a linear RGBA array. Imperatively, `engine.createSkybox(color)` creates a skybox from a linear RGBA color on the render thread, and `scene.setSkybox()` shows it.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Camera, DefaultLight, FilamentScene, FilamentView, Model, Skybox } from 'react-native-filament'
+
+export function SkyBlue() {
+  return (
+    <FilamentScene>
+      <FilamentView style={{ flex: 1 }}>
+        <Camera />
+        <DefaultLight />
+        <Skybox colorInHex="#88defb" />
+        {/* or linear RGBA: <Skybox color={[0.25, 0.73, 0.96, 1]} /> */}
+        <Model source={require('./drone.glb')} transformToUnitCube />
+      </FilamentView>
+    </FilamentScene>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { useEffect } from 'react'
+import { runOnRenderThread, useFilamentContext } from 'react-native-filament'
+
+function SkyBlue() {
+  const { engine, scene } = useFilamentContext()
+  useEffect(() => {
+    const created = runOnRenderThread(engine, () => {
+      'worklet'
+      const skybox = engine.createSkybox([0.25, 0.73, 0.96, 1]) // linear RGBA
+      scene.setSkybox(skybox)
+      return skybox
+    })
+    // Disposing a skybox also removes it from every scene.
+    return () => {
+      created.then((skybox) => skybox.dispose())
+    }
+  }, [engine, scene])
+  return null
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+## A cubemap texture
+
+With `source`, `<Skybox />` loads a KTX1 [cubemap](https://learnopengl.com/Advanced-OpenGL/Cubemaps), as Filament's `cmgen` tool writes it. Imperatively, `engine.loadSkybox()` reads the file natively and resolves with a `Skybox`; you can call it from any thread.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Camera, FilamentScene, FilamentView, Light, Model, Skybox } from 'react-native-filament'
+
+export function SkyboxScene() {
+  return (
+    <FilamentScene>
+      <FilamentView style={{ flex: 1 }}>
+        <Camera />
+        <Light type="directional" intensity={100_000} colorKelvin={6_500} />
+        <Model source={require('./drone.glb')} transformToUnitCube />
+        <Skybox source={require('./environment_skybox.ktx')} />
+      </FilamentView>
+    </FilamentScene>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { useEffect } from 'react'
+import { Image } from 'react-native'
+import { runOnRenderThread, useFilamentContext } from 'react-native-filament'
+
+const cubemap = Image.resolveAssetSource(require('./environment_skybox.ktx'))
+
+function EnvironmentSkybox() {
+  const { engine, scene } = useFilamentContext()
+  useEffect(() => {
+    const loading = engine.loadSkybox({ uri: cubemap.uri })
+    loading.then((skybox) =>
+      runOnRenderThread(engine, () => {
+        'worklet'
+        scene.setSkybox(skybox)
+      })
+    )
+    return () => {
+      loading.then((skybox) => skybox.dispose())
+    }
+  }, [engine, scene])
+  return null
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+To load `.ktx` files with `require()`, add `ktx` to Metro's `assetExts`. Sources can also be a `file://` path, an `http(s)://` URL or an `ArrayBuffer`.
+
+### Generating cubemaps
+
+Filament's `cmgen` tool converts an HDR panorama, for example from [Poly Haven](https://polyhaven.com/hdris), into KTX cubemaps:
+
+```sh
+cmgen --format=ktx --size=512 --deploy=./out environment.hdr
+```
+
+It writes a `*_skybox.ktx` file for the background and a `*_ibl.ktx` file for [image-based lighting](/docs/lights#image-based-lighting-ibl) of the same environment.
+
+## The `useSkybox` hook
+
+`useSkybox(options)` takes the same options as `<Skybox />` and returns the `Skybox` object once it exists. Pass `undefined` to show no skybox, which makes it easy to switch the background on and off. Imperatively, keep the skybox and pass it or `undefined` to `scene.setSkybox()`:
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useSkybox } from 'react-native-filament'
+
+function Background({ night }: { night: boolean }) {
+  useSkybox(night ? { colorInHex: '#0b1026' } : undefined)
+  return null
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { runOnRenderThread, type Engine, type Scene, type Skybox } from 'react-native-filament'
+
+function showNightSky(engine: Engine, scene: Scene, nightSky: Skybox, night: boolean) {
+  return runOnRenderThread(engine, () => {
+    'worklet'
+    scene.setSkybox(night ? nightSky : undefined)
+  })
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+A scene has one skybox at a time. When a `<Skybox />` unmounts or its options change, it removes its skybox from the scene and disposes it. Imperatively, `scene.setSkybox(undefined)` removes the background, and `skybox.dispose()` removes it from every scene that shows it.
+
+## Images as backgrounds
+
+To draw a regular image (PNG, JPEG or KTX2) behind the scene instead of a cubemap, use [`<BackgroundImage />`](/api/components/background-image).

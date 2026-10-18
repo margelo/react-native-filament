@@ -7,6 +7,9 @@ import type { Scene } from '../scene/Scene.nitro'
 import type { View } from '../scene/View.nitro'
 import type { Snapshot } from './Snapshot.nitro'
 
+/**
+ * Renders a Scene through a Camera into a `FilamentView`. Create one with `Engine.createViewTarget()`.
+ */
 export interface ViewTarget extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   /**
    * Drawable width in pixels of the current surface, 0 while there is none.

@@ -1,0 +1,169 @@
+---
+title: Recording videos
+description: Render a scene offscreen into an H.264 MP4 file on a fixed clock, faster than real time where the device allows.
+icon: Video
+---
+
+A `Recorder` renders a scene offscreen into an H.264 MP4 file, as fast as the device's encoder accepts frames. It does not need a `<FilamentView>` on screen.
+
+Recorded frames advance on a fixed clock: frame `i` shows the scene at `i / fps` seconds, and every frame's `deltaSeconds` is `1 / fps` (0 for the first frame). Before each frame, the Engine applies its bindings and runs its frame listeners, animation players and physics on that clock, so they look the same in the video whatever the device's speed.
+
+## Recording a scene
+
+`useRecorder(options)` creates a recorder for the scene and camera of the closest `<FilamentScene>`, and disposes it on unmount. It returns `undefined` until the recorder exists. Imperatively, create one with `engine.createRecorder(options)` on the render thread and give it a scene and a camera.
+
+`recorder.record(frameCount)` renders `frameCount` frames and resolves with the `file://` URI of the finished MP4 in the app's temporary directory. You can call it from any thread.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useState } from 'react'
+import { Button } from 'react-native'
+import Video from 'react-native-video'
+import { Animator, Camera, DefaultLight, FilamentScene, Model, useRecorder } from 'react-native-filament'
+
+const WIDTH = 720
+const HEIGHT = 1280
+const FPS = 60
+
+function Recording() {
+  const recorder = useRecorder({ width: WIDTH, height: HEIGHT, fps: FPS })
+  const [uri, setUri] = useState<string>()
+  const record = async () => setUri(await recorder?.record(FPS * 5))
+
+  return (
+    <>
+      {/* No view to take the aspect ratio from, so the camera gets the video's. */}
+      <Camera aspect={WIDTH / HEIGHT} />
+      <DefaultLight />
+      <Model source={require('./drone.glb')} transformToUnitCube>
+        <Animator />
+      </Model>
+      {uri != null && <Video source={{ uri }} style={{ flex: 1 }} repeat />}
+      <Button title="Record 5 s" disabled={recorder == null} onPress={record} />
+    </>
+  )
+}
+
+export function RecordingScreen() {
+  return (
+    <FilamentScene>
+      <Recording />
+    </FilamentScene>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { Image } from 'react-native'
+import { defaultIndirectLightSource, Filament, runOnRenderThread } from 'react-native-filament'
+
+const drone = Image.resolveAssetSource(require('./drone.glb'))
+const FPS = 60
+
+export async function recordDrone(): Promise<string> {
+  const engine = await Filament.createEngine({})
+  try {
+    const [model, environment] = await Promise.all([
+      engine.loadModel({ uri: drone.uri }, {}),
+      engine.loadIndirectLight(defaultIndirectLightSource, {}),
+    ])
+    const recorder = await runOnRenderThread(engine, () => {
+      'worklet'
+      const created = engine.createRecorder({ width: 720, height: 1280, fps: FPS })
+      const scene = engine.createScene()
+      scene.setIndirectLight(environment)
+      scene.addModel(model)
+      engine.transformManager.transformToUnitCube(model.rootEntity, model.boundingBox)
+      const camera = engine.createCamera()
+      camera.lookAt([0, 0, 4], [0, 0, 0], [0, 1, 0])
+      camera.setLensProjection(28, created.width / created.height, 0.1, 100)
+      created.setScene(scene)
+      created.setCamera(camera)
+      return created
+    })
+    const player = model.getInstance(0).animator.createPlayer()
+    player.play(0, {})
+    const uri = await recorder.record(FPS * 5)
+    player.dispose()
+    return uri
+  } finally {
+    await engine.shutdown()
+  }
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+### Options
+
+| Option | Default | Description |
+|---|---|---|
+| `width` | required | Video width in pixels. Odd values are rounded down to even. |
+| `height` | required | Video height in pixels. Odd values are rounded down to even. |
+| `fps` | required | Frame rate of the video. |
+| `bitRate` | 0.1 bits per pixel per frame | Target H.264 bit rate in bits per second. |
+| `clearOptions` | | How each frame is cleared before rendering, for example `{ color: [0, 0, 0, 1] }` in linear RGBA. |
+
+`recorder.width`, `recorder.height` and `recorder.fps` report the values in use. Recording `fps * seconds` frames gives a video of that many seconds.
+
+## Things to know
+
+- **Views pause while recording.** During a recording, the Engine renders only the recorder's frames, and its `<FilamentView>`s stop updating. Record with an Engine that is not showing anything important, for example by giving the recording its own `<FilamentScene>`, which creates its own Engine.
+- **One recording at a time.** `record()` rejects with `FilamentBusyError` while another recording runs, and with `FilamentDisposedError` when the recorder or its Engine is disposed before it finishes.
+- **Set the camera's aspect ratio.** A recorder has no view to take the aspect ratio from. Pass `aspect` to `<Camera />`, or call `camera.setLensProjection()` with `recorder.width / recorder.height`.
+- **Background.** Without a skybox, frames clear to `clearOptions.color`. Add a [skybox](/docs/skybox) for a colored or cubemap background, or call `recorder.setClearOptions()` on the render thread.
+- **Rendering options.** `recorder.view` is the recorder's `View`. Use it on the render thread to change anti-aliasing, bloom, ambient occlusion and the other view options of the video.
+
+## Changing the scene on every frame
+
+`<Animator />` animations and physics advance on the recorder's clock without any extra work. Reanimated animations do not: they run on the UI thread's real-time clock, and each recorded frame shows whatever value they have at that moment. For other per-frame changes, `useRecorderRenderLoop(recorder, render, deps)` runs the worklet `render` on the render thread before every frame, including each recorded frame, where `frame.elapsedSeconds` advances by exactly `1 / fps`. Imperatively, register an `engine.addOnFrameListener()`, which runs before every recorded frame too.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { quaternionFromAxisAngle, useFilamentContext, useModel, useRecorderRenderLoop, type Recorder } from 'react-native-filament'
+
+function SpinningDrone({ recorder }: { recorder: Recorder | undefined }) {
+  const { transformManager } = useFilamentContext()
+  const drone = useModel(require('./drone.glb'))
+  const root = drone.state === 'loaded' ? drone.rootEntity : undefined
+
+  useRecorderRenderLoop(
+    recorder,
+    (frame) => {
+      'worklet'
+      if (root == null) return
+      transformManager.setRotation(root, quaternionFromAxisAngle([0, 1, 0], frame.elapsedSeconds))
+    },
+    [root, transformManager]
+  )
+  return null
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+// Inside runOnRenderThread(engine, () => { 'worklet'; ... }), before calling record()
+const subscription = engine.addOnFrameListener((frame) => {
+  engine.transformManager.setRotation(model.rootEntity, quaternionFromAxisAngle([0, 1, 0], frame.elapsedSeconds))
+  return true
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+## How it works
+
+On iOS, frames render into `CVPixelBuffer`s that `AVAssetWriter` encodes without copies. On Android, frames render into the input surface of a `MediaCodec` encoder, and `MediaMuxer` writes the MP4 file.
+
+To play the result, pass the URI to a video player such as [react-native-video](https://github.com/TheWidlarzGroup/react-native-video), or save it with a media library module.

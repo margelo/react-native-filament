@@ -3,6 +3,10 @@ import type { Aabb } from '../types/Aabb'
 import type { Entity } from '../types/Entity'
 import type { ModelInstance } from './ModelInstance.nitro'
 
+/**
+ * A glTF or GLB asset loaded with `Engine.loadModel()`, with one or more instances that share its
+ * resources. Add it to a Scene with `Scene.addModel()`.
+ */
 export interface Model extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   /** @thread any */
   readonly rootEntity: Entity

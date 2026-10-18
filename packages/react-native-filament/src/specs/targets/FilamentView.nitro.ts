@@ -16,4 +16,7 @@ export interface FilamentViewMethods extends HybridViewMethods {
   setSurfaceObserver(observer: SurfaceObserver | undefined): void
 }
 
+/**
+ * The native view Filament renders into. Pass it to `Engine.createViewTarget()`.
+ */
 export type FilamentView = HybridView<FilamentViewProps, FilamentViewMethods, { ios: 'swift'; android: 'kotlin' }>

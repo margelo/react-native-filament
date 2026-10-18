@@ -1,0 +1,363 @@
+---
+title: Rendering
+description: Create Engines, choose a backend and a render mode, and configure each view.
+icon: Monitor
+---
+
+An [`Engine`](/api/hybrid-objects/engine) owns a Filament engine, its render thread and its native render loop. Each view renders one scene through one camera into its own surface.
+
+## Creating an Engine
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Text } from 'react-native'
+import { FilamentScene, FilamentView } from 'react-native-filament'
+
+// Creates an Engine, a scene and a camera, and shuts the Engine down on unmount.
+export function App() {
+  return (
+    <FilamentScene fallback={<Text>Starting Filament</Text>}>
+      <FilamentView style={{ flex: 1 }}>{/* camera, lights, models */}</FilamentView>
+    </FilamentScene>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { Filament } from 'react-native-filament'
+
+const engine = await Filament.createEngine({})
+// ... create view targets, scenes and models
+await engine.shutdown()
+```
+
+</Imperative>
+</ApiTabs>
+
+`FilamentScene` renders `fallback` until its Engine and scene exist. It throws creation failures to the closest error boundary.
+
+### Sharing an Engine
+
+Every Engine has its own render thread and GPU context. When a screen shows many views, such as the rows of a list, let them share one Engine. Each `FilamentScene` that borrows an Engine through its `engine` prop creates its own scene and camera, disposes only those, and never shuts the Engine down.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { FlatList } from 'react-native'
+import { Camera, DefaultLight, FilamentScene, FilamentView, Model, useEngine } from 'react-native-filament'
+
+export function Coins() {
+  const engine = useEngine() // shut down on unmount
+  if (engine == null) return null
+  return (
+    <FlatList
+      data={[1, 2, 3, 4]}
+      renderItem={() => (
+        <FilamentScene engine={engine}>
+          <FilamentView style={{ height: 180 }}>
+            <Camera />
+            <DefaultLight />
+            <Model source={require('./coin.glb')} transformToUnitCube />
+          </FilamentView>
+        </FilamentScene>
+      )}
+    />
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { Filament, runOnRenderThread, type FilamentView } from 'react-native-filament'
+
+async function renderTwoViews(firstView: FilamentView, secondView: FilamentView) {
+  const engine = await Filament.createEngine({})
+  const targets = await Promise.all([engine.createViewTarget(firstView, {}), engine.createViewTarget(secondView, {})])
+  await runOnRenderThread(engine, () => {
+    'worklet'
+    for (const target of targets) {
+      target.setScene(engine.createScene())
+      target.setCamera(engine.createCamera())
+    }
+  })
+  // Keep the targets: a target stops rendering when it is garbage collected.
+  return { engine, targets }
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+## Backends
+
+| Platform | Backends, preferred first |
+|---|---|
+| iOS | `metal` |
+| Android with Vulkan 1.1 | `vulkan`, `opengl` |
+| Android without Vulkan 1.1 | `opengl` (OpenGL ES 3.0) |
+
+`Filament.supportedBackends` lists the backends this device can create an Engine with, preferred first. A new Engine uses the first one unless you pass `backend`. A backend the device does not support rejects with `The backend "<name>" is not supported on this device.` `engine.backend` reports the backend an Engine renders with, and `Filament.filamentVersion` the version of the linked Filament binaries.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { FilamentScene, useEngine } from 'react-native-filament'
+
+// Android: render with OpenGL ES instead of Vulkan.
+// An Engine that this scene creates:
+<FilamentScene backend="opengl">{/* ... */}</FilamentScene>
+
+// An Engine that several scenes share:
+const engine = useEngine('opengl')
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { Filament } from 'react-native-filament'
+
+console.log(Filament.supportedBackends) // ['vulkan', 'opengl'] on a Vulkan 1.1 device
+const backend = Filament.supportedBackends.includes('opengl') ? 'opengl' : undefined
+const engine = await Filament.createEngine({ backend })
+console.log(engine.backend, Filament.filamentVersion)
+```
+
+</Imperative>
+</ApiTabs>
+
+## Render modes
+
+| Mode | Renders |
+|---|---|
+| `continuous` (default) | On every display refresh while a view is visible. |
+| `on-demand` | Only when something needs a frame, then the render thread sleeps. |
+
+In `on-demand` mode these request frames: a changed binding (including SharedValue-driven props), a playing animation, a camera manipulator gesture, a physics world with awake bodies, a frame listener that asks for another frame, an asset upload, a pending `takeSnapshot()` or `pick()`, and `engine.requestFrame()`. `renderCallback` and `useFrameCallback` keep the Engine rendering while they are set.
+
+A job on the render thread does not request a frame by itself. When you change the scene in `runOnRenderThread` or a render-thread hook while the Engine is in `on-demand` mode, call `engine.requestFrame()`. It works from any thread.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { FilamentScene, useFilamentContext, useRenderThreadEffect, type Entity } from 'react-native-filament'
+
+<FilamentScene renderMode="on-demand">{/* ... */}</FilamentScene>
+
+function Hide({ entity }: { entity: Entity }) {
+  const { engine, scene } = useFilamentContext()
+  useRenderThreadEffect(() => {
+    'worklet'
+    scene.removeEntity(entity)
+    engine.requestFrame()
+    return () => {
+      scene.addEntity(entity)
+      engine.requestFrame()
+    }
+  }, [engine, scene, entity])
+  return null
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { runOnRenderThread } from 'react-native-filament'
+
+engine.renderMode = 'on-demand'
+
+await runOnRenderThread(engine, () => {
+  'worklet'
+  scene.removeEntity(entity)
+})
+engine.requestFrame()
+```
+
+</Imperative>
+</ApiTabs>
+
+`renderMode` belongs to the Engine. A `FilamentScene` that borrows an Engine and sets `renderMode` changes it for every scene of that Engine. Without the prop, a scene keeps the Engine's current mode.
+
+## Views
+
+[`FilamentView`](/api/components/filament-view) shows the scene of the closest `FilamentScene` through its camera. Underneath, it renders a [`NativeFilamentView`](/api/components/native-filament-view) and creates a [`ViewTarget`](/api/hybrid-objects/view-target) for it with `engine.createViewTarget()`.
+
+| `FilamentView` prop | `ViewTarget` / `NativeFilamentView` | Meaning |
+|---|---|---|
+| `transparent` | `transparent` prop of `NativeFilamentView` | Composites with the views behind it. Uses a `TextureView` on Android instead of a `SurfaceView`. Default `false`. |
+| `clearOptions` | `createViewTarget(view, { clearOptions })`, `target.setClearOptions()` | How the view is cleared before each frame: `color` (linear RGBA, default `[0, 0, 0, 0]`), `clear` and `discard`. |
+| `targetFrameRate` | `target.targetFrameRate` | Highest rate in frames per second the view renders at. `0`, the default, renders on every display refresh. |
+| `onFirstFrame` | `target.addOnFirstFrameListener()` | Called once after the view shows its first frame. |
+| `renderCallback` | `engine.addOnFrameListener()` | A worklet called on the render thread at the start of every frame. See [Threading](/docs/threading#per-frame-code). |
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { FilamentView } from 'react-native-filament'
+
+<FilamentView
+  style={{ flex: 1, backgroundColor: 'lightblue' }}
+  transparent
+  targetFrameRate={30}
+  onFirstFrame={() => console.log('First frame')}
+>
+  {/* camera, lights, models */}
+</FilamentView>
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { useEffect, useState } from 'react'
+import { callback } from 'react-native-nitro-modules'
+import { NativeFilamentView, type Engine, type FilamentView } from 'react-native-filament'
+
+function Surface({ engine }: { engine: Engine }) {
+  const [view, setView] = useState<FilamentView>()
+  useEffect(() => {
+    if (view == null) return
+    const creating = engine.createViewTarget(view, { clearOptions: { color: [0, 0, 0, 0] } })
+    creating.then((target) => {
+      target.targetFrameRate = 30
+      target.addOnFirstFrameListener(() => console.log('First frame'))
+    })
+    return () => {
+      creating.then((target) => target.dispose())
+    }
+  }, [engine, view])
+  return <NativeFilamentView style={{ flex: 1, backgroundColor: 'lightblue' }} transparent hybridRef={callback(setView)} />
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+Frame listeners and native systems run on every frame of the Engine even when a view's `targetFrameRate` is lower. Render React Native views on top of a `FilamentView` with absolute positioning, not as its children.
+
+## View options
+
+Each view has its own rendering options. `FilamentView` takes them as props, and the imperative API sets them on [`target.view`](/api/hybrid-objects/view) on the render thread.
+
+| Option | Type | Default |
+|---|---|---|
+| `antiAliasing` | `'none'` \| `'fxaa'` | `'fxaa'` |
+| `dithering` | `'none'` \| `'temporal'` | `'temporal'` |
+| `postProcessing` | `boolean`: tone mapping, bloom, anti-aliasing and the other post-processing passes | `true` |
+| `shadowing` | `boolean` | `true` |
+| `shadowType` | `'pcf'` \| `'vsm'` \| `'dpcf'` \| `'pcss'` | `'pcf'`, or `'vsm'` on the iOS Simulator |
+| `screenSpaceRefraction` | `boolean` | `true` |
+| `ambientOcclusionOptions` | [`AmbientOcclusionOptions`](/api/types/ambient-occlusion-options): screen-space ambient occlusion | disabled |
+| `bloomOptions` | [`BloomOptions`](/api/types/bloom-options): bloom and lens flare | disabled |
+| `temporalAntiAliasingOptions` | [`TemporalAntiAliasingOptions`](/api/types/temporal-anti-aliasing-options): TAA and upscaling | disabled |
+| `dynamicResolutionOptions` | [`DynamicResolutionOptions`](/api/types/dynamic-resolution-options): scales the render resolution with GPU load | disabled |
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { FilamentView } from 'react-native-filament'
+
+<FilamentView
+  style={{ flex: 1 }}
+  antiAliasing="none"
+  shadowType="pcss"
+  ambientOcclusionOptions={{ enabled: true, type: 'gtao', quality: 'high' }}
+  bloomOptions={{ enabled: true, strength: 0.2 }}
+  temporalAntiAliasingOptions={{ enabled: true }}
+  dynamicResolutionOptions={{ enabled: true, minScale: [0.5, 0.5] }}
+>
+  {/* camera, lights, models */}
+</FilamentView>
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { runOnRenderThread } from 'react-native-filament'
+
+const { view } = target
+await runOnRenderThread(engine, () => {
+  'worklet'
+  view.antiAliasing = 'none'
+  view.shadowType = 'pcss'
+  view.setAmbientOcclusionOptions({ enabled: true, type: 'gtao', quality: 'high' })
+  view.setBloomOptions({ enabled: true, strength: 0.2 })
+  view.setTemporalAntiAliasingOptions({ enabled: true })
+  view.setDynamicResolutionOptions({ enabled: true, minScale: [0.5, 0.5] })
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+Each `set*Options` call replaces every option of its group, and omitted fields take Filament's defaults. On `FilamentView`, an omitted prop keeps the view's default.
+
+## Debug stats
+
+`engine.getDebugStats()` counts the native resources the Engine still holds, by kind, for example `{ Model: 1, Scene: 2 }`. Use it to find leaks. It works from any thread.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Button } from 'react-native'
+import { useFilamentContext } from 'react-native-filament'
+
+function DebugStatsButton() {
+  const { engine } = useFilamentContext()
+  return <Button title="Log resources" onPress={() => console.log(engine.getDebugStats().liveResources)} />
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+const engine = await Filament.createEngine({})
+const model = await engine.loadModel({ uri }, {})
+console.log(engine.getDebugStats().liveResources) // { Model: 1 }
+model.dispose()
+```
+
+</Imperative>
+</ApiTabs>
+
+## Shutting down
+
+`engine.shutdown()` destroys every native resource of the Engine and resolves once the render thread has exited. Every caller gets the same Promise. Call it from the runtime that created the Engine. `engine.dispose()` starts the same shutdown without returning a Promise. After shutdown, jobs submitted with `runOnRenderThread` reject and methods of the Engine's objects throw `FilamentDisposedError`.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+// A FilamentScene without the `engine` prop shuts its Engine down on unmount,
+// and so does useEngine().
+<FilamentScene>{/* ... */}</FilamentScene>
+
+const engine = useEngine()
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+await engine.shutdown()
+console.log(engine.getDebugStats().liveResources) // {}
+```
+
+</Imperative>
+</ApiTabs>

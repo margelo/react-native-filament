@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "docs/**"
+      - "packages/react-native-filament/src/**"
     branches:
       - main
 

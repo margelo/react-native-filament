@@ -1,6 +1,10 @@
 import type { HybridObject } from 'react-native-nitro-modules'
 import type { RenderThreadCleanup } from './RenderThreadCleanup.nitro'
 
+/**
+ * The Engine's render thread, where render-thread worklets, frame listeners and `@thread render`
+ * methods run.
+ */
 export interface RenderThread extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   /**
    * Whether the calling thread is this Engine's render thread.

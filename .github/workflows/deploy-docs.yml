@@ -4,15 +4,13 @@ on:
   push:
     paths:
       - "docs/**"
+      - "packages/react-native-filament/src/**"
     branches:
       - main
-      - chore/docs
-    # Review gh actions docs if you want to further define triggers, paths, etc
-    # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#on
 
 jobs:
   build:
-    name: Build Docusaurus
+    name: Build docs
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,7 +29,7 @@ jobs:
       - name: Upload Build Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/build
+          path: docs/out
 
   deploy:
     name: Deploy to GitHub Pages

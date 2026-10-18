@@ -4,6 +4,10 @@ import type { Model } from '../assets/Model.nitro'
 import type { IndirectLight } from './IndirectLight.nitro'
 import type { Skybox } from './Skybox.nitro'
 
+/**
+ * The set of entities, lights, indirect light and skybox a ViewTarget renders. Create one with
+ * `Engine.createScene()`.
+ */
 export interface Scene extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   /**
    * Number of entities in the scene.

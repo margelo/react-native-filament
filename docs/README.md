@@ -1,41 +1,32 @@
-# Website
+# react-native-filament docs
 
-This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
+The documentation website, built with [Fumadocs](https://fumadocs.dev) on Next.js and exported as a static site to GitHub Pages.
 
-### Installation
+## Structure
 
-```
-$ yarn
-```
+- `content/docs`: the guides, written in MDX.
+- `content/api`: the API reference. Generated, not checked in.
+- `config/api-examples`: the Declarative and Imperative usage examples shown on every API page, keyed by `<category>/<ExportName>`.
+- `scripts/generate-api.ts`: turns the TypeDoc JSON of `packages/react-native-filament` into `content/api`.
+- `src/components/landing`: the home page hero, a Klein bottle rendered live with Filament for WebGL from `public/filament`.
 
-### Local Development
+Every guide and API page that documents an API shows both styles in an `<ApiTabs>` block: `<Declarative>` for the React components and hooks, `<Imperative>` for the native Nitro objects.
 
-```
-$ yarn start
-```
+## Development
 
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
+Install from the repository root, then start the dev server:
 
-### Build
-
-```
-$ yarn build
-```
-
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
-
-### Deployment
-
-Using SSH:
-
-```
-$ USE_SSH=true yarn deploy
+```sh
+bun install
+bun run --cwd docs dev
 ```
 
-Not using SSH:
+`dev` and `build` regenerate the API reference first. Run `bun run --cwd docs api` to regenerate it on its own after changing doc comments in the package.
 
-```
-$ GIT_USER=<Your GitHub username> yarn deploy
+## Build
+
+```sh
+bun run --cwd docs build
 ```
 
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+The static site is written to `docs/out` and served under `/react-native-filament`. The `Deploy to GitHub Pages` workflow builds and deploys it on every push to `main` that touches `docs` or the package sources.

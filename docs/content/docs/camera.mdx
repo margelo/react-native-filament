@@ -1,0 +1,326 @@
+---
+title: Camera
+description: Place the camera, control its projection, and orbit it with gestures.
+icon: Camera
+---
+
+The camera is the eye through which you look into the 3D scene. It decides how the scene is projected onto the 2D surface of a view.
+
+Each `FilamentScene` has one camera, and every `FilamentView` of the scene renders through it. The [`<Camera>`](/api/components/camera) component configures its lens and its pose. Imperatively, a [`Camera`](/api/hybrid-objects/camera) comes from `engine.createCamera()` and renders through the targets you pass it to with `target.setCamera()`.
+
+## Pose and lens
+
+| `<Camera>` prop | Default | Native call |
+|---|---|---|
+| `cameraPosition` | `[0, 0, 8]` | `camera.lookAt(eye, center, up)` |
+| `cameraTarget` | `[0, 0, 0]` | `camera.lookAt(eye, center, up)` |
+| `cameraUp` | `[0, 1, 0]` | `camera.lookAt(eye, center, up)` |
+| `focalLengthInMillimeters` | `28` | `camera.setLensProjection(focalLengthMm, aspect, near, far)` |
+| `near` | `0.1` | `camera.setLensProjection(...)` |
+| `far` | `100` | `camera.setLensProjection(...)` |
+| `aspect` | the aspect ratio of the closest `FilamentView` | `camera.setLensProjection(...)` |
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Camera, FilamentView } from 'react-native-filament'
+
+<FilamentView style={{ flex: 1 }}>
+  <Camera cameraPosition={[0, 1, 10]} cameraTarget={[0, 0, 0]} focalLengthInMillimeters={35} />
+  {/* lights and models */}
+</FilamentView>
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { runOnRenderThread } from 'react-native-filament'
+
+const camera = await runOnRenderThread(engine, () => {
+  'worklet'
+  const created = engine.createCamera()
+  created.lookAt([0, 1, 10], [0, 0, 0], [0, 1, 0])
+  target.setCamera(created)
+  return created
+})
+
+// Follow the view's size, as <Camera> does.
+const resize = target.addOnResizeListener((width, height) => {
+  runOnRenderThread(engine, () => {
+    'worklet'
+    camera.setLensProjection(35, width / height, 0.1, 100)
+  })
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+The camera methods run on the render thread. `target.addOnResizeListener()` calls its listener with the drawable size in pixels, and once right away if the target already has a surface.
+
+### Animating the pose
+
+Each pose prop also accepts a Reanimated `SharedValue<Float3>`, which moves the camera without React renders. Imperatively, write the camera entity's transform through a [`TransformBinding`](/api/hybrid-objects/transform-binding), with [`lookAtRotation`](/api/functions/look-at-rotation) for the rotation.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useDerivedValue, useSharedValue } from 'react-native-reanimated'
+import { Camera, type Float3 } from 'react-native-filament'
+
+function OrbitingCamera() {
+  const angle = useSharedValue(0)
+  const position = useDerivedValue<Float3>(() => [Math.sin(angle.value) * 8, 1, Math.cos(angle.value) * 8])
+  return <Camera cameraPosition={position} />
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { bindSharedValue, lookAtRotation, runOnRenderThread, type Float3 } from 'react-native-filament'
+
+const binding = await runOnRenderThread(engine, () => {
+  'worklet'
+  return engine.createTransformBinding(camera.entity)
+})
+const unbind = bindSharedValue(position, (eye: Float3) => {
+  'worklet'
+  const [x, y, z, w] = lookAtRotation(eye, [0, 0, 0], [0, 1, 0])
+  binding.setTranslation(eye[0], eye[1], eye[2])
+  binding.setRotation(x, y, z, w)
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+### Other projections and exposure
+
+The native camera also has `setProjection()` for a vertical field of view in degrees, `setOrthographicProjection()` and `setExposure()` for physically based exposure. In a `FilamentScene`, get the scene's camera from [`useFilamentContext()`](/api/hooks/use-filament-context) and call them on the render thread.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useFilamentContext, useRenderThreadEffect } from 'react-native-filament'
+
+function Exposure() {
+  const { camera } = useFilamentContext()
+  useRenderThreadEffect(() => {
+    'worklet'
+    // Aperture f/16, shutter 1/125 s, ISO 100.
+    camera.setExposure(16, 1 / 125, 100)
+  }, [camera])
+  return null
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { runOnRenderThread } from 'react-native-filament'
+
+await runOnRenderThread(engine, () => {
+  'worklet'
+  camera.setProjection(45, target.width / target.height, 0.1, 100)
+  camera.setExposure(16, 1 / 125, 100)
+  // Or: camera.setOrthographicProjection(left, right, bottom, top, near, far)
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+<Callout type="warn" title="Camera sets a perspective projection">
+`<Camera>` calls `setLensProjection()` whenever its view resizes or its lens props change. For an orthographic projection, leave out `<Camera>` and set the projection and the pose of `useFilamentContext().camera` yourself.
+</Callout>
+
+## The projection
+
+![The camera's view frustum between the near and far planes](/img/camera-projection.png)
+
+The camera's coordinate system defines the view space. The camera looks toward its -z axis, its top points toward +y and its right side toward +x. Three parameters control the projection.
+
+### `near` plane
+
+- The closest distance from the camera at which objects are rendered.
+- Objects closer than the near plane are clipped.
+- Defaults to `0.1` meters.
+
+The near plane has a large effect on depth buffer precision. Keep it as far from the camera as the scene allows. The table shows the depth precision at several distances for several `near` values; smaller is better.
+
+| near (m) | 1 m | 10 m | 100 m | 1 km |
+|---|---|---|---|---|
+| 0.001 | 7.2e-5 | 0.0043 | 0.4624 | 48.58 |
+| 0.01 | 6.9e-6 | 0.0001 | 0.0430 | 4.62 |
+| 0.1 | 3.6e-7 | 7.0e-5 | 0.0072 | 0.43 |
+| 1.0 | 0 | 3.8e-6 | 0.0007 | 0.07 |
+
+### `far` plane
+
+- The farthest distance from the camera at which objects are rendered.
+- Objects farther than the far plane are clipped.
+- Defaults to `100` meters.
+
+### Focal length and aspect
+
+The lens's focal length defaults to `28` mm. The aspect ratio follows the size of the closest `FilamentView`. Set `aspect` when there is no view, for example for a [`useRecorder`](/api/hooks/use-recorder) video.
+
+## Orbiting with gestures
+
+![Orbiting the camera around a model with one finger](/img/demo-camera-pan.gif)
+
+The camera can follow a [`CameraManipulator`](/api/hybrid-objects/camera-manipulator), which turns input into orbiting, panning and zooming. It runs natively: gestures queue commands from Reanimated's UI runtime, and the render thread applies them at the start of each frame, with no JS per frame.
+
+[`useOrbitGestures(manipulator)`](/api/hooks/use-orbit-gestures) builds the [Gesture Handler](https://docs.swmansion.com/react-native-gesture-handler) gesture: a one-finger pan orbits, a pinch zooms and a double tap returns home. It needs `react-native-gesture-handler`.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { GestureDetector } from 'react-native-gesture-handler'
+import { Camera, FilamentScene, FilamentView, useCameraManipulator, useOrbitGestures, type CameraManipulator } from 'react-native-filament'
+
+function OrbitView({ manipulator }: { manipulator: CameraManipulator }) {
+  const gesture = useOrbitGestures(manipulator)
+  return (
+    <GestureDetector gesture={gesture}>
+      <FilamentView style={{ flex: 1 }}>
+        <Camera cameraManipulator={manipulator} />
+        {/* lights and models */}
+      </FilamentView>
+    </GestureDetector>
+  )
+}
+
+function Scene() {
+  const manipulator = useCameraManipulator({ homePosition: [0, 0, 8], targetPosition: [0, 0, 0], orbitSpeed: 0.003 })
+  return manipulator == null ? null : <OrbitView manipulator={manipulator} />
+}
+
+export function App() {
+  return (
+    <FilamentScene>
+      <Scene />
+    </FilamentScene>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { View } from 'react-native'
+import { GestureDetector } from 'react-native-gesture-handler'
+import { callback } from 'react-native-nitro-modules'
+import { NativeFilamentView, runOnRenderThread, useOrbitGestures, type CameraManipulator, type FilamentView } from 'react-native-filament'
+
+// After creating the Engine, a camera and a view target as in Getting Started:
+const manipulator = engine.createOrbitManipulator({ homePosition: [0, 0, 8], orbitSpeed: 0.003 })
+await runOnRenderThread(engine, () => {
+  'worklet'
+  camera.followManipulator(manipulator)
+})
+
+// Wrap the native view in the gesture and report its size in points.
+function OrbitView({ manipulator, onView }: { manipulator: CameraManipulator; onView: (view: FilamentView) => void }) {
+  const gesture = useOrbitGestures(manipulator)
+  return (
+    <GestureDetector gesture={gesture}>
+      <View style={{ flex: 1 }} onLayout={({ nativeEvent }) => manipulator.setViewport(nativeEvent.layout.width, nativeEvent.layout.height)}>
+        <NativeFilamentView style={{ flex: 1 }} hybridRef={callback(onView)} />
+      </View>
+    </GestureDetector>
+  )
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+`useCameraManipulator()` creates the manipulator with `engine.createOrbitManipulator()` and disposes it on unmount. Passing it to `<Camera cameraManipulator>` makes the camera follow it instead of the pose props, and sizes the manipulator's viewport to the view in points. Imperatively, call `camera.followManipulator(manipulator)` on the render thread and `manipulator.setViewport(width, height)` with the view's size in points.
+
+| Option | Default | Meaning |
+|---|---|---|
+| `homePosition` | `[0, 0, 4]` | Camera position at start and after `jumpToHome()`. |
+| `targetPosition` | `[0, 0, 0]` | The point the camera orbits around. |
+| `upVector` | `[0, 1, 0]` | |
+| `orbitSpeed` | `0.005` | Radians of orbit per point dragged. |
+| `zoomSpeed` | `0.01` | Distance change per unit of scroll delta, relative to the distance to the target. |
+
+`useOrbitGestures` takes `{ pinchSpeed }` as a second argument, the scroll delta per unit of pinch scale change (default `100`).
+
+### Custom gestures
+
+The manipulator's methods work from any thread, so Gesture Handler callbacks can call them on the UI runtime. Coordinates are points from the top-left corner of the view.
+
+| Method | Effect |
+|---|---|
+| `grabBegin(x, y, strafe)` | Starts a drag that orbits, or pans when `strafe` is `true`. |
+| `grabUpdate(x, y)` | Moves the drag. |
+| `grabEnd()` | Ends the drag. |
+| `scroll(x, y, delta)` | Zooms; a negative `delta` moves closer to the target. |
+| `jumpToHome()` | Returns to the home position. |
+| `setViewport(width, height)` | Size in points of the view the input comes from. |
+| `getLookAt()` | The latest pose, `{ eye, target, up }`, published by the render thread. |
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useMemo } from 'react'
+import { Gesture, GestureDetector } from 'react-native-gesture-handler'
+import { Camera, FilamentView, type CameraManipulator } from 'react-native-filament'
+
+// Two fingers pan instead of orbiting.
+function PanView({ manipulator }: { manipulator: CameraManipulator }) {
+  const pan = useMemo(
+    () =>
+      Gesture.Pan()
+        .minPointers(2)
+        .onBegin(({ x, y }) => {
+          'worklet'
+          manipulator.grabBegin(x, y, true)
+        })
+        .onUpdate(({ x, y }) => {
+          'worklet'
+          manipulator.grabUpdate(x, y)
+        })
+        .onFinalize(() => {
+          'worklet'
+          manipulator.grabEnd()
+        }),
+    [manipulator]
+  )
+  return (
+    <GestureDetector gesture={pan}>
+      <FilamentView style={{ flex: 1 }}>
+        <Camera cameraManipulator={manipulator} />
+      </FilamentView>
+    </GestureDetector>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+// From any thread, for example a button or a timer:
+manipulator.scroll(width / 2, height / 2, -20) // zoom in around the center
+manipulator.jumpToHome()
+
+const { eye, target, up } = manipulator.getLookAt()
+```
+
+</Imperative>
+</ApiTabs>
+
+At most 256 commands wait per frame. Consecutive `grabUpdate` calls and `scroll` calls at the same point merge, so only a flood of other commands reaches the limit; those calls throw `FilamentQueueFullError` and change nothing.

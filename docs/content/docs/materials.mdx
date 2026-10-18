@@ -1,0 +1,336 @@
+---
+title: Materials and textures
+description: Change material parameters and textures of models, load textures and compiled materials, and assign your own materials.
+icon: Palette
+---
+
+![A rocket switching to a blue texture](/img/demo-change-textures.gif)
+
+A material defines how a surface looks. In Filament, a [`Material`](/api/hybrid-objects/material) is a compiled shader with named parameters, and a [`MaterialInstance`](/api/hybrid-objects/material-instance) holds one set of values for those parameters. Every primitive of a renderable entity is drawn with one material instance.
+
+glTF models bring their own materials: each glTF material becomes a material instance named after it, and its PBR values (base color, metallic, roughness, emissive) and textures become parameters you can change.
+
+## Finding materials in a model
+
+To change a material, you need the entity that uses it and, for textures, the material's name. Open the model in Blender to find both. For [this toy rocket](https://www.cgtrader.com/free-3d-models/space/spaceship/toy-rocket-4k):
+
+![The rocket in Blender, with its entities and material](/img/blender-explanation-materials.png)
+
+- The outliner in the top right lists the entities: `Engine`, `Tip`, `Wings` and so on.
+- Each entity is associated with a material.
+- The material is named `Toy Ship`, and it uses an image texture for its base color.
+
+At runtime, `renderableManager.getMaterialInstanceAt(entity, primitiveIndex)` returns the material instance of one primitive, and `instance.instanceName` is the glTF material name.
+
+## Changing parameters
+
+`<EntitySelector materialParameters={...}>` sets glTF PBR parameters of the selected entity. Each [`MaterialParametersItem`](/api/types/material-parameters-item) changes the material instance of one primitive (`index`, default `0`), and every value accepts a SharedValue. Pass an array to change several primitives.
+
+| Parameter | Type | |
+|---|---|---|
+| `baseColorFactor` | `Float4` | Linear RGBA. |
+| `emissiveFactor` | `Float3` | Linear RGB. |
+| `roughnessFactor` | `number` | |
+| `metallicFactor` | `number` | |
+| `reflectance` | `number` | |
+| `clearCoatFactor` | `number` | |
+| `clearCoatRoughnessFactor` | `number` | |
+
+Imperatively, get the material instance on the render thread and call its setters. Setting a parameter the material does not declare, or with the wrong type, throws. Removing a parameter from `materialParameters` does not restore its original value.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { EntitySelector, Model } from 'react-native-filament'
+
+<Model source={require('./rocket.glb')}>
+  <EntitySelector
+    byName="Tip"
+    materialParameters={{ index: 0, parameters: { baseColorFactor: [0.1, 0.3, 1, 1], roughnessFactor: 0.2 } }}
+  />
+</Model>
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+const tip = model.getEntityByName('Tip')!
+
+await runOnRenderThread(engine, () => {
+  'worklet'
+  const instance = engine.renderableManager.getMaterialInstanceAt(tip, 0)
+  instance.setFloat4Parameter('baseColorFactor', [0.1, 0.3, 1, 1])
+  instance.setFloatParameter('roughnessFactor', 0.2)
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+`MaterialInstance` has a setter and getter per parameter type. All of its members run on the render thread:
+
+| Member | |
+|---|---|
+| `setFloatParameter`, `setIntParameter`, `setFloat3Parameter`, `setFloat4Parameter`, `setMat3Parameter` | Set a parameter by name. |
+| `setColorParameter(name, color, colorSpace)` | Sets an RGBA color given in `'srgb'` or `'linear'`, converted to linear. |
+| `getFloatParameter`, `getIntParameter`, `getFloat3Parameter`, `getFloat4Parameter` | Read a parameter by name. |
+| `hasParameter(name)` | Whether the material declares the parameter. |
+| `setTexture(name, texture, sampler)` | Binds a texture to a sampler parameter. |
+| `cullingMode` | `'none'`, `'back'`, `'front'` or `'front-and-back'`. |
+| `transparencyMode` | `'default'`, `'two-passes-one-side'` or `'two-passes-two-sides'`. |
+| `instanceName`, `materialName` | Name of the instance (the glTF material name for a model) and of its material. |
+
+Colors in Filament are linear. A color picked in a design tool is usually sRGB: set it with `setColorParameter(name, color, 'srgb')`.
+
+### Animating parameters
+
+With a SharedValue, a parameter changes from the UI runtime without React renders, for example to fade a model out. Imperatively, read a [`ValueBinding`](/api/hybrid-objects/value-binding) in a frame listener: [`useValueBinding`](/api/hooks/use-value-binding) or `engine.createValueBinding()` gives one that any thread can write and the render thread can read.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Button } from 'react-native'
+import { useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated'
+import { EntitySelector, Model, type Float4 } from 'react-native-filament'
+
+function FadingTip() {
+  const opacity = useSharedValue(1)
+  const baseColorFactor = useDerivedValue<Float4>(() => [1, 1, 1, opacity.value])
+  return (
+    <>
+      <Model source={require('./rocket.glb')}>
+        <EntitySelector byName="Tip" materialParameters={{ parameters: { baseColorFactor } }} />
+      </Model>
+      <Button title="Fade out" onPress={() => (opacity.value = withTiming(0, { duration: 1000 }))} />
+    </>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+const opacity = engine.createValueBinding(1) // write it from any thread: opacity.set(0.5)
+const tip = model.getEntityByName('Tip')!
+
+const subscription = await runOnRenderThread(engine, () => {
+  'worklet'
+  const instance = engine.renderableManager.getMaterialInstanceAt(tip, 0)
+  let applied = -1
+  return engine.addOnFrameListener(() => {
+    if (opacity.value !== applied) {
+      applied = opacity.value
+      instance.setFloat4Parameter('baseColorFactor', [1, 1, 1, applied])
+    }
+    return false
+  })
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+The alpha only shows when the glTF material blends, that is, when it was exported with `alphaMode: BLEND`.
+
+## Replacing textures
+
+| The rocket's base color texture | A variant with blue tones |
+|---|---|
+| ![Original base color texture](/img/example-Toy_Rocket_Toy%20Ship_BaseColor.jpg) | ![Blue base color texture](/img/example-Toy_Rocket_Toy%20Ship_BaseColorBlue.jpg) |
+
+`<EntitySelector textureMap={...}>` loads an image and sets it as the `baseColorMap` of every material instance of the entity named `materialName`. Imperatively, load the texture with `engine.loadTexture()` and bind it with `instance.setTexture()` on the render thread.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { EntitySelector, Model } from 'react-native-filament'
+
+const blueBaseColor = require('./rocket_BaseColor_Blue.png')
+const materialName = 'Toy Ship'
+
+<Model source={require('./rocket.glb')}>
+  <EntitySelector byName="Tip" textureMap={{ materialName, textureSource: blueBaseColor }} />
+  <EntitySelector byName="Wings" textureMap={{ materialName, textureSource: blueBaseColor }} />
+</Model>
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { Image } from 'react-native'
+
+const { uri } = Image.resolveAssetSource(require('./rocket_BaseColor_Blue.png'))
+const blue = await engine.loadTexture({ uri }, { srgb: true })
+
+await runOnRenderThread(engine, () => {
+  'worklet'
+  const rm = engine.renderableManager
+  for (const name of ['Tip', 'Wings']) {
+    const entity = model.getEntityByName(name)
+    if (entity == null) continue
+    for (let primitive = 0; primitive < rm.getPrimitiveCount(entity); primitive++) {
+      const instance = rm.getMaterialInstanceAt(entity, primitive)
+      if (instance.instanceName === 'Toy Ship') instance.setTexture('baseColorMap', blue, {})
+    }
+  }
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+Unmounting the `<EntitySelector>` does not restore the original texture.
+
+## Loading textures
+
+`engine.loadTexture(source, options)` loads a PNG, JPEG or KTX2 image. Images are decoded on a worker thread, and the Promise resolves once every mip level is uploaded, without blocking rendering. The [`Texture`](/api/hybrid-objects/texture) has a `width` and a `height` in pixels.
+
+- `srgb` (default `true`): color images are sRGB-encoded. Set it to `false` for data such as normal, roughness or metallic maps. `textureMap` takes the same `srgb` option.
+
+`setTexture(name, texture, sampler)` takes [`SamplerOptions`](/api/types/sampler-options), each optional:
+
+| Option | Default | Values |
+|---|---|---|
+| `minFilter` | `'linear-mipmap-linear'` | `'nearest'`, `'linear'`, `'nearest-mipmap-nearest'`, `'linear-mipmap-nearest'`, `'nearest-mipmap-linear'`, `'linear-mipmap-linear'` |
+| `magFilter` | `'linear'` | `'nearest'`, `'linear'` |
+| `wrapS`, `wrapT` | `'repeat'` | `'clamp-to-edge'`, `'repeat'`, `'mirrored-repeat'` |
+
+A material instance keeps the textures bound to it alive. In components, [`useDisposableResource`](/api/hooks/use-disposable-resource) loads a resource and disposes it on unmount.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Image } from 'react-native'
+import { useDisposableResource, useFilamentContext, useRenderThreadEffect, type Entity } from 'react-native-filament'
+
+const pixelArt = Image.resolveAssetSource(require('./pixel-art.png'))
+
+function PixelArtTexture({ entity }: { entity: Entity }) {
+  const { engine, renderableManager } = useFilamentContext()
+  const texture = useDisposableResource(() => engine.loadTexture({ uri: pixelArt.uri }, { srgb: true }), [engine])
+
+  useRenderThreadEffect(() => {
+    'worklet'
+    if (texture == null) return
+    const instance = renderableManager.getMaterialInstanceAt(entity, 0)
+    instance.setTexture('baseColorMap', texture, { minFilter: 'nearest', magFilter: 'nearest', wrapS: 'clamp-to-edge' })
+  }, [texture, entity, renderableManager])
+  return null
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+const texture = await engine.loadTexture({ uri }, { srgb: true })
+console.log(`${texture.width}×${texture.height}`)
+
+await runOnRenderThread(engine, () => {
+  'worklet'
+  const instance = engine.renderableManager.getMaterialInstanceAt(entity, 0)
+  instance.setTexture('baseColorMap', texture, { minFilter: 'nearest', magFilter: 'nearest', wrapS: 'clamp-to-edge' })
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+## Custom materials
+
+`engine.loadMaterial(source)` loads a compiled material (`.filamat`). Compile your `.mat` definitions with `matc` from the [Filament release](https://github.com/google/filament/releases) that matches react-native-filament (Filament 1.78); materials compiled by another version are rejected. The [Filament materials guide](https://google.github.io/filament/Materials.html) describes the material language.
+
+| `Material` member | Thread | |
+|---|---|---|
+| `materialName` | any | The `name` from the material definition. |
+| `parameterNames` | any | Every parameter the material declares. |
+| `defaultInstance` | render | The instance shared by every renderable that uses the material without its own instance. |
+| `createInstance()` | render | A new instance with its own parameter values. |
+
+`renderableManager.setMaterialInstanceAt(entity, primitiveIndex, instance)` draws a primitive with an instance you created. The renderable keeps the instance alive until it is replaced. Disposing the instance falls back to its material's default instance, and disposing the material falls back to Filament's default material. A model's own material instances cannot be assigned to another primitive; create an instance from a `Material` instead.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Image } from 'react-native'
+import { useDisposableResource, useFilamentContext, useRenderThreadEffect, type Entity } from 'react-native-filament'
+
+const toonSource = Image.resolveAssetSource(require('./toon.filamat'))
+
+function ToonShaded({ entity }: { entity: Entity }) {
+  const { engine, renderableManager } = useFilamentContext()
+  const material = useDisposableResource(() => engine.loadMaterial({ uri: toonSource.uri }), [engine])
+
+  useRenderThreadEffect(() => {
+    'worklet'
+    if (material == null) return
+    const instance = material.createInstance()
+    instance.setColorParameter('baseColor', [1, 0.6, 0.2, 1], 'srgb')
+    renderableManager.setMaterialInstanceAt(entity, 0, instance)
+  }, [material, entity, renderableManager])
+  return null
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+const material = await engine.loadMaterial({ uri: toonUri })
+console.log(material.materialName, material.parameterNames)
+
+await runOnRenderThread(engine, () => {
+  'worklet'
+  const instance = material.createInstance()
+  instance.setColorParameter('baseColor', [1, 0.6, 0.2, 1], 'srgb')
+  engine.renderableManager.setMaterialInstanceAt(entity, 0, instance)
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+Here `toon.filamat` stands for your own material with a `float4 baseColor` parameter. Custom materials also draw geometry that react-native-filament creates for you: `engine.createPlane()` and `engine.createBackground()` take a material instance. See [Images](/docs/images) for both.
+
+## Material variants
+
+glTF files that use `KHR_materials_variants` contain alternative sets of materials, for example color options of a product. `instance.materialVariants` lists their names, and `instance.applyMaterialVariant(index)` switches an instance to one on the render thread.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useRenderThreadEffect, type Model } from 'react-native-filament'
+
+function Variant({ model, index }: { model: Model; index: number }) {
+  useRenderThreadEffect(() => {
+    'worklet'
+    model.getInstance(0).applyMaterialVariant(index)
+  }, [model, index])
+  return null
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+const instance = model.getInstance(0)
+console.log(instance.materialVariants) // for example ['Red', 'Blue']
+
+await runOnRenderThread(engine, () => {
+  'worklet'
+  instance.applyMaterialVariant(1)
+})
+```
+
+</Imperative>
+</ApiTabs>
