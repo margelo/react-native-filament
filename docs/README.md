@@ -30,3 +30,19 @@ bun run --cwd docs build
 ```
 
 The static site is written to `docs/out` and served under `/react-native-filament`. The `Deploy to GitHub Pages` workflow builds and deploys it on every push to `main` that touches `docs` or the package sources.
+
+## Deploy to Cloudflare
+
+The site also deploys as a Cloudflare Worker with static assets (`wrangler.jsonc`), served from the root path:
+
+```sh
+bunx wrangler login
+bun run --cwd docs deploy:cloudflare
+```
+
+`deploy:cloudflare` builds with `DOCS_BASE_PATH` empty and `DOCS_SITE_URL` set to the Worker's URL, then runs `wrangler deploy`. `public/_headers` sets long-lived caching for hashed Next.js assets on Cloudflare.
+
+## Landing page loading
+
+The home page preloads `filament.wasm` and the hero IBL with the HTML and starts Filament before React hydrates (`src/components/landing/filament-preload.tsx`). The IBL (`public/filament/hero_ibl.ktx`) is the library's `default_env_ibl.ktx` without its 256 px mip level, and is also shipped gzipped (`hero_ibl.ktx.gz`) because not every host compresses `.ktx` files.
+

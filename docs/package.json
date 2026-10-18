@@ -8,6 +8,8 @@
     "dev": "bun run api && fumadocs-mdx && next dev",
     "build": "bun run api && fumadocs-mdx && next build",
     "check:api": "node scripts/check-api-types.cjs",
+    "build:cloudflare": "DOCS_BASE_PATH= DOCS_SITE_URL=https://react-native-filament-docs.riteshshukla2381.workers.dev bun run build",
+    "deploy:cloudflare": "bun run build:cloudflare && wrangler deploy",
     "typecheck": "bun run api && fumadocs-mdx && next typegen && tsc --noEmit"
   },
   "dependencies": {
@@ -24,9 +26,11 @@
     "@types/mdx": "^2.0.13",
     "@types/node": "^25.0.3",
     "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.7",
     "postcss": "8.5.15",
     "tailwindcss": "4.3.0",
     "typedoc": "0.28.19",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "wrangler": "4.151.1"
   }
 }

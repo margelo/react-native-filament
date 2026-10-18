@@ -2,38 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type * as FilamentTypes from '@/lib/filament/filament'
-import { withBasePath } from '@/lib/site-config'
+import { FILAMENT_BOOT } from './filament-assets'
 import { createKleinBottleGlb } from './klein-bottle-glb'
-
-type FilamentModule = typeof FilamentTypes & {
-  init(assets: string[], onReady: () => void): void
-  isReady?: boolean
-}
-
-declare global {
-  interface Window {
-    Filament?: FilamentModule
-  }
-}
-
-const SCRIPT_URL = withBasePath('/filament/filament.js')
-const IBL_URL = withBasePath('/filament/default_env_ibl.ktx')
-
-let runtime: Promise<FilamentModule> | undefined
-
-function loadFilament(): Promise<FilamentModule> {
-  if (runtime == null) {
-    runtime = new Promise((resolve, reject) => {
-      const script = document.createElement('script')
-      script.src = SCRIPT_URL
-      script.async = true
-      script.onerror = () => reject(new Error('Could not load filament.js'))
-      script.onload = () => window.Filament!.init([IBL_URL], () => resolve(window.Filament!))
-      document.head.appendChild(script)
-    })
-  }
-  return runtime
-}
+import { startFilament } from './start-filament'
 
 type Mat4 = number[]
 
@@ -73,7 +44,7 @@ export function KleinBottleScene({ className }: { className?: string }) {
     let disposed = false
     let teardown = () => {}
 
-    loadFilament().then((Filament) => {
+    startFilament(FILAMENT_BOOT).then(({ Filament, ibl: iblBytes }) => {
       if (disposed) return
       const engine = Filament.Engine.create(canvas, { alpha: true } as unknown as { backend?: FilamentTypes.Backend })
       const scene = engine.createScene()
@@ -86,7 +57,7 @@ export function KleinBottleScene({ className }: { className?: string }) {
       view.setBlendMode(Filament.View$BlendMode.TRANSLUCENT)
       renderer.setClearOptions({ clearColor: [0, 0, 0, 0], clear: true })
 
-      const ibl = engine.createIblFromKtx1(IBL_URL)
+      const ibl = engine.createIblFromKtx1(iblBytes)
       ibl.setIntensity(65000)
       scene.setIndirectLight(ibl)
 

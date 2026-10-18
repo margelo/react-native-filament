@@ -130,7 +130,7 @@ article .prose :not(pre) > code {
   top: 50%;
   transform: translateY(-58%);
   text-align: center;
-  font-size: clamp(3rem, 17.5vw, 20rem);
+  font-size: clamp(1.75rem, 7.6vw, 9.5rem);
   font-weight: 900;
   font-style: italic;
   letter-spacing: -0.04em;

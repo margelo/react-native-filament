@@ -12,7 +12,7 @@ function MargeloIcon() {
 }
 
 export function Wordmark({ className = '' }: { className?: string }) {
-  return <span className={`rnf-wordmark ${className}`}>FILAMENT</span>
+  return <span className={`rnf-wordmark ${className}`}>react-native-filament</span>
 }
 
 export function sidebarOptions(): BaseLayoutProps {

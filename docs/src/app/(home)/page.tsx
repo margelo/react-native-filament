@@ -1,9 +1,11 @@
 import Link from 'next/link'
+import { FilamentPreload } from '@/components/landing/filament-preload'
 import { KleinBottleScene } from '@/components/landing/klein-bottle-scene'
 
 export default function HomePage() {
   return (
     <main className="rnf-hero relative isolate flex flex-1 flex-col overflow-hidden">
+      <FilamentPreload />
       <div className="rnf-aurora" aria-hidden="true">
         <span className="rnf-aurora-blob rnf-aurora-amber" />
         <span className="rnf-aurora-blob rnf-aurora-violet" />
@@ -12,9 +14,7 @@ export default function HomePage() {
       <div className="rnf-floor" aria-hidden="true" />
       <div className="rnf-vignette" aria-hidden="true" />
 
-      <h1 className="rnf-hero-wordmark" aria-label="react-native-filament">
-        FILAMENT
-      </h1>
+      <h1 className="rnf-hero-wordmark">react-native-filament</h1>
       <KleinBottleScene className="absolute inset-0 h-full w-full" />
 
       <div className="relative z-10 mt-auto flex flex-col items-center gap-5 px-6 pb-16 text-center">

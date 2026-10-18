@@ -5,3 +5,4 @@
 /content/api
 next-env.d.ts
 .DS_Store
+/.wrangler

@@ -1,0 +1,5 @@
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/filament/*
+  Cache-Control: public, max-age=86400
