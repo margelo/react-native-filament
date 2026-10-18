@@ -16,6 +16,8 @@ public:
   void setTranslation(double x, double y, double z) override;
   void setRotation(double x, double y, double z, double w) override;
   void setScale(double x, double y, double z) override;
+  void setBase(const std::tuple<double, double, double, double, double, double, double, double, double, double, double, double, double,
+                                double, double, double>& transform) override;
   void dispose() override;
 
 private:

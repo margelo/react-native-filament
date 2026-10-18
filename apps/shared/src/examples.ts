@@ -19,6 +19,7 @@ import { MultipleInstancesExample } from './MultipleInstancesExample'
 import { NoneTransparentExample } from './NoneTransparentExample'
 import { PhysicsCoinExample } from './PhysicsCoinExample'
 import { PickingExample } from './PickingExample'
+import { ReactSceneExample } from './ReactSceneExample'
 import { ReanimatedRotateExample } from './ReanimatedRotateExample'
 import { RecordingExample } from './RecordingExample'
 import { ScaleEffectExample } from './ScaleEffectExample'
@@ -32,6 +33,7 @@ export interface Example {
 }
 
 export const examples: Example[] = [
+  { route: 'ReactScene', title: '⚛️ React API', component: ReactSceneExample },
   { route: 'ClearColor', title: '🟦 Clear color', component: ClearColorExample },
   { route: 'FrameListener', title: '🌈 Frame listener', component: FrameListenerExample },
   { route: 'Scene', title: '🌅 Scene and skybox', component: SceneExample },

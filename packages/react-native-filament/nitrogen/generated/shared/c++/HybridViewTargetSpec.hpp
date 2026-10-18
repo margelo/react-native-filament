@@ -70,6 +70,8 @@ namespace margelo::nitro::filament {
       virtual double getWidth() = 0;
       virtual double getHeight() = 0;
       virtual std::shared_ptr<HybridViewSpec> getView() = 0;
+      virtual double getTargetFrameRate() = 0;
+      virtual void setTargetFrameRate(double targetFrameRate) = 0;
 
     public:
       // Methods

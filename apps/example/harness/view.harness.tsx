@@ -76,4 +76,24 @@ describe('View', () => {
     expect(center[1]).toBeCloseTo(100, 0)
     expect(above[1]).toBeLessThan(center[1])
   })
+
+  it('renders a target no faster than its target frame rate and validates the rate', async () => {
+    engine.renderMode = 'continuous'
+    await target.takeSnapshot()
+    target.targetFrameRate = 5
+    const first = await target.takeSnapshot()
+    const firstAt = Date.now()
+    await target.takeSnapshot()
+    const elapsedMs = Date.now() - firstAt
+    let rejected = ''
+    try {
+      target.targetFrameRate = -1
+    } catch (error) {
+      rejected = error instanceof Error ? error.message : String(error)
+    }
+    expect(first.width).toBeGreaterThan(0)
+    expect(elapsedMs).toBeGreaterThan(120)
+    expect(target.targetFrameRate).toBe(5)
+    expect(rejected).toContain('at least 0')
+  })
 })

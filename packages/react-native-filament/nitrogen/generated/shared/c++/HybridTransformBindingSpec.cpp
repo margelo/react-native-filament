@@ -17,6 +17,7 @@ namespace margelo::nitro::filament {
       prototype.registerHybridMethod("setTranslation", &HybridTransformBindingSpec::setTranslation);
       prototype.registerHybridMethod("setRotation", &HybridTransformBindingSpec::setRotation);
       prototype.registerHybridMethod("setScale", &HybridTransformBindingSpec::setScale);
+      prototype.registerHybridMethod("setBase", &HybridTransformBindingSpec::setBase);
     });
   }
 

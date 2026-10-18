@@ -17,6 +17,8 @@ namespace margelo::nitro::filament {
       prototype.registerHybridGetter("width", &HybridViewTargetSpec::getWidth);
       prototype.registerHybridGetter("height", &HybridViewTargetSpec::getHeight);
       prototype.registerHybridGetter("view", &HybridViewTargetSpec::getView);
+      prototype.registerHybridGetter("targetFrameRate", &HybridViewTargetSpec::getTargetFrameRate);
+      prototype.registerHybridSetter("targetFrameRate", &HybridViewTargetSpec::setTargetFrameRate);
       prototype.registerHybridMethod("addOnResizeListener", &HybridViewTargetSpec::addOnResizeListener);
       prototype.registerHybridMethod("setScene", &HybridViewTargetSpec::setScene);
       prototype.registerHybridMethod("setCamera", &HybridViewTargetSpec::setCamera);

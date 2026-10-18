@@ -16,6 +16,7 @@ namespace margelo::nitro::filament {
     registerHybrids(this, [](Prototype& prototype) {
       prototype.registerHybridGetter("isCurrentThread", &HybridRenderThreadSpec::getIsCurrentThread);
       prototype.registerHybridGetter("hasRuntime", &HybridRenderThreadSpec::getHasRuntime);
+      prototype.registerHybridMethod("retainCleanup", &HybridRenderThreadSpec::retainCleanup);
     });
   }
 

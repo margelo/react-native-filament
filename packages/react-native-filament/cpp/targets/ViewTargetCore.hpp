@@ -33,7 +33,10 @@ public:
   void resize(const std::shared_ptr<HybridNativeSurfaceSpec>& surface);
   void detach(const std::shared_ptr<HybridNativeSurfaceSpec>& surface);
   bool canRender() const;
-  void render(int64_t frameTimeNanos);
+  /** Returns whether the target skipped this frame to keep its frame rate and wants a later one. */
+  [[nodiscard]] bool render(int64_t frameTimeNanos);
+  void setTargetFrameRate(double framesPerSecond);
+  double targetFrameRate() const;
 
   void revoke();
   double width() const;
@@ -61,6 +64,8 @@ private:
   std::atomic<bool> revoked_{false};
   std::atomic<double> width_{0};
   std::atomic<double> height_{0};
+  std::atomic<double> targetFrameRate_{0};
+  int64_t lastRenderedNanos_ = 0;
   double contentScale_ = 1;
   ListenerRegistry<double, double> resizeListeners_;
   OnceEvent firstFrame_;

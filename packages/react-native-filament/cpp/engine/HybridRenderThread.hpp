@@ -13,6 +13,7 @@ public:
 
   bool getIsCurrentThread() override;
   bool getHasRuntime() override;
+  std::shared_ptr<HybridRenderThreadCleanupSpec> retainCleanup(const std::function<void()>& cleanup) override;
 
 protected:
   void loadHybridMethods() override;

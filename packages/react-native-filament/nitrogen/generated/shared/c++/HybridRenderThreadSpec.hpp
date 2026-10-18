@@ -13,9 +13,12 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+// Forward declaration of `HybridRenderThreadCleanupSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridRenderThreadCleanupSpec; }
 
-
-
+#include <memory>
+#include "HybridRenderThreadCleanupSpec.hpp"
+#include <functional>
 
 namespace margelo::nitro::filament {
 
@@ -49,7 +52,7 @@ namespace margelo::nitro::filament {
 
     public:
       // Methods
-      
+      virtual std::shared_ptr<HybridRenderThreadCleanupSpec> retainCleanup(const std::function<void()>& cleanup) = 0;
 
     protected:
       // Hybrid Setup

@@ -1,5 +1,6 @@
 #include "HybridRenderThread.hpp"
 
+#include "HybridRenderThreadCleanup.hpp"
 #include "RenderThreadQueue.hpp"
 
 #include <NitroModules/JSIConverter.hpp>
@@ -12,6 +13,10 @@ bool HybridRenderThread::getIsCurrentThread() {
 
 bool HybridRenderThread::getHasRuntime() {
   return engine_->hasRuntime();
+}
+
+std::shared_ptr<HybridRenderThreadCleanupSpec> HybridRenderThread::retainCleanup(const std::function<void()>& cleanup) {
+  return std::make_shared<HybridRenderThreadCleanup>(cleanup);
 }
 
 void HybridRenderThread::loadHybridMethods() {

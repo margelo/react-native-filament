@@ -16,18 +16,26 @@ void TransformBindingCore::setScale(::filament::math::float3 scale) {
   write([&](Trs& trs) { trs.scale = scale; });
 }
 
+void TransformBindingCore::setBase(const ::filament::math::mat4f& base) {
+  {
+    std::unique_lock lock(mutex_);
+    base_ = base;
+  }
+  dirty_ = true;
+}
+
 void TransformBindingCore::apply(::filament::TransformManager& transforms) {
   if (!dirty_.exchange(false)) {
     return;
   }
-  Trs snapshot;
+  ::filament::math::mat4f transform;
   {
     std::unique_lock lock(mutex_);
-    snapshot = latest_;
+    transform = latest_.compose() * base_;
   }
   ::filament::TransformManager::Instance instance = transforms.getInstance(entity_);
   if (instance.isValid()) {
-    transforms.setTransform(instance, snapshot.compose());
+    transforms.setTransform(instance, transform);
   }
 }
 

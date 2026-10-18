@@ -1,5 +1,7 @@
 #include "HybridTransformBinding.hpp"
 
+#include "utils/MatrixConversion.hpp"
+
 namespace margelo::nitro::filament {
 
 HybridTransformBinding::HybridTransformBinding(std::shared_ptr<EngineCore> engine, std::shared_ptr<TransformBindingCore> core)
@@ -31,6 +33,14 @@ void HybridTransformBinding::setScale(double x, double y, double z) {
     return;
   }
   core_->setScale({static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)});
+  engine_->requestFrame();
+}
+
+void HybridTransformBinding::setBase(const Mat4Tuple& transform) {
+  if (core_->isStopped()) {
+    return;
+  }
+  core_->setBase(toMat4f(transform));
   engine_->requestFrame();
 }
 

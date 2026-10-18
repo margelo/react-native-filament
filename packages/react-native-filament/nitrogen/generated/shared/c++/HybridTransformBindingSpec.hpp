@@ -15,7 +15,7 @@
 
 
 
-
+#include <tuple>
 
 namespace margelo::nitro::filament {
 
@@ -51,6 +51,7 @@ namespace margelo::nitro::filament {
       virtual void setTranslation(double x, double y, double z) = 0;
       virtual void setRotation(double x, double y, double z, double w) = 0;
       virtual void setScale(double x, double y, double z) = 0;
+      virtual void setBase(const std::tuple<double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double>& transform) = 0;
 
     protected:
       // Hybrid Setup

@@ -21,6 +21,8 @@ public:
   double getWidth() override;
   double getHeight() override;
   std::shared_ptr<HybridViewSpec> getView() override;
+  double getTargetFrameRate() override;
+  void setTargetFrameRate(double targetFrameRate) override;
   ListenerSubscription addOnFirstFrameListener(const std::function<void()>& listener) override;
   std::shared_ptr<Promise<std::optional<PickResult>>> pick(double x, double y) override;
   std::shared_ptr<Promise<std::shared_ptr<HybridSnapshotSpec>>> takeSnapshot() override;

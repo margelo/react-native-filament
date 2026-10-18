@@ -47,16 +47,33 @@ bool ViewTargetCore::canRender() const {
   return isLive() && swapChain_ != nullptr && !revoked_ && width_ > 0 && height_ > 0;
 }
 
-void ViewTargetCore::render(int64_t frameTimeNanos) {
+bool ViewTargetCore::render(int64_t frameTimeNanos) {
   if (!canRender()) {
-    return;
+    return false;
+  }
+  double framesPerSecond = targetFrameRate_;
+  if (framesPerSecond > 0 && lastRenderedNanos_ != 0) {
+    auto intervalNanos = static_cast<int64_t>(1e9 / framesPerSecond);
+    if (frameTimeNanos - lastRenderedNanos_ < intervalNanos - intervalNanos / 4) {
+      return true;
+    }
   }
   if (renderer_->beginFrame(swapChain_, static_cast<uint64_t>(frameTimeNanos))) {
     renderer_->render(view_);
     readRequestedSnapshots();
     renderer_->endFrame();
+    lastRenderedNanos_ = frameTimeNanos;
     firstFrame_.fire();
   }
+  return false;
+}
+
+void ViewTargetCore::setTargetFrameRate(double framesPerSecond) {
+  targetFrameRate_ = framesPerSecond;
+}
+
+double ViewTargetCore::targetFrameRate() const {
+  return targetFrameRate_;
 }
 
 void ViewTargetCore::revoke() {

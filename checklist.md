@@ -428,32 +428,32 @@ Plan §10 Phase 3, §5, §8.2.
 Plan §10 Phase 4, §6, Appendix C.
 
 **Components and hooks**
-- [ ] **P4.1** `FilamentScene`:
+- [x] **P4.1** `FilamentScene`:
   - either owns an engine (and calls `shutdown()` on unmount) or borrows one through the `engine` prop;
   - a borrowing scene disposes only what it created and removes its listeners.
-- [ ] **P4.2** `FilamentView`:
+- [x] **P4.2** `FilamentView`:
   - props `transparent`, `renderCallback`, `onFirstFrame`, `targetFrameRate` and the view options;
   - several views can share one engine.
-- [ ] **P4.3** `Camera`:
+- [x] **P4.3** `Camera`:
   - `Float3` or `SharedValue<Float3>` for position, target and up;
   - aspect ratio from resize events;
   - takes a `manipulator`.
-- [ ] **P4.4** `Model`, `ModelRenderer`, `ModelInstance` and `Animator`:
+- [x] **P4.4** `Model`, `ModelRenderer`, `ModelInstance` and `Animator`:
   - backed by native objects and `AnimationPlayer`;
   - transform props accept SharedValues;
   - `onPress` uses per-view picking.
-- [ ] **P4.5** `Light`, `DefaultLight`, `EnvironmentalLight`, `Skybox`, `BackgroundImage`, `DebugBox` and `EntitySelector`: owned and disposed on unmount; numeric props accept SharedValues.
-- [ ] **P4.6** `useFilamentContext` returns `{ engine, scene, view, camera, transformManager, renderableManager, lightManager }`.
-- [ ] **P4.7** Kept hooks, rebuilt on Promises and `dispose()`: `useModel`, `useAnimator`, `useCameraManipulator`, `useSkybox`, `useLightEntity`, `useEntityInScene`, `useRecorder`, `useRecorderRenderLoop`, `useConfigureAssetShadow`, `useDisposableResource`.
-- [ ] **P4.8** `useRenderThreadEffect`, `useRenderThreadCallback` and `useRenderThreadMemo`, with stale-result guards.
-- [ ] **P4.9** New: `useFrameCallback`, `useOrbitGestures`, `useAnimationPlayer`, `useTransformBinding` and `useValueBinding`.
-- [ ] **P4.10** Removed: `useBuffer`, `useSyncSharedValue`, `useDerivedValue`, `useWorkletEffect`, `useWorkletCallback`, `useWorkletMemo` and `withCleanupScope`.
-- [ ] **P4.11** SharedValue props for:
+- [x] **P4.5** `Light`, `DefaultLight`, `EnvironmentalLight`, `Skybox`, `BackgroundImage`, `DebugBox` and `EntitySelector`: owned and disposed on unmount; numeric props accept SharedValues.
+- [x] **P4.6** `useFilamentContext` returns `{ engine, scene, view, camera, transformManager, renderableManager, lightManager }`.
+- [x] **P4.7** Kept hooks, rebuilt on Promises and `dispose()`: `useModel`, `useAnimator`, `useCameraManipulator`, `useSkybox`, `useLightEntity`, `useEntityInScene`, `useRecorder`, `useRecorderRenderLoop`, `useConfigureAssetShadow`, `useDisposableResource`.
+- [x] **P4.8** `useRenderThreadEffect`, `useRenderThreadCallback` and `useRenderThreadMemo`, with stale-result guards.
+- [x] **P4.9** New: `useFrameCallback`, `useOrbitGestures`, `useAnimationPlayer`, `useTransformBinding` and `useValueBinding`.
+- [x] **P4.10** Removed: `useBuffer`, `useSyncSharedValue`, `useDerivedValue`, `useWorkletEffect`, `useWorkletCallback`, `useWorkletMemo` and `withCleanupScope`.
+- [x] **P4.11** SharedValue props for:
   - transforms; camera position, target and up;
   - light intensity, color and direction;
   - material float and color parameters;
   - animation index, time and weight; morph weights.
-- [ ] **P4.12** React rules:
+- [x] **P4.12** React rules:
   - StrictMode-safe;
   - whoever creates a native object disposes it;
   - one `runOnRenderThread` job per commit;

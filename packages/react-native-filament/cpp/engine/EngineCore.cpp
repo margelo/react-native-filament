@@ -291,8 +291,12 @@ void EngineCore::renderFrame(int64_t frameTimeNanos) {
   }
   frameRequested_ = false;
   runFrameStages(nextFrameInfo(frameTimeNanos));
+  bool deferred = false;
   for (const std::shared_ptr<ViewTargetCore>& target : targets_) {
-    target->render(frameTimeNanos);
+    deferred = target->render(frameTimeNanos) || deferred;
+  }
+  if (deferred) {
+    frameRequested_ = true;
   }
   updateDemand();
 }

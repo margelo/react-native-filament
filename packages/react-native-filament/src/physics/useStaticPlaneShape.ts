@@ -1,0 +1,16 @@
+import type { CollisionShape } from '../specs/physics/CollisionShape.nitro'
+import type { PhysicsWorld } from '../specs/physics/PhysicsWorld.nitro'
+import type { Float3 } from '../specs/types/Float3'
+import { useCollisionShape } from './useCollisionShape'
+
+export function useStaticPlaneShape(world: PhysicsWorld | undefined, normal: Float3, constant: number): CollisionShape | undefined {
+  const [x, y, z] = normal
+  return useCollisionShape(
+    world,
+    (target) => {
+      'worklet'
+      return target.createStaticPlaneShape([x, y, z], constant)
+    },
+    [x, y, z, constant]
+  )
+}

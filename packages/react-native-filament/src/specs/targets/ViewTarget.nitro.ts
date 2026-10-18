@@ -25,6 +25,13 @@ export interface ViewTarget extends HybridObject<{ ios: 'c++'; android: 'c++' }>
    */
   readonly view: View
   /**
+   * Highest rate in frames per second this target renders at, or `0` to render on every display
+   * refresh. Frame listeners and native systems still run on every frame of the Engine.
+   * @default 0
+   * @thread any
+   */
+  targetFrameRate: number
+  /**
    * Called with the drawable size in pixels whenever it changes, and once right away if the
    * target already has a surface.
    * @thread any

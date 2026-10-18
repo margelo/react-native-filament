@@ -1,4 +1,5 @@
 import type { HybridObject } from 'react-native-nitro-modules'
+import type { RenderThreadCleanup } from './RenderThreadCleanup.nitro'
 
 export interface RenderThread extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   /**
@@ -11,4 +12,10 @@ export interface RenderThread extends HybridObject<{ ios: 'c++'; android: 'c++' 
    * @thread any
    */
   readonly hasRuntime: boolean
+  /**
+   * Keeps `cleanup` until the returned handle runs it. For cleanups that capture values of the render
+   * runtime and so cannot travel to another runtime.
+   * @thread any
+   */
+  retainCleanup(cleanup: () => void): RenderThreadCleanup
 }

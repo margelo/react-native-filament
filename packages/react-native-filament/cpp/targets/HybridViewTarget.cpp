@@ -5,8 +5,10 @@
 #include "scene/HybridView.hpp"
 #include "utils/ThreadChecks.hpp"
 
+#include <cmath>
 #include <future>
 #include <stdexcept>
+#include <string>
 
 namespace margelo::nitro::filament {
 
@@ -19,6 +21,18 @@ HybridViewTarget::HybridViewTarget(std::shared_ptr<HybridEngine> engine, std::sh
 
 HybridViewTarget::~HybridViewTarget() {
   dispose();
+}
+
+double HybridViewTarget::getTargetFrameRate() {
+  return core_->targetFrameRate();
+}
+
+void HybridViewTarget::setTargetFrameRate(double targetFrameRate) {
+  if (!(targetFrameRate >= 0) || std::isinf(targetFrameRate)) {
+    throw std::invalid_argument("ViewTarget.targetFrameRate must be a finite number of at least 0, but was " +
+                                std::to_string(targetFrameRate) + ".");
+  }
+  core_->setTargetFrameRate(targetFrameRate);
 }
 
 double HybridViewTarget::getWidth() {
