@@ -322,13 +322,13 @@ Plan §10 Phase 2. Reanimated and gestures are proven here, not after the full r
   - Android: a Kotlin `FrameLayout` hosting a `SurfaceView` (default) or a `TextureView` when `transparent` is set;
   - props `transparent` (default false) and `targetFrameRate`.
 - [x] **P2.35** Internal `NativeSurface` lease:
-  - one per OS surface, never reused;
+  - one per OS surface, never reused; Android creates one only for an acquired window and keeps one unreleased lease per view;
   - Android takes the window with `ANativeWindow_fromSurface` and releases it with `ANativeWindow_release`; iOS holds the layer strongly;
   - the handle is read once, on the render thread.
-- [x] **P2.36** `ViewTarget` state machine with lease-tagged attach and detach. Stale completions are dropped.
+- [x] **P2.36** `ViewTarget` state machine with lease-tagged attach and detach. A detach for a lease that is not attached releases it, and a released lease (handle 0) is never attached.
 - [x] **P2.37** SurfaceView teardown:
   - the revoke flag is set first; the teardown job goes to the front;
-  - destroy the SwapChain → `flushAndWait` → `lease.release()` → ack, while main waits;
+  - destroy the SwapChain → on Vulkan, end an empty headless frame so Filament frees it → `flushAndWait` → `lease.release()`, while main waits for that release;
   - never timeout-and-continue.
 - [x] **P2.38** TextureView: `onSurfaceTextureDestroyed` returns false, and the lease is released asynchronously after destroy plus `flushAndWait`.
 - [ ] **P2.39** iOS:

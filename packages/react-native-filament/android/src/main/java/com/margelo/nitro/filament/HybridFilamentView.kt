@@ -14,6 +14,7 @@ class HybridFilamentView(context: ThemedReactContext) : HybridFilamentViewSpec()
   private var source: SurfaceSource = createSource(transparent = false)
   private var observer: SurfaceObserver? = null
   private var lease: HybridNativeSurface? = null
+  private var holder: SurfaceObserver? = null
 
   override val view: View = container
 
@@ -29,29 +30,48 @@ class HybridFilamentView(context: ThemedReactContext) : HybridFilamentViewSpec()
 
   override fun setSurfaceObserver(observer: SurfaceObserver?) {
     container.post {
+      withdrawLease()
       this.observer = observer
-      lease = null
       onSurfaceCreated()
     }
   }
 
   override fun onSurfaceCreated() {
     val observer = observer ?: return
-    val created = source.createLease() ?: return
+    if (lease != null) return
+    val created = source.createLease(::onLeaseReleased) ?: return
     lease = created
+    holder = observer
     observer.onCreated(created)
   }
 
   override fun onSurfaceResized() {
     val current = lease ?: return
     current.resize(source.size)
-    observer?.onResized(current)
+    holder?.onResized(current)
   }
 
   override fun onSurfaceDestroyed() {
+    withdrawLease()
     val current = lease ?: return
-    lease = null
-    observer?.onDestroyed(current)
+    if (current.synchronousTeardown) current.awaitRelease()
+  }
+
+  private fun withdrawLease() {
+    val current = lease ?: return
+    val previous = holder ?: return
+    holder = null
+    previous.onDestroyed(current)
+  }
+
+  private fun onLeaseReleased(released: HybridNativeSurface) {
+    container.post {
+      if (lease !== released) return@post
+      val withdrawn = holder == null
+      lease = null
+      holder = null
+      if (withdrawn) onSurfaceCreated()
+    }
   }
 
   private fun createSource(transparent: Boolean): SurfaceSource {

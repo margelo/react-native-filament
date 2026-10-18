@@ -7,5 +7,5 @@ internal interface SurfaceSource {
   val view: View
   val size: Size
 
-  fun createLease(): HybridNativeSurface?
+  fun createLease(onReleased: (HybridNativeSurface) -> Unit): HybridNativeSurface?
 }

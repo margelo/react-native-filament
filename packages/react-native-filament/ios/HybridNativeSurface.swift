@@ -2,7 +2,6 @@ import NitroModules
 import QuartzCore
 
 final class HybridNativeSurface: HybridNativeSurfaceSpec_base, HybridNativeSurfaceSpec_protocol {
-  let handle: UInt64
   let contentScale: Double
   let transparent: Bool
   let synchronousTeardown = false
@@ -13,10 +12,15 @@ final class HybridNativeSurface: HybridNativeSurfaceSpec_base, HybridNativeSurfa
 
   init(layer: CAMetalLayer, pixelSize: CGSize, contentScale: Double, transparent: Bool) {
     self.contentScale = contentScale
-    self.handle = UInt64(UInt(bitPattern: Unmanaged.passUnretained(layer).toOpaque()))
     self.layer = layer
     self.pixelSize = pixelSize
     self.transparent = transparent
+  }
+
+  var handle: UInt64 {
+    lock.lock()
+    defer { lock.unlock() }
+    return layer.map { UInt64(UInt(bitPattern: Unmanaged.passUnretained($0).toOpaque())) } ?? 0
   }
 
   var width: Double {

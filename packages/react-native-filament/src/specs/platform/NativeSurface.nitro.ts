@@ -5,6 +5,7 @@ import type { HybridObject, UInt64 } from 'react-native-nitro-modules'
  * Internal to react-native-filament.
  */
 export interface NativeSurface extends HybridObject<{ ios: 'swift'; android: 'kotlin' }> {
+  /** 0 once released. */
   readonly handle: UInt64
   readonly width: number
   readonly height: number

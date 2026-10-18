@@ -380,23 +380,25 @@ Each decision becomes an ADR file in `docs/adr/` during Phase 0, together with t
 
 **Surface lease: one object per OS surface, with its own lifetime**
 - `NativeSurface` is an internal Swift/Kotlin spec, never exported. Each instance represents exactly one OS surface (one generation). The platform view creates a new lease whenever the OS hands it a surface and never reuses one.
+- Android creates a lease only for a window it could acquire, and keeps at most one unreleased lease per view: a new observer or surface gets a lease only after the previous one is released, so a window never has two swap chains, even across Engines.
 - The lease owns the native reference for its whole life:
   - Android acquires the window with `ANativeWindow_fromSurface` (which takes a reference) when the lease is created, and releases it with `ANativeWindow_release` in the lease's `release()`;
   - iOS holds the `CAMetalLayer` strongly.
 - C++ reads the handle (`bigint`) once per lease, on the render thread, while it holds the lease. The handle never leaves C++.
-- `ViewTarget` holds the lease while a SwapChain exists for it, and calls `release()` itself after the SwapChain is destroyed.
+- `ViewTarget` holds the lease while a SwapChain exists for it, and calls `release()` itself after the SwapChain is destroyed. Nothing else releases an attached lease, also not a job cancelled by `shutdown()`; the shutdown job destroys the target first.
+- A released lease reports handle 0 and is never attached.
 - Generations are lease identities, not pointer values, so a recycled native address cannot alias an old surface.
 
 **State machine:** `detached → attaching(lease) → active(lease) ⇄ paused(lease) → detaching(lease) → detached`, plus a terminal `destroyed` after dispose.
-- Attach and detach are jobs tagged with their lease. A completion whose lease is not the target's current lease is dropped as stale.
+- Attach and detach are jobs tagged with their lease. A detach whose lease is not the target's current lease releases it, so an attach still queued for that lease creates nothing.
 - Surface events that arrive while attaching or detaching are processed in order.
 
 **Android SurfaceView teardown (synchronous, as `SurfaceHolder.Callback.surfaceDestroyed` requires)**
 
 Wait graph:
 ```
-main thread, in surfaceDestroyed ──waits for──► render thread teardown job:
-                                                revoke target → destroy SwapChain → flushAndWait → lease.release() → ack
+main thread, in surfaceDestroyed ──waits for──► the view's unreleased lease, released by the render thread teardown job:
+                                                revoke target → destroy SwapChain → (Vulkan) empty frame → flushAndWait → lease.release()
 render thread ──may wait for──► Filament driver thread (flushAndWait: until Filament has executed the commands queued before it)
 render thread ──never waits for──► main thread, UI runtime, RN runtime, or any lock main can hold
 ```
@@ -410,6 +412,7 @@ render thread ──never waits for──► main thread, UI runtime, RN runtime
 - RNF never times out and continues; the released surface is never touched again.
 - The graph is acyclic as long as render-thread JS keeps the cross-runtime rule (4.3). RNF native code never waits on main, and RNF holds no lock while waiting.
 - Spikes C and D exercise teardown while listeners are running, while jobs are queued, and while other runtimes access the render runtime.
+- Filament 1.78.0's Vulkan backend frees a destroyed SwapChain, and disconnects its window, only in the garbage collection at the end of a frame; `flushAndWait` alone leaves the window connected. On Vulkan the teardown job therefore ends an empty frame on a 1×1 headless SwapChain before `flushAndWait`.
 - The flush is Filament's documented minimum. Filament's own sample does exactly this in `onDetachedFromSurface`: `destroySwapChain` then `flushAndWait()`, "Required to ensure we don't return before Filament is done executing the destroySwapChain command, otherwise Android might destroy the Surface too early" (`android/samples/sample-hello-triangle/src/main/java/com/google/android/filament/hellotriangle/MainActivity.kt:336-346` at v1.78.0).
 
 **Android TextureView teardown (asynchronous)**
@@ -1641,6 +1644,7 @@ Each has a recommended default that the plan assumes until the user says otherwi
 | D35 | 2026-10-18 | Render worklet runtimes are pooled per `FilamentFactory` (one per JS runtime) and reused by later Engines instead of being destroyed. Worklets 0.7.4's `RetainingSerializable` caches values by runtime address; once objects reported external memory, the extra GC let a new runtime reuse a destroyed one's address, and worklets returned a stale value and crashed (SIGSEGV in `createWorkletRuntime`). Pooling also saves runtime start-up per Engine. Each runtime keeps one retargetable queue, and its Nitro dispatcher follows that queue, because Nitro's global dispatcher can be installed only once per runtime. Globals set by render worklets persist into the next Engine that reuses the runtime. Objects report estimated native sizes through `getExternalMemorySize()`, and `engine.getDebugStats()` counts live resources by kind. | Found while implementing P3.16. |
 | D36 | 2026-10-18 | The React layer queues the render-thread work of a commit in a per-scene `RenderCommit` and runs it as one job in the microtask after the commit's effects, in submission order. Components only call setters that are documented as any-thread (bindings, players, subscriptions) outside that batch. A render-thread effect cleanup stays on the render runtime as a `RenderThreadCleanup` handle, because worklets 0.7.4 cannot unpack a worklet created on another runtime; a cleanup always runs before the next run of its effect, also when StrictMode cleans up before the first run finished. Transform props are absolute: the local transform is `translate · rotate · scale · base`, where `base` is the unit-cube fit or the entity's transform when it was first bound, and removing the props restores that transform, so StrictMode and re-renders never accumulate. `rotate` keeps v1's Euler angles. Components share the names of their native types; each name exports both the component and the type. `FilamentView.targetFrameRate` throttles only that target's rendering and keeps on-demand frames pending while it waits. | Found while implementing P4.1–P4.12. |
 | D37 | 2026-10-18 | Android prefers Vulkan: `Filament.supportedBackends` lists `vulkan` before `opengl` when Vulkan 1.1 is available, so an Engine created without `backend` renders with Vulkan and falls back to OpenGL ES 3.0 elsewhere. Known risk: Filament's Vulkan backend aborts when it creates a swap chain on a null or abandoned `ANativeWindow`, where OpenGL only logs an error. The harness hit this once in three full runs, when views mount and unmount quickly; the surface and swap-chain lifetimes need a fix before 2.0 ships. | Requested after the 1.x benchmark. |
+| D38 | 2026-10-18 | Surface leases are released only by their owner, after Filament has executed the swap chain's creation and destruction (4.5). A released lease reports handle 0 and is never attached, a detach that overtakes its attach releases the lease, and engine shutdown no longer releases attached leases from cancelled jobs. Android creates leases only for acquired windows, keeps one unreleased lease per view, and `surfaceDestroyed` waits for that lease instead of for a C++ promise. On Vulkan, destroying a SwapChain ends an empty headless frame, because Filament frees Vulkan swap chains only when a frame ends. | Fixes the Vulkan swap-chain aborts of D37, reproduced by the `Surfaces` harness suite: a front-queued detach overtook its attach, which then created a swap chain on an abandoned window, and shutdown released windows whose swap chains were still queued. A window handed to another Engine was still connected to the first Engine's destroyed swap chain (`native_window_api_connect() failed: Invalid argument`). |
 
 ---
 

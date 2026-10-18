@@ -6,7 +6,6 @@
 #include "utils/ThreadChecks.hpp"
 
 #include <cmath>
-#include <future>
 #include <stdexcept>
 #include <string>
 
@@ -170,27 +169,13 @@ SurfaceObserver HybridViewTarget::makeSurfaceObserver(std::weak_ptr<EngineCore> 
       surface->release();
       return;
     }
-    bool synchronous = surface->getSynchronousTeardown();
-    if (synchronous) {
+    if (surface->getSynchronousTeardown()) {
       target->revoke();
     }
-    auto released = std::make_shared<std::promise<void>>();
-    engine->thread().postFront({
-        .run =
-            [engine, target, surface, released] {
-              target->detach(surface);
-              engine->updateDemand();
-              released->set_value();
-            },
-        .cancel =
-            [surface, released] {
-              surface->release();
-              released->set_value();
-            },
-    });
-    if (synchronous) {
-      released->get_future().wait();
-    }
+    engine->thread().postFront({.run = [engine, target, surface] {
+      target->detach(surface);
+      engine->updateDemand();
+    }});
   };
 
   return SurfaceObserver(onCreated, onResized, onDestroyed);

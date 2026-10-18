@@ -19,8 +19,13 @@ void ViewTargetCore::attach(const std::shared_ptr<HybridNativeSurfaceSpec>& surf
   if (surface_ != nullptr) {
     detach(surface_);
   }
+  uint64_t handle = surface->getHandle();
+  if (!isLive() || handle == 0) {
+    surface->release();
+    return;
+  }
   uint64_t flags = surface->getTransparent() ? ::filament::SwapChain::CONFIG_TRANSPARENT : 0;
-  swapChain_ = engine_.createSwapChain(reinterpret_cast<void*>(surface->getHandle()), flags);
+  swapChain_ = engine_.createSwapChain(reinterpret_cast<void*>(handle), flags);
   surface_ = surface;
   revoked_ = false;
   updateViewport(surface);
@@ -34,6 +39,7 @@ void ViewTargetCore::resize(const std::shared_ptr<HybridNativeSurfaceSpec>& surf
 
 void ViewTargetCore::detach(const std::shared_ptr<HybridNativeSurfaceSpec>& surface) {
   if (surface != surface_) {
+    surface->release();
     return;
   }
   destroySwapChain();
@@ -214,8 +220,19 @@ void ViewTargetCore::destroySwapChain() {
     return;
   }
   engine_.destroy(swapChain_);
-  engine_.flushAndWait();
   swapChain_ = nullptr;
+  if (engine_.getBackend() == ::filament::Engine::Backend::VULKAN) {
+    endEmptyFrame();
+  }
+  engine_.flushAndWait();
+}
+
+// Filament's Vulkan backend frees destroyed swap chains, and disconnects their windows, only when a frame ends.
+void ViewTargetCore::endEmptyFrame() {
+  ::filament::SwapChain* headless = engine_.createSwapChain(1, 1, 0);
+  renderer_->beginFrame(headless);
+  renderer_->endFrame();
+  engine_.destroy(headless);
 }
 
 void ViewTargetCore::updateViewport(const std::shared_ptr<HybridNativeSurfaceSpec>& surface) {
