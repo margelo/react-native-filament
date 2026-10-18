@@ -5,6 +5,7 @@
 #include <filament/Engine.h>
 #include <filament/Renderer.h>
 #include <filament/Scene.h>
+#include <filament/SwapChain.h>
 #include <filament/View.h>
 #include <math/vec2.h>
 #include <math/vec3.h>
@@ -36,6 +37,7 @@ public:
 protected:
   ViewHost(const char* kind, ::filament::Engine& engine, ::filament::Renderer& renderer, ClearSettings clear);
   void destroyViewHost();
+  void destroyWindowSwapChain(::filament::SwapChain* swapChain);
   virtual double pointsPerPixel() const;
   // Ignores Filament's frame skipping: the Engine skips whole vsyncs for every host sharing its Renderer (D39).
   void beginFrame(::filament::SwapChain* swapChain, uint64_t vsyncNanos = 0);

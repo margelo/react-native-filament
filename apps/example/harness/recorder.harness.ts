@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'react-native-harness'
 import { Image } from 'react-native'
 import { NitroModules, type HybridObject } from 'react-native-nitro-modules'
-import { Filament, runOnRenderThread, type Engine, type Recorder } from 'react-native-filament'
+import { Filament, runOnRenderThread, type Engine, type Model, type Recorder } from 'react-native-filament'
 import { readMp4Info } from './mp4'
 
 const coin = Image.resolveAssetSource(require('../assets/coin.glb'))
@@ -11,6 +11,23 @@ interface AssetIO extends HybridObject<{ ios: 'swift'; android: 'kotlin' }> {
 }
 
 const assetIO = NitroModules.createHybridObject<AssetIO>('AssetIO')
+
+function createRecorder(engine: Engine, model: Model): Promise<Recorder> {
+  return runOnRenderThread(engine, () => {
+    'worklet'
+    const created = engine.createRecorder({ width: 321, height: 240, fps: 30, clearOptions: { color: [0.2, 0.4, 0.8, 1] } })
+    const scene = engine.createScene()
+    scene.addModel(model)
+    scene.addEntity(engine.createDirectionalLight({}).entity)
+    engine.transformManager.transformToUnitCube(model.rootEntity, model.boundingBox)
+    const camera = engine.createCamera()
+    camera.lookAt([0, 0, 5], [0, 0, 0], [0, 1, 0])
+    camera.setProjection(45, created.width / created.height, 0.1, 100)
+    created.setScene(scene)
+    created.setCamera(camera)
+    return created
+  })
+}
 
 function attempt(run: () => unknown): string {
   'worklet'
@@ -24,25 +41,13 @@ function attempt(run: () => unknown): string {
 
 describe('Recorder', () => {
   let engine: Engine
+  let model: Model
   let recorder: Recorder
 
   beforeEach(async () => {
     engine = await Filament.createEngine({})
-    const model = await engine.loadModel({ uri: coin.uri }, {})
-    recorder = await runOnRenderThread(engine, () => {
-      'worklet'
-      const created = engine.createRecorder({ width: 321, height: 240, fps: 30, clearOptions: { color: [0.2, 0.4, 0.8, 1] } })
-      const scene = engine.createScene()
-      scene.addModel(model)
-      scene.addEntity(engine.createDirectionalLight({}).entity)
-      engine.transformManager.transformToUnitCube(model.rootEntity, model.boundingBox)
-      const camera = engine.createCamera()
-      camera.lookAt([0, 0, 5], [0, 0, 0], [0, 1, 0])
-      camera.setProjection(45, created.width / created.height, 0.1, 100)
-      created.setScene(scene)
-      created.setCamera(camera)
-      return created
-    })
+    model = await engine.loadModel({ uri: coin.uri }, {})
+    recorder = await createRecorder(engine, model)
   })
 
   afterEach(async () => {
@@ -86,6 +91,7 @@ describe('Recorder', () => {
     await expect(recorder.record(5)).rejects.toThrow('FilamentBusyError')
     const [firstUri, secondUri] = [await first, await recorder.record(5)]
     expect(firstUri).not.toBe(secondUri)
+    expect(readMp4Info(await assetIO.read(firstUri)).sampleCount).toBe(20)
     expect(readMp4Info(await assetIO.read(secondUri)).sampleCount).toBe(5)
   })
 
@@ -96,6 +102,21 @@ describe('Recorder', () => {
     })
     recorder.dispose()
     await expect(recording).rejects.toThrow('FilamentDisposedError')
+  })
+
+  it('rejects a recording disposed between frames, and the engine records again', async () => {
+    await runOnRenderThread(engine, () => {
+      'worklet'
+      engine.addOnFrameListener((frame) => {
+        if (frame.frameIndex === 10) {
+          recorder.dispose()
+        }
+        return true
+      })
+    })
+    await expect(recorder.record(600)).rejects.toThrow('FilamentDisposedError')
+    const next = await createRecorder(engine, model)
+    expect(readMp4Info(await assetIO.read(await next.record(5))).sampleCount).toBe(5)
   })
 
   it('rejects the pending recording when the engine shuts down mid-recording', async () => {

@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <chrono>
 #include <stdexcept>
+#include <utility>
 
 namespace margelo::nitro::filament {
 
@@ -62,11 +63,13 @@ void RecorderCore::start(uint32_t frameCount, std::shared_ptr<HybridVideoEncoder
           }});
         }
       },
-      [weakEngine, weakSession](const std::exception_ptr& error) {
+      [weakEngine, recorder, weakSession](const std::exception_ptr& error) {
         if (std::shared_ptr<EngineCore> engine = weakEngine.lock()) {
-          engine->thread().post({.run = [weakSession, error] {
-            if (std::shared_ptr<RecordingSession> session = weakSession.lock()) {
-              session->fail(error);
+          engine->thread().post({.run = [recorder, weakSession, error] {
+            std::shared_ptr<RecorderCore> owner = recorder.lock();
+            std::shared_ptr<RecordingSession> session = weakSession.lock();
+            if (owner != nullptr && session != nullptr) {
+              owner->fail(session, error);
             }
           }});
         }
@@ -77,23 +80,22 @@ void RecorderCore::start(uint32_t frameCount, std::shared_ptr<HybridVideoEncoder
 
 void RecorderCore::destroyNative() {
   if (session_ != nullptr) {
-    session_->fail(
-        std::make_exception_ptr(std::runtime_error("FilamentDisposedError: the Recorder was disposed before the recording finished.")));
+    cancel(session_,
+           std::make_exception_ptr(std::runtime_error("FilamentDisposedError: the Recorder was disposed before the recording finished.")));
     session_ = nullptr;
   }
   destroyViewHost();
 }
 
 void RecorderCore::completeFrame(const std::shared_ptr<RecordingSession>& session, uint64_t target, uint32_t index) {
-  session->rendering--;
-  if (session->active) {
-    try {
-      session->encoder->submitFrame(target, index);
-    } catch (...) {
-      session->fail(std::current_exception());
-    }
+  if (!session->active) {
+    return;
   }
-  session->releaseWindowSwapChainWhenIdle();
+  try {
+    session->encoder->submitFrame(target, index);
+  } catch (...) {
+    fail(session, std::current_exception());
+  }
 }
 
 void RecorderCore::admit(const std::shared_ptr<RecordingSession>& session) {
@@ -104,7 +106,7 @@ void RecorderCore::admit(const std::shared_ptr<RecordingSession>& session) {
       renderFrame(session, session->encoder->acquireFrame(), session->admitted++);
     }
   } catch (...) {
-    session->fail(std::current_exception());
+    fail(session, std::current_exception());
     return;
   }
   if (session->admitted == session->frameCount && session->unaccepted == 0) {
@@ -117,7 +119,6 @@ void RecorderCore::renderFrame(const std::shared_ptr<RecordingSession>& session,
   FrameInfo frame(index * 1e9 / fps, index == 0 ? 0.0 : 1.0 / fps, index / fps, static_cast<double>(index));
   engineCore_->runFrameStages(frame);
   ::filament::SwapChain* swapChain = swapChainFor(session, target, index);
-  session->rendering++;
   session->unaccepted++;
   renderer_->setPresentationTime(session->presentationBaseNanos + static_cast<int64_t>(frame.timestampNs));
   beginFrame(swapChain);
@@ -127,20 +128,26 @@ void RecorderCore::renderFrame(const std::shared_ptr<RecordingSession>& session,
 
 ::filament::SwapChain* RecorderCore::swapChainFor(const std::shared_ptr<RecordingSession>& session, uint64_t target, uint32_t index) {
   ::filament::backend::CallbackHandler* handler = &engineCore_->callbacks();
+  std::weak_ptr<RecorderCore> recorder = weakSelf();
   if (rendersIntoPixelBuffers_) {
     ::filament::SwapChain* swapChain =
         engine_.createSwapChain(reinterpret_cast<void*>(target), ::filament::SwapChain::CONFIG_APPLE_CVPIXELBUFFER);
-    swapChain->setFrameCompletedCallback(handler, [session, target, index](::filament::SwapChain* completed) {
+    swapChain->setFrameCompletedCallback(handler, [recorder, session, target, index](::filament::SwapChain* completed) {
       session->engine->thread().post({.run = [session, completed] { session->engine->engine().destroy(completed); }});
-      completeFrame(session, target, index);
+      if (std::shared_ptr<RecorderCore> owner = recorder.lock()) {
+        owner->completeFrame(session, target, index);
+      }
     });
     return swapChain;
   }
   if (session->windowSwapChain == nullptr) {
     session->windowSwapChain = engine_.createSwapChain(reinterpret_cast<void*>(target));
   }
-  session->windowSwapChain->setFrameScheduledCallback(
-      handler, [session, target, index](::filament::backend::PresentCallable) { completeFrame(session, target, index); });
+  session->windowSwapChain->setFrameScheduledCallback(handler, [recorder, session, target, index](::filament::backend::PresentCallable) {
+    if (std::shared_ptr<RecorderCore> owner = recorder.lock()) {
+      owner->completeFrame(session, target, index);
+    }
+  });
   return session->windowSwapChain;
 }
 
@@ -153,14 +160,40 @@ void RecorderCore::acceptFrame(const std::shared_ptr<RecordingSession>& session)
 }
 
 void RecorderCore::finish(const std::shared_ptr<RecordingSession>& session) {
-  session->active = false;
-  engineCore_->setRecording(false);
+  stop(*session);
   engine_.flushAndWait();
-  session->releaseWindowSwapChainWhenIdle();
   std::shared_ptr<Promise<std::string>> promise = session->promise;
   std::shared_ptr<Promise<std::string>> finished = session->encoder->finish();
   finished->addOnResolvedListener([promise](const std::string& uri) { promise->resolve(uri); });
   finished->addOnRejectedListener([promise](const std::exception_ptr& error) { promise->reject(error); });
+}
+
+void RecorderCore::cancel(const std::shared_ptr<RecordingSession>& session, const std::exception_ptr& error) {
+  if (!session->active) {
+    return;
+  }
+  stop(*session);
+  engine_.flushAndWait();
+  session->encoder->cancel();
+  session->promise->reject(error);
+}
+
+// A failed encoder may have stopped draining its surface, and only cancelling it unblocks Filament's driver thread.
+void RecorderCore::fail(const std::shared_ptr<RecordingSession>& session, const std::exception_ptr& error) {
+  if (!session->active) {
+    return;
+  }
+  stop(*session);
+  session->encoder->cancel();
+  session->promise->reject(error);
+}
+
+void RecorderCore::stop(RecordingSession& session) {
+  session.active = false;
+  engineCore_->setRecording(false);
+  if (session.windowSwapChain != nullptr) {
+    destroyWindowSwapChain(std::exchange(session.windowSwapChain, nullptr));
+  }
 }
 
 std::weak_ptr<RecorderCore> RecorderCore::weakSelf() {

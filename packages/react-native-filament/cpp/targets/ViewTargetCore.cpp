@@ -223,20 +223,9 @@ void ViewTargetCore::destroySwapChain() {
   if (swapChain_ == nullptr) {
     return;
   }
-  engine_.destroy(swapChain_);
+  destroyWindowSwapChain(swapChain_);
   swapChain_ = nullptr;
-  if (engine_.getBackend() == ::filament::Engine::Backend::VULKAN) {
-    endEmptyFrame();
-  }
   engine_.flushAndWait();
-}
-
-// Filament's Vulkan backend frees destroyed swap chains, and disconnects their windows, only when a frame ends.
-void ViewTargetCore::endEmptyFrame() {
-  ::filament::SwapChain* headless = engine_.createSwapChain(1, 1, 0);
-  renderer_->beginFrame(headless);
-  renderer_->endFrame();
-  engine_.destroy(headless);
 }
 
 void ViewTargetCore::updateViewport(const std::shared_ptr<HybridNativeSurfaceSpec>& surface) {

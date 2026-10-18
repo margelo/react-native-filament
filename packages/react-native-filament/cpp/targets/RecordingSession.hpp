@@ -7,7 +7,6 @@
 #include <filament/SwapChain.h>
 
 #include <cstdint>
-#include <exception>
 #include <memory>
 #include <string>
 
@@ -20,13 +19,9 @@ struct RecordingSession {
   uint32_t frameCount;
   int64_t presentationBaseNanos;
   uint32_t admitted = 0;
-  uint32_t rendering = 0;
   uint32_t unaccepted = 0;
   bool active = true;
   ::filament::SwapChain* windowSwapChain = nullptr;
-
-  void fail(const std::exception_ptr& error);
-  void releaseWindowSwapChainWhenIdle();
 };
 
 } // namespace margelo::nitro::filament

@@ -9,6 +9,7 @@
 #include <filament/SwapChain.h>
 
 #include <cstdint>
+#include <exception>
 #include <memory>
 #include <string>
 
@@ -35,12 +36,15 @@ protected:
 private:
   static constexpr uint32_t kMaxUnacceptedFrames = 2;
 
-  static void completeFrame(const std::shared_ptr<RecordingSession>& session, uint64_t target, uint32_t index);
+  void completeFrame(const std::shared_ptr<RecordingSession>& session, uint64_t target, uint32_t index);
   void admit(const std::shared_ptr<RecordingSession>& session);
   void renderFrame(const std::shared_ptr<RecordingSession>& session, uint64_t target, uint32_t index);
   ::filament::SwapChain* swapChainFor(const std::shared_ptr<RecordingSession>& session, uint64_t target, uint32_t index);
   void acceptFrame(const std::shared_ptr<RecordingSession>& session);
   void finish(const std::shared_ptr<RecordingSession>& session);
+  void cancel(const std::shared_ptr<RecordingSession>& session, const std::exception_ptr& error);
+  void fail(const std::shared_ptr<RecordingSession>& session, const std::exception_ptr& error);
+  void stop(RecordingSession& session);
   std::weak_ptr<RecorderCore> weakSelf();
 
   std::shared_ptr<EngineCore> engineCore_;

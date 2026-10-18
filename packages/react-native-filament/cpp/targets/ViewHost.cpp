@@ -86,4 +86,16 @@ void ViewHost::destroyViewHost() {
   engine_.destroy(emptyScene_);
 }
 
+// Filament's Vulkan backend frees destroyed swap chains, and disconnects their windows, only when a frame ends.
+void ViewHost::destroyWindowSwapChain(::filament::SwapChain* swapChain) {
+  engine_.destroy(swapChain);
+  if (engine_.getBackend() != ::filament::Engine::Backend::VULKAN) {
+    return;
+  }
+  ::filament::SwapChain* headless = engine_.createSwapChain(1, 1, 0);
+  renderer_->beginFrame(headless);
+  renderer_->endFrame();
+  engine_.destroy(headless);
+}
+
 } // namespace margelo::nitro::filament

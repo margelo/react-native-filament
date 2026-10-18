@@ -58,7 +58,6 @@ protected:
 
 private:
   void destroySwapChain();
-  void endEmptyFrame();
   void readRequestedSnapshots();
   void rejectPendingQueries();
   void updateViewport(const std::shared_ptr<HybridNativeSurfaceSpec>& surface);
