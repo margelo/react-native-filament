@@ -4,192 +4,90 @@ on:
   push:
     branches:
       - main
-    paths:
-      - ".github/workflows/build-ios.yml"
-      - "package/cpp/**"
-      - "package/ios/**"
-      - "package/*.podspec"
-      - "examples/**/ios/**"
   pull_request:
     paths:
-      - ".github/workflows/build-ios.yml"
-      - "package/cpp/**"
-      - "package/ios/**"
-      - "package/*.podspec"
-      - "examples/**/ios/**"
+      - '.github/workflows/build-ios.yml'
+      - 'packages/react-native-filament/cpp/**'
+      - 'packages/react-native-filament/ios/**'
+      - 'packages/react-native-filament/nitrogen/**'
+      - 'packages/react-native-filament/*.podspec'
+      - 'packages/react-native-filament/filament.json'
+      - 'apps/example/ios/**'
+      - 'apps/expo-example/**'
+      - 'bun.lock'
 
 jobs:
-  build-filament:
-    name: Build Filament for iOS
-    runs-on: macOS-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Apply patches and calculate hash
-        id: hash
-        working-directory: package/
-        run: |
-          bun patch-filament
-          HASH=$(find ../filament -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.cc" -o -name "CMakeLists.txt" \) -print0 | sort -z | xargs -0 shasum -a 256 | shasum -a 256 | cut -d' ' -f1 | head -c 16)
-          echo "hash=$HASH" >> $GITHUB_OUTPUT
-          echo "Filament hash: $HASH"
-
-      - name: Restore from cache
-        id: cache
-        uses: actions/cache/restore@v4
-        with:
-          path: package/ios/libs/filament/
-          key: filament-ios-debug-${{ steps.hash.outputs.hash }}
-
-      - name: Build Filament
-        if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: package/
-        run: bash scripts/build-filament.sh debug --platform ios
-
-      - name: Save to cache
-        if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: package/ios/libs/filament/
-          key: filament-ios-debug-${{ steps.hash.outputs.hash }}
-
-      - name: Upload Filament libraries
-        uses: actions/upload-artifact@v4
-        with:
-          name: filament-ios
-          path: package/ios/libs/filament/
-          retention-days: 1
-
-  build-bullet3:
-    name: Build bullet3 for iOS
-    runs-on: macOS-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Calculate hash
-        id: hash
-        run: |
-          HASH=$(find bullet3/src -type f \( -name "*.cpp" -o -name "*.h" \) -print0 | sort -z | xargs -0 shasum -a 256 | shasum -a 256 | cut -d' ' -f1 | head -c 16)
-          echo "hash=$HASH" >> $GITHUB_OUTPUT
-          echo "bullet3 hash: $HASH"
-
-      - name: Restore from cache
-        id: cache
-        uses: actions/cache/restore@v4
-        with:
-          path: package/ios/libs/bullet3/
-          key: bullet3-ios-${{ steps.hash.outputs.hash }}
-
-      - name: Build bullet3
-        if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: package/
-        run: bash scripts/build-bullet3.sh --platform ios
-
-      - name: Save to cache
-        if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: package/ios/libs/bullet3/
-          key: bullet3-ios-${{ steps.hash.outputs.hash }}
-
-      - name: Upload bullet3 libraries
-        uses: actions/upload-artifact@v4
-        with:
-          name: bullet3-ios
-          path: package/ios/libs/bullet3/
-          retention-days: 1
-
   build:
-    name: Build iOS Example App
-    runs-on: macOS-latest
-    needs: [build-filament, build-bullet3]
+    name: Build example app (simulator, debug)
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
+      - uses: oven-sh/setup-bun@v2
 
-      - name: Restore bun cache
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
-          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-bun-
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: ${{ runner.os }}-bun-
 
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+      - run: bun install --frozen-lockfile
 
-      - name: Download Filament libraries
-        uses: actions/download-artifact@v4
-        with:
-          name: filament-ios
-          path: package/ios/libs/filament/
-
-      - name: Download bullet3 libraries
-        uses: actions/download-artifact@v4
-        with:
-          name: bullet3-ios
-          path: package/ios/libs/bullet3/
-
-      - name: Restore buildcache
-        uses: mikehardy/buildcache-action@v2
-        continue-on-error: true
-
-      - name: Setup Ruby (bundle)
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.4.4
-          bundler-cache: true
-          working-directory: examples/AppExampleFabric
-
-      - name: Restore Pods cache
+      - name: Restore Filament store
         uses: actions/cache@v4
         with:
-          path: examples/AppExampleFabric/ios/Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pods-
+          path: ~/Library/Caches/react-native-filament
+          key: filament-ios-${{ hashFiles('packages/react-native-filament/filament.json') }}
 
-      - name: Install Pods
-        working-directory: examples/AppExampleFabric/ios
-        run: bundle exec pod install
+      - name: Install pods
+        working-directory: apps/example/ios
+        run: pod install
 
-      - name: Install xcpretty
-        run: gem install xcpretty
-
-      - name: Build App
-        working-directory: examples/AppExampleFabric/ios
+      - name: Build
+        working-directory: apps/example/ios
         run: |
           set -o pipefail
-          xcodebuild \
-            CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ GCC_OPTIMIZATION_LEVEL=0 GCC_PRECOMPILE_PREFIX_HEADER=YES ASSETCATALOG_COMPILER_OPTIMIZATION=time DEBUG_INFORMATION_FORMAT=dwarf COMPILER_INDEX_STORE_ENABLE=NO \
-            -derivedDataPath build -UseModernBuildSystem=YES \
-            -workspace AppExampleFabric.xcworkspace \
-            -scheme AppExampleFabric \
-            -sdk iphonesimulator \
-            -configuration Debug \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro Max' \
-            build \
-            CODE_SIGNING_ALLOWED=NO 2>&1 | tee xcodebuild.log | xcpretty
+          xcodebuild -workspace AppExampleFabric.xcworkspace -scheme AppExampleFabric \
+            -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build COMPILER_INDEX_STORE_ENABLE=NO CODE_SIGNING_ALLOWED=NO build | tee xcodebuild.log | tail -50
 
       - name: Upload build log on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: ios-build-log
-          path: examples/AppExampleFabric/ios/xcodebuild.log
-          if-no-files-found: warn
+          path: apps/example/ios/xcodebuild.log
+
+  build-expo:
+    name: Build Expo app (simulator, debug)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: ${{ runner.os }}-bun-
+
+      - run: bun install --frozen-lockfile
+
+      - name: Restore Filament store
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Caches/react-native-filament
+          key: filament-ios-${{ hashFiles('packages/react-native-filament/filament.json') }}
+
+      - name: Prebuild
+        working-directory: apps/expo-example
+        run: bunx expo prebuild --platform ios
+
+      - name: Build
+        working-directory: apps/expo-example/ios
+        run: |
+          set -o pipefail
+          xcodebuild -workspace ExpoExample.xcworkspace -scheme ExpoExample \
+            -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build COMPILER_INDEX_STORE_ENABLE=NO CODE_SIGNING_ALLOWED=NO build | tee xcodebuild.log | tail -50

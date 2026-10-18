@@ -1,0 +1,374 @@
+---
+title: Animations
+description: Play, blend and scrub glTF animations natively, apply them frame by frame, and drive morph targets.
+icon: Play
+---
+
+![A character switching between animations](/img/demo-animations.gif)
+
+glTF files can contain animations: skeletal animations that move a character's joints, node animations that move whole parts, and morph target weights. Each model instance has an [`Animator`](/api/hybrid-objects/animator) that knows the instance's animations. To play one, create an [`AnimationPlayer`](/api/hybrid-objects/animation-player): it advances the animation natively on the render thread every frame, so no JavaScript runs per frame.
+
+## Playing an animation
+
+[`<Animator>`](/api/components/animator) plays an animation of the parent `<Model>` (its first instance) or `<ModelInstance>`. Unmount it to stop playing. Imperatively, `instance.animator.createPlayer()` returns a player, and `player.play(index, options)` starts an animation at the next frame.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Animator, Model, type AnimationItem } from 'react-native-filament'
+
+// A stable function: onAnimationsLoaded runs again whenever the function changes
+const logAnimations = (animations: AnimationItem[]) => console.log(animations)
+
+<Model source={require('./dancer.glb')}>
+  <Animator animationIndex={0} loop speed={1} onAnimationsLoaded={logAnimations} />
+</Model>
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+const model = await engine.loadModel({ uri }, {})
+const animator = model.getInstance(0).animator
+console.log(animator.animations) // [{ name, durationSeconds }, ...]
+
+// Keep a reference: the player stops when it is garbage collected or disposed
+const player = animator.createPlayer()
+player.play(0, { loop: true, speed: 1 })
+
+// To stop: player.dispose()
+```
+
+</Imperative>
+</ApiTabs>
+
+| `<Animator>` prop | Default | |
+|---|---|---|
+| `animationIndex` | `0` | The animation to play. Each new value starts it from the beginning. Accepts a SharedValue. |
+| `transitionDuration` | `0` | Seconds to blend from the previous animation. |
+| `loop` | `true` | |
+| `speed` | `1` | Playback rate; `1` is real time. |
+| `time` | | Holds the animation at this time in seconds instead of playing it. Accepts a SharedValue. |
+| `onAnimationsLoaded` | | Called with an [`AnimationItem`](/api/types/animation-item) `{ index, name, duration }` per animation when the Animator mounts, and again whenever the function changes. Pass a stable function such as a state setter or a `useCallback`. |
+
+Changing `loop`, `speed` or `transitionDuration` also restarts the animation from the beginning.
+
+`player.play()` takes [`PlayOptions`](/api/types/play-options): `loop` (default `true`), `speed` (default `1`) and `crossFadeSeconds` (default `0`). `animator.animations` lists each animation's `name` and `durationSeconds`. An index out of range throws.
+
+## Switching with a cross-fade
+
+Changing the animation index starts the new animation from the beginning. A transition duration blends the previous animation into the new one over that many seconds. Pass the index as a Reanimated `SharedValue<number>` to switch from the UI runtime without re-rendering.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useState } from 'react'
+import { Button } from 'react-native'
+import { useSharedValue } from 'react-native-reanimated'
+import { Animator, Model, type AnimationItem } from 'react-native-filament'
+
+function Dancer() {
+  const animationIndex = useSharedValue(0)
+  const [animations, setAnimations] = useState<AnimationItem[]>([])
+  return (
+    <>
+      <Model source={require('./dancer.glb')}>
+        <Animator animationIndex={animationIndex} transitionDuration={0.4} onAnimationsLoaded={setAnimations} />
+      </Model>
+      {animations.map(({ index, name }) => (
+        <Button key={index} title={name} onPress={() => (animationIndex.value = index)} />
+      ))}
+    </>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+const player = model.getInstance(0).animator.createPlayer()
+player.play(0, {})
+
+function switchTo(index: number) {
+  player.play(index, { crossFadeSeconds: 0.4 })
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+## Scrubbing
+
+To show a fixed pose, or to tie an animation to a slider or gesture, hold it at a time instead of playing it. The `time` prop pauses the player and seeks to the given second. Imperatively, call `player.pause()` and `player.seek(seconds)`. Both work from any thread, including a Reanimated worklet.
+
+A paused player does not move a cross-fade forward. While `time` is set, keep `transitionDuration` at `0`: otherwise a new `animationIndex` starts a cross-fade that stays on the previous animation. The same applies to `player.play(index, { crossFadeSeconds })` followed by `player.pause()`.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useSharedValue } from 'react-native-reanimated'
+import { Animator, Model } from 'react-native-filament'
+
+function ScrubbedDancer() {
+  const time = useSharedValue(0) // seconds, for example set by a slider or a pan gesture
+  return (
+    <Model source={require('./dancer.glb')}>
+      <Animator animationIndex={0} time={time} />
+    </Model>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { Gesture } from 'react-native-gesture-handler'
+
+const player = model.getInstance(0).animator.createPlayer()
+player.play(0, {})
+player.pause()
+
+const pan = Gesture.Pan().onChange(({ translationX }) => {
+  'worklet'
+  player.seek(Math.max(0, translationX / 100))
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+## Controlling the player yourself
+
+[`useAnimationPlayer(instance)`](/api/hooks/use-animation-player) creates a player for a [`ModelInstance`](/api/hybrid-objects/model-instance) and disposes it on unmount. Use it to call `play`, `pause` and `seek` from event handlers or worklets instead of through props.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useEffect, useMemo } from 'react'
+import { Button } from 'react-native'
+import { ModelRenderer, useAnimationPlayer, useModel } from 'react-native-filament'
+
+function Dancer() {
+  const model = useModel(require('./dancer.glb'))
+  const instance = useMemo(() => (model.state === 'loaded' ? model.model.getInstance(0) : undefined), [model])
+  const player = useAnimationPlayer(instance)
+
+  useEffect(() => {
+    player?.play(0, {})
+  }, [player])
+
+  return (
+    <>
+      <ModelRenderer model={model} />
+      <Button title="Jump" onPress={() => player?.play(1, { loop: false, crossFadeSeconds: 0.3 })} />
+      <Button title="Pause" onPress={() => player?.pause()} />
+    </>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+const player = model.getInstance(0).animator.createPlayer()
+player.play(0, {})
+
+const jump = () => player.play(1, { loop: false, crossFadeSeconds: 0.3 })
+const pause = () => player.pause()
+// <Button title="Jump" onPress={jump} />
+```
+
+</Imperative>
+</ApiTabs>
+
+## Applying animations frame by frame
+
+For full control, apply animations yourself on the render thread with the instance's `Animator`. [`useAnimator(model)`](/api/hooks/use-animator) returns the animator of a loaded model's first instance, or of a `ModelInstance` you pass. These methods run on the render thread, for example in a `renderCallback` or a frame listener:
+
+| Method | |
+|---|---|
+| `applyAnimation(index, seconds)` | Poses the instance at `seconds` into an animation. |
+| `applyCrossFade(previousIndex, previousSeconds, alpha)` | Blends in a previous animation. Call it after `applyAnimation`; `alpha` of `1` shows only the current animation, `0` only the previous one. |
+| `updateBoneMatrices()` | Updates the skin after posing. Call it last. |
+| `resetBoneMatrices()` | Returns a skinned model to its bind pose. |
+
+Frame listeners run before the animation players, so do not play an animation with a player on the same instance: the player would overwrite your pose.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useCallback } from 'react'
+import { Camera, DefaultLight, FilamentView, ModelRenderer, useAnimator, useModel, type FrameInfo } from 'react-native-filament'
+
+const fadeSeconds = 0.5
+
+// Blends from animation 0 into animation 1 during the Engine's first half second
+// (`elapsedSeconds` counts from the Engine's first frame, not from when the model loads)
+function BlendedDancer() {
+  const model = useModel(require('./dancer.glb'))
+  const animator = useAnimator(model)
+  const walkSeconds = animator?.animations[0]?.durationSeconds ?? 1
+  const runSeconds = animator?.animations[1]?.durationSeconds ?? 1
+
+  const renderCallback = useCallback(
+    ({ elapsedSeconds }: FrameInfo) => {
+      'worklet'
+      if (animator == null) return
+      animator.applyAnimation(1, elapsedSeconds % runSeconds)
+      animator.applyCrossFade(0, elapsedSeconds % walkSeconds, Math.min(elapsedSeconds / fadeSeconds, 1))
+      animator.updateBoneMatrices()
+    },
+    [animator, walkSeconds, runSeconds]
+  )
+
+  return (
+    <FilamentView style={{ flex: 1 }} renderCallback={renderCallback}>
+      <Camera />
+      <DefaultLight />
+      <ModelRenderer model={model} />
+    </FilamentView>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+const animator = model.getInstance(0).animator
+const walkSeconds = animator.animations[0]!.durationSeconds
+const runSeconds = animator.animations[1]!.durationSeconds
+const fadeSeconds = 0.5
+
+// Blends from animation 0 into animation 1 over the first half second after the listener starts.
+// `elapsedSeconds` counts from the Engine's first frame, so measure from the first call.
+const subscription = await runOnRenderThread(engine, () => {
+  'worklet'
+  let start: number | undefined
+  return engine.addOnFrameListener(({ elapsedSeconds }) => {
+    if (start == null) start = elapsedSeconds
+    const t = elapsedSeconds - start
+    animator.applyAnimation(1, t % runSeconds)
+    animator.applyCrossFade(0, t % walkSeconds, Math.min(t / fadeSeconds, 1))
+    animator.updateBoneMatrices()
+    return true // keep rendering in on-demand mode
+  })
+})
+
+// To stop: subscription.remove()
+```
+
+</Imperative>
+</ApiTabs>
+
+## Morph targets
+
+Morph targets (blend shapes) deform a mesh, for example to open a mouth or blink. Each renderable entity has its own list of targets, and a weight from `0` to `1` per target. Animations in the glTF file that drive morph weights play like any other animation. To set weights yourself:
+
+- `<EntitySelector morphWeights={...}>` sets the weights of the selected entity, in target order starting at the first target. It accepts a `SharedValue<number[]>`.
+- `renderableManager.setMorphWeights(entity, weights, offset)` sets the weights starting at target `offset` on the render thread. `getMorphTargetCount(entity)` returns the number of targets, and writing past the last one throws.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useDerivedValue, useSharedValue } from 'react-native-reanimated'
+import { EntitySelector, Model } from 'react-native-filament'
+
+function Face() {
+  const smile = useSharedValue(0)
+  const weights = useDerivedValue(() => [smile.value, 1 - smile.value]) // targets 0 and 1
+  return (
+    <Model source={require('./avatar.glb')}>
+      <EntitySelector byName="Head" morphWeights={weights} />
+    </Model>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+const head = model.getEntityByName('Head')!
+
+await runOnRenderThread(engine, () => {
+  'worklet'
+  const rm = engine.renderableManager
+  console.log(`${rm.getMorphTargetCount(head)} targets`)
+  rm.setMorphWeights(head, [0.8, 0.2], 0) // targets 0 and 1
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+### Targets by name
+
+`model.getMorphTargetNames(entity)` returns the target names of an entity in index order, on the render thread. Use the index of a name as the `offset`:
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Button } from 'react-native'
+import { ModelRenderer, useFilamentContext, useModel, useRenderThreadCallback } from 'react-native-filament'
+
+function Avatar() {
+  const { renderableManager } = useFilamentContext()
+  const model = useModel(require('./avatar.glb'))
+  const loaded = model.state === 'loaded' ? model.model : undefined
+
+  const setTarget = useRenderThreadCallback(
+    (name: string, weight: number) => {
+      'worklet'
+      if (loaded == null) return
+      for (const entity of loaded.entities) {
+        if (!renderableManager.hasComponent(entity) || renderableManager.getMorphTargetCount(entity) === 0) continue
+        const index = loaded.getMorphTargetNames(entity).indexOf(name)
+        if (index >= 0) renderableManager.setMorphWeights(entity, [weight], index)
+      }
+    },
+    [loaded, renderableManager]
+  )
+
+  return (
+    <>
+      <ModelRenderer model={model} />
+      <Button title="Open mouth" onPress={() => setTarget('mouthOpen', 1)} />
+      <Button title="Close mouth" onPress={() => setTarget('mouthOpen', 0)} />
+    </>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+async function setTarget(name: string, weight: number) {
+  await runOnRenderThread(engine, () => {
+    'worklet'
+    const rm = engine.renderableManager
+    for (const entity of model.entities) {
+      if (!rm.hasComponent(entity) || rm.getMorphTargetCount(entity) === 0) continue
+      const index = model.getMorphTargetNames(entity).indexOf(name)
+      if (index >= 0) rm.setMorphWeights(entity, [weight], index)
+    }
+  })
+}
+
+await setTarget('mouthOpen', 1)
+```
+
+</Imperative>
+</ApiTabs>

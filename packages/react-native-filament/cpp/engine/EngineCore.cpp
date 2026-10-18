@@ -1,0 +1,450 @@
+#include "EngineCore.hpp"
+
+#include "BackendConversion.hpp"
+#include "RenderRuntimeDispatcher.hpp"
+#include "RenderThreadQueue.hpp"
+#include "assets/AnimationPlayerCore.hpp"
+#include "assets/SkeletonFollower.hpp"
+#include "control/ManipulatorCore.hpp"
+#include "control/TransformBindingCore.hpp"
+#include "physics/PhysicsWorldCore.hpp"
+#include "targets/ViewTargetCore.hpp"
+#include "threading/WorkerPool.hpp"
+#include "utils/HeapRelease.hpp"
+#include "utils/Logger.hpp"
+
+#include <algorithm>
+#include <stdexcept>
+
+namespace margelo::nitro::filament {
+
+namespace {
+
+  /** Frames after which Filament frees idle staging buffers: MetalBufferPool keeps them 10 frames, VulkanStagePool 3. */
+  int stagingEvictionFrames(EngineBackend backend) {
+    switch (backend) {
+      case EngineBackend::METAL:
+        return 11;
+      case EngineBackend::VULKAN:
+        return 4;
+      case EngineBackend::OPENGL:
+        return 0;
+    }
+  }
+
+} // namespace
+
+std::shared_ptr<EngineCore> EngineCore::create(EngineBackend backend, std::shared_ptr<RenderRuntimePool> runtimes,
+                                               StartedHandler onStarted) {
+  std::shared_ptr<EngineCore> core(new EngineCore(backend, std::move(runtimes)));
+  core->thread_ = std::make_unique<RenderThread>([raw = core.get()](int64_t frameTimeNanos) { raw->renderFrame(frameTimeNanos); });
+  core->callbacks_ = std::make_unique<RenderThreadCallbackHandler>(*core->thread_);
+  core->thread_->post({
+      .run =
+          [core, onStarted] {
+            core->engine_ = ::filament::Engine::Builder().backend(toFilamentBackend(core->backend_)).build();
+            if (core->engine_ == nullptr) {
+              onStarted(core, std::make_exception_ptr(
+                                  std::runtime_error("Filament could not create an Engine for this backend on this device.")));
+              core->shutdown();
+              return;
+            }
+            core->renderer_ = core->engine_->createRenderer();
+            const ::filament::Engine::Config& config = core->engine_->getConfig();
+            core->configuredBytes_ = static_cast<size_t>(config.commandBufferSizeMB + config.perRenderPassArenaSizeMB +
+                                                         config.driverHandleArenaSizeMB + config.perFrameCommandsSizeMB)
+                                     << 20;
+            onStarted(core, nullptr);
+          },
+      .cancel =
+          [core, onStarted] {
+            onStarted(core, std::make_exception_ptr(std::runtime_error("The Engine was shut down before it started.")));
+          },
+  });
+  return core;
+}
+
+EngineCore::EngineCore(EngineBackend backend, std::shared_ptr<RenderRuntimePool> runtimes)
+    : backend_(backend), runtimes_(std::move(runtimes)) {}
+
+EngineBackend EngineCore::backend() const {
+  return backend_;
+}
+
+RenderThread& EngineCore::thread() {
+  return *thread_;
+}
+
+RenderThreadCallbackHandler& EngineCore::callbacks() {
+  return *callbacks_;
+}
+
+::filament::Engine& EngineCore::engine() {
+  return *engine_;
+}
+
+::filament::Renderer& EngineCore::renderer() {
+  return *renderer_;
+}
+
+bool EngineCore::isLive() const {
+  return live_;
+}
+
+size_t EngineCore::configuredBytes() const {
+  return configuredBytes_;
+}
+
+RenderMode EngineCore::renderMode() const {
+  return renderMode_;
+}
+
+void EngineCore::setRenderMode(RenderMode mode) {
+  renderMode_ = mode;
+  scheduleDemandUpdate();
+}
+
+void EngineCore::requestFrame() {
+  frameRequested_ = true;
+  scheduleDemandUpdate();
+}
+
+void EngineCore::scheduleDemandUpdate() {
+  if (demandUpdatePending_.exchange(true)) {
+    return;
+  }
+  thread_->post({.run = [self = shared_from_this()] {
+    self->demandUpdatePending_ = false;
+    self->updateDemand();
+  }});
+}
+
+void EngineCore::updateDemand() {
+  bool enabled = (!recording_ && canRenderAnyTarget() && wantsFrame()) || isUploading();
+  if (!enabled) {
+    lastFrameTimeNanos_ = 0;
+  }
+  if (enabled != vsyncEnabled_) {
+    vsyncEnabled_ = enabled;
+    thread_->setVsyncEnabled(enabled);
+  }
+}
+
+void EngineCore::noteUploads() {
+  unsettledUploads_ = true;
+  requestFrame();
+}
+
+void EngineCore::adopt(const std::shared_ptr<Resource>& resource) {
+  resources_->adopt(resource);
+}
+
+void EngineCore::dispose(const std::shared_ptr<Resource>& resource) {
+  if (!resource->markDisposing()) {
+    return;
+  }
+  thread_->post({.run = [resource] { resource->destroyTree(); }});
+}
+
+std::unordered_map<std::string, double> EngineCore::liveResourceCounts() {
+  std::unordered_map<std::string, double> counts;
+  resources_->countLiveDescendants(counts);
+  return counts;
+}
+
+GltfLoader& EngineCore::gltf() {
+  if (gltf_ == nullptr) {
+    gltf_ = std::make_unique<GltfLoader>(*engine_);
+  }
+  return *gltf_;
+}
+
+void EngineCore::startModelLoad(::filament::gltfio::FilamentAsset* asset, ModelLoad::Completion completion) {
+  loads_.start(std::make_unique<ModelLoad>(*engine_, gltf().assetLoader(), asset,
+                                           [self = shared_from_this(), completion](auto* loaded, std::exception_ptr error) {
+                                             self->noteUploads();
+                                             completion(loaded, std::move(error));
+                                           }));
+  updateDemand();
+}
+
+void EngineCore::addAnimationPlayer(const std::shared_ptr<AnimationPlayerCore>& player) {
+  players_.add(player);
+}
+
+void EngineCore::addTransformBinding(const std::shared_ptr<TransformBindingCore>& binding) {
+  transformBindings_.add(binding);
+}
+
+void EngineCore::addManipulator(const std::shared_ptr<ManipulatorCore>& manipulator) {
+  manipulators_.add(manipulator);
+}
+
+void EngineCore::addSkeletonFollower(const std::shared_ptr<SkeletonFollower>& follower) {
+  skeletonFollowers_.add(follower);
+}
+
+void EngineCore::addPhysicsWorld(const std::shared_ptr<PhysicsWorldCore>& world) {
+  physicsWorlds_.add(world);
+}
+
+MaterialAssignments& EngineCore::materialAssignments() {
+  return materialAssignments_;
+}
+
+void EngineCore::decodeTexture(const uint8_t* bytes, size_t size, bool srgb, TextureDecoder::Completion completion) {
+  if (textures_ == nullptr) {
+    textures_ = std::make_unique<TextureDecoder>(*engine_);
+  }
+  textures_->push(bytes, size, srgb, [self = shared_from_this(), completion](::filament::Texture* texture, std::exception_ptr error) {
+    self->noteUploads();
+    completion(texture, std::move(error));
+  });
+  updateDemand();
+}
+
+Users<SceneCore>& EngineCore::scenes() {
+  return scenes_;
+}
+
+void EngineCore::addTarget(std::shared_ptr<ViewTargetCore> target) {
+  targets_.push_back(std::move(target));
+}
+
+void EngineCore::removeTarget(const std::shared_ptr<ViewTargetCore>& target) {
+  std::erase(targets_, target);
+  updateDemand();
+}
+
+std::shared_ptr<RenderThreadQueue> EngineCore::createRuntimeQueue() {
+  auto queue = std::make_shared<RenderThreadQueue>();
+  queue->target(weak_from_this());
+  std::unique_lock lock(runtimeMutex_);
+  runtimeQueue_ = queue;
+  return queue;
+}
+
+void EngineCore::bindRuntime(std::shared_ptr<worklets::WorkletRuntime> runtime) {
+  std::shared_ptr<RenderThreadQueue> queue;
+  {
+    std::unique_lock lock(runtimeMutex_);
+    if (runtime_ != nullptr) {
+      throw std::runtime_error("This Engine's render thread already has a worklet runtime.");
+    }
+    if (runtimeQueue_ == nullptr) {
+      throw std::runtime_error("The render worklet runtime must use the queue from createQueue().");
+    }
+    runtime_ = runtime;
+    queue = runtimeQueue_;
+  }
+  auto dispatcher = std::make_shared<RenderRuntimeDispatcher>(queue, runtime);
+  runtime->runSync([&](jsi::Runtime& rt) { Dispatcher::installRuntimeGlobalDispatcher(rt, dispatcher); });
+}
+
+bool EngineCore::bindPooledRuntime() {
+  std::optional<RenderRuntimePool::Entry> pooled = runtimes_->acquire();
+  if (!pooled.has_value()) {
+    return false;
+  }
+  pooled->queue->target(weak_from_this());
+  {
+    std::unique_lock lock(runtimeMutex_);
+    runtime_ = pooled->runtime;
+    runtimeQueue_ = pooled->queue;
+  }
+  return true;
+}
+
+bool EngineCore::hasRuntime() const {
+  return runtime() != nullptr;
+}
+
+std::shared_ptr<worklets::WorkletRuntime> EngineCore::runtime() const {
+  std::unique_lock lock(runtimeMutex_);
+  return runtime_;
+}
+
+void EngineCore::runWorklet(const std::shared_ptr<worklets::SerializableWorklet>& worklet) {
+  std::shared_ptr<worklets::WorkletRuntime> runtime = this->runtime();
+  try {
+    runtime->runSync([&](jsi::Runtime& rt) { worklet->toJSValue(rt).asObject(rt).asFunction(rt).call(rt); });
+  } catch (const std::exception& error) {
+    logError(std::string("A render thread worklet threw: ") + error.what());
+  }
+}
+
+std::shared_ptr<FrameListener> EngineCore::addFrameListener(std::function<bool(const FrameInfo&)> callback) {
+  std::shared_ptr<FrameListener> listener = frameListeners_.add(std::move(callback));
+  listenersWantFrame_ = true;
+  updateDemand();
+  return listener;
+}
+
+void EngineCore::removeFrameListener(const std::shared_ptr<FrameListener>& listener) {
+  if (std::shared_ptr<worklets::WorkletRuntime> runtime = this->runtime()) {
+    runtime->runSync([&](jsi::Runtime&) { frameListeners_.remove(listener); });
+  } else {
+    frameListeners_.remove(listener);
+  }
+  if (frameListeners_.empty()) {
+    listenersWantFrame_ = false;
+    updateDemand();
+  }
+}
+
+bool EngineCore::canRenderAnyTarget() const {
+  return std::any_of(targets_.begin(), targets_.end(), [](const std::shared_ptr<ViewTargetCore>& target) { return target->canRender(); });
+}
+
+bool EngineCore::hasPendingReadbacks() const {
+  return std::any_of(targets_.begin(), targets_.end(),
+                     [](const std::shared_ptr<ViewTargetCore>& target) { return target->hasPendingQueries(); });
+}
+
+bool EngineCore::isUploading() const {
+  return !loads_.empty() || (textures_ != nullptr && !textures_->empty());
+}
+
+bool EngineCore::wantsFrame() const {
+  return renderMode_ == RenderMode::CONTINUOUS || frameRequested_ || listenersWantFrame_ || playersWantFrame_ || physicsWantsFrame_ ||
+         settleFrames_ > 0 || hasPendingReadbacks();
+}
+
+FrameInfo EngineCore::nextFrameInfo(int64_t frameTimeNanos) {
+  double deltaSeconds = lastFrameTimeNanos_ == 0 ? 0 : static_cast<double>(frameTimeNanos - lastFrameTimeNanos_) / 1e9;
+  lastFrameTimeNanos_ = frameTimeNanos;
+  elapsedSeconds_ += deltaSeconds;
+  return FrameInfo(static_cast<double>(frameTimeNanos), deltaSeconds, elapsedSeconds_, frameIndex_++);
+}
+
+void EngineCore::renderFrame(int64_t frameTimeNanos) {
+  loads_.update();
+  if (textures_ != nullptr) {
+    textures_->update();
+  }
+  if (recording_ || !canRenderAnyTarget()) {
+    lastFrameTimeNanos_ = 0;
+    updateDemand();
+    return;
+  }
+  frameRequested_ = false;
+  runFrameStages(nextFrameInfo(frameTimeNanos));
+  if (!renderer_->shouldRenderFrame()) {
+    frameRequested_ = true;
+    updateDemand();
+    return;
+  }
+  bool rendered = false;
+  for (const std::shared_ptr<ViewTargetCore>& target : targets_) {
+    switch (target->render(frameTimeNanos)) {
+      case ViewTargetCore::FrameResult::RENDERED:
+        rendered = true;
+        break;
+      case ViewTargetCore::FrameResult::DEFERRED:
+        frameRequested_ = true;
+        break;
+      case ViewTargetCore::FrameResult::NONE:
+        break;
+    }
+  }
+  if (rendered) {
+    settleUploads();
+  }
+  updateDemand();
+}
+
+void EngineCore::settleUploads() {
+  if (settleFrames_ > 0) {
+    settleFrames_--;
+  }
+  if (settleFrames_ > 0 || !unsettledUploads_ || isUploading() || wantsFrame()) {
+    return;
+  }
+  unsettledUploads_ = false;
+  engine_->flushAndWait();
+  releaseFreeHeapPages();
+  settleFrames_ = stagingEvictionFrames(backend_);
+}
+
+void EngineCore::runFrameStages(const FrameInfo& frame) {
+  ::filament::TransformManager& transforms = engine_->getTransformManager();
+  transformBindings_.forEachActive([&](TransformBindingCore& binding) { binding.apply(transforms); });
+  manipulators_.forEachActive([&](ManipulatorCore& manipulator) { manipulator.drain(frame.deltaSeconds); });
+  if (!frameListeners_.empty()) {
+    if (std::shared_ptr<worklets::WorkletRuntime> runtime = this->runtime()) {
+      listenersWantFrame_ = frameListeners_.dispatch(frame, *runtime);
+    }
+  }
+  playersWantFrame_ = false;
+  players_.forEachActive([&](AnimationPlayerCore& player) { playersWantFrame_ = player.advance(frame.deltaSeconds) || playersWantFrame_; });
+  physicsWantsFrame_ = false;
+  physicsWorlds_.forEachActive([&](PhysicsWorldCore& world) {
+    if (world.autoSteps()) {
+      physicsWantsFrame_ = world.step(frame.deltaSeconds) || physicsWantsFrame_;
+    }
+  });
+  skeletonFollowers_.forEachActive([&](SkeletonFollower& follower) { follower.apply(transforms); });
+}
+
+void EngineCore::setRecording(bool recording) {
+  recording_ = recording;
+  lastFrameTimeNanos_ = 0;
+  updateDemand();
+}
+
+void EngineCore::returnRuntimeToPool() {
+  RenderRuntimePool::Entry entry;
+  {
+    std::unique_lock lock(runtimeMutex_);
+    entry = {.queue = std::move(runtimeQueue_), .runtime = std::move(runtime_)};
+    runtimeQueue_ = nullptr;
+    runtime_ = nullptr;
+  }
+  if (entry.queue != nullptr && entry.runtime != nullptr) {
+    entry.queue->target({});
+    runtimes_->release(std::move(entry));
+  }
+}
+
+std::shared_ptr<Promise<void>> EngineCore::shutdown() {
+  std::unique_lock lock(shutdownMutex_);
+  if (shutdownPromise_ != nullptr) {
+    return shutdownPromise_;
+  }
+  shutdownPromise_ = Promise<void>::create();
+  live_ = false;
+  thread_->post({.run = [self = shared_from_this()] { self->shutdownOnRenderThread(); }});
+  return shutdownPromise_;
+}
+
+void EngineCore::shutdownOnRenderThread() {
+  thread_->close();
+  if (std::shared_ptr<worklets::WorkletRuntime> runtime = this->runtime()) {
+    runtime->runSync([&](jsi::Runtime&) { frameListeners_.clear(); });
+  }
+  loads_.cancelAll();
+  textures_.reset();
+  players_.clear();
+  transformBindings_.clear();
+  manipulators_.clear();
+  skeletonFollowers_.clear();
+  physicsWorlds_.clear();
+  resources_->markDisposing();
+  resources_->destroyTree();
+  targets_.clear();
+  materialAssignments_.clear();
+  gltf_.reset();
+  returnRuntimeToPool();
+  if (engine_ != nullptr) {
+    engine_->destroy(renderer_);
+    ::filament::Engine::destroy(&engine_);
+  }
+  thread_->setVsyncEnabled(false);
+  thread_->quit();
+  WorkerPool::shared().post([self = shared_from_this()] {
+    self->thread_->join();
+    self->shutdownPromise_->resolve();
+  });
+}
+
+} // namespace margelo::nitro::filament

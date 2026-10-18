@@ -1,0 +1,384 @@
+---
+title: Threading
+description: Which thread each method expects, and how JS code runs on the render thread.
+icon: Cpu
+---
+
+Filament is not thread-safe, so each Engine owns one **render thread** that makes every Filament call. The documentation of every method names the thread it expects with a `@thread` tag.
+
+## The `@thread` annotations
+
+Each method in the [API reference](/api) carries a `@thread` tag from its spec:
+
+```ts
+interface Engine {
+  /** @thread any */
+  loadModel(source: AssetSource, options: ModelLoadOptions): Promise<Model>
+  /** @thread render */
+  createScene(): Scene
+  /** @thread RN or UI runtime */
+  shutdown(): Promise<void>
+}
+```
+
+| `@thread` | Examples | Called from |
+|---|---|---|
+| `any` | `engine.loadModel()`, `player.play()`, `binding.setTranslation()`, `target.pick()`, `engine.requestFrame()` | Any JS runtime: React Native's, Reanimated's UI runtime or the render runtime. Loads resolve Promises. Setters store the latest value and wake the render thread. |
+| `render` | `engine.createScene()`, `scene.addModel()`, `transformManager.setTransform()`, `camera.lookAt()` | A worklet on the render thread: through `runOnRenderThread`, a render-thread hook or a frame callback. |
+| `RN or UI runtime` | `engine.shutdown()` | React Native's runtime or Reanimated's UI runtime, not the render runtime. |
+| `RN runtime` | `runOnRenderThread()`, `workletContext.runAsync()` | React Native's JS runtime. |
+
+Calling a `render` method from another thread throws an error whose message starts with `FilamentThreadError`, instead of racing with rendering.
+
+## Running code on the render thread
+
+[`runOnRenderThread(engine, worklet)`](/api/functions/run-on-render-thread) runs a worklet on the Engine's render thread and resolves with its result. Jobs run in the order they were submitted. A job submitted after the Engine shut down rejects with `FilamentDisposedError`.
+
+```tsx
+import { runOnRenderThread } from 'react-native-filament'
+
+const camera = await runOnRenderThread(engine, () => {
+  'worklet'
+  const created = engine.createCamera()
+  created.lookAt([0, 1, 5], [0, 0, 0], [0, 1, 0])
+  return created
+})
+```
+
+[react-native-worklets](https://docs.swmansion.com/react-native-worklets) copies the values a worklet captures into the render runtime. Native objects such as models, scenes and bindings are passed by reference. The render runtime is a separate JS runtime, so React state is not visible there. Pass what the worklet needs.
+
+Inside components, use the render-thread hooks. Each `FilamentScene` collects the render-thread work of one React commit and runs it as one job, in submission order.
+
+| Hook | Runs |
+|---|---|
+| [`useRenderThreadEffect(effect, deps)`](/api/hooks/use-render-thread-effect) | `effect` after commits that change `deps`. A function it returns runs on the render thread before the next run and on unmount. |
+| [`useRenderThreadCallback(callback, deps)`](/api/hooks/use-render-thread-callback) | Returns a function that runs `callback` on the render thread and resolves with its result. |
+| [`useRenderThreadMemo(factory, deps)`](/api/hooks/use-render-thread-memo) | Returns `factory`'s render-thread result, or `undefined` until it arrives. Results of outdated `deps` are dropped. |
+| [`useFrameCallback(callback, deps)`](/api/hooks/use-frame-callback) | `callback` at the start of every frame. See [Per-frame code](#per-frame-code). |
+
+A failure in `useRenderThreadEffect` or `useRenderThreadMemo`, or in subscribing a `useFrameCallback`, is thrown to the closest error boundary. An error that a frame callback throws while it runs is only logged natively, in the Xcode console or logcat. The Promise of a `useRenderThreadCallback` function rejects instead.
+
+### Effects
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useFilamentContext, useRenderThreadEffect, type Entity } from 'react-native-filament'
+
+function Scaled({ entity, size }: { entity: Entity; size: number }) {
+  const { transformManager } = useFilamentContext()
+  useRenderThreadEffect(() => {
+    'worklet'
+    transformManager.setScale(entity, [size, size, size])
+    // Runs on the render thread before the next run and on unmount.
+    return () => transformManager.setScale(entity, [1, 1, 1])
+  }, [transformManager, entity, size])
+  return null
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { runOnRenderThread } from 'react-native-filament'
+
+const { transformManager } = engine
+await runOnRenderThread(engine, () => {
+  'worklet'
+  transformManager.setScale(entity, [size, size, size])
+})
+
+// Undo it later with another job.
+await runOnRenderThread(engine, () => {
+  'worklet'
+  transformManager.setScale(entity, [1, 1, 1])
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+### Callbacks and values
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Button } from 'react-native'
+import { useFilamentContext, useRenderThreadCallback, useRenderThreadMemo, type Model } from 'react-native-filament'
+
+function ModelInfo({ model }: { model: Model }) {
+  const { scene } = useFilamentContext()
+  const names = useRenderThreadMemo(() => {
+    'worklet'
+    return model.entities.flatMap((entity) => model.getEntityName(entity) ?? [])
+  }, [model])
+  const countEntities = useRenderThreadCallback(() => {
+    'worklet'
+    return scene.entityCount
+  }, [scene])
+  return <Button title={names?.join(', ') ?? 'Loading'} onPress={() => countEntities().then(console.log)} />
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { runOnRenderThread } from 'react-native-filament'
+
+const names = await runOnRenderThread(engine, () => {
+  'worklet'
+  return model.entities.flatMap((entity) => model.getEntityName(entity) ?? [])
+})
+const entityCount = await runOnRenderThread(engine, () => {
+  'worklet'
+  return scene.entityCount
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+## The 1.x worklet hooks
+
+The 1.x names still work. They run on the same render thread through react-native-worklets.
+
+| 1.x API | Same as |
+|---|---|
+| [`useWorkletEffect(effect)`](/api/hooks/use-worklet-effect) | `useRenderThreadEffect`, rerun when a value `effect` captures changes |
+| [`useWorkletCallback(callback)`](/api/hooks/use-worklet-callback) | `useRenderThreadCallback`, recreated when a value `callback` captures changes |
+| [`useWorkletMemo(factory, deps)`](/api/hooks/use-worklet-memo) | `useRenderThreadMemo` |
+| `useFilamentContext().workletContext.runAsync(worklet)` | `runOnRenderThread`, queued after the current commit's render-thread work |
+| `workletContext.createRunAsync(worklet)` | A function that runs `worklet` with its arguments and resolves with its result |
+
+`useWorkletEffect` and `useWorkletCallback` take no dependency list. Their dependencies are the values the worklet captures, as in 1.x. `useWorkletMemo` takes an explicit list. Unlike 1.x, a cleanup that `useWorkletEffect` returns runs on the render thread, so it can't call React state setters or other JS-only functions. [`WorkletContext`](/api/types/worklet-context) is called from React Native's runtime.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useState } from 'react'
+import { quaternionFromEuler, useFilamentContext, useWorkletCallback, useWorkletEffect, useWorkletMemo, type Entity, type Model } from 'react-native-filament'
+
+function CoinControls({ model, size, spin }: { model: Model; size: number; spin: number }) {
+  const { transformManager } = useFilamentContext()
+  const [root] = useState(() => model.getInstance(0).rootEntity)
+
+  // Reruns when transformManager, root, size or spin changes.
+  useWorkletEffect(() => {
+    'worklet'
+    transformManager.setScale(root, [size, size, size])
+    transformManager.setRotation(root, quaternionFromEuler([0, spin, 0]))
+    return () => transformManager.setScale(root, [1, 1, 1])
+  })
+
+  const names = useWorkletMemo(() => {
+    'worklet'
+    return model.entities.flatMap((entity) => model.getEntityName(entity) ?? [])
+  }, [model])
+
+  const readTransform = useWorkletCallback((entity: Entity) => {
+    'worklet'
+    return transformManager.getTransform(entity)
+  })
+  // readTransform(root).then((matrix) => ...)
+  return null
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { useMemo } from 'react'
+import { useFilamentContext, type Entity } from 'react-native-filament'
+
+function EntityTools() {
+  const { scene, transformManager, workletContext } = useFilamentContext()
+
+  // Runs after the render-thread work of the current commit.
+  const countEntities = () =>
+    workletContext.runAsync(() => {
+      'worklet'
+      return scene.entityCount
+    })
+
+  // A function that passes its arguments to the worklet.
+  const setScale = useMemo(
+    () =>
+      workletContext.createRunAsync((entity: Entity, size: number) => {
+        'worklet'
+        transformManager.setScale(entity, [size, size, size])
+      }),
+    [workletContext, transformManager]
+  )
+  // countEntities().then(...), setScale(entity, 2)
+  return null
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+The repository's Worklets example (`apps/shared/src/examples/Worklets.tsx`) uses the three 1.x hooks and `workletContext.runAsync`.
+
+## Per-frame code
+
+Three APIs run a worklet on the render thread at the start of every frame, before animations, physics and rendering:
+
+- `renderCallback` on [`FilamentView`](/api/components/filament-view);
+- the [`useFrameCallback`](/api/hooks/use-frame-callback) hook;
+- [`engine.addOnFrameListener`](/api/hybrid-objects/engine), which the other two use.
+
+Each receives a [`FrameInfo`](/api/types/frame-info):
+
+| Field | Meaning |
+|---|---|
+| `timestampNs` | Vsync time of the frame, in nanoseconds of the platform's monotonic clock. |
+| `deltaSeconds` | Seconds since the previous rendered frame; 0 on the first frame and after rendering resumes. |
+| `elapsedSeconds` | Sum of `deltaSeconds` over all frames so far; paused time is not counted. |
+| `frameIndex` | Number of frames rendered before this one. |
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useCallback } from 'react'
+import { FilamentView, quaternionFromAxisAngle, useFilamentContext, useFrameCallback, type Entity, type FrameInfo } from 'react-native-filament'
+
+function Spin({ entity }: { entity: Entity }) {
+  const { transformManager } = useFilamentContext()
+  useFrameCallback(({ elapsedSeconds }) => {
+    'worklet'
+    transformManager.setRotation(entity, quaternionFromAxisAngle([0, 1, 0], elapsedSeconds))
+  }, [transformManager, entity])
+  return null
+}
+
+// Or on a view:
+function SpinningView({ entity }: { entity: Entity }) {
+  const { transformManager } = useFilamentContext()
+  const renderCallback = useCallback(
+    ({ elapsedSeconds }: FrameInfo) => {
+      'worklet'
+      transformManager.setRotation(entity, quaternionFromAxisAngle([0, 1, 0], elapsedSeconds))
+    },
+    [transformManager, entity]
+  )
+  return <FilamentView style={{ flex: 1 }} renderCallback={renderCallback} />
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { quaternionFromAxisAngle, runOnRenderThread } from 'react-native-filament'
+
+const subscription = await runOnRenderThread(engine, () => {
+  'worklet'
+  return engine.addOnFrameListener(({ elapsedSeconds }) => {
+    engine.transformManager.setRotation(entity, quaternionFromAxisAngle([0, 1, 0], elapsedSeconds))
+    // Whether this listener needs another frame in on-demand mode.
+    return true
+  })
+})
+
+// From any thread:
+subscription.remove()
+```
+
+</Imperative>
+</ApiTabs>
+
+A frame listener returns whether it needs another frame. In `on-demand` mode the Engine keeps rendering while any listener returns `true`. `renderCallback` and `useFrameCallback` always return `true`, so they keep the Engine rendering while they are set. `addOnFrameListener` itself must be called on the render thread; `subscription.remove()` works from any thread.
+
+## Each frame
+
+In the default `continuous` render mode the render thread renders on every display refresh. In `on-demand` mode it renders only when something needs a frame: a changed binding, a playing animation, a manipulator gesture, a physics world with awake bodies, a frame listener that asks for another frame, an asset upload, a pending `takeSnapshot()` or `pick()`, or `engine.requestFrame()`. See [Render modes](/docs/rendering#render-modes).
+
+After a model, texture, skybox or indirect light finishes uploading, the render thread waits for the GPU once it has nothing left to render and, on Metal and Vulkan, draws a few more frames, so that Filament frees the upload memory before the render thread goes idle.
+
+Queued jobs (`runOnRenderThread`, the render-thread hooks) run as soon as the render thread is free, between frames. A job is not part of a frame and does not request one: in `on-demand` mode, call `engine.requestFrame()` after a job that changes what is drawn.
+
+Each frame runs these stages in order:
+
+1. asset uploads;
+2. frame info (`deltaSeconds`, `elapsedSeconds`);
+3. transform bindings and camera manipulators;
+4. frame listeners (`renderCallback`, `useFrameCallback`, `engine.addOnFrameListener`);
+5. animation players;
+6. physics worlds;
+7. skeleton followers;
+8. rendering of every view target.
+
+## SharedValues and gestures
+
+Reanimated runs gesture and animation worklets on its UI runtime. The render thread never reads a SharedValue, which would block it on the UI runtime. Instead, a listener on the UI runtime writes each new value into a native slot:
+
+- [`TransformBinding`](/api/hybrid-objects/transform-binding) holds a translation, rotation, scale and base, applied together at stage 3.
+- [`ValueBinding`](/api/hybrid-objects/value-binding) holds a number that render-thread code reads with `binding.value`.
+- [`CameraManipulator`](/api/hybrid-objects/camera-manipulator) queues pan, pinch and tap commands and applies them at stage 3.
+
+Components do this for you when you pass a SharedValue. Imperative code writes the binding from a listener that [`bindSharedValue`](/api/functions/bind-shared-value) registers on the UI runtime.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useDerivedValue, useSharedValue } from 'react-native-reanimated'
+import { Model, useFilamentContext, useFrameCallback, useValueBinding, type Entity, type Float3 } from 'react-native-filament'
+
+function SpinningDrone() {
+  const angle = useSharedValue(0)
+  const rotate = useDerivedValue<Float3>(() => [0, angle.value, 0])
+  return <Model source={require('./drone.glb')} rotate={rotate} />
+}
+
+// Read a SharedValue in render-thread code through a ValueBinding.
+function Dimmer({ sun }: { sun: Entity }) {
+  const { lightManager } = useFilamentContext()
+  const intensity = useSharedValue(10_000)
+  const binding = useValueBinding(intensity)
+  useFrameCallback(() => {
+    'worklet'
+    if (binding != null) lightManager.setIntensity(sun, binding.value)
+  }, [binding, lightManager, sun])
+  return null
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { bindSharedValue, quaternionFromAxisAngle, runOnRenderThread } from 'react-native-filament'
+
+const spin = await runOnRenderThread(engine, () => {
+  'worklet'
+  return engine.createTransformBinding(model.rootEntity)
+})
+
+// Runs on the UI runtime with the current value and every new value.
+const unbind = bindSharedValue(angle, (radians) => {
+  'worklet'
+  const [x, y, z, w] = quaternionFromAxisAngle([0, 1, 0], radians)
+  spin.setRotation(x, y, z, w)
+})
+
+// Later:
+unbind()
+spin.dispose()
+```
+
+</Imperative>
+</ApiTabs>
+
+A SharedValue update costs no work on the JS thread and no React render.
+
+## Lifetime
+
+Native objects belong to their Engine. `dispose()` releases one object and everything it owns. `engine.shutdown()` releases everything and resolves once the render thread has finished. Using a disposed object throws an error whose message starts with `FilamentDisposedError`, except `TransformBinding` setters, which are ignored after `dispose()`, and `ValueBinding`, which holds no native state and keeps working. Components and hooks dispose what they create when they unmount, and a `FilamentScene` that borrows an Engine through its `engine` prop never shuts it down.

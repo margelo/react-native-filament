@@ -1,0 +1,528 @@
+---
+title: Lights
+description: Add directional, sun, point, spot and image-based lights to a scene, and control their color, intensity and shadows.
+icon: Sun
+---
+
+A scene without light renders black or transparent. react-native-filament supports these light types:
+
+- `directional`: light that travels in one direction, like sunlight.
+- `sun`: a directional light whose angular size shapes its highlight on glossy surfaces.
+- `point`: light from one position in all directions.
+- `spot`: light from one position inside a cone.
+- `focused-spot`: a physically correct spot light. Its power spreads over its cone, so a wider cone looks dimmer.
+- Image-based lighting (IBL): light from an environment image, with `<EnvironmentalLight />`.
+
+## The `<Light />` component
+
+`<Light />` creates a light in the scene of the closest `<FilamentScene>` and disposes it on unmount. Imperatively, create the light with one of the `engine.create*Light()` methods on the render thread and add its entity to the scene.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Light } from 'react-native-filament'
+
+function Sunlight() {
+  return <Light type="directional" intensity={10_000} colorKelvin={6_500} direction={[0, -1, 0]} castShadows />
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { useEffect } from 'react'
+import { runOnRenderThread, useFilamentContext } from 'react-native-filament'
+
+function Sunlight() {
+  const { engine, scene } = useFilamentContext()
+  useEffect(() => {
+    const created = runOnRenderThread(engine, () => {
+      'worklet'
+      const light = engine.createDirectionalLight({ intensityLux: 10_000, colorKelvin: 6_500, direction: [0, -1, 0], castShadows: true })
+      scene.addEntity(light.entity)
+      return light
+    })
+    // Disposing a light also removes it from every scene.
+    return () => {
+      created.then((light) => light.dispose())
+    }
+  }, [engine, scene])
+  return null
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+The scene stores only the light's entity. Keep the `Light` object until you dispose it: when the garbage collector releases it, the light is destroyed and disappears from the scene. See [Resource lifecycle](/docs/resources#keep-references-to-what-you-create).
+
+### Props
+
+In this table, "spot" covers both `spot` and `focused-spot`.
+
+| Prop | Light types | Default | Description |
+|---|---|---|---|
+| `type` | all | required | `'directional'`, `'sun'`, `'point'`, `'spot'` or `'focused-spot'`. |
+| `intensity` | all | 10,000 lux (directional), 100,000 lux (sun), 1,000 lm (point, spot) | Lux for directional and sun lights, lumens for point and spot lights. Accepts a SharedValue. |
+| `colorKelvin` | all | `6500` | Correlated color temperature in kelvin. Accepts a SharedValue. |
+| `castShadows` | all | `true` for directional and sun, `false` for point and spot | Whether the light casts shadows. |
+| `direction` | directional, sun, spot | `[0, -1, 0]` | Direction the light travels or points in. Accepts a SharedValue. |
+| `position` | point, spot | `[0, 0, 0]` | Position in meters. Accepts a SharedValue. |
+| `falloffRadius` | point, spot | `1` | Distance in meters at which the light stops having an effect. |
+| `spotLightCone` | spot | `[π/8, π/4]` | `[inner, outer]` cone angles in radians. |
+| `angularRadiusDegrees` | sun | `0.545` | Angular radius of the sun in degrees, which sizes its highlight on glossy surfaces. |
+| `haloSize` | sun | `10` | Halo size of the sun disk. The library's skyboxes don't draw the disk, so it has no visible effect. |
+| `haloFalloff` | sun | `80` | Halo falloff of the sun disk. No visible effect, as above. |
+
+The props map to the options of the `engine.create*Light()` methods. `intensity` becomes `intensityLux` for `createDirectionalLight()` and `createSunLight()`, and `intensityLumens` for `createPointLight()`, `createSpotLight()` and `createFocusedSpotLight()`. `spotLightCone` becomes `innerConeRadians` and `outerConeRadians`.
+
+Changing `type`, `castShadows`, `falloffRadius`, `spotLightCone` or a sun prop recreates the light. Changes to `intensity`, `colorKelvin`, `direction` and `position` update the existing light. See [Changing lights at runtime](#changing-lights-at-runtime).
+
+## The `<DefaultLight />` component
+
+`<DefaultLight />` is a good starting point for most scenes. It combines the bundled studio environment as [image-based lighting](#image-based-lighting-ibl) (25,000 lux) with a shadow-casting [directional light](#directional-and-sun-lights) (10,000 lux, 6,500 K).
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Camera, DefaultLight, FilamentScene, FilamentView, Model } from 'react-native-filament'
+
+export function Scene() {
+  return (
+    <FilamentScene>
+      <FilamentView style={{ flex: 1 }}>
+        <Camera />
+        <DefaultLight />
+        <Model source={require('./drone.glb')} transformToUnitCube />
+      </FilamentView>
+    </FilamentScene>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { useEffect } from 'react'
+import { defaultIndirectLightSource, runOnRenderThread, useFilamentContext } from 'react-native-filament'
+
+function MyDefaultLight() {
+  const { engine, scene } = useFilamentContext()
+  useEffect(() => {
+    const created = engine.loadIndirectLight(defaultIndirectLightSource, { intensity: 25_000 }).then((environment) =>
+      runOnRenderThread(engine, () => {
+        'worklet'
+        const sun = engine.createDirectionalLight({ intensityLux: 10_000, colorKelvin: 6_500, castShadows: true })
+        scene.setIndirectLight(environment)
+        scene.addEntity(sun.entity)
+        return { environment, sun }
+      })
+    )
+    return () => {
+      created.then(({ environment, sun }) => {
+        environment.dispose()
+        sun.dispose()
+      })
+    }
+  }, [engine, scene])
+  return null
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+### Opting out of the default IBL
+
+The bundled environment, `RNF_default_env_ibl.ktx`, is about 2 MB. If you never use `<DefaultLight />` or `defaultIndirectLightSource`, you can leave it out of your app:
+
+<Tabs items={['iOS', 'Android']}>
+<Tab value="iOS">
+
+Add this line at the top of your `ios/Podfile`:
+
+```ruby
+$RNFExcludeAssets = true
+```
+
+</Tab>
+<Tab value="Android">
+
+Add this line to your `android/gradle.properties`:
+
+```properties
+RNF_excludeAssets=true
+```
+
+</Tab>
+</Tabs>
+
+## Directional and sun lights
+
+Directional lights recreate light sources that are far away, such as the sun or the moon. They have a direction but no position. A `sun` light is a directional light whose `angularRadiusDegrees` sets the size of its highlight on glossy surfaces. react-native-filament's skyboxes do not draw the sun disk, so `haloSize` and `haloFalloff` currently have no visible effect.
+
+Filament uses only the brightest directional or sun light in a scene. Any other directional light adds neither light nor shadows. `<DefaultLight />` already contains one, so don't add a second directional light next to it.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Light } from 'react-native-filament'
+
+function Afternoon() {
+  return <Light type="sun" intensity={100_000} colorKelvin={5_500} direction={[0.4, -1, -0.5]} angularRadiusDegrees={0.8} />
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+// Inside runOnRenderThread(engine, () => { 'worklet'; ... })
+const sun = engine.createSunLight({
+  intensityLux: 100_000,
+  colorKelvin: 5_500,
+  direction: [0.4, -1, -0.5],
+  angularRadiusDegrees: 0.8,
+})
+scene.addEntity(sun.entity)
+return sun // keep it until you dispose it
+```
+
+</Imperative>
+</ApiTabs>
+
+### Intensity
+
+Directional light intensity is illuminance, in lux. These reference values were measured on a clear day in March, in California:
+
+| Light | 10 am | 12 pm | 5:30 pm |
+|---|---|---|---|
+| Sky and sun | 120,000 | 130,000 | 90,000 |
+| Sky | 20,000 | 25,000 | 9,000 |
+| Sun | 100,000 | 105,000 | 81,000 |
+
+## Color temperature
+
+Every light takes its color as a correlated color temperature in kelvin, through the `colorKelvin` prop or option. Some reference values:
+
+| Temperature (K) | Light source | Color |
+|---|---|---|
+| 1,700–1,800 | Match flame | <span style={{ display: 'inline-block', width: 48, height: 16, background: '#ff7d00' }} /> |
+| 1,850–1,930 | Candle flame | <span style={{ display: 'inline-block', width: 48, height: 16, background: '#ff8701' }} /> |
+| 2,000–3,000 | Sun at sunrise or sunset | <span style={{ display: 'inline-block', width: 48, height: 16, background: '#ffa64c' }} /> |
+| 2,500–2,900 | Household tungsten light bulb | <span style={{ display: 'inline-block', width: 48, height: 16, background: '#ffb05e' }} /> |
+| 3,000 | Tungsten lamp 1K | <span style={{ display: 'inline-block', width: 48, height: 16, background: '#ffb86f' }} /> |
+| 3,200–3,500 | Quartz lights | <span style={{ display: 'inline-block', width: 48, height: 16, background: '#ffbf7b' }} /> |
+| 3,200–3,700 | Fluorescent lights | <span style={{ display: 'inline-block', width: 48, height: 16, background: '#ffbf7b' }} /> |
+| 3,275 | Tungsten lamp 2K | <span style={{ display: 'inline-block', width: 48, height: 16, background: '#ffc180' }} /> |
+| 3,380 | Tungsten lamp 5K, 10K | <span style={{ display: 'inline-block', width: 48, height: 16, background: '#ffc486' }} /> |
+| 5,000–5,400 | Sun at noon | <span style={{ display: 'inline-block', width: 48, height: 16, background: '#ffe9d7' }} /> |
+| 5,500–6,500 | Daylight (sun and sky) | <span style={{ display: 'inline-block', width: 48, height: 16, background: '#fff3f1' }} /> |
+| 5,500–6,500 | Sun through clouds or haze | <span style={{ display: 'inline-block', width: 48, height: 16, background: '#fff3f1' }} /> |
+| 6,000–7,500 | Overcast sky | <span style={{ display: 'inline-block', width: 48, height: 16, background: '#faf6ff' }} /> |
+| 6,500 | RGB monitor white point | <span style={{ display: 'inline-block', width: 48, height: 16, background: '#fff8fe' }} /> |
+| 7,000–8,000 | Shaded areas outdoors | <span style={{ display: 'inline-block', width: 48, height: 16, background: '#ebecff' }} /> |
+| 8,000–10,000 | Partly cloudy sky | <span style={{ display: 'inline-block', width: 48, height: 16, background: '#d6e0ff' }} /> |
+
+`engine.lightManager.setColor()` takes linear RGB instead of kelvin. `kelvinToLinearRgb(kelvin)` converts a temperature, and runs in any runtime, including render-thread worklets:
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Light } from 'react-native-filament'
+
+function Candle() {
+  return <Light type="point" colorKelvin={1_900} intensity={12.57} position={[0, 0.5, 0]} />
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { kelvinToLinearRgb, runOnRenderThread, type Engine, type Entity } from 'react-native-filament'
+
+function setCandleColor(engine: Engine, light: Entity) {
+  return runOnRenderThread(engine, () => {
+    'worklet'
+    engine.lightManager.setColor(light, kelvinToLinearRgb(1_900))
+  })
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+## Point and spot lights
+
+Point and spot lights, called punctual lights, have a position. Their intensity is luminous power, in lumens:
+
+| Light source | Luminous power (lumen) |
+|---|---|
+| Candle | 12.57 |
+| 40 W bulb | 450 |
+| 100 W bulb | 1,600 |
+| 500 W halogen | 10,000 |
+| 1,000 W halogen | 20,000 |
+
+A point light shines from its `position` in all directions. A spot light also has a `direction` and two cone angles: the light starts to fade at the inner angle and ends at the outer angle. With `focused-spot`, a wider cone spreads the same power over a larger area, so it looks dimmer. With `spot`, the intensity stays the same when the cone changes, which makes the cone easier to tune.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Light } from 'react-native-filament'
+
+function Stage() {
+  return (
+    <>
+      <Light type="point" intensity={10_000} colorKelvin={2_700} position={[1, 1, 0]} falloffRadius={4} />
+      <Light
+        type="focused-spot"
+        intensity={10_000}
+        colorKelvin={6_500}
+        position={[0, 3, 0]}
+        direction={[0, -1, 0]}
+        falloffRadius={6}
+        spotLightCone={[Math.PI / 8, Math.PI / 6]}
+      />
+    </>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+// Inside runOnRenderThread(engine, () => { 'worklet'; ... })
+const bulb = engine.createPointLight({ intensityLumens: 10_000, colorKelvin: 2_700, position: [1, 1, 0], falloffRadius: 4 })
+const spot = engine.createFocusedSpotLight({
+  intensityLumens: 10_000,
+  colorKelvin: 6_500,
+  position: [0, 3, 0],
+  direction: [0, -1, 0],
+  falloffRadius: 6,
+  innerConeRadians: Math.PI / 8,
+  outerConeRadians: Math.PI / 6,
+})
+scene.addEntity(bulb.entity)
+scene.addEntity(spot.entity)
+return { bulb, spot } // keep them until you dispose them
+```
+
+</Imperative>
+</ApiTabs>
+
+<Callout type="info" title="Keep falloffRadius small">
+Lights are expensive in Filament, especially when they overlap. `falloffRadius` is the distance in meters after which a point or spot light has no effect. A tight radius lets Filament skip the light for objects outside it.
+</Callout>
+
+## Image-based lighting (IBL)
+
+In real life, light reaches an object from every direction: directly from light sources, and indirectly after bouncing off the environment. Image-based lighting, also called indirect lighting, encodes this environment light in a cubemap. Filament reads the irradiance (light arriving at a surface) from the cubemap's spherical harmonics and the reflections from its mip levels.
+
+`<EnvironmentalLight />` loads a KTX1 cubemap and lights the scene with it while mounted. `intensity` is a brightness scale in lux and defaults to 25,000. `useIndirectLight(source, intensity)` does the same and returns the `IndirectLight`; with `intensity` undefined it uses 30,000. Imperatively, load it with `engine.loadIndirectLight()` (its `intensity` option defaults to 30,000) and set it on the scene with `scene.setIndirectLight()`. A scene has at most one indirect light.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { EnvironmentalLight } from 'react-native-filament'
+
+function Studio() {
+  return <EnvironmentalLight source={require('./studio_ibl.ktx')} intensity={25_000} />
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { useEffect } from 'react'
+import { Image } from 'react-native'
+import { runOnRenderThread, useFilamentContext } from 'react-native-filament'
+
+const studio = Image.resolveAssetSource(require('./studio_ibl.ktx'))
+
+function Studio() {
+  const { engine, scene } = useFilamentContext()
+  useEffect(() => {
+    const loading = engine.loadIndirectLight({ uri: studio.uri }, { intensity: 25_000 })
+    loading.then((environment) =>
+      runOnRenderThread(engine, () => {
+        'worklet'
+        scene.setIndirectLight(environment)
+      })
+    )
+    // Disposing the indirect light also removes it from the scene.
+    return () => {
+      loading.then((environment) => environment.dispose())
+    }
+  }, [engine, scene])
+  return null
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+The default environment used by `<DefaultLight />` is exported as `defaultIndirectLightSource`, so you can use it at another intensity:
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { defaultIndirectLightSource, EnvironmentalLight } from 'react-native-filament'
+
+function SoftStudio() {
+  return <EnvironmentalLight source={defaultIndirectLightSource} intensity={10_000} />
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { defaultIndirectLightSource, type Engine } from 'react-native-filament'
+
+function loadSoftStudio(engine: Engine) {
+  // Then scene.setIndirectLight() on the render thread.
+  return engine.loadIndirectLight(defaultIndirectLightSource, { intensity: 10_000 })
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+To load `.ktx` files with `require()`, add `ktx` to Metro's `assetExts`.
+
+### Getting good IBL images
+
+[Poly Haven](https://polyhaven.com/hdris) has high-quality HDR environments. Convert the downloaded `.hdr` file with Filament's `cmgen` tool, which writes the KTX1 cubemap with spherical harmonics that `<EnvironmentalLight />` and `engine.loadIndirectLight()` expect:
+
+```sh
+cmgen --format=ktx --size=256 --deploy=./out environment.hdr
+```
+
+Use the `*_ibl.ktx` file it writes for lighting. The `*_skybox.ktx` file next to it is a matching [skybox](/docs/skybox).
+
+## Changing lights at runtime
+
+`intensity`, `colorKelvin`, `direction` and `position` accept Reanimated SharedValues. New values reach the light on the render thread without recreating it and without React renders. See [Reanimated](/docs/reanimated) for how this works.
+
+Imperatively, `engine.lightManager` reads and writes the light component of any entity on the render thread, including lights loaded with a glTF model. It has getters and setters for intensity, color (linear RGB), position, direction, falloff, the spot cone and whether the light casts shadows. `setIntensity()` takes lux for directional and sun lights and lumens for point and spot lights, but `getIntensity()` returns candela, not lumens, for point and spot lights.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useEffect } from 'react'
+import { useSharedValue, withRepeat, withTiming } from 'react-native-reanimated'
+import { Light } from 'react-native-filament'
+
+function PulsingLight() {
+  const intensity = useSharedValue(10_000)
+  useEffect(() => {
+    intensity.value = withRepeat(withTiming(100_000, { duration: 1_000 }), -1, true)
+  }, [intensity])
+  return <Light type="directional" intensity={intensity} />
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { useEffect } from 'react'
+import { runOnRenderThread, useFilamentContext } from 'react-native-filament'
+
+function OrbitingLight() {
+  const { engine, scene, lightManager } = useFilamentContext()
+  useEffect(() => {
+    const started = runOnRenderThread(engine, () => {
+      'worklet'
+      const light = engine.createPointLight({ colorKelvin: 1_500, intensityLumens: 600_000, falloffRadius: 4 })
+      scene.addEntity(light.entity)
+      const subscription = engine.addOnFrameListener(({ elapsedSeconds }) => {
+        const angle = elapsedSeconds * 1.5
+        lightManager.setPosition(light.entity, [Math.cos(angle) * 1.4, 0.3, Math.sin(angle) * 1.4])
+        return true // keep rendering in on-demand mode
+      })
+      return { light, subscription }
+    })
+    return () => {
+      started.then(({ light, subscription }) => {
+        subscription.remove()
+        light.dispose()
+      })
+    }
+  }, [engine, scene, lightManager])
+  return null
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+`useLightEntity(config)` takes the same configuration as `<Light />` and returns the `Light` object, so you can pass its entity to `lightManager` in a render-thread hook. It does not add the light to a scene; pair it with `useEntityInScene(scene, light?.entity)`, as `<Light />` does.
+
+## Shadows
+
+Three settings decide whether a shadow appears:
+
+1. The light casts shadows. Directional and sun lights do by default, point and spot lights do not. Filament uses only the brightest directional or sun light in a scene, so only that light casts directional shadows.
+2. The models cast and receive shadows. `<Model castShadow receiveShadow>` sets this for every renderable of a model; by default a model keeps its own settings. `useConfigureAssetShadow({ entities, castShadow, receiveShadow })` does the same for any list of entities.
+3. The view renders shadows. `shadowing` is `true` by default. `shadowType` picks the filtering: `'pcf'` (the default), `'vsm'`, `'dpcf'` or `'pcss'`. On the iOS Simulator the default is `'vsm'`, because its Metal reports every PCF depth comparison as shadowed.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Camera, FilamentScene, FilamentView, Light, Model } from 'react-native-filament'
+
+export function Shadows() {
+  return (
+    <FilamentScene>
+      <FilamentView style={{ flex: 1 }} shadowType="vsm">
+        <Camera cameraPosition={[0, 3, 8]} />
+        <Light type="directional" direction={[0.3, -1, -0.2]} castShadows />
+        <Model source={require('./coin.glb')} translate={[0, 2, 0]} castShadow receiveShadow />
+        {/* Add a surface to receive the shadow, such as the shadow plane below. */}
+      </FilamentView>
+    </FilamentScene>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+// Inside runOnRenderThread(engine, () => { 'worklet'; ... }), with a ViewTarget `target`
+target.view.shadowType = 'vsm'
+const light = engine.createDirectionalLight({ direction: [0.3, -1, -0.2], castShadows: true })
+scene.addEntity(light.entity)
+scene.addModel(model)
+for (const entity of model.entities) {
+  if (!engine.renderableManager.hasComponent(entity)) continue
+  engine.renderableManager.setCastShadows(entity, true)
+  engine.renderableManager.setReceiveShadows(entity, true)
+}
+return light // keep it until you dispose it
+```
+
+</Imperative>
+</ApiTabs>
+
+To show a shadow on the ground without drawing the ground itself, add a plane with a shadow-only material, such as the example app's `transparent_shadow_material.filamat`, whose `strength` float parameter sets the shadow opacity (for example `instance.setFloatParameter('strength', 0.2)`). `engine.createPlane({ width, depth }, materialInstance)` creates a horizontal plane that receives shadows by default.
+
+## Additional resources
+
+Filament's documentation explains its [lighting model](https://google.github.io/filament/Filament.html#lighting) in depth, including [directional lights](https://google.github.io/filament/Filament.html#lighting/directlighting/directionallights), [punctual lights](https://google.github.io/filament/Filament.html#lighting/directlighting/punctuallights) and [image-based lights](https://google.github.io/filament/Filament.html#lighting/imagebasedlights).

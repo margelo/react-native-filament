@@ -1,0 +1,123 @@
+---
+title: Expo
+description: Use react-native-filament in an Expo development build.
+icon: Smartphone
+---
+
+react-native-filament works in Expo apps that build their own native code: [development builds](https://docs.expo.dev/develop/development-builds/introduction/) and apps that use [prebuild](https://docs.expo.dev/workflow/prebuild/). It does not work in Expo Go, because Expo Go only contains the native modules that ship with it.
+
+The repository's `apps/expo-example` is an Expo app that runs the same shared examples as the React Native CLI app in `apps/example`. The configuration below is taken from it.
+
+## Requirements
+
+- Expo SDK 55, which ships React Native 0.83.
+- The New Architecture, which React Native 0.83 always uses. The example's `newArchEnabled: true` in `app.json` is a leftover that SDK 55 ignores.
+- iOS 15.1 or later and Android 7 (API 24) or later, as in [Getting Started](/docs#requirements).
+
+## Installation
+
+<Steps>
+<Step>
+
+### Install the packages
+
+```sh
+npx expo install react-native-filament react-native-nitro-modules@0.37 react-native-worklets
+```
+
+`npx expo install` picks the version of `react-native-worklets` that matches your SDK. It does not pin Nitro Modules, so pin it to 0.37, the version react-native-filament 2.0 supports. Install `react-native-reanimated` and `react-native-gesture-handler` the same way if you use them. Both are optional.
+
+</Step>
+<Step>
+
+### Babel: nothing to add
+
+`babel-preset-expo` adds the worklets Babel plugin automatically when `react-native-worklets` is installed, with or without Reanimated. If you have a custom `babel.config.js`, keep `presets: ['babel-preset-expo']`; you don't need to list the plugin yourself.
+
+</Step>
+<Step>
+
+### Configure Metro
+
+Let Metro bundle 3D assets:
+
+```js title="metro.config.js"
+const { getDefaultConfig } = require('expo/metro-config')
+
+const config = getDefaultConfig(__dirname)
+config.resolver.assetExts = [...config.resolver.assetExts, 'glb', 'ktx', 'filamat']
+
+module.exports = config
+```
+
+</Step>
+<Step>
+
+### Build the app
+
+Build and run a development build:
+
+```sh
+npx expo run:ios
+npx expo run:android
+```
+
+Or generate the native projects first and build them with Xcode or Gradle:
+
+```sh
+npx expo prebuild
+```
+
+The first `pod install` and the first Gradle build download the prebuilt Filament binaries and verify their checksums. On EAS Build this happens on the build machine.
+
+</Step>
+<Step>
+
+### Start Metro
+
+```sh
+npx expo start --dev-client
+```
+
+</Step>
+</Steps>
+
+react-native-filament has no config plugin, so there is nothing to add to `plugins` in `app.json`. Rendering code is the same as in a React Native CLI app; see [Render your first model](/docs#render-your-first-model).
+
+## The example app's config plugins
+
+`apps/expo-example` adds three local config plugins. They solve problems of that app's build setup, not requirements of react-native-filament. Copy one only if you run into the same problem.
+
+```json title="app.json"
+{
+  "expo": {
+    "plugins": [
+      "./plugins/withMinimumPodDeploymentTarget",
+      "./plugins/withGradleMemory",
+      "./plugins/withSceneLifecycle"
+    ]
+  }
+}
+```
+
+| Plugin | What it does |
+|---|---|
+| `withMinimumPodDeploymentTarget` | Adds a `post_install` step to the Podfile that raises every pod's `IPHONEOS_DEPLOYMENT_TARGET` to at least 15.1, for pods that declare a target Xcode no longer accepts. |
+| `withGradleMemory` | Sets `org.gradle.jvmargs` to `-Xmx4096m -XX:MaxMetaspaceSize=1024m` in `gradle.properties`, so release builds of the native libraries do not run out of memory. |
+| `withSceneLifecycle` | Starts React Native from a `SceneDelegate` instead of the `AppDelegate`, for the UIScene lifecycle that apps built with the current iOS SDK need to launch. |
+
+For example, `withGradleMemory`:
+
+```js title="plugins/withGradleMemory.js"
+const { withGradleProperties } = require('expo/config-plugins')
+
+const JVM_ARGS = '-Xmx4096m -XX:MaxMetaspaceSize=1024m'
+
+module.exports = function withGradleMemory(config) {
+  return withGradleProperties(config, (gradle) => {
+    const others = gradle.modResults.filter((item) => item.type !== 'property' || item.key !== 'org.gradle.jvmargs')
+    gradle.modResults = [...others, { type: 'property', key: 'org.gradle.jvmargs', value: JVM_ARGS }]
+    return gradle
+  })
+}
+```

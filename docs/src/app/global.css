@@ -1,0 +1,176 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+
+@source "../lib/**/*.tsx";
+@source "../components/**/*.tsx";
+
+:root,
+.dark {
+  --color-fd-primary: oklch(0.79 0.16 62);
+  --color-fd-primary-foreground: oklch(0.2 0.03 60);
+  --color-fd-ring: oklch(0.79 0.16 62);
+}
+
+.dark {
+  --color-fd-background: oklch(0.15 0.012 270);
+  --color-fd-card: oklch(0.18 0.014 270);
+}
+
+.rnf-wordmark {
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.prose code {
+  font-variant-ligatures: none;
+}
+
+article .prose :not(pre) > code {
+  overflow-wrap: anywhere;
+}
+
+.rnf-home > header,
+.rnf-home nav {
+  background: transparent;
+}
+
+.rnf-hero {
+  min-height: calc(100dvh - 3.5rem);
+  background: #05060b;
+}
+
+.rnf-aurora {
+  position: absolute;
+  inset: -20%;
+  z-index: -3;
+  filter: blur(80px) saturate(140%);
+}
+
+.rnf-aurora-blob {
+  position: absolute;
+  width: 48vmax;
+  height: 48vmax;
+  border-radius: 9999px;
+  opacity: 0.55;
+  mix-blend-mode: screen;
+  animation: rnf-drift 22s ease-in-out infinite alternate;
+}
+
+.rnf-aurora-amber {
+  left: 18%;
+  top: 30%;
+  background: radial-gradient(circle, oklch(0.75 0.18 55) 0%, transparent 65%);
+}
+
+.rnf-aurora-violet {
+  right: 12%;
+  top: 8%;
+  background: radial-gradient(circle, oklch(0.55 0.25 300) 0%, transparent 65%);
+  animation-duration: 28s;
+  animation-direction: alternate-reverse;
+}
+
+.rnf-aurora-cyan {
+  left: 38%;
+  bottom: -2%;
+  background: radial-gradient(circle, oklch(0.7 0.15 210) 0%, transparent 65%);
+  animation-duration: 34s;
+}
+
+@keyframes rnf-drift {
+  0% {
+    transform: translate3d(-6%, -4%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(5%, 6%, 0) scale(1.15);
+  }
+  100% {
+    transform: translate3d(-3%, 8%, 0) scale(0.95);
+  }
+}
+
+.rnf-floor {
+  position: absolute;
+  inset-inline: -50%;
+  bottom: -10%;
+  height: 60%;
+  z-index: -2;
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.09) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.09) 1px, transparent 1px);
+  background-size: 64px 64px;
+  transform: perspective(600px) rotateX(62deg);
+  transform-origin: bottom;
+  mask-image: linear-gradient(to top, black 10%, transparent 85%);
+  animation: rnf-floor 6s linear infinite;
+}
+
+@keyframes rnf-floor {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 64px;
+  }
+}
+
+.rnf-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(ellipse at center, transparent 40%, rgb(0 0 0 / 0.65) 100%);
+}
+
+.rnf-hero-wordmark {
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  transform: translateY(-58%);
+  text-align: center;
+  font-size: clamp(1.75rem, 7.6vw, 9.5rem);
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgb(255 255 255 / 0.22);
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.16), rgb(255 255 255 / 0.02));
+  background-clip: text;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* The hero poster: the bottle's box is stored in units of the camera's focal length, which is half
+   the canvas height times --rnf-focal-landscape, or half its width times --rnf-focal-portrait. */
+.rnf-poster-frame {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  pointer-events: none;
+}
+
+.rnf-poster {
+  --rnf-focal: calc(50cqh * var(--rnf-focal-landscape));
+  position: absolute;
+  left: calc(50cqw + var(--rnf-poster-x) * var(--rnf-focal));
+  top: calc(50cqh + var(--rnf-poster-y) * var(--rnf-focal));
+  width: calc(var(--rnf-poster-width) * var(--rnf-focal));
+  height: calc(var(--rnf-poster-height) * var(--rnf-focal));
+  max-width: none;
+}
+
+@container (aspect-ratio < 1) {
+  .rnf-poster {
+    --rnf-focal: calc(50cqw * var(--rnf-focal-portrait));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rnf-aurora-blob,
+  .rnf-floor {
+    animation: none;
+  }
+}

@@ -1,236 +1,91 @@
 name: Build Android
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
-    paths:
-      - '.github/workflows/build-android.yml'
-      - 'package/cpp/**'
-      - 'package/android/**'
-      - 'examples/**/android/**'
-      - 'bun.lock'
   pull_request:
     paths:
       - '.github/workflows/build-android.yml'
-      - 'package/cpp/**'
-      - 'package/android/**'
-      - 'examples/**/android/**'
+      - 'packages/react-native-filament/cpp/**'
+      - 'packages/react-native-filament/android/**'
+      - 'packages/react-native-filament/nitrogen/**'
+      - 'packages/react-native-filament/filament.json'
+      - 'apps/example/android/**'
+      - 'apps/expo-example/**'
       - 'bun.lock'
 
 jobs:
-  build-filament:
-    name: Build Filament for Android
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      # Problem: there is only 14 GB of disk space available on GitHub runners
-      # Solution: free up space by removing unneeded files
-      - name: Freeup space
-        run: |
-          df -h
-          echo "Removing hosted toolcache..."
-          sudo rm -rf /opt/hostedtoolcache || true
-
-          echo "Removing .NET..."
-          sudo rm -rf /usr/share/dotnet || true
-
-          echo "Removing GHC / Haskell..."
-          sudo rm -rf /opt/ghc || true
-          sudo rm -rf /usr/local/.ghcup || true
-          df -h
-
-
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Apply patches and calculate hash
-        id: hash
-        working-directory: package/
-        run: |
-          bun patch-filament
-          HASH=$(find ../filament -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.cc" -o -name "CMakeLists.txt" \) -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1 | head -c 16)
-          echo "hash=$HASH" >> $GITHUB_OUTPUT
-          echo "Filament hash: $HASH"
-
-      - name: Restore from cache
-        id: cache
-        uses: actions/cache/restore@v4
-        with:
-          path: package/android/libs/filament/
-          key: filament-android-debug-${{ steps.hash.outputs.hash }}
-
-      - name: Install build dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-get update
-          sudo apt-get install -y clang-16 libc++-16-dev libc++abi-16-dev ninja-build
-          sudo apt-get install -y mesa-common-dev libxi-dev libxxf86vm-dev libxrandr-dev libxinerama-dev libxcursor-dev libx11-xcb-dev
-          sudo update-alternatives --install /usr/bin/cc cc /usr/bin/clang-16 100
-          sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-16 100
-
-      - name: Setup Android SDK
-        if: steps.cache.outputs.cache-hit != 'true'
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android NDK and CMake
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          sdkmanager --install "ndk;29.0.14206865" "cmake;3.22.1"
-
-      - name: Build Filament
-        if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: package/
-        run: bash scripts/build-filament.sh debug --platform android
-
-      - name: Save to cache
-        if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: package/android/libs/filament/
-          key: filament-android-debug-${{ steps.hash.outputs.hash }}
-
-      - name: Upload Filament libraries
-        uses: actions/upload-artifact@v4
-        with:
-          name: filament-android
-          path: package/android/libs/filament/
-          retention-days: 1
-
-  build-bullet3:
-    name: Build bullet3 for Android
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Calculate hash
-        id: hash
-        run: |
-          HASH=$(find bullet3/src -type f \( -name "*.cpp" -o -name "*.h" \) -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1 | head -c 16)
-          echo "hash=$HASH" >> $GITHUB_OUTPUT
-          echo "bullet3 hash: $HASH"
-
-      - name: Restore from cache
-        id: cache
-        uses: actions/cache/restore@v4
-        with:
-          path: package/android/libs/bullet3/
-          key: bullet3-android-${{ steps.hash.outputs.hash }}
-
-      - name: Setup Android SDK
-        if: steps.cache.outputs.cache-hit != 'true'
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android NDK
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          sdkmanager --install "ndk;27.1.12297006"
-
-      - name: Build bullet3
-        if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: package/
-        run: bash scripts/build-bullet3.sh --platform android
-
-      - name: Save to cache
-        if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: package/android/libs/bullet3/
-          key: bullet3-android-${{ steps.hash.outputs.hash }}
-
-      - name: Upload bullet3 libraries
-        uses: actions/upload-artifact@v4
-        with:
-          name: bullet3-android
-          path: package/android/libs/bullet3/
-          retention-days: 1
-
   build:
-    name: Build ${{ matrix.app }} (${{ matrix.variant }})
+    name: Build example app (debug)
     runs-on: ubuntu-latest
-    needs: [build-filament, build-bullet3]
-    strategy:
-      matrix:
-        app: [AppExampleFabric, ExpoExample]
-        variant: [debug, release]
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
+      - uses: oven-sh/setup-bun@v2
 
-      - name: Setup JDK 17
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: zulu
           java-version: 17
-          java-package: jdk
 
-      - name: Restore bun cache
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
-          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-bun-
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: ${{ runner.os }}-bun-
 
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+      - run: bun install --frozen-lockfile
 
-      - name: Download Filament libraries
-        uses: actions/download-artifact@v4
-        with:
-          name: filament-android
-          path: package/android/libs/filament/
-
-      - name: Download bullet3 libraries
-        uses: actions/download-artifact@v4
-        with:
-          name: bullet3-android
-          path: package/android/libs/bullet3/
-
-      - name: Restore Gradle cache
+      - name: Restore Filament store
         uses: actions/cache@v4
         with:
+          path: ~/.gradle/caches/react-native-filament
+          key: filament-android-${{ hashFiles('packages/react-native-filament/filament.json') }}
+
+      - uses: actions/cache@v4
+        with:
           path: |
-            ~/.gradle/caches
+            ~/.gradle/caches/modules-2
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+          restore-keys: ${{ runner.os }}-gradle-
 
-      - name: Build Android app (AppExampleFabric)
-        if: matrix.app == 'AppExampleFabric'
-        working-directory: examples/AppExampleFabric/android
-        run: ./gradlew assemble${{ matrix.variant == 'debug' && 'Debug' || 'Release' }} --build-cache
+      - name: Assemble
+        working-directory: apps/example/android
+        run: ./gradlew assembleDebug -PreactNativeArchitectures=arm64-v8a --console=plain
 
-      - name: Prebuild Expo app
-        if: matrix.app == 'ExpoExample'
-        working-directory: examples/ExpoExample
-        run: bunx expo prebuild --platform android
+  build-expo:
+    name: Build Expo app (debug)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Build Android app (ExpoExample)
-        if: matrix.app == 'ExpoExample'
-        working-directory: examples/ExpoExample/android
-        run: ./gradlew assemble${{ matrix.variant == 'debug' && 'Debug' || 'Release' }} --build-cache
+      - uses: oven-sh/setup-bun@v2
 
-      - name: Upload .apk to GitHub
-        uses: actions/upload-artifact@v4
+      - uses: actions/setup-java@v4
         with:
-          name: ${{ matrix.app }}-${{ matrix.variant }}.apk
-          path: examples/${{ matrix.app }}/android/app/build/outputs/apk/${{ matrix.variant }}/app-${{ matrix.variant }}.apk
-          if-no-files-found: error
+          distribution: zulu
+          java-version: 17
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: ${{ runner.os }}-bun-
+
+      - run: bun install --frozen-lockfile
+
+      - name: Restore Filament store
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches/react-native-filament
+          key: filament-android-${{ hashFiles('packages/react-native-filament/filament.json') }}
+
+      - name: Prebuild
+        working-directory: apps/expo-example
+        run: bunx expo prebuild --platform android --no-install
+
+      - name: Assemble
+        working-directory: apps/expo-example/android
+        run: ./gradlew assembleDebug -PreactNativeArchitectures=arm64-v8a --console=plain

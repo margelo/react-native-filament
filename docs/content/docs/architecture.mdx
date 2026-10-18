@@ -1,0 +1,167 @@
+---
+title: Architecture
+description: The native objects behind react-native-filament, who owns them, and how the native render loop drives them.
+icon: Network
+---
+
+react-native-filament wraps Google's [Filament](https://google.github.io/filament) renderer as [Nitro Modules](https://nitro.margelo.com). Its imperative API is a set of Nitro HybridObjects. The React components are a thin layer that creates and configures them.
+
+## Objects
+
+```txt
+Filament (FilamentFactory)
+└── Engine ─────────────── render thread, render loop, managers
+    ├── ViewTarget ─────── one FilamentView's surface, View options, picking, snapshots
+    ├── Recorder ───────── offscreen MP4 rendering
+    ├── Scene, Camera, Light, Skybox, IndirectLight, Renderable
+    ├── Model ──────────── a glTF asset and its instances
+    │   └── ModelInstance → Animator, AnimationPlayer
+    ├── Material → MaterialInstance
+    ├── Texture
+    ├── TransformBinding, ValueBinding, CameraManipulator
+    └── PhysicsWorld → CollisionShape, RigidBody
+```
+
+- [`Filament`](/api/functions/filament) creates Engines and reports the backends the device supports: Metal on iOS, Vulkan and OpenGL ES on Android.
+- [`Engine`](/api/hybrid-objects/engine) owns a Filament engine and its render thread. Everything else is created by an Engine and destroyed with it.
+- [`NativeFilamentView`](/api/components/native-filament-view) is a Nitro HybridView: a `CAMetalLayer` on iOS, and a `SurfaceView` on Android, or a `TextureView` when `transparent` is set. A [`ViewTarget`](/api/hybrid-objects/view-target) attaches to its surface and follows surface changes.
+- The managers, [`TransformManager`](/api/hybrid-objects/transform-manager), [`RenderableManager`](/api/hybrid-objects/renderable-manager) and [`LightManager`](/api/hybrid-objects/light-manager), read and write the components of entities. An entity is a number.
+
+## Components and objects
+
+Each component creates or configures one of these objects:
+
+| Component | Native object |
+|---|---|
+| `FilamentScene` | An `Engine` from `Filament.createEngine()`, or the one passed as `engine`, plus a `Scene` and a `Camera` |
+| `FilamentView` | A `NativeFilamentView` and a `ViewTarget` from `engine.createViewTarget()` |
+| `Camera` | The scene's `Camera`: `lookAt()`, `setLensProjection()`, `followManipulator()` |
+| `Model` | A `Model` from `engine.loadModel()`, added with `scene.addModel()` |
+| `Animator` | An `AnimationPlayer` from `instance.animator.createPlayer()` |
+| `Light` | A `Light` from `engine.createDirectionalLight()` and the other `create*Light()` methods |
+| `EnvironmentalLight` | An `IndirectLight` from `engine.loadIndirectLight()` |
+| `Skybox` | A `Skybox` from `engine.loadSkybox()` or `engine.createSkybox()` |
+
+You can use the objects directly, or reach the ones a `FilamentScene` created through [`useFilamentContext()`](/api/hooks/use-filament-context) and mix both styles:
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useFilamentContext } from 'react-native-filament'
+
+// Inside a <FilamentScene>, or a <FilamentView> for `view` and `target`
+function Inspector() {
+  const { engine, scene, camera, transformManager, lightManager, view, target, workletContext } = useFilamentContext()
+  // ...
+  return null
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { Filament, runOnRenderThread, type FilamentView } from 'react-native-filament'
+
+async function start(nativeView: FilamentView) {
+  const engine = await Filament.createEngine({})
+  const target = await engine.createViewTarget(nativeView, {})
+  const { transformManager, lightManager } = engine
+  const { scene, camera } = await runOnRenderThread(engine, () => {
+    'worklet'
+    const created = { scene: engine.createScene(), camera: engine.createCamera() }
+    target.setScene(created.scene)
+    target.setCamera(created.camera)
+    return created
+  })
+  return { engine, target, view: target.view, scene, camera, transformManager, lightManager }
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+## Resources and ownership
+
+Scenes, cameras, lights, renderables, skyboxes, indirect lights, models, materials, material instances, textures, view targets, recorders and physics objects are resources in their Engine's ownership tree. Disposing a resource destroys its descendants first, then itself, on the render thread. Objects that depend on another one keep it alive: a scene keeps its skybox, a rigid body keeps its world and shape, and a material instance keeps its textures. Calls that reach the native state of a disposed object throw an error whose message starts with `FilamentDisposedError`, so nothing touches destroyed Filament memory. Values captured at creation, such as `entity`, `rootEntity` or `boundingBox`, stay readable.
+
+Transform bindings, camera manipulators and animation players are not resources: disposing one stops it right away. A `ValueBinding` holds no native state. Model instances and animators are parts of their model and fail like it once the model is disposed.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { ModelRenderer, useModel } from 'react-native-filament'
+
+// Hooks and components dispose what they create when they unmount
+// or when their inputs change. <Model source={...} /> does the same in one component.
+function Drone() {
+  const model = useModel(require('./drone.glb'))
+  return <ModelRenderer model={model} />
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+const model = await engine.loadModel({ uri }, {})
+const player = model.getInstance(0).animator.createPlayer()
+
+// Disposing the model also disposes its instances and players.
+model.dispose()
+
+// Shutting down destroys every resource the Engine still holds.
+await engine.shutdown()
+```
+
+</Imperative>
+</ApiTabs>
+
+A `FilamentScene` that creates its own Engine shuts it down on unmount. A `FilamentScene` that borrows an Engine through its `engine` prop disposes only its scene and camera.
+
+`engine.getDebugStats()` counts the live resources by kind, which helps find leaks. It does not count bindings, manipulators, model instances, animators or animation players. Heavy objects report their native size to the JS garbage collector through Nitro's `getExternalMemorySize()`. See [Rendering](/docs/rendering#debug-stats).
+
+## The render loop
+
+The render loop is native. A `CADisplayLink` on iOS and a `Choreographer` on Android drive the render thread only while something needs a frame. JS never runs per frame unless you register a frame callback. Asset loading decodes on a worker pool and uploads on the render thread without blocking it.
+
+See [Threading](/docs/threading) for the frame stages and how JS reaches the render thread, and [Rendering](/docs/rendering#render-modes) for the render modes.
+
+## Assets
+
+Loaders take an `{ uri }` or an `ArrayBuffer`:
+
+- bundled asset names and `file://` paths are memory-mapped;
+- `http(s)://` URLs are downloaded natively once per app launch and reused for later loads of the same URL;
+- an `ArrayBuffer` is copied once, so the caller can reuse it right away.
+
+Components and hooks also accept a `require()`d asset or a URI string.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+<Model source={require('./drone.glb')} />
+<Model source="https://example.com/drone.glb" />
+<Model source={{ uri: 'file:///path/to/drone.glb' }} />
+<Model source={arrayBuffer} />
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { Image } from 'react-native'
+
+const { uri } = Image.resolveAssetSource(require('./drone.glb'))
+const bundled = await engine.loadModel({ uri }, {})
+const remote = await engine.loadModel({ uri: 'https://example.com/drone.glb' }, {})
+const fromBytes = await engine.loadModel(arrayBuffer, {})
+```
+
+</Imperative>
+</ApiTabs>
+
+Bytes never pass through JS unless you pass an `ArrayBuffer`. The prebuilt Filament 1.78.0 binaries are downloaded and verified by checksum during the first build.

@@ -1,0 +1,380 @@
+---
+title: Transforms
+description: Position, rotate and scale models and entities, from props, SharedValues, bindings or the TransformManager.
+icon: Move3d
+---
+
+![A drone moving, rotating and scaling](/img/demo-transformation.gif)
+
+A transform sets the position, rotation and scale of an entity relative to its parent. Units are physical: one unit is one meter. Matrices are column-major [`Mat4`](/api/types/mat4) arrays with the translation in elements 12, 13 and 14, and rotations are unit quaternions `[x, y, z, w]`.
+
+## Transform props
+
+`<Model>`, `<ModelRenderer>`, `<ModelInstance>`, `<EntitySelector>` and `<DebugBox>` take three [transform props](/api/types/transformation-props):
+
+| Prop | Default | |
+|---|---|---|
+| `translate` | `[0, 0, 0]` | Position in meters. |
+| `rotate` | `[0, 0, 0]` | Radians around X, then Y, then Z. |
+| `scale` | `[1, 1, 1]` | |
+
+The local transform is `translate · rotate · scale`. The props are absolute: changing `scale` from `[2, 2, 2]` to `[3, 3, 3]` gives a scale of 3. React re-renders, StrictMode and fast refresh never accumulate them. Removing every transform prop gives the entity back its original transform.
+
+Imperatively, write the same transform with the [`TransformManager`](/api/hybrid-objects/transform-manager) on the render thread. [`composeTransform`](/api/functions/compose-transform) builds the matrix that scales, then rotates, then translates, and [`quaternionFromEuler`](/api/functions/quaternion-from-euler) converts the `rotate` angles to a quaternion.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Model } from 'react-native-filament'
+
+<Model
+  source={require('./drone.glb')}
+  translate={[0, -1, 0]}
+  rotate={[0, Math.PI / 4, 0]}
+  scale={[2, 2, 2]}
+/>
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { composeTransform, quaternionFromEuler, runOnRenderThread } from 'react-native-filament'
+
+await runOnRenderThread(engine, () => {
+  'worklet'
+  const rotation = quaternionFromEuler([0, Math.PI / 4, 0])
+  engine.transformManager.setTransform(model.rootEntity, composeTransform([0, -1, 0], rotation, [2, 2, 2]))
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+## Fitting into view
+
+`transformToUnitCube` scales and centers a model so that its bounding box fits the cube from -1 to 1 around the origin. The transform props then apply on top of that fit, so the local transform becomes `translate · rotate · scale · fit`.
+
+Imperatively, `transformManager.transformToUnitCube(entity, boundingBox)` sets the fit as the local transform. To apply other transforms on top of it, use a [transform binding](#transform-bindings) with the fit as its base: [`unitCubeTransform`](/api/functions/unit-cube-transform) returns the same matrix.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+<Model source={require('./drone.glb')} transformToUnitCube scale={[2, 2, 2]} />
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { runOnRenderThread, unitCubeTransform } from 'react-native-filament'
+
+// Only the fit:
+await runOnRenderThread(engine, () => {
+  'worklet'
+  engine.transformManager.transformToUnitCube(model.rootEntity, model.boundingBox)
+})
+
+// Or, instead of the fit above, the fit with a scale on top.
+// The binding owns the transform until you dispose() it.
+const binding = await runOnRenderThread(engine, () => {
+  'worklet'
+  const created = engine.createTransformBinding(model.rootEntity)
+  created.setBase(unitCubeTransform(model.boundingBox))
+  created.setScale(2, 2, 2)
+  return created
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+## Nested transforms
+
+Instances are children of their model, so transforms on a `<ModelInstance>` apply inside the model's transform, in the model's own units. An `<EntitySelector>` applies its props on top of the selected node's own transform from the glTF file: imperatively, that is a binding whose base is the node's original transform.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { EntitySelector, Model, ModelInstance } from 'react-native-filament'
+
+<Model source={require('./car.glb')} transformToUnitCube instanceCount={2}>
+  <ModelInstance index={0} translate={[-150, 0, 0]} />
+  <ModelInstance index={1} translate={[150, 0, 0]}>
+    <EntitySelector byName="FrontWheel" rotate={[0, 0.3, 0]} />
+  </ModelInstance>
+</Model>
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { quaternionFromEuler, runOnRenderThread } from 'react-native-filament'
+
+const model = await engine.loadModel({ uri }, { instanceCount: 2 })
+
+const wheelBinding = await runOnRenderThread(engine, () => {
+  'worklet'
+  const tm = engine.transformManager
+  scene.addModel(model)
+  tm.transformToUnitCube(model.rootEntity, model.boundingBox)
+  tm.setTranslation(model.getInstance(0).rootEntity, [-150, 0, 0])
+  tm.setTranslation(model.getInstance(1).rootEntity, [150, 0, 0])
+
+  const wheel = model.getInstance(1).entities.find((entity) => model.getEntityName(entity) === 'FrontWheel')!
+  const binding = engine.createTransformBinding(wheel)
+  binding.setBase(tm.getTransform(wheel))
+  binding.setTranslation(0, 0, 0)
+  binding.setScale(1, 1, 1)
+  const [x, y, z, w] = quaternionFromEuler([0, 0.3, 0])
+  binding.setRotation(x, y, z, w)
+  return binding
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+To get an entity's transform in world space, including every parent, call `transformManager.getWorldTransform(entity)` on the render thread.
+
+## Animating with SharedValues
+
+Every transform prop accepts a Reanimated `SharedValue<Float3>`. Reanimated updates it on its UI runtime, a listener there writes each new value into a native [`TransformBinding`](/api/hybrid-objects/transform-binding), and the render thread applies translation, rotation and scale together at the start of the next frame. Nothing runs on the JS thread and React does not re-render.
+
+Imperatively, [`bindSharedValue`](/api/functions/bind-shared-value) connects any SharedValue to a binding you create. It calls your worklet on the UI runtime with the current value and every new value, and returns a function that removes the listener.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useEffect } from 'react'
+import { Easing, useDerivedValue, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated'
+import { Model, type Float3 } from 'react-native-filament'
+
+function SpinningDrone() {
+  const angle = useSharedValue(0)
+  const rotate = useDerivedValue<Float3>(() => [0, angle.value, 0])
+
+  useEffect(() => {
+    angle.value = withRepeat(withTiming(2 * Math.PI, { duration: 4000, easing: Easing.linear }), -1)
+  }, [angle])
+
+  return <Model source={require('./drone.glb')} transformToUnitCube rotate={rotate} />
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { bindSharedValue, quaternionFromEuler, runOnRenderThread, type Float3 } from 'react-native-filament'
+
+// `rotate` is a SharedValue<Float3>, for example from useDerivedValue
+const binding = await runOnRenderThread(engine, () => {
+  'worklet'
+  return engine.createTransformBinding(model.rootEntity)
+})
+
+const unbind = bindSharedValue(rotate, (euler: Float3) => {
+  'worklet'
+  const [x, y, z, w] = quaternionFromEuler(euler)
+  binding.setRotation(x, y, z, w)
+})
+
+// Later: unbind(); binding.dispose()
+```
+
+</Imperative>
+</ApiTabs>
+
+Updating transform props through React state also works, but each change re-renders the component. Use SharedValues for values that change every frame.
+
+## Transform bindings
+
+A [`TransformBinding`](/api/hybrid-objects/transform-binding) owns the local transform of one entity while it is alive. Its setters store the latest value and work from any thread: the JS thread, a Reanimated worklet such as a gesture callback, or the render thread. The latest values are applied together at the start of the next frame as `translation · rotation · scale · base`.
+
+| Method | |
+|---|---|
+| `setTranslation(x, y, z)` | |
+| `setRotation(x, y, z, w)` | A unit quaternion. |
+| `setScale(x, y, z)` | |
+| `setBase(matrix)` | A transform applied first, such as `unitCubeTransform(model.boundingBox)`. Defaults to the identity. |
+
+A new binding starts from the entity's current transform. [`useTransformBinding(entity)`](/api/hooks/use-transform-binding) creates one while the component is mounted and returns `undefined` until it exists. Imperatively, `engine.createTransformBinding(entity)` runs on the render thread; call `dispose()` when you are done.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useCallback, useEffect, useMemo } from 'react'
+import {
+  Camera, DefaultLight, FilamentView, ModelRenderer, quaternionFromAxisAngle, unitCubeTransform, useModel,
+  useTransformBinding, type FrameInfo,
+} from 'react-native-filament'
+
+function RotatingDrone() {
+  const model = useModel(require('./drone.glb'))
+  const loaded = model.state === 'loaded' ? model : undefined
+  const binding = useTransformBinding(loaded?.rootEntity)
+  const base = useMemo(() => (loaded == null ? undefined : unitCubeTransform(loaded.boundingBox)), [loaded])
+
+  useEffect(() => {
+    if (binding != null && base != null) binding.setBase(base)
+  }, [binding, base])
+
+  const renderCallback = useCallback(
+    ({ elapsedSeconds }: FrameInfo) => {
+      'worklet'
+      if (binding == null) return
+      const [x, y, z, w] = quaternionFromAxisAngle([0, 1, 0], elapsedSeconds)
+      binding.setRotation(x, y, z, w)
+    },
+    [binding]
+  )
+
+  return (
+    <FilamentView style={{ flex: 1 }} renderCallback={renderCallback}>
+      <Camera />
+      <DefaultLight />
+      <ModelRenderer model={model} />
+    </FilamentView>
+  )
+}
+```
+</Declarative>
+<Imperative>
+
+```tsx
+import { quaternionFromAxisAngle, runOnRenderThread, unitCubeTransform } from 'react-native-filament'
+
+const { binding, subscription } = await runOnRenderThread(engine, () => {
+  'worklet'
+  const created = engine.createTransformBinding(model.rootEntity)
+  created.setBase(unitCubeTransform(model.boundingBox))
+  const listener = engine.addOnFrameListener(({ elapsedSeconds }) => {
+    const [x, y, z, w] = quaternionFromAxisAngle([0, 1, 0], elapsedSeconds)
+    created.setRotation(x, y, z, w)
+    return true
+  })
+  return { binding: created, subscription: listener }
+})
+
+// Later: subscription.remove(); binding.dispose()
+```
+
+</Imperative>
+</ApiTabs>
+
+<Callout type="warn" title="One writer per entity">
+Transform props, `useTransformBinding` and `engine.createTransformBinding` all write the entity's whole local transform whenever one of their values changes. Writing the same entity through the `TransformManager` as well works only until the binding's next change replaces it.
+</Callout>
+
+## The TransformManager
+
+On the render thread, the [`TransformManager`](/api/hybrid-objects/transform-manager) reads and writes transforms directly. Every method throws `FilamentInvalidEntityError` for an entity without a transform component in this Engine.
+
+| Method | |
+|---|---|
+| `getTransform(entity)` | Local transform, relative to the parent. |
+| `getWorldTransform(entity)` | Transform in world space. |
+| `setTransform(entity, matrix)` | Replaces the local transform. |
+| `setTranslation(entity, translation)` | Replaces the translation and keeps rotation and scale. |
+| `setRotation(entity, quaternion)` | Replaces the rotation and keeps translation and scale. |
+| `setScale(entity, scale)` | Replaces the scale and keeps translation and rotation. |
+| `getParent(entity)` / `setParent(entity, parent)` | Reads or changes the parent; `undefined` makes the entity a root. |
+| `transformToUnitCube(entity, boundingBox)` | Sets the local transform that fits `boundingBox` into the cube from -1 to 1. |
+| `openLocalTransformTransaction()` / `commitLocalTransformTransaction()` | Defers world-transform updates while you change many entities in one frame. |
+
+In components, get it from `useFilamentContext()` and call it from a render-thread hook. Imperatively, use `engine.transformManager` inside `runOnRenderThread`. In `on-demand` [render mode](/docs/rendering#render-modes), call `engine.requestFrame()` after writing through the TransformManager; bindings request a frame themselves.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { quaternionFromAxisAngle, useFilamentContext, useRenderThreadEffect, type Entity } from 'react-native-filament'
+
+function Lift({ entity }: { entity: Entity }) {
+  const { transformManager } = useFilamentContext()
+  useRenderThreadEffect(() => {
+    'worklet'
+    const original = transformManager.getTransform(entity)
+    transformManager.setTranslation(entity, [original[12], original[13] + 1, original[14]])
+    transformManager.setRotation(entity, quaternionFromAxisAngle([0, 1, 0], Math.PI / 2))
+    return () => transformManager.setTransform(entity, original)
+  }, [entity, transformManager])
+  return null
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { quaternionFromAxisAngle, runOnRenderThread } from 'react-native-filament'
+
+const world = await runOnRenderThread(engine, () => {
+  'worklet'
+  const tm = engine.transformManager
+  const local = tm.getTransform(entity)
+  tm.setTranslation(entity, [local[12], local[13] + 1, local[14]])
+  tm.setRotation(entity, quaternionFromAxisAngle([0, 1, 0], Math.PI / 2))
+  return tm.getWorldTransform(entity)
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+## Math helpers
+
+These functions are worklets, so they run in any runtime: React Native's, Reanimated's UI runtime and the render thread.
+
+| Function | Returns |
+|---|---|
+| [`quaternionFromAxisAngle(axis, angleRadians)`](/api/functions/quaternion-from-axis-angle) | Rotation around `axis`, which does not need to be normalized. |
+| [`quaternionFromEuler([x, y, z])`](/api/functions/quaternion-from-euler) | Rotation by `x`, then `y`, then `z` radians around the world axes, as the `rotate` prop applies it. |
+| [`lookAtRotation(eye, target, up)`](/api/functions/look-at-rotation) | Rotation of a camera at `eye` looking at `target`: its -Z axis points from `eye` toward `target`. |
+| [`composeTransform(translation, rotation, scale?)`](/api/functions/compose-transform) | Matrix that scales, then rotates, then translates. |
+| [`unitCubeTransform(boundingBox)`](/api/functions/unit-cube-transform) | Matrix that fits `boundingBox` into the cube from -1 to 1, as `transformToUnitCube` sets it. |
+
+glTF models face +Z, so to turn a model at `position` toward `target`, swap the arguments of `lookAtRotation`:
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useEffect } from 'react'
+import { lookAtRotation, useTransformBinding, type Entity, type Float3 } from 'react-native-filament'
+
+function FacePoint({ entity, position, target }: { entity: Entity; position: Float3; target: Float3 }) {
+  const binding = useTransformBinding(entity)
+  useEffect(() => {
+    if (binding == null) return
+    const [x, y, z, w] = lookAtRotation(target, position, [0, 1, 0])
+    binding.setTranslation(position[0], position[1], position[2])
+    binding.setRotation(x, y, z, w)
+  }, [binding, position, target])
+  return null
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { lookAtRotation, runOnRenderThread } from 'react-native-filament'
+
+await runOnRenderThread(engine, () => {
+  'worklet'
+  const tm = engine.transformManager
+  tm.setTranslation(entity, position)
+  tm.setRotation(entity, lookAtRotation(target, position, [0, 1, 0]))
+})
+```
+
+</Imperative>
+</ApiTabs>

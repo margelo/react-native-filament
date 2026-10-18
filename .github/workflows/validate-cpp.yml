@@ -1,40 +1,21 @@
 name: Validate C++
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/validate-cpp.yml'
-      - 'package/cpp/**'
-      - 'package/android/src/main/cpp/**'
-      - 'package/ios/src/**'
   pull_request:
     paths:
       - '.github/workflows/validate-cpp.yml'
-      - 'package/cpp/**'
-      - 'package/android/src/main/cpp/**'
-      - 'package/ios/src/**'
+      - 'packages/react-native-filament/cpp/**'
+      - 'packages/react-native-filament/android/src/main/cpp/**'
+      - 'packages/react-native-filament/ios/**'
 
 jobs:
-  lint:
-    name: Check clang-format
+  clang-format:
+    name: clang-format
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        path:
-          - 'package/cpp'
-          - 'package/android/src/main/cpp'
-          - 'package/ios/src'
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Run clang-format style check
-        uses: mrousavy/clang-format-action@v1
-        with:
-          clang-format-version: '16'
-          check-path: ${{ matrix.path }}
-          clang-format-style-path: package/cpp/.clang-format
-
+      - name: Check formatting
+        working-directory: packages/react-native-filament
+        run: |
+          files=$(git ls-files 'cpp/**/*.cpp' 'cpp/**/*.hpp' 'cpp/*.cpp' 'cpp/*.hpp' 'android/src/main/cpp/*.cpp' 'ios/*.mm' ':!:cpp/materials/*Package.hpp')
+          [ -z "$files" ] || clang-format --dry-run --Werror $files

@@ -14,11 +14,12 @@ react-native-filament is a powerful 3D rendering engine for React Native. It fea
 
 * 🧊 Native C++ physically based rendering using [filament](https://github.com/google/filament)
 * 🏀 Native C++ physics using [bullet3](https://github.com/bulletphysics/bullet3)
-* 🏎️ GPU-accelerated by Metal and OpenGL/Vulkan
-* 📹 Renders on separate Threads
-* 📦 Easy to use reactive declarative API
+* 🏎️ GPU-accelerated by Metal and OpenGL ES
+* 📹 Renders on its own thread with a native render loop: animations, gestures and physics run without JS per frame
+* 🐎 Reanimated SharedValues and Gesture Handler gestures drive scenes directly
+* ⚡️ Built on [Nitro Modules](https://nitro.margelo.com) for the New Architecture
+* 📦 Easy to use declarative API, with the full imperative API underneath
 * 📚 Well documented
-* ✅ Supports old and new arch
 
 ### Installation
 
@@ -27,30 +28,27 @@ See the [installation guide in the docs.](https://margelo.github.io/react-native
 ### Example
 
 ```tsx
-import { FilamentScene, FilamentView, Model, Camera, DefaultLight } from 'react-native-filament'
+import { Camera, DefaultLight, FilamentScene, FilamentView, Model } from 'react-native-filament'
 
 function App() {
   return (
     <FilamentScene>
-      <FilamentView
-        style={{ width: 100, height: 100 }}
-        model={model}
-      >
-
+      <FilamentView style={{ flex: 1 }}>
         {/* Render with the default camera and light: */}
         <Camera />
-        <DefaultLight >
+        <DefaultLight />
 
-        {/* Add a model to the scene (only glb supported yet): */}
-        <Model source={require('./duck.glb')}>
-
+        {/* Add a glTF binary model to the scene: */}
+        <Model source={require('./duck.glb')} transformToUnitCube />
       </FilamentView>
     </FilamentScene>
   )
 }
 ```
 
-> See the [example](./package/example/Shared) app
+Upgrading from 1.x? See the [migration guide](https://margelo.github.io/react-native-filament/docs/guides/migration).
+
+> See the [example](./apps/shared) app
 
 
 ### Comparison with other libraries
@@ -67,31 +65,21 @@ One library to render 3D content is [expo-gl](https://docs.expo.dev/versions/lat
 
 We welcome contributions to react-native-filament! 🎉
 
-After cloning the repo make sure you have the submodules clones as well:
+The repository is a [bun](https://bun.sh) monorepo: the library is in `packages/react-native-filament`, the example apps in `apps/` and the docs in `docs/`. Install everything once at the root:
 
 ```sh
-git submodule update --init --recursive --depth 1
+bun install
 ```
 
-Install all node modules (including the examples)
+The first Android build and the first `pod install` download the prebuilt Filament binaries and verify them. Then build `apps/example` (React Native CLI) or `apps/expo-example` (Expo), and run the device tests with [react-native-harness](https://github.com/callstackincubator/react-native-harness):
 
 ```sh
-cd package
-bun i
+cd apps/example
+bun run test:ios     # iOS simulator
+bun run test:android # connected Android device
 ```
 
-And finally build filament and bullet3:
-
-```sh
-# Inside ./package
-bun build-bullet3
-bun build-filament:release # or yarn build-filament:debug
-```
-
-You can then build one of the example apps in `package/example/AppExamplePaper` or `package/example/AppExampleFabric`.
-
-Note: If building filament fails for you, you can download the pre-built binaries from the npm package.
-Simply run `bun setup-filament-quick`. The binaries will be in release build and any edits in /filament will be ignored (as you're not building from source in this case).
+After changing a `*.nitro.ts` spec, regenerate the bindings with `bun run specs` in `packages/react-native-filament`.
 
 ### Adopting at scale
 

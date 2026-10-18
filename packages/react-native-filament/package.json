@@ -1,0 +1,156 @@
+{
+  "name": "react-native-filament",
+  "version": "2.0.0-alpha.0",
+  "description": "A real-time physically based 3D rendering engine for React Native, built on Filament and Nitro Modules",
+  "main": "lib/index",
+  "module": "lib/index",
+  "types": "lib/index.d.ts",
+  "react-native": "src/index",
+  "source": "src/index",
+  "files": [
+    "src",
+    "assets",
+    "react-native.config.js",
+    "lib",
+    "nitrogen",
+    "android/build.gradle",
+    "android/filament.gradle",
+    "android/gradle.properties",
+    "android/fix-prefab.gradle",
+    "android/CMakeLists.txt",
+    "android/cmake",
+    "android/src",
+    "cpp",
+    "vendor",
+    "ios/**/*.h",
+    "ios/**/*.m",
+    "ios/**/*.mm",
+    "ios/**/*.cpp",
+    "ios/**/*.swift",
+    "ios/filament.rb",
+    "assets",
+    "filament.json",
+    "nitro.json",
+    "*.podspec",
+    "README.md",
+    "!ios/Filament"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"src/**/*.{js,ts,tsx}\"",
+    "specs": "nitrogen --logLevel=\"debug\"",
+    "materials": "./scripts/compile-builtin-materials.sh",
+    "build": "tsc",
+    "prepack": "cp ../../README.md ./README.md",
+    "postpack": "rm ./README.md"
+  },
+  "keywords": [
+    "react-native",
+    "filament",
+    "3d",
+    "rendering",
+    "engine",
+    "gltf",
+    "model",
+    "threejs",
+    "ios",
+    "android",
+    "physics",
+    "opengl",
+    "metal",
+    "vulkan",
+    "nitro"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/margelo/react-native-filament.git"
+  },
+  "author": "Marc Rousavy <me@mrousavy.com> (https://github.com/mrousavy)",
+  "contributors": [
+    {
+      "name": "Hanno Gödecke",
+      "url": "https://github.com/hannojg",
+      "email": "hanno@margelo.com"
+    }
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/margelo/react-native-filament/issues"
+  },
+  "homepage": "https://margelo.github.io/react-native-filament",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "devDependencies": {
+    "@react-native/eslint-config": "0.83.10",
+    "@types/react": "^19.2.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "nitrogen": "0.37.1",
+    "prettier": "^3.0.3",
+    "react": "19.2.0",
+    "react-native": "0.83.10",
+    "react-native-gesture-handler": "~2.30.0",
+    "react-native-nitro-modules": "0.37.1",
+    "react-native-worklets": "0.7.4",
+    "typescript": "~5.9.2"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": ">=0.83.0 <0.84.0",
+    "react-native-nitro-modules": ">=0.37.1 <0.38.0",
+    "react-native-worklets": ">=0.7.4 <0.8.0",
+    "react-native-gesture-handler": ">=2.30.0"
+  },
+  "peerDependenciesMeta": {
+    "react-native-gesture-handler": {
+      "optional": true
+    }
+  },
+  "release-it": {
+    "git": {
+      "commitMessage": "chore: release ${version}",
+      "tagName": "v${version}",
+      "requireCleanWorkingDir": false
+    },
+    "npm": {
+      "publish": false,
+      "versionArgs": [
+        "--workspaces-update=false"
+      ]
+    },
+    "github": {
+      "release": true
+    },
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "preset": {
+          "name": "conventionalcommits",
+          "types": [
+            {
+              "type": "feat",
+              "section": "✨ Features"
+            },
+            {
+              "type": "perf",
+              "section": "💨 Performance Improvements"
+            },
+            {
+              "type": "fix",
+              "section": "🐛 Bug Fixes"
+            },
+            {
+              "type": "chore(deps)",
+              "section": "🛠️ Dependency Upgrades"
+            },
+            {
+              "type": "docs",
+              "section": "📚 Documentation"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

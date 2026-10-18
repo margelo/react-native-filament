@@ -1,0 +1,21 @@
+{
+  "extends": "@react-native/typescript-config",
+  "compilerOptions": {
+    "paths": {
+      "react-native-filament": [
+        "../../packages/react-native-filament/src/index"
+      ]
+    },
+    "types": [
+      "react-native"
+    ],
+    "lib": [
+      "es2023"
+    ],
+    "skipLibCheck": true,
+    "esModuleInterop": true
+  },
+  "include": [
+    "src"
+  ]
+}

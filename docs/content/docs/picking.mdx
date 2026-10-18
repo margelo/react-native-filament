@@ -1,0 +1,240 @@
+---
+title: Picking and snapshots
+description: Find the object under a point of the view, and capture rendered frames as pixels or PNG files.
+icon: MousePointerClick
+---
+
+Both features belong to a [`ViewTarget`](/api/hybrid-objects/view-target), the object that renders a scene into one view:
+
+- `target.pick(x, y)` finds the renderable under a point.
+- `target.takeSnapshot()` captures the next rendered frame.
+
+Both work from any thread and resolve after the next rendered frame. In `on-demand` render mode, a pending pick or snapshot renders that frame. If the target is disposed first, the Promise rejects with `FilamentDisposedError`.
+
+## Getting the view target
+
+Components inside a [`<FilamentView>`](/api/components/filament-view) get its target from [`useFilamentContext()`](/api/hooks/use-filament-context). It is `undefined` until the view's `ViewTarget` is created, and outside a `<FilamentView>`. The target can exist before its surface does; until then `target.width` and `target.height` are 0. Imperatively, `engine.createViewTarget(view, options)` returns the target for a [`NativeFilamentView`](/api/components/native-filament-view).
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useFilamentContext } from 'react-native-filament'
+
+// Render inside <FilamentView>
+function UsesTarget() {
+  const { target } = useFilamentContext()
+  if (target == null) return null // target not created yet
+  console.log(`${target.width}×${target.height} pixels`)
+  return null
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { useEffect, useState } from 'react'
+import { callback } from 'react-native-nitro-modules'
+import { Filament, NativeFilamentView, type FilamentView, type ViewTarget } from 'react-native-filament'
+
+function Viewport() {
+  const [view, setView] = useState<FilamentView>()
+  const [target, setTarget] = useState<ViewTarget>()
+
+  useEffect(() => {
+    if (view == null) return
+    let active = true
+    const starting = Filament.createEngine({}).then(async (engine) => {
+      const created = await engine.createViewTarget(view, {})
+      if (active) setTarget(created)
+      return engine
+    })
+    return () => {
+      active = false
+      setTarget(undefined)
+      starting.then((engine) => engine.shutdown(), () => undefined)
+    }
+  }, [view])
+
+  return <NativeFilamentView style={{ flex: 1 }} hybridRef={callback(setView)} />
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+The imperative examples below assume a `target` and an `engine` set up like this, with a scene and camera as in [Models](/docs/models#showing-a-model).
+
+## Picking
+
+`target.pick(x, y)` takes a point in points (not pixels) from the top-left corner of the view, such as the `locationX` and `locationY` of a touch event. It resolves with a [`PickResult`](/api/types/pick-result), or `undefined` when nothing is under the point:
+
+| Field | |
+|---|---|
+| `entity` | The renderable entity under the point. |
+| `worldPosition` | Where the point hits the renderable, in world space. |
+
+`<Model>` and `<ModelRenderer>` take an `onPress` callback that picks for you: when a touch on the closest `<FilamentView>` starts on one of the model's renderables, it is called with that entity and with all of the model's entities. Imperatively, call `pick()` from your own touch handler and compare the entity with `model.entities`.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Alert } from 'react-native'
+import { Camera, DefaultLight, FilamentView, Model, type Entity } from 'react-native-filament'
+
+function PressableRocket() {
+  const onPress = (entity: Entity, modelEntities: Entity[]) => {
+    Alert.alert(`Entity ${entity}, one of ${modelEntities.length}`)
+  }
+  return (
+    <FilamentView style={{ flex: 1 }}>
+      <Camera />
+      <DefaultLight />
+      <Model source={require('./rocket.glb')} transformToUnitCube onPress={onPress} />
+    </FilamentView>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { Alert, Pressable, type GestureResponderEvent } from 'react-native'
+import { callback } from 'react-native-nitro-modules'
+import { NativeFilamentView } from 'react-native-filament'
+
+// `target`, `model` and `setView` come from your setup
+async function onPress(event: GestureResponderEvent) {
+  const { locationX, locationY } = event.nativeEvent
+  const hit = await target.pick(locationX, locationY)
+  if (hit == null || !model.entities.includes(hit.entity)) return
+  const [x, y, z] = hit.worldPosition.map((value) => value.toFixed(2))
+  Alert.alert(`Entity ${hit.entity} at (${x}, ${y}, ${z})`)
+}
+
+<Pressable style={{ flex: 1 }} onPress={onPress}>
+  <NativeFilamentView style={{ flex: 1 }} hybridRef={callback(setView)} />
+</Pressable>
+```
+
+</Imperative>
+</ApiTabs>
+
+### Finding the picked node
+
+A picked entity is a node of the glTF file that has a mesh. `model.getEntityName(entity)` returns its node name; it runs on the render thread.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { ModelRenderer, useModel, useRenderThreadCallback, type Entity } from 'react-native-filament'
+
+// Render inside <FilamentView>
+function NamedParts() {
+  const model = useModel(require('./rocket.glb'))
+  const loaded = model.state === 'loaded' ? model.model : undefined
+  const nameOf = useRenderThreadCallback(
+    (entity: Entity) => {
+      'worklet'
+      return loaded?.getEntityName(entity)
+    },
+    [loaded]
+  )
+  const onPress = async (entity: Entity) => console.log('Pressed', await nameOf(entity))
+  return <ModelRenderer model={model} transformToUnitCube onPress={onPress} />
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+const hit = await target.pick(x, y)
+if (hit != null) {
+  const name = await runOnRenderThread(engine, () => {
+    'worklet'
+    return model.getEntityName(hit.entity)
+  })
+  console.log('Picked', name) // for example 'Wings'
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+### Picking from a gesture
+
+React Native Gesture Handler runs gesture callbacks as worklets on the UI runtime, while React state lives on the JS thread. Forward the coordinates to the JS thread with `scheduleOnRN` from react-native-worklets and pick there:
+
+```tsx
+import { Gesture, GestureDetector } from 'react-native-gesture-handler'
+import { scheduleOnRN } from 'react-native-worklets'
+
+const describePick = async (x: number, y: number) => {
+  const hit = await target.pick(x, y)
+  setMessage(hit == null ? 'Nothing there' : `Entity ${hit.entity}`)
+}
+
+const tap = Gesture.Tap().onEnd(({ x, y }) => {
+  'worklet'
+  scheduleOnRN(describePick, x, y)
+})
+
+// <GestureDetector gesture={tap}><View style={{ flex: 1 }}>...the view...</View></GestureDetector>
+```
+
+## Snapshots
+
+`target.takeSnapshot()` captures the next rendered frame and resolves with a [`Snapshot`](/api/hybrid-objects/snapshot), which keeps the pixels natively until you read them:
+
+| Member | |
+|---|---|
+| `width`, `height` | Size in pixels, the same as `target.width` and `target.height`. |
+| `toArrayBuffer()` | Copies the pixels as RGBA bytes, top row first: `width * height * 4` bytes. |
+| `saveToTemporaryFile()` | Encodes a PNG on a worker thread, writes it to a new file in the app's temporary directory, and resolves with its `file://` URI. |
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Button } from 'react-native'
+import { useFilamentContext } from 'react-native-filament'
+
+// Render inside <FilamentView>; the button lays out after the view
+function SaveFrameButton() {
+  const { target } = useFilamentContext()
+  const save = async () => {
+    if (target == null) return
+    const snapshot = await target.takeSnapshot()
+    const uri = await snapshot.saveToTemporaryFile()
+    console.log(`Saved ${snapshot.width}×${snapshot.height} to ${uri}`)
+  }
+  return <Button title="Save frame" disabled={target == null} onPress={save} />
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+const snapshot = await target.takeSnapshot()
+
+// The color of the center pixel
+const pixels = new Uint8Array(snapshot.toArrayBuffer())
+const x = Math.floor(snapshot.width / 2)
+const y = Math.floor(snapshot.height / 2)
+const offset = (y * snapshot.width + x) * 4
+const [red, green, blue, alpha] = pixels.slice(offset, offset + 4)
+
+// A PNG file, for sharing or uploading
+const uri = await snapshot.saveToTemporaryFile()
+```
+
+</Imperative>
+</ApiTabs>
+
+The saved file is a regular PNG: you can share it, upload it, or load it back as a texture with `engine.loadTexture({ uri }, {})`. Files in the temporary directory can be deleted by the system; copy the file elsewhere to keep it.

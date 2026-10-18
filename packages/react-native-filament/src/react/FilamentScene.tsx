@@ -1,0 +1,131 @@
+import React, { useEffect, useState, type ReactNode } from 'react'
+import { Filament } from '../Filament'
+import type { Engine } from '../specs/engine/Engine.nitro'
+import type { EngineBackend } from '../specs/types/EngineBackend'
+import type { RenderMode } from '../specs/types/RenderMode'
+import { createWorkletContext } from '../threading/createWorkletContext'
+import { runOnRenderThread } from '../threading/runOnRenderThread'
+import { FilamentSceneContext, type FilamentSceneValue } from './FilamentSceneContext'
+import { RenderCommit } from './RenderCommit'
+import { RenderCommitContext } from './RenderCommitContext'
+
+interface SceneBaseProps {
+  /** Rendered until the Engine and the scene exist. */
+  fallback?: ReactNode
+  /**
+   * When the Engine renders: on every display refresh, or only after something changed.
+   * @default the Engine's mode, `'continuous'` for a new Engine
+   */
+  renderMode?: RenderMode
+  children?: ReactNode
+}
+
+/** Props of a `FilamentScene` that creates its own Engine and shuts it down on unmount. */
+export interface FilamentSceneOwnedEngineProps extends SceneBaseProps {
+  /** Leave unset to let the scene create its own Engine. */
+  engine?: undefined
+  /** Graphics API of the Engine this scene creates. Defaults to the first supported backend. */
+  backend?: EngineBackend
+}
+
+/** Props of a `FilamentScene` that renders with an Engine passed as `engine`. */
+export interface FilamentSceneBorrowedEngineProps extends SceneBaseProps {
+  /**
+   * An Engine to render with instead of creating one. The scene disposes only what it created and
+   * never shuts the Engine down, so several scenes and views can share it.
+   */
+  engine: Engine
+}
+
+/** Props of `<FilamentScene>`: it creates its own Engine, optionally with a `backend`, or borrows one passed as `engine`. */
+export type FilamentSceneProps = FilamentSceneOwnedEngineProps | FilamentSceneBorrowedEngineProps
+
+interface Created {
+  value: FilamentSceneValue
+  commit: RenderCommit
+  owned: boolean
+}
+
+async function createScene(borrowed: Engine | undefined, backend: EngineBackend | undefined): Promise<Created> {
+  const engine = borrowed ?? (await Filament.createEngine({ backend }))
+  try {
+    const { scene, camera } = await runOnRenderThread(engine, () => {
+      'worklet'
+      return { scene: engine.createScene(), camera: engine.createCamera() }
+    })
+    const commit = new RenderCommit(engine)
+    const value: FilamentSceneValue = {
+      engine,
+      scene,
+      camera,
+      transformManager: engine.transformManager,
+      renderableManager: engine.renderableManager,
+      lightManager: engine.lightManager,
+      workletContext: createWorkletContext(commit),
+    }
+    return { value, commit, owned: borrowed == null }
+  } catch (error) {
+    if (borrowed == null) await engine.shutdown()
+    throw error
+  }
+}
+
+function release({ value, commit, owned }: Created): void {
+  if (owned) {
+    value.engine.shutdown()
+    return
+  }
+  const { scene, camera } = value
+  commit.post(() => {
+    'worklet'
+    scene.dispose()
+    camera.dispose()
+  })
+}
+
+/**
+ * Provides an Engine, a scene and its camera to the Filament components and hooks below it. Creates
+ * and shuts down its own Engine unless `engine` is passed.
+ */
+export function FilamentScene({ fallback, renderMode, children, ...props }: FilamentSceneProps) {
+  const borrowed = props.engine
+  const backend = props.engine == null ? props.backend : undefined
+  const [created, setCreated] = useState<Created>()
+  const [failure, setFailure] = useState<unknown>()
+
+  useEffect(() => {
+    let active = true
+    const creating = Promise.resolve().then(() => (active ? createScene(borrowed, backend) : undefined))
+    creating.then(
+      (next) => {
+        if (active) setCreated(next)
+      },
+      (error: unknown) => {
+        if (active) setFailure(() => error)
+      }
+    )
+    return () => {
+      active = false
+      setCreated(undefined)
+      creating.then(
+        (current) => {
+          if (current != null) release(current)
+        },
+        () => undefined
+      )
+    }
+  }, [borrowed, backend])
+
+  const engine = created?.value.engine
+  useEffect(() => {
+    if (engine != null && renderMode != null) engine.renderMode = renderMode
+  }, [engine, renderMode])
+
+  if (failure != null) throw failure
+  if (created == null) return <>{fallback}</>
+  return (
+    <FilamentSceneContext.Provider value={created.value}>
+      <RenderCommitContext.Provider value={created.commit}>{children}</RenderCommitContext.Provider>
+    </FilamentSceneContext.Provider>
+  )
+}

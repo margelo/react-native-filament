@@ -1,0 +1,9 @@
+{
+  "name": "shared",
+  "private": true,
+  "main": "src/App.tsx",
+  "react-native": "src/App.tsx",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}

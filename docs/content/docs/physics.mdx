@@ -1,0 +1,323 @@
+---
+title: Physics
+description: Simulate rigid bodies with Bullet physics and move models with them, without JS per frame.
+icon: Atom
+---
+
+![Coins falling onto a floor](/img/demo-coins_physics.gif)
+
+react-native-filament includes [Bullet](https://github.com/bulletphysics/bullet3) physics. A physics world belongs to an Engine and steps natively on its render thread with every rendered frame. A rigid body can move an entity, so a falling model needs no JS per frame.
+
+Every member of `PhysicsWorld`, `CollisionShape` and `RigidBody` runs on the render thread, except a shape's `type` and a body's `id`, `mass` and `shape`. The hooks create these objects for you there; imperative code calls them inside `runOnRenderThread` or another [render-thread worklet](/api/functions/run-on-render-thread).
+
+## Creating a world
+
+`useWorld(options)` creates a world for the closest `<FilamentScene>` and disposes it, with its bodies and shapes, on unmount. It returns `undefined` until the world exists. Imperatively, call `engine.createPhysicsWorld(options)` on the render thread.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useWorld } from 'react-native-filament'
+
+function Simulation() {
+  const world = useWorld({ gravity: [0, -9.81, 0] })
+  // pass `world` to the shape and body hooks
+  return null
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { runOnRenderThread, type Engine } from 'react-native-filament'
+
+function createWorld(engine: Engine) {
+  return runOnRenderThread(engine, () => {
+    'worklet'
+    return engine.createPhysicsWorld({ gravity: [0, -9.81, 0] })
+  })
+}
+// Later: world.dispose() disposes its bodies and shapes too.
+```
+
+</Imperative>
+</ApiTabs>
+
+| Option | Default | Description |
+|---|---|---|
+| `gravity` | `[0, -9.81, 0]` | Meters per second squared. |
+| `fixedTimeStepSeconds` | `1 / 60` | Length of one simulation step. |
+| `maxSubSteps` | `4` | Most fixed steps taken per frame; time beyond them is dropped. |
+| `autoStep` | `true` | Steps the world once per rendered frame by the frame's `deltaSeconds`. Turn it off to call `world.step()` yourself. |
+
+## Collision shapes
+
+A shape describes the geometry Bullet uses for collisions. Several bodies can share one shape. Each shape hook returns `undefined` until both the world and the shape exist, and disposes the shape on unmount.
+
+| Hook | World method | Shape |
+|---|---|---|
+| `useBoxShape(world, halfExtent)` | `world.createBoxShape(halfExtent)` | A box with half sizes `[x, y, z]`. |
+| `useSphereShape(world, radius)` | `world.createSphereShape(radius)` | A sphere. |
+| `useCylinderShape(world, halfExtent, axis)` | `world.createCylinderShape(halfExtent, axis)` | A cylinder whose height runs along `'x'`, `'y'` or `'z'`. The hook's `axis` defaults to `'y'`. |
+| `useStaticPlaneShape(world, normal, constant)` | `world.createStaticPlaneShape(normal, constant)` | The infinite plane `dot(normal, point) = constant`, for floors. Only static bodies may use it. |
+
+A shape reports its `type` from any thread. On the render thread, it also has a `localScaling` and a collision `margin` in meters.
+
+## Rigid bodies
+
+`useRigidBody(world, options)` creates a body once `world` and `options` exist, and recreates it when an option changes. Pass `undefined` as `options` while the shape is still loading. Imperatively, call `world.createRigidBody(options)`. The world keeps its bodies until you dispose them or the world.
+
+| Option | Default | Description |
+|---|---|---|
+| `shape` | required | The body's `CollisionShape`. |
+| `mass` | required | Kilograms. `0` makes a static body that never moves. |
+| `position` | `[0, 0, 0]` | Starting position in meters. |
+| `rotation` | `[0, 0, 0, 1]` | Starting rotation as a unit quaternion. |
+| `id` | `''` | A name reported in collision events. |
+| `friction` | `0.5` | |
+| `restitution` | `0` | Bounciness. |
+| `linearDamping` | `0` | |
+| `angularDamping` | `0` | |
+| `entity` | | An entity whose translation and rotation follow the body after every step. The entity keeps its own scale. |
+
+## Example: a falling coin
+
+The coin model drops from 3 meters onto a static floor. The coin's root entity is bound to its body, so the model moves with the simulation.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import {
+  Camera,
+  DefaultLight,
+  FilamentScene,
+  FilamentView,
+  useCylinderShape,
+  useModel,
+  useRigidBody,
+  useStaticPlaneShape,
+  useWorld,
+  type Model,
+  type PhysicsWorld,
+} from 'react-native-filament'
+
+function Coin({ world, model }: { world: PhysicsWorld; model: Model }) {
+  const shape = useCylinderShape(world, model.boundingBox.halfExtent, 'y')
+  useRigidBody(world, shape == null ? undefined : { shape, mass: 1, position: [0, 3, 0], entity: model.rootEntity, id: 'coin' })
+  return null
+}
+
+function FallingCoin() {
+  const world = useWorld({ gravity: [0, -9.81, 0] })
+  const coin = useModel(require('./coin.glb'))
+  const floor = useStaticPlaneShape(world, [0, 1, 0], -1.5)
+  useRigidBody(world, floor == null ? undefined : { shape: floor, mass: 0, id: 'floor' })
+
+  return (
+    <FilamentView style={{ flex: 1 }}>
+      <Camera />
+      <DefaultLight />
+      {world != null && coin.state === 'loaded' && <Coin world={world} model={coin.model} />}
+    </FilamentView>
+  )
+}
+
+export function PhysicsScreen() {
+  return (
+    <FilamentScene>
+      <FallingCoin />
+    </FilamentScene>
+  )
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { useEffect } from 'react'
+import { Image } from 'react-native'
+import { runOnRenderThread, useFilamentContext } from 'react-native-filament'
+
+const coin = Image.resolveAssetSource(require('./coin.glb'))
+
+function FallingCoin() {
+  const { engine, scene } = useFilamentContext()
+  useEffect(() => {
+    const started = engine.loadModel({ uri: coin.uri }, {}).then((model) =>
+      runOnRenderThread(engine, () => {
+        'worklet'
+        scene.addModel(model)
+        const world = engine.createPhysicsWorld({ gravity: [0, -9.81, 0] })
+        world.createRigidBody({ shape: world.createStaticPlaneShape([0, 1, 0], -1.5), mass: 0, id: 'floor' })
+        world.createRigidBody({
+          shape: world.createCylinderShape(model.boundingBox.halfExtent, 'y'),
+          mass: 1,
+          position: [0, 3, 0],
+          entity: model.rootEntity,
+          id: 'coin',
+        })
+        return { model, world }
+      })
+    )
+    return () => {
+      started.then(({ model, world }) => {
+        world.dispose()
+        model.dispose()
+      })
+    }
+  }, [engine, scene])
+  return null
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+## Collisions
+
+`world.addOnCollisionListener(listener)` calls `listener` on the render thread after each `step()` in which contacts began or ended; with `autoStep`, that is once per frame. Contacts are compared once per `step()`, after all of its fixed sub-steps, so a touch that begins and ends within one `step()` is not reported. Each `CollisionEvent` has a `kind`, `'began'` on the first step two bodies touch and `'ended'` on the first step they no longer do, and the two bodies as `bodyA` and `bodyB`. Use the body `id` to tell them apart. Return `true` to keep listening or `false` to remove the listener; `subscription.remove()` also removes it.
+
+To reach React state from the listener, schedule a call on the React Native runtime with `scheduleOnRN` from `react-native-worklets`.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { scheduleOnRN } from 'react-native-worklets'
+import { useRenderThreadEffect, type PhysicsWorld } from 'react-native-filament'
+
+function useOnLanded(world: PhysicsWorld | undefined, onLanded: () => void) {
+  useRenderThreadEffect(() => {
+    'worklet'
+    if (world == null) return
+    const subscription = world.addOnCollisionListener((events) => {
+      const landed = events.some((event) => event.kind === 'began' && [event.bodyA.id, event.bodyB.id].includes('floor'))
+      if (landed) scheduleOnRN(onLanded)
+      return !landed // stop listening after the first landing
+    })
+    return () => subscription.remove()
+  }, [world, onLanded])
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { scheduleOnRN } from 'react-native-worklets'
+import { runOnRenderThread, type Engine, type PhysicsWorld } from 'react-native-filament'
+
+function listenForLanding(engine: Engine, world: PhysicsWorld, onLanded: () => void) {
+  return runOnRenderThread(engine, () => {
+    'worklet'
+    return world.addOnCollisionListener((events) => {
+      const landed = events.some((event) => event.kind === 'began' && [event.bodyA.id, event.bodyB.id].includes('floor'))
+      if (landed) scheduleOnRN(onLanded)
+      return !landed
+    })
+  })
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+## Changing bodies at runtime
+
+On the render thread, a body exposes `linearVelocity`, `angularVelocity`, `activationState`, `friction`, `restitution` and its bound `entity` as properties, and `applyCentralImpulse()`, `applyCentralForce()`, `setDamping()`, `getTransform()` and `setTransform()` as methods. `setTransform()` ignores scale. On the render thread, you can also change the world's `gravity` and read its `bodyCount`.
+
+This example puts a body back at its starting point and pushes it upward:
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { Button } from 'react-native'
+import { composeTransform, useFilamentContext, useRenderThreadCallback, type RigidBody } from 'react-native-filament'
+
+function ResetButton({ body }: { body: RigidBody | undefined }) {
+  const { engine } = useFilamentContext()
+  const reset = useRenderThreadCallback(() => {
+    'worklet'
+    if (body == null) return
+    body.setTransform(composeTransform([0, 3, 0], [0, 0, 0, 1]))
+    body.linearVelocity = [0, 0, 0]
+    body.angularVelocity = [0, 0, 0]
+    body.applyCentralImpulse([0, 5, 0])
+    engine.requestFrame() // in on-demand mode, step a world whose bodies all sleep
+  }, [body, engine])
+  return <Button title="Throw again" onPress={() => reset()} />
+}
+// const body = useRigidBody(world, options)
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+import { composeTransform, runOnRenderThread, type Engine, type RigidBody } from 'react-native-filament'
+
+function throwAgain(engine: Engine, body: RigidBody) {
+  return runOnRenderThread(engine, () => {
+    'worklet'
+    body.setTransform(composeTransform([0, 3, 0], [0, 0, 0, 1]))
+    body.linearVelocity = [0, 0, 0]
+    body.angularVelocity = [0, 0, 0]
+    body.applyCentralImpulse([0, 5, 0])
+    engine.requestFrame()
+  })
+}
+```
+
+</Imperative>
+</ApiTabs>
+
+`activationState` controls whether Bullet simulates a body: `'sleeping'` bodies rest until something touches them, `'never-sleep'` keeps a body awake, and `'simulation-disabled'` freezes it.
+
+## Stepping the world yourself
+
+With `autoStep: false`, the world only moves when you call `world.step(deltaSeconds)`. It advances the simulation in fixed steps, then moves the bound entities and reports collisions. Call it from a frame callback to keep it in sync with rendering, or in a loop to simulate ahead.
+
+<ApiTabs>
+<Declarative>
+
+```tsx
+import { useFrameCallback, useWorld } from 'react-native-filament'
+
+function SlowMotion() {
+  const world = useWorld({ autoStep: false })
+  useFrameCallback(
+    (frame) => {
+      'worklet'
+      world?.step(frame.deltaSeconds * 0.25)
+    },
+    [world]
+  )
+  return null
+}
+```
+
+</Declarative>
+<Imperative>
+
+```tsx
+// Inside runOnRenderThread(engine, () => { 'worklet'; ... })
+const world = engine.createPhysicsWorld({ autoStep: false })
+const subscription = engine.addOnFrameListener((frame) => {
+  world.step(frame.deltaSeconds * 0.25)
+  return true // keep rendering in on-demand mode
+})
+```
+
+</Imperative>
+</ApiTabs>
+
+## Rendering on demand
+
+With `renderMode="on-demand"`, an automatically stepped world keeps the Engine rendering while any of its bodies is awake. Once every body sleeps, the Engine stops rendering. Creating a body requests a frame, but changing a body (`setTransform()`, a velocity, an impulse or a force) or `gravity` on the render thread does not, so call [`engine.requestFrame()`](/docs/rendering#render-modes) afterwards to step the world again, as the examples above do.
+
+See the [Bullet user manual](https://github.com/bulletphysics/bullet3/blob/master/docs/Bullet_User_Manual.pdf) for more about the concepts.

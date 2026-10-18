@@ -1,5 +1,0 @@
-{
-  "name": "shared",
-  "main": "src/App.tsx",
-  "react-native": "src/App.tsx"
-}

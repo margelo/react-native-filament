@@ -2,50 +2,36 @@
   "name": "docs",
   "version": "0.0.0",
   "private": true,
+  "description": "Documentation website for react-native-filament.",
   "scripts": {
-    "docusaurus": "docusaurus",
-    "start": "docusaurus start",
-    "build": "docusaurus build",
-    "swizzle": "docusaurus swizzle",
-    "deploy": "docusaurus deploy",
-    "clear": "docusaurus clear",
-    "serve": "docusaurus serve",
-    "write-translations": "docusaurus write-translations",
-    "write-heading-ids": "docusaurus write-heading-ids",
-    "typecheck": "tsc"
+    "api": "typedoc --options typedoc.json && bun scripts/generate-api.ts",
+    "dev": "bun run api && fumadocs-mdx && next dev",
+    "build": "bun run api && fumadocs-mdx && next build",
+    "check:api": "node scripts/check-api-types.cjs",
+    "poster": "bun scripts/render-hero-poster.mjs",
+    "build:cloudflare": "DOCS_BASE_PATH= bun run build",
+    "deploy:cloudflare": "bun run build:cloudflare && wrangler deploy",
+    "typecheck": "bun run api && fumadocs-mdx && next typegen && tsc --noEmit"
   },
   "dependencies": {
-    "@docusaurus/core": "3.4.0",
-    "@docusaurus/preset-classic": "3.4.0",
-    "@mdx-js/react": "^3.0.0",
-    "clsx": "^2.0.0",
-    "prism-react-renderer": "^2.3.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "fumadocs-core": "16.17.5",
+    "fumadocs-mdx": "15.4.7",
+    "fumadocs-ui": "16.17.5",
+    "lucide-react": "1.17.0",
+    "next": "16.2.6",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "3.4.0",
-    "@docusaurus/tsconfig": "3.4.0",
-    "@docusaurus/types": "3.4.0",
-    "docusaurus-plugin-typedoc": "^1.0.3",
-    "typedoc": "^0.26.4",
-    "typedoc-plugin-markdown": "^4.2.0",
-    "typescript": "~5.2.2"
-  },
-  "browserslist": {
-    "production": [
-      ">0.5%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 3 chrome version",
-      "last 3 firefox version",
-      "last 5 safari version"
-    ]
-  },
-  "engines": {
-    "node": ">=18.0"
-  },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+    "@tailwindcss/postcss": "4.3.0",
+    "@types/mdx": "^2.0.13",
+    "@types/node": "^25.0.3",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.7",
+    "postcss": "8.5.15",
+    "tailwindcss": "4.3.0",
+    "typedoc": "0.28.19",
+    "typescript": "~5.9.2",
+    "wrangler": "4.151.1"
+  }
 }

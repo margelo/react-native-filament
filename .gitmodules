@@ -1,6 +1,0 @@
-[submodule "filament"]
-	path = filament
-	url = https://github.com/google/filament
-[submodule "bullet3"]
-	path = bullet3
-	url = https://github.com/bulletphysics/bullet3.git

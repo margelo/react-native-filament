@@ -1,0 +1,56 @@
+{
+  "$schema": "https://nitro.margelo.com/nitro.schema.json",
+  "cxxNamespace": [
+    "filament"
+  ],
+  "ios": {
+    "iosModuleName": "NitroFilament"
+  },
+  "android": {
+    "androidNamespace": [
+      "filament"
+    ],
+    "androidCxxLibName": "NitroFilament"
+  },
+  "autolinking": {
+    "FilamentFactory": {
+      "all": {
+        "language": "c++",
+        "implementationClassName": "HybridFilamentFactory"
+      }
+    },
+    "FilamentView": {
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "HybridFilamentView"
+      },
+      "android": {
+        "language": "kotlin",
+        "implementationClassName": "HybridFilamentView"
+      }
+    },
+    "AssetIO": {
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "HybridAssetIO"
+      },
+      "android": {
+        "language": "kotlin",
+        "implementationClassName": "HybridAssetIO"
+      }
+    },
+    "VideoEncoderFactory": {
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "HybridVideoEncoderFactory"
+      },
+      "android": {
+        "language": "kotlin",
+        "implementationClassName": "HybridVideoEncoderFactory"
+      }
+    }
+  },
+  "ignorePaths": [
+    "**/node_modules"
+  ]
+}
