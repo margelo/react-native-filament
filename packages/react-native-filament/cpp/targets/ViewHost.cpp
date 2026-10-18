@@ -7,6 +7,10 @@
 #include <filament/Viewport.h>
 #include <utils/EntityManager.h>
 
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#endif
+
 namespace margelo::nitro::filament {
 
 ViewHost::ViewHost(const char* kind, ::filament::Engine& engine, ClearSettings clear)
@@ -14,6 +18,10 @@ ViewHost::ViewHost(const char* kind, ::filament::Engine& engine, ClearSettings c
       defaultCameraEntity_(utils::EntityManager::get().create()) {
   view_->setScene(emptyScene_);
   view_->setCamera(engine_.createCamera(defaultCameraEntity_));
+#if defined(TARGET_OS_SIMULATOR) && TARGET_OS_SIMULATOR
+  // The simulator's Metal reports every PCF depth comparison as shadowed (D34).
+  view_->setShadowType(::filament::ShadowType::VSM);
+#endif
   setClearOptions(clear);
 }
 

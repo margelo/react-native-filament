@@ -8,25 +8,15 @@ import {
   runOnRenderThread,
   type Engine,
   type FilamentView,
-  type Mat3,
   type Renderable,
   type Scene,
-  type Texture,
 } from 'react-native-filament'
+import { imageFitTransform } from './utils/imageFitTransform'
 
 const rocket = Image.resolveAssetSource(require('../assets/rocket.glb'))
 const photo = Image.resolveAssetSource(require('../assets/background.jpg'))
 const backgroundMaterial = Image.resolveAssetSource(require('../assets/background_image.filamat'))
 const shadowMaterial = Image.resolveAssetSource(require('../assets/transparent_shadow_material.filamat'))
-
-function coverTransform(image: Texture, width: number, height: number): Mat3 {
-  'worklet'
-  const viewAspect = width / height
-  const imageAspect = image.width / image.height
-  const scaleX = viewAspect > imageAspect ? 1 : viewAspect / imageAspect
-  const scaleY = viewAspect > imageAspect ? imageAspect / viewAspect : 1
-  return [scaleX, 0, 0, 0, scaleY, 0, (1 - scaleX) / 2, (1 - scaleY) / 2, 1]
-}
 
 interface Bounds {
   engine: Engine
@@ -94,7 +84,7 @@ export function BackgroundShadowsExample() {
         runOnRenderThread(engine, () => {
           'worklet'
           setup.camera.setLensProjection(28, width / height, 0.1, 100)
-          setup.backgroundInstance.setMat3Parameter('transform', coverTransform(image, width, height))
+          setup.backgroundInstance.setMat3Parameter('transform', imageFitTransform(image, width, height, 'cover'))
         })
       })
       if (active) setBounds({ engine, scene: setup.scene, box: setup.box })

@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'react-native-harness'
+import { Platform } from 'react-native'
 import { Filament, runOnRenderThread, type Engine, type ViewTarget } from 'react-native-filament'
 import { renderView } from './renderView'
 
@@ -32,7 +33,9 @@ describe('View', () => {
       view.setDynamicResolutionOptions({ enabled: true, minScale: [0.5, 0.5], quality: 'ultra' })
       return { defaults, changed: [view.antiAliasing, view.dithering, view.postProcessing, view.shadowing, view.shadowType, view.screenSpaceRefraction] }
     })
-    expect(read.defaults).toEqual(['fxaa', 'temporal', true, true, 'pcf', true])
+    const [antiAliasing, dithering, postProcessing, shadowing, shadowType, refraction] = read.defaults
+    expect([antiAliasing, dithering, postProcessing, shadowing, refraction]).toEqual(['fxaa', 'temporal', true, true, true])
+    expect(Platform.OS === 'android' ? ['pcf'] : ['pcf', 'vsm']).toContain(shadowType)
     expect(read.changed).toEqual(['none', 'none', false, false, 'pcss', false])
   })
 

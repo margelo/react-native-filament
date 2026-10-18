@@ -1,16 +1,30 @@
-import React from 'react'
-import { NavigationContainer } from '@react-navigation/native'
+import React, { useEffect } from 'react'
+import { Linking } from 'react-native'
+import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { HomeScreen } from './HomeScreen'
 import { examples } from './examples'
+import { exampleRouteFromUrl } from './utils/exampleRouteFromUrl'
 
 const Stack = createNativeStackNavigator()
 
 export default function App() {
+  const navigation = useNavigationContainerRef()
+
+  const open = (url: string | null) => {
+    const route = exampleRouteFromUrl(url, examples)
+    if (route != null) navigation.navigate(route as never)
+  }
+
+  useEffect(() => {
+    const subscription = Linking.addEventListener('url', ({ url }) => open(url))
+    return () => subscription.remove()
+  })
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <NavigationContainer>
+      <NavigationContainer ref={navigation} onReady={() => Linking.getInitialURL().then(open)}>
         <Stack.Navigator>
           <Stack.Screen name="Home" component={HomeScreen} />
           {examples.map((example) => (

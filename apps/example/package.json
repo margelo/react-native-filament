@@ -13,7 +13,8 @@
     "codegen": "react-native codegen",
     "lint": "eslint .",
     "test:android": "react-native-harness --harnessRunner android",
-    "test:ios": "react-native-harness --harnessRunner ios"
+    "test:ios": "react-native-harness --harnessRunner ios",
+    "capture": "scripts/capture-examples.sh"
   },
   "dependencies": {
     "@react-navigation/native": "^6.1.18",

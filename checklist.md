@@ -418,7 +418,7 @@ Plan §10 Phase 3, §5, §8.2.
   - correct destruction order.
 
 **Examples**
-- [ ] **P3.21** Imperative ports of all 17 examples as harness scenarios.
+- [x] **P3.21** Imperative ports of all 17 examples as harness scenarios.
 - [ ] **Exit gate:** every imperative scenario and every per-object harness suite passes on both targets.
 
 ---

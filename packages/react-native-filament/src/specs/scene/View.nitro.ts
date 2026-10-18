@@ -22,7 +22,10 @@ export interface View extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   postProcessing: boolean
   /** @default true */
   shadowing: boolean
-  /** @default 'pcf' */
+  /**
+   * @default 'pcf', or `'vsm'` on the iOS Simulator, whose Metal reports every PCF depth comparison
+   * as shadowed
+   */
   shadowType: ShadowType
   /** @default true */
   screenSpaceRefraction: boolean

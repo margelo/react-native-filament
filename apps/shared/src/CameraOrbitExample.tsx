@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Image, StyleSheet, View, type LayoutChangeEvent } from 'react-native'
+import { StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native'
 import { GestureDetector } from 'react-native-gesture-handler'
 import { callback } from 'react-native-nitro-modules'
 import {
@@ -13,17 +13,18 @@ import {
   type FilamentView,
 } from 'react-native-filament'
 
-const drone = Image.resolveAssetSource(require('../assets/buster_drone.glb'))
+const HELMET_URL = 'https://raw.githubusercontent.com/google/filament/main/third_party/models/DamagedHelmet/DamagedHelmet.glb'
 
 function OrbitView({ engine, manipulator }: { engine: Engine; manipulator: CameraManipulator }) {
   const [view, setView] = useState<FilamentView>()
+  const [failure, setFailure] = useState<string>()
   const gesture = useOrbitGestures(manipulator)
 
   useEffect(() => {
     if (view == null) return
     const starting = Promise.all([
       engine.createViewTarget(view, {}),
-      engine.loadModel({ uri: drone.uri }, {}),
+      engine.loadModel({ uri: HELMET_URL }, {}),
       engine.loadIndirectLight(defaultIndirectLightSource, {}),
     ]).then(async ([target, model, environment]) => {
       const { camera, sun } = await runOnRenderThread(engine, () => {
@@ -48,8 +49,12 @@ function OrbitView({ engine, manipulator }: { engine: Engine; manipulator: Camer
       })
       return { sun, resize }
     })
+    starting.catch((error: unknown) => setFailure(error instanceof Error ? error.message : String(error)))
     return () => {
-      starting.then(({ resize }) => resize.remove())
+      starting.then(
+        ({ resize }) => resize.remove(),
+        () => undefined
+      )
     }
   }, [engine, manipulator, view])
 
@@ -59,6 +64,7 @@ function OrbitView({ engine, manipulator }: { engine: Engine; manipulator: Camer
     <GestureDetector gesture={gesture}>
       <View style={styles.container} onLayout={onLayout}>
         <NativeFilamentView style={styles.container} hybridRef={callback(setView)} />
+        {failure != null && <Text style={styles.failure}>Could not load the helmet: {failure}</Text>}
       </View>
     </GestureDetector>
   )
@@ -70,7 +76,7 @@ export function CameraOrbitExample() {
   useEffect(() => {
     let active = true
     const starting = Filament.createEngine({}).then((engine) => {
-      if (active) setOrbit({ engine, manipulator: engine.createOrbitManipulator({ homePosition: [0, 0.6, 3.6] }) })
+      if (active) setOrbit({ engine, manipulator: engine.createOrbitManipulator({ homePosition: [0, 0, 6] }) })
       return engine
     })
     return () => {
@@ -85,4 +91,5 @@ export function CameraOrbitExample() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  failure: { position: 'absolute', top: 16, left: 16, right: 16, color: 'red' },
 })
