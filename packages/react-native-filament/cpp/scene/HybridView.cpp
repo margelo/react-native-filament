@@ -1,5 +1,6 @@
 #include "HybridView.hpp"
 
+#include "ShadowTypeConversion.hpp"
 #include "ViewOptionsConversion.hpp"
 #include "utils/MatrixConversion.hpp"
 #include "utils/ThreadChecks.hpp"
@@ -41,6 +42,14 @@ bool HybridView::getShadowing() {
 
 void HybridView::setShadowing(bool shadowing) {
   usableView("View.shadowing").setShadowingEnabled(shadowing);
+}
+
+ShadowType HybridView::getShadowType() {
+  return fromFilamentShadowType(usableView("View.shadowType").getShadowType());
+}
+
+void HybridView::setShadowType(ShadowType shadowType) {
+  usableView("View.shadowType").setShadowType(toFilamentShadowType(shadowType));
 }
 
 bool HybridView::getScreenSpaceRefraction() {

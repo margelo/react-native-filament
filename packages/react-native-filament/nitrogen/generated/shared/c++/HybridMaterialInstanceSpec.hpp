@@ -74,6 +74,7 @@ namespace margelo::nitro::filament {
       virtual void setIntParameter(const std::string& name, double value) = 0;
       virtual void setFloat3Parameter(const std::string& name, const std::tuple<double, double, double>& value) = 0;
       virtual void setFloat4Parameter(const std::string& name, const std::tuple<double, double, double, double>& value) = 0;
+      virtual void setMat3Parameter(const std::string& name, const std::tuple<double, double, double, double, double, double, double, double, double>& value) = 0;
       virtual void setColorParameter(const std::string& name, const std::tuple<double, double, double, double>& color, ColorSpace colorSpace) = 0;
       virtual double getFloatParameter(const std::string& name) = 0;
       virtual double getIntParameter(const std::string& name) = 0;

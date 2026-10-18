@@ -6,7 +6,11 @@
 #include "control/HybridCameraManipulator.hpp"
 #include "control/HybridTransformBinding.hpp"
 #include "control/HybridValueBinding.hpp"
+#include "geometry/GeometryBuilders.hpp"
+#include "geometry/HybridRenderable.hpp"
+#include "materials/DebugLineMaterial.hpp"
 #include "materials/HybridMaterial.hpp"
+#include "materials/HybridMaterialInstance.hpp"
 #include "materials/HybridTexture.hpp"
 #include "materials/MaterialFile.hpp"
 #include "scene/HybridCamera.hpp"
@@ -19,6 +23,7 @@
 #include "scene/HybridTransformManager.hpp"
 #include "scene/Ktx1Cubemap.hpp"
 #include "utils/ComponentChecks.hpp"
+#include "utils/EngineChecks.hpp"
 #include "utils/ThreadChecks.hpp"
 #include "utils/Trs.hpp"
 
@@ -142,6 +147,40 @@ std::shared_ptr<HybridLightSpec> HybridEngine::createFocusedSpotLight(const Spot
 std::shared_ptr<HybridLightSpec> HybridEngine::adoptLight(std::shared_ptr<LightCore> light) {
   core_->adopt(light);
   return std::make_shared<HybridLight>(shared_cast<HybridEngine>(), std::move(light));
+}
+
+std::shared_ptr<HybridRenderableSpec> HybridEngine::createPlane(const PlaneOptions& options,
+                                                                const std::shared_ptr<HybridMaterialInstanceSpec>& material) {
+  constexpr const char* method = "Engine.createPlane()";
+  requireRenderThread(core_->thread(), method);
+  const MaterialInstanceRef& ref = requireSameEngine<HybridMaterialInstance>(material, *core_, method)->ref();
+  return adoptRenderable(buildPlane(core_, options, {.instance = ref.require(method), .owner = ref.assignableOwner(method)}));
+}
+
+std::shared_ptr<HybridRenderableSpec> HybridEngine::createBackground(const std::shared_ptr<HybridMaterialInstanceSpec>& material) {
+  constexpr const char* method = "Engine.createBackground()";
+  requireRenderThread(core_->thread(), method);
+  const MaterialInstanceRef& ref = requireSameEngine<HybridMaterialInstance>(material, *core_, method)->ref();
+  return adoptRenderable(buildBackground(core_, {.instance = ref.require(method), .owner = ref.assignableOwner(method)}));
+}
+
+std::shared_ptr<HybridRenderableSpec> HybridEngine::createDebugBox(const DebugBoxOptions& options) {
+  requireRenderThread(core_->thread(), "Engine.createDebugBox()");
+  return adoptRenderable(buildDebugBox(core_, options, debugLineMaterial()));
+}
+
+std::shared_ptr<HybridRenderableSpec> HybridEngine::adoptRenderable(std::shared_ptr<GeometryCore> geometry) {
+  core_->adopt(geometry);
+  return std::make_shared<HybridRenderable>(shared_cast<HybridEngine>(), std::move(geometry));
+}
+
+std::shared_ptr<MaterialCore> HybridEngine::debugLineMaterial() {
+  if (std::shared_ptr<MaterialCore> material = debugLineMaterial_.lock()) {
+    return material;
+  }
+  std::shared_ptr<MaterialCore> material = createDebugLineMaterial(core_);
+  debugLineMaterial_ = material;
+  return material;
 }
 
 std::shared_ptr<Promise<std::shared_ptr<HybridModelSpec>>> HybridEngine::loadModel(const AssetSource& source,

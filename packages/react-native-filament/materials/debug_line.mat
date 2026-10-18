@@ -1,0 +1,14 @@
+material {
+    name : RNFDebugLine,
+    requires : [ color ],
+    shadingModel : unlit,
+    culling : none,
+    variantFilter : [ skinning, shadowReceiver, vsm, fog, ssr, stereo ]
+}
+
+fragment {
+    void material(inout MaterialInputs material) {
+        prepareMaterial(material);
+        material.baseColor = getColor();
+    }
+}

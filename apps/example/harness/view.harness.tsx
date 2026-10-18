@@ -19,20 +19,21 @@ describe('View', () => {
     const read = await runOnRenderThread(engine, () => {
       'worklet'
       const view = target.view
-      const defaults = [view.antiAliasing, view.dithering, view.postProcessing, view.shadowing, view.screenSpaceRefraction]
+      const defaults = [view.antiAliasing, view.dithering, view.postProcessing, view.shadowing, view.shadowType, view.screenSpaceRefraction]
       view.antiAliasing = 'none'
       view.dithering = 'none'
       view.postProcessing = false
       view.shadowing = false
+      view.shadowType = 'pcss'
       view.screenSpaceRefraction = false
       view.setAmbientOcclusionOptions({ enabled: true, type: 'gtao', quality: 'high' })
       view.setBloomOptions({ enabled: true, blendMode: 'interpolate', quality: 'medium' })
       view.setTemporalAntiAliasingOptions({ enabled: true, upscaling: 1.5, jitterPattern: 'halton-23-x8', boxClipping: 'clamp' })
       view.setDynamicResolutionOptions({ enabled: true, minScale: [0.5, 0.5], quality: 'ultra' })
-      return { defaults, changed: [view.antiAliasing, view.dithering, view.postProcessing, view.shadowing, view.screenSpaceRefraction] }
+      return { defaults, changed: [view.antiAliasing, view.dithering, view.postProcessing, view.shadowing, view.shadowType, view.screenSpaceRefraction] }
     })
-    expect(read.defaults).toEqual(['fxaa', 'temporal', true, true, true])
-    expect(read.changed).toEqual(['none', 'none', false, false, false])
+    expect(read.defaults).toEqual(['fxaa', 'temporal', true, true, 'pcf', true])
+    expect(read.changed).toEqual(['none', 'none', false, false, 'pcss', false])
   })
 
   it('notifies first-frame listeners once, and right away after the first frame', async () => {

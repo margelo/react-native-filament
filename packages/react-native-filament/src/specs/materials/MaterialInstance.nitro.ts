@@ -3,6 +3,7 @@ import type { ColorSpace } from '../types/ColorSpace'
 import type { CullingMode } from '../types/CullingMode'
 import type { Float3 } from '../types/Float3'
 import type { Float4 } from '../types/Float4'
+import type { Mat3 } from '../types/Mat3'
 import type { SamplerOptions } from '../types/SamplerOptions'
 import type { TransparencyMode } from '../types/TransparencyMode'
 import type { Texture } from './Texture.nitro'
@@ -23,6 +24,7 @@ export interface MaterialInstance extends HybridObject<{ ios: 'c++'; android: 'c
   setIntParameter(name: string, value: number): void
   setFloat3Parameter(name: string, value: Float3): void
   setFloat4Parameter(name: string, value: Float4): void
+  setMat3Parameter(name: string, value: Mat3): void
   /** An RGBA color, converted to linear when given in sRGB. */
   setColorParameter(name: string, color: Float4, colorSpace: ColorSpace): void
   getFloatParameter(name: string): number

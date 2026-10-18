@@ -6,6 +6,8 @@ import type { DirectionalLightOptions } from '../types/DirectionalLightOptions'
 import type { Float4 } from '../types/Float4'
 import type { IndirectLightOptions } from '../types/IndirectLightOptions'
 import type { PointLightOptions } from '../types/PointLightOptions'
+import type { PlaneOptions } from '../types/PlaneOptions'
+import type { DebugBoxOptions } from '../types/DebugBoxOptions'
 import type { SpotLightOptions } from '../types/SpotLightOptions'
 import type { SunLightOptions } from '../types/SunLightOptions'
 import type { ModelLoadOptions } from '../types/ModelLoadOptions'
@@ -23,6 +25,8 @@ import type { IndirectLight } from '../scene/IndirectLight.nitro'
 import type { Light } from '../scene/Light.nitro'
 import type { LightManager } from '../scene/LightManager.nitro'
 import type { RenderableManager } from '../scene/RenderableManager.nitro'
+import type { Renderable } from '../scene/Renderable.nitro'
+import type { MaterialInstance } from '../materials/MaterialInstance.nitro'
 import type { Scene } from '../scene/Scene.nitro'
 import type { Skybox } from '../scene/Skybox.nitro'
 import type { TransformManager } from '../scene/TransformManager.nitro'
@@ -88,6 +92,23 @@ export interface Engine extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
    * @thread render
    */
   createFocusedSpotLight(options: SpotLightOptions): Light
+  /**
+   * A horizontal plane centered at the origin, facing +Y, drawn with `material` — for example a
+   * shadow catcher from a `shadowingEnabled` material.
+   * @thread render
+   */
+  createPlane(options: PlaneOptions, material: MaterialInstance): Renderable
+  /**
+   * A full-screen triangle drawn before everything else, for a material whose vertex domain is
+   * `device`, such as an image background.
+   * @thread render
+   */
+  createBackground(material: MaterialInstance): Renderable
+  /**
+   * Wireframe edges of a box, for visualizing bounds.
+   * @thread render
+   */
+  createDebugBox(options: DebugBoxOptions): Renderable
   /**
    * Loads a glTF 2.0 binary (.glb). Resolves once every texture and buffer is uploaded.
    * @thread any

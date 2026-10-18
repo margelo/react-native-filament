@@ -22,6 +22,8 @@ namespace margelo::nitro::filament {
       prototype.registerHybridSetter("postProcessing", &HybridViewSpec::setPostProcessing);
       prototype.registerHybridGetter("shadowing", &HybridViewSpec::getShadowing);
       prototype.registerHybridSetter("shadowing", &HybridViewSpec::setShadowing);
+      prototype.registerHybridGetter("shadowType", &HybridViewSpec::getShadowType);
+      prototype.registerHybridSetter("shadowType", &HybridViewSpec::setShadowType);
       prototype.registerHybridGetter("screenSpaceRefraction", &HybridViewSpec::getScreenSpaceRefraction);
       prototype.registerHybridSetter("screenSpaceRefraction", &HybridViewSpec::setScreenSpaceRefraction);
       prototype.registerHybridMethod("setAmbientOcclusionOptions", &HybridViewSpec::setAmbientOcclusionOptions);

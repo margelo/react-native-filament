@@ -47,6 +47,14 @@ namespace margelo::nitro::filament { struct SunLightOptions; }
 namespace margelo::nitro::filament { struct PointLightOptions; }
 // Forward declaration of `SpotLightOptions` to properly resolve imports.
 namespace margelo::nitro::filament { struct SpotLightOptions; }
+// Forward declaration of `HybridRenderableSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridRenderableSpec; }
+// Forward declaration of `PlaneOptions` to properly resolve imports.
+namespace margelo::nitro::filament { struct PlaneOptions; }
+// Forward declaration of `HybridMaterialInstanceSpec` to properly resolve imports.
+namespace margelo::nitro::filament { class HybridMaterialInstanceSpec; }
+// Forward declaration of `DebugBoxOptions` to properly resolve imports.
+namespace margelo::nitro::filament { struct DebugBoxOptions; }
 // Forward declaration of `HybridModelSpec` to properly resolve imports.
 namespace margelo::nitro::filament { class HybridModelSpec; }
 // Forward declaration of `AssetUri` to properly resolve imports.
@@ -96,6 +104,10 @@ namespace margelo::nitro::filament { struct FrameInfo; }
 #include "SunLightOptions.hpp"
 #include "PointLightOptions.hpp"
 #include "SpotLightOptions.hpp"
+#include "HybridRenderableSpec.hpp"
+#include "PlaneOptions.hpp"
+#include "HybridMaterialInstanceSpec.hpp"
+#include "DebugBoxOptions.hpp"
 #include "HybridModelSpec.hpp"
 #include <NitroModules/ArrayBuffer.hpp>
 #include "AssetUri.hpp"
@@ -160,6 +172,9 @@ namespace margelo::nitro::filament {
       virtual std::shared_ptr<HybridLightSpec> createPointLight(const PointLightOptions& options) = 0;
       virtual std::shared_ptr<HybridLightSpec> createSpotLight(const SpotLightOptions& options) = 0;
       virtual std::shared_ptr<HybridLightSpec> createFocusedSpotLight(const SpotLightOptions& options) = 0;
+      virtual std::shared_ptr<HybridRenderableSpec> createPlane(const PlaneOptions& options, const std::shared_ptr<HybridMaterialInstanceSpec>& material) = 0;
+      virtual std::shared_ptr<HybridRenderableSpec> createBackground(const std::shared_ptr<HybridMaterialInstanceSpec>& material) = 0;
+      virtual std::shared_ptr<HybridRenderableSpec> createDebugBox(const DebugBoxOptions& options) = 0;
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridModelSpec>>> loadModel(const std::variant<std::shared_ptr<ArrayBuffer>, AssetUri>& source, const ModelLoadOptions& options) = 0;
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridMaterialSpec>>> loadMaterial(const std::variant<std::shared_ptr<ArrayBuffer>, AssetUri>& source) = 0;
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridTextureSpec>>> loadTexture(const std::variant<std::shared_ptr<ArrayBuffer>, AssetUri>& source, const TextureLoadOptions& options) = 0;

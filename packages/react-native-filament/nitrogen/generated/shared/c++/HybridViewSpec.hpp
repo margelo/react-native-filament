@@ -17,6 +17,8 @@
 namespace margelo::nitro::filament { enum class AntiAliasing; }
 // Forward declaration of `Dithering` to properly resolve imports.
 namespace margelo::nitro::filament { enum class Dithering; }
+// Forward declaration of `ShadowType` to properly resolve imports.
+namespace margelo::nitro::filament { enum class ShadowType; }
 // Forward declaration of `AmbientOcclusionOptions` to properly resolve imports.
 namespace margelo::nitro::filament { struct AmbientOcclusionOptions; }
 // Forward declaration of `BloomOptions` to properly resolve imports.
@@ -28,6 +30,7 @@ namespace margelo::nitro::filament { struct DynamicResolutionOptions; }
 
 #include "AntiAliasing.hpp"
 #include "Dithering.hpp"
+#include "ShadowType.hpp"
 #include "AmbientOcclusionOptions.hpp"
 #include "BloomOptions.hpp"
 #include "TemporalAntiAliasingOptions.hpp"
@@ -69,6 +72,8 @@ namespace margelo::nitro::filament {
       virtual void setPostProcessing(bool postProcessing) = 0;
       virtual bool getShadowing() = 0;
       virtual void setShadowing(bool shadowing) = 0;
+      virtual ShadowType getShadowType() = 0;
+      virtual void setShadowType(ShadowType shadowType) = 0;
       virtual bool getScreenSpaceRefraction() = 0;
       virtual void setScreenSpaceRefraction(bool screenSpaceRefraction) = 0;
 

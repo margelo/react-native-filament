@@ -24,6 +24,8 @@ public:
   void setIntParameter(const std::string& name, double value) override;
   void setFloat3Parameter(const std::string& name, const std::tuple<double, double, double>& value) override;
   void setFloat4Parameter(const std::string& name, const std::tuple<double, double, double, double>& value) override;
+  void setMat3Parameter(const std::string& name,
+                        const std::tuple<double, double, double, double, double, double, double, double, double>& value) override;
   void setColorParameter(const std::string& name, const std::tuple<double, double, double, double>& color, ColorSpace colorSpace) override;
   double getFloatParameter(const std::string& name) override;
   double getIntParameter(const std::string& name) override;

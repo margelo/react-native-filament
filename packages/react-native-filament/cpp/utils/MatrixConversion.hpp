@@ -1,5 +1,6 @@
 #pragma once
 
+#include <math/mat3.h>
 #include <math/mat4.h>
 #include <math/quat.h>
 #include <math/vec3.h>
@@ -20,6 +21,19 @@ inline ::filament::math::mat4f toMat4f(const Mat4Tuple& values) {
                                        ::filament::math::float4(elements[4], elements[5], elements[6], elements[7]),
                                        ::filament::math::float4(elements[8], elements[9], elements[10], elements[11]),
                                        ::filament::math::float4(elements[12], elements[13], elements[14], elements[15]));
+      },
+      values);
+}
+
+using Mat3Tuple = std::tuple<double, double, double, double, double, double, double, double, double>;
+
+inline ::filament::math::mat3f toMat3f(const Mat3Tuple& values) {
+  return std::apply(
+      [](auto... element) {
+        float elements[9] = {static_cast<float>(element)...};
+        return ::filament::math::mat3f(::filament::math::float3(elements[0], elements[1], elements[2]),
+                                       ::filament::math::float3(elements[3], elements[4], elements[5]),
+                                       ::filament::math::float3(elements[6], elements[7], elements[8]));
       },
       values);
 }

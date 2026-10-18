@@ -38,6 +38,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"src/**/*.{js,ts,tsx}\"",
     "specs": "nitrogen --logLevel=\"debug\"",
+    "materials": "./scripts/compile-builtin-materials.sh",
     "build": "tsc",
     "prepack": "cp ../../README.md ./README.md",
     "postpack": "rm ./README.md"

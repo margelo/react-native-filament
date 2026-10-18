@@ -22,6 +22,8 @@ public:
   void setPostProcessing(bool postProcessing) override;
   bool getShadowing() override;
   void setShadowing(bool shadowing) override;
+  ShadowType getShadowType() override;
+  void setShadowType(ShadowType shadowType) override;
   bool getScreenSpaceRefraction() override;
   void setScreenSpaceRefraction(bool screenSpaceRefraction) override;
   void setAmbientOcclusionOptions(const AmbientOcclusionOptions& options) override;

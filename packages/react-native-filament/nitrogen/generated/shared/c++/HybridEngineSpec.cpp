@@ -30,6 +30,9 @@ namespace margelo::nitro::filament {
       prototype.registerHybridMethod("createPointLight", &HybridEngineSpec::createPointLight);
       prototype.registerHybridMethod("createSpotLight", &HybridEngineSpec::createSpotLight);
       prototype.registerHybridMethod("createFocusedSpotLight", &HybridEngineSpec::createFocusedSpotLight);
+      prototype.registerHybridMethod("createPlane", &HybridEngineSpec::createPlane);
+      prototype.registerHybridMethod("createBackground", &HybridEngineSpec::createBackground);
+      prototype.registerHybridMethod("createDebugBox", &HybridEngineSpec::createDebugBox);
       prototype.registerHybridMethod("loadModel", &HybridEngineSpec::loadModel);
       prototype.registerHybridMethod("loadMaterial", &HybridEngineSpec::loadMaterial);
       prototype.registerHybridMethod("loadTexture", &HybridEngineSpec::loadTexture);

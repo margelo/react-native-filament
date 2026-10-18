@@ -25,6 +25,7 @@ namespace margelo::nitro::filament {
       prototype.registerHybridMethod("setIntParameter", &HybridMaterialInstanceSpec::setIntParameter);
       prototype.registerHybridMethod("setFloat3Parameter", &HybridMaterialInstanceSpec::setFloat3Parameter);
       prototype.registerHybridMethod("setFloat4Parameter", &HybridMaterialInstanceSpec::setFloat4Parameter);
+      prototype.registerHybridMethod("setMat3Parameter", &HybridMaterialInstanceSpec::setMat3Parameter);
       prototype.registerHybridMethod("setColorParameter", &HybridMaterialInstanceSpec::setColorParameter);
       prototype.registerHybridMethod("getFloatParameter", &HybridMaterialInstanceSpec::getFloatParameter);
       prototype.registerHybridMethod("getIntParameter", &HybridMaterialInstanceSpec::getIntParameter);

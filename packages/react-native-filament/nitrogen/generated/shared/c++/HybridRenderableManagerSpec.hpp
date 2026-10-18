@@ -54,6 +54,7 @@ namespace margelo::nitro::filament {
 
     public:
       // Methods
+      virtual bool hasComponent(double entity) = 0;
       virtual double getPrimitiveCount(double entity) = 0;
       virtual bool isShadowCaster(double entity) = 0;
       virtual void setCastShadows(double entity, bool castShadows) = 0;

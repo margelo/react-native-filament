@@ -5,10 +5,11 @@ import type { MaterialInstance } from '../materials/MaterialInstance.nitro'
 
 /**
  * Reads and writes the renderable components of entities. Every method runs on the render thread
- * and throws `FilamentInvalidEntityError` for an entity without a renderable component in this
- * Engine.
+ * and, except `hasComponent`, throws `FilamentInvalidEntityError` for an entity without a
+ * renderable component in this Engine.
  */
 export interface RenderableManager extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
+  hasComponent(entity: Entity): boolean
   getPrimitiveCount(entity: Entity): number
   isShadowCaster(entity: Entity): boolean
   setCastShadows(entity: Entity, castShadows: boolean): void

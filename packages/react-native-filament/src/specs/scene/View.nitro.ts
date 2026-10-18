@@ -6,6 +6,7 @@ import type { Dithering } from '../types/Dithering'
 import type { DynamicResolutionOptions } from '../types/DynamicResolutionOptions'
 import type { Float2 } from '../types/Float2'
 import type { Float3 } from '../types/Float3'
+import type { ShadowType } from '../types/ShadowType'
 import type { TemporalAntiAliasingOptions } from '../types/TemporalAntiAliasingOptions'
 
 /**
@@ -21,6 +22,8 @@ export interface View extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   postProcessing: boolean
   /** @default true */
   shadowing: boolean
+  /** @default 'pcf' */
+  shadowType: ShadowType
   /** @default true */
   screenSpaceRefraction: boolean
   setAmbientOcclusionOptions(options: AmbientOcclusionOptions): void

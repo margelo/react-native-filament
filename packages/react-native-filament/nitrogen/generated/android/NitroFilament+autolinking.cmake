@@ -53,6 +53,7 @@ target_sources(
   ../nitrogen/generated/shared/c++/HybridIndirectLightSpec.cpp
   ../nitrogen/generated/shared/c++/HybridLightSpec.cpp
   ../nitrogen/generated/shared/c++/HybridLightManagerSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridRenderableSpec.cpp
   ../nitrogen/generated/shared/c++/HybridRenderableManagerSpec.cpp
   ../nitrogen/generated/shared/c++/HybridSceneSpec.cpp
   ../nitrogen/generated/shared/c++/HybridSkyboxSpec.cpp

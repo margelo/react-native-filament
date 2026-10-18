@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react'
+import { BackgroundShadowsExample } from './BackgroundShadowsExample'
 import { CameraOrbitExample } from './CameraOrbitExample'
 import { ChangeMaterialsExample } from './ChangeMaterialsExample'
 import { ClearColorExample } from './ClearColorExample'
@@ -29,4 +30,5 @@ export const examples: Example[] = [
   { route: 'MorphTargets', title: '😮 Morph targets', component: MorphTargetsExample },
   { route: 'Instances', title: '👯 Instances and skeletons', component: InstancesExample },
   { route: 'Picking', title: '👆 Picking and snapshots', component: PickingExample },
+  { route: 'BackgroundShadows', title: '🖼️ Background, shadows and bounds', component: BackgroundShadowsExample },
 ]

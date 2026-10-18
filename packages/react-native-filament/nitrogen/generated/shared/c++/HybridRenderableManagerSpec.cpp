@@ -14,6 +14,7 @@ namespace margelo::nitro::filament {
     HybridObject::loadHybridMethods();
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
+      prototype.registerHybridMethod("hasComponent", &HybridRenderableManagerSpec::hasComponent);
       prototype.registerHybridMethod("getPrimitiveCount", &HybridRenderableManagerSpec::getPrimitiveCount);
       prototype.registerHybridMethod("isShadowCaster", &HybridRenderableManagerSpec::isShadowCaster);
       prototype.registerHybridMethod("setCastShadows", &HybridRenderableManagerSpec::setCastShadows);

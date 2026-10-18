@@ -146,6 +146,12 @@ void HybridMaterialInstance::setFloat4Parameter(const std::string& name, const s
   }).setParameter(name.c_str(), toFloat4(value));
 }
 
+void HybridMaterialInstance::setMat3Parameter(const std::string& name, const Mat3Tuple& value) {
+  parameter(name, "MaterialInstance.setMat3Parameter()", "mat3", [](const ParameterInfo& p) {
+    return isUniform(p, UniformType::MAT3);
+  }).setParameter(name.c_str(), toMat3f(value));
+}
+
 void HybridMaterialInstance::setColorParameter(const std::string& name, const std::tuple<double, double, double, double>& color,
                                                ColorSpace colorSpace) {
   bool isFloat4 = false;

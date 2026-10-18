@@ -17,5 +17,5 @@ jobs:
       - name: Check formatting
         working-directory: packages/react-native-filament
         run: |
-          files=$(git ls-files 'cpp/**/*.cpp' 'cpp/**/*.hpp' 'cpp/*.cpp' 'cpp/*.hpp' 'android/src/main/cpp/*.cpp' 'ios/*.mm')
+          files=$(git ls-files 'cpp/**/*.cpp' 'cpp/**/*.hpp' 'cpp/*.cpp' 'cpp/*.hpp' 'android/src/main/cpp/*.cpp' 'ios/*.mm' ':!:cpp/materials/*Package.hpp')
           [ -z "$files" ] || clang-format --dry-run --Werror $files

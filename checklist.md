@@ -383,14 +383,14 @@ Plan §10 Phase 3, §5, §8.2.
 **Objects** (§5.4)
 - [x] **P3.5** `View`: every option as a typed struct (AO, bloom, TAA with float `upscaling`, `varianceGamma` and `filterWidth`, dynamic resolution, dithering, anti-aliasing), plus `projectWorldToScreen`.
 - [x] **P3.6** `TransformManager`.
-- [ ] **P3.7** `RenderableManager` and `Renderable`:
+- [x] **P3.7** `RenderableManager` and `Renderable`:
   - `setAxisAlignedBoundingBox` and `scaleBoundingBox`;
   - `recomputeBoundingBoxes` exposed with its documented limits;
   - planes, background and debug geometry are owned objects.
 - [x] **P3.8** `LightManager` and `Light`, with one factory per light type and the kebab-case `'focused-spot'`.
 - [x] **P3.9** Instancing and morph targets.
-- [ ] **P3.10** Material variants, `Material`, and `MaterialInstance` with `setTexture(name, texture, sampler)`.
-- [ ] **P3.11** `Texture`, `IndirectLight`, `Skybox` and background images.
+- [x] **P3.10** Material variants, `Material`, and `MaterialInstance` with `setTexture(name, texture, sampler)`.
+- [x] **P3.11** `Texture`, `IndirectLight`, `Skybox` and background images.
 - [x] **P3.12** Clothing: `attachSkin(skinIndex, target)`, plus the name-mapped retarget, which commits the local-transform transaction first and then calls `setBones()`.
 - [x] **P3.13** Picking and snapshots:
   - picking in points with a top-left origin, per view; a tap gesture calls `viewTarget.pick(x, y)` and the result reaches React through `scheduleOnRN` (§7.2);

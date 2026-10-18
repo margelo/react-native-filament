@@ -13,6 +13,7 @@ class HybridRenderableManager final : public HybridRenderableManagerSpec {
 public:
   explicit HybridRenderableManager(std::shared_ptr<EngineCore> engine);
 
+  bool hasComponent(double entity) override;
   double getPrimitiveCount(double entity) override;
   bool isShadowCaster(double entity) override;
   void setCastShadows(double entity, bool castShadows) override;
