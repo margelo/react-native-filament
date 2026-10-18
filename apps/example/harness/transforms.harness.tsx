@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'react-native-harnes
 import { Image } from 'react-native'
 import { makeMutable } from 'react-native-reanimated'
 import { scheduleOnRN } from 'react-native-worklets'
-import { bindSharedValue, Filament, quaternionFromAxisAngle, runOnRenderThread, type Engine, type Mat4 } from 'react-native-filament'
+import { bindSharedValue, composeTransform, Filament, quaternionFromAxisAngle, runOnRenderThread, type Engine, type Mat4 } from 'react-native-filament'
 import { renderView } from './renderView'
 
 const coin = Image.resolveAssetSource(require('../assets/coin.glb'))
@@ -50,6 +50,20 @@ describe('Transforms', () => {
       return tm.getTransform(model.rootEntity)
     })
     expectClose(transform, [0, 2, 0, 0, -2, 0, 0, 0, 0, 0, 2, 0, 4, 5, 6, 1])
+  })
+
+  it('composes the same matrix as the transform manager', async () => {
+    const model = await engine.loadModel({ uri: coin.uri }, {})
+    const { composed, managed } = await runOnRenderThread(engine, () => {
+      'worklet'
+      const tm = engine.transformManager
+      const rotation = quaternionFromAxisAngle([1, 2, 3], 0.7)
+      tm.setScale(model.rootEntity, [1, 2, 3])
+      tm.setRotation(model.rootEntity, rotation)
+      tm.setTranslation(model.rootEntity, [-4, 5, 0.5])
+      return { composed: composeTransform([-4, 5, 0.5], rotation, [1, 2, 3]), managed: tm.getTransform(model.rootEntity) }
+    })
+    expectClose(composed, managed)
   })
 
   it('fits a bounding box into the unit cube', async () => {

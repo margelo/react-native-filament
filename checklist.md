@@ -412,7 +412,7 @@ Plan §10 Phase 3, §5, §8.2.
   - C++ `Recorder` plus an internal `VideoEncoder` (Swift `AVAssetWriter`; Kotlin `MediaCodec` plus `MediaMuxer`);
   - the §4.4 pumps as spike G decided;
   - presentation timestamps `frameIndex / fps`.
-- [ ] **P3.20** Physics in the core package:
+- [x] **P3.20** Physics in the core package:
   - `Physics`, `PhysicsWorld`, `RigidBody` and the `CollisionShape` family;
   - batched collision events, native auto-step and entity binding, fixed step;
   - correct destruction order.

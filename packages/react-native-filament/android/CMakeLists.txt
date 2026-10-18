@@ -10,6 +10,12 @@ file(GLOB_RECURSE RNF_SOURCES CONFIGURE_DEPENDS
 )
 add_library(${PACKAGE_NAME} SHARED ${RNF_SOURCES})
 
+file(GLOB_RECURSE BULLET_SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/../vendor/bullet3/src/*.cpp")
+add_library(bullet3 STATIC ${BULLET_SOURCES})
+target_include_directories(bullet3 SYSTEM PUBLIC "${CMAKE_SOURCE_DIR}/../vendor/bullet3/src")
+target_compile_options(bullet3 PRIVATE -w)
+set_target_properties(bullet3 PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
 include(${CMAKE_SOURCE_DIR}/../nitrogen/generated/android/NitroFilament+autolinking.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/FilamentLibraries.cmake)
 
@@ -26,5 +32,5 @@ target_compile_options(${PACKAGE_NAME} PRIVATE -Werror=unguarded-availability)
 find_package(react-native-worklets REQUIRED CONFIG)
 
 find_library(LOG_LIB log)
-target_link_libraries(${PACKAGE_NAME} ${LOG_LIB} android z react-native-worklets::worklets)
+target_link_libraries(${PACKAGE_NAME} ${LOG_LIB} android z bullet3 react-native-worklets::worklets)
 target_link_options(${PACKAGE_NAME} PRIVATE "-Wl,--no-undefined" "-Wl,--gc-sections")

@@ -36,7 +36,8 @@ namespace {
   constexpr std::array<uint16_t, 3> kFullScreenTriangleIndices{0, 1, 2};
 
   IndexBuffer* buildIndices(::filament::Engine& engine, std::vector<uint16_t> indices) {
-    IndexBuffer* buffer = IndexBuffer::Builder().indexCount(indices.size()).bufferType(IndexBuffer::IndexType::USHORT).build(engine);
+    IndexBuffer* buffer =
+        IndexBuffer::Builder().indexCount(static_cast<uint32_t>(indices.size())).bufferType(IndexBuffer::IndexType::USHORT).build(engine);
     buffer->setBuffer(engine, ownedBuffer(std::move(indices)));
     return buffer;
   }
@@ -95,13 +96,15 @@ std::shared_ptr<GeometryCore> buildPlane(std::shared_ptr<EngineCore> engine, con
 std::shared_ptr<GeometryCore> buildBackground(std::shared_ptr<EngineCore> engine, AssignedMaterial material) {
   ::filament::Engine& filament = engine->engine();
   VertexBuffer* vertices = VertexBuffer::Builder()
-                               .vertexCount(kFullScreenTriangle.size())
+                               .vertexCount(static_cast<uint32_t>(kFullScreenTriangle.size()))
                                .bufferCount(1)
                                .attribute(Attribute::POSITION, 0, AttributeType::FLOAT4)
                                .build(filament);
   vertices->setBufferAt(filament, 0, {kFullScreenTriangle.data(), sizeof(kFullScreenTriangle)});
-  IndexBuffer* indices =
-      IndexBuffer::Builder().indexCount(kFullScreenTriangleIndices.size()).bufferType(IndexBuffer::IndexType::USHORT).build(filament);
+  IndexBuffer* indices = IndexBuffer::Builder()
+                             .indexCount(static_cast<uint32_t>(kFullScreenTriangleIndices.size()))
+                             .bufferType(IndexBuffer::IndexType::USHORT)
+                             .build(filament);
   indices->setBuffer(filament, {kFullScreenTriangleIndices.data(), sizeof(kFullScreenTriangleIndices)});
 
   utils::Entity entity = utils::EntityManager::get().create();
@@ -127,7 +130,7 @@ std::shared_ptr<GeometryCore> buildDebugBox(std::shared_ptr<EngineCore> engine, 
   }
 
   VertexBuffer* vertices = VertexBuffer::Builder()
-                               .vertexCount(corners.size())
+                               .vertexCount(static_cast<uint32_t>(corners.size()))
                                .bufferCount(2)
                                .attribute(Attribute::POSITION, 0, AttributeType::FLOAT3)
                                .attribute(Attribute::COLOR, 1, AttributeType::UBYTE4)

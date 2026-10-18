@@ -8,6 +8,7 @@ import { InstancesExample } from './InstancesExample'
 import { LightsExample } from './LightsExample'
 import { ModelExample } from './ModelExample'
 import { MorphTargetsExample } from './MorphTargetsExample'
+import { PhysicsCoinExample } from './PhysicsCoinExample'
 import { PickingExample } from './PickingExample'
 import { RecordingExample } from './RecordingExample'
 import { ReanimatedRotateExample } from './ReanimatedRotateExample'
@@ -33,4 +34,5 @@ export const examples: Example[] = [
   { route: 'Picking', title: '👆 Picking and snapshots', component: PickingExample },
   { route: 'BackgroundShadows', title: '🖼️ Background, shadows and bounds', component: BackgroundShadowsExample },
   { route: 'Recording', title: '🎬 Offscreen recording', component: RecordingExample },
+  { route: 'PhysicsCoin', title: '🪙 Physics coins', component: PhysicsCoinExample },
 ]

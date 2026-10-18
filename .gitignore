@@ -2,7 +2,6 @@
 #
 .DS_Store
 .vscode
-bullet3/
 .idea/
 node_modules/
 # react-native-harness cache

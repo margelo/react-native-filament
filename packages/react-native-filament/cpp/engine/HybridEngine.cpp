@@ -13,6 +13,7 @@
 #include "materials/HybridMaterialInstance.hpp"
 #include "materials/HybridTexture.hpp"
 #include "materials/MaterialFile.hpp"
+#include "physics/HybridPhysicsWorld.hpp"
 #include "scene/HybridCamera.hpp"
 #include "scene/HybridIndirectLight.hpp"
 #include "scene/HybridLight.hpp"
@@ -114,6 +115,25 @@ std::shared_ptr<HybridRecorderSpec> HybridEngine::createRecorder(const RecorderO
                                      toClearSettings(options.clearOptions));
   core_->adopt(recorder);
   return std::make_shared<HybridRecorder>(shared_cast<HybridEngine>(), std::move(recorder));
+}
+
+std::shared_ptr<HybridPhysicsWorldSpec> HybridEngine::createPhysicsWorld(const PhysicsWorldOptions& options) {
+  constexpr const char* method = "Engine.createPhysicsWorld()";
+  requireRenderThread(core_->thread(), method);
+  double fixedTimeStep = options.fixedTimeStepSeconds.value_or(1.0 / 60.0);
+  double maxSubSteps = options.maxSubSteps.value_or(4);
+  if (!(fixedTimeStep > 0) || !(maxSubSteps >= 1)) {
+    throw std::invalid_argument(std::string(method) + " needs a positive fixed time step and at least one sub-step.");
+  }
+  auto [x, y, z] = options.gravity.value_or(std::make_tuple(0.0, -9.81, 0.0));
+  PhysicsWorldCore::Settings settings{.gravity = btVector3(static_cast<btScalar>(x), static_cast<btScalar>(y), static_cast<btScalar>(z)),
+                                      .fixedTimeStepSeconds = fixedTimeStep,
+                                      .maxSubSteps = static_cast<int>(maxSubSteps),
+                                      .autoStep = options.autoStep.value_or(true)};
+  auto world = std::make_shared<PhysicsWorldCore>(core_, settings);
+  core_->adopt(world);
+  core_->addPhysicsWorld(world);
+  return std::make_shared<HybridPhysicsWorld>(shared_cast<HybridEngine>(), std::move(world));
 }
 
 std::shared_ptr<HybridSceneSpec> HybridEngine::createScene() {

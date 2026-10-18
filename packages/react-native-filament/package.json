@@ -21,6 +21,7 @@
     "android/cmake",
     "android/src",
     "cpp",
+    "vendor",
     "ios/**/*.h",
     "ios/**/*.m",
     "ios/**/*.mm",

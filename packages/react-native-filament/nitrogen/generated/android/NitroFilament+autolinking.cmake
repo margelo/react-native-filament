@@ -47,6 +47,9 @@ target_sources(
   ../nitrogen/generated/shared/c++/HybridMaterialSpec.cpp
   ../nitrogen/generated/shared/c++/HybridMaterialInstanceSpec.cpp
   ../nitrogen/generated/shared/c++/HybridTextureSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridCollisionShapeSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridPhysicsWorldSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridRigidBodySpec.cpp
   ../nitrogen/generated/shared/c++/HybridAssetIOSpec.cpp
   ../nitrogen/generated/shared/c++/HybridNativeSurfaceSpec.cpp
   ../nitrogen/generated/shared/c++/HybridVideoEncoderSpec.cpp

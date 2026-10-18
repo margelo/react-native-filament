@@ -29,6 +29,7 @@ namespace margelo::nitro::filament {
 
 class AnimationPlayerCore;
 class ManipulatorCore;
+class PhysicsWorldCore;
 class SceneCore;
 class SkeletonFollower;
 class TransformBindingCore;
@@ -61,6 +62,7 @@ public:
   void addTransformBinding(const std::shared_ptr<TransformBindingCore>& binding);
   void addManipulator(const std::shared_ptr<ManipulatorCore>& manipulator);
   void addSkeletonFollower(const std::shared_ptr<SkeletonFollower>& follower);
+  void addPhysicsWorld(const std::shared_ptr<PhysicsWorldCore>& world);
   Users<SceneCore>& scenes();
   MaterialAssignments& materialAssignments();
   void decodeTexture(const uint8_t* bytes, size_t size, bool srgb, TextureDecoder::Completion completion);
@@ -73,6 +75,7 @@ public:
 
   void bindRuntime(std::shared_ptr<worklets::WorkletRuntime> runtime);
   bool hasRuntime() const;
+  std::shared_ptr<worklets::WorkletRuntime> runtime() const;
   void runWorklet(const std::shared_ptr<worklets::SerializableWorklet>& worklet);
 
   std::shared_ptr<FrameListener> addFrameListener(std::function<bool(const FrameInfo&)> callback);
@@ -82,7 +85,6 @@ public:
 
 private:
   explicit EngineCore(EngineBackend backend);
-  std::shared_ptr<worklets::WorkletRuntime> runtime() const;
   bool canRenderAnyTarget() const;
   FrameInfo nextFrameInfo(int64_t frameTimeNanos);
   void renderFrame(int64_t frameTimeNanos);
@@ -101,11 +103,13 @@ private:
   WeakRegistry<TransformBindingCore> transformBindings_;
   WeakRegistry<ManipulatorCore> manipulators_;
   WeakRegistry<SkeletonFollower> skeletonFollowers_;
+  WeakRegistry<PhysicsWorldCore> physicsWorlds_;
   Users<SceneCore> scenes_;
   std::vector<std::shared_ptr<ViewTargetCore>> targets_;
   FrameListeners frameListeners_;
   bool listenersWantFrame_ = false;
   bool playersWantFrame_ = false;
+  bool physicsWantsFrame_ = false;
   bool vsyncEnabled_ = false;
   bool recording_ = false;
   int64_t lastFrameTimeNanos_ = 0;

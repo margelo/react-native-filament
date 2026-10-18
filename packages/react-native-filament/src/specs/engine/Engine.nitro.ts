@@ -18,6 +18,8 @@ import type { ViewTargetOptions } from '../types/ViewTargetOptions'
 import type { FilamentView } from '../targets/FilamentView.nitro'
 import type { ViewTarget } from '../targets/ViewTarget.nitro'
 import type { Recorder } from '../targets/Recorder.nitro'
+import type { PhysicsWorld } from '../physics/PhysicsWorld.nitro'
+import type { PhysicsWorldOptions } from '../types/PhysicsWorldOptions'
 import type { RecorderOptions } from '../types/RecorderOptions'
 import type { Model } from '../assets/Model.nitro'
 import type { Material } from '../materials/Material.nitro'
@@ -154,6 +156,11 @@ export interface Engine extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
    * @thread any
    */
   createOrbitManipulator(options: OrbitManipulatorOptions): CameraManipulator
+  /**
+   * A Bullet physics world simulated on this Engine's render thread.
+   * @thread render
+   */
+  createPhysicsWorld(options: PhysicsWorldOptions): PhysicsWorld
   /**
    * Calls `listener` once per rendered frame, before native systems run and the targets render.
    * The listener returns whether it needs another frame: in `on-demand` mode the Engine keeps

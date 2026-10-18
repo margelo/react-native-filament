@@ -21,12 +21,17 @@ Pod::Spec.new do |s|
     "cpp/**/*.{hpp,cpp}",
   ]
 
+  s.subspec "Bullet" do |bullet|
+    bullet.source_files = "vendor/bullet3/src/**/*.{h,cpp}"
+    bullet.compiler_flags = "-w"
+  end
+
   s.resources = ["assets/*"]
   s.vendored_frameworks = filament[:frameworks]
   s.frameworks = ["Metal", "QuartzCore", "CoreVideo"]
   s.libraries = ["z"]
   s.pod_target_xcconfig = {
-    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/#{filament[:include_dir]}\" \"$(PODS_TARGET_SRCROOT)/cpp\"",
+    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/#{filament[:include_dir]}\" \"$(PODS_TARGET_SRCROOT)/cpp\" \"$(PODS_TARGET_SRCROOT)/vendor/bullet3/src\"",
     "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) RNF_FILAMENT_VERSION=\\\"#{filament[:version]}\\\"",
     "SWIFT_ENABLE_EXPLICIT_MODULES" => "NO",
   }

@@ -6,6 +6,7 @@
 #include "assets/SkeletonFollower.hpp"
 #include "control/ManipulatorCore.hpp"
 #include "control/TransformBindingCore.hpp"
+#include "physics/PhysicsWorldCore.hpp"
 #include "targets/ViewTargetCore.hpp"
 #include "threading/WorkerPool.hpp"
 #include "utils/Logger.hpp"
@@ -86,7 +87,8 @@ void EngineCore::scheduleDemandUpdate() {
 }
 
 void EngineCore::updateDemand() {
-  bool wantsFrame = renderMode_ == RenderMode::CONTINUOUS || frameRequested_ || listenersWantFrame_ || playersWantFrame_;
+  bool wantsFrame =
+      renderMode_ == RenderMode::CONTINUOUS || frameRequested_ || listenersWantFrame_ || playersWantFrame_ || physicsWantsFrame_;
   bool uploading = !loads_.empty() || (textures_ != nullptr && !textures_->empty());
   bool enabled = (!recording_ && canRenderAnyTarget() && wantsFrame) || uploading;
   if (!enabled) {
@@ -139,6 +141,10 @@ void EngineCore::addManipulator(const std::shared_ptr<ManipulatorCore>& manipula
 
 void EngineCore::addSkeletonFollower(const std::shared_ptr<SkeletonFollower>& follower) {
   skeletonFollowers_.add(follower);
+}
+
+void EngineCore::addPhysicsWorld(const std::shared_ptr<PhysicsWorldCore>& world) {
+  physicsWorlds_.add(world);
 }
 
 MaterialAssignments& EngineCore::materialAssignments() {
@@ -258,6 +264,12 @@ void EngineCore::runFrameStages(const FrameInfo& frame) {
   }
   playersWantFrame_ = false;
   players_.forEachActive([&](AnimationPlayerCore& player) { playersWantFrame_ = player.advance(frame.deltaSeconds) || playersWantFrame_; });
+  physicsWantsFrame_ = false;
+  physicsWorlds_.forEachActive([&](PhysicsWorldCore& world) {
+    if (world.autoSteps()) {
+      physicsWantsFrame_ = world.step(frame.deltaSeconds) || physicsWantsFrame_;
+    }
+  });
   skeletonFollowers_.forEachActive([&](SkeletonFollower& follower) { follower.apply(transforms); });
 }
 
@@ -289,6 +301,7 @@ void EngineCore::shutdownOnRenderThread() {
   transformBindings_.clear();
   manipulators_.clear();
   skeletonFollowers_.clear();
+  physicsWorlds_.clear();
   resources_->markDisposing();
   resources_->destroyTree();
   targets_.clear();
