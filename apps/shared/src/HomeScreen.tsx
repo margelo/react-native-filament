@@ -5,7 +5,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { Filament } from 'react-native-filament'
 import { examples, type ExampleSection } from './examples'
 
-const sections = (['React API', 'Imperative API'] as const satisfies ExampleSection[]).map((title) => ({
+const sections = (['React API', 'Imperative API', 'Benchmarks'] as const satisfies ExampleSection[]).map((title) => ({
   title,
   data: examples.filter((example) => example.section === title),
 }))

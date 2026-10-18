@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react'
+import { BenchAnimated, BenchInstances, BenchPhysics, BenchRotations, BenchStatic, BenchStaticOnDemand } from './benchmarks'
 import { AnimationTransitions } from './examples/AnimationTransitions'
 import { CameraPan } from './examples/CameraPan'
 import { AnimationTransitionsRecording } from './examples/AnimationTransitionsRecording'
@@ -45,7 +46,7 @@ import { SkyboxExample as ImperativeSkyboxExample } from './imperative/SkyboxExa
 import { CastShadowExample } from './imperative/CastShadowExample'
 import { ImageExample as ImperativeImageExample } from './imperative/ImageExample'
 
-export type ExampleSection = 'React API' | 'Imperative API'
+export type ExampleSection = 'React API' | 'Imperative API' | 'Benchmarks'
 
 export interface Example {
   route: string
@@ -100,4 +101,10 @@ export const examples: Example[] = [
   { route: 'ImperativeSkybox', title: '🌌 KTX skybox', section: 'Imperative API', component: ImperativeSkyboxExample },
   { route: 'ImperativeCastShadow', title: '🌓 Cast shadow', section: 'Imperative API', component: CastShadowExample },
   { route: 'ImperativeImage', title: '🏞️ Image background', section: 'Imperative API', component: ImperativeImageExample },
+  { route: 'BenchStatic', title: '⏱️ Static drone', section: 'Benchmarks', component: BenchStatic },
+  { route: 'BenchStaticOnDemand', title: '⏱️ Static drone, on-demand', section: 'Benchmarks', component: BenchStaticOnDemand },
+  { route: 'BenchAnimated', title: '⏱️ Animated drone', section: 'Benchmarks', component: BenchAnimated },
+  { route: 'BenchInstances', title: '⏱️ 100 animated instances', section: 'Benchmarks', component: BenchInstances },
+  { route: 'BenchRotations', title: '⏱️ 400 per-frame rotations', section: 'Benchmarks', component: BenchRotations },
+  { route: 'BenchPhysics', title: '⏱️ 200 physics bodies', section: 'Benchmarks', component: BenchPhysics },
 ]

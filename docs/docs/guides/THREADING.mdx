@@ -43,7 +43,7 @@ Inside components, prefer the hooks: each `FilamentScene` collects the render-th
 
 ## Each frame
 
-The render thread renders when something needs a frame: a changed binding, a playing animation, a manipulator gesture, a physics world with awake bodies, a frame listener that asks for another frame, or `engine.requestFrame()`. In `continuous` render mode it renders every display refresh. Each frame runs these stages in order:
+In the default `continuous` render mode the render thread renders every display refresh. In `on-demand` mode it renders only when something needs a frame: a changed binding, a playing animation, a manipulator gesture, a physics world with awake bodies, a frame listener that asks for another frame, or `engine.requestFrame()`. Each frame runs these stages in order:
 
 1. queued jobs (`runOnRenderThread`, the render-thread hooks);
 2. asset uploads;

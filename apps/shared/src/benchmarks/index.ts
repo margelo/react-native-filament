@@ -1,0 +1,6 @@
+export { BenchAnimated } from './BenchAnimated'
+export { BenchInstances } from './BenchInstances'
+export { BenchPhysics } from './BenchPhysics'
+export { BenchRotations } from './BenchRotations'
+export { BenchStatic } from './BenchStatic'
+export { BenchStaticOnDemand } from './BenchStaticOnDemand'

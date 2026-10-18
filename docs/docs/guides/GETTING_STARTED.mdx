@@ -87,7 +87,7 @@ export function MyScene() {
 
 `<FilamentScene>` creates the Engine, a scene and its camera, and disposes them when it unmounts. Components below it that render nothing on screen, like `Camera` and `Model`, configure that scene. Render regular React Native views on top of a `FilamentView` with absolute positioning instead of inside it.
 
-The scene renders natively on Filament's render thread: animations, camera manipulators, SharedValue-driven props and physics run there without JS, and a scene that does not change does not render again.
+The scene renders natively on Filament's render thread: animations, camera manipulators, SharedValue-driven props and physics run there without JS. It renders on every display refresh; with `<FilamentScene renderMode="on-demand">` it renders only after something changed.
 
 ## Imperative API
 

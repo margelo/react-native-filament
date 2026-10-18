@@ -487,7 +487,7 @@ Plan §10 Phase 5, §7.3, §7.4. Starts only for the rows spike G marked support
 
 Plan §10 Phase 6, §11.7.
 
-- [ ] **P6.1** A/B benchmarks against the v1 baseline, regressions fixed, and the size report produced.
+- [ ] **P6.1** A/B benchmarks against the v1 baseline, regressions fixed, and the size report produced. First A/B run against npm 1.11 in `benchmarks/RESULTS.md`; the T.8 protocol and the size report are open.
 - [ ] **P6.2** Soak and stress runs and leak sweeps. ASan/UBSan builds on the phone and the simulator; TSan on the simulator.
 - [ ] **P6.3** Release pipeline: `release-it` plus npm publish, sources only. `2.0.0-beta.x`, then `rc`, then stable.
 - [ ] **P6.4** Release notes document the tested configuration: the phone's details, both Filament backends, and the iOS simulator.
@@ -527,7 +527,7 @@ Built alongside Phases 0–2 (§11.1, §11.2).
   - medians with bootstrap 95% confidence intervals;
   - SurfaceFlinger per-layer present-time parsing;
   - automatic evaluation of the §11.5 gate.
-- [ ] **T.9** Synthetic scenes: static, 50 animated instances, 200 physics bodies, each with a fixed camera path.
+- [x] **T.9** Synthetic scenes: static, 50 animated instances, 200 physics bodies, each with a fixed camera path. The `Benchmarks` section has static (continuous and on-demand), one animated model, 100 animated instances, 400 per-frame JS rotations and 200 physics bodies, each with a fixed camera.
 
 **Builds and CI**
 - [ ] **T.10** Debug counters for render-thread allocations per frame and live objects per type.

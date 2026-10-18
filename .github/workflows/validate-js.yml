@@ -46,4 +46,4 @@ jobs:
 
       - name: No banned patterns
         run: |
-          ! git grep -n -E '\b(setTimeout|setInterval|setImmediate|requestAnimationFrame|InteractionManager)\b|sleep_for|usleep\(|Thread\.sleep|asyncAfter|Task\.sleep|while \(true\)' -- packages/react-native-filament/src packages/react-native-filament/cpp packages/react-native-filament/ios packages/react-native-filament/android/src apps/shared/src
+          ! git grep -n -E '\b(setTimeout|setInterval|setImmediate|requestAnimationFrame|InteractionManager)\b|sleep_for|usleep\(|Thread\.sleep|asyncAfter|Task\.sleep|while \(true\)' -- packages/react-native-filament/src packages/react-native-filament/cpp packages/react-native-filament/ios packages/react-native-filament/android/src apps/shared/src ':!:apps/shared/src/benchmarks/BenchmarkOverlay.tsx'

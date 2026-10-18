@@ -26,7 +26,7 @@ When the app uses Reanimated 4, keep `react-native-reanimated/plugin` instead; i
 
 ## Rendering is native
 
-v1 ran a JS render callback every frame and called `beginFrame`/`render`/`endFrame` from it. In 2.0 the render loop is native: animations, camera manipulators, SharedValue bindings and physics run on Filament's render thread without JS, and a scene that does not change does not render. A `renderCallback` still exists for per-frame render-thread work.
+v1 ran a JS render callback every frame and called `beginFrame`/`render`/`endFrame` from it. In 2.0 the render loop is native: animations, camera manipulators, SharedValue bindings and physics run on Filament's render thread without JS. Like v1 it renders every frame by default; `renderMode="on-demand"` on `FilamentScene` or the Engine renders only after something changed. A `renderCallback` still exists for per-frame render-thread work.
 
 ## Removed and replaced APIs
 

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { Linking } from 'react-native'
-import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native'
+import { CommonActions, NavigationContainer, useNavigationContainerRef } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { HomeScreen } from './HomeScreen'
@@ -13,8 +13,8 @@ export default function App() {
   const navigation = useNavigationContainerRef()
 
   const open = (url: string | null) => {
-    const route = exampleRouteFromUrl(url, examples)
-    if (route != null) navigation.navigate(route as never)
+    const link = exampleRouteFromUrl(url, examples)
+    if (link != null) navigation.dispatch(CommonActions.navigate({ name: link.route, params: link.params }))
   }
 
   useEffect(() => {

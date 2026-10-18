@@ -2,6 +2,7 @@ import React, { useEffect, useState, type ReactNode } from 'react'
 import { Filament } from '../Filament'
 import type { Engine } from '../specs/engine/Engine.nitro'
 import type { EngineBackend } from '../specs/types/EngineBackend'
+import type { RenderMode } from '../specs/types/RenderMode'
 import { runOnRenderThread } from '../threading/runOnRenderThread'
 import { FilamentSceneContext, type FilamentSceneValue } from './FilamentSceneContext'
 import { RenderCommit } from './RenderCommit'
@@ -10,6 +11,11 @@ import { RenderCommitContext } from './RenderCommitContext'
 interface SceneBaseProps {
   /** Rendered until the Engine and the scene exist. */
   fallback?: ReactNode
+  /**
+   * When the Engine renders: on every display refresh, or only after something changed.
+   * @default the Engine's mode, `'continuous'` for a new Engine
+   */
+  renderMode?: RenderMode
   children?: ReactNode
 }
 
@@ -74,7 +80,7 @@ function release({ value, commit, owned }: Created): void {
  * Provides an Engine, a scene and its camera to the Filament components and hooks below it. Creates
  * and shuts down its own Engine unless `engine` is passed.
  */
-export function FilamentScene({ fallback, children, ...props }: FilamentSceneProps) {
+export function FilamentScene({ fallback, renderMode, children, ...props }: FilamentSceneProps) {
   const borrowed = props.engine
   const backend = props.engine == null ? props.backend : undefined
   const [created, setCreated] = useState<Created>()
@@ -102,6 +108,11 @@ export function FilamentScene({ fallback, children, ...props }: FilamentScenePro
       )
     }
   }, [borrowed, backend])
+
+  const engine = created?.value.engine
+  useEffect(() => {
+    if (engine != null && renderMode != null) engine.renderMode = renderMode
+  }, [engine, renderMode])
 
   if (failure != null) throw failure
   if (created == null) return <>{fallback}</>
