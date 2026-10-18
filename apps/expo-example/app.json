@@ -15,13 +15,16 @@
       "bundleIdentifier": "com.anonymous.ExpoExample"
     },
     "android": {
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.anonymous.ExpoExample",
       "permissions": []
     },
     "plugins": [
-      "react-native-video"
-    ]
+      "react-native-video",
+      "./plugins/withMinimumPodDeploymentTarget",
+      "./plugins/withGradleMemory",
+      "./plugins/withSceneLifecycle"
+    ],
+    "scheme": "rnfexpo"
   }
 }

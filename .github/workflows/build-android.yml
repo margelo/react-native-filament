@@ -12,6 +12,7 @@ on:
       - 'packages/react-native-filament/nitrogen/**'
       - 'packages/react-native-filament/filament.json'
       - 'apps/example/android/**'
+      - 'apps/expo-example/**'
       - 'bun.lock'
 
 jobs:
@@ -52,4 +53,39 @@ jobs:
 
       - name: Assemble
         working-directory: apps/example/android
+        run: ./gradlew assembleDebug -PreactNativeArchitectures=arm64-v8a --console=plain
+
+  build-expo:
+    name: Build Expo app (debug)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 17
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: ${{ runner.os }}-bun-
+
+      - run: bun install --frozen-lockfile
+
+      - name: Restore Filament store
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches/react-native-filament
+          key: filament-android-${{ hashFiles('packages/react-native-filament/filament.json') }}
+
+      - name: Prebuild
+        working-directory: apps/expo-example
+        run: bunx expo prebuild --platform android --no-install
+
+      - name: Assemble
+        working-directory: apps/expo-example/android
         run: ./gradlew assembleDebug -PreactNativeArchitectures=arm64-v8a --console=plain

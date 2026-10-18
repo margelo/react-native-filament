@@ -1,10 +1,11 @@
 import type { Example } from '../examples'
 
-const SCHEME = 'rnfexample://'
+const SCHEMES = ['rnfexample://', 'rnfexpo://']
 
-/** The example a `rnfexample://<route>` link opens, matching the route name case-insensitively. */
+/** The example a `rnfexample://<route>` (CLI app) or `rnfexpo://<route>` (Expo app) link opens, matching the route case-insensitively. */
 export function exampleRouteFromUrl(url: string | null, examples: Example[]): string | undefined {
-  if (url == null || !url.startsWith(SCHEME)) return undefined
-  const path = url.slice(SCHEME.length).replace(/\/+$/, '').toLowerCase()
+  const scheme = SCHEMES.find((prefix) => url?.startsWith(prefix))
+  if (url == null || scheme == null) return undefined
+  const path = url.slice(scheme.length).replace(/\/+$/, '').toLowerCase()
   return examples.find((example) => example.route.toLowerCase() === path)?.route
 }
