@@ -19,4 +19,8 @@ const std::shared_ptr<SkyboxCore>& HybridSkybox::core() const {
   return core_;
 }
 
+size_t HybridSkybox::getExternalMemorySize() noexcept {
+  return core_->isLive() ? core_->byteSize() : 0;
+}
+
 } // namespace margelo::nitro::filament

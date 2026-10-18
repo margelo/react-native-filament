@@ -20,7 +20,7 @@ class SkeletonFollower;
 
 class ModelCore final : public Resource {
 public:
-  ModelCore(std::shared_ptr<EngineCore> engine, ::filament::gltfio::FilamentAsset* asset);
+  ModelCore(std::shared_ptr<EngineCore> engine, ::filament::gltfio::FilamentAsset* asset, size_t sourceBytes);
   ~ModelCore() override;
 
   const std::shared_ptr<EngineCore>& engine() const;
@@ -33,6 +33,7 @@ public:
   size_t createInstance();
   void setSkeletonFollower(size_t instanceIndex, std::shared_ptr<SkeletonFollower> follower);
   Users<SceneCore>& users();
+  size_t byteSize() const;
 
 protected:
   void destroyNative() override;
@@ -41,6 +42,7 @@ private:
   std::shared_ptr<EngineCore> engine_;
   ::filament::gltfio::FilamentAsset* asset_;
   const ModelSnapshot snapshot_;
+  const size_t sourceBytes_;
   mutable std::mutex instancesMutex_;
   std::vector<double> entities_;
   std::vector<std::shared_ptr<const ModelInstanceSnapshot>> instances_;

@@ -19,19 +19,24 @@ void HybridRenderThread::loadHybridMethods() {
   registerHybrids(this, [](Prototype& prototype) {
     prototype.registerRawHybridMethod("createQueue", 0, &HybridRenderThread::createQueue);
     prototype.registerRawHybridMethod("bindRuntime", 1, &HybridRenderThread::bindRuntime);
+    prototype.registerRawHybridMethod("bindPooledRuntime", 0, &HybridRenderThread::bindPooledRuntime);
     prototype.registerRawHybridMethod("runAsync", 2, &HybridRenderThread::runAsync);
   });
 }
 
 jsi::Value HybridRenderThread::createQueue(jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t) {
   jsi::Object queue(runtime);
-  queue.setNativeState(runtime, std::make_shared<RenderThreadQueue>(engine_));
+  queue.setNativeState(runtime, engine_->createRuntimeQueue());
   return queue;
 }
 
 jsi::Value HybridRenderThread::bindRuntime(jsi::Runtime& runtime, const jsi::Value&, const jsi::Value* args, size_t) {
   engine_->bindRuntime(worklets::extractWorkletRuntime(runtime, args[0]));
   return jsi::Value::undefined();
+}
+
+jsi::Value HybridRenderThread::bindPooledRuntime(jsi::Runtime&, const jsi::Value&, const jsi::Value*, size_t) {
+  return jsi::Value(engine_->bindPooledRuntime());
 }
 
 jsi::Value HybridRenderThread::runAsync(jsi::Runtime& runtime, const jsi::Value&, const jsi::Value* args, size_t) {

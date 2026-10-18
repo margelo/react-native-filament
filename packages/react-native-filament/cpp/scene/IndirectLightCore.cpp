@@ -1,5 +1,7 @@
 #include "IndirectLightCore.hpp"
 
+#include "utils/TextureMemory.hpp"
+
 #include "SceneCore.hpp"
 
 #include "Ktx1Cubemap.hpp"
@@ -21,6 +23,7 @@ IndirectLightCore::IndirectLightCore(std::shared_ptr<EngineCore> engine, const u
   }
   ::filament::Engine& filament = engine_->engine();
   reflections_ = ktxreader::Ktx1Reader::createTexture(&filament, bundle.release(), false);
+  byteSize_ = estimateTextureBytes(*reflections_);
   indirectLight_ =
       ::filament::IndirectLight::Builder().reflections(reflections_).irradiance(3, harmonics).intensity(intensity).build(filament);
 }
@@ -46,6 +49,10 @@ void IndirectLightCore::destroyNative() {
   users_.forEach([](const std::shared_ptr<SceneCore>& scene) { scene->setIndirectLight(nullptr); });
   engine_->engine().destroy(indirectLight_);
   engine_->engine().destroy(reflections_);
+}
+
+size_t IndirectLightCore::byteSize() const {
+  return byteSize_;
 }
 
 } // namespace margelo::nitro::filament

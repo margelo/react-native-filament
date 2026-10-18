@@ -20,6 +20,7 @@ protected:
 private:
   jsi::Value createQueue(jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* args, size_t count);
   jsi::Value bindRuntime(jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* args, size_t count);
+  jsi::Value bindPooledRuntime(jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* args, size_t count);
   jsi::Value runAsync(jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* args, size_t count);
 
   std::shared_ptr<EngineCore> engine_;

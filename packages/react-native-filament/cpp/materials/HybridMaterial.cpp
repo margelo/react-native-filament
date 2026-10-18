@@ -38,4 +38,8 @@ void HybridMaterial::requireUsable(const char* method) const {
   core_->requireLive(method);
 }
 
+size_t HybridMaterial::getExternalMemorySize() noexcept {
+  return core_->isLive() ? core_->byteSize() : 0;
+}
+
 } // namespace margelo::nitro::filament

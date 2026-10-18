@@ -26,6 +26,7 @@ public:
   void step(double deltaSeconds) override;
   ListenerSubscription addOnCollisionListener(const std::function<bool(const std::vector<CollisionEvent>&)>& listener) override;
   void dispose() override;
+  size_t getExternalMemorySize() noexcept override;
 
 private:
   PhysicsWorldCore& usable(const char* method);

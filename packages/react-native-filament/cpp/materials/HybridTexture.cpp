@@ -25,4 +25,8 @@ const std::shared_ptr<TextureCore>& HybridTexture::core() const {
   return core_;
 }
 
+size_t HybridTexture::getExternalMemorySize() noexcept {
+  return core_->isLive() ? core_->byteSize() : 0;
+}
+
 } // namespace margelo::nitro::filament

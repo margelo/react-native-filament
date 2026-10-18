@@ -52,8 +52,10 @@ public:
   std::shared_ptr<HybridCameraManipulatorSpec> createOrbitManipulator(const OrbitManipulatorOptions& options) override;
   std::shared_ptr<HybridFrameListenerSubscriptionSpec> addOnFrameListener(const std::function<bool(const FrameInfo&)>& listener) override;
   void requestFrame() override;
+  EngineDebugStats getDebugStats() override;
   std::shared_ptr<Promise<void>> shutdown() override;
   void dispose() override;
+  size_t getExternalMemorySize() noexcept override;
 
   const std::shared_ptr<EngineCore>& core() const;
 

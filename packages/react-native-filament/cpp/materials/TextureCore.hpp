@@ -17,6 +17,7 @@ public:
   ::filament::Texture& texture();
   double width() const;
   double height() const;
+  size_t byteSize() const;
 
 protected:
   void destroyNative() override;
@@ -26,6 +27,7 @@ private:
   ::filament::Texture* texture_;
   const double width_;
   const double height_;
+  const size_t byteSize_;
 };
 
 } // namespace margelo::nitro::filament

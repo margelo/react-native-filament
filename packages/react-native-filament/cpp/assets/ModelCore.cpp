@@ -8,8 +8,8 @@
 
 namespace margelo::nitro::filament {
 
-ModelCore::ModelCore(std::shared_ptr<EngineCore> engine, ::filament::gltfio::FilamentAsset* asset)
-    : Resource("Model"), engine_(std::move(engine)), asset_(asset), snapshot_(ModelSnapshot::capture(*asset)) {
+ModelCore::ModelCore(std::shared_ptr<EngineCore> engine, ::filament::gltfio::FilamentAsset* asset, size_t sourceBytes)
+    : Resource("Model"), engine_(std::move(engine)), asset_(asset), snapshot_(ModelSnapshot::capture(*asset)), sourceBytes_(sourceBytes) {
   for (size_t i = 0; i < asset->getEntityCount(); i++) {
     entities_.push_back(fromEntity(asset->getEntities()[i]));
   }
@@ -98,6 +98,10 @@ void ModelCore::setSkeletonFollower(size_t instanceIndex, std::shared_ptr<Skelet
 
 Users<SceneCore>& ModelCore::users() {
   return users_;
+}
+
+size_t ModelCore::byteSize() const {
+  return sourceBytes_;
 }
 
 void ModelCore::destroyNative() {

@@ -1,6 +1,7 @@
 #include "SkyboxCore.hpp"
 
 #include "SceneCore.hpp"
+#include "utils/TextureMemory.hpp"
 
 namespace margelo::nitro::filament {
 
@@ -10,7 +11,8 @@ SkyboxCore::SkyboxCore(std::shared_ptr<EngineCore> engine, std::array<float, 4> 
 
 SkyboxCore::SkyboxCore(std::shared_ptr<EngineCore> engine, ::filament::Texture* environment)
     : Resource("Skybox"), engine_(std::move(engine)),
-      skybox_(::filament::Skybox::Builder().environment(environment).build(engine_->engine())), environment_(environment) {}
+      skybox_(::filament::Skybox::Builder().environment(environment).build(engine_->engine())), environment_(environment),
+      byteSize_(estimateTextureBytes(*environment)) {}
 
 SkyboxCore::~SkyboxCore() {
   if (!isDestroyed()) {
@@ -29,6 +31,10 @@ SkyboxCore::~SkyboxCore() {
 
 Users<SceneCore>& SkyboxCore::users() {
   return users_;
+}
+
+size_t SkyboxCore::byteSize() const {
+  return byteSize_;
 }
 
 void SkyboxCore::destroyNative() {

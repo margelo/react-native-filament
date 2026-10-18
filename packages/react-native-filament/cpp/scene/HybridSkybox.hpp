@@ -14,6 +14,7 @@ public:
   HybridSkybox(std::shared_ptr<HybridEngine> engine, std::shared_ptr<SkyboxCore> core);
 
   void dispose() override;
+  size_t getExternalMemorySize() noexcept override;
 
   const std::shared_ptr<EngineCore>& engineCore() const;
   const std::shared_ptr<SkyboxCore>& core() const;

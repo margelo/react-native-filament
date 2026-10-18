@@ -182,4 +182,9 @@ SurfaceObserver HybridViewTarget::makeSurfaceObserver(std::weak_ptr<EngineCore> 
   return SurfaceObserver(onCreated, onResized, onDestroyed);
 }
 
+size_t HybridViewTarget::getExternalMemorySize() noexcept {
+  constexpr double kBytesPerPixel = 3 * 4 + 4;
+  return core_->isLive() ? static_cast<size_t>(core_->width() * core_->height() * kBytesPerPixel) : 0;
+}
+
 } // namespace margelo::nitro::filament

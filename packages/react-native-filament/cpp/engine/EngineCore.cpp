@@ -2,6 +2,7 @@
 
 #include "BackendConversion.hpp"
 #include "RenderRuntimeDispatcher.hpp"
+#include "RenderThreadQueue.hpp"
 #include "assets/AnimationPlayerCore.hpp"
 #include "assets/SkeletonFollower.hpp"
 #include "control/ManipulatorCore.hpp"
@@ -16,8 +17,9 @@
 
 namespace margelo::nitro::filament {
 
-std::shared_ptr<EngineCore> EngineCore::create(EngineBackend backend, StartedHandler onStarted) {
-  std::shared_ptr<EngineCore> core(new EngineCore(backend));
+std::shared_ptr<EngineCore> EngineCore::create(EngineBackend backend, std::shared_ptr<RenderRuntimePool> runtimes,
+                                               StartedHandler onStarted) {
+  std::shared_ptr<EngineCore> core(new EngineCore(backend, std::move(runtimes)));
   core->thread_ = std::make_unique<RenderThread>([raw = core.get()](int64_t frameTimeNanos) { raw->renderFrame(frameTimeNanos); });
   core->callbacks_ = std::make_unique<RenderThreadCallbackHandler>(*core->thread_);
   core->thread_->post({
@@ -30,6 +32,10 @@ std::shared_ptr<EngineCore> EngineCore::create(EngineBackend backend, StartedHan
               core->shutdown();
               return;
             }
+            const ::filament::Engine::Config& config = core->engine_->getConfig();
+            core->configuredBytes_ = static_cast<size_t>(config.commandBufferSizeMB + config.perRenderPassArenaSizeMB +
+                                                         config.driverHandleArenaSizeMB + config.perFrameCommandsSizeMB)
+                                     << 20;
             onStarted(core, nullptr);
           },
       .cancel =
@@ -40,7 +46,8 @@ std::shared_ptr<EngineCore> EngineCore::create(EngineBackend backend, StartedHan
   return core;
 }
 
-EngineCore::EngineCore(EngineBackend backend) : backend_(backend) {}
+EngineCore::EngineCore(EngineBackend backend, std::shared_ptr<RenderRuntimePool> runtimes)
+    : backend_(backend), runtimes_(std::move(runtimes)) {}
 
 EngineBackend EngineCore::backend() const {
   return backend_;
@@ -60,6 +67,10 @@ RenderThreadCallbackHandler& EngineCore::callbacks() {
 
 bool EngineCore::isLive() const {
   return live_;
+}
+
+size_t EngineCore::configuredBytes() const {
+  return configuredBytes_;
 }
 
 RenderMode EngineCore::renderMode() const {
@@ -109,6 +120,12 @@ void EngineCore::dispose(const std::shared_ptr<Resource>& resource) {
     return;
   }
   thread_->post({.run = [resource] { resource->destroyTree(); }});
+}
+
+std::unordered_map<std::string, double> EngineCore::liveResourceCounts() {
+  std::unordered_map<std::string, double> counts;
+  resources_->countLiveDescendants(counts);
+  return counts;
 }
 
 GltfLoader& EngineCore::gltf() {
@@ -175,16 +192,43 @@ void EngineCore::removeTarget(const std::shared_ptr<ViewTargetCore>& target) {
   updateDemand();
 }
 
+std::shared_ptr<RenderThreadQueue> EngineCore::createRuntimeQueue() {
+  auto queue = std::make_shared<RenderThreadQueue>();
+  queue->target(weak_from_this());
+  std::unique_lock lock(runtimeMutex_);
+  runtimeQueue_ = queue;
+  return queue;
+}
+
 void EngineCore::bindRuntime(std::shared_ptr<worklets::WorkletRuntime> runtime) {
+  std::shared_ptr<RenderThreadQueue> queue;
   {
     std::unique_lock lock(runtimeMutex_);
     if (runtime_ != nullptr) {
       throw std::runtime_error("This Engine's render thread already has a worklet runtime.");
     }
+    if (runtimeQueue_ == nullptr) {
+      throw std::runtime_error("The render worklet runtime must use the queue from createQueue().");
+    }
     runtime_ = runtime;
+    queue = runtimeQueue_;
   }
-  auto dispatcher = std::make_shared<RenderRuntimeDispatcher>(weak_from_this(), runtime);
+  auto dispatcher = std::make_shared<RenderRuntimeDispatcher>(queue, runtime);
   runtime->runSync([&](jsi::Runtime& rt) { Dispatcher::installRuntimeGlobalDispatcher(rt, dispatcher); });
+}
+
+bool EngineCore::bindPooledRuntime() {
+  std::optional<RenderRuntimePool::Entry> pooled = runtimes_->acquire();
+  if (!pooled.has_value()) {
+    return false;
+  }
+  pooled->queue->target(weak_from_this());
+  {
+    std::unique_lock lock(runtimeMutex_);
+    runtime_ = pooled->runtime;
+    runtimeQueue_ = pooled->queue;
+  }
+  return true;
 }
 
 bool EngineCore::hasRuntime() const {
@@ -279,6 +323,20 @@ void EngineCore::setRecording(bool recording) {
   updateDemand();
 }
 
+void EngineCore::returnRuntimeToPool() {
+  RenderRuntimePool::Entry entry;
+  {
+    std::unique_lock lock(runtimeMutex_);
+    entry = {.queue = std::move(runtimeQueue_), .runtime = std::move(runtime_)};
+    runtimeQueue_ = nullptr;
+    runtime_ = nullptr;
+  }
+  if (entry.queue != nullptr && entry.runtime != nullptr) {
+    entry.queue->target({});
+    runtimes_->release(std::move(entry));
+  }
+}
+
 std::shared_ptr<Promise<void>> EngineCore::shutdown() {
   std::unique_lock lock(shutdownMutex_);
   if (shutdownPromise_ != nullptr) {
@@ -307,10 +365,7 @@ void EngineCore::shutdownOnRenderThread() {
   targets_.clear();
   materialAssignments_.clear();
   gltf_.reset();
-  {
-    std::unique_lock lock(runtimeMutex_);
-    runtime_ = nullptr;
-  }
+  returnRuntimeToPool();
   if (engine_ != nullptr) {
     ::filament::Engine::destroy(&engine_);
   }

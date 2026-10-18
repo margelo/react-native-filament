@@ -399,8 +399,8 @@ Plan §10 Phase 3, §5, §8.2.
 - [x] **P3.15** `Model` and `Camera`:
   - `Model`: `getInstance(i)`, `boundingBox` and `getEntities()` as immutable reads; `createInstance` on the render thread; `getEntityByName` and `getEntityName` (§5.4);
   - `Camera`: `followManipulator`.
-- [ ] **P3.16** Memory reporting and resource-graph registration for every object in the §4.7 table, not only the slice's.
-- [ ] **P3.17** Values and types:
+- [x] **P3.16** Memory reporting and resource-graph registration for every object in the §4.7 table, not only the slice's.
+- [x] **P3.17** Values and types:
   - `Mat4` representation as spike F decided;
   - `Float3`, `Float4` and `Quaternion` as tuples; `Aabb` and `Box` as structs; `Entity` as a number;
   - kebab-case string unions;

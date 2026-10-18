@@ -244,15 +244,17 @@ std::shared_ptr<Promise<std::shared_ptr<HybridModelSpec>>> HybridEngine::loadMod
           std::make_exception_ptr(std::invalid_argument("FilamentAssetError: The source is not a valid glTF 2.0 binary (.glb).")));
       return;
     }
-    engine->core()->startModelLoad(asset, [engine, promise](::filament::gltfio::FilamentAsset* loaded, std::exception_ptr error) {
-      if (error != nullptr) {
-        promise->reject(error);
-        return;
-      }
-      auto model = std::make_shared<ModelCore>(engine->core(), loaded);
-      engine->core()->adopt(model);
-      promise->resolve(std::make_shared<HybridModel>(engine, model));
-    });
+    size_t sourceBytes = bytes->size();
+    engine->core()->startModelLoad(asset,
+                                   [engine, promise, sourceBytes](::filament::gltfio::FilamentAsset* loaded, std::exception_ptr error) {
+                                     if (error != nullptr) {
+                                       promise->reject(error);
+                                       return;
+                                     }
+                                     auto model = std::make_shared<ModelCore>(engine->core(), loaded, sourceBytes);
+                                     engine->core()->adopt(model);
+                                     promise->resolve(std::make_shared<HybridModel>(engine, model));
+                                   });
   });
   return promise;
 }
@@ -285,7 +287,7 @@ std::shared_ptr<Promise<std::shared_ptr<HybridMaterialSpec>>> HybridEngine::load
       if (material == nullptr) {
         throw std::invalid_argument("FilamentAssetError: Filament could not build the material.");
       }
-      auto core = std::make_shared<MaterialCore>(engine->core(), material);
+      auto core = std::make_shared<MaterialCore>(engine->core(), material, bytes->size());
       engine->core()->adopt(core);
       promise->resolve(std::make_shared<HybridMaterial>(engine->core(), core));
     } catch (...) {
@@ -371,6 +373,10 @@ HybridEngine::addOnFrameListener(const std::function<bool(const FrameInfo&)>& li
   return std::make_shared<HybridFrameListenerSubscription>(core_, registered);
 }
 
+EngineDebugStats HybridEngine::getDebugStats() {
+  return EngineDebugStats(core_->liveResourceCounts());
+}
+
 void HybridEngine::requestFrame() {
   core_->requestFrame();
 }
@@ -385,6 +391,10 @@ void HybridEngine::dispose() {
 
 const std::shared_ptr<EngineCore>& HybridEngine::core() const {
   return core_;
+}
+
+size_t HybridEngine::getExternalMemorySize() noexcept {
+  return core_->isLive() ? core_->configuredBytes() : 0;
 }
 
 } // namespace margelo::nitro::filament

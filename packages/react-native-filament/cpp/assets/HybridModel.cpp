@@ -88,4 +88,8 @@ std::shared_ptr<HybridModelInstanceSpec> HybridModel::instanceAt(size_t index) {
   return instances_[index];
 }
 
+size_t HybridModel::getExternalMemorySize() noexcept {
+  return core_->isLive() ? core_->byteSize() : 0;
+}
+
 } // namespace margelo::nitro::filament

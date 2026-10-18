@@ -16,6 +16,7 @@ public:
   std::shared_ptr<HybridMaterialInstanceSpec> getDefaultInstance() override;
   std::shared_ptr<HybridMaterialInstanceSpec> createInstance() override;
   void dispose() override;
+  size_t getExternalMemorySize() noexcept override;
 
 private:
   void requireUsable(const char* method) const;

@@ -45,6 +45,29 @@ describe('Render thread', () => {
     expect(value).toBe(42)
   })
 
+  it('reuses the render runtime of a shut-down engine and keeps concurrent engines apart', async () => {
+    const marker = `runtime-${Date.now()}`
+    await runOnRenderThread(engine, () => {
+      'worklet'
+      ;(globalThis as Record<string, unknown>).__rnfRuntimeMarker = marker
+    })
+    const concurrent = await Filament.createEngine({})
+    const seenWhileFirstRuns = await runOnRenderThread(concurrent, () => {
+      'worklet'
+      return (globalThis as Record<string, unknown>).__rnfRuntimeMarker
+    })
+    await concurrent.shutdown()
+    await engine.shutdown()
+    const next = await Filament.createEngine({})
+    const seenAfterShutdown = await runOnRenderThread(next, () => {
+      'worklet'
+      return (globalThis as Record<string, unknown>).__rnfRuntimeMarker
+    })
+    await next.shutdown()
+    expect(seenWhileFirstRuns).not.toBe(marker)
+    expect(seenAfterShutdown).toBe(marker)
+  })
+
   it('rejects render-thread methods called from another thread', () => {
     expect(() => engine.addOnFrameListener(() => true)).toThrow('FilamentThreadError')
   })

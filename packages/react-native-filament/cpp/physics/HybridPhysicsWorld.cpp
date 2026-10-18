@@ -124,4 +124,9 @@ std::shared_ptr<HybridCollisionShapeSpec> HybridPhysicsWorld::adoptShape(std::sh
   return HybridCollisionShape::of(engine_->core(), core_->adoptShape(std::move(shape)));
 }
 
+size_t HybridPhysicsWorld::getExternalMemorySize() noexcept {
+  constexpr size_t kBytesPerBody = 1024;
+  return core_->isLive() ? core_->bodyCount() * kBytesPerBody : 0;
+}
+
 } // namespace margelo::nitro::filament

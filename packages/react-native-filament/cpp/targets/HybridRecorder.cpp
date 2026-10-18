@@ -113,4 +113,9 @@ void HybridRecorder::dispose() {
   engine_->core()->dispose(core_);
 }
 
+size_t HybridRecorder::getExternalMemorySize() noexcept {
+  const RecorderCore::Format& format = core_->format();
+  return core_->isLive() ? static_cast<size_t>(format.width) * format.height * 4 * 2 : 0;
+}
+
 } // namespace margelo::nitro::filament

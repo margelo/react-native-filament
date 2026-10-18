@@ -25,6 +25,7 @@ public:
   std::optional<double> getEntityByName(const std::string& name) override;
   std::optional<std::string> getEntityName(double entity) override;
   void dispose() override;
+  size_t getExternalMemorySize() noexcept override;
 
   const std::shared_ptr<EngineCore>& engineCore() const;
   const std::shared_ptr<ModelCore>& core() const;

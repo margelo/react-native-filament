@@ -3,6 +3,7 @@
 #include "EngineBackend.hpp"
 #include "FrameListeners.hpp"
 #include "RenderMode.hpp"
+#include "RenderRuntimePool.hpp"
 #include "RenderThreadCallbackHandler.hpp"
 #include "assets/GltfLoader.hpp"
 #include "assets/ModelLoads.hpp"
@@ -23,6 +24,8 @@
 #include <functional>
 #include <memory>
 #include <mutex>
+#include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace margelo::nitro::filament {
@@ -30,6 +33,7 @@ namespace margelo::nitro::filament {
 class AnimationPlayerCore;
 class ManipulatorCore;
 class PhysicsWorldCore;
+class RenderThreadQueue;
 class SceneCore;
 class SkeletonFollower;
 class TransformBindingCore;
@@ -39,13 +43,14 @@ class EngineCore final : public std::enable_shared_from_this<EngineCore> {
 public:
   using StartedHandler = std::function<void(const std::shared_ptr<EngineCore>& core, std::exception_ptr error)>;
 
-  static std::shared_ptr<EngineCore> create(EngineBackend backend, StartedHandler onStarted);
+  static std::shared_ptr<EngineCore> create(EngineBackend backend, std::shared_ptr<RenderRuntimePool> runtimes, StartedHandler onStarted);
 
   EngineBackend backend() const;
   RenderThread& thread();
   RenderThreadCallbackHandler& callbacks();
   ::filament::Engine& engine();
   bool isLive() const;
+  size_t configuredBytes() const;
 
   RenderMode renderMode() const;
   void setRenderMode(RenderMode mode);
@@ -55,6 +60,7 @@ public:
 
   void adopt(const std::shared_ptr<Resource>& resource);
   void dispose(const std::shared_ptr<Resource>& resource);
+  std::unordered_map<std::string, double> liveResourceCounts();
 
   GltfLoader& gltf();
   void startModelLoad(::filament::gltfio::FilamentAsset* asset, ModelLoad::Completion completion);
@@ -73,7 +79,9 @@ public:
   void addTarget(std::shared_ptr<ViewTargetCore> target);
   void removeTarget(const std::shared_ptr<ViewTargetCore>& target);
 
+  std::shared_ptr<RenderThreadQueue> createRuntimeQueue();
   void bindRuntime(std::shared_ptr<worklets::WorkletRuntime> runtime);
+  bool bindPooledRuntime();
   bool hasRuntime() const;
   std::shared_ptr<worklets::WorkletRuntime> runtime() const;
   void runWorklet(const std::shared_ptr<worklets::SerializableWorklet>& worklet);
@@ -84,7 +92,8 @@ public:
   std::shared_ptr<Promise<void>> shutdown();
 
 private:
-  explicit EngineCore(EngineBackend backend);
+  EngineCore(EngineBackend backend, std::shared_ptr<RenderRuntimePool> runtimes);
+  void returnRuntimeToPool();
   bool canRenderAnyTarget() const;
   FrameInfo nextFrameInfo(int64_t frameTimeNanos);
   void renderFrame(int64_t frameTimeNanos);
@@ -119,8 +128,11 @@ private:
   std::atomic<bool> frameRequested_{false};
   std::atomic<bool> demandUpdatePending_{false};
   std::atomic<bool> live_{true};
+  std::atomic<size_t> configuredBytes_{0};
   mutable std::mutex runtimeMutex_;
   std::shared_ptr<worklets::WorkletRuntime> runtime_;
+  std::shared_ptr<RenderThreadQueue> runtimeQueue_;
+  const std::shared_ptr<RenderRuntimePool> runtimes_;
   std::mutex shutdownMutex_;
   std::shared_ptr<Promise<void>> shutdownPromise_;
 };

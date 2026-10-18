@@ -24,6 +24,7 @@ public:
   void setClearOptions(const ClearOptions& options) override;
   std::shared_ptr<Promise<std::string>> record(double frameCount) override;
   void dispose() override;
+  size_t getExternalMemorySize() noexcept override;
 
 private:
   void startEncoder(uint32_t frameCount, const std::shared_ptr<Promise<std::string>>& promise);

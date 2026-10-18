@@ -21,6 +21,7 @@ public:
 
   ::filament::IndirectLight* indirectLight() const;
   Users<SceneCore>& users();
+  size_t byteSize() const;
 
 protected:
   void destroyNative() override;
@@ -29,6 +30,7 @@ private:
   std::shared_ptr<EngineCore> engine_;
   ::filament::Texture* reflections_ = nullptr;
   ::filament::IndirectLight* indirectLight_ = nullptr;
+  size_t byteSize_ = 0;
   Users<SceneCore> users_;
 };
 

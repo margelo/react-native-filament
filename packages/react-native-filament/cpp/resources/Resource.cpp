@@ -45,6 +45,15 @@ void Resource::adopt(const std::shared_ptr<Resource>& child) {
   children_.push_back(child);
 }
 
+void Resource::countLiveDescendants(std::unordered_map<std::string, double>& counts) {
+  for (const std::shared_ptr<Resource>& child : liveChildren()) {
+    if (!child->isDestroyed()) {
+      counts[child->kind_]++;
+      child->countLiveDescendants(counts);
+    }
+  }
+}
+
 std::vector<std::shared_ptr<Resource>> Resource::liveChildren() {
   std::unique_lock lock(childrenMutex_);
   std::vector<std::shared_ptr<Resource>> result;

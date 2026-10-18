@@ -12,6 +12,7 @@
 #include <BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h>
 #include <BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h>
 
+#include <atomic>
 #include <memory>
 #include <vector>
 
@@ -51,6 +52,7 @@ private:
   std::unique_ptr<btSequentialImpulseConstraintSolver> solver_;
   std::unique_ptr<btDiscreteDynamicsWorld> world_;
   std::vector<std::shared_ptr<RigidBodyCore>> bodies_;
+  std::atomic<size_t> bodyCount_{0};
   ContactPairs contacts_;
   CollisionListeners collisionListeners_;
 };

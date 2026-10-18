@@ -29,6 +29,7 @@ public:
   void setCamera(const std::shared_ptr<HybridCameraSpec>& camera) override;
   void setClearOptions(const ClearOptions& options) override;
   void dispose() override;
+  size_t getExternalMemorySize() noexcept override;
 
 private:
   static SurfaceObserver makeSurfaceObserver(std::weak_ptr<EngineCore> engine, std::weak_ptr<ViewTargetCore> target);

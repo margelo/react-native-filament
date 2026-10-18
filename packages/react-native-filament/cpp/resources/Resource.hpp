@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <memory>
 #include <mutex>
+#include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace margelo::nitro::filament {
@@ -18,6 +20,7 @@ public:
   bool markDisposing();
   void destroyTree();
   void adopt(const std::shared_ptr<Resource>& child);
+  void countLiveDescendants(std::unordered_map<std::string, double>& counts);
 
 protected:
   explicit Resource(const char* kind) : kind_(kind) {}

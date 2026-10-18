@@ -22,6 +22,7 @@ public:
 
   ::filament::Skybox* skybox() const;
   Users<SceneCore>& users();
+  size_t byteSize() const;
 
 protected:
   void destroyNative() override;
@@ -30,6 +31,7 @@ private:
   std::shared_ptr<EngineCore> engine_;
   ::filament::Skybox* skybox_;
   ::filament::Texture* environment_ = nullptr;
+  size_t byteSize_ = 0;
   Users<SceneCore> users_;
 };
 

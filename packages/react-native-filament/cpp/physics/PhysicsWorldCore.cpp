@@ -31,7 +31,7 @@ btDiscreteDynamicsWorld& PhysicsWorldCore::world() {
 }
 
 size_t PhysicsWorldCore::bodyCount() const {
-  return bodies_.size();
+  return bodyCount_;
 }
 
 std::shared_ptr<CollisionShapeCore> PhysicsWorldCore::adoptShape(std::shared_ptr<CollisionShapeCore> shape) {
@@ -45,6 +45,7 @@ std::shared_ptr<RigidBodyCore> PhysicsWorldCore::createBody(const std::shared_pt
   auto body = std::make_shared<RigidBodyCore>(self, shape, setup);
   world_->addRigidBody(&body->body());
   bodies_.push_back(body);
+  bodyCount_ = bodies_.size();
   adopt(body);
   return body;
 }
@@ -53,6 +54,7 @@ void PhysicsWorldCore::detach(RigidBodyCore& body) {
   contacts_.forget(&body);
   world_->removeRigidBody(&body.body());
   std::erase_if(bodies_, [&](const std::shared_ptr<RigidBodyCore>& existing) { return existing.get() == &body; });
+  bodyCount_ = bodies_.size();
 }
 
 std::shared_ptr<CollisionListeners::Entry> PhysicsWorldCore::addCollisionListener(CollisionListeners::Callback callback) {

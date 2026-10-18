@@ -20,6 +20,7 @@ import type { ViewTarget } from '../targets/ViewTarget.nitro'
 import type { Recorder } from '../targets/Recorder.nitro'
 import type { PhysicsWorld } from '../physics/PhysicsWorld.nitro'
 import type { PhysicsWorldOptions } from '../types/PhysicsWorldOptions'
+import type { EngineDebugStats } from '../types/EngineDebugStats'
 import type { RecorderOptions } from '../types/RecorderOptions'
 import type { Model } from '../assets/Model.nitro'
 import type { Material } from '../materials/Material.nitro'
@@ -156,6 +157,11 @@ export interface Engine extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
    * @thread any
    */
   createOrbitManipulator(options: OrbitManipulatorOptions): CameraManipulator
+  /**
+   * Counts of the native resources this Engine still holds, for finding leaks.
+   * @thread any
+   */
+  getDebugStats(): EngineDebugStats
   /**
    * A Bullet physics world simulated on this Engine's render thread.
    * @thread render

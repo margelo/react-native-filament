@@ -26,7 +26,7 @@ std::shared_ptr<Promise<std::shared_ptr<HybridEngineSpec>>> HybridFilamentFactor
         std::make_exception_ptr(std::invalid_argument("The backend \"" + backendName(backend) + "\" is not supported on this device.")));
   }
   auto promise = Promise<std::shared_ptr<HybridEngineSpec>>::create();
-  EngineCore::create(backend, [promise](const std::shared_ptr<EngineCore>& core, std::exception_ptr error) {
+  EngineCore::create(backend, runtimes_, [promise](const std::shared_ptr<EngineCore>& core, std::exception_ptr error) {
     if (error != nullptr) {
       promise->reject(error);
       return;

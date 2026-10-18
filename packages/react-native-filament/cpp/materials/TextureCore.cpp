@@ -1,9 +1,12 @@
 #include "TextureCore.hpp"
 
+#include "utils/TextureMemory.hpp"
+
 namespace margelo::nitro::filament {
 
 TextureCore::TextureCore(std::shared_ptr<EngineCore> engine, ::filament::Texture* texture)
-    : Resource("Texture"), engine_(std::move(engine)), texture_(texture), width_(texture->getWidth()), height_(texture->getHeight()) {}
+    : Resource("Texture"), engine_(std::move(engine)), texture_(texture), width_(texture->getWidth()), height_(texture->getHeight()),
+      byteSize_(estimateTextureBytes(*texture)) {}
 
 TextureCore::~TextureCore() {
   if (!isDestroyed()) {
@@ -24,6 +27,10 @@ double TextureCore::width() const {
 
 double TextureCore::height() const {
   return height_;
+}
+
+size_t TextureCore::byteSize() const {
+  return byteSize_;
 }
 
 void TextureCore::destroyNative() {

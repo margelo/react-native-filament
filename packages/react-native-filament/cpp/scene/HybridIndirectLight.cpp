@@ -19,4 +19,8 @@ const std::shared_ptr<IndirectLightCore>& HybridIndirectLight::core() const {
   return core_;
 }
 
+size_t HybridIndirectLight::getExternalMemorySize() noexcept {
+  return core_->isLive() ? core_->byteSize() : 0;
+}
+
 } // namespace margelo::nitro::filament

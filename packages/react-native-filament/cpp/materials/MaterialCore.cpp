@@ -17,9 +17,9 @@ namespace {
 
 } // namespace
 
-MaterialCore::MaterialCore(std::shared_ptr<EngineCore> engine, ::filament::Material* material)
+MaterialCore::MaterialCore(std::shared_ptr<EngineCore> engine, ::filament::Material* material, size_t packageBytes)
     : Resource("Material"), engine_(std::move(engine)), material_(material), name_(material->getName()),
-      parameterNames_(parameterNamesOf(*material)) {}
+      parameterNames_(parameterNamesOf(*material)), byteSize_(packageBytes) {}
 
 MaterialCore::~MaterialCore() {
   if (!isDestroyed()) {
@@ -44,6 +44,10 @@ const std::string& MaterialCore::name() const {
 
 const std::vector<std::string>& MaterialCore::parameterNames() const {
   return parameterNames_;
+}
+
+size_t MaterialCore::byteSize() const {
+  return byteSize_;
 }
 
 void MaterialCore::destroyNative() {
